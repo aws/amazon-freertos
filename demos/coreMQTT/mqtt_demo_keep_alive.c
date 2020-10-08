@@ -38,6 +38,9 @@
  * Hence, this demo should not be used as production ready code.
  */
 
+/* demo specific configurations. */
+#include "mqtt_demo_keep_alive_config.h"
+
 /* Standard includes. */
 #include <string.h>
 #include <stdio.h>
@@ -46,9 +49,7 @@
 /* Kernel includes. */
 #include "FreeRTOS.h"
 #include "task.h"
-
-/* Demo Specific configs. */
-#include "mqtt_demo_plaintext_config.h"
+#include "timers.h"
 
 /* MQTT library includes. */
 #include "core_mqtt.h"
@@ -56,19 +57,16 @@
 /* Retry utilities include. */
 #include "retry_utils.h"
 
-/* Transport interface implementation include header for TLS. */
+/* Transport interface include. */
 #include "transport_secure_sockets.h"
 
-/* Client credential include for the default broker endpoint and port. */
+/* Client credential include for the default MQTT broker endpoint. */
 #include "aws_clientcredential.h"
 
 /*-----------------------------------------------------------*/
 
-/* Default values for configs. */
+/* Compile time error for undefined configs. */
 
-/**
- * @brief The MQTT broker endpoint used for this demo.
- */
 #ifndef democonfigMQTT_BROKER_ENDPOINT
     #define democonfigMQTT_BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
 #endif
@@ -83,7 +81,7 @@
 #endif
 
 /**
- * @brief The port to use for this demo.
+ * @brief The port to use for the demo.
  */
 #ifndef democonfigMQTT_BROKER_PORT
     #define democonfigMQTT_BROKER_PORT    clientcredentialMQTT_BROKER_PORT
@@ -129,14 +127,15 @@
 #define mqttexampleSHARED_BUFFER_SIZE                ( 500U )
 
 /**
- * @brief Time to wait between each cycle of the demo implemented by RunCoreMqttPlaintextDemo().
+ * @brief Time to wait between each cycle of the demo implemented by
+ * RunCoreMqttPlaintextDemo().
  */
 #define mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS     ( pdMS_TO_TICKS( 5000U ) )
 
 /**
- * @brief Timeout for MQTT_ProcessLoop in milliseconds.
+ * @brief Timeout for MQTT_ReceiveLoop in milliseconds.
  */
-#define mqttexamplePROCESS_LOOP_TIMEOUT_MS           ( 500U )
+#define mqttexampleRECEIVE_LOOP_TIMEOUT_MS           ( 500U )
 
 /**
  * @brief Keep alive time reported to the broker while establishing an MQTT connection.
@@ -149,18 +148,37 @@
 #define mqttexampleKEEP_ALIVE_TIMEOUT_SECONDS        ( 60U )
 
 /**
- * @brief Delay between MQTT publishes. Note that the process loop also has a
- * timeout, so the total time between publishes is the sum of the two delays.
+ * @brief Time to wait before sending ping request to keep MQTT connection alive.
+ *
+ * A PINGREQ is attempted to be sent at every ( #mqttexampleKEEP_ALIVE_TIMEOUT_SECONDS / 4 )
+ * seconds. This is to make sure that a PINGREQ is always sent before the timeout
+ * expires in broker.
  */
-#define mqttexampleDELAY_BETWEEN_PUBLISHES           ( pdMS_TO_TICKS( 500U ) )
+#define mqttexampleKEEP_ALIVE_DELAY                  ( pdMS_TO_TICKS( ( ( mqttexampleKEEP_ALIVE_TIMEOUT_SECONDS / 4 ) * 1000 ) ) )
+
+/**
+ * @brief Delay between MQTT publishes. Note that the receive loop also has a
+ * timeout, so the total time between publishes is the sum of the two delays. The
+ * keep-alive delay is added here so the keep-alive timer callback executes.
+ */
+#define mqttexampleDELAY_BETWEEN_PUBLISHES           ( mqttexampleKEEP_ALIVE_DELAY + pdMS_TO_TICKS( 500U ) )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
 #define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 200U )
 
-#define _MILLISECONDS_PER_SECOND                     ( 1000U )                                         /**< @brief Milliseconds per second. */
-#define _MILLISECONDS_PER_TICK                       ( _MILLISECONDS_PER_SECOND / configTICK_RATE_HZ ) /**< Milliseconds per FreeRTOS tick. */
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief A PINGREQ packet is always 2 bytes in size, defined by MQTT 3.1.1 spec.
+ */
+#define MQTT_PACKET_PINGREQ_SIZE    ( 2U )
+
+/*-----------------------------------------------------------*/
+
+#define MILLISECONDS_PER_SECOND    ( 1000U )                                                        /**< @brief Milliseconds per second. */
+#define MILLISECONDS_PER_TICK      ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )                 /**< Milliseconds per FreeRTOS tick. */
 
 /*-----------------------------------------------------------*/
 
@@ -189,7 +207,7 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
                                                      NetworkContext_t * pxNetworkContext );
 
 /**
- * @brief Function to update variable #xTopicFilterContext with status
+ * @brief Function to update variable #xGlobalSubAckStatus with status
  * information from Subscribe ACK. Called by the event callback after processing
  * an incoming SUBACK packet.
  *
@@ -209,7 +227,7 @@ static void prvUpdateSubAckStatus( MQTTPacketInfo_t * pxPacketInfo );
 static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTContext );
 
 /**
- * @brief Publishes a message mqttexampleMESSAGE on mqttexampleTOPIC topic.
+ * @brief  Publishes a message mqttexampleMESSAGE on mqttexampleTOPIC topic.
  *
  * @param pxMQTTContext MQTT context pointer.
  *
@@ -254,6 +272,28 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
 static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo );
 
 /**
+ * @brief Check if the amount of time waiting for PINGRESP has exceeded
+ * the specified timeout, then reset the keep-alive timer.
+ *
+ * This should only be called after a control packet has been sent.
+ *
+ * @param pxTimer The auto-reload software timer for handling keep alive.
+ *
+ * @return The status returned by #xTimerReset.
+ */
+static BaseType_t prvCheckTimeoutThenResetTimer( TimerHandle_t pxTimer );
+
+/**
+ * @brief This callback is invoked through an auto-reload software timer.
+ *
+ * Its responsibility is to send a PINGREQ packet if a PINGRESP is not pending
+ * and no control packets have been sent after some given interval.
+ *
+ * @param pxTimer The auto-reload software timer for handling keep alive.
+ */
+static void prvKeepAliveTimerCallback( TimerHandle_t pxTimer );
+
+/**
  * @brief The application callback function for getting the incoming publish
  * and incoming acks reported from the MQTT library.
  *
@@ -271,6 +311,11 @@ static void prvEventCallback( MQTTContext_t * pxMQTTContext,
  * @brief Static buffer used to hold MQTT messages being sent and received.
  */
 static uint8_t ucSharedBuffer[ mqttexampleSHARED_BUFFER_SIZE ];
+
+/**
+ * @brief Static buffer used to hold PINGREQ messages to be sent.
+ */
+static uint8_t ucPingReqBuffer[ MQTT_PACKET_PINGREQ_SIZE ];
 
 /**
  * @brief Global entry time into the application to use as a reference timestamp
@@ -311,10 +356,46 @@ static topicFilterContext_t xTopicFilterContext[ mqttexampleTOPIC_COUNT ] =
     { mqttexampleTOPIC, MQTTSubAckFailure }
 };
 
+/**
+ * @brief Timer to handle the MQTT keep-alive mechanism.
+ */
+static TimerHandle_t xKeepAliveTimer;
 
 /**
- * @brief Static buffer used to hold MQTT messages being sent and received.
+ * @brief Storage space for xKeepAliveTimer.
  */
+static StaticTimer_t xKeepAliveTimerBuffer;
+
+/**
+ * @brief Set to true when PINGREQ is sent then false when PINGRESP is received.
+ */
+static volatile bool xWaitingForPingResp = false;
+
+/**
+ * @brief Set to true when an error occurs in the prvKeepAliveTimerCallback().
+ */
+static volatile bool xKeepAliveError = false;
+
+/**
+ * @brief The last time when a PINGREQ was sent over the network.
+ */
+static uint32_t ulPingReqSendTimeMs;
+
+/**
+ * @brief Timeout for a pending PINGRESP from the MQTT broker.
+ */
+static uint32_t ulPingRespTimeoutMs = ( mqttexampleKEEP_ALIVE_TIMEOUT_SECONDS / 4 ) * MILLISECONDS_PER_SECOND;
+
+/**
+ * @brief Static buffer used to hold an MQTT PINGREQ packet for keep-alive mechanism.
+ */
+const static MQTTFixedBuffer_t xPingReqBuffer =
+{
+    .pBuffer = ucPingReqBuffer,
+    .size    = MQTT_PACKET_PINGREQ_SIZE
+};
+
+/** @brief Static buffer used to hold MQTT messages being sent and received. */
 static MQTTFixedBuffer_t xBuffer =
 {
     .pBuffer = ucSharedBuffer,
@@ -331,9 +412,12 @@ static MQTTFixedBuffer_t xBuffer =
  * implement any retransmission mechanism for Publish messages. This example
  * runs for democonfigMQTT_MAX_DEMO_COUNT, if the connection to the broker goes
  * down, the code tries to reconnect to the broker with an exponential backoff
- * mechanism.
+ * mechanism. This example also creates a Keep Alive timer task to handle
+ * periodically sending a PINGREQ to the broker. Because the demo application
+ * handles the MQTT Keep Alive, this example uses the MQTT_RecieveLoop API
+ * instead of the MQTT_ProcessLoop API used in the MQTT plaintext demo.
  */
-int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
+int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
                               const char * pIdentifier,
                               void * pNetworkServerInfo,
                               void * pNetworkCredentialInfo,
@@ -344,8 +428,9 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
     NetworkContext_t xNetworkContext = { 0 };
     MQTTContext_t xMQTTContext;
     MQTTStatus_t xMQTTStatus;
-    BaseType_t xDemoStatus = pdPASS;
     TransportSocketStatus_t xNetworkStatus;
+    BaseType_t xTimerStatus;
+    BaseType_t xDemoStatus = pdPASS;
     BaseType_t xIsConnectionEstablished = pdFALSE;
 
     /* Remove compiler warnings about unused parameters. */
@@ -355,54 +440,101 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
+
     ulGlobalEntryTimeMs = prvGetTimeMs();
 
     for( ; ulDemoRunCount < democonfigMQTT_MAX_DEMO_COUNT; ulDemoRunCount++ )
     {
-        /****************************** Connect. ******************************/
+        /* Serialize a PINGREQ packet to send upon invoking the keep-alive timer
+         * callback. */
+        xMQTTStatus = MQTT_SerializePingreq( &xPingReqBuffer );
 
-        /* Attempt to connect to the MQTT broker. If connection fails, retry after
-         * a timeout. The timeout value will be exponentially increased until the
-         * maximum number of attempts are reached or the maximum timeout value is
-         * reached. The function returns a failure status if the TCP connection
-         * cannot be established to the broker after the configured number of
-         * attempts. */
-        xNetworkStatus = prvConnectToServerWithBackoffRetries( &xNetworkContext );
-
-        if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
+        if( xMQTTStatus != MQTTSuccess )
         {
+            LogError( ( "MQTT_SerializePingreq() failed with error status %s.",
+                        MQTT_Status_strerror( xMQTTStatus ) ) );
             xDemoStatus = pdFAIL;
         }
-        else
+
+        /****************************** Connect. ******************************/
+
+        if( xDemoStatus == pdPASS )
         {
-            /* Set a flag indicating a TCP connection exists. This is done to
-             * disconnect if the loop exits before disconnection happens. */
-            xIsConnectionEstablished = pdTRUE;
+            /* Attempt to connect to the MQTT broker. If connection fails, retry
+             * after a timeout. The timeout value will be exponentially increased
+             * until the maximum number of attempts are reached or the maximum
+             * timeout value is reached. The function below returns a failure status
+             * if the TCP connection cannot be established to the broker after
+             * the configured number of attempts. */
+            xNetworkStatus = prvConnectToServerWithBackoffRetries( &xNetworkContext );
+
+            if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
+            {
+                /* Errors are logged in prvConnectToServerWithBackoffRetries. */
+                xDemoStatus = pdFAIL;
+            }
+            else
+            {
+                /* Set a flag indicating a TCP connection exists. This is done to
+                 * disconnect if the loop exits before disconnection happens. */
+                xIsConnectionEstablished = pdTRUE;
+            }
         }
 
         if( xDemoStatus == pdPASS )
         {
-            /* Sends an MQTT Connect packet over the already connected TCP socket,
-             * and waits for connection acknowledgment (CONNACK) packet. */
-            LogInfo( ( "Creating an MQTT connection to %s.", democonfigMQTT_BROKER_ENDPOINT ) );
-            xDemoStatus = prvCreateMQTTConnectionWithBroker( &xMQTTContext, &xNetworkContext );
+            /* Sends an MQTT Connect packet over the already connected TCP
+             * socket, and waits for connection acknowledgment (CONNACK) packet. */
+            LogInfo( ( "Creating an MQTT connection to %s.",
+                       democonfigMQTT_BROKER_ENDPOINT ) );
+            xDemoStatus = prvCreateMQTTConnectionWithBroker( &xMQTTContext,
+                                                             &xNetworkContext );
         }
-
-        /**************************** Subscribe. ******************************/
 
         if( xDemoStatus == pdPASS )
         {
-            /* If the server rejected the subscription request, attempt to
-             * resubscribe to topic. Attempts are made according to the exponential
-             * backoff retry strategy define in retry_utils.h. */
+            /* Create an auto-reload timer to handle keep-alive. */
+            xKeepAliveTimer = xTimerCreateStatic( "KeepAliveTimer",
+                                                  mqttexampleKEEP_ALIVE_DELAY,
+                                                  pdTRUE,
+                                                  ( void * ) &xMQTTContext.transportInterface,
+                                                  prvKeepAliveTimerCallback,
+                                                  &xKeepAliveTimerBuffer );
+
+            if( xKeepAliveTimer == NULL )
+            {
+                LogError( ( "xTimerCreateStatic() failed to create KeepAliveTimer." ) );
+                xDemoStatus = pdFAIL;
+            }
+        }
+
+        if( xDemoStatus == pdPASS )
+        {
+            /* Start the timer for keep alive. */
+            xTimerStatus = xTimerStart( xKeepAliveTimer, 0 );
+
+            if( xTimerStatus != pdPASS )
+            {
+                LogError( ( "xTimerStart() failed to start KeepAliveTimer." ) );
+                xDemoStatus = pdFAIL;
+            }
+        }
+
+        /****************************** Subscribe. ********************************/
+
+        if( xDemoStatus == pdPASS )
+        {
+            /* If server rejected the subscription request, attempt to resubscribe to
+             * topic. Attempts are made according to the exponential backoff retry
+             * strategy implemented in retryUtils. */
             xDemoStatus = prvMQTTSubscribeWithBackoffRetries( &xMQTTContext );
         }
 
-        /******************* Publish and Keep Alive Loop. *********************/
+        /*********************** Publish and Receive Loop. ************************/
 
         if( xDemoStatus == pdPASS )
         {
-            /* Publish messages with QoS0, send and process keep alive messages. */
+            /* Publish messages with QOS0, send and process keep alive messages. */
             for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
             {
                 LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
@@ -410,16 +542,16 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
                 if( xDemoStatus == pdPASS )
                 {
-                    /* Process the incoming publish echo. Since the application subscribed
-                     * to the same topic, the broker will send the published message back
-                     * to the application. */
+                    /* Process incoming publish echo, since application subscribed
+                     * to the same topic the broker will send the publish message
+                     * back to the application. */
                     LogInfo( ( "Attempt to receive publish message from broker." ) );
-                    xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
+                    xMQTTStatus = MQTT_ReceiveLoop( &xMQTTContext,
+                                                    mqttexampleRECEIVE_LOOP_TIMEOUT_MS );
 
                     if( xMQTTStatus != MQTTSuccess )
                     {
-                        LogError( ( "MQTT_ProcessLoop() call failed to receive echoed"
-                                    " PUBLISH message. Error=%s.",
+                        LogError( ( "MQTT_ReceiveLoop() failed with status %s.",
                                     MQTT_Status_strerror( xMQTTStatus ) ) );
                         xDemoStatus = pdFAIL;
                     }
@@ -431,7 +563,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
             }
         }
 
-        /******************** Unsubscribe from the topic. *********************/
+        /********************** Unsubscribe from the topic. ***********************/
 
         if( xDemoStatus == pdPASS )
         {
@@ -442,12 +574,11 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
         /* Process Incoming packet from the broker. */
         if( xDemoStatus == pdPASS )
         {
-            xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
+            xMQTTStatus = MQTT_ReceiveLoop( &xMQTTContext, mqttexampleRECEIVE_LOOP_TIMEOUT_MS );
 
             if( xMQTTStatus != MQTTSuccess )
             {
-                LogError( ( "MQTT_ProcessLoop() call failed to receive UNSUBACK response."
-                            " Error=%s.",
+                LogError( ( "MQTT_ReceiveLoop() failed with status %s.",
                             MQTT_Status_strerror( xMQTTStatus ) ) );
                 xDemoStatus = pdFAIL;
             }
@@ -459,11 +590,11 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
          * always disconnect an open connection to free up system resources. */
         if( xIsConnectionEstablished == pdTRUE )
         {
-            /* Send an MQTT Disconnect packet over the already connected TCP
-             * socket. There is no corresponding response for the disconnect
-             * packet. After sending a disconnect, the client must close the
-             * network connection. */
-            LogInfo( ( "Disconnecting the MQTT connection with %s.", democonfigMQTT_BROKER_ENDPOINT ) );
+            /* Send an MQTT Disconnect packet over the already connected TCP socket.
+             * There is no corresponding response for the disconnect packet. After
+             * sending the disconnect, the client must close the network connection. */
+            LogInfo( ( "Disconnecting the MQTT connection with %s.",
+                       democonfigMQTT_BROKER_ENDPOINT ) );
             xMQTTStatus = MQTT_Disconnect( &xMQTTContext );
 
             if( xMQTTStatus != MQTTSuccess )
@@ -478,15 +609,29 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
             if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
             {
-                xDemoStatus = pdFAIL;
                 LogError( ( "SecureSocketsTransport_Disconnect() failed to close "
-                            "the network connection with status code %d.",
+                            "the connection with status code %d.",
                             ( int ) xNetworkStatus ) );
+                xDemoStatus = pdFAIL;
             }
-            else
-            {
-                xIsConnectionEstablished = pdFALSE;
-            }
+
+            xIsConnectionEstablished = pdFALSE;
+        }
+
+        /* Always stop the keep-alive timer for the next iteration. */
+        xTimerStatus = xTimerStop( xKeepAliveTimer, 0 );
+
+        if( xTimerStatus != pdPASS )
+        {
+            LogError( ( "xTimerStart() failed to stop KeepAliveTimer." ) );
+            xDemoStatus = pdFAIL;
+        }
+
+        /* Check for errors in the keep-alive timer. */
+        if( xKeepAliveError == true )
+        {
+            LogError( ( "An error occurred in KeepAliveTimer task." ) );
+            xDemoStatus = pdFAIL;
         }
 
         if( xDemoStatus == pdPASS )
@@ -500,7 +645,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
             /* Wait for some time between two iterations to ensure that we do not
              * bombard the broker. */
-            LogInfo( ( "RunCoreMqttPlaintextDemo() completed an iteration successfully. "
+            LogInfo( ( "RunCoreMqttKeepAliveDemo() completed successfully. "
                        "Total free heap is %u.",
                        xPortGetFreeHeapSize() ) );
             LogInfo( ( "Short delay before starting the next iteration.... " ) );
@@ -508,7 +653,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
         }
         else
         {
-            LogInfo( ( "RunCoreMqttPlaintextDemo() failed. Total free heap is %u.",
+            LogInfo( ( "RunCoreMqttKeepAliveDemo() failed. Total free heap is %u.",
                        xPortGetFreeHeapSize() ) );
             break;
         }
@@ -516,6 +661,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
     return ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+
 /*-----------------------------------------------------------*/
 
 static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNetworkContext )
@@ -540,8 +686,8 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
     RetryUtils_ParamsReset( &xReconnectParams );
     xReconnectParams.maxRetryAttempts = MAX_RETRY_ATTEMPTS;
 
-    /* Attempt to connect to MQTT broker. If connection fails, retry after
-     * a timeout. Timeout value will exponentially increase till maximum
+    /* Attempt to connect to the MQTT broker. If connection fails, retry after
+     * a timeout. The timeout value will exponentially increase until the maximum
      * attempts are reached.
      */
     do
@@ -590,7 +736,14 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
     /* Initialize MQTT library. */
     xResult = MQTT_Init( pxMQTTContext, &xTransport, prvGetTimeMs, prvEventCallback, &xBuffer );
 
-    if( xResult == MQTTSuccess )
+    if( xResult != MQTTSuccess )
+    {
+        LogError( ( "MQTT_Init() failed with status %s.",
+                    MQTT_Status_strerror( xResult ) ) );
+        xReturnStatus = pdFAIL;
+    }
+
+    if( xReturnStatus == pdPASS )
     {
         /* Many fields not used in this demo so start with everything at 0. */
         ( void ) memset( ( void * ) &xConnectInfo, 0x00, sizeof( xConnectInfo ) );
@@ -619,18 +772,12 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
                                 NULL,
                                 mqttexampleCONNACK_RECV_TIMEOUT_MS,
                                 &xSessionPresent );
-    }
-    else
-    {
-        LogError( ( "MQTT_Init() failed with status %s.",
-                    MQTT_Status_strerror( xResult ) ) );
-    }
 
-    if( xResult != MQTTSuccess )
-    {
-        xReturnStatus = pdFAIL;
-        LogError( ( "MQTT_Connect failed with status %s.",
-                    MQTT_Status_strerror( xResult ) ) );
+        if( xResult != MQTTSuccess )
+        {
+            LogError( ( "MQTT_Connect() failed with status %s.",
+                        MQTT_Status_strerror( xResult ) ) );
+        }
     }
 
     return xReturnStatus;
@@ -700,9 +847,9 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
 
         if( xResult != MQTTSuccess )
         {
-            xReturnStatus = pdFAIL;
             LogError( ( "MQTT_Subscribe() failed with status %s.",
                         MQTT_Status_strerror( xResult ) ) );
+            xReturnStatus = pdFAIL;
             break;
         }
 
@@ -715,13 +862,13 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
          * receiving Publish message before subscribe ack is zero; but application
          * must be ready to receive any packet.  This demo uses the generic packet
          * processing function everywhere to highlight this fact. */
-        xResult = MQTT_ProcessLoop( pxMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
+        xResult = MQTT_ProcessLoop( pxMQTTContext, mqttexampleRECEIVE_LOOP_TIMEOUT_MS );
 
         if( xResult != MQTTSuccess )
         {
-            xReturnStatus = pdFAIL;
             LogError( ( "MQTT_ProcessLoop() failed with status %s.",
                         MQTT_Status_strerror( xResult ) ) );
+            xReturnStatus = pdFAIL;
             break;
         }
 
@@ -743,10 +890,10 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
 
         if( xRetryUtilsStatus == RetryUtilsRetriesExhausted )
         {
-            xReturnStatus = pdFAIL;
-            LogError( ( "Failed to subscribe to the broker, subscription request"
+            LogError( ( "Failed to subscribe to the broker: Subscription request"
                         " retires exhausted. NumberOfAttempts=%ul",
                         ( unsigned long ) ( xRetryParams.maxRetryAttempts ) ) );
+            xReturnStatus = pdFAIL;
         }
     } while( ( xFailedSubscribeToTopic == true ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
 
@@ -758,9 +905,10 @@ static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
 {
     MQTTStatus_t xResult;
     MQTTPublishInfo_t xMQTTPublishInfo;
+    BaseType_t xTimerStatus;
     BaseType_t xReturnStatus = pdPASS;
 
-    /* Some fields are not used by this demo so start with everything at 0. */
+    /* Some fields not used by this demo so start with everything at 0. */
     ( void ) memset( ( void * ) &xMQTTPublishInfo, 0x00, sizeof( xMQTTPublishInfo ) );
 
     /* This demo uses QoS0. */
@@ -776,9 +924,18 @@ static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
 
     if( xResult != MQTTSuccess )
     {
-        xReturnStatus = pdFAIL;
-        LogError( ( "MQTT_Publish() failed with error status %s.",
+        LogError( ( "MQTT_Publish() failed with status %s.",
                     MQTT_Status_strerror( xResult ) ) );
+        xReturnStatus = pdFAIL;
+    }
+
+    /* When a PUBLISH packet has been sent, the keep-alive timer can be reset. */
+    xTimerStatus = prvCheckTimeoutThenResetTimer( xKeepAliveTimer );
+
+    if( xTimerStatus != pdPASS )
+    {
+        /* Errors are logged in prvCheckTimeoutThenResetTimer(). */
+        xReturnStatus = pdFAIL;
     }
 
     return xReturnStatus;
@@ -814,9 +971,9 @@ static BaseType_t prvMQTTUnsubscribeFromTopic( MQTTContext_t * pxMQTTContext )
 
     if( xResult != MQTTSuccess )
     {
-        xReturnStatus = pdFAIL;
-        LogError( ( "MQTT_Unsubscribe() failed with error status %s.",
+        LogError( ( "MQTT_Unsubscribe() failed with status %s.",
                     MQTT_Status_strerror( xResult ) ) );
+        xReturnStatus = pdFAIL;
     }
 
     return xReturnStatus;
@@ -859,6 +1016,7 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
             break;
 
         case MQTT_PACKET_TYPE_PINGRESP:
+            xWaitingForPingResp = false;
             LogInfo( ( "Ping Response successfully received." ) );
             break;
 
@@ -899,6 +1057,81 @@ static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo )
 
 /*-----------------------------------------------------------*/
 
+static BaseType_t prvCheckTimeoutThenResetTimer( TimerHandle_t pxTimer )
+{
+    uint32_t now = 0U;
+    BaseType_t xStatus = pdPASS;
+
+    if( xWaitingForPingResp == true )
+    {
+        now = prvGetTimeMs();
+
+        /* Check that the PINGRESP timeout has not expired. */
+        if( ( now - ulPingReqSendTimeMs ) > ulPingRespTimeoutMs )
+        {
+            LogError( ( "PINGRESP timeout has expired. ElapsedTime=%ul, "
+                        "PingReponseTimeoutMs=%ul",
+                        ( unsigned long ) now - ulPingReqSendTimeMs,
+                        ( unsigned long ) ulPingRespTimeoutMs ) );
+            xStatus = pdFAIL;
+        }
+    }
+
+    if( xStatus == pdPASS )
+    {
+        xStatus = xTimerReset( pxTimer, 0 );
+    }
+
+    return xStatus;
+}
+
+/*-----------------------------------------------------------*/
+
+static void prvKeepAliveTimerCallback( TimerHandle_t pxTimer )
+{
+    TransportInterface_t * pxTransport;
+    int32_t xTransportStatus;
+    uint32_t now = 0U;
+
+    pxTransport = ( TransportInterface_t * ) pvTimerGetTimerID( pxTimer );
+
+    if( xWaitingForPingResp == true )
+    {
+        now = prvGetTimeMs();
+
+        /* Check that the PINGRESP timeout has not expired. */
+        if( ( now - ulPingReqSendTimeMs ) > ulPingRespTimeoutMs )
+        {
+            LogError( ( "PINGRESP timeout has expired. ElapsedTime=%ul, "
+                        "PingReponseTimeoutMs=%ul",
+                        ( unsigned long ) ( now - ulPingReqSendTimeMs ),
+                        ( unsigned long ) ulPingRespTimeoutMs ) );
+            xKeepAliveError = true;
+        }
+    }
+    else
+    {
+        /* Send Ping Request to the broker. */
+        LogInfo( ( "Attempt to ping the MQTT broker." ) );
+        xTransportStatus = pxTransport->send( pxTransport->pNetworkContext,
+                                              ( void * ) xPingReqBuffer.pBuffer,
+                                              xPingReqBuffer.size );
+
+        if( ( xTransportStatus < 0U ) ||
+            ( ( size_t ) xTransportStatus != xPingReqBuffer.size ) )
+        {
+            LogError( ( "Failed to send the ping request. TransportSendStatus=%d",
+                        xTransportStatus ) );
+            xKeepAliveError = true;
+        }
+
+        ulPingReqSendTimeMs = prvGetTimeMs();
+        xWaitingForPingResp = true;
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 static void prvEventCallback( MQTTContext_t * pxMQTTContext,
                               MQTTPacketInfo_t * pxPacketInfo,
                               MQTTDeserializedInfo_t * pxDeserializedInfo )
@@ -927,7 +1160,7 @@ static uint32_t prvGetTimeMs( void )
     xTickCount = xTaskGetTickCount();
 
     /* Convert the ticks to milliseconds. */
-    ulTimeMs = ( uint32_t ) xTickCount * _MILLISECONDS_PER_TICK;
+    ulTimeMs = ( uint32_t ) xTickCount * MILLISECONDS_PER_TICK;
 
     /* Reduce ulGlobalEntryTimeMs from obtained time so as to always return the
      * elapsed time in the application. */

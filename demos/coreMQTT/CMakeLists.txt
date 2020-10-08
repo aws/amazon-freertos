@@ -12,6 +12,7 @@ afr_module_sources(
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_mutual_auth.c"
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_plaintext.c"
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_serializer.c"
+        "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_keep_alive.c"
 )
 
 afr_module_dependencies(

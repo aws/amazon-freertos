@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.3.0
+ * FreeRTOS V202010.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -100,9 +100,12 @@
  * #define democonfigMQTT_BROKER_PORT                   ( insert here. )
  */
 
+
 /**
  * @brief The maximum number of times to run the demo's subscribe publish loop.
+ * 
+ * #define democonfigMQTT_MAX_DEMO_COUNT                ( insert here. )
  */
-#define democonfigMQTT_MAX_DEMO_COUNT   ( 3 )
+
 
 #endif /* MQTT_DEMO_PLAINTEXT_CONFIG_H */

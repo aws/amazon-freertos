@@ -534,8 +534,7 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
         }
         else
         {
-            LogInfo( ( "RunCoreMqttSerializerDemo() failed an iteration. "
-                       "Total free heap is %u.",
+            LogInfo( ( "RunCoreMqttSerializerDemo() failed. Total free heap is %u.",
                        xPortGetFreeHeapSize() ) );
             break;
         }
@@ -1466,7 +1465,7 @@ static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo )
                         pxPublishInfo->pTopicName,
                         pxPublishInfo->topicNameLength ) ) )
     {
-        LogInfo( ( "Incoming Publish Topic Name: %.*s matches subscribed topic."
+        LogInfo( ( "Incoming Publish Topic Name: %.*s matches subscribed topic.\r\n"
                    "Incoming Publish Message : %.*s",
                    pxPublishInfo->topicNameLength,
                    pxPublishInfo->pTopicName,
