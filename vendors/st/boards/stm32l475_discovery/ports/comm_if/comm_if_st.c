@@ -133,6 +133,7 @@
 #define CELLULAR_UART_PINS_MAX           ( 4U )
 
 #define DEFAULT_WAIT_INTERVAL       ( 20UL )
+#define DEFAULT_RECV_WAIT_INTERVAL  ( 5UL )
 #define DEFAULT_RECV_TIMEOUT        ( 1000UL )
 
 
@@ -151,6 +152,8 @@
 #define DEVICE_OFF_WAIT_TIME_LOOP_INTERVAL_MS   ( 100 )
 
 #define COMM_IF_FIFO_BUFFER_SIZE                ( 1600 )
+
+#define TICKS_TO_MS( xTicks )                   ( ( ( xTicks ) * 1000U ) / ( ( uint32_t ) configTICK_RATE_HZ ) )
 
 /*-----------------------------------------------------------*/
 
@@ -384,6 +387,7 @@ void HAL_UART_TxCpltCallback( UART_HandleTypeDef * hUart )
 /* Override HAL_UART_RxCpltCallback() */
 void HAL_UART_RxCpltCallback( UART_HandleTypeDef * hUart )
 {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdPASS;
     CellularCommInterfaceContext * pIotCommIntfCtx = & _iotCommIntfCtx;
     if( hUart != NULL )
     {
@@ -391,10 +395,23 @@ void HAL_UART_RxCpltCallback( UART_HandleTypeDef * hUart )
         {
             /* rxFifoReadingFlag indicate the reader is reading the FIFO in recv function.
              * Don't call the callback function until the reader finish read. */
-            if( ( pIotCommIntfCtx->rxFifoReadingFlag == 0U ) && ( pIotCommIntfCtx->pRecvCB != NULL ) )
+            if( pIotCommIntfCtx->rxFifoReadingFlag == 0U )
             {
-                pIotCommIntfCtx->pRecvCB( pIotCommIntfCtx->pUserData,
-                                          ( CellularCommInterfaceHandle_t ) pIotCommIntfCtx );
+                if( pIotCommIntfCtx->pRecvCB != NULL )
+                {
+                    pIotCommIntfCtx->pRecvCB( pIotCommIntfCtx->pUserData,
+                                              ( CellularCommInterfaceHandle_t ) pIotCommIntfCtx );
+                }
+            }
+            else
+            {
+                xResult = xEventGroupSetBitsFromISR( pIotCommIntfCtx->pEventGroup,
+                                                     COMM_EVT_MASK_RX_DONE,
+                                                     & xHigherPriorityTaskWoken );
+                if( xResult == pdPASS )
+                {
+                    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+                }
             }
 
             /* Re-enable RX interrupt */
@@ -783,12 +800,13 @@ static CellularCommInterfaceError_t prvCellularReceive( CellularCommInterfaceHan
 {
     CellularCommInterfaceError_t ret = IOT_COMM_INTERFACE_SUCCESS;
     CellularCommInterfaceContext * pIotCommIntfCtx = ( CellularCommInterfaceContext * ) commInterfaceHandle;
-    const uint32_t waitInterval = DEFAULT_WAIT_INTERVAL;
-    uint32_t timeoutCountLimit = timeoutMilliseconds / waitInterval + 1;
-    uint32_t timeoutCount = timeoutCountLimit;
+    const uint32_t waitInterval = DEFAULT_RECV_WAIT_INTERVAL;
     EventBits_t uxBits = 0;
     uint8_t rxChar = 0;
     uint32_t rxCount = 0;
+    uint32_t waitTimeMs = 0, elapsedTimeMs = 0;
+    uint32_t remainTimeMs = timeoutMilliseconds;
+    uint32_t startTimeMs = TICKS_TO_MS( xTaskGetTickCount() );
 
     if( ( pIotCommIntfCtx == NULL ) || ( pBuffer == NULL ) || ( bufferLength == 0 ) )
     {
@@ -816,21 +834,45 @@ static CellularCommInterfaceError_t prvCellularReceive( CellularCommInterfaceHan
                 * pBuffer = rxChar;
                 pBuffer++;
                 rxCount++;
-                timeoutCount = timeoutCountLimit;
             }
-            else if( timeoutCount > 0 )
+            else if( remainTimeMs > 0U )
             {
-                timeoutCount--;
+                if( rxCount > 0U )
+                {
+                    /* If bytes received, wait at most waitInterval. */
+                    waitTimeMs = ( remainTimeMs > waitInterval ) ? waitInterval : remainTimeMs;
+                }
+                else
+                {
+                    waitTimeMs = remainTimeMs;
+                }
+
                 uxBits = xEventGroupWaitBits( pIotCommIntfCtx->pEventGroup,
                                               COMM_EVT_MASK_RX_DONE |
                                               COMM_EVT_MASK_RX_ERROR |
                                               COMM_EVT_MASK_RX_ABORTED,
                                               pdTRUE,
                                               pdFALSE,
-                                              pdMS_TO_TICKS( waitInterval ) );
+                                              pdMS_TO_TICKS( waitTimeMs ) );
                 if( ( uxBits & ( COMM_EVT_MASK_RX_ERROR | COMM_EVT_MASK_RX_ABORTED ) ) != 0U )
                 {
                     ret = IOT_COMM_INTERFACE_DRIVER_ERROR;
+                }
+                else if( uxBits == 0U )
+                {
+                    ret = IOT_COMM_INTERFACE_TIMEOUT;
+                }
+                else
+                {
+                    elapsedTimeMs = TICKS_TO_MS( xTaskGetTickCount() ) - startTimeMs;
+                    if( timeoutMilliseconds > elapsedTimeMs )
+                    {
+                        remainTimeMs = timeoutMilliseconds - elapsedTimeMs;
+                    }
+                    else
+                    {
+                        remainTimeMs = 0U;
+                    }
                 }
             }
             else
