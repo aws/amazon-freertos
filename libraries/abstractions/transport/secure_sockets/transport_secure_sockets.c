@@ -188,7 +188,7 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
         {
             if( bytesReceived < ( int32_t ) bytesToRecv )
             {
-                LogInfo( ( "Receive requested %d bytes, but %d bytes received instead.",
+                LogInfo( ( "Receive requested %d bytes, but %lu bytes received instead.",
                            bytesToRecv,
                            bytesReceived ) );
             }
