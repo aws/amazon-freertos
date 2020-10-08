@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.3.0
+ * FreeRTOS V202010.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,10 +38,6 @@
  * received. Each task has a queue to hold received publish messages,
  * and the command task pushes incoming publishes to the queue of each task
  * that is subscribed to the incoming topic.
- *
- * !!! NOTE !!!
- * This MQTT demo does not authenticate the server nor the client.
- * Hence, this demo should not be used as production ready code.
  */
 
 /* Standard includes. */
@@ -229,6 +225,8 @@
  * @brief Notification bit used by subscriber task for unsubscribe operation.
  */
 #define mqttexampleUNSUBSCRIBE_COMPLETE_BIT          ( 1U << 1 )
+
+#define mqttexampleTASK_STACK_SIZE                   ( configMINIMAL_STACK_SIZE * 6 )
 
 /**
  * @brief Topic filter used by the subscriber task.
@@ -1630,6 +1628,10 @@ void prvPublishTask( void * pvParameters )
 
     /* Notify main task this task can be deleted. */
     xTaskNotify( xMainTask, mqttexamplePUBLISHER_TASK_COMPLETE_BIT, eSetBits );
+
+    /* Delete this task. */
+    LogInfo( ( "Deleting Publisher task." ) );
+    vTaskDelete( NULL );
 }
 
 /*-----------------------------------------------------------*/
@@ -1736,6 +1738,10 @@ void prvSubscribeTask( void * pvParameters )
 
     /* Notify main task this task can be deleted. */
     xTaskNotify( xMainTask, mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT, eSetBits );
+
+    /* Delete this task. */
+    LogInfo( ( "Deleting Subscriber task." ) );
+    vTaskDelete( NULL );
 }
 
 /*-----------------------------------------------------------*/
@@ -1752,7 +1758,6 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
     uint32_t ulNotification = 0;
     Command_t xCommand;
     MQTTStatus_t xMQTTStatus;
-    bool tasksCreated = false;
     int ret = EXIT_SUCCESS;
 
     ( void ) awsIotMqttMode;
@@ -1839,44 +1844,30 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
 
         /* Give subscriber task higher priority so the subscribe will be processed before the first publish.
          * This must be less than or equal to the priority of the main task. */
-        xResult = xTaskCreate( prvSubscribeTask, "Subscriber", democonfigDEMO_STACKSIZE, NULL, tskIDLE_PRIORITY + 1, &xSubscribeTask );
+        xResult = xTaskCreate( prvSubscribeTask, "Subscriber", mqttexampleTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, &xSubscribeTask );
         ret = ( xResult == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
     }
 
     if( ret == EXIT_SUCCESS )
     {
-        xResult = xTaskCreate( prvPublishTask, "Publisher", democonfigDEMO_STACKSIZE, NULL, tskIDLE_PRIORITY, &xPublisherTask );
+        xResult = xTaskCreate( prvPublishTask, "Publisher", mqttexampleTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xPublisherTask );
         ret = ( xResult == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
     }
 
     if( ret == EXIT_SUCCESS )
     {
-        tasksCreated = true;
         LogInfo( ( "Running command loop" ) );
         ret = prvCommandLoop();
     }
 
-    if( ( ret == EXIT_FAILURE ) && ( tasksCreated == true ) )
-    {
-        /* Delete created tasks. */
-        vTaskDelete( xSubscribeTask );
-        LogInfo( ( "Subscribe task Deleted." ) );
-        vTaskDelete( xPublisherTask );
-        LogInfo( ( "Publish task Deleted." ) );
-    }
-
     if( ret == EXIT_SUCCESS )
     {
-        /* Delete created tasks and queues.
-         * Wait for subscriber task to exit before cleaning up. */
+        /* Wait for tasks to exit before cleaning up. */
         while( ( ulNotification & mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT ) != mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT )
         {
             LogInfo( ( "Waiting for subscribe task to exit." ) );
             xTaskNotifyWait( 0, mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT, &ulNotification, mqttexampleDEMO_TICKS_TO_WAIT );
         }
-
-        vTaskDelete( xSubscribeTask );
-        LogInfo( ( "Subscribe task Deleted." ) );
 
         /* Wait for publishing task to exit before cleaning up. */
         while( ( ulNotification & mqttexamplePUBLISHER_TASK_COMPLETE_BIT ) != mqttexamplePUBLISHER_TASK_COMPLETE_BIT )
@@ -1884,9 +1875,6 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
             LogInfo( ( "Waiting for publish task to exit." ) );
             xTaskNotifyWait( 0, mqttexamplePUBLISHER_TASK_COMPLETE_BIT, &ulNotification, mqttexampleDEMO_TICKS_TO_WAIT );
         }
-
-        vTaskDelete( xPublisherTask );
-        LogInfo( ( "Publish task Deleted." ) );
 
         /* Reset queues. */
         xQueueReset( xCommandQueue );
