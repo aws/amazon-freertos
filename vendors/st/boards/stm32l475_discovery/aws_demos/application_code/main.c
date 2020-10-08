@@ -48,6 +48,7 @@
 #include "iot_wifi.h"
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
+#include "iot_uart.h"
 
 /* WiFi driver includes. */
 #include "es_wifi.h"
@@ -95,8 +96,7 @@ extern SPI_HandleTypeDef hspi;
 RTC_HandleTypeDef xHrtc;
 RNG_HandleTypeDef xHrng;
 
-/* Private variables ---------------------------------------------------------*/
-static UART_HandleTypeDef xConsoleUart;
+IotUARTHandle_t xConsoleUart;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config( void );
@@ -315,9 +315,11 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 void vSTM32L475putc( void * pv,
                      char ch )
 {
-    while( HAL_OK != HAL_UART_Transmit( &xConsoleUart, ( uint8_t * ) &ch, 1, 30000 ) )
-    {
-    }
+    int32_t status;
+
+    do {
+        status = iot_uart_write_sync( xConsoleUart, ( uint8_t * ) &ch, 1 );
+    } while( status == IOT_UART_BUSY );
 }
 /*-----------------------------------------------------------*/
 
@@ -427,17 +429,27 @@ static void SystemClock_Config( void )
  */
 static void Console_UART_Init( void )
 {
-    xConsoleUart.Instance = USART1;
-    xConsoleUart.Init.BaudRate = 115200;
-    xConsoleUart.Init.WordLength = UART_WORDLENGTH_8B;
-    xConsoleUart.Init.StopBits = UART_STOPBITS_1;
-    xConsoleUart.Init.Parity = UART_PARITY_NONE;
-    xConsoleUart.Init.Mode = UART_MODE_TX_RX;
-    xConsoleUart.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    xConsoleUart.Init.OverSampling = UART_OVERSAMPLING_16;
-    xConsoleUart.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-    xConsoleUart.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    BSP_COM_Init( COM1, &xConsoleUart );
+    int32_t status = IOT_UART_SUCCESS;
+
+     /* Default setting:
+      * Mode: UART_MODE_TX_RX;
+      * OverSampling: UART_OVERSAMPLING_16;
+      * OneBitSampling: UART_ONE_BIT_SAMPLE_DISABLE;
+      * AdvancedInit.AdvFeatureInit: UART_ADVFEATURE_NO_INIT; */
+     xConsoleUart = iot_uart_open( 0 );
+     configASSERT( xConsoleUart != NULL );
+
+     IotUARTConfig_t xConfig =
+     {
+         .ulBaudrate    = 115200,
+         .xParity      = UART_PARITY_NONE,
+         .ucWordlength  = UART_WORDLENGTH_8B,
+         .xStopbits    = UART_STOPBITS_1,
+         .ucFlowControl = UART_HWCONTROL_NONE
+     };
+
+     status = iot_uart_ioctl( xConsoleUart, eUartSetConfig, &xConfig );
+     configASSERT( status == IOT_UART_SUCCESS );
 }
 /*-----------------------------------------------------------*/
 
@@ -568,12 +580,9 @@ void vOutputChar( const char cChar,
 
 void vMainUARTPrintString( char * pcString )
 {
-    const uint32_t ulTimeout = 3000UL;
 
-    HAL_UART_Transmit( &xConsoleUart,
-                       ( uint8_t * ) pcString,
-                       strlen( pcString ),
-                       ulTimeout );
+    /* Ignore returned status. */
+    iot_uart_write_sync( xConsoleUart, ( uint8_t * ) pcString, strlen( pcString ) );
 }
 /*-----------------------------------------------------------*/
 
