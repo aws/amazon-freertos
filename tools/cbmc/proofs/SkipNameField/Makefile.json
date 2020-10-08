@@ -7,7 +7,7 @@
 
 ################################################################
 # Loop prvSkipNameField.0:
-#   file lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c line 778
+#   file lib/FreeRTOS-Plus-TCP/FreeRTOS_DNS.c line 778
 #   bound should be half network buffer size, since chunk length is at least 2
   "SKIPLOOP0": "prvSkipNameField.0",
   "SKIPLOOP0_UNWIND": "__eval ({NETWORK_BUFFER_SIZE} + 1) / 2",
@@ -23,7 +23,7 @@
   "OBJS":
   [
     "$(ENTRY)_harness.goto",
-    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.goto"
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_DNS.goto"
   ],
   "DEF":
   [

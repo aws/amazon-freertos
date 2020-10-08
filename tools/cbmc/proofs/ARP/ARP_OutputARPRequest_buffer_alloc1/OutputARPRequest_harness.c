@@ -1,5 +1,5 @@
 /* This harness is linked against
- * libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.goto
+ * libraries/freertos_plus/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_1.goto
  */
 #include <stdint.h>
 #include <stdio.h>
