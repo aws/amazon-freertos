@@ -534,7 +534,8 @@ void test_SecureSocketsTransport_Connect_Succeeds_with_TLS( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test the happy path case to connect to server with TLS but RootCa and ALPN, SNI are not set.
+ * @brief Test the happy path case to connect to a server with TLS, but the root
+ * CA, ALPN protocols, and SNI are not set.
  */
 void test_SecureSocketsTransport_Connect_Credentials_NotSet( void )
 {
