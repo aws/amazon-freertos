@@ -387,6 +387,8 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device-shadow-for-aws-iot-embedded-sdk\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
@@ -395,8 +397,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device-shadow-for-aws-iot-embedded-sdk\source\include</state>
 				</option>
 				<option>
 					<name>CCStdIncCheck</name>
@@ -2628,21 +2628,18 @@
 			</group>
 		</group>
 		<group>
+			<name>defender</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\defender\aws_iot_demo_defender.c</name>
+			</file>
+		</group>
+		<group>
 			<name>device-shadow-for-aws-iot-embedded-sdk</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\device-shadow-for-aws-iot-embedded-sdk\shadow_demo_main.c</name>
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\device-shadow-for-aws-iot-embedded-sdk\shadow_demo_helpers.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device-shadow-for-aws-iot-embedded-sdk\shadow_demo_helpers.h</name>
-			</file>
-		</group>
-		<group>
-			<name>defender</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\defender\aws_iot_demo_defender.c</name>
 			</file>
 		</group>
 		<group>
