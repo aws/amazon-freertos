@@ -109,4 +109,9 @@
  */
 #define democonfigDEMO_STACKSIZE    configMINIMAL_STACK_SIZE
 
+/**
+ * @brief The maximum number of times to run the demo's subscribe publish loop.
+ */
+#define democonfigMQTT_MAX_DEMO_COUNT   ( 3 )
+
 #endif /* DEMO_CONFIG_H */
