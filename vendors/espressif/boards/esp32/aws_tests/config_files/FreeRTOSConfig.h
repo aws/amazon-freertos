@@ -214,7 +214,6 @@
     #define configGENERATE_RUN_TIME_STATS   1       /* Used by vTaskGetRunTimeStats() */
 #endif
 
-
 /* This demo creates a virtual network connection by accessing the raw Ethernet
  * or WiFi data to and from a real network connection.  Many computers have more
  * than one real network port, and configNETWORK_INTERFACE_TO_USE is used to tell
@@ -378,5 +377,12 @@
 #else
     #define UNTESTED_FUNCTION()
 #endif
+
+
+/* The size of the output buffer is set to maximum length required by the tests,
+ * which is the length enough to accomodate largest error string written to
+ * console from CLI.
+ */
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE    120
 
 #endif /* #define FREERTOS_CONFIG_H */

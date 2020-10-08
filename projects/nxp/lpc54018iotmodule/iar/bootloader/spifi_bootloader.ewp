@@ -366,7 +366,7 @@
                     <state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
                     <state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
                     <state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
-                    <state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
+                    <state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</state>
                     <state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor</state>
                     <state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\utilities\log</state>
                     <state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\utilities\io</state>

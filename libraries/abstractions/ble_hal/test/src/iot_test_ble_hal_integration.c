@@ -296,7 +296,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
         prvDeleteServiceWithNULLCb( &_xSrvcA );
         prvDeleteServiceWithNULLCb( &_xSrvcB );
         prvBTUnregisterWithNULLCb();
-        xStatus = _pxBTInterface->pxDisable( 0 );
+        xStatus = _pxBTInterface->pxDisable();
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
         xStatus = _pxBTInterface->pxBtManagerCleanup();
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
@@ -399,6 +399,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL, 0, NULL );
     BTStatus_t xStatus = _pxBTLeAdapterInterface->pxStopAdv( _ucBLEAdapterIf );
+
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
