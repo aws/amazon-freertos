@@ -102,14 +102,6 @@
 
 
 /**
- * @brief Set the stack size of the main demo task.
- *
- * In the Windows port, this stack only holds a structure. The actual
- * stack is created by an operating system thread.
- */
-#define democonfigDEMO_STACKSIZE    configMINIMAL_STACK_SIZE
-
-/**
  * @brief The maximum number of times to run the demo's subscribe publish loop.
  */
 #define democonfigMQTT_MAX_DEMO_COUNT   ( 3 )
