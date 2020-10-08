@@ -371,7 +371,8 @@ void test_SecureSocketsTransport_Connect_Fail_to_Connect( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail to set receive timeout and verify the error code.
+ * @brief Test that #SecureSocketsTransport_Connect fails to set the socket
+ * receive timeout, and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Recv( void )
 {
