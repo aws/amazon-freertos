@@ -129,7 +129,7 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
         {
             if( bytesSent < ( int32_t ) bytesToSend )
             {
-                LogWarn( ( "bytesSent %d < bytesToSend %d.", bytesSent, bytesToSend ) );
+                LogWarn( ( "bytesSent %d < bytesToSend %lu.", bytesSent, bytesToSend ) );
             }
             else
             {
