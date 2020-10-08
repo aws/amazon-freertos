@@ -560,7 +560,7 @@ static int32_t transportSendDelay( const NetworkContext_t * pSendContext,
     IotClock_SleepMs( 2000 );
 
     /* This function returns the message length to simulate a successful send. */
-    return messageLength;
+    return ( int32_t ) messageLength;
 }
 
 /*-----------------------------------------------------------*/
