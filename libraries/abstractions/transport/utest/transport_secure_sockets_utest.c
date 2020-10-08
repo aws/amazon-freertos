@@ -340,7 +340,8 @@ void test_SecureSocketsTransport_Connect_Dns_Failure( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter network error and verify the error code.
+ * @brief Test that #SecureSocketsTransport_Connect encounters a network error
+ * connecting, and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_Fail_to_Connect( void )
 {
