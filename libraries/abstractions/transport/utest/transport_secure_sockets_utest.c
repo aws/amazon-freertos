@@ -248,7 +248,8 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_AlpnProtos( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail to set SNI and verify the error code.
+ * @brief Test that #SecureSocketsTransport_Connect fails to set SNI, and verify
+ * the error code.
  */
 void test_SecureSocketsTransport_Connect_Invalid_Credentials_SNI( void )
 {
