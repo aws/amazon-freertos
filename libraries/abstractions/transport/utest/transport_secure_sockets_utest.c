@@ -34,30 +34,30 @@
 #include "transport_secure_sockets.h"
 
 /* The send and receive timeout to set for the socket. */
-#define SEND_RECV_TIMEOUT          0
+#define SEND_RECV_TIMEOUT           0
 
 /* The host and port from which to establish the connection. */
-#define HOSTNAME                   "amazon.com"
-#define INVALID_HOSTNAME           "amazon.com9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
-#define PORT                       80
+#define HOSTNAME                    "amazon.com"
+#define INVALID_HOSTNAME_LENGTH     ( 254U )
+#define PORT                        ( 80 )
 
 /* Configuration parameters for the TLS connection. */
-#define MFLN                       42
-#define ALPN_PROTOS                "x-amzn-mqtt-ca"
+#define MFLN                        ( 42 )
+#define ALPN_PROTOS                 "x-amzn-mqtt-ca"
 
-#define MOCK_ROOT_CA               "mockRootCA"
-#define MOCK_SERVER_ADDRESS        100
-#define MOCT_TCP_SOCKET            100
-#define MOCK_SECURE_SOCKET_ERROR    -1
+#define MOCK_ROOT_CA                "mockRootCA"
+#define MOCK_SERVER_ADDRESS         ( 100 )
+#define MOCT_TCP_SOCKET             ( 100 )
+#define MOCK_SECURE_SOCKET_ERROR    ( -1 )
 
 
 /* Parameters to pass to #SecureSocketsTransport_Send and #SecureSocketsTransport_Recv. */
-#define BYTES_TO_SEND                      4
-#define BYTES_TO_RECV                      4
-#define SECURE_SOCKETS_READ_WRITE_ERROR    -1
+#define BYTES_TO_SEND                      ( 4U )
+#define BYTES_TO_RECV                      ( 4U )
+#define SECURE_SOCKETS_READ_WRITE_ERROR    ( -1 )
 
 /* The size of the buffer passed to #SecureSocketsTransport_Send and #SecureSocketsTransport_Recv. */
-#define BUFFER_LEN                         4
+#define BUFFER_LEN                         ( 4U )
 
 /**
  * @brief Transport timeout in milliseconds for transport send.
@@ -97,7 +97,7 @@ static NetworkContext_t networkContext = { 0 };
 /* Called before each test method. */
 void setUp()
 {
-    networkContext.tcpSocket = mocTcpSocket;
+    networkContext.tcpSocket = mockTcpSocket;
 }
 
 /* Called after each test method. */
@@ -127,8 +127,11 @@ void test_SecureSocketsTransport_Connect_Invalid_Params( void )
 {
     TransportSocketStatus_t returnStatus;
     ServerInfo_t invalidServerInfo = { 0 };
+    char hostNameBuffer[ INVALID_HOSTNAME_LENGTH ] = { 0 };
 
     invalidServerInfo.port = PORT;
+    uint16_t index = 0U;
+
     returnStatus = SecureSocketsTransport_Connect( NULL,
                                                    &serverInfo,
                                                    &socketsConfig );
@@ -151,7 +154,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Params( void )
                                                    &socketsConfig );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, returnStatus );
 
-    invalidServerInfo.pHostName = INVALID_HOSTNAME;
+    invalidServerInfo.pHostName = &hostNameBuffer[ 0 ];
     invalidServerInfo.hostNameLength = 0;
 
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
@@ -159,7 +162,12 @@ void test_SecureSocketsTransport_Connect_Invalid_Params( void )
                                                    &socketsConfig );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, returnStatus );
 
-    invalidServerInfo.hostNameLength = strlen( INVALID_HOSTNAME );
+    for( index = 0U; index < INVALID_HOSTNAME_LENGTH; index++ )
+    {
+        hostNameBuffer[ index ] = '1';
+    }
+
+    invalidServerInfo.hostNameLength = strlen( hostNameBuffer );
 
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
 
@@ -197,7 +205,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SetRequireTLS( void
     TransportSocketStatus_t returnStatus;
 
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
@@ -227,7 +235,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_AlpnProtos( void )
 
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
@@ -257,7 +265,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SNI( void )
 
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
@@ -287,7 +295,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
 
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
@@ -346,7 +354,7 @@ void test_SecureSocketsTransport_Connect_Fail_to_Connect( void )
 
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
-    SOCKETS_Connect_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
+    SOCKETS_Connect_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
@@ -378,7 +386,7 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Recv( void )
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
@@ -409,7 +417,7 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Send( void )
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
@@ -568,7 +576,7 @@ void test_SecureSocketsTransport_Disconnect_Fail_to_ShutDown( void )
 {
     TransportSocketStatus_t returnStatus;
 
-    SOCKETS_Shutdown_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
+    SOCKETS_Shutdown_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     returnStatus = SecureSocketsTransport_Disconnect( &networkContext );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR, returnStatus );
 }
@@ -584,7 +592,7 @@ void test_SecureSocketsTransport_Disconnect_Fail_to_Close( void )
     TransportSocketStatus_t returnStatus;
 
     SOCKETS_Shutdown_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_Close_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
+    SOCKETS_Close_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     returnStatus = SecureSocketsTransport_Disconnect( &networkContext );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR, returnStatus );
 }

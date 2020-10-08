@@ -770,7 +770,6 @@ static void startPersistentSession()
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &networkContext,
                                                                                         &serverInfo,
                                                                                         &socketsConfig ) );
-    TEST_ASSERT_NOT_NULL( networkContext.tcpSocket );
 
     /* Establish a new MQTT connection for a persistent session with the broker. */
     establishMqttSession( &context, &networkContext, false, &persistentSession );
@@ -783,7 +782,6 @@ static void resumePersistentSession()
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &networkContext,
                                                                                         &serverInfo,
                                                                                         &socketsConfig ) );
-    TEST_ASSERT_NOT_NULL( networkContext.tcpSocket );
 
     /* Re-establish the persistent session with the broker by connecting with "clean session" flag set to 0. */
     TEST_ASSERT_FALSE( persistentSession );
@@ -869,7 +867,6 @@ void testSetUp()
 
     /* Establish TLS over TCP connection with retry attempts on failures. */
     TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &networkContext ) );
-    TEST_ASSERT_NOT_NULL( networkContext.tcpSocket );
 
     /* Establish MQTT session on top of the TCP+TLS connection. */
     establishMqttSession( &context, &networkContext, true, &persistentSession );
@@ -1179,7 +1176,6 @@ void Connect_LWT()
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &secondNetworkContext,
                                                                                         &serverInfo,
                                                                                         &socketsConfig ) );
-    TEST_ASSERT_NOT_NULL( secondNetworkContext.tcpSocket );
 
     /* Establish MQTT session on top of the TCP+TLS connection. */
     useLWTClientIdentifier = true;
