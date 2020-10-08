@@ -580,7 +580,8 @@ void test_SecureSocketsTransport_Disconnect_NULL_Network_Context( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test the #SecureSocketsTransport_Disconnect and encounterd #SOCKETS_Shutdown failure.
+ * @brief Test when #SecureSocketsTransport_Disconnect encounters a
+ * #SOCKETS_Shutdown failure.
  */
 void test_SecureSocketsTransport_Disconnect_Fail_to_ShutDown( void )
 {
