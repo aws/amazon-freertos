@@ -653,6 +653,7 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
 
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
+    TEST_ASSERT_NOT_EQUAL( -1, contextIndex );
 
     /* Clear the array at the index obtained. */
     memset( &( connToContext[ contextIndex ] ), 0x00, sizeof( _connContext_t ) );
@@ -713,7 +714,15 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
         IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
 
-    IOT_FUNCTION_EXIT_NO_CLEANUP();
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    /* Clean up the context on error. */
+    if( status != IOT_MQTT_SUCCESS )
+    {
+        _IotMqtt_removeContext( pMqttConnection );
+    }
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 

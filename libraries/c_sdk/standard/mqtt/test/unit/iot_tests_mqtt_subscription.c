@@ -226,7 +226,7 @@ static bool _waitForCount( IotMutex_t * pMutex,
  * @brief Wait for a reference count to reach a target value, using FreeRTOS semaphores,
  * subject to a timeout.
  */
-static bool _waitForCountSemaphore( SemaphoreHandle_t * pSem,
+static bool _waitForCountSemaphore( SemaphoreHandle_t sem,
                                     const int32_t * pReferenceCount,
                                     int32_t target )
 {
@@ -242,9 +242,9 @@ static bool _waitForCountSemaphore( SemaphoreHandle_t * pSem,
     for( sleepCount = 0; sleepCount < sleepLimit; sleepCount++ )
     {
         /* Read reference count. */
-        xSemaphoreTake( *pSem, portMAX_DELAY );
+        xSemaphoreTake( sem, portMAX_DELAY );
         referenceCount = *pReferenceCount;
-        xSemaphoreGive( *pSem );
+        xSemaphoreGive( sem );
 
         /* Exit if target value is reached. Otherwise, sleep. */
         if( referenceCount == target )
@@ -435,6 +435,7 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection )
 
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
+    TEST_ASSERT_NOT_EQUAL( -1, contextIndex );
 
     /* Clear the array at the index obtained. */
     memset( &( connToContext[ contextIndex ] ), 0x00, sizeof( _connContext_t ) );
@@ -495,7 +496,15 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection )
         IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
 
-    IOT_FUNCTION_EXIT_NO_CLEANUP();
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    /* Clean up the context on error. */
+    if( status != IOT_MQTT_SUCCESS )
+    {
+        _IotMqtt_removeContext( pMqttConnection );
+    }
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 static bool _isEmpty( _mqttSubscription_t * pSubscriptionArray )
@@ -1148,7 +1157,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
                                                     3 + keepAliveReference ) );
 
         /* Check that the subscription also has a reference count of 3. */
-        TEST_ASSERT_EQUAL_INT32( true, _waitForCountSemaphore( &( connToContext[ contextIndex ].subscriptionMutex ),
+        TEST_ASSERT_EQUAL_INT32( true, _waitForCountSemaphore( connToContext[ contextIndex ].subscriptionMutex,
                                                                &( pSubscription->references ),
                                                                3 ) );
 
@@ -1161,7 +1170,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
         TEST_ASSERT_EQUAL_INT( true, _waitForCount( &( _pMqttConnection->referencesMutex ),
                                                     &( _pMqttConnection->references ),
                                                     2 + keepAliveReference ) );
-        TEST_ASSERT_EQUAL_INT32( true, _waitForCountSemaphore( &( connToContext[ contextIndex ].subscriptionMutex ),
+        TEST_ASSERT_EQUAL_INT32( true, _waitForCountSemaphore( connToContext[ contextIndex ].subscriptionMutex,
                                                                &( pSubscription->references ),
                                                                2 ) );
 
