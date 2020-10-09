@@ -623,17 +623,17 @@ static Socket_t prvCreateTCPConnectionToBroker( void )
     SocketsSockaddr_t xBrokerAddress;
     int32_t lSocketStatus = SOCKETS_ERROR_NONE;
 
-    /* This is the socket used to connect to the MQTT broker. */
-    xMQTTSocket = SOCKETS_Socket( SOCKETS_AF_INET,
-                                  SOCKETS_SOCK_STREAM,
-                                  SOCKETS_IPPROTO_TCP );
+    /*  Locate the endpoint, then connect to the MQTT broker. */
+    ulBrokerIPAddress = SOCKETS_GetHostByName( democonfigMQTT_BROKER_ENDPOINT );
 
-    if( xMQTTSocket != SOCKETS_INVALID_SOCKET )
+    if( ulBrokerIPAddress != 0 )
     {
-        /* Socket was created. Locate the endpoint, then connect to the MQTT broker. */
-        ulBrokerIPAddress = SOCKETS_GetHostByName( democonfigMQTT_BROKER_ENDPOINT );
+        /* This is the socket used to connect to the MQTT broker. */
+        xMQTTSocket = SOCKETS_Socket( SOCKETS_AF_INET,
+                                      SOCKETS_SOCK_STREAM,
+                                      SOCKETS_IPPROTO_TCP );
 
-        if( ulBrokerIPAddress != 0 )
+        if( xMQTTSocket != SOCKETS_INVALID_SOCKET )
         {
             xBrokerAddress.usPort = SOCKETS_htons( democonfigMQTT_BROKER_PORT );
             xBrokerAddress.ulAddress = ulBrokerIPAddress;
@@ -645,28 +645,19 @@ static Socket_t prvCreateTCPConnectionToBroker( void )
                 LogError( ( "Could not connect to MQTT broker %s: SOCKETS_Connect() failed. SocketStatus=%d.",
                             democonfigMQTT_BROKER_ENDPOINT,
                             lSocketStatus ) );
+                SOCKETS_Close( xMQTTSocket );
+                xMQTTSocket = SOCKETS_INVALID_SOCKET;
             }
         }
         else
         {
-            LogError( ( "Could not connect to broker: DNS resolution failed: Broker=%s.",
-                        democonfigMQTT_BROKER_ENDPOINT ) );
+            LogError( ( "Could not create TCP socket." ) );
         }
     }
     else
     {
-        LogError( ( "Could not create TCP socket." ) );
-    }
-
-    /* If the socket was created but the connection was not successful then delete
-     * the socket again. */
-    if( lSocketStatus != SOCKETS_ERROR_NONE )
-    {
-        if( xMQTTSocket != SOCKETS_INVALID_SOCKET )
-        {
-            SOCKETS_Close( xMQTTSocket );
-            xMQTTSocket = SOCKETS_INVALID_SOCKET;
-        }
+        LogError( ( "Could not connect to broker: DNS resolution failed: Broker=%s.",
+                    democonfigMQTT_BROKER_ENDPOINT ) );
     }
 
     return xMQTTSocket;
