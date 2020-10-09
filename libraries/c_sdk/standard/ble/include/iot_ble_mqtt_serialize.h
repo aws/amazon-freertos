@@ -238,19 +238,17 @@ MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pS
  * @brief Deserialize MQTT SUBACK message received over BLE connection.
  *
  * Deserializes MQTT SUBACK parameters from a CBOR map received over BLE connection.
- * Removes the subscription callback from the connection, if it received an error response for a subscription
  *
- * @param[in] mqttConnection The MQTT connection used.
- * @param[in] pSubackStart Start of the SUBACK message within a buffer.
- * @param[in] dataLength Length of the buffer containing SUBACK message
+ * @param[in] pSuback Pointer to the CBOR suback packet information.
  * @param[out] pPacketIdentifier Unique identifier for the SUBACK message.
- * @param[out] pBytesProcessed Length of the SUBACK message parsed.
+ * @param[out] pStatusCode Status code of the subscription.
  *
  * @return  #MQTTSuccess or #MQTTBadResponse.
  *
  */
 MQTTStatus_t IotBleMqtt_DeserializeSuback( MQTTPacketInfo_t * pSuback,
-                                           uint16_t * packetIdentifier );
+                                           uint16_t * packetIdentifier,
+                                           uint8_t * pStatusCode );
 
 /**
  * @brief Serialize MQTT UNSUBSCRIBE message sent over BLE connection.

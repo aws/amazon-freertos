@@ -85,7 +85,7 @@ MQTTStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext );
  * @brief Transport interface write function.
  *
  * @param[in] pContext An opaque used by transport interface.
- * @param[in] buf A pointer to a buffer containing data to be sent out.
+ * @param[in] pBuffer A pointer to a buffer containing data to be sent out.
  * @param[in] bytesToWrite number of bytes to write from the buffer.
  * @return the number of bytes sent.
  */
@@ -97,7 +97,7 @@ int32_t IotBleMqttTransportSend( const NetworkContext_t * pContext,
  * @brief Transport interface read function.
  *
  * @param[in] pContext An opaque used by transport interface.
- * @param[in] buf A pointer to a buffer where incoming data will be stored.
+ * @param[in] pBuffer A pointer to a buffer where incoming data will be stored.
  * @param[in] bytesToRead number of bytes to read from the transport layer.
  * @return the number of bytes successfully read.
  */

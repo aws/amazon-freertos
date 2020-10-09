@@ -29,23 +29,39 @@
 
 /*-----------------------------------------------------------*/
 
-/* Size of CONNACK, PUBACK. */
-#define SIZE_OF_SIMPLE_ACK    4U
+/* Size of CONNACK, PUBACK, UNSUBACK. */
+#define SIZE_OF_SIMPLE_ACK          4U
 
 /* Size of DISCONNECT, PINGRESP and PINGREQ. */
-#define SIZE_OF_PING          2U
+#define SIZE_OF_PING                2U
 
-/* Size of SUBACK, UNSUBACK.
+/* Size of SUBACK.
  * As of now, the only one ACK is received for any request
  * and the size is always 5.
  */
-#define SIZE_OF_SUB_ACK       5U
+#define SIZE_OF_SUB_ACK             5U
 
-#define MAX_ENCODE_LENGTH     4U
+/*
+ * Since only one ACK is received for all the subscriptions
+ * the remaining length is fixed to 3 bytes.
+ */
+#define SUB_ACK_REMAINING_LENGTH    3U
 
-#define SIZE_OF_PUBLISH_HEADER   5U
+/**
+ * Maximum size of the publish header is 5 bytes, since the maximum
+ * size of encoded remaining length is 4 bytes as per MQTT spec v3.1.1.
+ */
+#define SIZE_OF_PUBLISH_HEADER      5U
 
-#define BIT_MASK( bitnum )    ( ( uint8_t ) ( 1 << bitnum ) )
+/**
+ * @brief CONNACK Server Refused return code.
+ */
+#define CONNACK_REFUSED             ( 0x05 )
+
+/**
+ * Creates a mask for the bit at position bitpos.
+ */
+#define BIT_MASK( bitpos )    ( ( uint8_t ) ( 1 << bitpos ) )
 
 /* Define masks for each flag in Connect packets */
 #define CLEAN_SESSION_MASK                0x02U
@@ -85,15 +101,10 @@
 
 /**
  * @brief The value denotes the length which is greater than maximum value
- * that can be decoded from an MQTT packet. This is used to return MQTT decoder
- * errors.
+ * that can be decoded from an MQTT packet as per MQTT spec v3.1.1.
  */
 #define REMAINING_LENGTH_INVALID          ( ( size_t ) 268435456 )
 
-/**
- * @brief CONNACK Server Refused return code.
- */
-#define CONNACK_REFUSED                   ( 0x05 )
 
 /**
  * @brief Macro for checking if a bit is set in a 1-byte unsigned int.
@@ -674,7 +685,7 @@ static MQTTStatus_t handleOutgoingConnect( const void * buf,
     return status;
 }
 
-static MQTTStatus_t handleOutgoingPublish(  MQTTBLEPublishInfo_t * pPublishInfo,
+static MQTTStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t * pPublishInfo,
                                            const void * buf,
                                            MQTTFixedBuffer_t * serializedBuf,
                                            size_t bytesToSend )
@@ -694,7 +705,7 @@ static MQTTStatus_t handleOutgoingPublish(  MQTTBLEPublishInfo_t * pPublishInfo,
         pPublishInfo->pending = parsePublish( buf, bytesToSend, pPublishInfo );
     }
 
-    if( !pPublishInfo->pending )
+    if( pPublishInfo->pending == false )
     {
         status = IotBleMqtt_SerializePublish( &pPublishInfo->info, &serializedBuf->pBuffer, &serializedBuf->size, pPublishInfo->packetIdentifier );
 
@@ -883,17 +894,23 @@ static MQTTStatus_t handleIncomingSuback( StreamBufferHandle_t streamBuffer,
     MQTTStatus_t status = MQTTSuccess;
     uint16_t packetIdentifier = 0;
     uint8_t buffer[ SIZE_OF_SUB_ACK ] = { 0 };
+    uint8_t statusCode;
 
     LogDebug( ( "Processing incoming SUBACK from channel." ) );
-    status = IotBleMqtt_DeserializeSuback( packet, &packetIdentifier );
+    status = IotBleMqtt_DeserializeSuback( packet, &packetIdentifier, &statusCode );
 
     if( status == MQTTSuccess )
     {
         buffer[ 0 ] = packet->type;
-        buffer[ 1 ] = 3;
+
+        /*
+         * Only one subscription status ( succeeded / failed ) is sent from the peer for all subscriptions.
+         * Hence setting the remaining length to a constant value of 3 bytes
+         */
+        buffer[ 1 ] = SUB_ACK_REMAINING_LENGTH;
         buffer[ 2 ] = ( uint8_t ) ( packetIdentifier >> 8 );
         buffer[ 3 ] = ( uint8_t ) ( packetIdentifier & 0x00FFU );
-        buffer[ 4 ] = 1;
+        buffer[ 4 ] = statusCode;
 
         ( void ) xStreamBufferSend( streamBuffer, buffer, SIZE_OF_SUB_ACK, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
     }
@@ -949,10 +966,10 @@ static MQTTStatus_t handleIncomingPingresp( StreamBufferHandle_t streamBuffer,
 
 
 /**
- * @brief Transport interface write prototype.
+ * @brief Transport interface send API implementation.
  *
  * @param[in] context An opaque used by transport interface.
- * @param[in] buf A pointer to a buffer containing data to be sent out.
+ * @param[in] pBuffer A pointer to a buffer containing data to be sent out.
  * @param[in] bytesToWrite number of bytes to write from the buffer.
  */
 int32_t IotBleMqttTransportSend( const NetworkContext_t * pContext,
@@ -967,6 +984,10 @@ int32_t IotBleMqttTransportSend( const NetworkContext_t * pContext,
     /* The send function returns the CBOR bytes written, so need to return 0 or full amount of bytes sent. */
     int32_t bytesWritten = ( int32_t ) bytesToWrite;
 
+    /*
+     * The payload of publish can be send as a separate packet from the header. The flag is used to check for pending publish
+     * payload information and process the payload part of the publish.
+     */
     if( pContext->publishInfo.pending == true )
     {
         status = handleOutgoingPublish( ( MQTTBLEPublishInfo_t * ) &pContext->publishInfo, pBuffer, &serializedBuf, bytesToWrite );

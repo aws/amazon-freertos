@@ -858,6 +858,7 @@ TEST( BLE_Unit_MQTT_Serialize, DeserializeSUBACK )
     uint8_t buffer[ TEST_MESG_LEN ];
     MQTTPacketInfo_t suback;
     uint16_t packetIdentifier;
+    uint8_t statusCode;
 
     suback.type = MQTT_PACKET_TYPE_SUBACK;
     suback.pRemainingData = buffer;
@@ -865,15 +866,16 @@ TEST( BLE_Unit_MQTT_Serialize, DeserializeSUBACK )
 
     prvCreateSUBACKPacket( suback.pRemainingData, &suback.remainingLength, TEST_QOS1, TEST_PACKET_IDENTIFIER, 2 );
 
-    status = IotBleMqtt_DeserializeSuback( &suback, &packetIdentifier );
+    status = IotBleMqtt_DeserializeSuback( &suback, &packetIdentifier, &statusCode );
     TEST_ASSERT_EQUAL( MQTTSuccess, status );
     TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, packetIdentifier );
+    TEST_ASSERT_EQUAL( TEST_QOS1, statusCode );
 
     /** Malformed message **/
     suback.remainingLength = TEST_MESG_LEN;
     prvCreateSUBACKPacket( suback.pRemainingData, &suback.remainingLength, TEST_QOS1, TEST_PACKET_IDENTIFIER, 2 );
     suback.pRemainingData[ 0 ] = 0x00;
-    status = IotBleMqtt_DeserializeSuback( &suback, &packetIdentifier );
+    status = IotBleMqtt_DeserializeSuback( &suback, &packetIdentifier, &statusCode );
     TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 
 
@@ -882,7 +884,7 @@ TEST( BLE_Unit_MQTT_Serialize, DeserializeSUBACK )
     suback.remainingLength = TEST_MESG_LEN;
     prvCreateSUBACKPacket( suback.pRemainingData, &suback.remainingLength, -1, TEST_PACKET_IDENTIFIER, 1 );
     suback.pRemainingData[ 0 ] = 0x00;
-    status = IotBleMqtt_DeserializeSuback( &suback, &packetIdentifier );
+    status = IotBleMqtt_DeserializeSuback( &suback, &packetIdentifier, &statusCode );
     TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 
     /** No packet id **/
@@ -890,7 +892,7 @@ TEST( BLE_Unit_MQTT_Serialize, DeserializeSUBACK )
     suback.remainingLength = TEST_MESG_LEN;
     prvCreateSUBACKPacket( suback.pRemainingData, &suback.remainingLength, TEST_QOS1, -1, 1 );
     suback.pRemainingData[ 0 ] = 0x00;
-    status = IotBleMqtt_DeserializeSuback( &suback, &packetIdentifier );
+    status = IotBleMqtt_DeserializeSuback( &suback, &packetIdentifier, &statusCode );
     TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 }
 

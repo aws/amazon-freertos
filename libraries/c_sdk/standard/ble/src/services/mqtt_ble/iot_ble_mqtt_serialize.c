@@ -1055,7 +1055,8 @@ MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pS
 }
 
 MQTTStatus_t IotBleMqtt_DeserializeSuback( MQTTPacketInfo_t * pSuback,
-                                           uint16_t * packetIdentifier )
+                                           uint16_t * packetIdentifier,
+                                           uint8_t *pStatusCode )
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
@@ -1095,6 +1096,10 @@ MQTTStatus_t IotBleMqtt_DeserializeSuback( MQTTPacketInfo_t * pSuback,
         {
             LogError( ( "Status code decode failed, error = %d, decoded value type = %d", error, decoderValue.type ) );
             ret = MQTTBadResponse;
+        }
+        else
+        {
+            *pStatusCode = ( uint8_t ) ( decoderValue.u.value.u.signedInt );
         }
     }
 
