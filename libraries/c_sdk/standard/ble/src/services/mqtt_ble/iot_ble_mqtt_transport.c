@@ -41,7 +41,9 @@
  */
 #define SIZE_OF_SUB_ACK       5U
 
-#define MAX_ENCODE_LENGTH     4
+#define MAX_ENCODE_LENGTH     4U
+
+#define SIZE_OF_PUBLISH_HEADER   5U
 
 #define BIT_MASK( bitnum )    ( ( uint8_t ) ( 1 << bitnum ) )
 
@@ -199,7 +201,7 @@ bool IotBleMqttTransportInit( void * pBuffer,
 }
 
 
-void IotBleMqttTransportCleanup( NetworkContext_t * pContext )
+void IotBleMqttTransportCleanup( const NetworkContext_t * pContext )
 {
     vStreamBufferDelete( pContext->xStreamBuffer );
 }
@@ -576,7 +578,7 @@ static MQTTStatus_t transportSerializePublish( StreamBufferHandle_t streamBuffer
                                                uint16_t packetId )
 {
     MQTTStatus_t status = MQTTSuccess;
-    uint8_t header[ 5 ];
+    uint8_t header[ SIZE_OF_PUBLISH_HEADER ] = { 0 };
     uint8_t serializedArray[ 2 ];
     uint8_t publishFlags = MQTT_PACKET_TYPE_PUBLISH;
     size_t remainingLength, encodedLength;
@@ -672,7 +674,7 @@ static MQTTStatus_t handleOutgoingConnect( const void * buf,
     return status;
 }
 
-static MQTTStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t * pPublishInfo,
+static MQTTStatus_t handleOutgoingPublish(  MQTTBLEPublishInfo_t * pPublishInfo,
                                            const void * buf,
                                            MQTTFixedBuffer_t * serializedBuf,
                                            size_t bytesToSend )
@@ -953,12 +955,12 @@ static MQTTStatus_t handleIncomingPingresp( StreamBufferHandle_t streamBuffer,
  * @param[in] buf A pointer to a buffer containing data to be sent out.
  * @param[in] bytesToWrite number of bytes to write from the buffer.
  */
-int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
-                                 const void * buf,
+int32_t IotBleMqttTransportSend( const NetworkContext_t * pContext,
+                                 const void * pBuffer,
                                  size_t bytesToWrite )
 {
     size_t bytesSent = 0;
-    uint8_t packetType = ( *( ( uint8_t * ) buf ) & 0xF0 );
+    uint8_t packetType = ( *( ( uint8_t * ) pBuffer ) & 0xF0 );
     MQTTStatus_t status = MQTTSuccess;
     MQTTFixedBuffer_t serializedBuf = { 0 };
 
@@ -967,30 +969,30 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
 
     if( pContext->publishInfo.pending == true )
     {
-        status = handleOutgoingPublish( &pContext->publishInfo, buf, &serializedBuf, bytesToWrite );
+        status = handleOutgoingPublish( ( MQTTBLEPublishInfo_t * ) &pContext->publishInfo, pBuffer, &serializedBuf, bytesToWrite );
     }
     else
     {
         switch( packetType )
         {
             case CLIENT_PACKET_TYPE_CONNECT:
-                status = handleOutgoingConnect( buf, &serializedBuf );
+                status = handleOutgoingConnect( pBuffer, &serializedBuf );
                 break;
 
             case CLIENT_PACKET_TYPE_PUBLISH:
-                status = handleOutgoingPublish( &pContext->publishInfo, buf, &serializedBuf, bytesToWrite );
+                status = handleOutgoingPublish( ( MQTTBLEPublishInfo_t * ) &pContext->publishInfo, pBuffer, &serializedBuf, bytesToWrite );
                 break;
 
             case CLIENT_PACKET_TYPE_PUBACK:
-                status = handleOutgoingPuback( buf, &serializedBuf );
+                status = handleOutgoingPuback( pBuffer, &serializedBuf );
                 break;
 
             case CLIENT_PACKET_TYPE_SUBSCRIBE:
-                status = handleOutgoingSubscribe( buf, &serializedBuf );
+                status = handleOutgoingSubscribe( pBuffer, &serializedBuf );
                 break;
 
             case CLIENT_PACKET_TYPE_UNSUBSCRIBE:
-                status = handleOutgoingUnsubscribe( buf, &serializedBuf );
+                status = handleOutgoingUnsubscribe( pBuffer, &serializedBuf );
                 break;
 
             case CLIENT_PACKET_TYPE_PINGREQ:
@@ -1119,9 +1121,9 @@ MQTTStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext )
  * @param[out] buf A pointer to a buffer where incoming data will be stored.
  * @param[in] bytesToRead number of bytes to read from the transport layer.
  */
-int32_t IotBleMqttTransportReceive( NetworkContext_t * pContext,
-                                    void * buf,
+int32_t IotBleMqttTransportReceive( const NetworkContext_t * pContext,
+                                    void * pBuffer,
                                     size_t bytesToRead )
 {
-    return ( int32_t ) xStreamBufferReceive( pContext->xStreamBuffer, buf, bytesToRead, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
+    return ( int32_t ) xStreamBufferReceive( pContext->xStreamBuffer, pBuffer, bytesToRead, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
 }

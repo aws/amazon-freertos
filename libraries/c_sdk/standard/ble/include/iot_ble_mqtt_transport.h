@@ -71,7 +71,7 @@ bool IotBleMqttTransportInit( void * pBuffer, size_t bufSize, NetworkContext_t *
  * 
  * @param[in] pContext An opaque used by transport interface.
  */
-void IotBleMqttTransportCleanup( NetworkContext_t * pContext );
+void IotBleMqttTransportCleanup( const NetworkContext_t * pContext );
 
 /**
  * @brief Function to accept data from the channel
@@ -89,8 +89,8 @@ MQTTStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext );
  * @param[in] bytesToWrite number of bytes to write from the buffer.
  * @return the number of bytes sent.
  */
-int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
-                                 const void * buf,
+int32_t IotBleMqttTransportSend( const NetworkContext_t * pContext,
+                                 const void * pBuffer,
                                  size_t bytesToWrite );
 
 /**
@@ -101,8 +101,8 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
  * @param[in] bytesToRead number of bytes to read from the transport layer.
  * @return the number of bytes successfully read.
  */
-int32_t IotBleMqttTransportReceive( NetworkContext_t * pContext,
-                                    void * buf,
+int32_t IotBleMqttTransportReceive( const NetworkContext_t * pContext,
+                                    void * pBuffer,
                                     size_t bytesToRead );
 
 
