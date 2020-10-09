@@ -114,7 +114,7 @@
 /**
  * @brief The MQTT message published in this example.
  */
-#define mqttexampleMESSAGE                          "Hello Light Weight MQTT World!"
+#define mqttexampleMESSAGE                          "Hello Serializer MQTT World!"
 
 /**
  * @brief Dimensions a file scope buffer currently used to send and receive MQTT
