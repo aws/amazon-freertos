@@ -305,7 +305,7 @@ TEST( BLE_Unit_MQTT_Serialize, SerializeSUBSCRIBE )
     size_t bufLen;
     IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
     IotSerializerError_t xResult;
-    uint16_t packetIdentifier;
+    uint16_t packetIdentifier = 1;
 
     subscriptionList[ 0 ].qos = TEST_QOS1;
     subscriptionList[ 0 ].pTopicFilter = TEST_TOPIC;
@@ -320,7 +320,6 @@ TEST( BLE_Unit_MQTT_Serialize, SerializeSUBSCRIBE )
         TEST_ASSERT_EQUAL( MQTTSuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
-        TEST_ASSERT_NOT_EQUAL( 0, packetIdentifier );
 
         xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
@@ -367,7 +366,7 @@ TEST( BLE_Unit_MQTT_Serialize, SerializeUNSUBSCRIBE )
     size_t bufLen;
     IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
     IotSerializerError_t xResult;
-    uint16_t packetIdentifier;
+    uint16_t packetIdentifier = 1;
 
     subscriptionList[ 0 ].qos = TEST_QOS1;
     subscriptionList[ 0 ].pTopicFilter = TEST_TOPIC;
@@ -382,7 +381,6 @@ TEST( BLE_Unit_MQTT_Serialize, SerializeUNSUBSCRIBE )
         TEST_ASSERT_EQUAL( MQTTSuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
-        TEST_ASSERT_NOT_EQUAL( 0, packetIdentifier );
 
         xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
