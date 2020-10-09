@@ -431,7 +431,7 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
         {
             /* Sends an MQTT Connect packet over the already connected TCP socket
              * xMQTTSocket, and waits for connection acknowledgment (CONNACK) packet. */
-            LogInfo( ( "Creating an MQTT connection to %s.\r\n",
+            LogInfo( ( "Creating an MQTT connection to %s.",
                        democonfigMQTT_BROKER_ENDPOINT ) );
             xStatus = prvCreateMQTTConnectionWithBroker( xMQTTSocket );
         }
@@ -453,7 +453,7 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
             /* Publish messages with QoS0, then send and process keep alive messages. */
             for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
             {
-                LogInfo( ( "Publish to the MQTT topic %s.\r\n", mqttexampleTOPIC ) );
+                LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
                 xStatus = prvMQTTPublishToTopic( xMQTTSocket );
 
                 if( xStatus == pdPASS )
@@ -461,18 +461,18 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
                     /* Process the incoming publish echo. Since the application subscribed
                      * to the same topic, the broker will send the same publish message
                      * back to the application. */
-                    LogInfo( ( "Attempt to receive publish message from broker.\r\n" ) );
+                    LogInfo( ( "Attempt to receive publish message from broker." ) );
                     xStatus = prvMQTTProcessIncomingPacket( xMQTTSocket );
                 }
 
                 if( xStatus == pdPASS )
                 {
                     /* Leave the connection idle for some time */
-                    LogInfo( ( "Keeping Connection Idle.\r\n\r\n" ) );
+                    LogInfo( ( "Keeping Connection Idle." ) );
                     vTaskDelay( mqttexampleKEEP_ALIVE_DELAY );
 
                     /* Send a ping request to broker and receive the ping response. */
-                    LogInfo( ( "Sending Ping Request to the broker.\r\n" ) );
+                    LogInfo( ( "Sending Ping Request to the broker." ) );
                     xStatus = prvMQTTKeepAlive( xMQTTSocket );
                 }
 
@@ -488,7 +488,7 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
 
         if( xStatus == pdPASS )
         {
-            LogInfo( ( "Unsubscribe from the MQTT topic %s.\r\n", mqttexampleTOPIC ) );
+            LogInfo( ( "Unsubscribe from the MQTT topic %s.", mqttexampleTOPIC ) );
             xStatus = prvMQTTUnsubscribeFromTopic( xMQTTSocket );
         }
 
@@ -508,7 +508,7 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
             /* Send an MQTT Disconnect packet over the currently connected TCP socket.
              * There is no corresponding response for a disconnect packet. After
              * sending disconnect, the client must close the network connection. */
-            LogInfo( ( "Disconnecting the MQTT connection with %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
+            LogInfo( ( "Disconnecting the MQTT connection with %s.", democonfigMQTT_BROKER_ENDPOINT ) );
             xStatus = prvMQTTDisconnect( xMQTTSocket );
 
             /* Close the network connection. */
@@ -528,14 +528,14 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
             /* Wait for some time between two iterations to ensure that we do not
              * bombard the MQTT broker. */
             LogInfo( ( "RunCoreMqttSerializerDemo() completed an iteration successfully. "
-                       "Total free heap is %u.\r\n", xPortGetFreeHeapSize() ) );
-            LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
+                       "Total free heap is %u.", xPortGetFreeHeapSize() ) );
+            LogInfo( ( "Short delay before starting the next iteration.... " ) );
             vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS );
         }
         else
         {
             LogInfo( ( "RunCoreMqttSerializerDemo() failed an iteration. "
-                       "Total free heap is %u.\r\n",
+                       "Total free heap is %u.",
                        xPortGetFreeHeapSize() ) );
             break;
         }
@@ -620,8 +620,8 @@ static Socket_t prvCreateTCPConnectionToBroker( void )
 {
     Socket_t xMQTTSocket = ( Socket_t ) SOCKETS_INVALID_SOCKET;
     uint32_t ulBrokerIPAddress;
-    BaseType_t xStatus = pdFAIL;
     SocketsSockaddr_t xBrokerAddress;
+    int32_t lSocketStatus = SOCKETS_ERROR_NONE;
 
     /* This is the socket used to connect to the MQTT broker. */
     xMQTTSocket = SOCKETS_Socket( SOCKETS_AF_INET,
@@ -638,29 +638,28 @@ static Socket_t prvCreateTCPConnectionToBroker( void )
             xBrokerAddress.usPort = SOCKETS_htons( democonfigMQTT_BROKER_PORT );
             xBrokerAddress.ulAddress = ulBrokerIPAddress;
 
-            if( SOCKETS_Connect( xMQTTSocket, &xBrokerAddress, sizeof( xBrokerAddress ) ) == 0 )
+            lSocketStatus = SOCKETS_Connect( xMQTTSocket, &xBrokerAddress, sizeof( xBrokerAddress ) );
+
+            if( lSocketStatus != SOCKETS_ERROR_NONE )
             {
-                /* Connection was successful. */
-                xStatus = pdPASS;
-            }
-            else
-            {
-                LogInfo( ( "Located but could not connect to MQTT broker %s.\r\n\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
+                LogError( ( "Located but could not connect to MQTT broker %s. SocketStatus=%d.",
+                            democonfigMQTT_BROKER_ENDPOINT,
+                            lSocketStatus ) );
             }
         }
         else
         {
-            LogInfo( ( "Could not locate MQTT broker %s.\r\n\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
+            LogError( ( "Could not locate MQTT broker %s.", democonfigMQTT_BROKER_ENDPOINT ) );
         }
     }
     else
     {
-        LogInfo( ( "Could not create TCP socket.\r\n\r\n" ) );
+        LogError( ( "Could not create TCP socket." ) );
     }
 
     /* If the socket was created but the connection was not successful then delete
      * the socket again. */
-    if( xStatus == pdFAIL )
+    if( lSocketStatus != SOCKETS_ERROR_NONE )
     {
         if( xMQTTSocket != SOCKETS_INVALID_SOCKET )
         {
@@ -899,7 +898,7 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( Socket_t xMQTTSocket )
 
     if( xStatus == pdFAIL )
     {
-        LogInfo( ( "Connection with MQTT broker failed.\r\n" ) );
+        LogInfo( ( "Connection with MQTT broker failed." ) );
     }
 
     return xStatus;
@@ -1011,7 +1010,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( Socket_t xMQTTSocket )
          * will expect all the messages it sends to the broker to be sent back to it
          * from the broker. This demo uses QOS0 in Subscribe, therefore, the Publish
          * messages received from the broker will have QOS0. */
-        LogInfo( ( "Attempt to subscribe to the MQTT topic %s.\r\n", mqttexampleTOPIC ) );
+        LogInfo( ( "Attempt to subscribe to the MQTT topic %s.", mqttexampleTOPIC ) );
         xStatus = prvMQTTSubscribeToTopic( xMQTTSocket );
 
         /* Break out of this loop on failures in sending the subscription request
@@ -1432,7 +1431,7 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
             {
                 if( xTopicFilterContext[ ulTopicCount ].xSubAckSuccess != false )
                 {
-                    LogInfo( ( "Subscribed to the topic %s with maximum QoS %u.\r\n",
+                    LogInfo( ( "Subscribed to the topic %s with maximum QoS %u.",
                                xTopicFilterContext[ ulTopicCount ].pcTopicFilter,
                                xTopicFilterContext[ ulTopicCount ].xSubAckSuccess ) );
                 }
@@ -1443,18 +1442,18 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
             break;
 
         case MQTT_PACKET_TYPE_UNSUBACK:
-            LogInfo( ( "Unsubscribed from the topic %s.\r\n", mqttexampleTOPIC ) );
+            LogInfo( ( "Unsubscribed from the topic %s.", mqttexampleTOPIC ) );
             /* Make sure ACK packet identifier matches with Request packet identifier. */
             configASSERT( usUnsubscribePacketIdentifier == usPacketId );
             break;
 
         case MQTT_PACKET_TYPE_PINGRESP:
-            LogInfo( ( "Ping Response successfully received.\r\n" ) );
+            LogInfo( ( "Ping Response successfully received." ) );
             break;
 
         /* Any other packet type is invalid. */
         default:
-            LogWarn( ( "prvMQTTProcessResponse() called with unknown packet type:(%02X).\r\n",
+            LogWarn( ( "prvMQTTProcessResponse() called with unknown packet type:(%02X).",
                        pxIncomingPacket->type ) );
     }
 }
@@ -1475,8 +1474,8 @@ static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo )
                         pxPublishInfo->pTopicName,
                         pxPublishInfo->topicNameLength ) ) )
     {
-        LogInfo( ( "\r\nIncoming Publish Topic Name: %.*s matches subscribed topic.\r\n"
-                   "Incoming Publish Message : %.*s\r\n",
+        LogInfo( ( "Incoming Publish Topic Name: %.*s matches subscribed topic."
+                   "Incoming Publish Message : %.*s",
                    pxPublishInfo->topicNameLength,
                    pxPublishInfo->pTopicName,
                    pxPublishInfo->payloadLength,
@@ -1484,7 +1483,7 @@ static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo )
     }
     else
     {
-        LogInfo( ( "Incoming Publish Topic Name: %.*s does not match subscribed topic.\r\n",
+        LogInfo( ( "Incoming Publish Topic Name: %.*s does not match subscribed topic.",
                    pxPublishInfo->topicNameLength,
                    pxPublishInfo->pTopicName ) );
     }
