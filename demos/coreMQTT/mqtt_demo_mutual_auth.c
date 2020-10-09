@@ -36,7 +36,7 @@
  * A mutually authenticated TLS connection is used to connect to the
  * MQTT message broker in this example. Define democonfigMQTT_BROKER_ENDPOINT,
  * democonfigROOT_CA_PEM, democonfigCLIENT_CERTIFICATE_PEM,
- * and democonfigCLIENT_PRIVATE_KEY_PEM in demo_config.h to establish a
+ * and democonfigCLIENT_PRIVATE_KEY_PEM in mqtt_demo_mutual_auth_config.h to establish a
  * mutually authenticated connection.
  */
 
@@ -422,16 +422,14 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
 
         if( xDemoStatus == pdPASS )
         {
+            /* Set a flag indicating a TLS connection exists. This is done to
+             * disconnect if the loop exits before disconnection happens. */
+            xIsConnectionEstablished = pdTRUE;
+
             /* Sends an MQTT Connect packet over the already established TLS connection,
              * and waits for connection acknowledgment (CONNACK) packet. */
             LogInfo( ( "Creating an MQTT connection to %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
             xDemoStatus = prvCreateMQTTConnectionWithBroker( &xMQTTContext, &xNetworkContext );
-        }
-        else
-        {
-            /* Set a flag indicating a TCP connection exists. This is done to
-             * disconnect if the loop exits before disconnection happens. */
-            xIsConnectionEstablished = pdTRUE;
         }
 
         /**************************** Subscribe. ******************************/
@@ -554,7 +552,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
 {
     ServerInfo_t xServerInfo = { 0 };
     SocketsConfig_t xSocketsConfig = { 0 };
-    int lStatus = pdFAIL;
+    int lStatus = pdPASS;
     TransportSocketStatus_t xNetworkStatus = pdFAIL;
     RetryUtilsStatus_t xRetryUtilsStatus = RetryUtilsSuccess;
     RetryUtilsParams_t xReconnectParams;
@@ -599,11 +597,8 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
         if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
             LogWarn( ( "Connection to the broker failed. Retrying connection with backoff and jitter." ) );
-            xRetryUtilsStatus = RetryUtils_BackoffAndSleep( &xReconnectParams );
-        }
-        else
-        {
             lStatus = pdFAIL;
+            xRetryUtilsStatus = RetryUtils_BackoffAndSleep( &xReconnectParams );
         }
 
         if( xRetryUtilsStatus == RetryUtilsRetriesExhausted )
