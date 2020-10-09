@@ -1848,6 +1848,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT/mqtt_demo_plaintext.c</locationURI>
 		</link>
 		<link>
+			<name>demos/coreMQTT/mqtt_demo_serializer.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT/mqtt_demo_serializer.c</locationURI>
+		</link>
+		<link>
 			<name>demos/defender/aws_iot_demo_defender.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/defender/aws_iot_demo_defender.c</locationURI>
@@ -2076,6 +2081,11 @@
 			<name>config_files/mqtt_demo_plaintext_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/mqtt_demo_plaintext_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/mqtt_demo_serializer_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/mqtt_demo_serializer_config.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/main.c</name>

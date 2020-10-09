@@ -75,6 +75,7 @@
 			</logicalFolder>
 			<logicalFolder name="coreMQTT" displayName="coreMQTT" projectFiles="true">
 				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_plaintext.c</itemPath>
+				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_serializer.c</itemPath>
 			</logicalFolder>
 			<logicalFolder name="defender" displayName="defender" projectFiles="true">
 				<itemPath>../../../../../demos/defender/aws_iot_demo_defender.c</itemPath>
@@ -716,6 +717,7 @@
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_mqtt_agent_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_pkcs11_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_plaintext_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_serializer_config.h</itemPath>
 							</logicalFolder>
 							<logicalFolder name="application_code" displayName="application_code" projectFiles="true">
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/application_code/main.c</itemPath>
