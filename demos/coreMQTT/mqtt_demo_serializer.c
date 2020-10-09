@@ -24,7 +24,7 @@
  */
 
 /*
- * Demo for showing use of the MQTT lightserializer API. The serializer
+ * Demo for showing use of the lightweight MQTT serializer API. The serializer
  * API lets user to serialize and deserialize MQTT messages into a user
  * provided buffer. This API allows use of a statically allocated buffer.
  *
