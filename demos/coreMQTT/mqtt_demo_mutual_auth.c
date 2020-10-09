@@ -552,8 +552,8 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
 {
     ServerInfo_t xServerInfo = { 0 };
     SocketsConfig_t xSocketsConfig = { 0 };
-    int lStatus = pdPASS;
-    TransportSocketStatus_t xNetworkStatus = pdFAIL;
+    BaseType_t xStatus = pdPASS;
+    TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     RetryUtilsStatus_t xRetryUtilsStatus = RetryUtilsSuccess;
     RetryUtilsParams_t xReconnectParams;
 
@@ -596,8 +596,9 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
 
         if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            LogWarn( ( "Connection to the broker failed. Retrying connection with backoff and jitter." ) );
-            lStatus = pdFAIL;
+            LogWarn( ( "Connection to the broker failed. Status=%d \r\n."
+                       "Retrying connection with backoff and jitter.\r\n", xNetworkStatus ) );
+            xStatus = pdFAIL;
             xRetryUtilsStatus = RetryUtils_BackoffAndSleep( &xReconnectParams );
         }
 
@@ -608,7 +609,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
         }
     } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
 
-    return xNetworkStatus;
+    return xStatus;
 }
 /*-----------------------------------------------------------*/
 
@@ -619,7 +620,7 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
     MQTTConnectInfo_t xConnectInfo;
     bool xSessionPresent;
     TransportInterface_t xTransport;
-    int lStatus = pdFAIL;
+    BaseType_t xStatus = pdFAIL;
 
     /***
      * For readability, error handling in this function is restricted to the use of
@@ -671,10 +672,10 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
     {
         /* Successfully established and MQTT connection with the broker. */
         LogInfo( ( "An MQTT connection is established with %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
-        lStatus = pdPASS;
+        xStatus = pdPASS;
     }
 
-    return lStatus;
+    return xStatus;
 }
 /*-----------------------------------------------------------*/
 
@@ -706,7 +707,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
     MQTTSubscribeInfo_t xMQTTSubscription[ mqttexampleTOPIC_COUNT ];
     bool xFailedSubscribeToTopic = false;
     uint32_t ulTopicCount = 0U;
-    int lStatus = pdFAIL;
+    BaseType_t xStatus = pdFAIL;
 
     /* Some fields not used by this demo so start with everything at 0. */
     ( void ) memset( ( void * ) &xMQTTSubscription, 0x00, sizeof( xMQTTSubscription ) );
@@ -746,7 +747,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
         }
         else
         {
-            lStatus = pdPASS;
+            xStatus = pdPASS;
             LogInfo( ( "SUBSCRIBE sent for topic %s to broker.\r\n", mqttexampleTOPIC ) );
 
             /* Process incoming packet from the broker. After sending the subscribe, the
@@ -765,7 +766,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
             }
         }
 
-        if( lStatus == pdPASS )
+        if( xStatus == pdPASS )
         {
             /* Check if recent subscription request has been rejected. #xTopicFilterContext is updated
              * in the event callback to reflect the status of the SUBACK sent by the broker. It represents
@@ -790,7 +791,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
         }
     } while( ( xFailedSubscribeToTopic == true ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
 
-    return lStatus;
+    return xStatus;
 }
 /*-----------------------------------------------------------*/
 
@@ -798,7 +799,7 @@ static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
 {
     MQTTStatus_t xResult;
     MQTTPublishInfo_t xMQTTPublishInfo;
-    int lStatus = pdPASS;
+    BaseType_t xStatus = pdPASS;
 
     /***
      * For readability, error handling in this function is restricted to the use of
@@ -824,13 +825,13 @@ static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
 
     if( xResult != MQTTSuccess )
     {
-        lStatus = pdFAIL;
+        xStatus = pdFAIL;
         LogError( ( "Failed to send PUBLISH message to broker: Topic=%s, Error=%s",
                     mqttexampleTOPIC,
                     MQTT_Status_strerror( xResult ) ) );
     }
 
-    return lStatus;
+    return xStatus;
 }
 /*-----------------------------------------------------------*/
 
@@ -838,7 +839,7 @@ static BaseType_t prvMQTTUnsubscribeFromTopic( MQTTContext_t * pxMQTTContext )
 {
     MQTTStatus_t xResult;
     MQTTSubscribeInfo_t xMQTTSubscription[ mqttexampleTOPIC_COUNT ];
-    int lStatus = pdPASS;
+    BaseType_t xStatus = pdPASS;
 
     /* Some fields not used by this demo so start with everything at 0. */
     ( void ) memset( ( void * ) &xMQTTSubscription, 0x00, sizeof( xMQTTSubscription ) );
@@ -863,13 +864,13 @@ static BaseType_t prvMQTTUnsubscribeFromTopic( MQTTContext_t * pxMQTTContext )
 
     if( xResult != MQTTSuccess )
     {
-        lStatus = pdFAIL;
+        xStatus = pdFAIL;
         LogError( ( "Failed to send UNSUBSCRIBE request to broker: TopicFilter=%s, Error=%s",
                     mqttexampleTOPIC,
                     MQTT_Status_strerror( xResult ) ) );
     }
 
-    return lStatus;
+    return xStatus;
 }
 /*-----------------------------------------------------------*/
 
