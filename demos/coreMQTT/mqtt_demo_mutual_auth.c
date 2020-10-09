@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.3.0
+ * FreeRTOS V202010.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -514,7 +514,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
 
             if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
             {
-                xDemoStatus = EXIT_FAILURE;
+                xDemoStatus = pdFAIL;
                 LogError( ( "SecureSocketsTransport_Disconnect() failed to close the network connection. "
                             "StatusCode=%d.", ( int ) xNetworkStatus ) );
             }

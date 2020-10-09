@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.3.0
+ * FreeRTOS V202010.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,11 +24,8 @@
  *
  */
 
-#ifndef DEMO_CONFIG_H
-#define DEMO_CONFIG_H
-
-/* FreeRTOS config include. */
-#include "FreeRTOSConfig.h"
+#ifndef MQTT_DEMO_MUTUAL_AUTH_CONFIG_H
+#define MQTT_DEMO_MUTUAL_AUTH_CONFIG_H
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -142,16 +139,8 @@
  */
 
 /**
- * @brief Set the stack size of the main demo task.
- *
- * In the Windows port, this stack only holds a structure. The actual
- * stack is created by an operating system thread.
- */
-#define democonfigDEMO_STACKSIZE         configMINIMAL_STACK_SIZE
-
-/**
  * @brief Size of the network buffer for MQTT packets.
  */
 #define democonfigNETWORK_BUFFER_SIZE    ( 1024U )
 
-#endif /* DEMO_CONFIG_H */
+#endif /* MQTT_DEMO_MUTUAL_AUTH_CONFIG_H */
