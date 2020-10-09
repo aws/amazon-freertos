@@ -378,9 +378,8 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\logging_stack</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\portable</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
@@ -388,10 +387,9 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
@@ -1647,6 +1645,18 @@
 						</file>
 					</group>
 				</group>
+				<group>
+					<name>freertos_plus_cli</name>
+					<group>
+						<name>source</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI_Console.c</name>
+						</file>
+					</group>
+				</group>
 			</group>
 			<group>
 				<name>aws</name>
@@ -1980,24 +1990,18 @@
 			</group>
 		</group>
 		<group>
-			<name>c_sdk_v4</name>
+			<name>coreMQTT</name>
 			<group>
-				<name>standard</name>
-				<group>
-					<name>coreMQTT</name>
-					<group>
-						<name>source</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_state.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_serializer.c</name>
-						</file>
-					</group>
-				</group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_state.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c</name>
+				</file>
 			</group>
 		</group>
 		<group>
@@ -2552,21 +2556,6 @@
 				</file>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c</name>
-				</file>
-			</group>
-		</group>
-		<group>
-			<name>coreMQTT</name>
-			<group>
-				<name>source</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_state.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c</name>
 				</file>
 			</group>
 		</group>

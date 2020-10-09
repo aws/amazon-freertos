@@ -31,7 +31,6 @@
 		<Filter Include="libraries\abstractions\secure_sockets"/>
 		<Filter Include="libraries\abstractions\secure_sockets\freertos_plus_tcp"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp"/>
 		<Filter Include="libraries\freertos_plus\standard"/>
 		<Filter Include="libraries\freertos_plus"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\include"/>
@@ -77,10 +76,8 @@
 		<Filter Include="libraries\c_sdk\aws\defender\include"/>
 		<Filter Include="libraries\c_sdk\standard\mqtt\src"/>
 		<Filter Include="libraries\c_sdk\standard\mqtt"/>
-		<Filter Include="libraries\c_sdk_v4\standard\coreMQTT\source"/>
-		<Filter Include="libraries\c_sdk_v4\standard\coreMQTT"/>
-		<Filter Include="libraries\c_sdk_v4\standard"/>
-		<Filter Include="libraries\c_sdk_v4"/>
+		<Filter Include="libraries\coreMQTT\source"/>
+		<Filter Include="libraries\coreMQTT"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src"/>
 		<Filter Include="libraries\c_sdk\standard\serializer"/>
@@ -107,6 +104,8 @@
 		<Filter Include="vendors\microchip\boards"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\src\mqtt"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\src\http"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli\source"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli"/>
 		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX"/>
 		<Filter Include="libraries\abstractions\posix\include"/>
 		<Filter Include="libraries\abstractions\posix"/>
@@ -119,8 +118,6 @@
 		<Filter Include="libraries\abstractions\retry_utils"/>
 		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
 		<Filter Include="libraries\abstractions\transport"/>
-		<Filter Include="libraries\coreMQTT\source"/>
-		<Filter Include="libraries\coreMQTT"/>
 		<Filter Include="demos\defender"/>
 		<Filter Include="demos\greengrass_connectivity"/>
 		<Filter Include="demos\https"/>
@@ -1288,14 +1285,14 @@
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c">
 			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt.c">
-			<Filter>libraries\c_sdk_v4\standard\coreMQTT\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt.c">
+			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_state.c">
-			<Filter>libraries\c_sdk_v4\standard\coreMQTT\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_state.c">
+			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_serializer.c">
-			<Filter>libraries\c_sdk_v4\standard\coreMQTT\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c">
+			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_decoder.c">
 			<Filter>libraries\c_sdk\standard\serializer\src\cbor</Filter>
@@ -1366,6 +1363,12 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c">
 			<Filter>libraries\freertos_plus\aws\ota\src\http</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_cli\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI_Console.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_cli\source</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
 		</ClCompile>
@@ -1404,15 +1407,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt.c">
-			<Filter>libraries\coreMQTT\source</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_state.c">
-			<Filter>libraries\coreMQTT\source</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c">
-			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c">
 			<Filter>demos\defender</Filter>

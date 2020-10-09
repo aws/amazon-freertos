@@ -763,19 +763,19 @@
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c</name>
+			<name>libraries/coreMQTT/source/core_mqtt.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT/source/core_mqtt.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c</name>
+			<name>libraries/coreMQTT/source/core_mqtt_state.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT/source/core_mqtt_state.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c</name>
+			<name>libraries/coreMQTT/source/core_mqtt_serializer.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
@@ -978,6 +978,16 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
@@ -986,21 +996,6 @@
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTT/source/core_mqtt.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT/source/core_mqtt.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTT/source/core_mqtt_state.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT/source/core_mqtt_state.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTT/source/core_mqtt_serializer.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
@@ -1158,6 +1153,16 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/utest/iot_test_freertos_cli.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/utest/iot_test_freertos_cli.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/utest/iot_test_freertos_cli_console.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/utest/iot_test_freertos_cli_console.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_clock.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_clock.c</locationURI>
@@ -1281,11 +1286,6 @@
 			<name>config_files/aws_bufferpool_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_bufferpool_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/aws_demo_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_ggd_config.h</name>
