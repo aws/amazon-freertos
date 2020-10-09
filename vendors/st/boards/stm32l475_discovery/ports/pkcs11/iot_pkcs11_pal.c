@@ -36,6 +36,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
 #include "task.h"
+#include "iot_crypto.h"
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_config.h"
 
@@ -301,6 +302,7 @@ P11KeyConfig_t P11KeyConfig __attribute__( ( section( "UNINIT_FIXED_LOC" ) ) );
 
 CK_RV PKCS11_PAL_Initialize( void )
 {
+    CRYPTO_Init();
     return CKR_OK;
 }
 

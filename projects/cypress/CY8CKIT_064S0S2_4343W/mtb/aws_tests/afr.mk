@@ -233,7 +233,8 @@ INCLUDES+=\
 
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/*.c)
 
 # Test code
 SOURCES+=\
@@ -244,9 +245,8 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/common_io/test/iot_test_common_io.c
 
 INCLUDES+=\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/include\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/include\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/include/platform\
@@ -262,8 +262,7 @@ INCLUDES+=\
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*.c)
-
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/*.c)
 endif
 
 ################################################################################
@@ -308,9 +307,9 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_serializer.c\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c
 
 # Test code
 SOURCES+=\
@@ -338,7 +337,8 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/private\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/mock\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/access\
-	$(CY_AFR_ROOT)/libraries/c_sdk_v4/standard/coreMQTT/source/include\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/portable\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/include\
@@ -356,7 +356,6 @@ INCLUDES+=\
 
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/src/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/pkcs11/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/src/*.c)
 
@@ -370,8 +369,6 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_posix\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_posix/include\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/pkcs11\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/pkcs11/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils\

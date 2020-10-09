@@ -40,6 +40,8 @@
 /* Enable tests by setting defines to 1 */
 
 #define testrunnerFULL_MQTT_ALPN_ENABLED           0
+#define testrunnerFULL_CORE_MQTT_ENABLED           0
+#define testrunnerFULL_CORE_MQTT_AWS_IOT_ENABLED   0
 #define testrunnerFULL_PKCS11_ENABLED              0
 #define testrunnerFULL_CRYPTO_ENABLED              0
 #define testrunnerFULL_MQTT_STRESS_TEST_ENABLED    0

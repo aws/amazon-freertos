@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE HAL V5.0.0
+ * FreeRTOS BLE HAL V5.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -52,12 +52,12 @@
 /**
  * @brief Add new functionality with backward compatibility.
  */
-#define btMINOR_VERSION    0
+#define btMINOR_VERSION    1
 
 /**
  * @brief Make changes in the API with backward compatibility.
  */
-#define btPATCH_VERSION    1
+#define btPATCH_VERSION    0
 
 /**
  * @brief  Help functions to convert version to string.
@@ -106,9 +106,9 @@ typedef uint8_t BTAuthReq_t;
  */
 typedef enum
 {
-    BTTransportAuto,  /**<  BTTransportAuto  */
-    BTTransportBredr, /**<  BTTransportBredr */
-    BTTransportLe,    /**<  BTTransportLe  */
+    BTTransportAuto = 0,  /**<  BTTransportAuto  */
+    BTTransportBredr = 1, /**<  BTTransportBredr */
+    BTTransportLe = 2,    /**<  BTTransportLe  */
 } BTTransport_t;
 
 /**
@@ -336,6 +336,85 @@ typedef struct
 } BTUidTraffic_t;
 
 /**
+ * @brief Bluetooth ACL connection state
+ */
+typedef enum
+{
+    eBTaclConnected = 0,   /**< ACL connected */
+    eBTaclDisconnected = 1 /**< ACL disconnected */
+} BTAclState_t;
+
+/**
+ * @brief Bluetooth ACL Disconnect Reason
+ * From Bluetooth Core Spec 5.0 Vol 2, Part D Error Codes
+ * Unknown disconnect reason will be treated as @ref eBTaclUnspecified
+ */
+typedef enum
+{
+    eBTaclSuccess = 0x00,                        /**< Success */
+    eBTaclIllegalCommand = 0x01,                 /**< Unknown HCI Command */
+    eBTaclNoConnection = 0x02,                   /**< Unknown Connection Identifier */
+    eBTaclHwFailure = 0x03,                      /**< Hardware Failure */
+    eBTaclPageTimeout = 0x04,                    /**< Page Timeout */
+    eBTaclAuthFailure = 0x05,                    /**< Authentication Failure */
+    eBTaclKeyMissing = 0x06,                     /**< PIN or Key Missing */
+    eBTaclMemFull = 0x07,                        /**< Memory Capacity Exceeded */
+    eBTaclConnectionTimeout = 0x08,              /**< Connection Timeout */
+    eBTaclMaxNumOfConnections = 0x09,            /**< Connection Limit Exceeded */
+    eBTaclMaxNumOfScos = 0x0A,                   /**< Synchronous Connection Limit To A Device Exceeded */
+    eBTaclConnectionExists = 0x0B,               /**< Connection Already Exists */
+    eBTaclCommandDisallowed = 0x0C,              /**< Command Disallowed */
+    eBTaclHostRejectResource = 0x0D,             /**< Connection Rejected due to Limited Resources */
+    eBTaclHostRejectSecurity = 0x0E,             /**< Connection Rejected Due To Security Reasons */
+    eBTaclHostRejectDevice = 0x0F,               /**< Connection Rejected due to Unacceptable BD_ADDR */
+    eBTaclHostTimeout = 0x10,                    /**< Connection Accept Timeout Exceeded */
+    eBTaclUnsupportedValue = 0x11,               /**< Unsupported Feature or Parameter Value */
+    eBTaclIllegalParameterFmt = 0x12,            /**< Invalid HCI Command Parameters */
+    eBTaclPeerUser = 0x13,                       /**< Remote User Terminated Connection */
+    eBTaclPeerLowResources = 0x14,               /**< Remote Device Terminated Connection due to Low Resources */
+    eBTaclPeerPowerOff = 0x15,                   /**< Remote Device Terminated Connection due to Power Off */
+    eBTaclHostUser = 0x16,                       /**< Connection Terminated By Local Host */
+    eBTaclRepeatedAttempts = 0x17,               /**< Repeated Attempts */
+    eBTaclPairingNotAllowed = 0x18,              /**< Pairing Not Allowed */
+    eBTaclUnknownLmpPdu = 0x19,                  /**< Unknown LMP PDU */
+    eBTaclUnsupportedRemFeature = 0x1A,          /**< Unsupported Remote Feature / Unsupported LMP Feature */
+    eBTaclScoOffsetRejected = 0x1B,              /**< SCO Offset Rejected */
+    eBTaclScoIntervalRejected = 0x1C,            /**< SCO Interval Rejected */
+    eBTaclScoAirRejected = 0x1D,                 /**< SCO Air Mode Rejected */
+    eBTaclInvalidLmpParam = 0x1E,                /**< Invalid LMP Parameters / Invalid LL Parameters */
+    eBTaclUnspecified = 0x1F,                    /**< Unspecified Error */
+    eBTaclUnsupportedLmpFeature = 0x20,          /**< Unsupported LMP Parameter Value / Unsupported LL Parameter Value */
+    eBTaclRoleChangeNotAllowed = 0x21,           /**< Role Change Not Allowed */
+    eBTaclLmpResponseTimeout = 0x22,             /**< LMP Response Timeout / LL Response Timeout */
+    eBTaclLmpErrTransCollision = 0x23,           /**< LMP Error Transaction Collision / LL Procedure Collision */
+    eBTaclLmpPduNotAllowed = 0x24,               /**< LMP PDU Not Allowed */
+    eBTaclEncryModeNotAcceptable = 0x25,         /**< Encryption Mode Not Acceptable */
+    eBTaclUnitKeyUsed = 0x26,                    /**< Link Key cannot be Changed */
+    eBTaclQosNotSupported = 0x27,                /**< Requested QoS Not Supported */
+    eBTaclInstantPassed = 0x28,                  /**< Instant Passed */
+    eBTaclPairingWithUnitKeyNotSupported = 0x29, /**< Pairing With Unit Key Not Supported */
+    eBTaclDiffTransactionCollision = 0x2A,       /**< Different Transaction Collision */
+    eBTaclQosUnacceptableParam = 0x2C,           /**< QoS Unacceptable Parameter */
+    eBTaclQosRejected = 0x2D,                    /**< QoS Rejected */
+    eBTaclChanClassifNotSupported = 0x2E,        /**< Channel Classification Not Supported */
+    eBTaclInsuffcientSecurity = 0x2F,            /**< Insufficient Security */
+    eBTaclParamOutOfRange = 0x30,                /**< Parameter Out Of Mandatory Range */
+    eBTaclRoleSwitchPending = 0x32,              /**< Role Switch Pending */
+    eBTaclReservedSlotViolation = 0x34,          /**< Reserved Slot Violation */
+    eBTaclRoleSwitchFailed = 0x35,               /**< Role Switch Failed */
+    eBTaclInqRspDataTooLarge = 0x36,             /**< Extended Inquiry Response Too Large */
+    eBTaclSimplePairingNotSupported = 0x37,      /**< Secure Simple Pairing Not Supported By Host */
+    eBTaclHostBusyPairing = 0x38,                /**< Host Busy - Pairing */
+    eBTaclRejNoSuitableChannel = 0x39,           /**< Connection Rejected due to No Suitable Channel Found */
+    eBTaclControllerBusy = 0x3A,                 /**< Controller Busy */
+    eBTaclUnacceptConnInterval = 0x3B,           /**< Unacceptable Connection Parameters */
+    eBTaclDirectedAdvertisingTimeout = 0x3C,     /**< Advertising Timeout */
+    eBTaclConnToutDueToMicFailure = 0x3D,        /**< Connection Terminated due to MIC Failure */
+    eBTaclConnFailedEstablishment = 0x3E,        /**< Connection Failed to be Established */
+    eBTaclMacConnectionFailed = 0x3F,            /**< MAC Connection Failed */
+} BTAclDisconnectReason_t;
+
+/**
  * @brief Bluetooth state change Callback. Invoked on pxEnable/pxDisable.
  *
  * @param[in] xState Device event, triggered on state change. (switched on or off).
@@ -498,36 +577,47 @@ typedef void ( * BTTxPowerCallback_t )( BTBdaddr_t * pxBda,
                                         BTStatus_t xStatus );
 
 /**
- * @brief Bonded callback, called when a bonded is established or removed.
- * Invoked on bond event or on pxRemoveBond.
- *
- * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
- * @param[in] pxRemoteBdAddr Remote device address.
- * @param[in] bIsBonded true if address is bonded, false otherwise
+ * @deprecated See @ref BTPairingStateChangedCallback_t
  */
 typedef void ( * BTBondedCallback_t)( BTStatus_t xStatus,
                                       BTBdaddr_t * pxRemoteBdAddr,
                                       bool bIsBonded );
 
 /**
+ * @brief Callback invoked in response to ACL connection state change.
+ *
+ * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
+ * @param[in] pxRemoteBdAddr Address of the remote device.
+ * @param[in] xState ACL connection state.
+ * @param[in] xTransport Transport type as in @ref BTTransport_t.
+ * If transport type is unknown, use @ref BTTransportAuto.
+ * @param[in] xReason Contains ACL disconnect reason when xState is @ref eBTaclStateDisconnected.
+ */
+typedef void (* BTAclStateChangedCallback_t)( BTStatus_t xStatus,
+                                              const BTBdaddr_t * pxRemoteBdAddr,
+                                              BTAclState_t xState,
+                                              BTTransport_t xTransport,
+                                              BTAclDisconnectReason_t xReason );
+
+/**
  * @brief Bluetooth DM callback structure.
  */
 typedef struct
 {
-    /** set to sizeof(BTCallbacks_t) */
-    BTDeviceStateChangedCallback_t pxDeviceStateChangedCb;
-    BTDevicePropertiesCallback_t pxAdapterPropertiesCb;
-    BTRemoteDevicePropertiesCallback_t pxRemoteDevicePropertiesCb;
-    BTPinRequestCallback_t pxPinRequestCb;
-    BTSspRequestCallback_t pxSspRequestCb;
-    BTPairingStateChangedCallback_t pxPairingStateChangedCb;
-    BTBondedCallback_t pxBondedCb; /** This is deprecated */
-    BTDutModeRecvCallback_t pxDutModeRecvCb;
-    BTLeTestModeCallback_t pxleTestModeCb;
-    BTEnergyInfoCallback_t pxEnergyInfoCb;
-    BTReadRssiCallback_t pxReadRssiCb;
-    BTTxPowerCallback_t pxTxPowerCb;
-    BTSlaveSecurityRequestCallBack_t pxSlaveSecurityRequestCb;
+    BTDeviceStateChangedCallback_t pxDeviceStateChangedCb;         /**< Adapter State Changed Callback */
+    BTDevicePropertiesCallback_t pxAdapterPropertiesCb;            /**< Adapter Properties Callback */
+    BTRemoteDevicePropertiesCallback_t pxRemoteDevicePropertiesCb; /**< Remote Device Properties Callback */
+    BTPinRequestCallback_t pxPinRequestCb;                         /**< Pin Request Callback */
+    BTSspRequestCallback_t pxSspRequestCb;                         /**< SSP Request Callback */
+    BTPairingStateChangedCallback_t pxPairingStateChangedCb;       /**< Pairing State Changed Callback */
+    BTBondedCallback_t pxBondedCb;                                 /**< @deprecated */
+    BTDutModeRecvCallback_t pxDutModeRecvCb;                       /**< Bluetooth Test Mode Callback */
+    BTLeTestModeCallback_t pxleTestModeCb;                         /**< LE Test Mode Callback */
+    BTEnergyInfoCallback_t pxEnergyInfoCb;                         /**< Controller Energy Info Callback */
+    BTReadRssiCallback_t pxReadRssiCb;                             /**< Read RSSI Callback */
+    BTTxPowerCallback_t pxTxPowerCb;                               /**< TX Power Callback */
+    BTSlaveSecurityRequestCallBack_t pxSlaveSecurityRequestCb;     /**< Security Request Callback */
+    BTAclStateChangedCallback_t pxAclStateChangedCb;               /**< ACL State Changed Callback */
 } BTCallbacks_t;
 
 /**
@@ -569,7 +659,7 @@ typedef struct
      *
      * @return eBTStatusSuccess if BT disable permitted. Else error code.
      */
-    BTStatus_t ( * pxDisable )();
+    BTStatus_t ( * pxDisable )( void );
 
     /**
      * @brief Retrieves all properties of local device.
@@ -580,7 +670,7 @@ typedef struct
      * When properties are read, they will be returned as part of
      * pxAdapterPropertiesCb()
      */
-    BTStatus_t ( * pxGetAllDeviceProperties )();
+    BTStatus_t ( * pxGetAllDeviceProperties )( void );
 
     /**
      * @brief Get Bluetooth Adapter property of 'type'.
@@ -760,7 +850,7 @@ typedef struct
      * @return  value indicates eBTStatusSuccess or eBTStatusNotReady, Success indicates
      *          that the VSC command was sent to controller
      */
-    BTStatus_t ( * pxReadEnergyInfo )();
+    BTStatus_t ( * pxReadEnergyInfo )( void );
 
     /**
      * Enables/disables local device to DUT mode.
@@ -812,7 +902,7 @@ typedef struct
      *
      * @return eBTStatusSuccess if the operation is successful, else error code.
      */
-    BTStatus_t ( * pxConfigClear )();
+    BTStatus_t ( * pxConfigClear )( void );
 
     /**
      * @brief Retrieves RSSI  of a remote device
@@ -842,20 +932,20 @@ typedef struct
      * @return void* pointer that points to the profile interface itself. This needs to be
      *               type-casted to the Classic interface by the caller
      */
-    const void * ( *pxGetClassicAdapter )( );
+    const void * ( *pxGetClassicAdapter )( void );
 
     /**
      * @brief Retrieves the HAL LE interface.
      * @return void* pointer that points to the BLE adapter interface itself. This needs to be
      *               type-casted to the LE interface by the caller
      */
-    const void * ( *pxGetLeAdapter )( );
+    const void * ( *pxGetLeAdapter )( void );
 
     /**
      * @brief Retrieves last error number from the stack.
      * @return error no of the last operation.
      */
-    uint32_t ( * pxGetLastError )();
+    uint32_t ( * pxGetLastError )( void );
 
     /**
      *
@@ -867,7 +957,7 @@ typedef struct
     BTStatus_t ( * pxGetStackFeaturesSupport )( uint32_t * pulFeatureMask );
 } BTInterface_t;
 
-const BTInterface_t * BTGetBluetoothInterface();
+const BTInterface_t * BTGetBluetoothInterface( void );
 
 #endif /* _BT_HAL_MANAGER_H_ */
 /** @} */

@@ -173,6 +173,7 @@ void prvHandleToFilenamePrivate( CK_OBJECT_HANDLE   xHandle,
 
 CK_RV PKCS11_PAL_Initialize( void )
 {
+    CRYPTO_Init();
     return CKR_OK;
 }
 

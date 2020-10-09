@@ -23,8 +23,8 @@
 									<listOptionValue builtIn="false" value="${AFR_ROOT}/lib/third_party/mcu_vendor/xilinx/aws_bsp/ps7_cortexa9_0/include"/>
 									<listOptionValue builtIn="false" value="${AFR_ROOT}/demos/common/include"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/lib/third_party/jsmn}"/>
-									<listOptionValue builtIn="false" value="${AFR_HOME}/lib/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/"/>
-									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/lib/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC"/>
+									<listOptionValue builtIn="false" value="${AFR_HOME}/lib/FreeRTOS-Plus-TCP/portable/NetworkInterface/"/>
+									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/lib/FreeRTOS-Plus-TCP/portable/Compiler/GCC"/>
 									<listOptionValue builtIn="false" value="${AFR_ROOT}/lib/FreeRTOS-Plus-TCP/include"/>
 									<listOptionValue builtIn="false" value="${AFR_ROOT}/lib/third_party/pkcs11"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/lib/aws/include}"/>

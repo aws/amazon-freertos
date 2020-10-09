@@ -561,7 +561,7 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/CMakeLists.txt</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/include</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -1451,19 +1451,19 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/ble_hal/include/bt_hal_manager_types.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/include/aws_pkcs11.h</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/aws_pkcs11.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/include/aws_pkcs11.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/aws_pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/aws_pkcs11_mbedtls.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/freertos/include</name>
@@ -1726,7 +1726,7 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -3251,69 +3251,69 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/NetworkInterface.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_ARP.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_ARP.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_ARP.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_ARP.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_DHCP.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_DHCP.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_DNS.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_DNS.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_IP.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_IP.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_IP.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_IP.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Sockets.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_Sockets.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Sockets.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_Sockets.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Stream_Buffer.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_Stream_Buffer.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Stream_Buffer.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_Stream_Buffer.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_TCP_IP.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_TCP_IP.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_TCP_WIN.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_TCP_WIN.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_UDP_IP.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_UDP_IP.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_UDP_IP.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_UDP_IP.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/History.txt</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/History.txt</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/History.txt</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/History.txt</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/ReadMe.url</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/ReadMe.url</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/ReadMe.url</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/ReadMe.url</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/readme.txt</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/readme.txt</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/readme.txt</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/readme.txt</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/tls/include/aws_tls.h</name>
@@ -3771,17 +3771,17 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/BufferManagement</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -3896,334 +3896,334 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/src/services/wifi_provisioning/iot_ble_wifi_provisioning.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_1.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_1.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/CompilerName</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/CompilerName</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/IAR</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/IAR</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/MSVC</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/MSVC</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/Renesas</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Renesas</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/LPC17xx</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/LPC17xx</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/LPC18xx</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/LPC18xx</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/README_DRIVER_DISCLAIMER.txt</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/README_DRIVER_DISCLAIMER.txt</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/README_DRIVER_DISCLAIMER.txt</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/README_DRIVER_DISCLAIMER.txt</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/RX</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/SH2A</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/SH2A</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/STM32Fxx</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/STM32Fxx</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/WinPCap</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/WinPCap</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/board_family</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/board_family</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/esp32</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ksz8851snl</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ksz8851snl</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/mw300_rd</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/mw300_rd</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/CompilerName/ReadMe.txt</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/CompilerName/ReadMe.txt</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/CompilerName/ReadMe.txt</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/CompilerName/ReadMe.txt</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/CompilerName/pack_struct_end.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/CompilerName/pack_struct_end.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/CompilerName/pack_struct_end.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/CompilerName/pack_struct_end.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/CompilerName/pack_struct_start.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/CompilerName/pack_struct_start.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/CompilerName/pack_struct_start.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/CompilerName/pack_struct_start.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC/pack_struct_end.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_end.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC/pack_struct_end.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_end.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC/pack_struct_start.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_start.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC/pack_struct_start.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_start.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/IAR/pack_struct_end.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/IAR/pack_struct_end.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/IAR/pack_struct_end.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/IAR/pack_struct_end.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/IAR/pack_struct_start.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/IAR/pack_struct_start.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/IAR/pack_struct_start.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/IAR/pack_struct_start.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/MSVC/pack_struct_end.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/MSVC/pack_struct_end.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/MSVC/pack_struct_end.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/MSVC/pack_struct_end.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/MSVC/pack_struct_start.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/MSVC/pack_struct_start.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/MSVC/pack_struct_start.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/MSVC/pack_struct_start.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/Renesas/pack_struct_end.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Renesas/pack_struct_end.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/Renesas/pack_struct_end.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Renesas/pack_struct_end.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/Renesas/pack_struct_start.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Renesas/pack_struct_start.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/Renesas/pack_struct_start.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Renesas/pack_struct_start.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/NetworkInterface.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/NetworkInterface.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/component</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/component</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/ethernet_phy.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/ethernet_phy.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/ethernet_phy.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/ethernet_phy.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/ethernet_phy.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/ethernet_phy.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/ethernet_phy.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/ethernet_phy.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/gmac.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/gmac.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/gmac.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/gmac.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/gmac.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/gmac.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/gmac.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/gmac.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/instance</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/instance</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/LPC17xx/NetworkInterface.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/LPC17xx/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/LPC17xx/NetworkInterface.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/LPC17xx/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/LPC18xx/NetworkInterface.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/LPC18xx/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/LPC18xx/NetworkInterface.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/LPC18xx/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/LPC18xx/ReadMe.txt</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/LPC18xx/ReadMe.txt</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/LPC18xx/ReadMe.txt</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/LPC18xx/ReadMe.txt</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/NetworkInterface.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/RX/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/NetworkInterface.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/RX/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/ether_callback.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/RX/ether_callback.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/ether_callback.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/RX/ether_callback.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/SH2A/NetworkInterface.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/SH2A/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/SH2A/NetworkInterface.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/SH2A/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/STM32Fxx/NetworkInterface.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/STM32Fxx/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/STM32Fxx/NetworkInterface.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/STM32Fxx/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/WinPCap/FaultInjection.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/WinPCap/FaultInjection.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/WinPCap/FaultInjection.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/WinPCap/FaultInjection.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/WinPCap/NetworkInterface.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/WinPCap/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/WinPCap/NetworkInterface.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/WinPCap/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/NetworkInterface.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/NetworkInterface.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/README.txt</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/README.txt</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/README.txt</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/README.txt</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_dma.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_dma.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_dma.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_dma.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_hw.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_hw.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_hw.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_hw.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_topology.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_topology.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_topology.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_topology.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/board_family/NetworkInterface.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/board_family/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/board_family/NetworkInterface.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/board_family/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/board_family/ReadMe.txt</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/board_family/ReadMe.txt</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/board_family/ReadMe.txt</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/board_family/ReadMe.txt</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/esp32/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/esp32/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ksz8851snl/NetworkInterface.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ksz8851snl/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ksz8851snl/NetworkInterface.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ksz8851snl/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/mw300_rd/NetworkInterface.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/mw300_rd/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/mw300_rd/NetworkInterface.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/mw300_rd/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/BufferAllocation_2.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/BufferAllocation_2.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/BufferAllocation_2.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/BufferAllocation_2.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_eth.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/NetworkInterface_eth.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_eth.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/NetworkInterface_eth.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_wifi.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/NetworkInterface_wifi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_wifi.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/NetworkInterface_wifi.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/component/gmac.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/component/gmac.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/component/gmac.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/component/gmac.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/instance/gmac.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/instance/gmac.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/ATSAM4E/instance/gmac.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/instance/gmac.h</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>

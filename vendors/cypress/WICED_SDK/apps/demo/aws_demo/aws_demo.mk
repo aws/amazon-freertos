@@ -65,15 +65,14 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/arch \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/cypress_code/include \
                     $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/include \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/include  \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/mbedtls  \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)pkcs11/include \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/include  \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/portable/mbedtls/include  \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/include  \
                     $(AMAZON_FREERTOS_PATH)demos/network_manager \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/include \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/portable/Compiler/GCC \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/portable/Compiler/GCC \
                     $(AFR_C_SDK_AWS_PATH)shadow/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include/types \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/include     \

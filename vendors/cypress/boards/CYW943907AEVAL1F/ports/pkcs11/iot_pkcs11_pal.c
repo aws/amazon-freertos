@@ -40,6 +40,7 @@
  */
 
 /* FreeRTOS Includes. */
+#include "iot_crypto.h"
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_config.h"
 #include "FreeRTOS.h"
@@ -115,6 +116,7 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
 
 CK_RV PKCS11_PAL_Initialize( void )
 {
+    CRYPTO_Init();
     return CKR_OK;
 }
 

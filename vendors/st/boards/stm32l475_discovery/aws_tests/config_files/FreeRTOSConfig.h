@@ -56,7 +56,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define configTICK_RATE_HZ                           ( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES                         ( 7 )
 #define configMINIMAL_STACK_SIZE                     ( ( uint16_t ) 256 )
-#define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 70 * 1024 ) )
+#define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 68 * 1024 ) )
 #define configMAX_TASK_NAME_LEN                      ( 16 )
 #define configUSE_TRACE_FACILITY                     1
 #define configUSE_16_BIT_TICKS                       0
@@ -239,5 +239,11 @@ extern int iMainRand32( void );
 
 /* The platform FreeRTOS is running on. */
 #define configPLATFORM_NAME    "STM32L475"
+
+/* The size of the output buffer is set to maximum length required by the tests,
+ * which is the length enough to accomodate largest error string written to
+ * console from CLI.
+ */
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE    120
 
 #endif /* FREERTOS_CONFIG_H */
