@@ -1,11 +1,11 @@
-afr_module()
+afr_module(INTERFACE)
 
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
-    PUBLIC
+    INTERFACE
         "${inc_dir}/iot_adc.h"
         "${inc_dir}/iot_battery.h"
         "${inc_dir}/iot_efuse.h"
@@ -31,14 +31,12 @@ afr_module_sources(
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    PUBLIC 
-        "${inc_dir}"
+    INTERFACE "${inc_dir}"
 )
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
-    PUBLIC 
-        AFR::common_io::mcu_port
+    INTERFACE AFR::common_io::mcu_port
 )
 
 # Common I/O tests
