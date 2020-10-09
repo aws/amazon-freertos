@@ -499,22 +499,19 @@
           </folder>
         </folder>
       </folder>
-      <folder Name="c_sdk_v4">
-        <folder Name="standard">
-          <folder Name="coreMQTT">
-            <folder Name="source">
-              <file file_name="../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c" />
-              <file file_name="../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c" />
-              <file file_name="../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c" />
-              <folder Name="include">
-                <file file_name="../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/include/core_mqtt.h" />
-                <file file_name="../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/include/core_mqtt_config_defaults.h" />
-                <file file_name="../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/include/core_mqtt_serializer.h" />
-                <file file_name="../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/include/core_mqtt_state.h" />
-                <file file_name="../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/portable/transport_interface.h" />
-              </folder>
-            </folder>
-            <folder Name="test" />
+      <folder Name="coreMQTT">
+        <folder Name="source">
+          <file file_name="../../../../../libraries/coreMQTT/source/core_mqtt.c" />
+          <file file_name="../../../../../libraries/coreMQTT/source/core_mqtt_serializer.c" />
+          <file file_name="../../../../../libraries/coreMQTT/source/core_mqtt_state.c" />
+          <folder Name="include">
+            <file file_name="../../../../../libraries/coreMQTT/source/include/core_mqtt.h" />
+            <file file_name="../../../../../libraries/coreMQTT/source/include/core_mqtt_config_defaults.h" />
+            <file file_name="../../../../../libraries/coreMQTT/source/include/core_mqtt_serializer.h" />
+            <file file_name="../../../../../libraries/coreMQTT/source/include/core_mqtt_state.h" />
+          </folder>
+          <folder Name="portable">
+            <file file_name="../../../../../libraries/coreMQTT/source/portable/transport_interface.h" />
           </folder>
         </folder>
       </folder>
@@ -981,7 +978,7 @@
     Name="Debug"
     arm_fp_abi="None"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/portable"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/portable"
     gcc_debugging_level="Level 3"
     gcc_optimization_level="None"
     link_include_standard_libraries="Yes" />
