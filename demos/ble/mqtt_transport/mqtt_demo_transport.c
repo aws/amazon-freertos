@@ -19,6 +19,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+
+/* Standard includes. */
+#include <stdlib.h>
+#include <string.h>
+
 /* Include demo_config.h first for logging and other configuration */
 #include "demo_config.h"
 
@@ -29,20 +34,8 @@
 #include "iot_ble_data_transfer.h"
 #include "iot_ble_config_defaults.h"
 #include "platform/iot_clock.h"
-#include "iot_threads.h"
+#include "platform/iot_threads.h"
 #include "types/iot_platform_types.h"
-
-/* Standard includes. */
-#include <stdlib.h>
-#include <string.h>
-
-/* POSIX socket includes. */
-#include <netdb.h>
-#include <unistd.h>
-
-#include <sys/socket.h>
-#include <sys/types.h>
-
 
 /**
  * @brief The first characters in the client identifier. A timestamp is appended
@@ -170,6 +163,11 @@ static uint8_t contextBuf[ INCOMING_PACKET_QUEUE_SIZE ];
  */
 static uint8_t fixedBufferBuf[ SINGLE_INCOMING_PACKET_MAX_SIZE ];
 
+/**
+ * @brief Semaphore used to synchronize with the data transfer channel callback.
+ */
+static IotSemaphore_t channelSemaphore = { 0 };
+
 
 /*-----------------------------------------------------------*/
 
@@ -186,7 +184,7 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
     /* Event to see when the data channel is ready to receive data. */
     if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED )
     {
-        IotSemaphore_Post( &xContext.isReady );
+        IotSemaphore_Post( &channelSemaphore );
     }
 
     /* Event for when data is received over the channel. */
@@ -208,24 +206,26 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
     }
 }
 
-
 static MQTTStatus_t demoInitChannel( void )
 {
     MQTTStatus_t status = MQTTSuccess;
 
-    /* Must initialize the channel, context must contain the buffer and buf size at this point. */
-    IotBleMqttTransportInit( &xContext );
+    /* Memory that will contain the incoming packet queue used by the transport code.
+     * Here we use static memory, but dynamic is OK too.
+     * It is the responsibility of the user application to allocate this buffer.
+     */
+    IotBleMqttTransportInit( contextBuf, INCOMING_PACKET_QUEUE_SIZE, &xContext );
 
     /* Open is a handshake proceture, so we need to wait until it is ready to use. */
     xContext.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
 
     if( xContext.pChannel != NULL )
     {
-        if( IotSemaphore_Create( &xContext.isReady, 0, 1 ) == true )
+        if( IotSemaphore_Create( &channelSemaphore, 0, 1 ) == true )
         {
             ( void ) IotBleDataTransfer_SetCallback( xContext.pChannel, demoCallback, NULL );
 
-            if( IotSemaphore_TimedWait( &xContext.isReady, IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) == true )
+            if( IotSemaphore_TimedWait( &channelSemaphore, IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) == true )
             {
                 LogInfo( ( "The channel was initialized successfully" ) );
 
@@ -701,7 +701,7 @@ static void mqttProcessIncomingPacket( MQTTFixedBuffer_t * buf )
 /**
  * @brief Entry point of demo.
  */
-MQTTStatus_t RunMQTTTransportDemo( void )
+MQTTStatus_t RunMQTTBLETransportDemo( void )
 {
     MQTTStatus_t status = MQTTSuccess;
     MQTTFixedBuffer_t fixedBuffer;
@@ -710,15 +710,6 @@ MQTTStatus_t RunMQTTTransportDemo( void )
     uint16_t demoIterations = 0;
     const uint16_t maxDemoIterations = 5U;
     bool publishPacketSent = false;
-
-
-    /***
-     * Memory that will contain the incoming packet queue used by the transport code.
-     * Here we use static memory, but dynamic is OK too.
-     * It is the responsibility of the user application to allocate this buffer.
-     ***/
-    xContext.buf = contextBuf;
-    xContext.bufSize = INCOMING_PACKET_QUEUE_SIZE;
 
     /***
      * Set Fixed size buffer structure that is required by API to serialize
@@ -846,12 +837,12 @@ MQTTStatus_t RunMQTTTransportDemo( void )
             ( void ) sleep( MQTT_DEMO_ITERATION_DELAY_SECONDS );
 
             /* Clean up the channel in between iterations */
-            IotBleMqttTransportCleanup();
-            IotBleMqttTransportInit( &xContext );
+            IotBleMqttTransportCleanup( &xContext );
+            IotBleMqttTransportInit( contextBuf, INCOMING_PACKET_QUEUE_SIZE, &xContext );
         }
     }
 
-    IotBleMqttTransportCleanup();
+    IotBleMqttTransportCleanup( &xContext );
 
     if( channelActive == false )
     {

@@ -110,7 +110,7 @@ void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection )
     {
         if( connToContext[ contextIndex ].mqttConnection == mqttConnection )
         {
-            connToContext[ contextIndex ].mqttConnection = NULL;
+            memset( &connToContext[ contextIndex ], 0x00, sizeof( _connContext_t ) );
             break;
         }
 

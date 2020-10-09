@@ -42,6 +42,7 @@
  *          CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED
  *          CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED
  *          CONFIG_CLI_UART_DEMO_ENABLED
+ *          CONFIG_MQTT_BLE_TRANSPORT_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 
@@ -57,7 +58,7 @@
     #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
 #endif
 
-#if defined( CONFIG_MQTT_TRANSPORT_DEMO_ENABLED )
+#if defined( CONFIG_MQTT_BLE_TRANSPORT_DEMO_ENABLED )
     #undef democonfigNETWORK_TYPES
     #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_BLE )
 #endif
