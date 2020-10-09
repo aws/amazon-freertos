@@ -160,8 +160,8 @@
  * democonfigMQTT_BROKER_ENDPOINT and democonfigMQTT_BROKER_PORT defined at the
  * top of this file.
  *
- * @return On success the socket connected to the MQTT broker is returned.
- *
+ * @return A valid socket on  a successful TCP connection to the broker; otherwise,
+ * SOCKETS_INVALID_SOCKET on failure.
  */
 static Socket_t prvCreateTCPConnectionToBroker( void );
 
