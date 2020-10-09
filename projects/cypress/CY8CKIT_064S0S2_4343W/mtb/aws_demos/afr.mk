@@ -180,7 +180,8 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)
+	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)
 
 INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common\
