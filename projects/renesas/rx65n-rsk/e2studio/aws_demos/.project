@@ -1807,6 +1807,16 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
@@ -1830,6 +1840,11 @@
 			<name>libraries/coreMQTT/source/core_mqtt_serializer.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT/mqtt_demo_plaintext.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT/mqtt_demo_plaintext.c</locationURI>
 		</link>
 		<link>
 			<name>demos/defender/aws_iot_demo_defender.c</name>
@@ -1970,6 +1985,11 @@
 			<name>config_files/mbedtls_user_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/mbedtls_user_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/mqtt_demo_plaintext_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/mqtt_demo_plaintext_config.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/main.c</name>

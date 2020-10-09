@@ -116,7 +116,7 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
         /* If an error occurred, a negative value is returned. @ref SocketsErrors. */
         if( bytesSent >= 0 )
         {
-            if( bytesSent < bytesToSend )
+            if( ( size_t ) bytesSent < bytesToSend )
             {
                 LogWarn( ( "bytesSent %ld < bytesToSend %ld.", bytesSent, bytesToSend ) );
             }
@@ -176,7 +176,7 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
         }
         else
         {
-            if( bytesReceived < bytesToRecv )
+            if( ( size_t ) bytesReceived < bytesToRecv )
             {
                 LogInfo( ( "Receive requested %lu bytes, but %lu bytes received instead.",
                            bytesToRecv,

@@ -1398,6 +1398,16 @@
 			<locationURI>BASE_DIR/libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/errno.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/abstractions/posix/include/FreeRTOS_POSIX/errno.h</locationURI>
@@ -1556,6 +1566,11 @@
 			<name>libraries/coreMQTT/source/core_mqtt_serializer.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT/mqtt_demo_plaintext.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/coreMQTT/mqtt_demo_plaintext.c</locationURI>
 		</link>
 		<link>
 			<name>demos/defender/aws_iot_demo_defender.c</name>
@@ -1731,6 +1746,11 @@
 			<name>config_files/iot_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/iot_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/mqtt_demo_plaintext_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/mqtt_demo_plaintext_config.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/main.c</name>

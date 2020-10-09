@@ -29,6 +29,7 @@
 /* To run a particular demo you need to define one of these.
  * Only one demo can be configured at a time
  *          CONFIG_MQTT_DEMO_ENABLED
+ *          CONFIG_CORE_MQTT_PLAINTEXT_DEMO_ENABLED
  *          CONFIG_SHADOW_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
@@ -45,13 +46,13 @@
 #define CONFIG_MQTT_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
-#define democonfigDEMO_STACKSIZE                       ( configMINIMAL_STACK_SIZE * 20 )
-#define democonfigDEMO_PRIORITY                        ( tskIDLE_PRIORITY + 5 )
+#define democonfigDEMO_STACKSIZE       ( configMINIMAL_STACK_SIZE * 20 )
+#define democonfigDEMO_PRIORITY        ( tskIDLE_PRIORITY + 5 )
 
 #ifndef M487_ETH_DEMO
-#define democonfigNETWORK_TYPES                        ( AWSIOT_NETWORK_TYPE_WIFI )
+    #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_WIFI )
 #else
-#define democonfigNETWORK_TYPES                         (AWSIOT_NETWORK_TYPE_ETH)
+    #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_ETH )
 #endif
 
 
