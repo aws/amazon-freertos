@@ -48,10 +48,12 @@
 /* Standard includes. */
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /* Demo Specific configs. */
 #include "mqtt_demo_mutual_auth_config.h"
 
+/* Include common demo header. */
 #include "aws_demo.h"
 
 /* Kernel includes. */
@@ -121,8 +123,6 @@
 #ifndef democonfigMQTT_MAX_DEMO_COUNT
     #define democonfigMQTT_MAX_DEMO_COUNT    ( 3 )
 #endif
-
-
 /*-----------------------------------------------------------*/
 
 /**

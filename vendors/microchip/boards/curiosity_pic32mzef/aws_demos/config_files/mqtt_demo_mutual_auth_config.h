@@ -143,4 +143,11 @@
  */
 #define democonfigNETWORK_BUFFER_SIZE    ( 1024U )
 
+/**
+ * @brief The maximum number of times to run the subscribe publish loop in the
+ * demo.
+ *
+ * #define democonfigMQTT_MAX_DEMO_COUNT    ( insert here )
+ */
+
 #endif /* MQTT_DEMO_MUTUAL_AUTH_CONFIG_H */
