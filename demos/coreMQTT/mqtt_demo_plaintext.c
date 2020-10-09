@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.3.0
+ * FreeRTOS V202010.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,7 +28,7 @@
  * Demo for showing use of the managed MQTT API.
  *
  * The Example shown below uses this API to create MQTT messages and
- * send them over the connection established using FreeRTOS sockets.
+ * send them over the connection established using Secure Sockets.
  * The example is single threaded and uses statically allocated memory;
  * it uses QOS0 and therefore does not implement any retransmission
  * mechanism for Publish messages.
@@ -325,12 +325,13 @@ static MQTTFixedBuffer_t xBuffer =
 
 /**
  * @brief This example uses MQTT APIs to send and receive MQTT packets over a
- * TCP connection established using Secure Sockets. This example is single
- * threaded and uses statically allocated memory. This example uses QOS0 and
- * therefore does not implement any retransmission mechanism for Publish
- * messages. This example runs for democonfigMQTT_MAX_DEMO_COUNT, if the
- * connection to the broker goes down, the code tries to reconnect to the broker
- * with an exponential backoff mechanism.
+ * TCP connection established using a transport interface implementation based
+ * on the Secure Sockets library. This example is single threaded and uses
+ * statically allocated memory. This example uses QOS0 and therefore does not
+ * implement any retransmission mechanism for Publish messages. This example
+ * runs for democonfigMQTT_MAX_DEMO_COUNT, if the connection to the broker goes
+ * down, the code tries to reconnect to the broker with an exponential backoff
+ * mechanism.
  */
 int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
                               const char * pIdentifier,
@@ -418,7 +419,8 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
                     if( xMQTTStatus != MQTTSuccess )
                     {
-                        LogError( ( "MQTT_ProcessLoop() failed with status %s.",
+                        LogError( ( "MQTT_ProcessLoop() call failed to receive echoed"
+                                    " PUBLISH message. Error=%s.",
                                     MQTT_Status_strerror( xMQTTStatus ) ) );
                         xDemoStatus = pdFAIL;
                     }
@@ -445,7 +447,8 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
             if( xMQTTStatus != MQTTSuccess )
             {
-                LogError( ( "MQTT_ProcessLoop() failed with status %s.",
+                LogError( ( "MQTT_ProcessLoop() call failed to receive UNSUBACK response."
+                            " Error=%s.",
                             MQTT_Status_strerror( xMQTTStatus ) ) );
                 xDemoStatus = pdFAIL;
             }
