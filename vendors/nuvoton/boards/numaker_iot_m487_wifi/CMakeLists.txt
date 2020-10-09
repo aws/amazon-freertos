@@ -206,6 +206,7 @@ else()
         INTERFACE
             AFR::tls
             AFR::wifi
+            AFR::common
     )
 endif()
 
