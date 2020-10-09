@@ -642,14 +642,15 @@ static Socket_t prvCreateTCPConnectionToBroker( void )
 
             if( lSocketStatus != SOCKETS_ERROR_NONE )
             {
-                LogError( ( "Located but could not connect to MQTT broker %s. SocketStatus=%d.",
+                LogError( ( "Could not connect to MQTT broker %s: SOCKETS_Connect() failed. SocketStatus=%d.",
                             democonfigMQTT_BROKER_ENDPOINT,
                             lSocketStatus ) );
             }
         }
         else
         {
-            LogError( ( "Could not locate MQTT broker %s.", democonfigMQTT_BROKER_ENDPOINT ) );
+            LogError( ( "Could not connect to broker: DNS resolution failed: Broker=%s.",
+                        democonfigMQTT_BROKER_ENDPOINT ) );
         }
     }
     else
@@ -1039,7 +1040,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( Socket_t xMQTTSocket )
          * are irrecoverable with retrying. */
         if( xStatus != pdPASS )
         {
-            /* Errors in processing the packet are logged in prvMQTTSubscribeToTopic(). */
+            /* Errors in processing the packet are logged in prvMQTTProcessIncomingPacket(). */
             break;
         }
 
