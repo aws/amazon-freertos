@@ -38,7 +38,7 @@
  * @param[in] appCallback The callback function used to receive incoming
  * publishes and incoming acks from MQTT library.
  *
-* @return The status of the final connection attempt.
+ * @return The status of the final connection attempt.
  */
 TransportSocketStatus_t EstablishMqttSession( MQTTEventCallback_t eventCallback );
 

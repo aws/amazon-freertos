@@ -73,7 +73,7 @@
  * @brief The port to use for the demo.
  */
 #ifndef democonfigMQTT_BROKER_PORT
-    #define democonfigMQTT_BROKER_PORT      ( 1883 )
+    #define democonfigMQTT_BROKER_PORT    ( 1883 )
 #endif
 
 /**
@@ -150,17 +150,17 @@
  * @brief Maximum number of outgoing publishes maintained in the application
  * until an ack is received from the broker.
  */
-#define MAX_OUTGOING_PUBLISHES              ( 1U )
+#define MAX_OUTGOING_PUBLISHES                       ( 1U )
 
 /**
  * @brief Milliseconds per second.
  */
-#define _MILLISECONDS_PER_SECOND                          ( 1000U )
+#define _MILLISECONDS_PER_SECOND                     ( 1000U )
 
 /**
  * @brief Milliseconds per FreeRTOS tick.
  */
-#define _MILLISECONDS_PER_TICK                            ( _MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+#define _MILLISECONDS_PER_TICK                       ( _MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
 
 /*-----------------------------------------------------------*/
 
@@ -500,8 +500,8 @@ static int handlePublishResend( MQTTContext_t * pxMqttContext )
             LogInfo( ( "Sending duplicate PUBLISH with packet id %u.",
                        outgoingPublishPackets[ ucIndex ].packetId ) );
             eMqttStatus = MQTT_Publish( pxMqttContext,
-                                       &outgoingPublishPackets[ ucIndex ].pubInfo,
-                                       outgoingPublishPackets[ ucIndex ].packetId );
+                                        &outgoingPublishPackets[ ucIndex ].pubInfo,
+                                        outgoingPublishPackets[ ucIndex ].packetId );
 
             if( eMqttStatus != MQTTSuccess )
             {
@@ -561,10 +561,10 @@ TransportSocketStatus_t EstablishMqttSession( MQTTEventCallback_t eventCallback 
 
         /* Initialize MQTT library. */
         eMqttStatus = MQTT_Init( pxMqttContext,
-                                &xTransport,
-                                prvGetTimeMs,
-                                eventCallback,
-                                &xBuffer );
+                                 &xTransport,
+                                 prvGetTimeMs,
+                                 eventCallback,
+                                 &xBuffer );
 
         if( eMqttStatus != MQTTSuccess )
         {
@@ -580,8 +580,8 @@ TransportSocketStatus_t EstablishMqttSession( MQTTEventCallback_t eventCallback 
 
             /* Start with a clean session i.e. direct the MQTT broker to discard any
              * previous session data. Also, establishing a connection with clean session
-            * will ensure that the broker does not store any data when this client
-            * gets disconnected. */
+             * will ensure that the broker does not store any data when this client
+             * gets disconnected. */
             xConnectInfo.cleanSession = true;
 
             /* The client identifier is used to uniquely identify this MQTT client to
@@ -600,10 +600,10 @@ TransportSocketStatus_t EstablishMqttSession( MQTTEventCallback_t eventCallback 
 
             /* Send MQTT CONNECT packet to broker. */
             eMqttStatus = MQTT_Connect( pxMqttContext,
-                                       &xConnectInfo,
-                                       NULL,
-                                       mqttexampleCONNACK_RECV_TIMEOUT_MS,
-                                       &sessionPresent );
+                                        &xConnectInfo,
+                                        NULL,
+                                        mqttexampleCONNACK_RECV_TIMEOUT_MS,
+                                        &sessionPresent );
 
             if( eMqttStatus != MQTTSuccess )
             {
@@ -684,7 +684,7 @@ int32_t DisconnectMqttSession( void )
     if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
         LogError( ( "Disconnecting from SecureSocket failed with status=%u.",
-                        xNetworkStatus ) );
+                    xNetworkStatus ) );
         returnStatus = EXIT_FAILURE;
     }
 
@@ -718,9 +718,9 @@ int32_t SubscribeToTopic( const char * pcTopicFilter,
 
     /* Send SUBSCRIBE packet. */
     eMqttStatus = MQTT_Subscribe( pxMqttContext,
-                                 pSubscriptionList,
-                                 sizeof( pSubscriptionList ) / sizeof( MQTTSubscribeInfo_t ),
-                                 globalSubscribePacketIdentifier );
+                                  pSubscriptionList,
+                                  sizeof( pSubscriptionList ) / sizeof( MQTTSubscribeInfo_t ),
+                                  globalSubscribePacketIdentifier );
 
     if( eMqttStatus != MQTTSuccess )
     {
@@ -781,9 +781,9 @@ int32_t UnsubscribeFromTopic( const char * pcTopicFilter,
 
     /* Send UNSUBSCRIBE packet. */
     eMqttStatus = MQTT_Unsubscribe( pxMqttContext,
-                                   pSubscriptionList,
-                                   sizeof( pSubscriptionList ) / sizeof( MQTTSubscribeInfo_t ),
-                                   globalUnsubscribePacketIdentifier );
+                                    pSubscriptionList,
+                                    sizeof( pSubscriptionList ) / sizeof( MQTTSubscribeInfo_t ),
+                                    globalUnsubscribePacketIdentifier );
 
     if( eMqttStatus != MQTTSuccess )
     {
@@ -858,8 +858,8 @@ int32_t PublishToTopic( const char * pcTopicFilter,
 
         /* Send PUBLISH packet. */
         eMqttStatus = MQTT_Publish( pxMqttContext,
-                                   &outgoingPublishPackets[ ucPublishIndex ].pubInfo,
-                                   outgoingPublishPackets[ ucPublishIndex ].packetId );
+                                    &outgoingPublishPackets[ ucPublishIndex ].pubInfo,
+                                    outgoingPublishPackets[ ucPublishIndex ].packetId );
 
         if( eMqttStatus != MQTTSuccess )
         {
