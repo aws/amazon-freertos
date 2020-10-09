@@ -384,8 +384,8 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/device_information/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/mqtt_ble/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/data_transfer/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/wifi_provisioning/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/*c)\
 	$(wildcard $(CY_AFR_BOARD_PATH)/ports/ble/*.c)\
 	$(wildcard $(CY_EXTAPP_PATH)/bluetooth/psoc6/cyosal/src/*.c)\
 	$(wildcard $(CY_EXTAPP_PATH)/bluetooth/psoc6/cyhal/src/*.c)
