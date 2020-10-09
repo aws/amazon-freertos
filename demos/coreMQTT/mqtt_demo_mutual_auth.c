@@ -622,11 +622,6 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
     TransportInterface_t xTransport;
     BaseType_t xStatus = pdFAIL;
 
-    /***
-     * For readability, error handling in this function is restricted to the use of
-     * asserts().
-     ***/
-
     /* Fill in Transport Interface send and receive function pointers. */
     xTransport.pNetworkContext = pxNetworkContext;
     xTransport.send = SecureSocketsTransport_Send;
@@ -800,11 +795,6 @@ static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
     MQTTStatus_t xResult;
     MQTTPublishInfo_t xMQTTPublishInfo;
     BaseType_t xStatus = pdPASS;
-
-    /***
-     * For readability, error handling in this function is restricted to the use of
-     * asserts().
-     ***/
 
     /* Some fields are not used by this demo so start with everything at 0. */
     ( void ) memset( ( void * ) &xMQTTPublishInfo, 0x00, sizeof( xMQTTPublishInfo ) );
