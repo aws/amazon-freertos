@@ -1317,6 +1317,9 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_pkcs11_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\mqtt_demo_mutual_auth_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\mqtt_demo_plaintext_config.h</name>
 							</file>
 							<file>
@@ -2622,6 +2625,9 @@
 		</group>
 		<group>
 			<name>coreMQTT</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_mutual_auth.c</name>
+			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_plaintext.c</name>
 			</file>

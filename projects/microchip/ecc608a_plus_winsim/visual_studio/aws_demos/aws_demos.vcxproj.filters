@@ -1391,6 +1391,9 @@
 		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c">
 			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_mutual_auth.c">
+			<Filter>demos\coreMQTT</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_plaintext.c">
 			<Filter>demos\coreMQTT</Filter>
 		</ClCompile>

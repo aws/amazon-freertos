@@ -933,6 +933,16 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
@@ -1113,6 +1123,16 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/utest/iot_test_freertos_cli.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/utest/iot_test_freertos_cli.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/utest/iot_test_freertos_cli_console.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/utest/iot_test_freertos_cli_console.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_clock.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_clock.c</locationURI>
@@ -1236,11 +1256,6 @@
 			<name>config_files/aws_bufferpool_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_bufferpool_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/aws_demo_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_ggd_config.h</name>

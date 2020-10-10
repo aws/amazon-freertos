@@ -1547,6 +1547,11 @@
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_plaintext.c</FilePath>
 						</File>
 						<File>
+							<FileName>mqtt_demo_mutual_auth.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</FilePath>
+						</File>
+						<File>
 							<FileName>mqtt_demo_serializer.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_serializer.c</FilePath>
@@ -1715,6 +1720,11 @@
 							<FileName>mqtt_demo_plaintext_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_plaintext_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_mutual_auth_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_mutual_auth_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>mqtt_demo_serializer_config.h</FileName>

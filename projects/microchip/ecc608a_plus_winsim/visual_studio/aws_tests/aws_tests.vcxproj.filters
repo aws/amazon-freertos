@@ -30,7 +30,6 @@
 		<Filter Include="libraries\abstractions\secure_sockets"/>
 		<Filter Include="libraries\abstractions\secure_sockets\freertos_plus_tcp"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp"/>
 		<Filter Include="libraries\freertos_plus\standard"/>
 		<Filter Include="libraries\freertos_plus"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\include"/>
@@ -103,6 +102,8 @@
 		<Filter Include="vendors\microchip\boards"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\src\mqtt"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\src\http"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli\source"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli"/>
 		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX"/>
 		<Filter Include="libraries\abstractions\posix\include"/>
 		<Filter Include="libraries\abstractions\posix"/>
@@ -135,8 +136,8 @@
 		<Filter Include="libraries\freertos_plus\aws\greengrass\test"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\test"/>
 		<Filter Include="libraries\freertos_plus\standard\crypto\test"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli\utest"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\test"/>
-		<Filter Include="tests\integration_test"/>
 		<Filter Include="libraries\freertos_plus\standard\tls\test"/>
 		<Filter Include="libraries\abstractions\pkcs11\test"/>
 		<Filter Include="libraries\abstractions\platform\test"/>
@@ -1361,6 +1362,12 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c">
 			<Filter>libraries\freertos_plus\aws\ota\src\http</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_cli\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI_Console.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_cli\source</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
 		</ClCompile>
@@ -1505,6 +1512,12 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\iot_test_crypto.c">
 			<Filter>libraries\freertos_plus\standard\crypto\test</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\utest\iot_test_freertos_cli.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_cli\utest</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\utest\iot_test_freertos_cli_console.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_cli\utest</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_clock.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
 		</ClCompile>
@@ -1529,9 +1542,6 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\tests\integration_test\test_freertos_tcp.c">
-			<Filter>tests\integration_test</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\test\iot_test_tls.c">
 			<Filter>libraries\freertos_plus\standard\tls\test</Filter>
 		</ClCompile>
@@ -1548,6 +1558,9 @@
 			<Filter>libraries\abstractions\secure_sockets\test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\tests\integration_test\core_mqtt_system_test.c">
+			<Filter>tests\integration_test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\tests\integration_test\test_freertos_tcp.c">
 			<Filter>tests\integration_test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_tests\application_code\main.c">

@@ -868,6 +868,11 @@
 			<locationURI>AFR_ROOT/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
 		</link>
 		<link>
+			<name>demos/coreMQTT/mqtt_demo_mutual_auth.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/coreMQTT/mqtt_demo_mutual_auth.c</locationURI>
+		</link>
+		<link>
 			<name>demos/coreMQTT/mqtt_demo_plaintext.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/demos/coreMQTT/mqtt_demo_plaintext.c</locationURI>
@@ -1031,6 +1036,11 @@
 			<name>config_files/iot_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/iot_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/mqtt_demo_mutual_auth_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/mqtt_demo_mutual_auth_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/mqtt_demo_plaintext_config.h</name>
