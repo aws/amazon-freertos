@@ -367,7 +367,7 @@ class runTest:
         if charRead != long_value:
             isTestSuccessfull = False
             print(
-                "readWriteSimpleConnection test: Expected value:" +
+                "writereadLongCharacteristic test: Expected value:" +
                 long_value +
                 " got:" +
                 charRead)

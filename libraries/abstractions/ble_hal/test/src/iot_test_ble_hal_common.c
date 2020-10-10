@@ -1119,15 +1119,13 @@ void IotTestBleHal_CreateSecureConnection_Model1Level4( bool IsBondSucc )
     /* Wait secure connection. Secure connection is triggered by writting to bletestsCHARB. */
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventSSPrequestCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
 
-    if( IsBondSucc == true )
-    {
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
-        TEST_ASSERT_EQUAL( eBTsspVariantConsent, xSSPrequestEvent.xPairingVariant );
-    }
-
     if( xStatus == eBTStatusSuccess )
     {
+        /*
+         * Initial Pairing request user level callback with consent is optional for Mode 1 level 4, as the user interaction is required in next step.
+         */
+        TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+        TEST_ASSERT_EQUAL( eBTsspVariantConsent, xSSPrequestEvent.xPairingVariant );
         IotTestBleHal_ClearEventQueue();
 
         xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
