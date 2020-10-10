@@ -1639,6 +1639,11 @@
 			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_plaintext.c</locationURI>
 		</link>
 		<link>
+			<name>demos/coreMQTT/mqtt_demo_serializer.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_serializer.c</locationURI>
+		</link>
+		<link>
 			<name>demos/defender/aws_iot_demo_defender.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/defender/aws_iot_demo_defender.c</locationURI>
@@ -1802,6 +1807,11 @@
 			<name>config_files/mqtt_demo_plaintext_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/mqtt_demo_plaintext_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/mqtt_demo_serializer_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/mqtt_demo_serializer_config.h</locationURI>
 		</link>
 		<link>
 			<name>vendors/infineon/XMCLib/2.1.20/Newlib/syscalls.c</name>

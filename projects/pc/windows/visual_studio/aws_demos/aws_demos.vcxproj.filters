@@ -1013,6 +1013,9 @@
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_plaintext.c">
 			<Filter>demos\coreMQTT</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_serializer.c">
+			<Filter>demos\coreMQTT</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c">
 			<Filter>demos\defender</Filter>
 		</ClCompile>

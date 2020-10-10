@@ -25,8 +25,8 @@
  * 1 tab == 4 spaces!
  */
 
-#ifndef DEMO_CONFIG_H
-#define DEMO_CONFIG_H
+#ifndef MQTT_DEMO_PLAINTEXT_CONFIG_H
+#define MQTT_DEMO_PLAINTEXT_CONFIG_H
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -105,4 +105,4 @@
  */
 #define democonfigMQTT_MAX_DEMO_COUNT   ( 3 )
 
-#endif /* DEMO_CONFIG_H */
+#endif /* MQTT_DEMO_PLAINTEXT_CONFIG_H */

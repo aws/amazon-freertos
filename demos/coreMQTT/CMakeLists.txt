@@ -10,6 +10,7 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_plaintext.c"
+        "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_serializer.c"
 )
 
 afr_module_dependencies(
@@ -18,4 +19,5 @@ afr_module_dependencies(
         AFR::core_mqtt
         AFR::retry_utils
         AFR::transport_interface_secure_sockets
+        AFR::secure_sockets
 )
