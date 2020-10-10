@@ -234,7 +234,10 @@ INCLUDES+=\
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/*.c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/transport/secure_sockets/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/retry_utils/freertos/*.c)\
 
 # Test code
 SOURCES+=\
@@ -253,8 +256,10 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/include/platform\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/include/types\
+	$(CY_AFR_ROOT)/libraries/abstractions/retry_utils\
 	$(CY_AFR_ROOT)/libraries/abstractions/secure_sockets\
 	$(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/include\
+	$(CY_AFR_ROOT)/libraries/abstractions/transport/secure_sockets\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/common_io/include\
@@ -316,7 +321,8 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/unit/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/system/*.c)\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c\
+	$(CY_AFR_ROOT)/tests/integration_test/core_mqtt_system_test.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common\
@@ -349,6 +355,8 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src/private\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/portable\
 
 ################################################################################
 # libraries (freertos_plus)

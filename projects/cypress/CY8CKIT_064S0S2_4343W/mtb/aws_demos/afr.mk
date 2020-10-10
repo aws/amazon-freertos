@@ -259,8 +259,8 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/include/types\
 	$(CY_AFR_ROOT)/libraries/abstractions/retry_utils\
 	$(CY_AFR_ROOT)/libraries/abstractions/secure_sockets\
-	$(CY_AFR_ROOT)/libraries/abstractions/transport/secure_sockets\
 	$(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/include\
+	$(CY_AFR_ROOT)/libraries/abstractions/transport/secure_sockets\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include
 
