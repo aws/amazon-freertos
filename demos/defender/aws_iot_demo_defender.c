@@ -302,7 +302,7 @@ int RunDefenderDemo( bool awsIotMqttMode,
             /* Let the Device Defender Library run for 3 seconds before stopping.
              * This is to allow enough time for the AWS IoT Device Defender
              * Service to accept the metrics report.
-             * 
+             *
              * The following happens when the metrics report is accepted by the AWS IoT
              * Device Defender Service:
              *
@@ -343,7 +343,7 @@ int RunDefenderDemo( bool awsIotMqttMode,
         IotMqtt_Cleanup();
     }
 
-    /* The demo is successful only if the metrics were accepted by 
+    /* The demo is successful only if the metrics were accepted by
      * the AWS IoT Device Defender Service. */
     if( metricsAccepted == false )
     {
