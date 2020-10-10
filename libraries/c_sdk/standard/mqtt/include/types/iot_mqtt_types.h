@@ -986,6 +986,7 @@ typedef struct IotMqttNetworkInfo
     IotMqttCallbackInfo_t disconnectCallback;
 
     #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
+
         /**
          * @brief MQTT packet serializer overrides used by the new MQTT connection.
          *
@@ -993,6 +994,7 @@ typedef struct IotMqttNetworkInfo
          * remain valid for the lifetime of the MQTT connection.
          */
         const IotMqttSerializer_t * pMqttSerializer;
+
     #endif
 } IotMqttNetworkInfo_t;
 
