@@ -20,6 +20,35 @@ afr_module_dependencies(
         AFR::ble
 )
 
+
+# MQTT on BLE demo
+afr_demo_module(mqtt_ble)
+
+afr_set_demo_metadata(ID "MQTT_BLE_DEMO")
+afr_set_demo_metadata(DESCRIPTION "An example that demonstrates MQTT over BLE assisted by a companion device")
+afr_set_demo_metadata(DISPLAY_NAME "MQTT over BLE Hello World")
+
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${CMAKE_CURRENT_LIST_DIR}/mqtt_transport/mqtt_demo_transport.c"
+)
+
+afr_module_include_dirs(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/mqtt_transport
+        ${AFR_MODULES_C_SDK_DIR}/standard/logging_stack/
+)
+
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        AFR::mqtt_ble
+)
+
+
+
 # BLE Number Comparison Demo
 # Only build on boards that support BLE.
 # We don't display the demo below in AFR console

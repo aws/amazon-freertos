@@ -132,6 +132,8 @@
     #define DEMO_entryFUNCTION             RunHttpsSyncUploadDemo
 #elif defined( CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             RunHttpsAsyncUploadDemo
+#elif defined( CONFIG_MQTT_BLE_TRANSPORT_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunMQTTBLETransportDemo
 #elif defined( CONFIG_CLI_UART_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vRunCLIUartDemo
 #else /* if defined( CONFIG_MQTT_DEMO_ENABLED ) */

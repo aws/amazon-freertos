@@ -1307,9 +1307,9 @@
 							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</FilePath>
 						</File>
 						<File>
-							<FileName>iot_mqtt_serialize.c</FileName>
+							<FileName>iot_mqtt_publish_duplicates.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c</FilePath>
 						</File>
 						<File>
 							<FileName>iot_mqtt_static_memory.c</FileName>
@@ -1327,9 +1327,54 @@
 							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</FilePath>
 						</File>
 						<File>
+							<FileName>iot_mqtt_context_connection.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c</FilePath>
+						</File>
+						<File>
+							<FileName>iot_mqtt_serializer_deserializer_wrapper.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c</FilePath>
+						</File>
+						<File>
+							<FileName>iot_mqtt_managed_function_wrapper.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c</FilePath>
+						</File>
+						<File>
+							<FileName>iot_mqtt_subscription_container.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c</FilePath>
+						</File>
+						<File>
+							<FileName>iot_mqtt_mutex_wrapper.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c</FilePath>
+						</File>
+						<File>
 							<FileName>iot_mqtt_agent.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreMQTT/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_mqtt.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/core_mqtt.c</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_state.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/core_mqtt_state.c</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_serializer.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/core_mqtt_serializer.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1499,6 +1544,21 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/freertos_plus/standard/freertos_plus_cli/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>FreeRTOS_CLI.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</FilePath>
+						</File>
+						<File>
+							<FileName>FreeRTOS_CLI_Console.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/abstractions/retry_utils/freertos/</GroupName>
 					<Files>
 						<File>
@@ -1515,27 +1575,7 @@
 							<FileName>transport_secure_sockets.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/coreMQTT/source/</GroupName>
-					<Files>
-						<File>
-							<FileName>core_mqtt.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreMQTT/source/core_mqtt.c</FilePath>
-						</File>
-						<File>
-							<FileName>core_mqtt_state.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreMQTT/source/core_mqtt_state.c</FilePath>
-						</File>
-						<File>
-							<FileName>core_mqtt_serializer.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreMQTT/source/core_mqtt_serializer.c</FilePath>
-						</File>
+							</File>
 					</Files>
 				</Group>
 				<Group>

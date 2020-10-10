@@ -62,19 +62,6 @@ _mqttConnection_t * IotTestMqtt_createMqttConnection( bool awsIotMqttMode,
 
 /*----------------------- iot_mqtt_subscription.c -----------------------*/
 
-/* Internal data structures of iot_mqtt_subscription.c, redefined for the tests. */
-typedef struct _topicMatchParams
-{
-    const char * pTopicName;
-    uint16_t topicNameLength;
-    bool exactMatchOnly;
-} _topicMatchParams_t;
-typedef struct _packetMatchParams
-{
-    uint16_t packetIdentifier;
-    int32_t order;
-} _packetMatchParams_t;
-
 /**
  * @brief Test access function for #_topicMatch.
  *
@@ -90,5 +77,12 @@ bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
  */
 bool IotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
                               void * pMatch );
+
+/**
+ * @brief Test access function for #_IotMqtt_getFreeIndexFromContextConnectionArray.
+ *
+ * @see #_IotMqtt_getFreeIndexFromContextConnectionArray.
+ */
+int8_t IotTestMqtt_getFreeIndexFromContextConnectionArray( void );
 
 #endif /* ifndef IOT_TEST_ACCESS_MQTT_H_ */

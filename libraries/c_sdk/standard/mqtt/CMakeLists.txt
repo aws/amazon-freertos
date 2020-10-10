@@ -12,11 +12,6 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
-# Compile BLE MQTT serializers on supported platforms.
-if(${BLE_SUPPORTED})
-    set(extra_mqtt_sources "${src_dir}/iot_ble_mqtt_serialize.c")
-    set(extra_mqtt_dependencies AFR::serializer AFR::ble)
-endif()
 
 # Enable test access and mocks if building tests.
 if(${AFR_IS_TESTING})
@@ -30,10 +25,15 @@ afr_module_sources(
         "${src_dir}/iot_mqtt_api.c"
         "${src_dir}/iot_mqtt_network.c"
         "${src_dir}/iot_mqtt_operation.c"
-        "${src_dir}/iot_mqtt_serialize.c"
+        "${src_dir}/iot_mqtt_publish_duplicates.c"
         "${src_dir}/iot_mqtt_static_memory.c"
         "${src_dir}/iot_mqtt_subscription.c"
         "${src_dir}/iot_mqtt_validate.c"
+        "${src_dir}/iot_mqtt_context_connection.c"
+        "${src_dir}/iot_mqtt_serializer_deserializer_wrapper.c"
+        "${src_dir}/iot_mqtt_managed_function_wrapper.c"
+        "${src_dir}/iot_mqtt_subscription_container.c"
+        "${src_dir}/iot_mqtt_mutex_wrapper.c"
         ${extra_mqtt_sources}
 )
 
@@ -49,6 +49,7 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${inc_dir}"
+        "${AFR_MODULES_DIR}/c_sdk/standard/logging_stack"
         "$<${AFR_IS_TESTING}:${src_dir}>"
     PRIVATE
         ${extra_mqtt_includes}
@@ -60,15 +61,11 @@ afr_module_dependencies(
     PUBLIC
         AFR::common
         ${extra_mqtt_dependencies}
+        AFR::core_mqtt
 )
 
 # MQTT test
 afr_test_module()
-
-# Enable tests for BLE-over-MQTT serializers on supported boards.
-if(BLE_SUPPORTED)
-    set(extra_test_mqtt_sources "${test_dir}/unit/iot_tests_mqtt_serialize_ble.c")
-endif()
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
