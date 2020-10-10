@@ -1601,7 +1601,6 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
     _mqttOperation_t * pOperation = NULL;
     uint8_t ** pPacketIdentifierHigh = NULL;
 
-
     /* Check that the PUBLISH information is valid. */
     if( _IotMqtt_ValidatePublish( mqttConnection->awsIotMqttMode,
                                   pPublishInfo ) == false )

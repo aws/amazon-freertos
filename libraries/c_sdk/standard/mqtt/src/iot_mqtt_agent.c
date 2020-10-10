@@ -289,6 +289,7 @@ static void prvPublishCallbackWrapper( void * pvParameter,
                 }
             }
         #else /* if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 ) */
+
             /* When subscription management is disabled, invoke the global callback
              * if one exists. */
 

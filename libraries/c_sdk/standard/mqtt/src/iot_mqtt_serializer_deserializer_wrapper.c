@@ -176,7 +176,7 @@ size_t _IotMqtt_GetRemainingLength( void * pNetworkConnection,
                 break;
             }
         }
-    } while ( ( encodedByte & 0x80 ) != 0 );
+    } while( ( encodedByte & 0x80 ) != 0 );
 
     /* Check that the decoded remaining length conforms to the MQTT specification. */
     if( remainingLength != MQTT_REMAINING_LENGTH_INVALID )
