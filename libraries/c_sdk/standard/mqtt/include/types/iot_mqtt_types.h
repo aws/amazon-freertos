@@ -778,9 +778,9 @@ typedef struct IotMqttConnectInfo
              *
              * <b>Default implementation:</b> #_IotMqtt_PublishSetDup
              */
-            void ( *publishSetDup )( uint8_t * /* pPublishPacket */,
-                                     uint8_t * /* pPacketIdentifierHigh */,
-                                     uint16_t * /* pNewPacketIdentifier */ );
+            void ( * publishSetDup )( uint8_t * /* pPublishPacket */,
+                                      uint8_t * /* pPacketIdentifierHigh */,
+                                      uint16_t * /* pNewPacketIdentifier */ );
 
             /**
              * @brief PUBACK packet serializer function.
@@ -986,7 +986,6 @@ typedef struct IotMqttNetworkInfo
     IotMqttCallbackInfo_t disconnectCallback;
 
     #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-
         /**
          * @brief MQTT packet serializer overrides used by the new MQTT connection.
          *
