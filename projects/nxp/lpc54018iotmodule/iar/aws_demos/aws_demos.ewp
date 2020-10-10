@@ -1891,6 +1891,9 @@
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\mqtt_demo_plaintext_config.h</name>
 							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\mqtt_demo_serializer_config.h</name>
+							</file>
 						</group>
 					</group>
 				</group>
@@ -1978,6 +1981,9 @@
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_plaintext.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_serializer.c</name>
 			</file>
 		</group>
 		<group>
