@@ -994,7 +994,6 @@ typedef struct IotMqttNetworkInfo
          * remain valid for the lifetime of the MQTT connection.
          */
         const IotMqttSerializer_t * pMqttSerializer;
-
     #endif
 } IotMqttNetworkInfo_t;
 
