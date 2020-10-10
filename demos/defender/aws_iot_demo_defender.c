@@ -343,7 +343,8 @@ int RunDefenderDemo( bool awsIotMqttMode,
         IotMqtt_Cleanup();
     }
 
-    /* The demo is successful only if the metrics were accepted by AWS IoT. */
+    /* The demo is successful only if the metrics were accepted by 
+     * the AWS IoT Device Defender Service. */
     if( metricsAccepted == false )
     {
         status = EXIT_FAILURE;
