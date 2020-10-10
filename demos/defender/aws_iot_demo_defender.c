@@ -299,14 +299,25 @@ int RunDefenderDemo( bool awsIotMqttMode,
 
         if( defenderResult == AWS_IOT_DEFENDER_SUCCESS )
         {
-            /* Let the Device Defender library run for 3 seconds before stopping.
+            /* Let the Device Defender Library run for 3 seconds before stopping.
              * This is to allow enough time for the AWS IoT Device Defender
-             * service to accept the metrics. When the metrics are accepted, the
-             * application is notified in _defenderCallback() with an event type
-             * of AWS_IOT_DEFENDER_METRICS_ACCEPTED. Also, upon metrics acceptance,
-             * the Defender library will print "Metrics report was accepted by
-             * defender service." and the variable metricsAccepted, set in the
-             * callback context, will be set to true. */
+             * Service to accept the metrics report.
+             * 
+             * The following happens when the metrics report is accepted by the AWS IoT
+             * Device Defender Service:
+             *
+             * 1. The application is notified in _defenderCallback() with an event
+             *    type of AWS_IOT_DEFENDER_METRICS_ACCEPTED. In this demo, the
+             *    callback sets the variable metricsAccepted to true which is passed
+             *    as the callback context.
+             * 2. The Defender library prints "Metrics report was accepted by
+             *     defender service."
+             *
+             * It is okay to pass the local variable metricsAccepted in the callback
+             * context because the Device Defender Library is stopped in this function
+             * itself. Therefore, the callback can never execute after this function
+             * has exited.
+             */
             IotClock_SleepMs( 3000 );
             /* Stop the defender agent. */
             AwsIotDefender_Stop();
