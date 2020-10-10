@@ -317,6 +317,7 @@ void test_IotBleMqttTransportSend_ConnectBadParameters( void )
         0x10, 0x18, 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0x18,
         0x00, 0x00
     };
+
     packetSize = 12U;
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context, ( void * ) MQTTPacketWillQos, packetSize );
     TEST_ASSERT_EQUAL_INT( 0, bytesSent );
@@ -327,6 +328,7 @@ void test_IotBleMqttTransportSend_ConnectBadParameters( void )
         0x10, 0x18, 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0x11,
         0x00, 0x00
     };
+
     packetSize = 12U;
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context, ( void * ) MQTTPacketConnectFlag, packetSize );
     TEST_ASSERT_EQUAL_INT( 0, bytesSent );
@@ -337,6 +339,7 @@ void test_IotBleMqttTransportSend_ConnectBadParameters( void )
         0x10, 0x18, 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0x02,
         0x00, 0x00, 0x00, 0x00
     };
+
     packetSize = 12U;
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context, ( void * ) MQTTPacketNoID, packetSize );
     TEST_ASSERT_EQUAL_INT( 0, bytesSent );
@@ -1431,7 +1434,7 @@ void test_IotBleMqttTransportReceive_Bad( void )
     IotBleDataTransfer_PeekReceiveBuffer_Stub( receiveCallback );
 
     status = IotBleMqttTransportAcceptData( &context );
-    TEST_ASSERT_EQUAL_INT( MQTTRecvFailed, status);
+    TEST_ASSERT_EQUAL_INT( MQTTRecvFailed, status );
 
     /*Test for bad type being denied */
     fixedBuffer.pBuffer = buf;
@@ -1439,7 +1442,7 @@ void test_IotBleMqttTransportReceive_Bad( void )
     IotBleDataTransfer_PeekReceiveBuffer_Stub( receiveCallback );
 
     status = IotBleMqttTransportAcceptData( &context );
-    TEST_ASSERT_EQUAL_INT( MQTTBadParameter, status);
+    TEST_ASSERT_EQUAL_INT( MQTTBadParameter, status );
 
     /*Test for pubrec being denied */
     buf[ 0 ] = 0x50;

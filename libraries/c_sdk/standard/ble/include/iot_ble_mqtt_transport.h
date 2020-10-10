@@ -57,18 +57,20 @@ struct NetworkContext
 
 /**
  * @brief Initiailzes the Circular buffer to store the received data
- * 
+ *
  * @param[in] pBuffer Pointer to the buffer allocated by the application and used by the transport interface to
  *            stream MQTT data.
  * @param[in] bufSize The size of the buffer allocated.
  * @param[out] pContext An opaque used by transport interface and to be passed to the MQTT library.
  * @return status of the initialization.
  */
-bool IotBleMqttTransportInit( void * pBuffer, size_t bufSize, NetworkContext_t * pContext );
+bool IotBleMqttTransportInit( void * pBuffer,
+                              size_t bufSize,
+                              NetworkContext_t * pContext );
 
 /**
  * @brief Cleans up the Circular buffer.
- * 
+ *
  * @param[in] pContext An opaque used by transport interface.
  */
 void IotBleMqttTransportCleanup( const NetworkContext_t * pContext );

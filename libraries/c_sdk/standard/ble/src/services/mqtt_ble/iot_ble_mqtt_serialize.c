@@ -1056,7 +1056,7 @@ MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pS
 
 MQTTStatus_t IotBleMqtt_DeserializeSuback( MQTTPacketInfo_t * pSuback,
                                            uint16_t * packetIdentifier,
-                                           uint8_t *pStatusCode )
+                                           uint8_t * pStatusCode )
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;

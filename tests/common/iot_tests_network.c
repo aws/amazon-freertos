@@ -78,4 +78,3 @@ bool IotTestNetwork_SelectNetworkType( uint16_t networkType )
     _IotTestNetworkType = networkType;
     return true;
 }
-
