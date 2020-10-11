@@ -56,5 +56,6 @@
 #define testrunnerFULL_HTTPS_CLIENT_ENABLED        0
 #define testrunnerFULL_COMMON_IO_ENABLED           0
 #define testrunnerFULL_CLI_ENABLED                 0
+#define testrunnerFULL_DEVICE_SHADOW_ENABLED       0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */
