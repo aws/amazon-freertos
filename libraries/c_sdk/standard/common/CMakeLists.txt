@@ -4,12 +4,6 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
-# TODO, this is a workaround to remove iot_logging_task_dynamic_buffers.c from common, because
-# winsim use a different logging implementation.
-if(NOT AFR_BOARD MATCHES "pc.windows|microchip.ecc608a_plus_winsim")
-    set(aws_logging_task "${src_dir}/logging/iot_logging_task_dynamic_buffers.c")
-endif()
-
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
@@ -18,17 +12,8 @@ afr_module_sources(
         "${inc_dir}/iot_appversion32.h"
         "${inc_dir}/iot_init.h"
         "${inc_dir}/iot_linear_containers.h"
-        "${inc_dir}/logging_levels.h"
-        "${inc_dir}/logging_stack.h"
-
-        # Logging
-        "${aws_logging_task}"
-        "${src_dir}/logging/iot_logging.c"
-        "${inc_dir}/private/iot_logging.h"
-        "${inc_dir}/iot_logging_task.h"
-        "${inc_dir}/iot_logging_setup.h"
-
-        # Platform
+        
+      # Platform
         "${inc_dir}/types/iot_network_types.h"  # TODO, should this belong to platform?
 
         # Static memory
@@ -55,6 +40,7 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::platform
+        AFR::logging
 )
 
 # test for common module
@@ -69,4 +55,5 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         AFR::common
+        AFR::logging
 )
