@@ -387,8 +387,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device-shadow-for-aws-iot-embedded-sdk\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
@@ -1316,12 +1314,6 @@
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_pkcs11_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\shadow_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\shadow_demo_config.h</name>
 							</file>
 						</group>
 					</group>
@@ -2534,24 +2526,6 @@
 				</file>
 			</group>
 		</group>
-		<group>
-			<name>coreJSON</name>
-			<group>
-				<name>source</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\core_json.c</name>
-				</file>
-			</group>
-		</group>
-		<group>
-			<name>device-shadow-for-aws-iot-embedded-sdk</name>
-			<group>
-				<name>source</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device-shadow-for-aws-iot-embedded-sdk\source\shadow.c</name>
-				</file>
-			</group>
-		</group>
 	</group>
 	<group>
 		<name>demos</name>
@@ -2631,15 +2605,6 @@
 			<name>defender</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\defender\aws_iot_demo_defender.c</name>
-			</file>
-		</group>
-		<group>
-			<name>device-shadow-for-aws-iot-embedded-sdk</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device-shadow-for-aws-iot-embedded-sdk\shadow_demo_main.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device-shadow-for-aws-iot-embedded-sdk\shadow_demo_helpers.c</name>
 			</file>
 		</group>
 		<group>
