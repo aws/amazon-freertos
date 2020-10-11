@@ -25,13 +25,17 @@
  */
 
 /*
- * Demo for showing use of the managed MQTT API.
+ * Demo that shows use of the MQTT API without its keep-alive feature.
+ * This demo instead implements the keep-alive functionality in the application.
  *
- * The Example shown below uses this API to create MQTT messages and
- * send them over the connection established using Secure Sockets.
- * The example is single threaded and uses statically allocated memory;
- * it uses QOS0 and therefore does not implement any retransmission
- * mechanism for Publish messages.
+ * The example shown below uses this API to create MQTT messages and
+ * send them over the TCP connection established using a Secure Sockets
+ * based transport interface implementation.
+ * It shows how the MQTT API can be used without the keep-alive feature,
+ * so that the application can implements its own keep-alive functionality
+ * for MQTT. The example is single threaded and uses statically allocated memory;
+ * it uses QOS0, and therefore it does not implement any retransmission
+ * mechanism for publish messages.
  *
  * !!! NOTE !!!
  * This MQTT demo does not authenticate the server nor the client.
@@ -128,7 +132,7 @@
 
 /**
  * @brief Time to wait between each cycle of the demo implemented by
- * RunCoreMqttPlaintextDemo().
+ * RunCoreMqttKeepAliveDemo().
  */
 #define mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS     ( pdMS_TO_TICKS( 5000U ) )
 
@@ -138,11 +142,11 @@
 #define mqttexampleRECEIVE_LOOP_TIMEOUT_MS           ( 500U )
 
 /**
- * @brief Keep alive time reported to the broker while establishing an MQTT connection.
+ * @brief Keep-alive time reported to the broker while establishing an MQTT connection.
  *
- * It is the responsibility of the Client to ensure that the interval between
- * Control Packets being sent does not exceed the this Keep Alive value. In the
- * absence of sending any other Control Packets, the Client MUST send a
+ * It is the responsibility of the client to ensure that the interval between
+ * control packets being sent does not exceed the this keep-alive value. In the
+ * absence of sending any other control packets, the client MUST send a
  * PINGREQ Packet.
  */
 #define mqttexampleKEEP_ALIVE_TIMEOUT_SECONDS        ( 60U )
@@ -267,7 +271,7 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
  * @brief Process incoming Publish message.
  *
  * @param pxPublishInfo is a pointer to structure containing deserialized
- * Publish message.
+ * publish message.
  */
 static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo );
 
@@ -277,7 +281,7 @@ static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo );
  *
  * This should only be called after a control packet has been sent.
  *
- * @param pxTimer The auto-reload software timer for handling keep alive.
+ * @param pxTimer The auto-reload software timer for handling keep-alive.
  *
  * @return The status returned by #xTimerReset.
  */
@@ -289,7 +293,7 @@ static BaseType_t prvCheckTimeoutThenResetTimer( TimerHandle_t pxTimer );
  * Its responsibility is to send a PINGREQ packet if a PINGRESP is not pending
  * and no control packets have been sent after some given interval.
  *
- * @param pxTimer The auto-reload software timer for handling keep alive.
+ * @param pxTimer The auto-reload software timer for handling keep-alive.
  */
 static void prvKeepAliveTimerCallback( TimerHandle_t pxTimer );
 
@@ -409,12 +413,12 @@ static MQTTFixedBuffer_t xBuffer =
  * TCP connection established using a transport interface implementation based
  * on the Secure Sockets library. This example is single threaded and uses
  * statically allocated memory. This example uses QOS0 and therefore does not
- * implement any retransmission mechanism for Publish messages. This example
+ * implement any retransmission mechanism for publish messages. This example
  * runs for democonfigMQTT_MAX_DEMO_COUNT, if the connection to the broker goes
  * down, the code tries to reconnect to the broker with an exponential backoff
- * mechanism. This example also creates a Keep Alive timer task to handle
+ * mechanism. This example also creates a keep-alive timer task to handle
  * periodically sending a PINGREQ to the broker. Because the demo application
- * handles the MQTT Keep Alive, this example uses the MQTT_RecieveLoop API
+ * handles the MQTT keep-alive, this example uses the MQTT_RecieveLoop API
  * instead of the MQTT_ProcessLoop API used in the MQTT plaintext demo.
  */
 int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
@@ -510,7 +514,7 @@ int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
 
         if( xDemoStatus == pdPASS )
         {
-            /* Start the timer for keep alive. */
+            /* Start the timer for keep-alive. */
             xTimerStatus = xTimerStart( xKeepAliveTimer, 0 );
 
             if( xTimerStatus != pdPASS )
@@ -534,7 +538,7 @@ int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
 
         if( xDemoStatus == pdPASS )
         {
-            /* Publish messages with QOS0, send and process keep alive messages. */
+            /* Publish messages with QOS0, send and process keep-alive messages. */
             for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
             {
                 LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
@@ -760,9 +764,10 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
         xConnectInfo.pClientIdentifier = democonfigCLIENT_IDENTIFIER;
         xConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( democonfigCLIENT_IDENTIFIER );
 
-        /* Set MQTT keep-alive period. It is the responsibility of the application to ensure
-         * that the interval between Control Packets being sent does not exceed the Keep Alive value.
-         * In the absence of sending any other Control Packets, the Client MUST send a PINGREQ Packet. */
+        /* Set MQTT keep-alive period. It is the responsibility of the application
+         * to ensure that the interval between control packets being sent does not
+         * exceed the keep-alive value. In the absence of sending any other control
+         * packets, the client MUST send a PINGREQ Packet. */
         xConnectInfo.keepAliveSeconds = mqttexampleKEEP_ALIVE_TIMEOUT_SECONDS;
 
         /* Send MQTT CONNECT packet to broker. LWT is not used in this demo, so it
@@ -837,7 +842,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
          * subscribe packet then waiting for a subscribe acknowledgment (SUBACK).
          * This client will then publish to the same topic it subscribed to, so it
          * will expect all the messages it sends to the broker to be sent back to it
-         * from the broker. This demo uses QOS0 in Subscribe, therefore, the Publish
+         * from the broker. This demo uses QOS0 in the subscribe, therefore, the publish
          * messages received from the broker will have QOS0. */
         LogInfo( ( "Attempt to subscribe to the MQTT topic %s.", mqttexampleTOPIC ) );
         xResult = MQTT_Subscribe( pxMQTTContext,
@@ -859,7 +864,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
          * client may receive a publish before it receives a subscribe ack. Therefore,
          * call generic incoming packet processing function. Since this demo is
          * subscribing to the topic to which no one is publishing, probability of
-         * receiving Publish message before subscribe ack is zero; but application
+         * receiving publish message before subscribe ack is zero; but application
          * must be ready to receive any packet.  This demo uses the generic packet
          * processing function everywhere to highlight this fact. */
         xResult = MQTT_ProcessLoop( pxMQTTContext, mqttexampleRECEIVE_LOOP_TIMEOUT_MS );
@@ -1033,15 +1038,15 @@ static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo )
 {
     configASSERT( pxPublishInfo != NULL );
 
-    /* Process incoming Publish. */
+    /* Process incoming publish. */
     LogInfo( ( "Incoming QoS : %d\n", pxPublishInfo->qos ) );
 
     /* Verify the received publish is for the we have subscribed to. */
     if( ( pxPublishInfo->topicNameLength == strlen( mqttexampleTOPIC ) ) &&
         ( 0 == strncmp( mqttexampleTOPIC, pxPublishInfo->pTopicName, pxPublishInfo->topicNameLength ) ) )
     {
-        LogInfo( ( "Incoming Publish Topic Name: %.*s matches subscribed topic.\r\n"
-                   "Incoming Publish Message : %.*s",
+        LogInfo( ( "Incoming PUBLISH Topic Name: %.*s matches subscribed topic.\r\n"
+                   "Incoming PUBLISH Message : %.*s",
                    pxPublishInfo->topicNameLength,
                    pxPublishInfo->pTopicName,
                    pxPublishInfo->payloadLength,
@@ -1049,7 +1054,7 @@ static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo )
     }
     else
     {
-        LogInfo( ( "Incoming Publish Topic Name: %.*s does not match subscribed topic.",
+        LogInfo( ( "Incoming PUBLISH Topic Name: %.*s does not match subscribed topic.",
                    pxPublishInfo->topicNameLength,
                    pxPublishInfo->pTopicName ) );
     }
