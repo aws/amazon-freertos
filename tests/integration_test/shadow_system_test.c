@@ -114,7 +114,7 @@
 /**
  * @brief Length of the client identifier.
  */
-#define TEST_CLIENT_IDENTIFIER_LENGTH         ( sizeof( TEST_CLIENT_IDENTIFIER ) - 1u )
+#define TEST_CLIENT_IDENTIFIER_LENGTH       ( sizeof( TEST_CLIENT_IDENTIFIER ) - 1u )
 
 /**
  * @brief Length of the client identifier.
@@ -148,12 +148,12 @@
 /**
  * @brief Milliseconds per second.
  */
-#define MILLISECONDS_PER_SECOND               ( 1000U )
+#define MILLISECONDS_PER_SECOND             ( 1000U )
 
 /**
  * @brief Milliseconds per FreeRTOS tick.
  */
-#define MILLISECONDS_PER_TICK                 ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+#define MILLISECONDS_PER_TICK               ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
 
 /**
  * @brief The exampled predefine thing name.
@@ -612,7 +612,7 @@ static MQTTStatus_t subscribeToTopic( MQTTContext_t * pContext,
 
     /* Start with everything at 0. */
     ( void ) memset( ( void * ) pSubscriptionList, 0x00, sizeof( pSubscriptionList ) );
-    
+
     /* topic /update/accepted and uses qos. */
     pSubscriptionList[ 0 ].qos = qos;
     pSubscriptionList[ 0 ].pTopicFilter = pTopic;
@@ -748,7 +748,7 @@ void shadowTestSetUp()
     receivedGetRejectedResult = false;
 
     memset( &incomingInfo, 0u, sizeof( MQTTPublishInfo_t ) );
-    
+
     /* Initializer server information. */
     serverInfo.pHostName = BROKER_ENDPOINT;
     serverInfo.hostNameLength = strlen( BROKER_ENDPOINT );
