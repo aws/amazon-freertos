@@ -47,6 +47,7 @@ export AFR_ABSTRACTIONS_PATH := ../../../../../../libraries/abstractions/
 
 GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_C_SDK_STANDARD_PATH)common/include \
+                    $(AFR_LIBRARIES_PATH)logging/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include  \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include \
                     $(AFR_ABSTRACTIONS_PATH)retry_utils \
@@ -93,8 +94,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/main.c \
-                      $(AFR_C_SDK_STANDARD_PATH)common/logging/iot_logging_task_dynamic_buffers.c \
-                      $(AFR_C_SDK_STANDARD_PATH)common/logging/iot_logging.c \
+                      $(AFR_LIBRARIES_PATH)logging/iot_logging_task_dynamic_buffers.c \
+                      $(AFR_LIBRARIES_PATH)logging/iot_logging.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_runner.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_freertos.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo.c \
