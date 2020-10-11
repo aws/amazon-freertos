@@ -963,41 +963,6 @@
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/logging_levels.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/logging_levels.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/logging_stack.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/logging_stack.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/logging/iot_logging.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/logging/iot_logging.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/private/iot_logging.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/private/iot_logging.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/iot_logging_task.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_logging_task.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/iot_logging_setup.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_logging_setup.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/include/types/iot_network_types.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/types/iot_network_types.h</locationURI>
@@ -1201,6 +1166,16 @@
 			<name>vendors/nxp/boards/lpc54018iotmodule/ports/wifi/iot_wifi.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/wifi/iot_wifi.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/logging/iot_logging_task_dynamic_buffers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/logging/iot_logging_task_dynamic_buffers.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/logging/iot_logging.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/logging/iot_logging.c</locationURI>
 		</link>
 		<link>
 			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
