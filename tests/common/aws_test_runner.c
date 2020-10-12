@@ -203,7 +203,7 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1 )
-        RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize );
+        RUN_TEST_GROUP( BLE_Unit_MQTT_Serialize );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_CONNECTIVITY );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_MQTT );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_SHADOW );

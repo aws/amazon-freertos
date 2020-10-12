@@ -40,15 +40,6 @@
 #include "aws_demo.h"
 #include "iot_init.h"
 
-/* Remove dependency to MQTT */
-#if ( defined( CONFIG_MQTT_DEMO_ENABLED ) || defined( CONFIG_SHADOW_DEMO_ENABLED ) || defined( CONFIG_DEFENDER_DEMO_ENABLED ) || defined( CONFIG_OTA_UPDATE_DEMO_ENABLED ) )
-    #define MQTT_DEMO_TYPE_ENABLED
-#endif
-
-#if defined( MQTT_DEMO_TYPE_ENABLED )
-    #include "iot_mqtt.h"
-#endif
-
 static IotNetworkManagerSubscription_t subscription = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
 
 /* Semaphore used to wait for a network to be available. */
@@ -56,29 +47,6 @@ static IotSemaphore_t demoNetworkSemaphore;
 
 /* Variable used to indicate the connected network. */
 static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
-
-#if defined( MQTT_DEMO_TYPE_ENABLED )
-    #if BLE_ENABLED
-        extern const IotMqttSerializer_t IotBleMqttSerializer;
-    #endif
-
-
-/*-----------------------------------------------------------*/
-
-    const IotMqttSerializer_t * demoGetMqttSerializer( void )
-    {
-        const IotMqttSerializer_t * ret = NULL;
-
-        #if BLE_ENABLED
-            if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE )
-            {
-                ret = &IotBleMqttSerializer;
-            }
-        #endif
-
-        return ret;
-    }
-#endif /* if defined( MQTT_DEMO_TYPE_ENABLED ) */
 
 /*-----------------------------------------------------------*/
 

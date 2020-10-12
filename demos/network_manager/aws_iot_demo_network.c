@@ -53,12 +53,6 @@
  */
         static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t * pxNetworkContext );
 
-
-/**
- * @brief serializer used for MQTT over BLE.
- */
-        extern const IotMqttSerializer_t IotBleMqttSerializer;
-
     #endif
 
     #if WIFI_ENABLED
@@ -199,7 +193,6 @@
                 pxNetworkInfo->createNetworkConnection = false;
                 pxNetworkInfo->u.pNetworkConnection = pConnection;
                 pxNetworkInfo->pNetworkInterface = &IotNetworkBle;
-                pxNetworkInfo->pMqttSerializer = &IotBleMqttSerializer;
 
                 pxNetworkContext->pvNetworkConnection = pConnection;
 

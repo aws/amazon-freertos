@@ -257,6 +257,45 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
                          int32_t lProtocol );
 /* @[declare_secure_sockets_socket] */
 
+/**
+ * @brief Bind a TCP socket.
+ *
+ * See the [FreeRTOS+TCP networking tutorial]
+ * (https://freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_Networking_Tutorial.html)
+ * for more information on TCP sockets.
+ *
+ * See the [Berkeley Sockets API]
+ * (https://en.wikipedia.org/wiki/Berkeley_sockets#Socket_API_functions)
+ * in wikipedia
+ *
+ * @sa SOCKETS_Bind()
+ * A pre-configured source port allows customers to bind to the specified local port instead of ephemeral port
+ * for security and packet filter reasons.
+ *
+ * Limitations:
+ *
+ *   i.  The caller of SOCKETS_Bind() API should make sure the socket address has the correct local IP address for the interface.
+ *   ii. Some source ports may be unavailable depending on the TCP/IP stack implementation.
+ *
+ *       NOTE: If the SOCKETS_Bind() API binds to a source port in ephemeral port range, and the caller calls SOCKETS_Bind() API
+ *             before SOCKETS_Connect() API, then a conflict of source port arises as another TCP connection
+ *             may pick the the same chosen port via tcp_new_port() API ( by scanning its internal TCP connection list )
+ *
+ *
+ * @param[in] xSocket The handle of the socket to which specified address to be bound.
+ * @param[in] pxAddress A pointer to a SocketsSockaddr_t structure that contains
+ * the address and port to be bound to the socket.
+ * @param[in] xAddressLength Should be set to sizeof( @ref SocketsSockaddr_t ).
+ *
+ * @return
+ * * If the bind was successful then SOCKETS_ERROR_NONE is returned.
+ * * If an error occurred, a negative value is returned. @ref SocketsErrors
+ */
+/* @[declare_secure_sockets_bind] */
+int32_t SOCKETS_Bind( Socket_t xSocket,
+                      SocketsSockaddr_t * pxAddress,
+                      Socklen_t xAddressLength );
+/* @[declare_secure_sockets_bind] */
 
 /**
  * @brief Connects the socket to the specified IP address and port.

@@ -60,29 +60,6 @@
 /* Platform thread priority. */
 #define IOT_THREAD_DEFAULT_PRIORITY             ( 5 )
 
-/* Enable overriding the serializer of the MQTT library. The Amazon FreeRTOS BLE
- * Mobile SDK uses a different serializer (CBOR) than the default one. Amazon's
- * Android and iOS apps use this SDK to implement the MQTT over BLE feature
- * (MQTT proxy).
- */
-#define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
-
-#if BLE_ENABLED
-    /* Provide additional serializer initialization functions. */
-    extern bool IotBleMqtt_InitSerialize( void );
-    extern void IotBleMqtt_CleanupSerialize( void );
-    #define _IotMqtt_InitSerializeAdditional    IotBleMqtt_InitSerialize
-    #define _IotMqtt_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
-#endif /* #if BLE_ENABLED */
-
-/* Provide a function to retrieve the serializer function pointers in the MQTT demo. */
-typedef struct IotMqttSerializer IotMqttSerializer_t;
-
-#if defined (MQTT_DEMO_TYPE_ENABLED)
-    extern const IotMqttSerializer_t * demoGetMqttSerializer( void );
-    #define IOT_DEMO_MQTT_SERIALIZER                demoGetMqttSerializer()
-#endif
-
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 

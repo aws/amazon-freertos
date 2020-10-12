@@ -526,7 +526,6 @@ static int prvReadCertificateIntoContext( TLSContext_t * pxTlsContext,
 static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 {
     BaseType_t xResult = CKR_OK;
-    CK_ULONG xCount = 0;
     CK_ATTRIBUTE xTemplate[ 2 ];
     mbedtls_pk_type_t xKeyAlgo = ( mbedtls_pk_type_t ) ~0;
     char * pcJitrCertificate = keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;

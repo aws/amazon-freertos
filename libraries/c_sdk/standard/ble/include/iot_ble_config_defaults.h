@@ -366,6 +366,10 @@
     #define IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE    ( 1024 )
 #endif
 
+#ifndef IOT_BLE_NETWORK_INTERFACE_BUFFER_SIZE
+    #define IOT_BLE_NETWORK_INTERFACE_BUFFER_SIZE    ( 256U )
+#endif
+
 /**
  * @brief The  timeout in milliseconds for sending a message through data transfer service.
  */

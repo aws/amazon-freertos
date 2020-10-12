@@ -45,6 +45,7 @@ endif
 #GLOBAL_DEFINES += WLAN_FIRMWARE_PRNG_SEED
 
 export AMAZON_FREERTOS_PATH := ../../../../../../
+export AFR_LIBRARIES_PATH := ../../../../../../libraries/
 export AFR_THIRDPARTY_PATH := ../../../../../../libraries/3rdparty/
 export AFR_C_SDK_STANDARD_PATH := ../../../../../../libraries/c_sdk/standard/
 export AFR_C_SDK_AWS_PATH := ../../../../../../libraries/c_sdk/aws/
@@ -56,6 +57,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)common/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include  \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include \
+                    $(AFR_ABSTRACTIONS_PATH)retry_utils \
+                    $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets \
                     $(AFR_C_SDK_STANDARD_PATH)common/taskpool/private \
                     $(AFR_C_SDK_STANDARD_PATH)common/include/private \
                     $(AFR_C_SDK_STANDARD_PATH)common/include/types \
@@ -86,6 +89,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/src/private \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/test/access \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/test/mock \
+                    $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
+                    $(AFR_LIBRARIES_PATH)coreMQTT/source/portable \
                     $(AFR_C_SDK_STANDARD_PATH)serializer/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include/types \
@@ -144,6 +149,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_subscription.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_validate.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_metrics.c \
+                      $(AMAZON_FREERTOS_PATH)tests/integration_test/core_mqtt_system_test.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/aws_test_shadow.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_api.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_parser.c \
@@ -163,6 +169,8 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c \
+                      $(AFR_ABSTRACTIONS_PATH)retry_utils/freertos/retry_utils_freertos.c \
+                      $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets/transport_secure_sockets.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/test/iot_test_platform_clock.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/test/iot_test_platform_threads.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/test/iot_memory_leak.c \

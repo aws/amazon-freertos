@@ -377,13 +377,15 @@ static IotMqttError_t prvPublishMessage( const OTA_AgentContext_t * pxAgentCtx,
 /*
  * Publish a message to the job status topic.
  */
-static void prvPublishStatusMessage( OTA_AgentContext_t * pxAgentCtx,
-                                     OTA_JobStatus_t eStatus,
-                                     const char * pcMsg,
-                                     uint32_t ulMsgSize,
-                                     IotMqttQos_t eQOS )
+static OTA_Err_t prvPublishStatusMessage( OTA_AgentContext_t * pxAgentCtx,
+                                          OTA_JobStatus_t eStatus,
+                                          const char * pcMsg,
+                                          uint32_t ulMsgSize,
+                                          IotMqttQos_t eQOS )
 {
     DEFINE_OTA_METHOD_NAME( "prvPublishStatusMessage" );
+
+    OTA_Err_t xRet = kOTA_Err_Uninitialized;
 
     uint32_t ulTopicLen = 0;
     IotMqttError_t eResult;
@@ -411,16 +413,24 @@ static void prvPublishStatusMessage( OTA_AgentContext_t * pxAgentCtx,
         if( eResult != IOT_MQTT_SUCCESS )
         {
             OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
+
+            xRet = kOTA_Err_PublishFailed;
         }
         else
         {
             OTA_LOG_L1( "[%s] '%s' to %s\r\n", OTA_METHOD_NAME, pcOTA_JobStatus_Strings[ eStatus ], pcTopicBuffer );
+
+            xRet = kOTA_Err_None;
         }
     }
     else
     {
         OTA_LOG_L1( "[%s] Failed to build job status topic!\r\n", OTA_METHOD_NAME );
+
+        xRet = kOTA_Err_PublishFailed;
     }
+
+    return xRet;
 }
 
 static uint32_t prvBuildStatusMessageReceiving( char * pcMsgBuffer,
@@ -703,6 +713,8 @@ OTA_Err_t prvUpdateJobStatus_Mqtt( OTA_AgentContext_t * pxAgentCtx,
 {
     DEFINE_OTA_METHOD_NAME( "prvUpdateJobStatus_Mqtt" );
 
+    OTA_Err_t xRet = kOTA_Err_Uninitialized;
+
     /* A message size of zero means don't publish anything. */
     uint32_t ulMsgSize = 0;
     /* All job state transitions except streaming progress use QOS 1 since it is required to have status in the job document. */
@@ -745,10 +757,10 @@ OTA_Err_t prvUpdateJobStatus_Mqtt( OTA_AgentContext_t * pxAgentCtx,
 
     if( ulMsgSize > 0UL )
     {
-        prvPublishStatusMessage( pxAgentCtx, eStatus, pcMsg, ulMsgSize, eQOS );
+        xRet = prvPublishStatusMessage( pxAgentCtx, eStatus, pcMsg, ulMsgSize, eQOS );
     }
 
-    return kOTA_Err_None;
+    return xRet;
 }
 
 /*

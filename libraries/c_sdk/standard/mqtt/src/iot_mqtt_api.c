@@ -19,8 +19,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
+ * https://github.com/freertos
+ * https://www.FreeRTOS.org
  */
 
 /**
@@ -44,6 +44,9 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 
+/* Atomic operations. */
+#include "iot_atomic.h"
+
 /* Validate MQTT configuration settings. */
 #if IOT_MQTT_ENABLE_ASSERTS != 0 && IOT_MQTT_ENABLE_ASSERTS != 1
     #error "IOT_MQTT_ENABLE_ASSERTS must be 0 or 1."
@@ -60,6 +63,12 @@
 #if IOT_MQTT_RETRY_MS_CEILING <= 0
     #error "IOT_MQTT_RETRY_MS_CEILING cannot be 0 or negative."
 #endif
+
+/**
+ * @brief Fixed Size Array to hold Mapping of MQTT Connection used in MQTT 201906.00 library to MQTT Context
+ * used in calling MQTT LTS API from shim to send packets on the network.
+ */
+_connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
 /*-----------------------------------------------------------*/
 
@@ -143,6 +152,64 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
                                            const IotMqttCallbackInfo_t * pCallbackInfo,
                                            IotMqttOperation_t * pOperationReference );
 
+/**
+ * @brief The time interface provided to the MQTT context used in calling MQTT LTS APIs.
+ *
+ * Stub for time interface as we need to pass it in setting the MQTT Context used
+ * in calling the MQTT API using the MQTT LTS library.
+ *
+ * @return Time in milliseconds.
+ */
+
+static uint32_t getTimeMs( void );
+
+/**
+ * @brief The dummy application callback function.
+ *
+ * This function doesn't need to have any implementation as
+ * the receive from network is not handled by the coreMQTT library,
+ * but the MQTT shim itself. This function is just a dummy function
+ * to be passed as a parameter to `MQTT_Init()`.
+ *
+ * @param[in] pMqttContext MQTT context pointer.
+ * @param[in] pPacketInfo Packet Info pointer for the incoming packet.
+ * @param[in] pDeserializedInfo Deserialized information from incoming packet.
+ */
+static void eventCallback( MQTTContext_t * pContext,
+                           MQTTPacketInfo_t * pPacketInfo,
+                           MQTTDeserializedInfo_t * pDeserializedInfo );
+
+/**
+ * @brief A dummy function for transport interface receive.
+ *
+ * MQTT shim handles the receive from the network and hence transport
+ * implementation for receive is not used by the coreMQTT library. This
+ * dummy implementation is used for passing a non-NULL parameter to
+ * `MQTT_Init()`.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pBuffer Buffer to receive the data into.
+ * @param[in] bytesToRecv Number of bytes requested from the network.
+ *
+ * @return The number of bytes received or a negative error code.
+ */
+static int32_t transportRecv( const NetworkContext_t * pNetworkContext,
+                              void * pBuffer,
+                              size_t bytesToRecv );
+
+/**
+ * @brief Function for sending data over the network.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pBuffer Buffer containing the bytes to send over the network stack.
+ * @param[in] bytesToSend Number of bytes to send over the network.
+ *
+ * @return The number of bytes sent or a negative error code.
+ */
+static int32_t transportSend( const NetworkContext_t * pNetworkContext,
+                              const void * pMessage,
+                              size_t bytesToSend );
+
 /*-----------------------------------------------------------*/
 
 static bool _mqttSubscription_setUnsubscribe( const IotLink_t * pSubscriptionLink,
@@ -224,14 +291,18 @@ static void _mqttOperation_tryDestroy( void * pData )
     }
     else
     {
-        /* Decrement reference count and destroy operation if possible. */
-        if( _IotMqtt_DecrementOperationReferences( pOperation, true ) == true )
+        /* Decrement reference count and destroy CONNECT operation if possible.
+         * In Phase 2 Shim Implementation, only the CONNECT operation is using taskpool to send packets on the network. */
+        if( pOperation->u.operation.type == IOT_MQTT_CONNECT )
         {
-            _IotMqtt_DestroyOperation( pOperation );
-        }
-        else
-        {
-            EMPTY_ELSE_MARKER;
+            if( _IotMqtt_DecrementOperationReferences( pOperation, true ) == true )
+            {
+                _IotMqtt_DestroyOperation( pOperation );
+            }
+            else
+            {
+                EMPTY_ELSE_MARKER;
+            }
         }
     }
 }
@@ -251,7 +322,7 @@ static bool _createKeepAliveJob( const IotMqttNetworkInfo_t * pNetworkInfo,
 
     /* Default PINGREQ serializer function. */
     IotMqttError_t ( * serializePingreq )( uint8_t **,
-                                           size_t * ) = _IotMqtt_SerializePingreq;
+                                           size_t * ) = _IotMqtt_pingreqSerializeWrapper;
 
     /* Convert the keep-alive interval to milliseconds. */
     pMqttConnection->keepAliveMs = keepAliveSeconds * 1000;
@@ -277,6 +348,7 @@ static bool _createKeepAliveJob( const IotMqttNetworkInfo_t * pNetworkInfo,
     #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
     /* Generate a PINGREQ packet. */
+
     serializeStatus = serializePingreq( &( pMqttConnection->pPingreqPacket ),
                                         &( pMqttConnection->pingreqPacketSize ) );
 
@@ -360,22 +432,7 @@ static _mqttConnection_t * _createMqttConnection( bool awsIotMqttMode,
         EMPTY_ELSE_MARKER;
     }
 
-    /* Create the subscription mutex for a new connection. */
-    subscriptionMutexCreated = IotMutex_Create( &( pMqttConnection->subscriptionMutex ), false );
-
-    if( subscriptionMutexCreated == false )
-    {
-        IotLogError( "Failed to create subscription mutex for new connection." );
-
-        IOT_SET_AND_GOTO_CLEANUP( false );
-    }
-    else
-    {
-        EMPTY_ELSE_MARKER;
-    }
-
     /* Create the new connection's subscription and operation lists. */
-    IotListDouble_Create( &( pMqttConnection->subscriptionList ) );
     IotListDouble_Create( &( pMqttConnection->pendingProcessing ) );
     IotListDouble_Create( &( pMqttConnection->pendingResponse ) );
 
@@ -429,15 +486,6 @@ static _mqttConnection_t * _createMqttConnection( bool awsIotMqttMode,
 
     if( status == false )
     {
-        if( subscriptionMutexCreated == true )
-        {
-            IotMutex_Destroy( &( pMqttConnection->subscriptionMutex ) );
-        }
-        else
-        {
-            EMPTY_ELSE_MARKER;
-        }
-
         if( referencesMutexCreated == true )
         {
             IotMutex_Destroy( &( pMqttConnection->referencesMutex ) );
@@ -470,6 +518,12 @@ static _mqttConnection_t * _createMqttConnection( bool awsIotMqttMode,
 static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
 {
     IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
+    int8_t contextIndex = -1;
+    bool mutexStatus = true;
+
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
+    IotMqtt_Assert( contextIndex != -1 );
 
     /* Clean up keep-alive if still allocated. */
     if( pMqttConnection->keepAliveMs != 0 )
@@ -499,13 +553,19 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     IotMqtt_Assert( pMqttConnection->pingreqPacketSize == 0 );
 
     /* Remove all subscriptions. */
-    IotMutex_Lock( &( pMqttConnection->subscriptionMutex ) );
-    IotListDouble_RemoveAllMatches( &( pMqttConnection->subscriptionList ),
-                                    _mqttSubscription_setUnsubscribe,
-                                    NULL,
-                                    _mqttSubscription_tryDestroy,
-                                    offsetof( _mqttSubscription_t, link ) );
-    IotMutex_Unlock( &( pMqttConnection->subscriptionMutex ) );
+    if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == true )
+    {
+        IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), NULL );
+
+        mutexStatus = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
+    }
+    else
+    {
+        /* Fail to take context mutex due to timeout. */
+        mutexStatus = false;
+    }
+
+    IotMqtt_Assert( mutexStatus == true );
 
     /* Destroy an owned network connection. */
     if( pMqttConnection->ownNetworkConnection == true )
@@ -529,8 +589,12 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     }
 
     /* Destroy mutexes. */
+    IotMutex_Delete( &( connToContext[ contextIndex ].contextMutex ) );
     IotMutex_Destroy( &( pMqttConnection->referencesMutex ) );
-    IotMutex_Destroy( &( pMqttConnection->subscriptionMutex ) );
+    IotMutex_Delete( &( connToContext[ contextIndex ].subscriptionMutex ) );
+
+    /* Free the MQTT Context for the MQTT connection to be destroyed. */
+    _IotMqtt_removeContext( pMqttConnection );
 
     IotLogDebug( "(MQTT connection %p) Connection destroyed.", pMqttConnection );
 
@@ -550,13 +614,6 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     _mqttOperation_t * pSubscriptionOperation = NULL;
-
-    /* Subscription serializer function. */
-    IotMqttError_t ( * serializeSubscription )( const IotMqttSubscription_t *,
-                                                size_t,
-                                                uint8_t **,
-                                                size_t *,
-                                                uint16_t * ) = NULL;
 
     /* This function should only be called for subscribe or unsubscribe. */
     IotMqtt_Assert( ( operation == IOT_MQTT_SUBSCRIBE ) ||
@@ -595,52 +652,6 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
         EMPTY_ELSE_MARKER;
     }
 
-    /* Choose a subscription serialize function. */
-    if( operation == IOT_MQTT_SUBSCRIBE )
-    {
-        serializeSubscription = _IotMqtt_SerializeSubscribe;
-
-        #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-            if( mqttConnection->pSerializer != NULL )
-            {
-                if( mqttConnection->pSerializer->serialize.subscribe != NULL )
-                {
-                    serializeSubscription = mqttConnection->pSerializer->serialize.subscribe;
-                }
-                else
-                {
-                    EMPTY_ELSE_MARKER;
-                }
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
-        #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
-    }
-    else
-    {
-        serializeSubscription = _IotMqtt_SerializeUnsubscribe;
-
-        #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-            if( mqttConnection->pSerializer != NULL )
-            {
-                if( mqttConnection->pSerializer->serialize.unsubscribe != NULL )
-                {
-                    serializeSubscription = mqttConnection->pSerializer->serialize.unsubscribe;
-                }
-                else
-                {
-                    EMPTY_ELSE_MARKER;
-                }
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
-        #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
-    }
-
     /* Remove the MQTT subscription list for an UNSUBSCRIBE. */
     if( operation == IOT_MQTT_UNSUBSCRIBE )
     {
@@ -669,22 +680,6 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
     IotMqtt_Assert( pSubscriptionOperation->u.operation.retry.limit == 0 );
     pSubscriptionOperation->u.operation.type = operation;
 
-    /* Generate a subscription packet from the subscription list. */
-    status = serializeSubscription( pSubscriptionList,
-                                    subscriptionCount,
-                                    &( pSubscriptionOperation->u.operation.pMqttPacket ),
-                                    &( pSubscriptionOperation->u.operation.packetSize ),
-                                    &( pSubscriptionOperation->u.operation.packetIdentifier ) );
-
-    if( status != IOT_MQTT_SUCCESS )
-    {
-        IOT_GOTO_CLEANUP();
-    }
-
-    /* Check the serialized MQTT packet. */
-    IotMqtt_Assert( pSubscriptionOperation->u.operation.pMqttPacket != NULL );
-    IotMqtt_Assert( pSubscriptionOperation->u.operation.packetSize > 0 );
-
     /* Add the subscription list for a SUBSCRIBE. */
     if( operation == IOT_MQTT_SUBSCRIBE )
     {
@@ -705,14 +700,47 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
         *pOperationReference = pSubscriptionOperation;
     }
 
-    /* Schedule the subscription operation for network transmission. */
-    status = _IotMqtt_ScheduleOperation( pSubscriptionOperation,
-                                         _IotMqtt_ProcessSend,
-                                         0 );
-
-    if( status != IOT_MQTT_SUCCESS )
+    if( operation == IOT_MQTT_SUBSCRIBE )
     {
-        IotLogError( "(MQTT connection %p) Failed to schedule %s for sending.",
+        /* Calling SUBSCRIBE wrapper to send SUBSCRIBE packet on the network using MQTT LTS SUBSCRIBE API. */
+        status = _IotMqtt_managedSubscribe( mqttConnection,
+                                            pSubscriptionOperation,
+                                            pSubscriptionList,
+                                            subscriptionCount );
+    }
+    else if( operation == IOT_MQTT_UNSUBSCRIBE )
+    {
+        /* Calling UNSUBSCRIBE wrapper to send UNSUBSCRIBE packet on the network using MQTT LTS UNSUBSCRIBE API. */
+        status = _IotMqtt_managedUnsubscribe( mqttConnection,
+                                              pSubscriptionOperation,
+                                              pSubscriptionList,
+                                              subscriptionCount );
+    }
+    else
+    {
+        EMPTY_ELSE_MARKER;
+    }
+
+    if( status == IOT_MQTT_SUCCESS )
+    {
+        IotMutex_Lock( &( mqttConnection->referencesMutex ) );
+
+        /* Operation must be linked. */
+        IotMqtt_Assert( IotLink_IsLinked( &( pSubscriptionOperation->link ) ) );
+
+        /* Transfer to pending response list. */
+        IotListDouble_Remove( &( pSubscriptionOperation->link ) );
+        IotListDouble_InsertHead( &( mqttConnection->pendingResponse ),
+                                  &( pSubscriptionOperation->link ) );
+
+        IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
+
+        /* Processing operation after sending it on the network. */
+        _IotMqtt_ProcessOperation( pSubscriptionOperation );
+    }
+    else
+    {
+        IotLogError( "(MQTT connection %p) Failed to send %s packet on the network.",
                      mqttConnection,
                      IotMqtt_OperationType( operation ) );
 
@@ -823,6 +851,7 @@ void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection
     {
         IotLogDebug( "(MQTT connection %p) Connection will be destroyed now.",
                      pMqttConnection );
+
         _destroyMqttConnection( pMqttConnection );
     }
     else
@@ -833,24 +862,75 @@ void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection
 
 /*-----------------------------------------------------------*/
 
+static uint32_t getTimeMs( void )
+{
+    return 0U;
+}
+
+/*-----------------------------------------------------------*/
+
+static void eventCallback( MQTTContext_t * pContext,
+                           MQTTPacketInfo_t * pPacketInfo,
+                           MQTTDeserializedInfo_t * pDeserializedInfo )
+{
+    /* This function doesn't need to have any implementation as
+     * the receive from network is not handled by the coreMQTT library,
+     * but the MQTT shim itself. This function is just a dummy function
+     * to be passed as a parameter to `MQTT_Init()`. */
+    ( void ) pContext;
+    ( void ) pPacketInfo;
+    ( void ) pDeserializedInfo;
+}
+
+/*-----------------------------------------------------------*/
+
+static int32_t transportSend( const NetworkContext_t * pNetworkContext,
+                              const void * pMessage,
+                              size_t bytesToSend )
+{
+    int32_t bytesSend = 0;
+
+    IotMqtt_Assert( pNetworkContext != NULL );
+    IotMqtt_Assert( pMessage != NULL );
+
+    /* Sending the bytes on the network using Network Interface. */
+    bytesSend = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
+
+    if( bytesSend < 0 )
+    {
+        /* Network Send Interface return negative value in case of any socket error,
+         * unifying the error codes here for socket error and timeout to comply with the MQTT LTS Library.
+         */
+        bytesSend = -1;
+    }
+
+    return bytesSend;
+}
+
+/*-----------------------------------------------------------*/
+
+static int32_t transportRecv( const NetworkContext_t * pNetworkContext,
+                              void * pBuffer,
+                              size_t bytesToRecv )
+{
+    /* MQTT shim handles the receive from the network and hence transport
+     * implementation for receive is not used by the coreMQTT library. This
+     * dummy implementation is used for passing a non-NULL parameter to
+     * `MQTT_Init()`. */
+    ( void ) pNetworkContext;
+    ( void ) pBuffer;
+    ( void ) bytesToRecv;
+
+    /* Always return an error. */
+    return -1;
+}
+
+
+/*-----------------------------------------------------------*/
+
 IotMqttError_t IotMqtt_Init( void )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
-
-    /* Call any additional serializer initialization function if serializer
-     * overrides are enabled. */
-    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-        #ifdef _IotMqtt_InitSerializeAdditional
-            if( _IotMqtt_InitSerializeAdditional() == false )
-            {
-                status = IOT_MQTT_INIT_FAILED;
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
-        #endif
-    #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
     /* Log initialization status. */
     if( status != IOT_MQTT_SUCCESS )
@@ -869,14 +949,6 @@ IotMqttError_t IotMqtt_Init( void )
 
 void IotMqtt_Cleanup( void )
 {
-    /* Call any additional serializer cleanup initialization function if serializer
-     * overrides are enabled. */
-    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-        #ifdef _IotMqtt_CleanupSerializeAdditional
-            _IotMqtt_CleanupSerializeAdditional();
-        #endif
-    #endif
-
     IotLogInfo( "MQTT library cleanup done." );
 }
 
@@ -893,12 +965,17 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     void * pNetworkConnection = NULL;
     _mqttOperation_t * pOperation = NULL;
-    _mqttConnection_t * pNewMqttConnection = NULL;
+    IotMqttConnection_t newMqttConnection = NULL;
+    TransportInterface_t transport;
+    MQTTFixedBuffer_t networkBuffer;
+    int8_t contextIndex = -1;
+    bool subscriptionMutexCreated = false;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
 
     /* Default CONNECT serializer function. */
     IotMqttError_t ( * serializeConnect )( const IotMqttConnectInfo_t *,
                                            uint8_t **,
-                                           size_t * ) = _IotMqtt_SerializeConnect;
+                                           size_t * ) = _IotMqtt_connectSerializeWrapper;
 
     /* Network info must not be NULL. */
     if( pNetworkInfo == NULL )
@@ -1003,30 +1080,30 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     IotLogInfo( "Establishing new MQTT connection." );
 
     /* Initialize a new MQTT connection object. */
-    pNewMqttConnection = _createMqttConnection( pConnectInfo->awsIotMqttMode,
-                                                pNetworkInfo,
-                                                pConnectInfo->keepAliveSeconds );
+    newMqttConnection = _createMqttConnection( pConnectInfo->awsIotMqttMode,
+                                               pNetworkInfo,
+                                               pConnectInfo->keepAliveSeconds );
 
-    if( pNewMqttConnection == NULL )
+    if( newMqttConnection == NULL )
     {
         IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
     else
     {
         /* Set the network connection associated with the MQTT connection. */
-        pNewMqttConnection->pNetworkConnection = pNetworkConnection;
-        pNewMqttConnection->ownNetworkConnection = ownNetworkConnection;
+        newMqttConnection->pNetworkConnection = pNetworkConnection;
+        newMqttConnection->ownNetworkConnection = ownNetworkConnection;
 
         /* Set the MQTT packet serializer overrides. */
         #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-            pNewMqttConnection->pSerializer = pNetworkInfo->pMqttSerializer;
+            newMqttConnection->pSerializer = pNetworkInfo->pMqttSerializer;
         #endif
     }
 
     /* Set the MQTT receive callback. */
-    networkStatus = pNewMqttConnection->pNetworkInterface->setReceiveCallback( pNetworkConnection,
-                                                                               IotMqtt_ReceiveCallback,
-                                                                               pNewMqttConnection );
+    networkStatus = newMqttConnection->pNetworkInterface->setReceiveCallback( pNetworkConnection,
+                                                                              IotMqtt_ReceiveCallback,
+                                                                              newMqttConnection );
 
     if( networkStatus != IOT_NETWORK_SUCCESS )
     {
@@ -1039,8 +1116,74 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         EMPTY_ELSE_MARKER;
     }
 
+    /* Getting the free index from the MQTT connection to MQTT context mapping array. */
+    contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
+
+    if( contextIndex < 0 )
+    {
+        IotLogError( "(MQTT connection %p) Failed to allocate memory for "
+                     "the MQTT context and the MQTT Connection Mapping. Update the MAX_NO_OF_MQTT_CONNECTIONS"
+                     " config value to resolve the error. ",
+                     newMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+    }
+
+    /* Clear the array at the index obtained. */
+    memset( &( connToContext[ contextIndex ] ), 0x00, sizeof( _connContext_t ) );
+
+    /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
+     * on the network using MQTT LTS API. */
+    bool contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ),
+                                                       &( connToContext[ contextIndex ].contextMutexStorage ) );
+    /* Create the subscription mutex for a new connection. */
+
+    if( contextMutex == true )
+    {
+        /* Assigning the MQTT Connection. */
+        connToContext[ contextIndex ].mqttConnection = newMqttConnection;
+
+        /* Assigning the Network Context to be used by this MQTT Context. */
+        connToContext[ contextIndex ].networkContext.pNetworkConnection = pNetworkConnection;
+        connToContext[ contextIndex ].networkContext.pNetworkInterface = pNetworkInfo->pNetworkInterface;
+
+        /* Fill in TransportInterface send function pointer. We will not be implementing the
+         * TransportInterface receive function pointer as receiving of packets is handled in shim by network
+         * receive task. Only using MQTT LTS APIs for transmit path.*/
+        transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
+        transport.send = transportSend;
+        transport.recv = transportRecv;
+
+        /* Fill the values for network buffer. */
+        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer[ 0 ] );
+        networkBuffer.size = NETWORK_BUFFER_SIZE;
+
+        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ),
+                                                                     &( connToContext[ contextIndex ].subscriptionMutexStorage ) );
+
+        if( subscriptionMutexCreated == false )
+        {
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+        }
+
+        /* Initializing the MQTT context used in calling MQTT LTS API. */
+        managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, getTimeMs, eventCallback, &networkBuffer );
+        status = convertReturnCode( managedMqttStatus );
+
+        if( status != IOT_MQTT_SUCCESS )
+        {
+            IotLogError( "(MQTT connection %p) Failed to initialize context for "
+                         "the MQTT connection.",
+                         newMqttConnection );
+            IOT_GOTO_CLEANUP();
+        }
+    }
+    else
+    {
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+    }
+
     /* Create a CONNECT operation. */
-    status = _IotMqtt_CreateOperation( pNewMqttConnection,
+    status = _IotMqtt_CreateOperation( newMqttConnection,
                                        IOT_MQTT_FLAG_WAITABLE,
                                        NULL,
                                        &pOperation );
@@ -1070,7 +1213,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         /* Previous subscription count should have been validated as nonzero. */
         IotMqtt_Assert( pConnectInfo->previousSubscriptionCount > 0 );
 
-        status = _IotMqtt_AddSubscriptions( pNewMqttConnection,
+        status = _IotMqtt_AddSubscriptions( newMqttConnection,
                                             2,
                                             pConnectInfo->pPreviousSubscriptions,
                                             pConnectInfo->previousSubscriptionCount );
@@ -1091,11 +1234,11 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
     /* Choose a CONNECT serializer function. */
     #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-        if( pNewMqttConnection->pSerializer != NULL )
+        if( newMqttConnection->pSerializer != NULL )
         {
-            if( pNewMqttConnection->pSerializer->serialize.connect != NULL )
+            if( newMqttConnection->pSerializer->serialize.connect != NULL )
             {
-                serializeConnect = pNewMqttConnection->pSerializer->serialize.connect;
+                serializeConnect = newMqttConnection->pSerializer->serialize.connect;
             }
             else
             {
@@ -1150,13 +1293,13 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     if( status == IOT_MQTT_SUCCESS )
     {
         /* Check if a keep-alive job should be scheduled. */
-        if( pNewMqttConnection->keepAliveMs != 0 )
+        if( newMqttConnection->keepAliveMs != 0 )
         {
             IotLogDebug( "Scheduling first MQTT keep-alive job." );
 
             taskPoolStatus = IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL,
-                                                           pNewMqttConnection->keepAliveJob,
-                                                           pNewMqttConnection->nextKeepAliveMs );
+                                                           newMqttConnection->keepAliveJob,
+                                                           newMqttConnection->nextKeepAliveMs );
 
             if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
             {
@@ -1212,9 +1355,9 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
             EMPTY_ELSE_MARKER;
         }
 
-        if( pNewMqttConnection != NULL )
+        if( newMqttConnection != NULL )
         {
-            _destroyMqttConnection( pNewMqttConnection );
+            _destroyMqttConnection( newMqttConnection );
         }
         else
         {
@@ -1224,15 +1367,15 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     else
     {
         IotLogInfo( "New MQTT connection %p established.", pMqttConnection );
-
         /* Set the output parameter. */
-        *pMqttConnection = pNewMqttConnection;
+        *pMqttConnection = newMqttConnection;
     }
 
     IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
+
 
 void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                          uint32_t flags )
@@ -1273,31 +1416,8 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                 /* Set the operation type. */
                 pOperation->u.operation.type = IOT_MQTT_DISCONNECT;
 
-                /* Choose a disconnect serializer. */
-                IotMqttError_t ( * serializeDisconnect )( uint8_t **,
-                                                          size_t * ) = _IotMqtt_SerializeDisconnect;
-
-                #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-                    if( mqttConnection->pSerializer != NULL )
-                    {
-                        if( mqttConnection->pSerializer->serialize.disconnect != NULL )
-                        {
-                            serializeDisconnect = mqttConnection->pSerializer->serialize.disconnect;
-                        }
-                        else
-                        {
-                            EMPTY_ELSE_MARKER;
-                        }
-                    }
-                    else
-                    {
-                        EMPTY_ELSE_MARKER;
-                    }
-                #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
-
-                /* Generate a DISCONNECT packet. */
-                status = serializeDisconnect( &( pOperation->u.operation.pMqttPacket ),
-                                              &( pOperation->u.operation.packetSize ) );
+                /* Calling DISCONNECT wrapper to send DISCONNECT packet on the network using MQTT LTS DISCONNECT API. */
+                status = _IotMqtt_managedDisconnect( mqttConnection );
             }
             else
             {
@@ -1306,45 +1426,20 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
 
             if( status == IOT_MQTT_SUCCESS )
             {
-                /* Check the serialized MQTT packet. */
-                IotMqtt_Assert( pOperation->u.operation.pMqttPacket != NULL );
-                IotMqtt_Assert( pOperation->u.operation.packetSize > 0 );
+                /* Processing the operation after sending it on the network. */
+                _IotMqtt_ProcessOperation( pOperation );
 
-                /* Schedule the DISCONNECT operation for network transmission. */
-                if( _IotMqtt_ScheduleOperation( pOperation,
-                                                _IotMqtt_ProcessSend,
-                                                0 ) != IOT_MQTT_SUCCESS )
+                /* Destroying the operation after the DISCONNECT Packet is sent on the network. */
+                if( _IotMqtt_DecrementOperationReferences( pOperation, false ) == true )
                 {
-                    IotLogWarn( "(MQTT connection %p) Failed to schedule DISCONNECT for sending.",
-                                mqttConnection );
                     _IotMqtt_DestroyOperation( pOperation );
-                }
-                else
-                {
-                    /* Wait a short time for the DISCONNECT packet to be transmitted. */
-                    status = IotMqtt_Wait( pOperation,
-                                           IOT_MQTT_RESPONSE_WAIT_MS );
-
-                    /* A wait on DISCONNECT should only ever return SUCCESS, TIMEOUT,
-                     * or NETWORK ERROR. */
-                    if( status == IOT_MQTT_SUCCESS )
-                    {
-                        IotLogInfo( "(MQTT connection %p) Connection disconnected.", mqttConnection );
-                    }
-                    else
-                    {
-                        IotMqtt_Assert( ( status == IOT_MQTT_TIMEOUT ) ||
-                                        ( status == IOT_MQTT_NETWORK_ERROR ) );
-
-                        IotLogWarn( "(MQTT connection %p) DISCONNECT not sent, error %s.",
-                                    mqttConnection,
-                                    IotMqtt_strerror( status ) );
-                    }
                 }
             }
             else
             {
-                EMPTY_ELSE_MARKER;
+                IotLogWarn( "(MQTT connection %p) Failed to send DISCONNECT packet. ",
+                            mqttConnection );
+                _IotMqtt_DestroyOperation( pOperation );
             }
         }
         else
@@ -1506,13 +1601,6 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
     _mqttOperation_t * pOperation = NULL;
     uint8_t ** pPacketIdentifierHigh = NULL;
 
-    /* Default PUBLISH serializer function. */
-    IotMqttError_t ( * serializePublish )( const IotMqttPublishInfo_t *,
-                                           uint8_t **,
-                                           size_t *,
-                                           uint16_t *,
-                                           uint8_t ** ) = _IotMqtt_SerializePublish;
-
     /* Check that the PUBLISH information is valid. */
     if( _IotMqtt_ValidatePublish( mqttConnection->awsIotMqttMode,
                                   pPublishInfo ) == false )
@@ -1596,25 +1684,6 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
     IotMqtt_Assert( pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING );
     pOperation->u.operation.type = IOT_MQTT_PUBLISH_TO_SERVER;
 
-    /* Choose a PUBLISH serializer function. */
-    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-        if( mqttConnection->pSerializer != NULL )
-        {
-            if( mqttConnection->pSerializer->serialize.publish != NULL )
-            {
-                serializePublish = mqttConnection->pSerializer->serialize.publish;
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
-        }
-        else
-        {
-            EMPTY_ELSE_MARKER;
-        }
-    #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
-
     /* In AWS IoT MQTT mode, a pointer to the packet identifier must be saved. */
     if( mqttConnection->awsIotMqttMode == true )
     {
@@ -1624,26 +1693,6 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
     {
         EMPTY_ELSE_MARKER;
     }
-
-    /* Generate a PUBLISH packet from pPublishInfo. */
-    status = serializePublish( pPublishInfo,
-                               &( pOperation->u.operation.pMqttPacket ),
-                               &( pOperation->u.operation.packetSize ),
-                               &( pOperation->u.operation.packetIdentifier ),
-                               pPacketIdentifierHigh );
-
-    if( status != IOT_MQTT_SUCCESS )
-    {
-        IOT_GOTO_CLEANUP();
-    }
-    else
-    {
-        EMPTY_ELSE_MARKER;
-    }
-
-    /* Check the serialized MQTT packet. */
-    IotMqtt_Assert( pOperation->u.operation.pMqttPacket != NULL );
-    IotMqtt_Assert( pOperation->u.operation.packetSize > 0 );
 
     /* Initialize PUBLISH retry if retryLimit is set. */
     if( pPublishInfo->retryLimit > 0 )
@@ -1681,14 +1730,19 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
         EMPTY_ELSE_MARKER;
     }
 
-    /* Add the PUBLISH operation to the send queue for network transmission. */
-    status = _IotMqtt_ScheduleOperation( pOperation,
-                                         _IotMqtt_ProcessSend,
-                                         0 );
+    /* Calling PUBLISH wrapper to send PUBLISH packet on the network using MQTT LTS PUBLISH API. */
+    status = _IotMqtt_managedPublish( mqttConnection,
+                                      pOperation,
+                                      pPublishInfo );
 
-    if( status != IOT_MQTT_SUCCESS )
+    if( status == IOT_MQTT_SUCCESS )
     {
-        IotLogError( "(MQTT connection %p) Failed to enqueue PUBLISH for sending.",
+        /* Processing operation after sending the packet on the network. */
+        _IotMqtt_ProcessOperation( pOperation );
+    }
+    else
+    {
+        IotLogError( "(MQTT connection %p) Failed to send PUBLISH packet on the network.",
                      mqttConnection );
 
         /* Clear the previously set (and now invalid) reference. */
@@ -1709,10 +1763,6 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
         }
 
         IOT_GOTO_CLEANUP();
-    }
-    else
-    {
-        EMPTY_ELSE_MARKER;
     }
 
     /* Clean up the PUBLISH operation if this function fails. Otherwise, set the
@@ -1851,8 +1901,12 @@ IotMqttError_t IotMqtt_Wait( IotMqttOperation_t operation,
             {
                 status = IOT_MQTT_TIMEOUT;
 
-                /* Attempt to cancel the job of the timed out operation. */
-                ( void ) _IotMqtt_DecrementOperationReferences( operation, true );
+                /* Attempt to cancel the CONNECT job of the timed out operation.
+                 * As only CONNECT operation is using taskpool for sending packets on the network. */
+                if( operation->u.operation.type == IOT_MQTT_CONNECT )
+                {
+                    ( void ) _IotMqtt_DecrementOperationReferences( operation, true );
+                }
 
                 /* Clean up lingering subscriptions from a timed-out SUBSCRIBE. */
                 if( operation->u.operation.type == IOT_MQTT_SUBSCRIBE )

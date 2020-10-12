@@ -153,12 +153,12 @@
 /**
  * @brief Sample topic filter to subscribe to.
  */
-#define TEST_MQTT_TOPIC                       "/iot/integration/test"
+#define TEST_MQTT_TOPIC                       TEST_CLIENT_IDENTIFIER "/iot/integration/test"
 
 /**
  * @brief Sample topic filter 2 to use in tests.
  */
-#define TEST_MQTT_TOPIC_2                     "/iot/integration/test2"
+#define TEST_MQTT_TOPIC_2                     TEST_CLIENT_IDENTIFIER "/iot/integration/test2"
 
 /**
  * @brief Length of sample topic filter.
@@ -168,7 +168,7 @@
 /**
  * @brief Sample topic filter to subscribe to.
  */
-#define TEST_MQTT_LWT_TOPIC                   "/iot/integration/test/lwt"
+#define TEST_MQTT_LWT_TOPIC                   TEST_CLIENT_IDENTIFIER "/iot/integration/test/lwt"
 
 /**
  * @brief Length of sample topic filter.
