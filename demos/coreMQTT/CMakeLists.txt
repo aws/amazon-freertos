@@ -1,4 +1,4 @@
-# AFR coreMQTT demos
+# FreeRTOS coreMQTT demos
 afr_demo_module(core_mqtt)
 
 # Set the default demo that is enabled in the downloaded package.
