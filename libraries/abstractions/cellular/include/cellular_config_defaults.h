@@ -118,4 +118,8 @@
     #define CELLULAR_MAX_RECV_DATA_LEN    ( 1500U )
 #endif
 
+#ifndef CELLULAR_SUPPORT_GETHOSTBYNAME
+    #define CELLULAR_SUPPORT_GETHOSTBYNAME    ( 1U )
+#endif
+
 #endif /* __CELLULAR_CONFIG_DEFAULTS_H__ */

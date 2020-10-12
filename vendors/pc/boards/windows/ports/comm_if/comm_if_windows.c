@@ -270,6 +270,12 @@ static CellularCommInterfaceError_t _setupCommSettings( HANDLE hComm )
     dcbSerialParams.ByteSize = 8;
     dcbSerialParams.StopBits = ONESTOPBIT;
     dcbSerialParams.Parity = NOPARITY;
+
+    dcbSerialParams.fOutxCtsFlow = FALSE;
+    dcbSerialParams.fOutxDsrFlow = FALSE;
+    dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;
+    dcbSerialParams.fRtsControl = RTS_CONTROL_ENABLE;
+
     Status = SetCommState( hComm, &dcbSerialParams );
 
     if( Status == FALSE )

@@ -101,17 +101,21 @@ static CellularPktStatus_t _handleData( char * pStartOfData,
                                         CellularContext_t * pContext,
                                         CellularATCommandResponse_t * pAtResp,
                                         char ** ppLine,
-                                        uint32_t bytesRead );
+                                        uint32_t bytesRead,
+                                        uint32_t * pBytesLeft );
 static CellularPktStatus_t _handleReceivedMsg( CellularContext_t * pContext,
                                                CellularATCommandResponse_t ** ppAtResp,
                                                char * pLine,
                                                char ** ppStartOfData );
+static char * _handleAllReceivedAtResponse( CellularContext_t * pContext,
+                                            char * pTempLine,
+                                            _atRespType_t * pRecvdMsgType );
 static void _handleAllReceived( CellularContext_t * pContext,
                                 CellularATCommandResponse_t ** ppAtResp,
                                 char * pLine,
                                 uint32_t bytesRead );
-static void _handleRxDataEvent( CellularContext_t * pContext,
-                                CellularATCommandResponse_t ** ppAtResp );
+static uint32_t _handleRxDataEvent( CellularContext_t * pContext,
+                                    CellularATCommandResponse_t ** ppAtResp );
 static void _pktioReadThread( void * pUserData );
 static void _PktioInitProcessReadThreadStatus( CellularContext_t * pContext );
 
@@ -135,14 +139,15 @@ static void _saveData( const char * pLine,
         /* coverity[misra_c_2012_rule_10_5_violation] */
         configASSERT( ( int32_t ) ( pNew->pLine != NULL ) );
         ( void ) memcpy( pNew->pLine, pLine, dataLen );
+        IotLogDebug( "Adding data [%p] to loc [%p]", pNew->pLine, pNew->pLine );
     }
     else
     {
         ( void ) Cellular_ATStrDup( &pNew->pLine, pLine );
+        IotLogDebug( "Adding [%s] to loc [%p]", pNew->pLine, pNew->pLine );
     }
 
     pNew->pNext = NULL;
-    IotLogDebug( "Adding [%s] to loc [%p]", pNew->pLine, pNew->pLine );
 
     if( pResp->pItm == NULL )
     {
@@ -201,7 +206,7 @@ static CellularPktStatus_t _processIntermediateResponse( const char * pLine,
             {
                 /* We already have an intermediate response. */
                 pkStatus = CELLULAR_PKT_STATUS_INVALID_DATA;
-                IotLogError( "AT process ERROR: %s, status: %d ", pLine, pkStatus );
+                IotLogError( "CELLULAR_AT_WO_PREFIX AT process ERROR: %s, status: %d ", pLine, pkStatus );
             }
 
             break;
@@ -220,14 +225,14 @@ static CellularPktStatus_t _processIntermediateResponse( const char * pLine,
                 {
                     /* Prefix mismatch at the beginning of response. */
                     pkStatus = CELLULAR_PKT_STATUS_PREFIX_MISMATCH;
-                    IotLogError( "AT process ERROR: %s respPrefix %s status: %d", pLine, pRespPrefix, pkStatus );
+                    IotLogError( "CELLULAR_AT_WITH_PREFIX AT process ERROR: %s respPrefix %s status: %d", pLine, pRespPrefix, pkStatus );
                 }
             }
             else
             {
                 /* We already have an intermediate response. */
                 pkStatus = CELLULAR_PKT_STATUS_INVALID_DATA;
-                IotLogError( "AT process ERROR: %s, status: %d ", pLine, pkStatus );
+                IotLogError( "CELLULAR_AT_WITH_PREFIX AT process ERROR: %s, status: %d ", pLine, pkStatus );
             }
 
             break;
@@ -244,7 +249,7 @@ static CellularPktStatus_t _processIntermediateResponse( const char * pLine,
                 {
                     /* Prefix mismatch at the beginning of response. */
                     pkStatus = CELLULAR_PKT_STATUS_PREFIX_MISMATCH;
-                    IotLogError( "AT process ERROR: %s respPrefix %s status: %d", pLine, pRespPrefix, pkStatus );
+                    IotLogError( "CELLULAR_AT_MULTI_WITH_PREFIX AT process ERROR: %s respPrefix %s status: %d", pLine, pRespPrefix, pkStatus );
                 }
             }
 
@@ -348,8 +353,11 @@ static CellularPktStatus_t _Cellular_ProcessLine( const CellularContext_t * pCon
     bool result = true;
     const char * const * pTokenSuccessTable = NULL;
     const char * const * pTokenErrorTable = NULL;
+    const char * const * pTokenExtraTable = NULL;
     uint32_t tokenSuccessTableSize = 0;
     uint32_t tokenErrorTableSize = 0;
+    uint32_t tokenExtraTableSize = 0;
+
 
     if( ( pContext != NULL ) &&
         ( pContext->tokenTable.pCellularSrcTokenErrorTable != NULL ) &&
@@ -359,15 +367,26 @@ static CellularPktStatus_t _Cellular_ProcessLine( const CellularContext_t * pCon
         tokenSuccessTableSize = pContext->tokenTable.cellularSrcTokenSuccessTableSize;
         pTokenErrorTable = pContext->tokenTable.pCellularSrcTokenErrorTable;
         tokenErrorTableSize = pContext->tokenTable.cellularSrcTokenErrorTableSize;
+        pTokenExtraTable = pContext->tokenTable.pCellularSrcExtraTokenSuccessTable;
+        tokenExtraTableSize = pContext->tokenTable.cellularSrcExtraTokenSuccessTableSize;
 
         if( pResp == NULL )
         {
             /* Error. It should never happen. */
             IotLogError( "FATAL ERROR: pResp is NULL" );
         }
+        else if( ( pTokenExtraTable != NULL ) &&
+                 ( Cellular_ATcheckErrorCode( pLine, pTokenExtraTable,
+                                              tokenExtraTableSize, &result ) == CELLULAR_AT_SUCCESS ) &&
+                 ( result == true ) )
+        {
+            pResp->status = true;
+            pkStatus = CELLULAR_PKT_STATUS_OK;
+            IotLogDebug( "Final AT response is SUCCESS [%s] in extra table", pLine );
+        }
         else if( ( Cellular_ATcheckErrorCode( pLine, pTokenSuccessTable,
                                               tokenSuccessTableSize, &result ) == CELLULAR_AT_SUCCESS ) &&
-                 result )
+                 ( result == true ) )
         {
             pResp->status = true;
             pkStatus = CELLULAR_PKT_STATUS_OK;
@@ -375,11 +394,12 @@ static CellularPktStatus_t _Cellular_ProcessLine( const CellularContext_t * pCon
         }
         else if( ( Cellular_ATcheckErrorCode( pLine, pTokenErrorTable,
                                               tokenErrorTableSize, &result ) == CELLULAR_AT_SUCCESS ) &&
-                 result )
+                 ( result == true ) )
         {
             pResp->status = false;
             pkStatus = CELLULAR_PKT_STATUS_OK;
-            IotLogError( "Modem return ERROR: %s respPrefix: %s status: %d", pLine, pRespPrefix, pkStatus );
+            IotLogError( "Modem return ERROR: %s %s respPrefix: %s status: %d",
+                         pContext->pCurrentCmd, pLine, pRespPrefix, pkStatus );
         }
         else
         {
@@ -508,24 +528,28 @@ static char * _handleLeftoverBuffer( CellularContext_t * pContext,
                                      uint32_t * pBytesRead,
                                      uint32_t partialData )
 {
-    char * pAtBuf = NULL, ** ppAtBufLeftOver, * pRead, * pEndOfLine = NULL;
+    char * pAtBuf = NULL;
+    char ** ppAtBufLeftOver = NULL;
+    char * pRead = NULL; /* Pointet to first empty buffer in pktioReadBuf. */
+    char * pEndOfLine = NULL;
     uint32_t len = 0;
 
     pAtBuf = pContext->pktioReadBuf;
     ppAtBufLeftOver = &pContext->pPktioReadPtr;
     pRead = pAtBuf;
 
-    IotLogDebug( "Non empty buffer at the beginning: %s", *ppAtBufLeftOver );
+    IotLogDebug( "Non empty buffer at the beginning: %p", *ppAtBufLeftOver );
 
     if( partialData != 0U )
     {
-        /* a partial data. move it up and prepare to read more. */
+        /* Data is received, but not complete.
+         * Move it up and prepare to read more. */
         len = partialData;
         IotLogDebug( "leftover Data len=%d", len );
     }
     else
     {
-        /* There is AT data in the buffer from last read.
+        /* There is AT command in the buffer from last read.
          * Skip over leading newlines. */
         while( ( **ppAtBufLeftOver == '\r' ) || ( **ppAtBufLeftOver == '\n' ) )
         {
@@ -548,8 +572,10 @@ static char * _handleLeftoverBuffer( CellularContext_t * pContext,
 
     if( len != 0U )
     {
+        /* Move the leftover data or AT command response to the start of buffer.
+         * Set the pRead pointer to the empty buffer space. */
         ( void ) memmove( pAtBuf, *ppAtBufLeftOver, len + 1U );
-        IotLogDebug( "moved the partial line/data to starting of pAtBuf=%s", pAtBuf );
+        IotLogDebug( "moved the partial line/data to starting of pAtBuf=%p", pAtBuf );
         pRead = &pAtBuf[ len ];
         *pBytesRead += len;
         IotLogDebug( "Advanced pRead after partial line=%s", pRead );
@@ -563,6 +589,8 @@ static char * _handleLeftoverBuffer( CellularContext_t * pContext,
 
 /*-----------------------------------------------------------*/
 
+/* pBytesRead : bytes read from comm interface. */
+/* partialData : leftover bytes in the pktioreadbuf. Not enougth to be a command. */
 static char * _Cellular_ReadLine( CellularContext_t * pContext,
                                   uint32_t * pBytesRead,
                                   uint32_t partialData )
@@ -622,7 +650,8 @@ static CellularPktStatus_t _handleData( char * pStartOfData,
                                         CellularContext_t * pContext,
                                         CellularATCommandResponse_t * pAtResp,
                                         char ** ppLine,
-                                        uint32_t bytesRead )
+                                        uint32_t bytesRead,
+                                        uint32_t * pBytesLeft )
 {
     uint32_t * pDataLength = &pContext->dataLength;
     uint32_t * pPartialDataRcvdLen = &pContext->partialDataRcvdLen;
@@ -631,6 +660,7 @@ static CellularPktStatus_t _handleData( char * pStartOfData,
     CellularPktStatus_t pkStatus = CELLULAR_PKT_STATUS_OK;
     CellularATCommandResponse_t * pTempAtResp = pAtResp;
 
+    /* Bytes before pStartOfData is not data, skip the bytes received. */
     *pPartialDataRcvdLen = bytesRead - ( uint32_t ) temp;
 
     if( *pPartialDataRcvdLen >= *pDataLength )
@@ -639,9 +669,20 @@ static CellularPktStatus_t _handleData( char * pStartOfData,
         pkStatus = _Cellular_ProcessData( pStartOfData, pTempAtResp, *pDataLength );
         /* Advance pLine to a point after data. */
         *ppLine = &pStartOfData[ *pDataLength ];
+
+        if( *pPartialDataRcvdLen > *pDataLength )
+        {
+            /* There are more bytes after the data. */
+            *pBytesLeft = ( *pPartialDataRcvdLen - *pDataLength );
+        }
+        else
+        {
+            *pBytesLeft = 0U;
+        }
+
         /* reset the data related variables. */
-        *pPartialDataRcvdLen = 0;
-        *pDataLength = 0;
+        *pPartialDataRcvdLen = 0U;
+        *pDataLength = 0U;
 
         if( pkStatus != CELLULAR_PKT_STATUS_OK )
         {
@@ -703,7 +744,8 @@ static CellularPktStatus_t _handleReceivedMsg( CellularContext_t * pContext,
             if( pContext->pktDataPrefixCB != NULL )
             {
                 /* ppStartOfData and pDataLength are not set if this function failed. */
-                ( void ) pContext->pktDataPrefixCB( pLine, ppStartOfData, pDataLength );
+                ( void ) pContext->pktDataPrefixCB( pContext->pDataPrefixCBContext,
+                                                    pLine, ppStartOfData, pDataLength );
             }
         }
         else
@@ -713,13 +755,13 @@ static CellularPktStatus_t _handleReceivedMsg( CellularContext_t * pContext,
                 ( void ) memset( pContext->pktioReadBuf, 0, PKTIO_READ_BUFFER_SIZE + 1U );
                 pContext->pPktioReadPtr = NULL;
                 FREE_AT_RESPONSE_AND_SET_NULL( ( *ppAtResp ) );
-                IotLogError( "processLine ERROR, cleaning up!" );
+                IotLogError( "processLine ERROR, cleaning up! Current command %s", pContext->pCurrentCmd );
             }
         }
     }
     else
     {
-        IotLogError( "recvdMsgType is AT_UNDEFINED for Message: %s", pLine );
+        IotLogError( "recvdMsgType is AT_UNDEFINED for Message: %s %s", pLine, pContext->pCurrentCmd );
         ( void ) memset( pContext->pktioReadBuf, 0, PKTIO_READ_BUFFER_SIZE + 1U );
         pContext->pPktioReadPtr = NULL;
         FREE_AT_RESPONSE_AND_SET_NULL( ( *ppAtResp ) );
@@ -731,40 +773,93 @@ static CellularPktStatus_t _handleReceivedMsg( CellularContext_t * pContext,
 
 /*-----------------------------------------------------------*/
 
+/* Internal function of _handleAllReceived to reduce complexity. */
+static char * _handleAllReceivedAtResponse( CellularContext_t * pContext,
+                                            char * pTempLine,
+                                            _atRespType_t * pRecvdMsgType )
+{
+    _atRespType_t recvdMsgTypeNew = AT_UNDEFINED;
+    char * pEol = NULL;
+
+    ( void ) Cellular_ATFindNextEOL( &pEol, pTempLine );
+
+    if( pEol != NULL )
+    {
+        *pEol = '\0';
+
+        /* Some other response or URC needs to be processed.
+         * Get the msgtype of the next msg in this read. */
+        recvdMsgTypeNew = _getMsgType( pContext, pTempLine, pContext->pRespPrefix );
+
+        if( ( recvdMsgTypeNew != AT_UNDEFINED ) && ( recvdMsgTypeNew != *pRecvdMsgType ) )
+        {
+            IotLogDebug( "Msg type changed from %d to %d", *pRecvdMsgType, recvdMsgTypeNew );
+            *pRecvdMsgType = recvdMsgTypeNew;
+        }
+    }
+    else
+    {
+        if( strlen( pTempLine ) > 0U )
+        {
+            IotLogDebug( "leftover buf str[%s]", pTempLine );
+            pContext->pPktioReadPtr = pTempLine;
+        }
+    }
+
+    return pEol;
+}
+
+/*-----------------------------------------------------------*/
+
 static void _handleAllReceived( CellularContext_t * pContext,
                                 CellularATCommandResponse_t ** ppAtResp,
                                 char * pLine,
                                 uint32_t bytesRead )
 {
-    _atRespType_t recvdMsgTypeNew = AT_UNDEFINED, * pRecvdMsgType = &pContext->recvdMsgType;
+    _atRespType_t * pRecvdMsgType = &pContext->recvdMsgType;
     const uint32_t * pDataLength = &pContext->dataLength;
-    CellularPktStatus_t pkStatus = CELLULAR_PKT_STATUS_OK;
-    char * pStartOfData = NULL, * pTempLine = pLine, * pEol = NULL;
+    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
+    char * pStartOfData = NULL, * pTempLine = pLine;
+    const char * pEol = NULL;
     bool breakFlag = false;
+    uint32_t bytesLeft = 0;
 
     *pRecvdMsgType = _getMsgType( pContext, pTempLine, pContext->pRespPrefix );
 
     do
     {
         /* parse the input line. */
-        pkStatus = _handleReceivedMsg( pContext, ppAtResp, pTempLine, &pStartOfData );
+        pktStatus = _handleReceivedMsg( pContext, ppAtResp, pTempLine, &pStartOfData );
 
-        if( ( pkStatus != CELLULAR_PKT_STATUS_OK ) &&
-            ( pkStatus != CELLULAR_PKT_STATUS_PENDING_DATA ) &&
-            ( pkStatus != CELLULAR_PKT_STATUS_PENDING_DATA_BUFFER ) )
+        if( ( pktStatus != CELLULAR_PKT_STATUS_OK ) &&
+            ( pktStatus != CELLULAR_PKT_STATUS_PENDING_DATA ) &&
+            ( pktStatus != CELLULAR_PKT_STATUS_PENDING_DATA_BUFFER ) )
         {
-            IotLogDebug( "_handleReceivedMsg failed %d", pkStatus );
+            IotLogDebug( "_handleReceivedMsg failed %d", pktStatus );
             breakFlag = true;
         }
         else if( ( *pDataLength != 0U ) && ( pStartOfData != NULL ) )
         {
             /* The input line is a data recv command. Handle the data buffer. */
-            pkStatus = _handleData( pStartOfData, pContext, *ppAtResp, &pTempLine, bytesRead );
+            pktStatus = _handleData( pStartOfData, pContext, *ppAtResp, &pTempLine, bytesRead, &bytesLeft );
 
-            if( pkStatus != CELLULAR_PKT_STATUS_OK )
+            if( pktStatus == CELLULAR_PKT_STATUS_PENDING_DATA_BUFFER )
             {
-                /* Partial Data received or error. */
-                IotLogDebug( "Partial Data received or error %d.", pkStatus );
+                IotLogDebug( "Partial Data received" );
+                breakFlag = true;
+            }
+            else if( ( pktStatus == CELLULAR_PKT_STATUS_OK ) && ( bytesLeft == 0U ) )
+            {
+                IotLogDebug( "Complete Data received" );
+                breakFlag = true;
+            }
+            else if( pktStatus == CELLULAR_PKT_STATUS_OK )
+            {
+                IotLogDebug( "_handleData okay, keep processing %u bytes", bytesLeft );
+            }
+            else
+            {
+                IotLogError( "_handleData error %d.", pktStatus );
                 breakFlag = true;
             }
         }
@@ -779,60 +874,39 @@ static void _handleAllReceived( CellularContext_t * pContext,
             break;
         }
 
+        /* Remove the leading change line. */
         while( ( *pTempLine == '\r' ) || ( *pTempLine == '\n' ) )
         {
             pTempLine++;
         }
 
-        ( void ) Cellular_ATFindNextEOL( &pEol, pTempLine );
-
-        if( pEol != NULL )
-        {
-            *pEol = '\0';
-
-            /* Some other response or URC needs to be processed.
-             * Get the msgtype of the next msg in this read. */
-            recvdMsgTypeNew = _getMsgType( pContext, pTempLine, pContext->pRespPrefix );
-
-            if( ( recvdMsgTypeNew != AT_UNDEFINED ) && ( recvdMsgTypeNew != *pRecvdMsgType ) )
-            {
-                IotLogDebug( "Msg type changed from %d to %d", *pRecvdMsgType, recvdMsgTypeNew );
-                *pRecvdMsgType = recvdMsgTypeNew;
-            }
-        }
-        else if( strlen( pTempLine ) > 0U )
-        {
-            IotLogDebug( "leftover buf str[%s]", pTempLine );
-            pContext->pPktioReadPtr = pTempLine;
-        }
-        else
-        {
-            /* Empty else to avoid MISRA violation */
-        }
+        /* Parse the AT command response in the pTempLine. */
+        pEol = _handleAllReceivedAtResponse( pContext, pTempLine, pRecvdMsgType );
     }
     while( pEol != NULL );
 }
 
 /*-----------------------------------------------------------*/
 
-static void _handleRxDataEvent( CellularContext_t * pContext,
-                                CellularATCommandResponse_t ** ppAtResp )
+static uint32_t _handleRxDataEvent( CellularContext_t * pContext,
+                                    CellularATCommandResponse_t ** ppAtResp )
 {
     const uint32_t * pPartialDataRcvdLen = &pContext->partialDataRcvdLen;
     char * pLine, * pEol = NULL;
     uint32_t bytesRead = 0;
+    uint32_t bytesLeft = 0;
 
     /* Return the first line, may be more lines in buffer. */
     pLine = _Cellular_ReadLine( pContext, &bytesRead, *pPartialDataRcvdLen );
 
     if( ( bytesRead > 0U ) && ( pLine != NULL ) )
     {
-        if( *pPartialDataRcvdLen != 0U )
+        if( ( *pPartialDataRcvdLen != 0U ) || ( pContext->dataLength != 0U ) )
         {
-            ( void ) _handleData( pLine, pContext, *ppAtResp, &pLine, bytesRead );
+            ( void ) _handleData( pLine, pContext, *ppAtResp, &pLine, bytesRead, &bytesLeft );
 
             /* Remove the leading change line. */
-            if( *pPartialDataRcvdLen == 0U )
+            if( ( *pPartialDataRcvdLen == 0U ) && ( pContext->dataLength == 0U ) )
             {
                 while( ( *pLine == '\r' ) || ( *pLine == '\n' ) )
                 {
@@ -840,8 +914,13 @@ static void _handleRxDataEvent( CellularContext_t * pContext,
                 }
             }
         }
+        else
+        {
+            bytesLeft = bytesRead;
+        }
 
-        if( *pPartialDataRcvdLen == 0U )
+        /* If bytesRead in _Cellular_ReadLine is all for data, don't parse the AT command response. */
+        if( ( *pPartialDataRcvdLen == 0U ) && ( bytesLeft > 0U ) )
         {
             ( void ) Cellular_ATFindNextEOL( &pEol, pLine );
 
@@ -859,6 +938,8 @@ static void _handleRxDataEvent( CellularContext_t * pContext,
             }
         }
     }
+
+    return bytesRead;
 }
 
 /*-----------------------------------------------------------*/
@@ -868,6 +949,7 @@ static void _pktioReadThread( void * pUserData )
     CellularContext_t * pContext = ( CellularContext_t * ) pUserData;
     CellularATCommandResponse_t * pAtResp = NULL;
     EventBits_t uxBits;
+    uint32_t bytesRead = 0;
 
     /* Open main communication port. */
     if( ( pContext != NULL ) && ( pContext->pCommIntf != NULL ) &&
@@ -893,12 +975,17 @@ static void _pktioReadThread( void * pUserData )
                 FREE_AT_RESPONSE_AND_SET_NULL( ( pAtResp ) );
                 break;
             }
+            else if( ( uxBits & ( EventBits_t ) PKTIO_EVT_MASK_RX_DATA ) != 0U )
+            {
+                /* Keep Reading until there is no more bytes in comm interface. */
+                do
+                {
+                    bytesRead = _handleRxDataEvent( pContext, &pAtResp );
+                } while( bytesRead != 0U );
+            }
             else
             {
-                if( ( uxBits & ( EventBits_t ) PKTIO_EVT_MASK_RX_DATA ) != 0U )
-                {
-                    _handleRxDataEvent( pContext, &pAtResp );
-                }
+                /* Empty else to avoid MISRA violation */
             }
         }
         while( true );

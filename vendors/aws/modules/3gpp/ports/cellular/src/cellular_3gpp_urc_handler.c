@@ -83,47 +83,6 @@ static bool _Cellular_RegEventStatus( const cellularAtData_t * pLibAtData,
                                       CellularNetworkRegType_t regType,
                                       CellularNetworkRegistrationStatus_t prevCsRegStatus,
                                       CellularNetworkRegistrationStatus_t prevPsRegStatus );
-static CellularNetworkRegistrationStatus_t _mapCgregRegStatus( int32_t oriStat );
-
-/*-----------------------------------------------------------*/
-
-static CellularNetworkRegistrationStatus_t _mapCgregRegStatus( int32_t oriStat )
-{
-    CellularNetworkRegistrationStatus_t cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_UNKNOWN;
-
-    switch( oriStat )
-    {
-        case 0:
-            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_NOT_REGISTERED_NOT_SEARCHING;
-            break;
-
-        case 1:
-            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_HOME;
-            break;
-
-        case 2:
-            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_NOT_REGISTERED_SEARCHING;
-            break;
-
-        case 3:
-            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTRATION_DENIED;
-            break;
-
-        case 4:
-            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_UNKNOWN;
-            break;
-
-        case 5:
-            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING;
-            break;
-
-        default:
-            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_UNKNOWN;
-            break;
-    }
-
-    return cgregStatus;
-}
 
 /*-----------------------------------------------------------*/
 
@@ -172,11 +131,6 @@ static CellularPktStatus_t _parseRegStatusInRegStatusParsing( CellularContext_t 
         if( regType == CELLULAR_REG_TYPE_CREG )
         {
             pLibAtData->csRegStatus = regStatus;
-        }
-        else if( regType == CELLULAR_REG_TYPE_CGREG )
-        {
-            /* Map CGREG stat to registration status. */
-            pLibAtData->psRegStatus = _mapCgregRegStatus( tempValue );
         }
         else
         {
@@ -309,6 +263,11 @@ static CellularPktStatus_t _parseRatInfoInRegStatus( const char * pToken,
              * rat with a enum cast. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             pLibAtData->rat = ( CellularRat_t ) var;
+        }
+        else if( var == ( int32_t ) CELLULAR_RAT_LTE )
+        {
+            /* Some cellular module use 7 : CELLULAR_RAT_LTE to indicate CAT-M1. */
+            pLibAtData->rat = ( CellularRat_t ) CELLULAR_RAT_LTE;
         }
         else
         {
@@ -686,6 +645,9 @@ void Cellular_CommonUrcProcessCreg( CellularContext_t * pContext,
 
 /*-----------------------------------------------------------*/
 
+/* This function is provided as common code to cellular module porting.
+ * Vendor may choose to use this function or use their implementation. */
+/* coverity[misra_c_2012_rule_8_7_violation]. */
 void Cellular_CommonUrcProcessCgreg( CellularContext_t * pContext,
                                      char * pInputLine )
 {

@@ -651,7 +651,7 @@ static IotNetworkManager_t networkManager =
         {
             cellularHalStatus = Cellular_SetDns( CellularHandle, configCELLULAR_PDN_CONTEXT_ID, configCELLULAR_DNS_SERVER );
 
-            if( cellularHalStatus != CELLULAR_SUCCESS )
+            if( ( cellularHalStatus != CELLULAR_SUCCESS ) && ( cellularHalStatus != CELLULAR_UNSUPPORTED ) )
             {
                 IotLogError( "Cellular set DNS failed %d", cellularHalStatus );
                 cellularStatus = false;

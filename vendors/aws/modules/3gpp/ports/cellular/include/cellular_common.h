@@ -66,9 +66,14 @@ typedef struct CellularAtReq
  */
 typedef struct CellularAtDataReq
 {
-    const uint8_t * pData;
-    uint32_t dataLen;
-    uint32_t * pSentDataLength;
+    const uint8_t * pData;       /* Data to send. */
+    uint32_t dataLen;            /* Data length to send. */
+    uint32_t * pSentDataLength;  /* Data actually sent. */
+    const uint8_t * pEndPattern; /* End pattern after pData is sent completely.
+                                  * Set NULL if not required. Cellular modem uses
+                                  * end pattern instead of length in AT command
+                                  * can make use of this variable. */
+    uint32_t endPatternLen;      /* End pattern length. */
 } CellularAtDataReq_t;
 
 /**
@@ -126,6 +131,9 @@ typedef struct CellularSocketContext
     void * pOpenCallbackContext;                         /* socket open callback context. */
     CellularSocketClosedCallback_t closedCallback;       /* Informs the socket is closed. */
     void * pClosedCallbackContext;                       /* socket closed callback context. */
+
+    /* Modem data. */
+    void * pModemData; /* Modem specific data. */
 } CellularSocketContext_t;
 
 /**
@@ -146,11 +154,16 @@ typedef struct CellularTokenTable
     /* Table to URC with prefix Token. */
     const char ** pCellularUrcTokenWoPrefixTable;
     uint32_t cellularUrcTokenWoPrefixTableSize;
+
+    /* Extra success token for specific AT command. */
+    const char ** pCellularSrcExtraTokenSuccessTable;
+    uint32_t cellularSrcExtraTokenSuccessTableSize;
 } CellularTokenTable_t;
 
 /**
  * @brief Callback used to inform pktio the data start and the length of the data.
  *
+ * @param[in] pCallbackContext The pCallbackContext in _Cellular_TimeoutAtcmdDataRecvRequestWithCallback.
  * @param[in] pLine The input line form cellular modem.
  * @param[out] pData Is the start of of data in pLine.
  * @param[out] pDataLength Is the data length.
@@ -158,7 +171,8 @@ typedef struct CellularTokenTable
  * @return CELLULAR_PKT_STATUS_OK if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
-typedef CellularPktStatus_t ( * CellularATCommandDataPrefixCallback_t ) ( const char * pLine,
+typedef CellularPktStatus_t ( * CellularATCommandDataPrefixCallback_t ) ( void * pCallbackContext,
+                                                                          const char * pLine,
                                                                           char ** pDataStart,
                                                                           uint32_t * pDataLength );
 
@@ -446,6 +460,7 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallback( CellularContext_t
  * @param[in] atReq The AT command data structure with send command response callback.
  * @param[in] timeoutMS The timeout value to wait for the response from cellular modem.
  * @param[in] pktDataPrefixCallback The callback function to indicate the start of data and the length of data.
+ * @param[in] pCallbackContext The pCallbackContext passed to the pktDataPrefixCallback callback function.
  *
  * @return CELLULAR_PKT_STATUS_OK if the operation is successful, otherwise an error
  * code indicating the cause of the error.
@@ -453,7 +468,8 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallback( CellularContext_t
 CellularPktStatus_t _Cellular_TimeoutAtcmdDataRecvRequestWithCallback( CellularContext_t * pContext,
                                                                        CellularAtReq_t atReq,
                                                                        uint32_t timeoutMS,
-                                                                       CellularATCommandDataPrefixCallback_t pktDataPrefixCallback );
+                                                                       CellularATCommandDataPrefixCallback_t pktDataPrefixCallback,
+                                                                       void * pCallbackContext );
 
 /**
  * @brief Send the AT command to cellular modem with send data.
@@ -472,5 +488,27 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdDataSendRequestWithCallback( CellularC
                                                                        CellularAtDataReq_t dataReq,
                                                                        uint32_t atTimeoutMS,
                                                                        uint32_t dataTimeoutMS );
+
+/**
+ * @brief Send the AT command to cellular modem with send data and extra success token table
+ *
+ * @param[in] pContext The opaque cellular context pointer created by Cellular_Init.
+ * @param[in] atReq The AT command data structure with send command response callback.
+ * @param[in] dataReq The following data request after the at request.
+ * @param[in] atTimeoutMS The timeout value to wait for the AT command response from cellular modem.
+ * @param[in] dataTimeoutMS The timeout value to wait for the data command response from cellular modem.
+ * @param[in] pCellularSrcTokenSuccessTable The extra success token table to indicate the send AT command success.
+ * @param[in] cellularSrcTokenSuccessTableSize The size of extra success token table.
+ *
+ * @return CELLULAR_PKT_STATUS_OK if the operation is successful, otherwise an error
+ * code indicating the cause of the error.
+ */
+CellularPktStatus_t _Cellular_TimeoutAtcmdDataSendSuccessToken( CellularContext_t * pContext,
+                                                                CellularAtReq_t atReq,
+                                                                CellularAtDataReq_t dataReq,
+                                                                uint32_t atTimeoutMS,
+                                                                uint32_t dataTimeoutMS,
+                                                                const char ** pCellularSrcTokenSuccessTable,
+                                                                uint32_t cellularSrcTokenSuccessTableSize );
 
 #endif /* __CELLULAR_COMMON_H__ */

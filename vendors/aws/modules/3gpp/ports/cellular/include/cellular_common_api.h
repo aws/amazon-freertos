@@ -209,6 +209,47 @@ CellularError_t Cellular_CommonGetServiceStatus( CellularHandle_t cellularHandle
                                                  CellularServiceStatus_t * pServiceStatus );
 
 /**
+ * @brief This function is the implementationof cellular HAL API.
+ * Reference Cellular_GetServiceStatus in cellular_api.h for definition.
+ */
+CellularError_t Cellular_CommonSetPdnConfig( CellularHandle_t cellularHandle,
+                                             uint8_t contextId,
+                                             const CellularPdnConfig_t * pPdnConfig );
+
+/**
+ * @brief This function is the implementationof cellular HAL API.
+ * Reference Cellular_GetServiceStatus in cellular_api.h for definition.
+ */
+CellularError_t Cellular_CommonGetPsmSettings( CellularHandle_t cellularHandle,
+                                               CellularPsmSettings_t * pPsmSettings );
+
+/**
+ * @brief This function is the implementationof cellular HAL API.
+ * Reference Cellular_GetServiceStatus in cellular_api.h for definition.
+ */
+CellularError_t Cellular_CommonSetPsmSettings( CellularHandle_t cellularHandle,
+                                               const CellularPsmSettings_t * pPsmSettings );
+
+/**
+ * @brief This function is the implementationof cellular HAL API.
+ * Reference Cellular_GetServiceStatus in cellular_api.h for definition.
+ */
+CellularError_t Cellular_CommonGetSimCardInfo( CellularHandle_t cellularHandle,
+                                               CellularSimCardInfo_t * pSimCardInfo );
+
+/**
+ * @brief Get SIM card lock status.
+ *
+ * @param[in] cellularHandle The opaque cellular context pointer created by Cellular_Init.
+ * @param[out] pSimCardStatus Out parameter to provide the SIM card status.
+ *
+ * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
+ * code indicating the cause of the error.
+ */
+CellularError_t Cellular_CommonGetSimCardLockStatus( CellularHandle_t cellularHandle,
+                                                     CellularSimCardStatus_t * pSimCardStatus );
+
+/**
  * @brief 3GPP URC AT+CEREG handler for cellular HAL common.
  *
  * This function handles the incoming URC and callback function.
