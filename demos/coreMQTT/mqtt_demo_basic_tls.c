@@ -48,6 +48,9 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+/* Demo Specific configs. */
+#include "mqtt_demo_basic_tls_config.h"
+
 /* MQTT library includes. */
 #include "core_mqtt.h"
 
@@ -57,14 +60,25 @@
 /* Transport interface implementation include header for TLS. */
 #include "transport_secure_sockets.h"
 
+/* Client credential include for the default broker endpoint and port. */
+#include "aws_clientcredential.h"
+
+/* Include header for root CA certificates. */
+#include "iot_default_root_certificates.h"
+
 /*-----------------------------------------------------------*/
 
-/* Compile time error for undefined configs. */
+/* Default values for configs. */
+
+/**
+ * @brief The MQTT broker endpoint used for this demo.
+ */
 #ifndef democonfigMQTT_BROKER_ENDPOINT
-    #error "Define the config democonfigMQTT_BROKER_ENDPOINT by following the instructions in file mqtt_demo_basic_tls_config.h."
+    #define democonfigMQTT_BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
 #endif
+
 #ifndef democonfigROOT_CA_PEM
-    #error "Please define Root CA certificate of the MQTT broker (democonfigROOT_CA_PEM) in mqtt_demo_basic_tls_config.h."
+    #define democonfigROOT_CA_PEM    tlsATS1_ROOT_CERTIFICATE_PEM
 #endif
 
 /*-----------------------------------------------------------*/
@@ -77,22 +91,14 @@
  * the same broker use the same client identifier.
  */
 #ifndef democonfigCLIENT_IDENTIFIER
-    #define democonfigCLIENT_IDENTIFIER    "testClient"__TIME__
+    #define democonfigCLIENT_IDENTIFIER    clientcredentialIOT_THING_NAME
 #endif
 
 /**
  * @brief The port to use for the demo.
  */
 #ifndef democonfigMQTT_BROKER_PORT
-    #define democonfigMQTT_BROKER_PORT    ( 8883 )
-#endif
-
-/**
- * @brief The maximum number of times to run the subscribe publish loop in this
- * demo.
- */
-#ifndef democonfigMQTT_MAX_DEMO_COUNT
-    #define democonfigMQTT_MAX_DEMO_COUNT    ( 3 )
+    #define democonfigMQTT_BROKER_PORT    clientcredentialMQTT_BROKER_PORT
 #endif
 
 /**
@@ -106,7 +112,7 @@
 /**
  * @brief Timeout for receiving CONNACK packet in milliseconds.
  */
-#define mqttexampleCONNACK_RECV_TIMEOUT_MS                ( 1000U )
+#define mqttexampleCONNACK_RECV_TIMEOUT_MS           ( 1000U )
 
 /**
  * @brief The topic to subscribe and publish to in the example.
@@ -114,28 +120,22 @@
  * The topic name starts with the client identifier to ensure that each demo
  * interacts with a unique topic name.
  */
-#define mqttexampleTOPIC                                  democonfigCLIENT_IDENTIFIER "/example/topic"
+#define mqttexampleTOPIC                             democonfigCLIENT_IDENTIFIER "/example/topic"
 
 /**
  * @brief The number of topic filters to subscribe.
  */
-#define mqttexampleTOPIC_COUNT                            ( 1 )
+#define mqttexampleTOPIC_COUNT                       ( 1 )
 
 /**
  * @brief The MQTT message published in this example.
  */
-#define mqttexampleMESSAGE                                "Hello World!"
-
-/**
- * @brief Time in ticks to wait between each cycle of the demo implemented
- * by RunCoreMqttBasicTLSDemo().
- */
-#define mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS    ( pdMS_TO_TICKS( 5000U ) )
+#define mqttexampleMESSAGE                           "Hello World!"
 
 /**
  * @brief Timeout for MQTT_ProcessLoop in milliseconds.
  */
-#define mqttexamplePROCESS_LOOP_TIMEOUT_MS                ( 500U )
+#define mqttexamplePROCESS_LOOP_TIMEOUT_MS           ( 500U )
 
 /**
  * @brief The keep-alive timeout period reported to the broker while
@@ -146,7 +146,7 @@
  * absence of sending any other control packets, the client MUST send a
  * PINGREQ packet.
  */
-#define mqttexampleKEEP_ALIVE_TIMEOUT_SECONDS             ( 60U )
+#define mqttexampleKEEP_ALIVE_TIMEOUT_SECONDS        ( 60U )
 
 /**
  * @brief Delay (in ticks) between consecutive cycles of MQTT publish operations
@@ -155,22 +155,22 @@
  * Note that the process loop also has a timeout, so the total time between
  * publishes is the sum of the two delays.
  */
-#define mqttexampleDELAY_BETWEEN_PUBLISHES_TICKS          ( pdMS_TO_TICKS( 2000U ) )
+#define mqttexampleDELAY_BETWEEN_PUBLISHES_TICKS     ( pdMS_TO_TICKS( 2000U ) )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS         ( 200U )
+#define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 200U )
 
 /**
  * @brief Milliseconds per second.
  */
-#define _MILLISECONDS_PER_SECOND                          ( 1000U )
+#define _MILLISECONDS_PER_SECOND                     ( 1000U )
 
 /**
  * @brief Milliseconds per FreeRTOS tick.
  */
-#define _MILLISECONDS_PER_TICK                            ( _MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+#define _MILLISECONDS_PER_TICK                       ( _MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
 
 /*-----------------------------------------------------------*/
 
@@ -382,32 +382,32 @@ int RunCoreMqttBasicTLSDemo( bool awsIotMqttMode,
      */
     ulGlobalEntryTimeMs = prvGetTimeMs();
 
-    for( ; ulDemoRunCount < democonfigMQTT_MAX_DEMO_COUNT; ulDemoRunCount++ )
+    /****************************** Connect. ******************************/
+
+    /* Attempt to establish a TLS connection with the MQTT broker. This example
+     * connects to the MQTT broker specified in democonfigMQTT_BROKER_ENDPOINT,
+     * using the port number specified in democonfigMQTT_BROKER_PORT (these
+     * macros are defined in file demo_config.h). If the connection fails,
+     * attempt to re-connect after a timeout. The timeout value will be
+     * exponentially increased until either the maximum timeout value is
+     * reached, or the maximum number of attempts are exhausted. The function
+     * returns a failure status if the TCP connection cannot be established
+     * with the broker after a configured number of attempts. */
+    xNetworkStatus = prvConnectToServerWithBackoffRetries( &xNetworkContext );
+
+    if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
-        /****************************** Connect. ******************************/
-
-        /* Attempt to establish a TLS connection with the MQTT broker. This example
-         * connects to the MQTT broker specified in democonfigMQTT_BROKER_ENDPOINT,
-         * using the port number specified in democonfigMQTT_BROKER_PORT (these
-         * macros are defined in file demo_config.h). If the connection fails,
-         * attempt to re-connect after a timeout. The timeout value will be
-         * exponentially increased until either the maximum timeout value is
-         * reached, or the maximum number of attempts are exhausted. The function
-         * returns a failure status if the TCP connection cannot be established
-         * with the broker after a configured number of attempts. */
-        xNetworkStatus = prvConnectToServerWithBackoffRetries( &xNetworkContext );
-
-        if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
-        {
-            lReturnStatus = EXIT_FAILURE;
-            break;
-        }
-
+        lReturnStatus = EXIT_FAILURE;
+    }
+    else
+    {
         /* Set a flag indicating a TCP connection exists. This is done to
          * disconnect if the loop exits before disconnection happens. */
         xIsConnectionEstablished = pdTRUE;
+    }
 
-
+    if( lReturnStatus == EXIT_SUCCESS )
+    {
         /* Send an MQTT CONNECT packet over the established TLS connection,
          * and wait for the connection acknowledgment (CONNACK) packet. */
         LogInfo( ( "Creating an MQTT connection to %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
@@ -418,11 +418,13 @@ int RunCoreMqttBasicTLSDemo( bool awsIotMqttMode,
             /* Any errors from direct MQTT library calls are logged in the
              * private functions. */
             lReturnStatus = EXIT_FAILURE;
-            break;
         }
+    }
 
-        /***************************** Subscribe. *****************************/
+    /***************************** Subscribe. *****************************/
 
+    if( lReturnStatus == EXIT_SUCCESS )
+    {
         /* If the server rejected the subscription request, attempt to resubscribe to the
          * topic. Attempts are made according to the exponential backoff retry strategy
          * implemented in retryUtils. */
@@ -431,25 +433,13 @@ int RunCoreMqttBasicTLSDemo( bool awsIotMqttMode,
         if( xDemoStatus != pdPASS )
         {
             lReturnStatus = EXIT_FAILURE;
-            break;
         }
+    }
 
-        /* Process incoming packet from the broker. After sending a subscribe packet, the
-         * client may receive a publish before it receives a subscribe ack. Therefore,
-         * call the generic incoming packet processing function. Since this demo is
-         * subscribing to a topic to which no one is publishing, the probability of
-         * receiving a publish message before a subscribe ack is zero. Regardless, the
-         * application must be prepared to receive any packet. This demo uses the generic
-         * packet processing function everywhere to highlight this fact. */
-        xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
+    /******************** Publish and Keep-Alive Loop. ********************/
 
-        if( xMQTTStatus != MQTTSuccess )
-        {
-            lReturnStatus = EXIT_FAILURE;
-            break;
-        }
-
-        /******************** Publish and Keep-Alive Loop. ********************/
+    if( lReturnStatus == EXIT_SUCCESS )
+    {
         /* Publish messages with QoS2, and send and process keep-alive messages. */
         for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
         {
@@ -478,34 +468,35 @@ int RunCoreMqttBasicTLSDemo( bool awsIotMqttMode,
             LogInfo( ( "Keeping Connection Idle...\r\n\r\n" ) );
             vTaskDelay( mqttexampleDELAY_BETWEEN_PUBLISHES_TICKS );
         }
+    }
 
-        /* Check if the publish and keep alive loop was successful. */
-        if( lReturnStatus != EXIT_SUCCESS )
-        {
-            break;
-        }
-
-        /********************* Unsubscribe from the topic. ********************/
+    /********************* Unsubscribe from the topic. ********************/
+    if( lReturnStatus == EXIT_SUCCESS )
+    {
         LogInfo( ( "Unsubscribe from the MQTT topic %s.\r\n", mqttexampleTOPIC ) );
         xDemoStatus = prvMQTTUnsubscribeFromTopic( &xMQTTContext );
 
         if( xDemoStatus != pdPASS )
         {
             lReturnStatus = EXIT_FAILURE;
-            break;
         }
+    }
 
+    if( lReturnStatus == EXIT_SUCCESS )
+    {
         /* Process incoming UNSUBACK packet from the broker. */
         xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
 
         if( xMQTTStatus != MQTTSuccess )
         {
             lReturnStatus = EXIT_FAILURE;
-            break;
         }
+    }
 
-        /*************************** Disconnect. ******************************/
+    /*************************** Disconnect. ******************************/
 
+    if( lReturnStatus == EXIT_SUCCESS )
+    {
         /* Send an MQTT DISCONNECT packet over the already-connected TLS over TCP connection.
          * There is no corresponding response expected from the broker. After sending the
          * disconnect request, the client must close the network connection. */
@@ -515,9 +506,11 @@ int RunCoreMqttBasicTLSDemo( bool awsIotMqttMode,
         if( xMQTTStatus != MQTTSuccess )
         {
             lReturnStatus = EXIT_FAILURE;
-            break;
         }
+    }
 
+    if( lReturnStatus == EXIT_SUCCESS )
+    {
         /* Close the network connection.  */
         xNetworkStatus = SecureSocketsTransport_Disconnect( &xNetworkContext );
 
@@ -527,26 +520,20 @@ int RunCoreMqttBasicTLSDemo( bool awsIotMqttMode,
             LogError( ( "SecureSocketsTransport_Disconnect() failed to close "
                         "the network connection with status code %d.",
                         ( int ) xNetworkStatus ) );
-            break;
         }
-
-        xIsConnectionEstablished = pdFALSE;
-
-        /* Reset SUBACK status for each topic filter after completion of the subscription request cycle. */
-        for( ulTopicCount = 0; ulTopicCount < mqttexampleTOPIC_COUNT; ulTopicCount++ )
+        else
         {
-            xTopicFilterContext[ ulTopicCount ].xSubAckStatus = MQTTSubAckFailure;
+            xIsConnectionEstablished = pdFALSE;
         }
-
-        /* Wait for some time between two iterations to ensure that we do not
-         * bombard the broker. */
-        LogInfo( ( "RunCoreMqttBasicTLSDemo() completed an iteration successfully. Total free heap is %u.\r\n", xPortGetFreeHeapSize() ) );
-        LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
-        vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
     }
 
-    /* An error may have occurred to break out of the demo loop, so we close the
-     * network connection that may be taking up system resources. */
+    if( lReturnStatus == EXIT_SUCCESS )
+    {
+        LogInfo( ( "RunCoreMqttBasicTLSDemo() completed an iteration successfully. Total free heap is %u.\r\n", xPortGetFreeHeapSize() ) );
+    }
+
+    /* An error may have occurred after a successful network connection, so we
+     * close the network connection that may be taking up system resources. */
     if( xIsConnectionEstablished == pdTRUE )
     {
         /* Errors are ignored here as this is precautionary clean-up code. */
