@@ -97,6 +97,13 @@
 #endif
 
 /**
+ * @brief The maximum number of times to run the demo's task creation loop.
+ */
+#ifndef democonfigMQTT_MAX_DEMO_COUNT
+    #define democonfigMQTT_MAX_DEMO_COUNT    ( 3 )
+#endif
+
+/**
  * @brief The size to use for the network buffer.
  */
 #ifndef mqttexampleNETWORK_BUFFER_SIZE
@@ -117,6 +124,11 @@
  * @brief Timeout for receiving CONNACK packet in milliseconds.
  */
 #define mqttexampleCONNACK_RECV_TIMEOUT_MS           ( 1000U )
+
+/**
+ * @brief Time to wait between each cycle of the demo.
+ */
+#define mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS     ( pdMS_TO_TICKS( 5000U ) )
 
 /**
  * @brief Timeout for MQTT_ProcessLoop function in milliseconds.
@@ -226,6 +238,9 @@
  */
 #define mqttexampleUNSUBSCRIBE_COMPLETE_BIT          ( 1U << 1 )
 
+/**
+ * @brief The stack size to use for the publish and subscribe tasks.
+ */
 #define mqttexampleTASK_STACK_SIZE                   ( configMINIMAL_STACK_SIZE * 6 )
 
 /**
@@ -1755,9 +1770,11 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
     NetworkContext_t xNetworkContext = { 0 };
     BaseType_t xNetworkStatus = pdFAIL;
     BaseType_t xResult = pdFALSE;
+    BaseType_t xNetworkConnectionCreated = pdFALSE;
     uint32_t ulNotification = 0;
     Command_t xCommand;
     MQTTStatus_t xMQTTStatus;
+    uint32_t ulDemoCount = 0;
     int ret = EXIT_SUCCESS;
 
     ( void ) awsIotMqttMode;
@@ -1811,7 +1828,7 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
         }
     }
 
-    if( ret == EXIT_SUCCESS )
+    for( ulDemoCount = 0; ( ulDemoCount < democonfigMQTT_MAX_DEMO_COUNT ) && ( ret == EXIT_SUCCESS ); ulDemoCount++ )
     {
         /* Clear the lists of subscriptions and pending acknowledgments. */
         memset( pxPendingAcks, 0x00, mqttexamplePENDING_ACKS_MAX_SIZE * sizeof( AckInfo_t ) );
@@ -1821,69 +1838,99 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
         prvCreateCommand( PROCESSLOOP, NULL, NULL, &xCommand );
         xResult = prvAddCommandToQueue( &xCommand );
         ret = ( xResult == pdTRUE ) ? EXIT_SUCCESS : EXIT_FAILURE;
-    }
 
-    if( ret == EXIT_SUCCESS )
-    {
-        LogInfo( ( "Creating a TCP connection to %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
-        /* Connect to the broker. */
-        xNetworkStatus = prvConnectNetwork( &xNetworkContext );
-        ret = ( xNetworkStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
-    }
-
-    if( ret == EXIT_SUCCESS )
-    {
-        /* Form an MQTT connection with a persistent session. */
-        xMQTTStatus = prvMQTTConnect( &globalMqttContext, &xNetworkContext, false );
-        ret = ( xMQTTStatus == MQTTSuccess ) ? EXIT_SUCCESS : EXIT_FAILURE;
-    }
-
-    if( ret == EXIT_SUCCESS )
-    {
-        configASSERT( globalMqttContext.connectStatus == MQTTConnected );
-
-        /* Give subscriber task higher priority so the subscribe will be processed before the first publish.
-         * This must be less than or equal to the priority of the main task. */
-        xResult = xTaskCreate( prvSubscribeTask, "Subscriber", mqttexampleTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, &xSubscribeTask );
-        ret = ( xResult == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
-    }
-
-    if( ret == EXIT_SUCCESS )
-    {
-        xResult = xTaskCreate( prvPublishTask, "Publisher", mqttexampleTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xPublisherTask );
-        ret = ( xResult == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
-    }
-
-    if( ret == EXIT_SUCCESS )
-    {
-        LogInfo( ( "Running command loop" ) );
-        ret = prvCommandLoop();
-    }
-
-    if( ret == EXIT_SUCCESS )
-    {
-        /* Wait for tasks to exit before cleaning up. */
-        while( ( ulNotification & mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT ) != mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT )
+        if( ret == EXIT_SUCCESS )
         {
-            LogInfo( ( "Waiting for subscribe task to exit." ) );
-            xTaskNotifyWait( 0, mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT, &ulNotification, mqttexampleDEMO_TICKS_TO_WAIT );
+            LogInfo( ( "Creating a TCP connection to %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
+            /* Connect to the broker. */
+            xNetworkStatus = prvConnectNetwork( &xNetworkContext );
+            ret = ( xNetworkStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
         }
 
-        /* Wait for publishing task to exit before cleaning up. */
-        while( ( ulNotification & mqttexamplePUBLISHER_TASK_COMPLETE_BIT ) != mqttexamplePUBLISHER_TASK_COMPLETE_BIT )
+        if( ret == EXIT_SUCCESS )
         {
-            LogInfo( ( "Waiting for publish task to exit." ) );
-            xTaskNotifyWait( 0, mqttexamplePUBLISHER_TASK_COMPLETE_BIT, &ulNotification, mqttexampleDEMO_TICKS_TO_WAIT );
+            xNetworkConnectionCreated = pdTRUE;
+            /* Form an MQTT connection with a persistent session. */
+            xMQTTStatus = prvMQTTConnect( &globalMqttContext, &xNetworkContext, false );
+            ret = ( xMQTTStatus == MQTTSuccess ) ? EXIT_SUCCESS : EXIT_FAILURE;
         }
 
-        /* Reset queues. */
-        xQueueReset( xCommandQueue );
-        xQueueReset( xPublisherResponseQueue );
-        xQueueReset( xSubscriberResponseQueue );
+        if( ret == EXIT_SUCCESS )
+        {
+            configASSERT( globalMqttContext.connectStatus == MQTTConnected );
 
-        LogInfo( ( "Disconnecting TCP connection." ) );
-        xNetworkStatus = prvDisconnectNetwork( &xNetworkContext );
-        ret = ( xNetworkStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
+            /* Give subscriber task higher priority so the subscribe will be processed before the first publish.
+             * This must be less than or equal to the priority of the main task. */
+            xResult = xTaskCreate( prvSubscribeTask, "Subscriber", mqttexampleTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, &xSubscribeTask );
+            ret = ( xResult == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
+        }
+
+        if( ret == EXIT_SUCCESS )
+        {
+            xResult = xTaskCreate( prvPublishTask, "Publisher", mqttexampleTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xPublisherTask );
+            ret = ( xResult == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
+        }
+
+        if( ret == EXIT_SUCCESS )
+        {
+            LogInfo( ( "Running command loop" ) );
+            ret = prvCommandLoop();
+        }
+
+        if( ret == EXIT_SUCCESS )
+        {
+            /* Wait for tasks to exit before cleaning up. */
+            while( ( ulNotification & mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT ) != mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT )
+            {
+                LogInfo( ( "Waiting for subscribe task to exit." ) );
+                xTaskNotifyWait( 0, mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT, &ulNotification, mqttexampleDEMO_TICKS_TO_WAIT );
+            }
+
+            /* Wait for publishing task to exit before cleaning up. */
+            while( ( ulNotification & mqttexamplePUBLISHER_TASK_COMPLETE_BIT ) != mqttexamplePUBLISHER_TASK_COMPLETE_BIT )
+            {
+                LogInfo( ( "Waiting for publish task to exit." ) );
+                xTaskNotifyWait( 0, mqttexamplePUBLISHER_TASK_COMPLETE_BIT, &ulNotification, mqttexampleDEMO_TICKS_TO_WAIT );
+            }
+
+            /* Reset queues. */
+            xQueueReset( xCommandQueue );
+            xQueueReset( xPublisherResponseQueue );
+            xQueueReset( xSubscriberResponseQueue );
+        }
+
+        /* Close network connection even if failure occurred elsewhere. */
+        if( xNetworkConnectionCreated == pdTRUE )
+        {
+            LogInfo( ( "Disconnecting TCP connection." ) );
+            xNetworkStatus = prvDisconnectNetwork( &xNetworkContext );
+            ret = ( xNetworkStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
+            xNetworkConnectionCreated = pdFALSE;
+        }
+
+        if( ret == EXIT_SUCCESS )
+        {
+            LogInfo( ( "RunCoreMqttConnectionSharingDemo() completed an iteration successfully. Total free heap is %u.\r\n",
+                       xPortGetFreeHeapSize() ) );
+            LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
+            vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS );
+        }
+    }
+
+    /* Delete queues. */
+    if( xCommandQueue != NULL )
+    {
+        vQueueDelete( xCommandQueue );
+    }
+
+    if( xPublisherResponseQueue != NULL )
+    {
+        vQueueDelete( xPublisherResponseQueue );
+    }
+
+    if( xSubscriberResponseQueue != NULL )
+    {
+        vQueueDelete( xSubscriberResponseQueue );
     }
 
     return ret;

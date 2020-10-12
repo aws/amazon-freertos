@@ -92,4 +92,9 @@
  * #define democonfigMQTT_BROKER_PORT    ( insert here. )
  */
 
+/**
+ * @brief The maximum number of times to run the demo's task creation loop.
+ */
+#define democonfigMQTT_MAX_DEMO_COUNT   ( 3 )
+
 #endif /* MQTT_DEMO_CONNECTION_SHARING_CONFIG_H */
