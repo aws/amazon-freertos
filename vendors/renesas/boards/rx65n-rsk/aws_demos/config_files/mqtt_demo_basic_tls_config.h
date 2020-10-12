@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.3.0
+ * FreeRTOS V202010.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,8 +25,8 @@
  * 1 tab == 4 spaces!
  */
 
-#ifndef DEMO_CONFIG_H
-#define DEMO_CONFIG_H
+#ifndef MQTT_DEMO_BASIC_TLS_CONFIG_H
+#define MQTT_DEMO_BASIC_TLS_CONFIG_H
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -43,7 +43,7 @@
 
 /* Logging configuration for the Demo. */
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "MQTTDemo"
+    #define LIBRARY_LOG_NAME    "MQTTBasicTLSDemo"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
@@ -110,11 +110,10 @@
 
 
 /**
- * @brief Set the stack size of the main demo task.
+ * @brief The maximum number of times to run the subscribe publish loop in the
+ * demo.
  *
- * In the Windows port, this stack only holds a structure. The actual
- * stack is created by an operating system thread.
+ * #define democonfigMQTT_MAX_DEMO_COUNT    ( insert here )
  */
-#define democonfigDEMO_STACKSIZE    configMINIMAL_STACK_SIZE
 
-#endif /* DEMO_CONFIG_H */
+#endif /* MQTT_DEMO_BASIC_TLS_CONFIG_H */

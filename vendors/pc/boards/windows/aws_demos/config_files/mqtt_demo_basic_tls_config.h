@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.3.0
+ * FreeRTOS V202010.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,8 +25,8 @@
  * 1 tab == 4 spaces!
  */
 
-#ifndef DEMO_CONFIG_H
-#define DEMO_CONFIG_H
+#ifndef MQTT_DEMO_BASIC_TLS_CONFIG_H
+#define MQTT_DEMO_BASIC_TLS_CONFIG_H
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -43,7 +43,7 @@
 
 /* Logging configuration for the Demo. */
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "MQTTDemo"
+    #define LIBRARY_LOG_NAME    "MQTTBasicTLSDemo"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
@@ -60,6 +60,7 @@
  *
  * #define democonfigCLIENT_IDENTIFIER              "insert here."
  */
+#define democonfigCLIENT_IDENTIFIER    "testclient"
 
 
 /**
@@ -74,8 +75,9 @@
  * Settings/Custom Endpoint, or using the describe-endpoint REST API (with
  * AWS CLI command line tool).
  *
- * #define democonfigMQTT_BROKER_ENDPOINT				"insert here."
+ * #define democonfigMQTT_BROKER_ENDPOINT				"a3dcn839xfna7g-ats.iot.us-east-2.amazonaws.com"
  */
+#define democonfigMQTT_BROKER_ENDPOINT    "test.mosquitto.org"
 
 
 /**
@@ -95,6 +97,31 @@
  *
  * #define democonfigROOT_CA_PEM    "...insert here..."
  */
+#define democonfigROOT_CA_PEM                                            \
+    "-----BEGIN CERTIFICATE-----\n"                                      \
+    "MIIEAzCCAuugAwIBAgIUBY1hlCGvdj4NhBXkZ/uLUZNILAwwDQYJKoZIhvcNAQEL\n" \
+    "BQAwgZAxCzAJBgNVBAYTAkdCMRcwFQYDVQQIDA5Vbml0ZWQgS2luZ2RvbTEOMAwG\n" \
+    "A1UEBwwFRGVyYnkxEjAQBgNVBAoMCU1vc3F1aXR0bzELMAkGA1UECwwCQ0ExFjAU\n" \
+    "BgNVBAMMDW1vc3F1aXR0by5vcmcxHzAdBgkqhkiG9w0BCQEWEHJvZ2VyQGF0Y2hv\n" \
+    "by5vcmcwHhcNMjAwNjA5MTEwNjM5WhcNMzAwNjA3MTEwNjM5WjCBkDELMAkGA1UE\n" \
+    "BhMCR0IxFzAVBgNVBAgMDlVuaXRlZCBLaW5nZG9tMQ4wDAYDVQQHDAVEZXJieTES\n" \
+    "MBAGA1UECgwJTW9zcXVpdHRvMQswCQYDVQQLDAJDQTEWMBQGA1UEAwwNbW9zcXVp\n" \
+    "dHRvLm9yZzEfMB0GCSqGSIb3DQEJARYQcm9nZXJAYXRjaG9vLm9yZzCCASIwDQYJ\n" \
+    "KoZIhvcNAQEBBQADggEPADCCAQoCggEBAME0HKmIzfTOwkKLT3THHe+ObdizamPg\n" \
+    "UZmD64Tf3zJdNeYGYn4CEXbyP6fy3tWc8S2boW6dzrH8SdFf9uo320GJA9B7U1FW\n" \
+    "Te3xda/Lm3JFfaHjkWw7jBwcauQZjpGINHapHRlpiCZsquAthOgxW9SgDgYlGzEA\n" \
+    "s06pkEFiMw+qDfLo/sxFKB6vQlFekMeCymjLCbNwPJyqyhFmPWwio/PDMruBTzPH\n" \
+    "3cioBnrJWKXc3OjXdLGFJOfj7pP0j/dr2LH72eSvv3PQQFl90CZPFhrCUcRHSSxo\n" \
+    "E6yjGOdnz7f6PveLIB574kQORwt8ePn0yidrTC1ictikED3nHYhMUOUCAwEAAaNT\n" \
+    "MFEwHQYDVR0OBBYEFPVV6xBUFPiGKDyo5V3+Hbh4N9YSMB8GA1UdIwQYMBaAFPVV\n" \
+    "6xBUFPiGKDyo5V3+Hbh4N9YSMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEL\n" \
+    "BQADggEBAGa9kS21N70ThM6/Hj9D7mbVxKLBjVWe2TPsGfbl3rEDfZ+OKRZ2j6AC\n" \
+    "6r7jb4TZO3dzF2p6dgbrlU71Y/4K0TdzIjRj3cQ3KSm41JvUQ0hZ/c04iGDg/xWf\n" \
+    "+pp58nfPAYwuerruPNWmlStWAXf0UTqRtg4hQDWBuUFDJTuWuuBvEXudz74eh/wK\n" \
+    "sMwfu1HFvjy5Z0iMDU8PUDepjVolOCue9ashlS4EB5IECdSR2TItnAIiIwimx839\n" \
+    "LdUdRudafMu5T5Xma182OC0/u/xRlEm+tvKGGmfFcN0piqVl8OrSPBgIlb+1IKJE\n" \
+    "m/XriWr/Cq4h/JfB7NTsezVslgkBaoU=\n"                                 \
+    "-----END CERTIFICATE-----"
 
 
 /**
@@ -107,14 +134,14 @@
  *
  * #define democonfigMQTT_BROKER_PORT    "...insert here..."
  */
+#define democonfigMQTT_BROKER_PORT    ( 8883 )
 
 
 /**
- * @brief Set the stack size of the main demo task.
+ * @brief The maximum number of times to run the subscribe publish loop in the
+ * demo.
  *
- * In the Windows port, this stack only holds a structure. The actual
- * stack is created by an operating system thread.
+ * #define democonfigMQTT_MAX_DEMO_COUNT    ( insert here )
  */
-#define democonfigDEMO_STACKSIZE    configMINIMAL_STACK_SIZE
 
-#endif /* DEMO_CONFIG_H */
+#endif /* MQTT_DEMO_BASIC_TLS_CONFIG_H */
