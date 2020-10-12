@@ -42,7 +42,7 @@
  * Hence, this demo should not be used as production ready code.
  */
 
-/* demo specific configurations. */
+/* Demo specific configurations. */
 #include "mqtt_demo_keep_alive_config.h"
 
 /* Standard includes. */
@@ -433,7 +433,6 @@ int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
     MQTTContext_t xMQTTContext;
     MQTTStatus_t xMQTTStatus;
     TransportSocketStatus_t xNetworkStatus;
-    BaseType_t xTimerStatus;
     BaseType_t xDemoStatus = pdPASS;
     BaseType_t xIsConnectionEstablished = pdFALSE;
 
@@ -515,12 +514,11 @@ int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
         if( xDemoStatus == pdPASS )
         {
             /* Start the timer for keep-alive. */
-            xTimerStatus = xTimerStart( xKeepAliveTimer, 0 );
+            xDemoStatus = xTimerStart( xKeepAliveTimer, 0 );
 
-            if( xTimerStatus != pdPASS )
+            if( xDemoStatus != pdPASS )
             {
                 LogError( ( "xTimerStart() failed to start KeepAliveTimer." ) );
-                xDemoStatus = pdFAIL;
             }
         }
 
@@ -594,7 +592,7 @@ int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
          * always disconnect an open connection to free up system resources. */
         if( xIsConnectionEstablished == pdTRUE )
         {
-            /* Send an MQTT Disconnect packet over the already connected TCP socket.
+            /* Send an MQTT disconnect packet over the already connected TCP socket.
              * There is no corresponding response for the disconnect packet. After
              * sending the disconnect, the client must close the network connection. */
             LogInfo( ( "Disconnecting the MQTT connection with %s.",
@@ -623,12 +621,11 @@ int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
         }
 
         /* Always stop the keep-alive timer for the next iteration. */
-        xTimerStatus = xTimerStop( xKeepAliveTimer, 0 );
+        xDemoStatus = xTimerStop( xKeepAliveTimer, 0 );
 
-        if( xTimerStatus != pdPASS )
+        if( xDemoStatus != pdPASS )
         {
             LogError( ( "xTimerStart() failed to stop KeepAliveTimer." ) );
-            xDemoStatus = pdFAIL;
         }
 
         /* Check for errors in the keep-alive timer. */
@@ -640,8 +637,8 @@ int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
 
         if( xDemoStatus == pdPASS )
         {
-            /* Reset SUBACK status for each topic filter after completion of
-             * subscription request cycle. */
+            /* Reset the SUBACK status for each topic filter after completion of
+             * the subscription request cycle. */
             for( ulTopicCount = 0; ulTopicCount < mqttexampleTOPIC_COUNT; ulTopicCount++ )
             {
                 xTopicFilterContext[ ulTopicCount ].xSubAckStatus = MQTTSubAckFailure;
