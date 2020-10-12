@@ -202,7 +202,8 @@ static const char _socketDataSend[] = "hello from SJC31";
 
 /* Netwrok registeration callback function. */
 static void prvNetworkRegistrationCallback( CellularUrcEvent_t urcEvent,
-                                            const CellularServiceStatus_t * pServiceStatus )
+                                            const CellularServiceStatus_t * pServiceStatus,
+                                            void * pCallbackContext )
 {
     if( pServiceStatus != NULL )
     {
@@ -219,7 +220,8 @@ static void prvNetworkRegistrationCallback( CellularUrcEvent_t urcEvent,
 
 /* Signal strength changed callback function. */
 static void prvSignalStrengthChangedCallback( CellularUrcEvent_t urcEvent,
-                                              const CellularSignalInfo_t * pSignalInfo )
+                                              const CellularSignalInfo_t * pSignalInfo,
+                                              void * pCallbackContext )
 {
     if( ( pSignalInfo != NULL ) && ( urcEvent == CELLULAR_URC_EVENT_SIGNAL_CHANGED ) )
     {
@@ -273,7 +275,8 @@ static void prvSignalStrengthChangedCallback( CellularUrcEvent_t urcEvent,
 /*-----------------------------------------------------------*/
 
 /* Generic callback function to test Cellular_RegisterUrcGenericCallback API. */
-static void prvGenericCallback( const char * pRawData )
+static void prvGenericCallback( const char * pRawData,
+                                void * pCallbackContext )
 {
     configPRINTF( ( "prvGenericCallback : %s \r\n", pRawData ) );
     _genericUrcCalled = true;
@@ -283,7 +286,8 @@ static void prvGenericCallback( const char * pRawData )
 
 /* PDN event callback function. */
 static void prvPdnEventCallback( CellularUrcEvent_t urcEvent,
-                                 uint8_t contextId )
+                                 uint8_t contextId,
+                                 void * pCallbackContext )
 {
     if( ( urcEvent == CELLULAR_URC_EVENT_PDN_ACTIVATED ) || ( urcEvent == CELLULAR_URC_EVENT_PDN_DEACTIVATED ) )
     {
@@ -354,7 +358,8 @@ static void prvCellularSocketOpenCallback( CellularUrcEvent_t urcEvent,
 /*-----------------------------------------------------------*/
 
 /* Modem event callback function. */
-static void prvCellularModemEventCallback( CellularModemEvent_t modemEvent )
+static void prvCellularModemEventCallback( CellularModemEvent_t modemEvent,
+                                           void * pCallbackContext )
 {
     if( _modemEventGroup != NULL )
     {
@@ -491,11 +496,11 @@ static BaseType_t prvConnectCellular( void )
 
     if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( xResult == pdPASS ) )
     {
-        xCellularStatus = Cellular_RegisterUrcNetworkRegistrationEventCallback( _cellularHandle, &prvNetworkRegistrationCallback );
+        xCellularStatus = Cellular_RegisterUrcNetworkRegistrationEventCallback( _cellularHandle, &prvNetworkRegistrationCallback, NULL );
 
         if( xCellularStatus == CELLULAR_SUCCESS )
         {
-            xCellularStatus = Cellular_RegisterUrcPdnEventCallback( _cellularHandle, &prvPdnEventCallback );
+            xCellularStatus = Cellular_RegisterUrcPdnEventCallback( _cellularHandle, &prvPdnEventCallback, NULL );
         }
 
         if( xCellularStatus == CELLULAR_SUCCESS )
@@ -1034,11 +1039,11 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_Configure )
         TEST_ASSERT( simReady != 0 );
 
         /* Enable Callbacks. */
-        xCellularStatus = Cellular_RegisterUrcSignalStrengthChangedCallback( _cellularHandle, &prvSignalStrengthChangedCallback );
+        xCellularStatus = Cellular_RegisterUrcSignalStrengthChangedCallback( _cellularHandle, &prvSignalStrengthChangedCallback, NULL );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        xCellularStatus = Cellular_RegisterUrcNetworkRegistrationEventCallback( _cellularHandle, &prvNetworkRegistrationCallback );
+        xCellularStatus = Cellular_RegisterUrcNetworkRegistrationEventCallback( _cellularHandle, &prvNetworkRegistrationCallback, NULL );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        xCellularStatus = Cellular_RegisterUrcPdnEventCallback( _cellularHandle, &prvPdnEventCallback );
+        xCellularStatus = Cellular_RegisterUrcPdnEventCallback( _cellularHandle, &prvPdnEventCallback, NULL );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
     }
     else
@@ -1498,7 +1503,7 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_AtCommandRawAndGenericUrc )
     {
         _genericUrcCalled = false;
         xCellularStatus = Cellular_RegisterUrcGenericCallback( _cellularHandle,
-                                                               prvGenericCallback );
+                                                               prvGenericCallback, NULL );
         TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( xCellularStatus == CELLULAR_SUCCESS, xCellularStatus,
                                                "Register URC generic callback failed" );
 
@@ -1519,6 +1524,7 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_AtCommandRawAndGenericUrc )
         TEST_ASSERT_MESSAGE( _genericUrcCalled == true, "Generic URC is not called" );
 
         xCellularStatus = Cellular_RegisterUrcGenericCallback( _cellularHandle,
+                                                               NULL,
                                                                NULL );
         TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( xCellularStatus == CELLULAR_SUCCESS, xCellularStatus,
                                                "Register URC generic callback failed" );
@@ -1648,13 +1654,13 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_UnConfigure )
     if( TEST_PROTECT() )
     {
         /* Remove call backs. */
-        xCellularStatus = Cellular_RegisterUrcSignalStrengthChangedCallback( _cellularHandle, NULL );
+        xCellularStatus = Cellular_RegisterUrcSignalStrengthChangedCallback( _cellularHandle, NULL, NULL );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        xCellularStatus = Cellular_RegisterUrcNetworkRegistrationEventCallback( _cellularHandle, NULL );
+        xCellularStatus = Cellular_RegisterUrcNetworkRegistrationEventCallback( _cellularHandle, NULL, NULL );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        xCellularStatus = Cellular_RegisterUrcPdnEventCallback( _cellularHandle, NULL );
+        xCellularStatus = Cellular_RegisterUrcPdnEventCallback( _cellularHandle, NULL, NULL );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        xCellularStatus = Cellular_RegisterModemEventCallback( _cellularHandle, NULL );
+        xCellularStatus = Cellular_RegisterModemEventCallback( _cellularHandle, NULL, NULL );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
 
         /* Clean up. */
@@ -2325,7 +2331,7 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_PsmStatus )
         xEventGroupClearBits( _modemEventGroup,
                               MODEM_EVENT_BOOTUP_OR_REBOOT_BIT | MODEM_EVENT_POWERED_DOWN_BIT | MODEM_EVENT_PSM_ENTER_BIT );
 
-        xCellularStatus = Cellular_RegisterModemEventCallback( _cellularHandle, prvCellularModemEventCallback );
+        xCellularStatus = Cellular_RegisterModemEventCallback( _cellularHandle, prvCellularModemEventCallback, NULL );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
 
         /* Disabling the PSM mode if ON. */

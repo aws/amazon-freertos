@@ -295,12 +295,14 @@ CellularError_t Cellular_SetDns( CellularHandle_t cellularHandle,
  * @param[in] cellularHandle The opaque cellular context pointer created by Cellular_Init.
  * @param[in] networkRegistrationCallback The callback to register. Set to NULL
  * to remove the existing callback.
+ * @param[in] pCallbackContext The context to be passed to callback function.
  *
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
 CellularError_t Cellular_RegisterUrcNetworkRegistrationEventCallback( CellularHandle_t cellularHandle,
-                                                                      CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback );
+                                                                      CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback,
+                                                                      void * pCallbackContext );
 
 /**
  * @brief Register/Remove callback for PDN related URC events.
@@ -308,12 +310,14 @@ CellularError_t Cellular_RegisterUrcNetworkRegistrationEventCallback( CellularHa
  * @param[in] cellularHandle The opaque cellular context pointer created by Cellular_Init.
  * @param[in] pdnEventCallback The callback to register. Set to NULL remove the
  * existing callback.
+ * @param[in] pCallbackContext The context to be passed to callback function.
  *
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
 CellularError_t Cellular_RegisterUrcPdnEventCallback( CellularHandle_t cellularHandle,
-                                                      CellularUrcPdnEventCallback_t pdnEventCallback );
+                                                      CellularUrcPdnEventCallback_t pdnEventCallback,
+                                                      void * pCallbackContext );
 
 /**
  * @brief Register callback for Signal Strength changed URC events.
@@ -321,12 +325,14 @@ CellularError_t Cellular_RegisterUrcPdnEventCallback( CellularHandle_t cellularH
  * @param[in] cellularHandle The opaque cellular context pointer created by Cellular_Init.
  * @param[in] signalStrengthChangedCallback The callback to register. Set to
  * NULL to remove the existing callback.
+ * @param[in] pCallbackContext The context to be passed to callback function.
  *
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
 CellularError_t Cellular_RegisterUrcSignalStrengthChangedCallback( CellularHandle_t cellularHandle,
-                                                                   CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback );
+                                                                   CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback,
+                                                                   void * pCallbackContext );
 
 /**
  * @brief Register callback for all modem related events.
@@ -334,12 +340,14 @@ CellularError_t Cellular_RegisterUrcSignalStrengthChangedCallback( CellularHandl
  * @param[in] cellularHandle The opaque cellular context pointer created by Cellular_Init.
  * @param[in] modemEventCallback The callback to register. Set to NULL to remove
  * the existing callback.
+ * @param[in] pCallbackContext The context to be passed to callback function.
  *
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
 CellularError_t Cellular_RegisterModemEventCallback( CellularHandle_t cellularHandle,
-                                                     CellularModemEventCallback_t modemEventCallback );
+                                                     CellularModemEventCallback_t modemEventCallback,
+                                                     void * pCallbackContext );
 
 /**
  * @brief Register generic callback for all other URC events than covered in
@@ -348,12 +356,14 @@ CellularError_t Cellular_RegisterModemEventCallback( CellularHandle_t cellularHa
  * @param[in] cellularHandle The opaque cellular context pointer created by Cellular_Init.
  * @param[in] genericCallback The callback to register. Set to NULL to remove
  * the existing callback.
+ * @param[in] pCallbackContext The context to be passed to callback function.
  *
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
 CellularError_t Cellular_RegisterUrcGenericCallback( CellularHandle_t cellularHandle,
-                                                     CellularUrcGenericCallback_t genericCallback );
+                                                     CellularUrcGenericCallback_t genericCallback,
+                                                     void * pCallbackContext );
 
 /**
  * @brief Get current PSM settings.

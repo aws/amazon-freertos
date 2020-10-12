@@ -183,7 +183,8 @@ CellularError_t Cellular_CommonCleanup( CellularHandle_t cellularHandle )
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonRegisterUrcNetworkRegistrationEventCallback( CellularHandle_t cellularHandle,
-                                                                            CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback )
+                                                                            CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback,
+                                                                            void * pCallbackContext )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
@@ -198,6 +199,7 @@ CellularError_t Cellular_CommonRegisterUrcNetworkRegistrationEventCallback( Cell
     else
     {
         pContext->cbEvents.networkRegistrationCallback = networkRegistrationCallback;
+        pContext->cbEvents.pNetworkRegistrationCallbackContext = pCallbackContext;
     }
 
     return cellularStatus;
@@ -206,7 +208,8 @@ CellularError_t Cellular_CommonRegisterUrcNetworkRegistrationEventCallback( Cell
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonRegisterUrcPdnEventCallback( CellularHandle_t cellularHandle,
-                                                            CellularUrcPdnEventCallback_t pdnEventCallback )
+                                                            CellularUrcPdnEventCallback_t pdnEventCallback,
+                                                            void * pCallbackContext )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
@@ -221,6 +224,7 @@ CellularError_t Cellular_CommonRegisterUrcPdnEventCallback( CellularHandle_t cel
     else
     {
         pContext->cbEvents.pdnEventCallback = pdnEventCallback;
+        pContext->cbEvents.pPdnEventCallbackContext = pCallbackContext;
     }
 
     return cellularStatus;
@@ -229,7 +233,8 @@ CellularError_t Cellular_CommonRegisterUrcPdnEventCallback( CellularHandle_t cel
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonRegisterUrcSignalStrengthChangedCallback( CellularHandle_t cellularHandle,
-                                                                         CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback )
+                                                                         CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback,
+                                                                         void * pCallbackContext )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
@@ -244,6 +249,7 @@ CellularError_t Cellular_CommonRegisterUrcSignalStrengthChangedCallback( Cellula
     else
     {
         pContext->cbEvents.signalStrengthChangedCallback = signalStrengthChangedCallback;
+        pContext->cbEvents.pSignalStrengthChangedCallbackContext = pCallbackContext;
     }
 
     return cellularStatus;
@@ -252,7 +258,8 @@ CellularError_t Cellular_CommonRegisterUrcSignalStrengthChangedCallback( Cellula
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonRegisterUrcGenericCallback( CellularHandle_t cellularHandle,
-                                                           CellularUrcGenericCallback_t genericCallback )
+                                                           CellularUrcGenericCallback_t genericCallback,
+                                                           void * pCallbackContext )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
@@ -267,6 +274,7 @@ CellularError_t Cellular_CommonRegisterUrcGenericCallback( CellularHandle_t cell
     else
     {
         pContext->cbEvents.genericCallback = genericCallback;
+        pContext->cbEvents.pGenericCallbackContext = pCallbackContext;
     }
 
     return cellularStatus;
@@ -275,7 +283,8 @@ CellularError_t Cellular_CommonRegisterUrcGenericCallback( CellularHandle_t cell
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonRegisterModemEventCallback( CellularHandle_t cellularHandle,
-                                                           CellularModemEventCallback_t modemEventCallback )
+                                                           CellularModemEventCallback_t modemEventCallback,
+                                                           void * pCallbackContext )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
@@ -290,6 +299,7 @@ CellularError_t Cellular_CommonRegisterModemEventCallback( CellularHandle_t cell
     else
     {
         pContext->cbEvents.modemEventCallback = modemEventCallback;
+        pContext->cbEvents.pModemEventCallbackContext = pCallbackContext;
     }
 
     return cellularStatus;

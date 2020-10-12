@@ -54,10 +54,15 @@ typedef enum CellularNetworkRegType
 typedef struct _callbackEvents
 {
     CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback;
+    void * pNetworkRegistrationCallbackContext;
     CellularUrcPdnEventCallback_t pdnEventCallback;
+    void * pPdnEventCallbackContext;
     CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback;
+    void * pSignalStrengthChangedCallbackContext;
     CellularUrcGenericCallback_t genericCallback;
+    void * pGenericCallbackContext;
     CellularModemEventCallback_t modemEventCallback;
+    void * pModemEventCallbackContext;
 } _callbackEvents_t;
 
 /**

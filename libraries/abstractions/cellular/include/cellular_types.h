@@ -656,41 +656,56 @@ typedef CellularPktStatus_t ( * CellularATCommandResponseReceivedCallback_t ) ( 
  *
  * @param[in] urcEvent URC Event that happened.
  * @param[in] pServiceStatus The status of the network service.
+ * @param[in] pCallbackContext pCallbackContext parameter in
+ * Cellular_RegisterUrcNetworkRegistrationEventCallback function.
  */
 typedef void ( * CellularUrcNetworkRegistrationCallback_t )( CellularUrcEvent_t urcEvent,
-                                                             const CellularServiceStatus_t * pServiceStatus );
+                                                             const CellularServiceStatus_t * pServiceStatus,
+                                                             void * pCallbackContext );
 
 /**
  * @brief Callback used to inform about PDN URC events.
  *
  * @param[in] urcEvent URC Event that happened.
  * @param[in] contextId Context ID of the PDN context
+ * @param[in] pCallbackContext pCallbackContext parameter in
+ * Cellular_RegisterUrcPdnEventCallback function.
  */
 typedef void ( * CellularUrcPdnEventCallback_t )( CellularUrcEvent_t urcEvent,
-                                                  uint8_t contextId );
+                                                  uint8_t contextId,
+                                                  void * pCallbackContext );
 
 /**
  * @brief Callback used to inform about signal strength changed URC event.
  *
  * @param[in] urcEvent URC Event that happened.
  * @param[in] pSignalInfo The new signal information.
+ * @param[in] pCallbackContext pCallbackContext parameter in
+ * Cellular_RegisterUrcSignalStrengthChangedCallback function.
  */
 typedef void ( * CellularUrcSignalStrengthChangedCallback_t )( CellularUrcEvent_t urcEvent,
-                                                               const CellularSignalInfo_t * pSignalInfo );
+                                                               const CellularSignalInfo_t * pSignalInfo,
+                                                               void * pCallbackContext );
 
 /**
  * @brief Generic callback used to inform all other URC events.
  *
  * @param[in] pRawData Raw data received in the URC event.
+ * @param[in] pCallbackContext pCallbackContext parameter in
+ * Cellular_RegisterUrcGenericCallback function.
  */
-typedef void ( * CellularUrcGenericCallback_t )( const char * pRawData );
+typedef void ( * CellularUrcGenericCallback_t )( const char * pRawData,
+                                                 void * pCallbackContext );
 
 /**
  * @brief Callback used to inform about modem events.
  *
  * @param[in] modemEvent The modem event.
+ * @param[in] pCallbackContext pCallbackContext parameter in
+ * Cellular_RegisterModemEventCallback function.
  */
-typedef void ( * CellularModemEventCallback_t )( CellularModemEvent_t modemEvent );
+typedef void ( * CellularModemEventCallback_t )( CellularModemEvent_t modemEvent,
+                                                 void * pCallbackContext );
 
 /**
  * @brief Callback used to inform about the status of socket open.

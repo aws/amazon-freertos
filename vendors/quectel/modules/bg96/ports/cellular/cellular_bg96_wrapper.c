@@ -61,9 +61,10 @@ CellularError_t Cellular_Cleanup( CellularHandle_t cellularHandle )
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_RegisterUrcNetworkRegistrationEventCallback( CellularHandle_t cellularHandle,
-                                                                      CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback )
+                                                                      CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback,
+                                                                      void * pCallbackContext )
 {
-    return Cellular_CommonRegisterUrcNetworkRegistrationEventCallback( cellularHandle, networkRegistrationCallback );
+    return Cellular_CommonRegisterUrcNetworkRegistrationEventCallback( cellularHandle, networkRegistrationCallback, pCallbackContext );
 }
 
 /*-----------------------------------------------------------*/
@@ -71,9 +72,10 @@ CellularError_t Cellular_RegisterUrcNetworkRegistrationEventCallback( CellularHa
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_RegisterUrcPdnEventCallback( CellularHandle_t cellularHandle,
-                                                      CellularUrcPdnEventCallback_t pdnEventCallback )
+                                                      CellularUrcPdnEventCallback_t pdnEventCallback,
+                                                      void * pCallbackContext )
 {
-    return Cellular_CommonRegisterUrcPdnEventCallback( cellularHandle, pdnEventCallback );
+    return Cellular_CommonRegisterUrcPdnEventCallback( cellularHandle, pdnEventCallback, pCallbackContext );
 }
 
 /*-----------------------------------------------------------*/
@@ -81,9 +83,10 @@ CellularError_t Cellular_RegisterUrcPdnEventCallback( CellularHandle_t cellularH
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_RegisterUrcGenericCallback( CellularHandle_t cellularHandle,
-                                                     CellularUrcGenericCallback_t genericCallback )
+                                                     CellularUrcGenericCallback_t genericCallback,
+                                                     void * pCallbackContext )
 {
-    return Cellular_CommonRegisterUrcGenericCallback( cellularHandle, genericCallback );
+    return Cellular_CommonRegisterUrcGenericCallback( cellularHandle, genericCallback, pCallbackContext );
 }
 
 /*-----------------------------------------------------------*/
@@ -91,9 +94,10 @@ CellularError_t Cellular_RegisterUrcGenericCallback( CellularHandle_t cellularHa
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_RegisterModemEventCallback( CellularHandle_t cellularHandle,
-                                                     CellularModemEventCallback_t modemEventCallback )
+                                                     CellularModemEventCallback_t modemEventCallback,
+                                                     void * pCallbackContext )
 {
-    return Cellular_CommonRegisterModemEventCallback( cellularHandle, modemEventCallback );
+    return Cellular_CommonRegisterModemEventCallback( cellularHandle, modemEventCallback, pCallbackContext );
 }
 
 /*-----------------------------------------------------------*/

@@ -49,35 +49,40 @@ CellularError_t Cellular_CommonCleanup( CellularHandle_t cellularHandle );
  * Reference Cellular_RegisterUrcNetworkRegistrationEventCallback in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonRegisterUrcNetworkRegistrationEventCallback( CellularHandle_t cellularHandle,
-                                                                            CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback );
+                                                                            CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback,
+                                                                            void * pCallbackContext );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_RegisterUrcPdnEventCallback in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonRegisterUrcPdnEventCallback( CellularHandle_t cellularHandle,
-                                                            CellularUrcPdnEventCallback_t pdnEventCallback );
+                                                            CellularUrcPdnEventCallback_t pdnEventCallback,
+                                                            void * pCallbackContext );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_RegisterUrcSignalStrengthChangedCallback in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonRegisterUrcSignalStrengthChangedCallback( CellularHandle_t cellularHandle,
-                                                                         CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback );
+                                                                         CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback,
+                                                                         void * pCallbackContext );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_RegisterUrcGenericCallback in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonRegisterUrcGenericCallback( CellularHandle_t cellularHandle,
-                                                           CellularUrcGenericCallback_t genericCallback );
+                                                           CellularUrcGenericCallback_t genericCallback,
+                                                           void * pCallbackContext );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_RegisterModemEventCallback in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonRegisterModemEventCallback( CellularHandle_t cellularHandle,
-                                                           CellularModemEventCallback_t modemEventCallback );
+                                                           CellularModemEventCallback_t modemEventCallback,
+                                                           void * pCallbackContext );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
