@@ -187,7 +187,10 @@ void test_SecureSocketsTransport_Connect_Insufficient_Memory( void )
 {
     TransportSocketStatus_t returnStatus;
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_INVALID_SOCKET );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    SOCKETS_INVALID_SOCKET );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
@@ -205,7 +208,10 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SetRequireTLS( void
 {
     TransportSocketStatus_t returnStatus;
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
@@ -235,7 +241,10 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_AlpnProtos( void )
         .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -266,7 +275,10 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SNI( void )
         .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -297,7 +309,10 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
         .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -328,7 +343,10 @@ void test_SecureSocketsTransport_Connect_Dns_Failure( void )
         .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( 0 );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
@@ -358,7 +376,10 @@ void test_SecureSocketsTransport_Connect_Fail_to_Connect( void )
         .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -389,7 +410,10 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Recv( void )
         .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -422,7 +446,10 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Send( void )
         .recvTimeoutMs     = 0XFFFFFFFF
     };
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
@@ -453,7 +480,10 @@ void test_SecureSocketsTransport_Connect_Succeeds_without_TLS( void )
         .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -485,7 +515,10 @@ void test_SecureSocketsTransport_Connect_Succeeds_Set_Timeout_Zero( void )
         .recvTimeoutMs     = 0
     };
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -516,7 +549,10 @@ void test_SecureSocketsTransport_Connect_Succeeds_with_TLS( void )
         .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -552,7 +588,10 @@ void test_SecureSocketsTransport_Connect_Credentials_NotSet( void )
         .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
-    SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
