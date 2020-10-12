@@ -1,12 +1,4 @@
-afr_module()
-
-afr_set_lib_metadata(ID "mqtt")
-afr_set_lib_metadata(DESCRIPTION "This library implements the MQTT protocol that enables \
-communication with AWS IoT. MQTT is an ISO standard publish-subscribe-based messaging protocol.")
-afr_set_lib_metadata(DISPLAY_NAME "MQTT")
-afr_set_lib_metadata(CATEGORY "Connectivity")
-afr_set_lib_metadata(VERSION "1.0.0")
-afr_set_lib_metadata(IS_VISIBLE "true")
+afr_module(INTERNAL)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
