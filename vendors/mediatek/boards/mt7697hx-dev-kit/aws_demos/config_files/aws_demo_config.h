@@ -51,22 +51,25 @@
 #define CONFIG_MQTT_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
-#define democonfigDEMO_STACKSIZE                          ( configMINIMAL_STACK_SIZE * 8 )
-#define democonfigDEMO_PRIORITY                           ( tskIDLE_PRIORITY + 5 )
-#define democonfigNETWORK_TYPES                           ( AWSIOT_NETWORK_TYPE_WIFI )
+#define democonfigDEMO_STACKSIZE                                     ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigDEMO_PRIORITY                                      ( tskIDLE_PRIORITY + 5 )
+#define democonfigNETWORK_TYPES                                      ( AWSIOT_NETWORK_TYPE_WIFI )
 
 
-#define democonfigSHADOW_DEMO_NUM_TASKS                   ( 2 )
-#define democonfigSHADOW_DEMO_TASK_STACK_SIZE             ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigSHADOW_DEMO_TASK_PRIORITY               ( tskIDLE_PRIORITY + 1 )
-#define shadowDemoUPDATE_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 5 )
+#define democonfigSHADOW_DEMO_NUM_TASKS                              ( 2 )
+#define democonfigSHADOW_DEMO_TASK_STACK_SIZE                        ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigSHADOW_DEMO_TASK_PRIORITY                          ( tskIDLE_PRIORITY + 1 )
+#define shadowDemoUPDATE_TASK_STACK_SIZE                             ( configMINIMAL_STACK_SIZE * 5 )
 
-#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT       pdMS_TO_TICKS( 12000 )
-#define democonfigMQTT_ECHO_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
+#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT                  pdMS_TO_TICKS( 12000 )
+#define democonfigMQTT_ECHO_TASK_PRIORITY                            ( tskIDLE_PRIORITY )
 
 /* Greengrass discovery example task parameters. */
-#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 8 )
-#define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY      ( tskIDLE_PRIORITY )
+#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
+
+/* MQTT Connection sharing demo task priority. */
+#define democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
 
 
 /* Timeout used when performing MQTT operations that do not need extra time
