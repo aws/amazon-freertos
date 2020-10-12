@@ -169,9 +169,6 @@ void test_SecureSocketsTransport_Connect_Invalid_Params( void )
 
     invalidServerInfo.hostNameLength = strlen( hostNameBuffer );
 
-    SOCKETS_Close_ExpectAndReturn( SOCKETS_INVALID_SOCKET,
-                                   SOCKETS_ERROR_NONE );
-
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &invalidServerInfo,
                                                    &socketsConfig );
@@ -192,8 +189,6 @@ void test_SecureSocketsTransport_Connect_Insufficient_Memory( void )
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     SOCKETS_INVALID_SOCKET );
-    SOCKETS_Close_ExpectAndReturn( SOCKETS_INVALID_SOCKET,
-                                   SOCKETS_SOCKET_ERROR );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &socketsConfig );

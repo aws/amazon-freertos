@@ -458,7 +458,10 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     else
     {
         /* Clean up socket on failure. */
-        ( void ) SOCKETS_Close( tcpSocket );
+        if( tcpSocket != ( Socket_t ) SOCKETS_INVALID_SOCKET )
+        {
+            ( void ) SOCKETS_Close( tcpSocket );
+        }
     }
 
     return returnStatus;
