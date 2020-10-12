@@ -167,17 +167,17 @@
 /**
  * @brief The size of #THING_NAME.
  */
-#define THING_NAME_LENGTH                   ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
+#define THING_NAME_LENGTH             ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
 
 /**
  * @brief The Shadow document used for update topic desired tests.
  */
-#define TEST_SHADOW_DESIRED                 "{\"state\": {\"desired\": {\"key\": true}}, \"clientToken\":\"shadowSystemTest\"}"
+#define TEST_SHADOW_DESIRED           "{\"state\": {\"desired\": {\"key\": true}}, \"clientToken\":\"shadowSystemTest\"}"
 
 /**
  * @brief The length of #TEST_SHADOW_DESIRED.
  */
-#define TEST_SHADOW_DESIRED_LENGTH          ( sizeof( TEST_SHADOW_DESIRED ) - 1 )
+#define TEST_SHADOW_DESIRED_LENGTH    ( sizeof( TEST_SHADOW_DESIRED ) - 1 )
 
 /*-----------------------------------------------------------*/
 
