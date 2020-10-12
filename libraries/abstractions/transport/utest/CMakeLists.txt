@@ -10,17 +10,6 @@ set(project_name "transport_secure_sockets")
 list(APPEND mock_list
             "${abstraction_dir}/secure_sockets/include/iot_secure_sockets.h"
         )
-# list the directories your mocks need
-list(APPEND mock_include_list
-            "${CMAKE_CURRENT_LIST_DIR}/include"
-        )
-#list the definitions of your mocks to control what to be included
-list(APPEND mock_define_list
-            LWIP_COMPAT_SOCKETS=1
-            portHAS_STACK_OVERFLOW_CHECKING=1
-            portUSING_MPU_WRAPPERS=1
-            MPU_WRAPPERS_INCLUDED_FROM_API_FILE
-       )
 
 # ================= Create the library under test here (edit) ==================
 
@@ -31,6 +20,7 @@ include( ${AFR_ROOT_DIR}/libraries/abstractions/transport/transport_interface.cm
 list(APPEND real_source_files
             "${AFR_ROOT_DIR}/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c"
         )
+
 # list the directories the module under test includes
 list(APPEND real_include_directories
             .
@@ -58,8 +48,8 @@ set(real_name "${project_name}_real")
 create_mock_list(${mock_name}
             "${mock_list}"
             "${CMAKE_CURRENT_LIST_DIR}/project.yml"
-            "${mock_include_list}"
-            "${mock_define_list}"
+            ""
+            ""
         )
 
 create_real_library(${real_name}
