@@ -8,7 +8,7 @@ set(project_name "transport_secure_sockets")
 
 # list the files to mock here
 list(APPEND mock_list
-            "${abstraction_dir}/secure_sockets/include/iot_secure_sockets.h"
+            "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include/iot_secure_sockets.h"
         )
 
 # ================= Create the library under test here (edit) ==================
@@ -18,16 +18,16 @@ include( ${AFR_MODULES_ABSTRACTIONS_DIR}/transport/transport_interface.cmake )
 
 # list the files you would like to test here
 list(APPEND real_source_files
-            "${AFR_ROOT_DIR}/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c"
+            "${AFR_MODULES_ABSTRACTIONS_DIR}/transport/secure_sockets/transport_secure_sockets.c"
         )
 
 # list the directories the module under test includes
 list(APPEND real_include_directories
             .
             "${transport_interface_dir}"
-            "${AFR_ROOT_DIR}/libraries/abstractions/transport/secure_sockets"
-            "${AFR_ROOT_DIR}/libraries/abstractions/secure_sockets/include"
-            "${AFR_ROOT_DIR}/tests/unit_test/linux/logging-stack"
+            "${AFR_MODULES_ABSTRACTIONS_DIR}/transport/secure_sockets"
+            "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
+            "${AFR_TESTS_DIR}/unit_test/linux/logging-stack"
         )
 
 # =====================  Create UnitTest Code here (edit)  =====================
@@ -35,9 +35,9 @@ list(APPEND real_include_directories
 # list the directories your test needs to include
 list(APPEND test_include_directories
             "${transport_interface_dir}"
-            "${AFR_ROOT_DIR}/libraries/abstractions/transport/secure_sockets"
-            "${AFR_ROOT_DIR}/libraries/abstractions/secure_sockets/include"
-            "${AFR_ROOT_DIR}/tests/unit_test/linux/logging-stack"
+            "${AFR_MODULES_ABSTRACTIONS_DIR}/transport/secure_sockets"
+            "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
+            "${AFR_TESTS_DIR}/unit_test/linux/logging-stack"
         )
 
 # =============================  (end edit)  ===================================
