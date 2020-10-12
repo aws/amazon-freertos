@@ -169,7 +169,8 @@ void test_SecureSocketsTransport_Connect_Invalid_Params( void )
 
     invalidServerInfo.hostNameLength = strlen( hostNameBuffer );
 
-    SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Close_ExpectAndReturn( SOCKETS_INVALID_SOCKET,
+                                   SOCKETS_ERROR_NONE );
 
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &invalidServerInfo,
@@ -191,7 +192,8 @@ void test_SecureSocketsTransport_Connect_Insufficient_Memory( void )
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     SOCKETS_INVALID_SOCKET );
-    SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Close_ExpectAndReturn( SOCKETS_INVALID_SOCKET,
+                                   SOCKETS_SOCKET_ERROR );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &socketsConfig );
@@ -212,8 +214,16 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SetRequireTLS( void
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     mockTcpSocket );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
-    SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_REQUIRE_TLS,
+                                        NULL,
+                                        0,
+                                        MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_Close_ExpectAndReturn( mockTcpSocket,
+                                   SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &socketsConfig );
@@ -245,9 +255,24 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_AlpnProtos( void )
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     mockTcpSocket );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
-    SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_REQUIRE_TLS,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_ALPN_PROTOCOLS,
+                                        NULL,
+                                        0,
+                                        MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_Close_ExpectAndReturn( mockTcpSocket,
+                                   SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
@@ -279,9 +304,24 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SNI( void )
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     mockTcpSocket );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
-    SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_REQUIRE_TLS,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_SERVER_NAME_INDICATION,
+                                        NULL,
+                                        0,
+                                        MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_Close_ExpectAndReturn( mockTcpSocket,
+                                   SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
@@ -313,9 +353,24 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     mockTcpSocket );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
-    SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_REQUIRE_TLS,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE,
+                                        NULL,
+                                        0,
+                                        MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_Close_ExpectAndReturn( mockTcpSocket,
+                                   SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
@@ -347,8 +402,10 @@ void test_SecureSocketsTransport_Connect_Dns_Failure( void )
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     mockTcpSocket );
-    SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( 0 );
-    SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_GetHostByName_ExpectAndReturn( HOSTNAME,
+                                           0 );
+    SOCKETS_Close_ExpectAndReturn( mockTcpSocket,
+                                   SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
@@ -380,49 +437,19 @@ void test_SecureSocketsTransport_Connect_Fail_to_Connect( void )
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     mockTcpSocket );
-    SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
-    SOCKETS_Connect_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
-    SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_GetHostByName_ExpectAndReturn( HOSTNAME,
+                                           MOCK_SERVER_ADDRESS );
+    SOCKETS_Connect_ExpectAndReturn( mockTcpSocket,
+                                     NULL,
+                                     sizeof( SocketsSockaddr_t ),
+                                     MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_Connect_IgnoreArg_pxAddress();
+    SOCKETS_Close_ExpectAndReturn( mockTcpSocket,
+                                   SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE, returnStatus );
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Test that #SecureSocketsTransport_Connect fails to set the socket
- * receive timeout, and verify the error code.
- */
-void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Recv( void )
-{
-    TransportSocketStatus_t returnStatus;
-    SocketsConfig_t localSocketsConfig =
-    {
-        .enableTls         = false,
-        .pAlpnProtos       = NULL,
-        .maxFragmentLength = MFLN,
-        .disableSni        = true,
-        .pRootCa           = NULL,
-        .rootCaSize        = 0,
-        .sendTimeoutMs     = 0XFFFFFFFF,
-        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
-    };
-
-    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
-                                    SOCKETS_SOCK_STREAM,
-                                    SOCKETS_IPPROTO_TCP,
-                                    mockTcpSocket );
-    SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
-    SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
-    SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    returnStatus = SecureSocketsTransport_Connect( &networkContext,
-                                                   &serverInfo,
-                                                   &localSocketsConfig );
-    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR, returnStatus );
 }
 
 /*-----------------------------------------------------------*/
@@ -442,6 +469,62 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Send( void )
         .disableSni        = true,
         .pRootCa           = NULL,
         .rootCaSize        = 0,
+        .sendTimeoutMs     = 0XFFFFFFFF,
+        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
+    };
+
+    SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                    SOCKETS_SOCK_STREAM,
+                                    SOCKETS_IPPROTO_TCP,
+                                    mockTcpSocket );
+    SOCKETS_GetHostByName_ExpectAndReturn( HOSTNAME,
+                                           MOCK_SERVER_ADDRESS );
+    SOCKETS_Connect_ExpectAndReturn( mockTcpSocket,
+                                     NULL,
+                                     sizeof( SocketsSockaddr_t ),
+                                     SOCKETS_ERROR_NONE );
+    SOCKETS_Connect_IgnoreArg_pxAddress();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_RCVTIMEO,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_SNDTIMEO,
+                                        NULL,
+                                        0,
+                                        MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_Close_ExpectAndReturn( mockTcpSocket,
+                                   SOCKETS_ERROR_NONE );
+    returnStatus = SecureSocketsTransport_Connect( &networkContext,
+                                                   &serverInfo,
+                                                   &localSocketsConfig );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR, returnStatus );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test that #SecureSocketsTransport_Connect fails to set the socket
+ * recv timeout, and verify the error code.
+ */
+void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Recv( void )
+{
+    TransportSocketStatus_t returnStatus;
+    SocketsConfig_t localSocketsConfig =
+    {
+        .enableTls         = false,
+        .pAlpnProtos       = NULL,
+        .maxFragmentLength = MFLN,
+        .disableSni        = true,
+        .pRootCa           = NULL,
+        .rootCaSize        = 0,
         .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
         .recvTimeoutMs     = 0XFFFFFFFF
     };
@@ -450,10 +533,23 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Send( void )
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     mockTcpSocket );
-    SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
-    SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
-    SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_GetHostByName_ExpectAndReturn( HOSTNAME,
+                                           MOCK_SERVER_ADDRESS );
+    SOCKETS_Connect_ExpectAndReturn( mockTcpSocket,
+                                     NULL,
+                                     sizeof( SocketsSockaddr_t ),
+                                     SOCKETS_ERROR_NONE );
+    SOCKETS_Connect_IgnoreArg_pxAddress();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_RCVTIMEO,
+                                        NULL,
+                                        0,
+                                        MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_Close_ExpectAndReturn( mockTcpSocket,
+                                   SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
@@ -484,10 +580,29 @@ void test_SecureSocketsTransport_Connect_Succeeds_without_TLS( void )
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     mockTcpSocket );
-    SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
-    SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_GetHostByName_ExpectAndReturn( HOSTNAME,
+                                           MOCK_SERVER_ADDRESS );
+    SOCKETS_Connect_ExpectAndReturn( mockTcpSocket,
+                                     NULL,
+                                     sizeof( SocketsSockaddr_t ),
+                                     SOCKETS_ERROR_NONE );
+    SOCKETS_Connect_IgnoreArg_pxAddress();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_RCVTIMEO,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_SNDTIMEO,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
@@ -519,10 +634,29 @@ void test_SecureSocketsTransport_Connect_Succeeds_Set_Timeout_Zero( void )
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     mockTcpSocket );
-    SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
-    SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_GetHostByName_ExpectAndReturn( HOSTNAME,
+                                           MOCK_SERVER_ADDRESS );
+    SOCKETS_Connect_ExpectAndReturn( mockTcpSocket,
+                                     NULL,
+                                     sizeof( SocketsSockaddr_t ),
+                                     SOCKETS_ERROR_NONE );
+    SOCKETS_Connect_IgnoreArg_pxAddress();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_RCVTIMEO,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_SNDTIMEO,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
@@ -553,14 +687,61 @@ void test_SecureSocketsTransport_Connect_Succeeds_with_TLS( void )
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     mockTcpSocket );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
-    SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_REQUIRE_TLS,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_ALPN_PROTOCOLS,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_SERVER_NAME_INDICATION,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_GetHostByName_ExpectAndReturn( HOSTNAME,
+                                           MOCK_SERVER_ADDRESS );
+    SOCKETS_Connect_ExpectAndReturn( mockTcpSocket,
+                                     NULL,
+                                     sizeof( SocketsSockaddr_t ),
+                                     SOCKETS_ERROR_NONE );
+    SOCKETS_Connect_IgnoreArg_pxAddress();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_RCVTIMEO,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_SNDTIMEO,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
@@ -592,11 +773,37 @@ void test_SecureSocketsTransport_Connect_Credentials_NotSet( void )
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP,
                                     mockTcpSocket );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
-    SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_REQUIRE_TLS,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_GetHostByName_ExpectAndReturn( HOSTNAME,
+                                           MOCK_SERVER_ADDRESS );
+    SOCKETS_Connect_ExpectAndReturn( mockTcpSocket,
+                                     NULL,
+                                     sizeof( SocketsSockaddr_t ),
+                                     SOCKETS_ERROR_NONE );
+    SOCKETS_Connect_IgnoreArg_pxAddress();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_RCVTIMEO,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_SNDTIMEO,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
@@ -626,7 +833,7 @@ void test_SecureSocketsTransport_Disconnect_Fail_to_ShutDown( void )
 {
     TransportSocketStatus_t returnStatus;
 
-    SOCKETS_Shutdown_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_Shutdown_ExpectAndReturn( mockTcpSocket, SOCKETS_SHUT_RDWR, MOCK_SECURE_SOCKET_ERROR );
     returnStatus = SecureSocketsTransport_Disconnect( &networkContext );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR, returnStatus );
 }
@@ -641,8 +848,8 @@ void test_SecureSocketsTransport_Disconnect_Fail_to_Close( void )
 {
     TransportSocketStatus_t returnStatus;
 
-    SOCKETS_Shutdown_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_Close_ExpectAnyArgsAndReturn( MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_Shutdown_ExpectAndReturn( mockTcpSocket, SOCKETS_SHUT_RDWR, SOCKETS_ERROR_NONE );
+    SOCKETS_Close_ExpectAndReturn( mockTcpSocket, MOCK_SECURE_SOCKET_ERROR );
     returnStatus = SecureSocketsTransport_Disconnect( &networkContext );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR, returnStatus );
 }
@@ -656,8 +863,8 @@ void test_SecureSocketsTransport_Disconnect_Sucess( void )
 {
     TransportSocketStatus_t returnStatus;
 
-    SOCKETS_Shutdown_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
-    SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
+    SOCKETS_Shutdown_ExpectAndReturn( mockTcpSocket, SOCKETS_SHUT_RDWR, SOCKETS_ERROR_NONE );
+    SOCKETS_Close_ExpectAndReturn( mockTcpSocket, SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Disconnect( &networkContext );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, returnStatus );
 }
@@ -696,9 +903,10 @@ void test_SecureSocketsTransport_Send_Invalid_Params( void )
  */
 void test_SecureSocketsTransport_Send_Network_Error( void )
 {
-    int32_t bytesSent;
+    int32_t bytesSent = 0;
 
-    SOCKETS_Send_ExpectAnyArgsAndReturn( SECURE_SOCKETS_READ_WRITE_ERROR );
+    networkContext.tcpSocket = mockTcpSocket;
+    SOCKETS_Send_ExpectAndReturn( networkContext.tcpSocket, networkBuffer, BYTES_TO_SEND, 0, SECURE_SOCKETS_READ_WRITE_ERROR );
     bytesSent = SecureSocketsTransport_Send( &networkContext, networkBuffer, BYTES_TO_SEND );
     TEST_ASSERT_EQUAL( SECURE_SOCKETS_READ_WRITE_ERROR, bytesSent );
 }
@@ -711,9 +919,10 @@ void test_SecureSocketsTransport_Send_Network_Error( void )
  */
 void test_SecureSocketsTransport_Send_All_Bytes_Sent_Successfully( void )
 {
-    int32_t bytesSent;
+    int32_t bytesSent = 0;
 
-    SOCKETS_Send_ExpectAnyArgsAndReturn( BYTES_TO_SEND );
+    networkContext.tcpSocket = mockTcpSocket;
+    SOCKETS_Send_ExpectAndReturn( networkContext.tcpSocket, networkBuffer, BYTES_TO_SEND, 0, BYTES_TO_SEND );
     bytesSent = SecureSocketsTransport_Send( &networkContext, networkBuffer, BYTES_TO_SEND );
     TEST_ASSERT_EQUAL( BYTES_TO_SEND, bytesSent );
 }
@@ -726,9 +935,10 @@ void test_SecureSocketsTransport_Send_All_Bytes_Sent_Successfully( void )
  */
 void test_SecureSocketsTransport_Send_Bytes_Sent_Partially( void )
 {
-    int32_t bytesSent;
+    int32_t bytesSent = 0;
 
-    SOCKETS_Send_ExpectAnyArgsAndReturn( BYTES_TO_SEND - 1 );
+    networkContext.tcpSocket = mockTcpSocket;
+    SOCKETS_Send_ExpectAndReturn( networkContext.tcpSocket, networkBuffer, BYTES_TO_SEND, 0, BYTES_TO_SEND - 1 );
     bytesSent = SecureSocketsTransport_Send( &networkContext, networkBuffer, BYTES_TO_SEND );
     TEST_ASSERT_EQUAL( BYTES_TO_SEND - 1, bytesSent );
 }
@@ -742,7 +952,7 @@ void test_SecureSocketsTransport_Send_Bytes_Sent_Partially( void )
  */
 void test_SecureSocketsTransport_Recv_Invalid_Params( void )
 {
-    int32_t bytesReceived;
+    int32_t bytesReceived = 0;
     NetworkContext_t invalidNetworkContext = { 0 };
 
     invalidNetworkContext.tcpSocket = SOCKETS_INVALID_SOCKET;
@@ -768,9 +978,11 @@ void test_SecureSocketsTransport_Recv_Invalid_Params( void )
  */
 void test_SecureSocketsTransport_Recv_All_Bytes_Received_Successfully( void )
 {
-    int32_t bytesReceived;
+    int32_t bytesReceived = 0;
 
-    SOCKETS_Recv_ExpectAnyArgsAndReturn( BYTES_TO_RECV );
+    networkContext.tcpSocket = mockTcpSocket;
+    SOCKETS_Recv_ExpectAndReturn( networkContext.tcpSocket, NULL, BYTES_TO_RECV, 0, BYTES_TO_RECV );
+    SOCKETS_Recv_IgnoreArg_pvBuffer();
     bytesReceived = SecureSocketsTransport_Recv( &networkContext, networkBuffer, BYTES_TO_RECV );
     TEST_ASSERT_EQUAL( BYTES_TO_RECV, bytesReceived );
 }
@@ -783,13 +995,16 @@ void test_SecureSocketsTransport_Recv_All_Bytes_Received_Successfully( void )
  */
 void test_SecureSocketsTransport_Recv_Network_Error( void )
 {
-    int32_t bytesReceived;
+    int32_t bytesReceived = 0;
 
-    SOCKETS_Recv_ExpectAnyArgsAndReturn( SOCKETS_EWOULDBLOCK );
+    networkContext.tcpSocket = mockTcpSocket;
+    SOCKETS_Recv_ExpectAndReturn( networkContext.tcpSocket, NULL, BYTES_TO_RECV, 0, SOCKETS_EWOULDBLOCK );
+    SOCKETS_Recv_IgnoreArg_pvBuffer();
     bytesReceived = SecureSocketsTransport_Recv( &networkContext, networkBuffer, BYTES_TO_RECV );
     TEST_ASSERT_EQUAL( 0, bytesReceived );
 
-    SOCKETS_Recv_ExpectAnyArgsAndReturn( SECURE_SOCKETS_READ_WRITE_ERROR );
+    SOCKETS_Recv_ExpectAndReturn( networkContext.tcpSocket, NULL, BYTES_TO_RECV, 0, SECURE_SOCKETS_READ_WRITE_ERROR );
+    SOCKETS_Recv_IgnoreArg_pvBuffer();
     bytesReceived = SecureSocketsTransport_Recv( &networkContext, networkBuffer, BYTES_TO_RECV );
     TEST_ASSERT_EQUAL( SECURE_SOCKETS_READ_WRITE_ERROR, bytesReceived );
 }
@@ -802,9 +1017,11 @@ void test_SecureSocketsTransport_Recv_Network_Error( void )
  */
 void test_SecureSocketsTransport_Recv_Bytes_Received_Partially( void )
 {
-    int32_t bytesReceived;
+    int32_t bytesReceived = 0;
 
-    SOCKETS_Recv_ExpectAnyArgsAndReturn( BYTES_TO_RECV - 1 );
+    networkContext.tcpSocket = mockTcpSocket;
+    SOCKETS_Recv_ExpectAndReturn( networkContext.tcpSocket, NULL, BYTES_TO_RECV, 0, BYTES_TO_RECV - 1 );
+    SOCKETS_Recv_IgnoreArg_pvBuffer();
     bytesReceived = SecureSocketsTransport_Recv( &networkContext, networkBuffer, BYTES_TO_RECV );
     TEST_ASSERT_EQUAL( BYTES_TO_RECV - 1, bytesReceived );
 }
