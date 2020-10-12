@@ -32,6 +32,7 @@ import time
 from testClass import runTest
 from bleAdapter import bleAdapter
 
+ENABLE_TC_AFQP_READ_WRITE_LONG = 1
 
 def main():
     scan_filter = dict()
@@ -79,10 +80,11 @@ def main():
     runTest.submitTestResult(isTestSuccessFull, runTest.checkProperties)
 
     # CHeck long write
-    isTestSuccessFull = runTest.writereadLongCharacteristic()
-    runTest.submitTestResult(
-        isTestSuccessFull,
-        runTest.writereadLongCharacteristic)
+    if ENABLE_TC_AFQP_READ_WRITE_LONG == 1:
+        isTestSuccessFull = runTest.writereadLongCharacteristic()
+        runTest.submitTestResult(
+            isTestSuccessFull,
+            runTest.writereadLongCharacteristic)
 
     # Check read/write, simple connection
     isTestSuccessFull = runTest.readWriteSimpleConnection()
