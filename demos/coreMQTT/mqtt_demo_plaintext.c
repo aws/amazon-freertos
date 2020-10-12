@@ -21,7 +21,6 @@
  *
  * http://www.FreeRTOS.org
  * http://aws.amazon.com/freertos
- *
  */
 
 /*
@@ -311,7 +310,6 @@ static topicFilterContext_t xTopicFilterContext[ mqttexampleTOPIC_COUNT ] =
     { mqttexampleTOPIC, MQTTSubAckFailure }
 };
 
-
 /**
  * @brief Static buffer used to hold MQTT messages being sent and received.
  */
@@ -364,7 +362,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
         /* Attempt to connect to the MQTT broker. If connection fails, retry after
          * a timeout. The timeout value will be exponentially increased until the
          * maximum number of attempts are reached or the maximum timeout value is
-         * reached. The function returns a failure status if the TCP connection
+         * reached. The function below returns a failure status if the TCP connection
          * cannot be established to the broker after the configured number of
          * attempts. */
         xNetworkStatus = prvConnectToServerWithBackoffRetries( &xNetworkContext );
@@ -383,7 +381,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
         if( xDemoStatus == pdPASS )
         {
             /* Sends an MQTT Connect packet over the already connected TCP socket,
-             * and waits for connection acknowledgment (CONNACK) packet. */
+             * and waits for a connection acknowledgment (CONNACK) packet. */
             LogInfo( ( "Creating an MQTT connection to %s.", democonfigMQTT_BROKER_ENDPOINT ) );
             xDemoStatus = prvCreateMQTTConnectionWithBroker( &xMQTTContext, &xNetworkContext );
         }

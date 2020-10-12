@@ -25,7 +25,7 @@
 
 /*
  * Demo for showing use of the lightweight MQTT serializer API. The serializer
- * API lets user to serialize and deserialize MQTT messages into a user
+ * API allows the user to serialize and deserialize MQTT messages into a user
  * provided buffer. This API allows use of a statically allocated buffer.
  *
  * The example shown below uses this API to create MQTT messages and
@@ -131,9 +131,9 @@
 /**
  * @brief Keep alive time reported to the broker while establishing an MQTT connection.
  *
- * It is the responsibility of the Client to ensure that the interval between
- * Control Packets being sent does not exceed the this Keep Alive value. In the
- * absence of sending any other Control Packets, the Client MUST send a
+ * It is the responsibility of the client to ensure that the interval between
+ * control packets being sent does not exceed the this keep-alive value. In the
+ * absence of sending any other control packets, the client MUST send a
  * PINGREQ Packet.
  */
 #define mqttexampleKEEP_ALIVE_TIMEOUT_SECONDS       ( 10U )
@@ -735,8 +735,8 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( Socket_t xMQTTSocket )
     xConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( democonfigCLIENT_IDENTIFIER );
 
     /* Set MQTT keep-alive period. It is the responsibility of the application to ensure
-     * that the interval between Control Packets being sent does not exceed the Keep Alive value.
-     * In the absence of sending any other Control Packets, the Client MUST send a PINGREQ Packet. */
+     * that the interval between control Packets being sent does not exceed the keep-alive value.
+     * In the absence of sending any other control packets, the client MUST send a PINGREQ Packet. */
     xConnectInfo.keepAliveSeconds = mqttexampleKEEP_ALIVE_TIMEOUT_SECONDS;
 
     /* Get size requirement for the connect packet.
@@ -999,7 +999,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( Socket_t xMQTTSocket )
          * subscribe packet then waiting for a subscribe acknowledgment (SUBACK).
          * This client will then publish to the same topic it subscribed to, so it
          * will expect all the messages it sends to the broker to be sent back to it
-         * from the broker. This demo uses QOS0 in Subscribe, therefore, the Publish
+         * from the broker. This demo uses QOS0 in Subscribe, therefore, the publish
          * messages received from the broker will have QOS0. */
         LogInfo( ( "Attempt to subscribe to the MQTT topic %s.", mqttexampleTOPIC ) );
         xStatus = prvMQTTSubscribeToTopic( xMQTTSocket );
