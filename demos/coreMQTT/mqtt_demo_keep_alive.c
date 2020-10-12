@@ -530,35 +530,34 @@ int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
 
         /*********************** Publish and Receive Loop. ************************/
 
-        if( xDemoStatus == pdPASS )
+        /* Publish messages with QOS0, send and process keep-alive messages. */
+        for( ulPublishCount = 0;
+             ( xDemoStatus == pdPASS ) && ( ulPublishCount < ulMaxPublishCount );
+             ulPublishCount++ )
         {
-            /* Publish messages with QOS0, send and process keep-alive messages. */
-            for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
+            LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
+            xDemoStatus = prvMQTTPublishToTopic( &xMQTTContext );
+
+            if( xDemoStatus == pdPASS )
             {
-                LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
-                xDemoStatus = prvMQTTPublishToTopic( &xMQTTContext );
+                /* Process incoming publish echo, since application subscribed
+                 * to the same topic the broker will send the publish message
+                 * back to the application. */
+                LogInfo( ( "Attempt to receive publish message from broker." ) );
+                xMQTTStatus = MQTT_ReceiveLoop( &xMQTTContext,
+                                                mqttexampleRECEIVE_LOOP_TIMEOUT_MS );
 
-                if( xDemoStatus == pdPASS )
+                if( xMQTTStatus != MQTTSuccess )
                 {
-                    /* Process incoming publish echo, since application subscribed
-                     * to the same topic the broker will send the publish message
-                     * back to the application. */
-                    LogInfo( ( "Attempt to receive publish message from broker." ) );
-                    xMQTTStatus = MQTT_ReceiveLoop( &xMQTTContext,
-                                                    mqttexampleRECEIVE_LOOP_TIMEOUT_MS );
-
-                    if( xMQTTStatus != MQTTSuccess )
-                    {
-                        LogError( ( "MQTT_ReceiveLoop() failed with status %s.",
-                                    MQTT_Status_strerror( xMQTTStatus ) ) );
-                        xDemoStatus = pdFAIL;
-                    }
+                    LogError( ( "MQTT_ReceiveLoop() failed with status %s.",
+                                MQTT_Status_strerror( xMQTTStatus ) ) );
+                    xDemoStatus = pdFAIL;
                 }
-
-                /* Leave Connection Idle for some time. */
-                LogInfo( ( "Keeping Connection Idle..." ) );
-                vTaskDelay( mqttexampleDELAY_BETWEEN_PUBLISHES );
             }
+
+            /* Leave Connection Idle for some time. */
+            LogInfo( ( "Keeping Connection Idle..." ) );
+            vTaskDelay( mqttexampleDELAY_BETWEEN_PUBLISHES );
         }
 
         /********************** Unsubscribe from the topic. ***********************/
@@ -597,8 +596,8 @@ int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
 
             if( xMQTTStatus != MQTTSuccess )
             {
-                LogError( ( "MQTT_Disconnect() failed with status %s.",
-                            MQTT_Status_strerror( xMQTTStatus ) ) );
+                LogWarn( ( "MQTT_Disconnect() failed with status %s.",
+                           MQTT_Status_strerror( xMQTTStatus ) ) );
                 xDemoStatus = pdFAIL;
             }
 
@@ -903,7 +902,6 @@ static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
 {
     MQTTStatus_t xResult;
     MQTTPublishInfo_t xMQTTPublishInfo;
-    BaseType_t xTimerStatus;
     BaseType_t xReturnStatus = pdPASS;
 
     /* Some fields not used by this demo so start with everything at 0. */
@@ -928,13 +926,8 @@ static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
     }
 
     /* When a PUBLISH packet has been sent, the keep-alive timer can be reset. */
-    xTimerStatus = prvCheckTimeoutThenResetTimer( xKeepAliveTimer );
-
-    if( xTimerStatus != pdPASS )
-    {
-        /* Errors are logged in prvCheckTimeoutThenResetTimer(). */
-        xReturnStatus = pdFAIL;
-    }
+    xReturnStatus = prvCheckTimeoutThenResetTimer( xKeepAliveTimer );
+    /* Errors are logged in prvCheckTimeoutThenResetTimer(). */
 
     return xReturnStatus;
 }

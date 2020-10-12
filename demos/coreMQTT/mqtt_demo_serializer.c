@@ -448,39 +448,38 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
 
         /******************* Publish and Keep Alive Loop. *********************/
 
-        if( xStatus == pdPASS )
+        /* Publish messages with QoS0, then send and process keep alive messages. */
+        for( ulPublishCount = 0;
+             ( xStatus == pdPASS ) && ( ulPublishCount < ulMaxPublishCount );
+             ulPublishCount++ )
         {
-            /* Publish messages with QoS0, then send and process keep alive messages. */
-            for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
+            LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
+            xStatus = prvMQTTPublishToTopic( xMQTTSocket );
+
+            if( xStatus == pdPASS )
             {
-                LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
-                xStatus = prvMQTTPublishToTopic( xMQTTSocket );
+                /* Process the incoming publish echo. Since the application subscribed
+                 * to the same topic, the broker will send the same publish message
+                 * back to the application. */
+                LogInfo( ( "Attempt to receive publish message from broker." ) );
+                xStatus = prvMQTTProcessIncomingPacket( xMQTTSocket );
+            }
 
-                if( xStatus == pdPASS )
-                {
-                    /* Process the incoming publish echo. Since the application subscribed
-                     * to the same topic, the broker will send the same publish message
-                     * back to the application. */
-                    LogInfo( ( "Attempt to receive publish message from broker." ) );
-                    xStatus = prvMQTTProcessIncomingPacket( xMQTTSocket );
-                }
+            if( xStatus == pdPASS )
+            {
+                /* Leave the connection idle for some time */
+                LogInfo( ( "Keeping Connection Idle." ) );
+                vTaskDelay( mqttexampleKEEP_ALIVE_DELAY );
 
-                if( xStatus == pdPASS )
-                {
-                    /* Leave the connection idle for some time */
-                    LogInfo( ( "Keeping Connection Idle." ) );
-                    vTaskDelay( mqttexampleKEEP_ALIVE_DELAY );
+                /* Send a ping request to broker and receive the ping response. */
+                LogInfo( ( "Sending Ping Request to the broker." ) );
+                xStatus = prvMQTTKeepAlive( xMQTTSocket );
+            }
 
-                    /* Send a ping request to broker and receive the ping response. */
-                    LogInfo( ( "Sending Ping Request to the broker." ) );
-                    xStatus = prvMQTTKeepAlive( xMQTTSocket );
-                }
-
-                if( xStatus == pdPASS )
-                {
-                    /* Process the incoming packet from the broker. */
-                    xStatus = prvMQTTProcessIncomingPacket( xMQTTSocket );
-                }
+            if( xStatus == pdPASS )
+            {
+                /* Process the incoming packet from the broker. */
+                xStatus = prvMQTTProcessIncomingPacket( xMQTTSocket );
             }
         }
 

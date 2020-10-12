@@ -398,35 +398,34 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
         /******************* Publish and Keep Alive Loop. *********************/
 
-        if( xDemoStatus == pdPASS )
+        /* Publish messages with QoS0, send and process keep alive messages. */
+        for( ulPublishCount = 0;
+             ( xDemoStatus == pdPASS ) && ( ulPublishCount < ulMaxPublishCount );
+             ulPublishCount++ )
         {
-            /* Publish messages with QoS0, send and process keep alive messages. */
-            for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
+            LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
+            xDemoStatus = prvMQTTPublishToTopic( &xMQTTContext );
+
+            if( xDemoStatus == pdPASS )
             {
-                LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
-                xDemoStatus = prvMQTTPublishToTopic( &xMQTTContext );
+                /* Process the incoming publish echo. Since the application subscribed
+                 * to the same topic, the broker will send the published message back
+                 * to the application. */
+                LogInfo( ( "Attempt to receive publish message from broker." ) );
+                xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
 
-                if( xDemoStatus == pdPASS )
+                if( xMQTTStatus != MQTTSuccess )
                 {
-                    /* Process the incoming publish echo. Since the application subscribed
-                     * to the same topic, the broker will send the published message back
-                     * to the application. */
-                    LogInfo( ( "Attempt to receive publish message from broker." ) );
-                    xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
-
-                    if( xMQTTStatus != MQTTSuccess )
-                    {
-                        LogError( ( "MQTT_ProcessLoop() call failed to receive echoed"
-                                    " PUBLISH message. Error=%s.",
-                                    MQTT_Status_strerror( xMQTTStatus ) ) );
-                        xDemoStatus = pdFAIL;
-                    }
+                    LogError( ( "MQTT_ProcessLoop() call failed to receive echoed"
+                                " PUBLISH message. Error=%s.",
+                                MQTT_Status_strerror( xMQTTStatus ) ) );
+                    xDemoStatus = pdFAIL;
                 }
-
-                /* Leave Connection Idle for some time. */
-                LogInfo( ( "Keeping Connection Idle..." ) );
-                vTaskDelay( mqttexampleDELAY_BETWEEN_PUBLISHES );
             }
+
+            /* Leave Connection Idle for some time. */
+            LogInfo( ( "Keeping Connection Idle..." ) );
+            vTaskDelay( mqttexampleDELAY_BETWEEN_PUBLISHES );
         }
 
         /******************** Unsubscribe from the topic. *********************/
@@ -466,8 +465,8 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
             if( xMQTTStatus != MQTTSuccess )
             {
-                LogError( ( "MQTT_Disconnect() failed with status %s.",
-                            MQTT_Status_strerror( xMQTTStatus ) ) );
+                LogWarn( ( "MQTT_Disconnect() failed with status %s.",
+                           MQTT_Status_strerror( xMQTTStatus ) ) );
                 xDemoStatus = pdFAIL;
             }
 
