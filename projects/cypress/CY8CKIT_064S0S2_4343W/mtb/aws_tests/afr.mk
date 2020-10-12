@@ -302,7 +302,10 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_serializer.c\
+    $(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
+    $(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c
 
 # Test code
 SOURCES+=\
@@ -339,6 +342,19 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src/private\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
+    $(CY_AFR_ROOT)/libraries/coreMQTT/source/portable
+
+# include device-shadow-for-aws-iot-embedded-sdk
+SOURCES+=\
+    $(CY_AFR_ROOT)/libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c
+
+INCLUDES+=\
+    $(CY_AFR_ROOT)/libraries/device-shadow-for-aws-iot-embedded-sdk/source/include
+
+# Test code for shaodw integration
+SOURCES+=\
+    $(CY_AFR_ROOT)/tests/integration_test/shadow_system_test.c
 
 ################################################################################
 # libraries (freertos_plus)

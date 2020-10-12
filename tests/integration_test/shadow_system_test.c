@@ -1,5 +1,5 @@
 /*
- * AWS IoT Device SDK for Embedded C V202009.00
+ * FreeRTOS
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -160,7 +160,9 @@
  *
  * This is the example predefine thing name and could be compiled in ROM code.
  */
-#define THING_NAME                          "testShadowSystem"
+#ifndef THING_NAME
+    #define THING_NAME    clientcredentialIOT_THING_NAME
+#endif
 
 /**
  * @brief The size of #THING_NAME.
