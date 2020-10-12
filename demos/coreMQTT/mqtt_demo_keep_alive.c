@@ -443,45 +443,41 @@ int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-
     ulGlobalEntryTimeMs = prvGetTimeMs();
 
-    for( ; ulDemoRunCount < democonfigMQTT_MAX_DEMO_COUNT; ulDemoRunCount++ )
+    /* Serialize a PINGREQ packet to send upon invoking the keep-alive timer
+     * callback. */
+    xMQTTStatus = MQTT_SerializePingreq( &xPingReqBuffer );
+
+    if( xMQTTStatus != MQTTSuccess )
     {
-        /* Serialize a PINGREQ packet to send upon invoking the keep-alive timer
-         * callback. */
-        xMQTTStatus = MQTT_SerializePingreq( &xPingReqBuffer );
+        LogError( ( "MQTT_SerializePingreq() failed with error status %s.",
+                    MQTT_Status_strerror( xMQTTStatus ) ) );
+        xDemoStatus = pdFAIL;
+    }
 
-        if( xMQTTStatus != MQTTSuccess )
-        {
-            LogError( ( "MQTT_SerializePingreq() failed with error status %s.",
-                        MQTT_Status_strerror( xMQTTStatus ) ) );
-            xDemoStatus = pdFAIL;
-        }
-
+    for( ; ( ulDemoRunCount < democonfigMQTT_MAX_DEMO_COUNT ) && ( xDemoStatus == pdPASS ); ulDemoRunCount++ )
+    {
         /****************************** Connect. ******************************/
 
-        if( xDemoStatus == pdPASS )
-        {
-            /* Attempt to connect to the MQTT broker. If connection fails, retry
-             * after a timeout. The timeout value will be exponentially increased
-             * until the maximum number of attempts are reached or the maximum
-             * timeout value is reached. The function below returns a failure status
-             * if the TCP connection cannot be established to the broker after
-             * the configured number of attempts. */
-            xNetworkStatus = prvConnectToServerWithBackoffRetries( &xNetworkContext );
+        /* Attempt to connect to the MQTT broker. If connection fails, retry
+         * after a timeout. The timeout value will be exponentially increased
+         * until the maximum number of attempts are reached or the maximum
+         * timeout value is reached. The function below returns a failure status
+         * if the TCP connection cannot be established to the broker after
+         * the configured number of attempts. */
+        xNetworkStatus = prvConnectToServerWithBackoffRetries( &xNetworkContext );
 
-            if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
-            {
-                /* Errors are logged in prvConnectToServerWithBackoffRetries. */
-                xDemoStatus = pdFAIL;
-            }
-            else
-            {
-                /* Set a flag indicating a TCP connection exists. This is done to
-                 * disconnect if the loop exits before disconnection happens. */
-                xIsConnectionEstablished = pdTRUE;
-            }
+        if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
+        {
+            /* Errors are logged in prvConnectToServerWithBackoffRetries. */
+            xDemoStatus = pdFAIL;
+        }
+        else
+        {
+            /* Set a flag indicating a TCP connection exists. This is done to
+             * disconnect if the loop exits before disconnection happens. */
+            xIsConnectionEstablished = pdTRUE;
         }
 
         if( xDemoStatus == pdPASS )
