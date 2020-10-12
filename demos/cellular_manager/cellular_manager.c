@@ -36,8 +36,8 @@
 #include "platform/iot_threads.h"
 
 /* cellular include. */
-#include "cellular_config_defaults.h"
 #include "aws_cellular_config.h"
+#include "cellular_config_defaults.h"
 #include "cellular_manager.h"
 #include "cellular_api.h"
 
@@ -49,13 +49,14 @@ static CellularManagerContext_t * _cellularManagerAllocContext( void );
 static void _cellularManagerFreeContext( CellularManagerContext_t * pContext );
 static void _cellularManagerMutexLock( CellularManagerContext_t * pContext );
 static void _cellularManagerMutexUnlock( CellularManagerContext_t * pContext );
-static void _connectionStateChangedCallback( CellularManagerContext_t * pContext,
-                                             CellularUrcEvent_t urcEvent,
-                                             const CellularServiceStatus_t * pServiceStatus );
-static void _pdnStateChangedCallback( CellularManagerContext_t * pContext,
-                                      CellularUrcEvent_t urcEvent,
-                                      uint8_t contextId );
-static void _modemEventCallback( CellularModemEvent_t modemEvent );
+static void _connectionStateChangedCallback( CellularUrcEvent_t urcEvent,
+                                             const CellularServiceStatus_t * pServiceStatus,
+                                             void * pCallbackContext );
+static void _pdnStateChangedCallback( CellularUrcEvent_t urcEvent,
+                                      uint8_t contextId,
+                                      void * pCallbackContext );
+static void _modemEventCallback( CellularModemEvent_t modemEvent,
+                                 void * pCallbackContext );
 
 /*-----------------------------------------------------------*/
 
@@ -216,10 +217,11 @@ static CellularManagerError_t _getConnectionSateFromStatemachine( CellularManage
 
 /*-----------------------------------------------------------*/
 
-static void _connectionStateChangedCallback( CellularManagerContext_t * pContext,
-                                             CellularUrcEvent_t urcEvent,
-                                             const CellularServiceStatus_t * pServiceStatus )
+static void _connectionStateChangedCallback( CellularUrcEvent_t urcEvent,
+                                             const CellularServiceStatus_t * pServiceStatus,
+                                             void * pCallbackContext )
 {
+    CellularManagerContext_t * pContext = ( CellularManagerContext_t * ) pCallbackContext;
     CellularManagerConnectionState_t connectionState = CELLULAR_CONNECTION_UNKNOWN;
 
     if( ( pServiceStatus == NULL ) || ( ( urcEvent != CELLULAR_URC_EVENT_NETWORK_CS_REGISTRATION ) && ( urcEvent != CELLULAR_URC_EVENT_NETWORK_PS_REGISTRATION ) ) )
@@ -277,10 +279,11 @@ static void _connectionStateChangedCallback( CellularManagerContext_t * pContext
 
 /*-----------------------------------------------------------*/
 
-static void _pdnStateChangedCallback( CellularManagerContext_t * pContext,
-                                      CellularUrcEvent_t urcEvent,
-                                      uint8_t contextId )
+static void _pdnStateChangedCallback( CellularUrcEvent_t urcEvent,
+                                      uint8_t contextId,
+                                      void * pCallbackContext )
 {
+    CellularManagerContext_t * pContext = ( CellularManagerContext_t * ) pCallbackContext;
     CellularManagerConnectionState_t connectionState = CELLULAR_CONNECTION_UNKNOWN;
 
     switch( urcEvent )
@@ -309,9 +312,10 @@ static void _pdnStateChangedCallback( CellularManagerContext_t * pContext,
 
 /*-----------------------------------------------------------*/
 
-static void _modemEventCallback( CellularManagerContext_t * pContext,
-                                 CellularModemEvent_t modemEvent )
+static void _modemEventCallback( CellularModemEvent_t modemEvent,
+                                 void * pCallbackContext )
 {
+    CellularManagerContext_t * pContext = ( CellularManagerContext_t * ) pCallbackContext;
     CellularManagerConnectionState_t connectionState = CELLULAR_CONNECTION_UNKNOWN;
 
     switch( modemEvent )
@@ -416,6 +420,10 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmOn( cellularSmEvent_t 
 
         case CELLULAR_EVENT_ATTACHED:
             newState = CELLULAR_SM_REGISTERED;
+            break;
+
+        case CELLULAR_EVENT_DETACHED:
+            newState = CELLULAR_SM_ON;
             break;
 
         default:
@@ -773,9 +781,9 @@ CellularManagerError_t CellularManager_Cleanup( CellularManagerContext_t * pCell
 
 /*-----------------------------------------------------------*/
 
-CellularManagerError_t CellularManager_Connect( const CellularManagerContext_t * pCellularManagerContext,
+CellularManagerError_t CellularManager_Connect( CellularManagerContext_t * pCellularManagerContext,
                                                 uint8_t contextId,
-                                                CellularPdnConfig_t * pPdnConfig,
+                                                const CellularPdnConfig_t * pPdnConfig,
                                                 uint32_t timeoutMilliseconds )
 {
     CellularManagerError_t cellularMgrStatus = CELLULAR_MANAGER_SUCCESS;
@@ -877,7 +885,7 @@ CellularManagerError_t CellularManager_Connect( const CellularManagerContext_t *
 
 /*-----------------------------------------------------------*/
 
-CellularManagerError_t CellularManager_Disconnect( const CellularManagerContext_t * pCellularManagerContext,
+CellularManagerError_t CellularManager_Disconnect( CellularManagerContext_t * pCellularManagerContext,
                                                    uint8_t contextId )
 {
     CellularManagerError_t cellularMgrStatus = CELLULAR_MANAGER_SUCCESS;
@@ -904,7 +912,7 @@ CellularManagerError_t CellularManager_Disconnect( const CellularManagerContext_
 
 /*-----------------------------------------------------------*/
 
-CellularManagerError_t CellularManager_GetConnectionState( const CellularManagerContext_t * pCellularManagerContext,
+CellularManagerError_t CellularManager_GetConnectionState( CellularManagerContext_t * pCellularManagerContext,
                                                            CellularManagerConnectionState_t * pConnectionState )
 {
     CellularManagerError_t cellularMgrStatus = CELLULAR_MANAGER_SUCCESS;
@@ -958,7 +966,7 @@ CellularManagerError_t CellularManager_GetConnectionState( const CellularManager
 
 /*-----------------------------------------------------------*/
 
-CellularManagerError_t CellularManager_AirplaneModeOn( const CellularManagerContext_t * pCellularManagerContext )
+CellularManagerError_t CellularManager_AirplaneModeOn( CellularManagerContext_t * pCellularManagerContext )
 {
     CellularManagerError_t cellularMgrStatus = CELLULAR_MANAGER_SUCCESS;
 
@@ -982,7 +990,7 @@ CellularManagerError_t CellularManager_AirplaneModeOn( const CellularManagerCont
 
 /*-----------------------------------------------------------*/
 
-CellularManagerError_t CellularManager_AirplaneModeOff( const CellularManagerContext_t * pCellularManagerContext )
+CellularManagerError_t CellularManager_AirplaneModeOff( CellularManagerContext_t * pCellularManagerContext )
 {
     CellularManagerError_t cellularMgrStatus = CELLULAR_MANAGER_SUCCESS;
 
@@ -1019,9 +1027,9 @@ CellularManagerError_t CellularManager_SetConnectionStateChangedCallback( Cellul
 
     if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
     {
-        ( void ) Cellular_RegisterUrcNetworkRegistrationEventCallback( pCellularManagerContext->cellularHandle, &_connectionStateChangedCallback );
-        ( void ) Cellular_RegisterUrcPdnEventCallback( pCellularManagerContext->cellularHandle, &_pdnStateChangedCallback );
-        ( void ) Cellular_RegisterModemEventCallback( pCellularManagerContext->cellularHandle, &_modemEventCallback );
+        ( void ) Cellular_RegisterUrcNetworkRegistrationEventCallback( pCellularManagerContext->cellularHandle, &_connectionStateChangedCallback, ( void * ) pCellularManagerContext );
+        ( void ) Cellular_RegisterUrcPdnEventCallback( pCellularManagerContext->cellularHandle, &_pdnStateChangedCallback, ( void * ) pCellularManagerContext );
+        ( void ) Cellular_RegisterModemEventCallback( pCellularManagerContext->cellularHandle, &_modemEventCallback, ( void * ) pCellularManagerContext );
 
         if( pCellularManagerContext != NULL )
         {

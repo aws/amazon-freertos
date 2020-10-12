@@ -74,9 +74,9 @@ CellularManagerError_t CellularManager_Cleanup( CellularManagerContext_t * pCell
  * @return CELLULAR_MANAGER_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularManagerError_t CellularManager_Connect( const CellularManagerContext_t * pCellularManagerContext,
+CellularManagerError_t CellularManager_Connect( CellularManagerContext_t * pCellularManagerContext,
                                                 uint8_t contextId,
-                                                CellularPdnConfig_t * pPdnConfig,
+                                                const CellularPdnConfig_t * pPdnConfig,
                                                 uint32_t timeoutMilliseconds );
 
 /**
@@ -88,7 +88,7 @@ CellularManagerError_t CellularManager_Connect( const CellularManagerContext_t *
  * @return CELLULAR_MANAGER_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularManagerError_t CellularManager_Disconnect( const CellularManagerContext_t * pCellularManagerContext,
+CellularManagerError_t CellularManager_Disconnect( CellularManagerContext_t * pCellularManagerContext,
                                                    uint8_t contextId );
 
 /**
@@ -101,7 +101,7 @@ CellularManagerError_t CellularManager_Disconnect( const CellularManagerContext_
  * @return CELLULAR_MANAGER_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularManagerError_t CellularManager_GetConnectionState( const CellularManagerContext_t * pCellularManagerContext,
+CellularManagerError_t CellularManager_GetConnectionState( CellularManagerContext_t * pCellularManagerContext,
                                                            CellularManagerConnectionState_t * pConnectionState );
 
 /**
@@ -112,7 +112,7 @@ CellularManagerError_t CellularManager_GetConnectionState( const CellularManager
  * @return CELLULAR_MANAGER_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularManagerError_t CellularManager_AirplaneModeOn( const CellularManagerContext_t * pCellularManagerContext );
+CellularManagerError_t CellularManager_AirplaneModeOn( CellularManagerContext_t * pCellularManagerContext );
 
 /**
  * @brief Turn off the airplane mode.
@@ -122,7 +122,7 @@ CellularManagerError_t CellularManager_AirplaneModeOn( const CellularManagerCont
  * @return CELLULAR_MANAGER_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularManagerError_t CellularManager_AirplaneModeOff( const CellularManagerContext_t * pCellularManagerContext );
+CellularManagerError_t CellularManager_AirplaneModeOff( CellularManagerContext_t * pCellularManagerContext );
 
 /**
  * @brief Set the callback to be invoked whenever connection state changes.
@@ -135,7 +135,7 @@ CellularManagerError_t CellularManager_AirplaneModeOff( const CellularManagerCon
  * @return CELLULAR_MANAGER_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularManagerError_t CellularManager_SetConnectionStateChangedCallback( const CellularManagerContext_t * pCellularManagerContext,
+CellularManagerError_t CellularManager_SetConnectionStateChangedCallback( CellularManagerContext_t * pCellularManagerContext,
                                                                           void * pUserData,
                                                                           CellularManagerConnectionStateChangedCallback_t connectionStateChangedCallback );
 
@@ -150,7 +150,7 @@ CellularManagerError_t CellularManager_SetConnectionStateChangedCallback( const 
  * @return CELLULAR_MANAGER_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularManagerError_t CellularManager_SetSignalStrengthChangedCallback( const CellularManagerContext_t * pCellularManagerContext,
+CellularManagerError_t CellularManager_SetSignalStrengthChangedCallback( CellularManagerContext_t * pCellularManagerContext,
                                                                          void * pUserData,
                                                                          CellularManagerSignalStrengthChangedCallback_t signalStrengthChangedCallback );
 

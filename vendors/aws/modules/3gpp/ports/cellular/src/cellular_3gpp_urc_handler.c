@@ -522,11 +522,11 @@ static void _regStatusGenerateEvent( const CellularContext_t * pContext,
     {
         if( regType == CELLULAR_REG_TYPE_CREG )
         {
-            pContext->cbEvents.networkRegistrationCallback( CELLULAR_URC_EVENT_NETWORK_CS_REGISTRATION, pServiceStatus );
+            _Cellular_NetworkRegistrationCallback( pContext, CELLULAR_URC_EVENT_NETWORK_CS_REGISTRATION, pServiceStatus );
         }
         else if( ( regType == CELLULAR_REG_TYPE_CGREG ) || ( regType == CELLULAR_REG_TYPE_CEREG ) )
         {
-            pContext->cbEvents.networkRegistrationCallback( CELLULAR_URC_EVENT_NETWORK_PS_REGISTRATION, pServiceStatus );
+            _Cellular_NetworkRegistrationCallback( pContext, CELLULAR_URC_EVENT_NETWORK_PS_REGISTRATION, pServiceStatus );
         }
         else
         {

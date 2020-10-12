@@ -436,10 +436,7 @@ static void _Cellular_ProcessGenericUrc( const CellularContext_t * pContext,
     }
     else
     {
-        if( pContext->cbEvents.genericCallback != NULL )
-        {
-            pContext->cbEvents.genericCallback( pInputLine );
-        }
+        _Cellular_GenericCallback( pContext, pInputLine );
     }
 }
 

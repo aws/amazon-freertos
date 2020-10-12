@@ -2927,14 +2927,15 @@ CellularError_t Cellular_GetSimCardInfo( CellularHandle_t cellularHandle,
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_RegisterUrcSignalStrengthChangedCallback( CellularHandle_t cellularHandle,
-                                                                   CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback )
+                                                                   CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback,
+                                                                   void * pCallbackContext )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
 
     /* pContext is checked in the common library. */
     cellularStatus = Cellular_CommonRegisterUrcSignalStrengthChangedCallback(
-        cellularHandle, signalStrengthChangedCallback );
+        cellularHandle, signalStrengthChangedCallback, pCallbackContext );
 
     if( cellularStatus == CELLULAR_SUCCESS )
     {
