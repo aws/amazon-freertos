@@ -817,19 +817,6 @@ TEST_TEAR_DOWN( deviceShadow_Integration )
 /* ========================== Test Cases ============================ */
 
 /**
- * @brief Test group runner for MQTT system tests that can be run against AWS IoT.
- */
-TEST_GROUP_RUNNER( deviceShadow_Integration )
-{
-    RUN_TEST_CASE( deviceShadow_Integration, test_Shadow_System );
-}
-
-TEST( deviceShadow_Integration, test_Shadow_System )
-{
-    test_Shadow_System();
-}
-
-/**
  * @brief Subscribes the shadow topics: /update/delta, /update/documents,
  * /update/accepted, /delete/accepted, /get/accepted, then publish the
  * regarding payloads to verify if receiving the notification from the
@@ -931,4 +918,17 @@ void test_Shadow_System( void )
                                                           SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
                                                           SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ),
                                                           MQTTQoS0 ) );
+}
+
+/**
+ * @brief Test group runner for MQTT system tests that can be run against AWS IoT.
+ */
+TEST_GROUP_RUNNER( deviceShadow_Integration )
+{
+    RUN_TEST_CASE( deviceShadow_Integration, test_Shadow_System );
+}
+
+TEST( deviceShadow_Integration, test_Shadow_System )
+{
+    test_Shadow_System();
 }
