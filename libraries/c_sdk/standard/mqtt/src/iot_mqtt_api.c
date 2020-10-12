@@ -896,7 +896,7 @@ static int32_t transportSend( const NetworkContext_t * pNetworkContext,
     /* Sending the bytes on the network using Network Interface. */
     bytesSend = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
 
-    if( bytesSend < 0 )
+    if( bytesSend <= 0 )
     {
         /* Network Send Interface return negative value in case of any socket error,
          * unifying the error codes here for socket error and timeout to comply with the MQTT LTS Library.
