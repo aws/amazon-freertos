@@ -14,7 +14,7 @@ list(APPEND mock_list
 # ================= Create the library under test here (edit) ==================
 
 # Include filepaths for source and include.
-include( ${AFR_ROOT_DIR}/libraries/abstractions/transport/transport_interface.cmake )
+include( ${AFR_MODULES_ABSTRACTIONS_DIR}/transport/transport_interface.cmake )
 
 # list the files you would like to test here
 list(APPEND real_source_files
@@ -76,4 +76,3 @@ create_test(${utest_name}
             "${utest_dep_list}"
             "${test_include_directories}"
         )
-
