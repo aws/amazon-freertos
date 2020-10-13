@@ -1910,10 +1910,13 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
 
         if( ret == EXIT_SUCCESS )
         {
-            LogInfo( ( "RunCoreMqttConnectionSharingDemo() completed an iteration successfully. Total free heap is %u.\r\n",
-                       xPortGetFreeHeapSize() ) );
+            LogInfo( ( "Demo iteration %lu completed successfully.", ( ulDemoCount + 1UL ) ) );
             LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
             vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS );
+        }
+        else
+        {
+            LogInfo( ( "Demo failed at iteration %lu.", ( ulDemoCount + 1UL ) ) );
         }
     }
 
