@@ -33,6 +33,7 @@
  *          CONFIG_CORE_MQTT_KEEP_ALIVE_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_PLAINTEXT_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_SERIALIZER_DEMO_ENABLED
+ *          CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED
  *          CONFIG_SHADOW_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
@@ -59,13 +60,16 @@
 #endif
 
 
-#define democonfigSHADOW_DEMO_NUM_TASKS                ( 2 )
-#define democonfigSHADOW_DEMO_TASK_STACK_SIZE          ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigSHADOW_DEMO_TASK_PRIORITY            ( tskIDLE_PRIORITY + 1 )
-#define shadowDemoUPDATE_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 5 )
+#define democonfigSHADOW_DEMO_NUM_TASKS                              ( 2 )
+#define democonfigSHADOW_DEMO_TASK_STACK_SIZE                        ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigSHADOW_DEMO_TASK_PRIORITY                          ( tskIDLE_PRIORITY + 1 )
+#define shadowDemoUPDATE_TASK_STACK_SIZE                             ( configMINIMAL_STACK_SIZE * 5 )
 
-#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT    pdMS_TO_TICKS( 12000 )
-#define democonfigMQTT_ECHO_TASK_PRIORITY              ( tskIDLE_PRIORITY )
+#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT                  pdMS_TO_TICKS( 12000 )
+#define democonfigMQTT_ECHO_TASK_PRIORITY                            ( tskIDLE_PRIORITY )
+
+/* MQTT Connection sharing demo task priority. */
+#define democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
 
 
 /* Number of sub pub tasks that connect to a broker that is not using TLS. */

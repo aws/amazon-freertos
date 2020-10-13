@@ -34,6 +34,7 @@
  *          CONFIG_CORE_MQTT_KEEP_ALIVE_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_PLAINTEXT_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_SERIALIZER_DEMO_ENABLED
+ *          CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED
  *          CONFIG_SHADOW_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
@@ -70,13 +71,16 @@
 
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */
-#define democonfigMQTT_TIMEOUT                            pdMS_TO_TICKS( 4000 )
+#define democonfigMQTT_TIMEOUT                                       pdMS_TO_TICKS( 4000 )
 
 /* Send AWS IoT MQTT traffic encrypted to destination port 443. */
-#define democonfigMQTT_AGENT_CONNECT_FLAGS                ( mqttagentREQUIRE_TLS )
+#define democonfigMQTT_AGENT_CONNECT_FLAGS                           ( mqttagentREQUIRE_TLS )
 
 /* Greengrass discovery example task parameters. */
-#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 32 )
-#define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY      ( tskIDLE_PRIORITY + 2 )
+#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 32 )
+#define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 2 )
+
+/* MQTT Connection sharing demo task priority. */
+#define democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
 
 #endif /* _AWS_DEMO_CONFIG_H_ */
