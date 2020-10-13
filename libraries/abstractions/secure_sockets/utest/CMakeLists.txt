@@ -10,12 +10,13 @@ set(project_name "secure_sockets")
 list(APPEND mock_list
             "${kernel_dir}/include/task.h"
             "${kernel_dir}/include/portable.h"
-            "${common_dir}/include/iot_logging_task.h"
+            "${AFR_MODULES_DIR}/logging/include/iot_logging_task.h"
             "${freertos_plus_dir}/standard/tls/include/iot_tls.h"
             "${3rdparty_dir}/lwip/src/include/lwip/sockets.h"
             "${3rdparty_dir}/lwip/src/include/lwip/ip_addr.h"
             "${3rdparty_dir}/lwip/src/include/lwip/dns.h"
         )
+        
 # list the directories your mocks need
 list(APPEND mock_include_list
             "${CMAKE_CURRENT_LIST_DIR}/include"
@@ -64,6 +65,7 @@ list(APPEND test_include_directories
             "${AFR_ROOT_DIR}/libraries/freertos_plus/standard/tls/include"
             "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
             "${CMAKE_CURRENT_LIST_DIR}/include"
+            "${AFR_MODULES_DIR}/logging/include"
         )
 
 # =============================  (end edit)  ===================================
