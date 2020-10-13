@@ -120,6 +120,7 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${test_dir}/iot_test_ble_mqtt_serialize.c"
+        "${test_dir}/iot_mqtt_ble_system_test.c"
         "${test_dir}/iot_test_ble_end_to_end.c"
 )
 afr_module_dependencies(

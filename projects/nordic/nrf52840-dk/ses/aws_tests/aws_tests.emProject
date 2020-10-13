@@ -332,6 +332,7 @@
             <folder Name="test">
               <file file_name="../../../../../libraries/c_sdk/standard/ble/test/iot_test_ble_end_to_end.c" />
               <file file_name="../../../../../libraries/c_sdk/standard/ble/test/iot_test_ble_mqtt_serialize.c" />
+              <file file_name="../../../../../libraries/c_sdk/standard/ble/test/iot_mqtt_ble_system_test.c" />
             </folder>
           </folder>
         </folder>
