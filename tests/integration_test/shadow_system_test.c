@@ -729,8 +729,12 @@ static MQTTStatus_t publishToTopic( MQTTContext_t * pContext,
 
 /* ============================   UNITY FIXTURES ============================ */
 
-/* Called before each test method. */
-void shadowTestSetUp()
+/**
+ * @brief Test group for device Shadow system tests.
+ */
+TEST_GROUP( deviceShadow_Integration );
+
+TEST_SETUP( deviceShadow_Integration )
 {
     /* Reset file-scoped global variables. */
     receivedSubAck = false;
@@ -776,8 +780,7 @@ void shadowTestSetUp()
     establishMqttSession( &context, &networkContext, true, &persistentSession );
 }
 
-/* Called after each test method. */
-void shadowTestTearDown()
+TEST_TEAR_DOWN( deviceShadow_Integration )
 {
     /* Free memory, if allocated during test case execution. */
     if( incomingInfo.pTopicName != NULL )
@@ -797,24 +800,17 @@ void shadowTestTearDown()
     ( void ) SecureSocketsTransport_Disconnect( &networkContext );
 }
 
-/*-----------------------------------------------------------*/
+/* ========================== Test Cases ============================ */
+
+
 
 /**
- * @brief Test group for device Shadow system tests.
+ * @brief Test group runner for MQTT system tests that can be run against AWS IoT.
  */
-TEST_GROUP( deviceShadow_Integration );
-
-TEST_SETUP( deviceShadow_Integration )
+TEST_GROUP_RUNNER( deviceShadow_Integration )
 {
-    shadowTestSetUp();
+    RUN_TEST_CASE( deviceShadow_Integration, test_Shadow_System );
 }
-
-TEST_TEAR_DOWN( deviceShadow_Integration )
-{
-    shadowTestTearDown();
-}
-
-/* ========================== Test Cases ============================ */
 
 /**
  * @brief Subscribes the shadow topics: /update/delta, /update/documents,
@@ -822,7 +818,7 @@ TEST_TEAR_DOWN( deviceShadow_Integration )
  * regarding payloads to verify if receiving the notification from the
  * subscribed topics.
  */
-void test_Shadow_System( void )
+TEST( deviceShadow_Integration, test_Shadow_System )
 {
     /* A buffer containing the update document. It has static duration to prevent
      * it from being placed on the call stack. */
@@ -918,17 +914,4 @@ void test_Shadow_System( void )
                                                           SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
                                                           SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ),
                                                           MQTTQoS0 ) );
-}
-
-/**
- * @brief Test group runner for MQTT system tests that can be run against AWS IoT.
- */
-TEST_GROUP_RUNNER( deviceShadow_Integration )
-{
-    RUN_TEST_CASE( deviceShadow_Integration, test_Shadow_System );
-}
-
-TEST( deviceShadow_Integration, test_Shadow_System )
-{
-    test_Shadow_System();
 }
