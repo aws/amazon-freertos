@@ -12,7 +12,7 @@
 	    ${AFR_ROOT_DIR}/freertos_kernel/include/stream_buffer.h
                 ${AFR_ROOT_DIR}/libraries/c_sdk/standard/ble/include/iot_ble_data_transfer.h
                 ${AFR_ROOT_DIR}/libraries/c_sdk/standard/ble/include/iot_ble_mqtt_serialize.h
-                ${AFR_ROOT_DIR}/libraries/c_sdk/standard/mqtt_v2/include/mqtt_lightweight.h
+                ${AFR_ROOT_DIR}/libraries/coreMQTT/source/include/core_mqtt_serializer.h
            )
 # list the directories your mocks need
     list(APPEND mock_include_list

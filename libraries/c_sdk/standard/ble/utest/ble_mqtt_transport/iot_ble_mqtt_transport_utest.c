@@ -9,7 +9,7 @@
 #include "mock_portable.h"
 #include "mock_iot_ble_data_transfer.h"
 #include "mock_iot_ble_mqtt_serialize.h"
-#include "mock_mqtt_lightweight.h"
+#include "mock_mqtt_serializer.h"
 
 
 #include "iot_ble.h"

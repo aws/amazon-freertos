@@ -1,5 +1,6 @@
 if (AFR_ENABLE_UNIT_TESTS)
-    add_subdirectory(utest)
+    add_subdirectory(utest/ble_mqtt_transport)
+    add_subdirectory(utest/data_transfer)
     return()
 endif()
 
