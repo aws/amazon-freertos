@@ -378,7 +378,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\logging_stack</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
@@ -1318,6 +1317,9 @@
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_pkcs11_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\mqtt_demo_connection_sharing_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\mqtt_demo_keep_alive_config.h</name>
@@ -2645,6 +2647,9 @@
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_keep_alive.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_connection_sharing.c</name>
 			</file>
 		</group>
 		<group>

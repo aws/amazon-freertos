@@ -221,7 +221,7 @@ typedef struct SocketsSockaddr
  * * `pdPASS` if everything succeeds
  * * `pdFAIL` otherwise.
  */
-lib_initDECLARE_LIB_INIT( SOCKETS_Init );
+extern BaseType_t SOCKETS_Init( void );
 
 /**
  * @brief Creates a TCP socket.
