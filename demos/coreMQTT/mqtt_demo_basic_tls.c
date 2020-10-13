@@ -438,37 +438,34 @@ int RunCoreMqttBasicTLSDemo( bool awsIotMqttMode,
 
         /******************** Publish and Keep-Alive Loop. ********************/
 
-        if( xDemoStatus == pdPASS )
+        /* Publish messages with QoS2, and send and process keep-alive messages. */
+        for( ulPublishCount = 0;
+             ( xDemoStatus == pdPASS ) && ( ulPublishCount < ulMaxPublishCount );
+             ulPublishCount++ )
         {
-            /* Publish messages with QoS2, and send and process keep-alive messages. */
-            for( ulPublishCount = 0;
-                 ( xDemoStatus == pdPASS ) && ( ulPublishCount < ulMaxPublishCount );
-                 ulPublishCount++ )
+            LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
+            xDemoStatus = prvMQTTPublishToTopic( &xMQTTContext );
+
+            if( xDemoStatus == pdPASS )
             {
-                LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
-                xDemoStatus = prvMQTTPublishToTopic( &xMQTTContext );
+                /* Process incoming publish echo. Since the application subscribed and published
+                 * to the same topic, the broker will send the incoming publish message back
+                 * to the application. */
+                LogInfo( ( "Attempt to receive publish message from broker." ) );
+                xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
 
-                if( xDemoStatus == pdPASS )
+                if( xMQTTStatus != MQTTSuccess )
                 {
-                    /* Process incoming publish echo. Since the application subscribed and published
-                     * to the same topic, the broker will send the incoming publish message back
-                     * to the application. */
-                    LogInfo( ( "Attempt to receive publish message from broker." ) );
-                    xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
-
-                    if( xMQTTStatus != MQTTSuccess )
-                    {
-                        LogError( ( "MQTT_ProcessLoop() call failed to receive echoed"
-                                    " PUBLISH message. Error=%s.",
-                                    MQTT_Status_strerror( xMQTTStatus ) ) );
-                        xDemoStatus = pdFAIL;
-                    }
+                    LogError( ( "MQTT_ProcessLoop() call failed to receive echoed"
+                                " PUBLISH message. Error=%s.",
+                                MQTT_Status_strerror( xMQTTStatus ) ) );
+                    xDemoStatus = pdFAIL;
                 }
-
-                /* Leave connection idle for some time. */
-                LogInfo( ( "Keeping Connection Idle..." ) );
-                vTaskDelay( mqttexampleDELAY_BETWEEN_PUBLISHES_TICKS );
             }
+
+            /* Leave connection idle for some time. */
+            LogInfo( ( "Keeping Connection Idle..." ) );
+            vTaskDelay( mqttexampleDELAY_BETWEEN_PUBLISHES_TICKS );
         }
 
         /********************* Unsubscribe from the topic. ********************/
