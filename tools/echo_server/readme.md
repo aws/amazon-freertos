@@ -34,7 +34,11 @@ The JSON file contains the following options:
 1. logging
     1. Enable this option to output log all messages received to a file.
 1. secure-connection
-    1. Enable this option to switch to using TLS for the echo server. Note you will have to complete the credential creation prerequisite. 
+    1. Enable this option to switch to using TLS for the echo server. Note you will have to complete the credential creation prerequisite.
+1. repeat-mode
+    1. Enable this option to switch to repeat mode. In repeat mode, the echo server will repeatly echo the same message sent by the client.
+1. repeat-interval-seconds
+    1. The repeat interval in seconds. When in repeat mode, the echo server will wait for this amount of time until the next echoing.
 1. server-port
     1. Specify which port to open a socket on.
 1. server-certificate-location
@@ -47,15 +51,23 @@ The JSON file contains the following options:
     "verbose": false,
     "logging": false,
     "secure-connection": false,
+    "repeat-mode": false,
+    "repeat-interval-seconds": 1,
     "server-port": "9000",
     "server-certificate-location": "./certs/server.pem",
-    "server-key-location": "./certs/server.pem"
+    "server-key-location": "./certs/server.key"
 }
 ```
 # Running the Echo Server From the Command Line
 `go run echo_server.go`
 ## With a Custom Config Location
 `go run echo_server.go -config={config_file_path}`
+## With Repeat Mode on and a repeat interval of 3 seconds
+`go run echo_server.go -repeat=true -interval=3`
+## With Server Certificate and Key passed from command line args
+`go run echo_server.go -cert='<x509-cert-content>' -key='<x509-key-content>'`
+
+Note: When using command line args, the echo server will be configured in secure mode if either the `-cert` flag or the `-key` flag is used.
 
 Note: If you wish to run the unsecure and secure TCP tests at the same time, make sure you start a secure and unsecure echo server, this will require changing the configuration (You can create a second "secure" configuration, and pass it to the echo server via the -config flag.), as well as using seperate TCP ports.
 

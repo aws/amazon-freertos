@@ -2,6 +2,8 @@
     "verbose": false,
     "logging": false,
     "secure-connection": false,
+    "repeat-mode": false,
+    "repeat-interval-seconds": 1,
     "server-port": "9000",
     "server-certificate-location": "./certs/server.pem",
     "server-key-location": "./certs/server.key"
