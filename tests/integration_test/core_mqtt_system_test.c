@@ -1186,7 +1186,6 @@ void Connect_LWT()
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &secondNetworkContext,
                                                                                         &serverInfo,
                                                                                         &socketsConfig ) );
-    TEST_ASSERT_NOT_NULL( secondNetworkContext.pContext );
 
     /* Establish MQTT session on top of the TCP+TLS connection. */
     useLWTClientIdentifier = true;
