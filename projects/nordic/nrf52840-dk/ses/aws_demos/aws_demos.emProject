@@ -217,6 +217,7 @@
             <file file_name="../../../../../libraries/c_sdk/standard/common/iot_static_memory_common.c" />
             <folder Name="include">
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h.h" />
+              <file file_name="../../../../../libraries/c_sdk/standard/common/include/aws_logging_task.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_atomic.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_init.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_linear_containers.h" />
