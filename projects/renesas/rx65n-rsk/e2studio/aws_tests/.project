@@ -1157,41 +1157,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/logging_levels.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/logging_levels.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/logging_stack.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/logging_stack.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/logging/iot_logging.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/logging/iot_logging.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/private/iot_logging.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/private/iot_logging.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/iot_logging_task.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/iot_logging_task.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/iot_logging_setup.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/iot_logging_setup.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/include/types/iot_network_types.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/types/iot_network_types.h</locationURI>
@@ -1245,6 +1210,11 @@
 			<name>libraries/abstractions/platform/include/platform/iot_threads.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/include/platform/iot_threads.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/platform/transport_interface.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/include/platform/transport_interface.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/include/types/iot_platform_types.h</name>
@@ -1512,6 +1482,16 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/logging/iot_logging_task_dynamic_buffers.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/logging/iot_logging_task_dynamic_buffers.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/logging/iot_logging.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/logging/iot_logging.c</locationURI>
+		</link>
+		<link>
 			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
@@ -1567,9 +1547,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</name>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</name>
@@ -1587,9 +1567,49 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/core_mqtt.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT/source/core_mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/core_mqtt_state.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT/source/core_mqtt_state.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/core_mqtt_serializer.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
@@ -1792,6 +1812,16 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
@@ -1800,21 +1830,6 @@
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTT/source/core_mqtt.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT/source/core_mqtt.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTT/source/core_mqtt_state.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT/source/core_mqtt_state.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTT/source/core_mqtt_serializer.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
@@ -1972,9 +1987,14 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</locationURI>
 		</link>
 		<link>
-			<name>tests/integration_test/test_freertos_tcp.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/utest/iot_test_freertos_cli.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/tests/integration_test/test_freertos_tcp.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/utest/iot_test_freertos_cli.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/utest/iot_test_freertos_cli_console.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/utest/iot_test_freertos_cli_console.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/tls/test/iot_test_tls.c</name>
@@ -2007,6 +2027,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/tests/integration_test/core_mqtt_system_test.c</locationURI>
 		</link>
 		<link>
+			<name>tests/integration_test/test_freertos_tcp.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/integration_test/test_freertos_tcp.c</locationURI>
+		</link>
+		<link>
 			<name>config_files/FreeRTOSConfig.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_tests/config_files/FreeRTOSConfig.h</locationURI>
@@ -2020,11 +2045,6 @@
 			<name>config_files/aws_bufferpool_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_tests/config_files/aws_bufferpool_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/aws_demo_config.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_tests/config_files/aws_demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_ggd_config.h</name>

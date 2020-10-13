@@ -35,7 +35,7 @@
 #include <string.h>
 #include "iot_ble_config.h"
 #include "iot_serializer.h"
-#include "private/iot_mqtt_internal.h"
+#include "core_mqtt_serializer.h"
 #include "iot_ble_mqtt_serialize.h"
 #include "aws_clientcredential.h"
 
@@ -57,65 +57,54 @@
 
 #define TEST_QOS0                 0
 #define TEST_QOS1                 1
-#define TEST_RETRY_MS             0
-#define TEST_RETRY_LIMIT          0
 #define TEST_PACKET_IDENTIFIER    5
 
 #define TEST_MESG_LEN             512
 
-
-static bool serializeInit;
-
-TEST_GROUP( MQTT_Unit_BLE_Serialize );
+TEST_GROUP( BLE_Unit_MQTT_Serialize );
 
 /*-----------------------------------------------------------*/
 
-TEST_SETUP( MQTT_Unit_BLE_Serialize )
+TEST_SETUP( BLE_Unit_MQTT_Serialize )
 {
-    serializeInit = IotBleMqtt_InitSerialize();
-    TEST_ASSERT_EQUAL( true, serializeInit );
 }
 
 /*-----------------------------------------------------------*/
 
-TEST_TEAR_DOWN( MQTT_Unit_BLE_Serialize )
+TEST_TEAR_DOWN( BLE_Unit_MQTT_Serialize )
 {
-    if( serializeInit == true )
-    {
-        IotBleMqtt_CleanupSerialize();
-    }
 }
 
 
-TEST_GROUP_RUNNER( MQTT_Unit_BLE_Serialize )
+TEST_GROUP_RUNNER( BLE_Unit_MQTT_Serialize )
 {
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializeCONNECT );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializePUBLISH );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializePUBLISH_QOS0 );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializePUBACK );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializeDISCONNECT );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializeCONNECT );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializePUBLISH );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializePUBLISH_QOS0 );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializeSUBSCRIBE );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializeUNSUBSCRIBE );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializePUBACK );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializeDISCONNECT );
 
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, DeserializeCONNACK );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, DeserializePUBLISH );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, DeserializePUBLISH_QOS0 );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, DeserializeSUBACK );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, DeserializePUBACK );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, DeserializeUNSUBACK );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, DeserializeCONNACK );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, DeserializePUBLISH );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, DeserializePUBLISH_QOS0 );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, DeserializeSUBACK );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, DeserializePUBACK );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, DeserializeUNSUBACK );
 
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializeCONNECT_MallocFail );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializePUBLISH_MallocFail );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE_MallocFail );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE_MallocFail );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializePUBACK_MallocFail );
-    RUN_TEST_CASE( MQTT_Unit_BLE_Serialize, SerializeDISCONNECT_MallocFail );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializeCONNECT_MallocFail );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializePUBLISH_MallocFail );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializeSUBSCRIBE_MallocFail );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializeUNSUBSCRIBE_MallocFail );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializePUBACK_MallocFail );
+    RUN_TEST_CASE( BLE_Unit_MQTT_Serialize, SerializeDISCONNECT_MallocFail );
 }
 
-TEST( MQTT_Unit_BLE_Serialize, SerializeCONNECT )
+TEST( BLE_Unit_MQTT_Serialize, SerializeCONNECT )
 {
-    IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
-    volatile IotMqttError_t status;
+    MQTTConnectInfo_t connectInfo = { 0 };
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
     IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
@@ -132,7 +121,7 @@ TEST( MQTT_Unit_BLE_Serialize, SerializeCONNECT )
     if( TEST_PROTECT() )
     {
         status = IotBleMqtt_SerializeConnect( &connectInfo, ( uint8_t ** ) &pMesg, &bufLen );
-        TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
+        TEST_ASSERT_EQUAL( MQTTSuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
@@ -174,21 +163,21 @@ TEST( MQTT_Unit_BLE_Serialize, SerializeCONNECT )
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }
 }
 
-TEST( MQTT_Unit_BLE_Serialize, SerializePUBLISH )
+TEST( BLE_Unit_MQTT_Serialize, SerializePUBLISH )
 {
-    IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-    volatile IotMqttError_t status;
+    MQTTPublishInfo_t publishInfo = { 0 };
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
     IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
     IotSerializerError_t xResult;
-    uint16_t packetIdentifier;
+    uint16_t packetIdentifier = 2;
 
     publishInfo.qos = TEST_QOS1;
     publishInfo.pPayload = ( uint8_t * ) TEST_DATA;
@@ -196,16 +185,13 @@ TEST( MQTT_Unit_BLE_Serialize, SerializePUBLISH )
     publishInfo.pTopicName = TEST_TOPIC;
     publishInfo.topicNameLength = TEST_TOPIC_LENGTH;
     publishInfo.retain = false;
-    publishInfo.retryMs = TEST_RETRY_MS;
-    publishInfo.retryLimit = TEST_RETRY_LIMIT;
 
     if( TEST_PROTECT() )
     {
-        status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t ** ) &pMesg, &bufLen, &packetIdentifier, NULL );
-        TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
+        status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t ** ) &pMesg, &bufLen, packetIdentifier );
+        TEST_ASSERT_EQUAL( MQTTSuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
-        TEST_ASSERT_NOT_EQUAL( 0, packetIdentifier );
 
         xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
@@ -244,16 +230,16 @@ TEST( MQTT_Unit_BLE_Serialize, SerializePUBLISH )
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }
 }
 
-TEST( MQTT_Unit_BLE_Serialize, SerializePUBLISH_QOS0 )
+TEST( BLE_Unit_MQTT_Serialize, SerializePUBLISH_QOS0 )
 {
-    IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-    volatile IotMqttError_t status;
+    MQTTPublishInfo_t publishInfo = { 0 };
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
     IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
@@ -266,16 +252,13 @@ TEST( MQTT_Unit_BLE_Serialize, SerializePUBLISH_QOS0 )
     publishInfo.pTopicName = TEST_TOPIC;
     publishInfo.topicNameLength = TEST_TOPIC_LENGTH;
     publishInfo.retain = false;
-    publishInfo.retryMs = TEST_RETRY_MS;
-    publishInfo.retryLimit = TEST_RETRY_LIMIT;
 
     if( TEST_PROTECT() )
     {
-        status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t ** ) &pMesg, &bufLen, &packetIdentifier, NULL );
-        TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
+        status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t ** ) &pMesg, &bufLen, packetIdentifier );
+        TEST_ASSERT_EQUAL( MQTTSuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
-        TEST_ASSERT_EQUAL( 0, packetIdentifier );
 
         xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
@@ -308,21 +291,21 @@ TEST( MQTT_Unit_BLE_Serialize, SerializePUBLISH_QOS0 )
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }
 }
 
-TEST( MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE )
+TEST( BLE_Unit_MQTT_Serialize, SerializeSUBSCRIBE )
 {
-    IotMqttSubscription_t subscriptionList[ 2 ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER, IOT_MQTT_SUBSCRIPTION_INITIALIZER };
-    volatile IotMqttError_t status;
+    MQTTSubscribeInfo_t subscriptionList[ 2 ] = { 0 };
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
     IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
     IotSerializerError_t xResult;
-    uint16_t packetIdentifier;
+    uint16_t packetIdentifier = 1;
 
     subscriptionList[ 0 ].qos = TEST_QOS1;
     subscriptionList[ 0 ].pTopicFilter = TEST_TOPIC;
@@ -334,10 +317,9 @@ TEST( MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE )
     if( TEST_PROTECT() )
     {
         status = IotBleMqtt_SerializeSubscribe( subscriptionList, 2, ( uint8_t ** ) &pMesg, &bufLen, &packetIdentifier );
-        TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
+        TEST_ASSERT_EQUAL( MQTTSuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
-        TEST_ASSERT_NOT_EQUAL( 0, packetIdentifier );
 
         xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
@@ -370,21 +352,21 @@ TEST( MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE )
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }
 }
 
-TEST( MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE )
+TEST( BLE_Unit_MQTT_Serialize, SerializeUNSUBSCRIBE )
 {
-    IotMqttSubscription_t subscriptionList[ 2 ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER, IOT_MQTT_SUBSCRIPTION_INITIALIZER };
-    volatile IotMqttError_t status;
+    MQTTSubscribeInfo_t subscriptionList[ 2 ] = { 0 };
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
     IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
     IotSerializerError_t xResult;
-    uint16_t packetIdentifier;
+    uint16_t packetIdentifier = 1;
 
     subscriptionList[ 0 ].qos = TEST_QOS1;
     subscriptionList[ 0 ].pTopicFilter = TEST_TOPIC;
@@ -396,10 +378,9 @@ TEST( MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE )
     if( TEST_PROTECT() )
     {
         status = IotBleMqtt_SerializeUnsubscribe( subscriptionList, 2, ( uint8_t ** ) &pMesg, &bufLen, &packetIdentifier );
-        TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
+        TEST_ASSERT_EQUAL( MQTTSuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
-        TEST_ASSERT_NOT_EQUAL( 0, packetIdentifier );
 
         xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
@@ -426,16 +407,16 @@ TEST( MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE )
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }
 }
 
 
-TEST( MQTT_Unit_BLE_Serialize, SerializePUBACK )
+TEST( BLE_Unit_MQTT_Serialize, SerializePUBACK )
 {
-    volatile IotMqttError_t status;
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
     IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
@@ -444,7 +425,7 @@ TEST( MQTT_Unit_BLE_Serialize, SerializePUBACK )
     if( TEST_PROTECT() )
     {
         status = IotBleMqtt_SerializePuback( TEST_PACKET_IDENTIFIER, ( uint8_t ** ) &pMesg, &bufLen );
-        TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
+        TEST_ASSERT_EQUAL( MQTTSuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
@@ -467,15 +448,15 @@ TEST( MQTT_Unit_BLE_Serialize, SerializePUBACK )
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }
 }
 
-TEST( MQTT_Unit_BLE_Serialize, SerializeDISCONNECT )
+TEST( BLE_Unit_MQTT_Serialize, SerializeDISCONNECT )
 {
-    volatile IotMqttError_t status;
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
     IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
@@ -484,7 +465,7 @@ TEST( MQTT_Unit_BLE_Serialize, SerializeDISCONNECT )
     if( TEST_PROTECT() )
     {
         status = IotBleMqtt_SerializeDisconnect( ( uint8_t ** ) &pMesg, &bufLen );
-        TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
+        TEST_ASSERT_EQUAL( MQTTSuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
@@ -501,7 +482,7 @@ TEST( MQTT_Unit_BLE_Serialize, SerializeDISCONNECT )
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }
@@ -549,55 +530,56 @@ static void prvCreateCONNACKPacket( uint8_t * pBuffer,
     IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
 }
 
-TEST( MQTT_Unit_BLE_Serialize, DeserializeCONNACK )
+TEST( BLE_Unit_MQTT_Serialize, DeserializeCONNACK )
 {
-    IotMqttError_t status;
+    MQTTStatus_t status;
     uint8_t buffer[ TEST_MESG_LEN ] = { 0 };
-    _mqttPacket_t connack;
+    MQTTPacketInfo_t connack;
 
+    connack.type = MQTT_PACKET_TYPE_CONNACK;
     connack.remainingLength = TEST_MESG_LEN;
     connack.pRemainingData = buffer;
 
     prvCreateCONNACKPacket( connack.pRemainingData, &connack.remainingLength, IOT_BLE_MQTT_STATUS_CONNECTED, 1 );
 
     status = IotBleMqtt_DeserializeConnack( &connack );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
+    TEST_ASSERT_EQUAL( MQTTSuccess, status );
 
     prvCreateCONNACKPacket( connack.pRemainingData, &connack.remainingLength, IOT_BLE_MQTT_STATUS_CONNECTING, 1 );
     status = IotBleMqtt_DeserializeConnack( &connack );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
+    TEST_ASSERT_EQUAL( MQTTSuccess, status );
 
     prvCreateCONNACKPacket( connack.pRemainingData, &connack.remainingLength, IOT_BLE_MQTT_STATUS_CONNECTION_REFUSED, 1 );
     status = IotBleMqtt_DeserializeConnack( &connack );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SERVER_REFUSED, status );
+    TEST_ASSERT_EQUAL( MQTTServerRefused, status );
 
     prvCreateCONNACKPacket( connack.pRemainingData, &connack.remainingLength, IOT_BLE_MQTT_STATUS_DISCONNECTED, 1 );
     status = IotBleMqtt_DeserializeConnack( &connack );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SERVER_REFUSED, status );
+    TEST_ASSERT_EQUAL( MQTTServerRefused, status );
 
     prvCreateCONNACKPacket( connack.pRemainingData, &connack.remainingLength, IOT_BLE_MQTT_STATUS_PROTOCOL_ERROR, 1 );
     status = IotBleMqtt_DeserializeConnack( &connack );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SERVER_REFUSED, status );
+    TEST_ASSERT_EQUAL( MQTTServerRefused, status );
 
     prvCreateCONNACKPacket( connack.pRemainingData, &connack.remainingLength, IOT_BLE_MQTT_STATUS_UNKNOWN, 1 );
     status = IotBleMqtt_DeserializeConnack( &connack );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SERVER_REFUSED, status );
+    TEST_ASSERT_EQUAL( MQTTServerRefused, status );
 
     /** Empty message **/
     memset( connack.pRemainingData, 0x00, TEST_MESG_LEN );
     status = IotBleMqtt_DeserializeConnack( &connack );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 
     /** Tampered message **/
     prvCreateCONNACKPacket( connack.pRemainingData, &connack.remainingLength, IOT_BLE_MQTT_STATUS_CONNECTED, 1 );
     connack.pRemainingData[ 0 ] = 0x00; /*Not valid cbor */
     status = IotBleMqtt_DeserializeConnack( &connack );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 
     /** No response code */
     prvCreateCONNACKPacket( connack.pRemainingData, &connack.remainingLength, -1, 0 );
     status = IotBleMqtt_DeserializeConnack( &connack );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 }
 
 static void prvCreatePUBLISHPacket( uint8_t * pBuffer,
@@ -673,22 +655,22 @@ static void prvCreatePUBLISHPacket( uint8_t * pBuffer,
     IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
 }
 
-TEST( MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
+TEST( BLE_Unit_MQTT_Serialize, DeserializePUBLISH )
 {
-    IotMqttError_t status;
+    MQTTStatus_t status;
     uint8_t buffer[ TEST_MESG_LEN ];
-
-    _mqttOperation_t output = { 0 };
-
-    _mqttPacket_t packet =
+    MQTTPacketInfo_t packetInfo =
     {
-        .pRemainingData     = buffer,
-        .remainingLength    = TEST_MESG_LEN,
-        .u.pIncomingPublish = &output
+        .type            = MQTT_PACKET_TYPE_PUBLISH,
+        .pRemainingData  = buffer,
+        .remainingLength = TEST_MESG_LEN
     };
+    MQTTPublishInfo_t publishInfo;
+    uint16_t packetIdentifier;
 
-    prvCreatePUBLISHPacket( packet.pRemainingData,
-                            &packet.remainingLength,
+
+    prvCreatePUBLISHPacket( packetInfo.pRemainingData,
+                            &packetInfo.remainingLength,
                             TEST_TOPIC,
                             TEST_TOPIC_LENGTH,
                             TEST_DATA,
@@ -697,21 +679,21 @@ TEST( MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
                             TEST_PACKET_IDENTIFIER,
                             4 );
 
-    status = IotBleMqtt_DeserializePublish( &packet );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
-    TEST_ASSERT_EQUAL_INT( TEST_TOPIC_LENGTH, output.u.publish.publishInfo.topicNameLength );
-    TEST_ASSERT_EQUAL( 0, strncmp( output.u.publish.publishInfo.pTopicName, TEST_TOPIC, TEST_TOPIC_LENGTH ) );
-    TEST_ASSERT_EQUAL_INT( TEST_DATA_LENGTH, output.u.publish.publishInfo.payloadLength );
-    TEST_ASSERT_EQUAL( 0, strncmp( output.u.publish.publishInfo.pPayload, TEST_DATA, TEST_DATA_LENGTH ) );
-    TEST_ASSERT_EQUAL( TEST_QOS1, output.u.publish.publishInfo.qos );
-    TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, packet.packetIdentifier );
-    TEST_ASSERT_EQUAL( false, output.u.publish.publishInfo.retain );
+    status = IotBleMqtt_DeserializePublish( &packetInfo, &publishInfo, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTSuccess, status );
+    TEST_ASSERT_EQUAL_INT( TEST_TOPIC_LENGTH, publishInfo.topicNameLength );
+    TEST_ASSERT_EQUAL( 0, strncmp( publishInfo.pTopicName, TEST_TOPIC, TEST_TOPIC_LENGTH ) );
+    TEST_ASSERT_EQUAL_INT( TEST_DATA_LENGTH, publishInfo.payloadLength );
+    TEST_ASSERT_EQUAL( 0, strncmp( publishInfo.pPayload, TEST_DATA, TEST_DATA_LENGTH ) );
+    TEST_ASSERT_EQUAL( TEST_QOS1, publishInfo.qos );
+    TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, packetIdentifier );
+    TEST_ASSERT_EQUAL( false, publishInfo.retain );
 
     /** Malformed message **/
     memset( buffer, 0x00, TEST_MESG_LEN );
-    packet.remainingLength = TEST_MESG_LEN;
-    prvCreatePUBLISHPacket( packet.pRemainingData,
-                            &packet.remainingLength,
+    packetInfo.remainingLength = TEST_MESG_LEN;
+    prvCreatePUBLISHPacket( packetInfo.pRemainingData,
+                            &packetInfo.remainingLength,
                             TEST_TOPIC,
                             TEST_TOPIC_LENGTH,
                             TEST_DATA,
@@ -719,15 +701,15 @@ TEST( MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
                             TEST_QOS1,
                             TEST_PACKET_IDENTIFIER,
                             4 );
-    packet.pRemainingData[ 0 ] = 0x00;
-    status = IotBleMqtt_DeserializePublish( &packet );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    packetInfo.pRemainingData[ 0 ] = 0x00;
+    status = IotBleMqtt_DeserializePublish( &packetInfo, &publishInfo, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 
     /** NO QOS **/
     memset( buffer, 0x00, TEST_MESG_LEN );
-    packet.remainingLength = TEST_MESG_LEN;
-    prvCreatePUBLISHPacket( packet.pRemainingData,
-                            &packet.remainingLength,
+    packetInfo.remainingLength = TEST_MESG_LEN;
+    prvCreatePUBLISHPacket( packetInfo.pRemainingData,
+                            &packetInfo.remainingLength,
                             TEST_TOPIC,
                             TEST_TOPIC_LENGTH,
                             TEST_DATA,
@@ -735,14 +717,14 @@ TEST( MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
                             -1,
                             TEST_PACKET_IDENTIFIER,
                             3 );
-    status = IotBleMqtt_DeserializePublish( &packet );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    status = IotBleMqtt_DeserializePublish( &packetInfo, &publishInfo, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 
     /** NO Topic **/
     memset( buffer, 0x00, TEST_MESG_LEN );
-    packet.remainingLength = TEST_MESG_LEN;
-    prvCreatePUBLISHPacket( packet.pRemainingData,
-                            &packet.remainingLength,
+    packetInfo.remainingLength = TEST_MESG_LEN;
+    prvCreatePUBLISHPacket( packetInfo.pRemainingData,
+                            &packetInfo.remainingLength,
                             NULL,
                             0,
                             TEST_DATA,
@@ -750,14 +732,14 @@ TEST( MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
                             TEST_QOS1,
                             TEST_PACKET_IDENTIFIER,
                             3 );
-    status = IotBleMqtt_DeserializePublish( &packet );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    status = IotBleMqtt_DeserializePublish( &packetInfo, &publishInfo, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 
     /** NO Packet id **/
     memset( buffer, 0x00, TEST_MESG_LEN );
-    packet.remainingLength = TEST_MESG_LEN;
-    prvCreatePUBLISHPacket( packet.pRemainingData,
-                            &packet.remainingLength,
+    packetInfo.remainingLength = TEST_MESG_LEN;
+    prvCreatePUBLISHPacket( packetInfo.pRemainingData,
+                            &packetInfo.remainingLength,
                             TEST_TOPIC,
                             TEST_TOPIC_LENGTH,
                             TEST_DATA,
@@ -765,14 +747,14 @@ TEST( MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
                             TEST_QOS1,
                             -1,
                             3 );
-    status = IotBleMqtt_DeserializePublish( &packet );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    status = IotBleMqtt_DeserializePublish( &packetInfo, &publishInfo, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 
     /** NO Payload **/
     memset( buffer, 0x00, TEST_MESG_LEN );
-    packet.remainingLength = TEST_MESG_LEN;
-    prvCreatePUBLISHPacket( packet.pRemainingData,
-                            &packet.remainingLength,
+    packetInfo.remainingLength = TEST_MESG_LEN;
+    prvCreatePUBLISHPacket( packetInfo.pRemainingData,
+                            &packetInfo.remainingLength,
                             TEST_TOPIC,
                             TEST_TOPIC_LENGTH,
                             NULL,
@@ -780,23 +762,23 @@ TEST( MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
                             TEST_QOS1,
                             TEST_PACKET_IDENTIFIER,
                             3 );
-    status = IotBleMqtt_DeserializePublish( &packet );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    status = IotBleMqtt_DeserializePublish( &packetInfo, &publishInfo, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 }
 
-TEST( MQTT_Unit_BLE_Serialize, DeserializePUBLISH_QOS0 )
+TEST( BLE_Unit_MQTT_Serialize, DeserializePUBLISH_QOS0 )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
+    MQTTStatus_t status = MQTTSuccess;
     uint8_t buffer[ TEST_MESG_LEN ] = { 0 };
-
-    _mqttOperation_t output = { 0 };
-
-    _mqttPacket_t packet =
+    MQTTPacketInfo_t packet =
     {
-        .pRemainingData     = buffer,
-        .remainingLength    = TEST_MESG_LEN,
-        .u.pIncomingPublish = &output
+        .type            = MQTT_PACKET_TYPE_PUBLISH,
+        .pRemainingData  = buffer,
+        .remainingLength = TEST_MESG_LEN
     };
+    MQTTPublishInfo_t publishInfo;
+    uint16_t packetIdentifier;
+
 
     prvCreatePUBLISHPacket(
         packet.pRemainingData,
@@ -809,14 +791,14 @@ TEST( MQTT_Unit_BLE_Serialize, DeserializePUBLISH_QOS0 )
         -1,
         3 );
 
-    status = IotBleMqtt_DeserializePublish( &packet );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
-    TEST_ASSERT_EQUAL_INT( TEST_TOPIC_LENGTH, output.u.publish.publishInfo.topicNameLength );
-    TEST_ASSERT_EQUAL( 0, strncmp( output.u.publish.publishInfo.pTopicName, TEST_TOPIC, TEST_TOPIC_LENGTH ) );
-    TEST_ASSERT_EQUAL_INT( TEST_DATA_LENGTH, output.u.publish.publishInfo.payloadLength );
-    TEST_ASSERT_EQUAL( 0, strncmp( output.u.publish.publishInfo.pPayload, TEST_DATA, TEST_DATA_LENGTH ) );
-    TEST_ASSERT_EQUAL( TEST_QOS0, output.u.publish.publishInfo.qos );
-    TEST_ASSERT_EQUAL( false, output.u.publish.publishInfo.retain );
+    status = IotBleMqtt_DeserializePublish( &packet, &publishInfo, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTSuccess, status );
+    TEST_ASSERT_EQUAL_INT( TEST_TOPIC_LENGTH, publishInfo.topicNameLength );
+    TEST_ASSERT_EQUAL( 0, strncmp( publishInfo.pTopicName, TEST_TOPIC, TEST_TOPIC_LENGTH ) );
+    TEST_ASSERT_EQUAL_INT( TEST_DATA_LENGTH, publishInfo.payloadLength );
+    TEST_ASSERT_EQUAL( 0, strncmp( publishInfo.pPayload, TEST_DATA, TEST_DATA_LENGTH ) );
+    TEST_ASSERT_EQUAL( TEST_QOS0, publishInfo.qos );
+    TEST_ASSERT_EQUAL( false, publishInfo.retain );
 }
 
 static void prvCreateSUBACKPacket( uint8_t * pBuffer,
@@ -870,27 +852,31 @@ static void prvCreateSUBACKPacket( uint8_t * pBuffer,
     IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
 }
 
-TEST( MQTT_Unit_BLE_Serialize, DeserializeSUBACK )
+TEST( BLE_Unit_MQTT_Serialize, DeserializeSUBACK )
 {
-    IotMqttError_t status;
+    MQTTStatus_t status;
     uint8_t buffer[ TEST_MESG_LEN ];
-    _mqttPacket_t suback;
+    MQTTPacketInfo_t suback;
+    uint16_t packetIdentifier;
+    uint8_t statusCode;
 
+    suback.type = MQTT_PACKET_TYPE_SUBACK;
     suback.pRemainingData = buffer;
     suback.remainingLength = TEST_MESG_LEN;
 
     prvCreateSUBACKPacket( suback.pRemainingData, &suback.remainingLength, TEST_QOS1, TEST_PACKET_IDENTIFIER, 2 );
 
-    status = IotBleMqtt_DeserializeSuback( &suback );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
-    TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, suback.packetIdentifier );
+    status = IotBleMqtt_DeserializeSuback( &suback, &packetIdentifier, &statusCode );
+    TEST_ASSERT_EQUAL( MQTTSuccess, status );
+    TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, packetIdentifier );
+    TEST_ASSERT_EQUAL( TEST_QOS1, statusCode );
 
     /** Malformed message **/
     suback.remainingLength = TEST_MESG_LEN;
     prvCreateSUBACKPacket( suback.pRemainingData, &suback.remainingLength, TEST_QOS1, TEST_PACKET_IDENTIFIER, 2 );
     suback.pRemainingData[ 0 ] = 0x00;
-    status = IotBleMqtt_DeserializeSuback( &suback );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    status = IotBleMqtt_DeserializeSuback( &suback, &packetIdentifier, &statusCode );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 
 
     /** No Status **/
@@ -898,16 +884,16 @@ TEST( MQTT_Unit_BLE_Serialize, DeserializeSUBACK )
     suback.remainingLength = TEST_MESG_LEN;
     prvCreateSUBACKPacket( suback.pRemainingData, &suback.remainingLength, -1, TEST_PACKET_IDENTIFIER, 1 );
     suback.pRemainingData[ 0 ] = 0x00;
-    status = IotBleMqtt_DeserializeSuback( &suback );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    status = IotBleMqtt_DeserializeSuback( &suback, &packetIdentifier, &statusCode );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 
     /** No packet id **/
     memset( buffer, 0x00, TEST_MESG_LEN );
     suback.remainingLength = TEST_MESG_LEN;
     prvCreateSUBACKPacket( suback.pRemainingData, &suback.remainingLength, TEST_QOS1, -1, 1 );
     suback.pRemainingData[ 0 ] = 0x00;
-    status = IotBleMqtt_DeserializeSuback( &suback );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    status = IotBleMqtt_DeserializeSuback( &suback, &packetIdentifier, &statusCode );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 }
 
 static void prvCreatePUBACKPacket( uint8_t * pBuffer,
@@ -953,34 +939,36 @@ static void prvCreatePUBACKPacket( uint8_t * pBuffer,
 }
 
 
-TEST( MQTT_Unit_BLE_Serialize, DeserializePUBACK )
+TEST( BLE_Unit_MQTT_Serialize, DeserializePUBACK )
 {
-    IotMqttError_t status;
+    MQTTStatus_t status;
     uint8_t buffer[ TEST_MESG_LEN ] = { 0 };
-    _mqttPacket_t puback;
+    MQTTPacketInfo_t puback;
+    uint16_t packetIdentifier;
 
+    puback.type = MQTT_PACKET_TYPE_PUBACK;
     puback.pRemainingData = buffer;
     puback.remainingLength = TEST_MESG_LEN;
 
     prvCreatePUBACKPacket( puback.pRemainingData, &puback.remainingLength, TEST_PACKET_IDENTIFIER, 1 );
-    status = IotBleMqtt_DeserializePuback( &puback );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
-    TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, puback.packetIdentifier );
+    status = IotBleMqtt_DeserializePuback( &puback, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTSuccess, status );
+    TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, packetIdentifier );
 
     /** Malformed message */
     memset( buffer, 0x00, TEST_MESG_LEN );
     puback.remainingLength = TEST_MESG_LEN;
     prvCreatePUBACKPacket( puback.pRemainingData, &puback.remainingLength, TEST_PACKET_IDENTIFIER, 1 );
     puback.pRemainingData[ 0 ] = 0x00;
-    status = IotBleMqtt_DeserializePuback( &puback );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    status = IotBleMqtt_DeserializePuback( &puback, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 
     /** No message id */
     memset( buffer, 0x00, TEST_MESG_LEN );
     puback.remainingLength = TEST_MESG_LEN;
     prvCreatePUBACKPacket( puback.pRemainingData, &puback.remainingLength, -1, 0 );
-    status = IotBleMqtt_DeserializePuback( &puback );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    status = IotBleMqtt_DeserializePuback( &puback, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 }
 
 
@@ -1026,40 +1014,42 @@ static void prvCreateUNSUBACKPacket( uint8_t * pBuffer,
     IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
 }
 
-TEST( MQTT_Unit_BLE_Serialize, DeserializeUNSUBACK )
+TEST( BLE_Unit_MQTT_Serialize, DeserializeUNSUBACK )
 {
-    IotMqttError_t status;
+    volatile MQTTStatus_t status;
     uint8_t buffer[ TEST_MESG_LEN ] = { 0 };
-    _mqttPacket_t puback;
+    MQTTPacketInfo_t unsuback;
+    uint16_t packetIdentifier;
 
-    puback.pRemainingData = buffer;
-    puback.remainingLength = TEST_MESG_LEN;
+    unsuback.type = MQTT_PACKET_TYPE_UNSUBACK;
+    unsuback.pRemainingData = buffer;
+    unsuback.remainingLength = TEST_MESG_LEN;
 
-    prvCreateUNSUBACKPacket( puback.pRemainingData, &puback.remainingLength, TEST_PACKET_IDENTIFIER, 1 );
-    status = IotBleMqtt_DeserializePuback( &puback );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
-    TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, puback.packetIdentifier );
+    prvCreateUNSUBACKPacket( unsuback.pRemainingData, &unsuback.remainingLength, TEST_PACKET_IDENTIFIER, 1 );
+    status = IotBleMqtt_DeserializeUnsuback( &unsuback, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTSuccess, status );
+    TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, packetIdentifier );
 
     /** Malformed message */
     memset( buffer, 0x00, TEST_MESG_LEN );
-    puback.remainingLength = TEST_MESG_LEN;
-    prvCreatePUBACKPacket( puback.pRemainingData, &puback.remainingLength, TEST_PACKET_IDENTIFIER, 1 );
-    puback.pRemainingData[ 0 ] = 0x00;
-    status = IotBleMqtt_DeserializePuback( &puback );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    unsuback.remainingLength = TEST_MESG_LEN;
+    prvCreateUNSUBACKPacket( unsuback.pRemainingData, &unsuback.remainingLength, TEST_PACKET_IDENTIFIER, 1 );
+    unsuback.pRemainingData[ 0 ] = 0x00;
+    status = IotBleMqtt_DeserializeUnsuback( &unsuback, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 
     /** No message id */
     memset( buffer, 0x00, TEST_MESG_LEN );
-    puback.remainingLength = TEST_MESG_LEN;
-    prvCreatePUBACKPacket( puback.pRemainingData, &puback.remainingLength, -1, 0 );
-    status = IotBleMqtt_DeserializePuback( &puback );
-    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
+    unsuback.remainingLength = TEST_MESG_LEN;
+    prvCreateUNSUBACKPacket( unsuback.pRemainingData, &unsuback.remainingLength, -1, 0 );
+    status = IotBleMqtt_DeserializeUnsuback( &unsuback, &packetIdentifier );
+    TEST_ASSERT_EQUAL( MQTTBadResponse, status );
 }
 
-TEST( MQTT_Unit_BLE_Serialize, SerializeCONNECT_MallocFail )
+TEST( BLE_Unit_MQTT_Serialize, SerializeCONNECT_MallocFail )
 {
-    IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
-    volatile IotMqttError_t status;
+    MQTTConnectInfo_t connectInfo = { 0 };
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
 
@@ -1075,25 +1065,25 @@ TEST( MQTT_Unit_BLE_Serialize, SerializeCONNECT_MallocFail )
         UnityMalloc_MakeMallocFailAfterCount( 0 );
         status = IotBleMqtt_SerializeConnect( &connectInfo, ( uint8_t ** ) &pMesg, &bufLen );
 
-        if( status != IOT_MQTT_SUCCESS )
+        if( status != MQTTSuccess )
         {
-            TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
+            TEST_ASSERT_EQUAL( MQTTNoMemory, status );
         }
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }
 }
 
-TEST( MQTT_Unit_BLE_Serialize, SerializePUBLISH_MallocFail )
+TEST( BLE_Unit_MQTT_Serialize, SerializePUBLISH_MallocFail )
 {
-    IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-    volatile IotMqttError_t status;
+    MQTTPublishInfo_t publishInfo = { 0 };
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
-    uint16_t packetIdentifier;
+    uint16_t packetIdentifier = 1;
 
     publishInfo.qos = TEST_QOS1;
     publishInfo.pPayload = ( uint8_t * ) TEST_DATA;
@@ -1101,31 +1091,29 @@ TEST( MQTT_Unit_BLE_Serialize, SerializePUBLISH_MallocFail )
     publishInfo.pTopicName = TEST_TOPIC;
     publishInfo.topicNameLength = TEST_TOPIC_LENGTH;
     publishInfo.retain = false;
-    publishInfo.retryMs = TEST_RETRY_MS;
-    publishInfo.retryLimit = TEST_RETRY_LIMIT;
 
     if( TEST_PROTECT() )
     {
         UnityMalloc_MakeMallocFailAfterCount( 1 );
-        status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t ** ) &pMesg, &bufLen, &packetIdentifier, NULL );
+        status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t ** ) &pMesg, &bufLen, packetIdentifier );
 
-        if( status != IOT_MQTT_SUCCESS )
+        if( status != MQTTSuccess )
         {
-            TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
+            TEST_ASSERT_EQUAL( MQTTNoMemory, status );
         }
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }
 }
 
 
-TEST( MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE_MallocFail )
+TEST( BLE_Unit_MQTT_Serialize, SerializeSUBSCRIBE_MallocFail )
 {
-    IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
-    volatile IotMqttError_t status;
+    MQTTSubscribeInfo_t subscription = { 0 };
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
     uint16_t packetIdentifier;
@@ -1139,21 +1127,21 @@ TEST( MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE_MallocFail )
         UnityMalloc_MakeMallocFailAfterCount( 1 );
         status = IotBleMqtt_SerializeSubscribe( &subscription, 1, ( uint8_t ** ) &pMesg, &bufLen, &packetIdentifier );
 
-        if( status != IOT_MQTT_SUCCESS )
+        if( status != MQTTSuccess )
         {
-            TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
+            TEST_ASSERT_EQUAL( MQTTNoMemory, status );
         }
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }
 }
 
-TEST( MQTT_Unit_BLE_Serialize, SerializePUBACK_MallocFail )
+TEST( BLE_Unit_MQTT_Serialize, SerializePUBACK_MallocFail )
 {
-    volatile IotMqttError_t status;
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
 
@@ -1162,22 +1150,22 @@ TEST( MQTT_Unit_BLE_Serialize, SerializePUBACK_MallocFail )
         UnityMalloc_MakeMallocFailAfterCount( 0 );
         status = IotBleMqtt_SerializePuback( TEST_PACKET_IDENTIFIER, ( uint8_t ** ) &pMesg, &bufLen );
 
-        if( status != IOT_MQTT_SUCCESS )
+        if( status != MQTTSuccess )
         {
-            TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
+            TEST_ASSERT_EQUAL( MQTTNoMemory, status );
         }
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }
 }
 
-TEST( MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE_MallocFail )
+TEST( BLE_Unit_MQTT_Serialize, SerializeUNSUBSCRIBE_MallocFail )
 {
-    IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
-    volatile IotMqttError_t status;
+    MQTTSubscribeInfo_t subscription = { 0 };
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
     uint16_t packetIdentifier;
@@ -1191,21 +1179,21 @@ TEST( MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE_MallocFail )
         UnityMalloc_MakeMallocFailAfterCount( 1 );
         status = IotBleMqtt_SerializeUnsubscribe( &subscription, 1, ( uint8_t ** ) &pMesg, &bufLen, &packetIdentifier );
 
-        if( status != IOT_MQTT_SUCCESS )
+        if( status != MQTTSuccess )
         {
-            TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
+            TEST_ASSERT_EQUAL( MQTTNoMemory, status );
         }
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }
 }
 
-TEST( MQTT_Unit_BLE_Serialize, SerializeDISCONNECT_MallocFail )
+TEST( BLE_Unit_MQTT_Serialize, SerializeDISCONNECT_MallocFail )
 {
-    volatile IotMqttError_t status;
+    volatile MQTTStatus_t status;
     char * pMesg;
     size_t bufLen;
 
@@ -1214,13 +1202,13 @@ TEST( MQTT_Unit_BLE_Serialize, SerializeDISCONNECT_MallocFail )
         UnityMalloc_MakeMallocFailAfterCount( 0 );
         status = IotBleMqtt_SerializeDisconnect( ( uint8_t ** ) &pMesg, &bufLen );
 
-        if( status != IOT_MQTT_SUCCESS )
+        if( status != MQTTSuccess )
         {
-            TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
+            TEST_ASSERT_EQUAL( MQTTNoMemory, status );
         }
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status == MQTTSuccess )
     {
         IotBleMqtt_FreePacket( ( uint8_t * ) pMesg );
     }

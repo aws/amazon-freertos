@@ -17,4 +17,5 @@
 #define USED
 #endif
 
-const int USED uxTopUsedPriority = configMAX_PRIORITIES - 1;
+/* This symbol is no longer needed when using FreeRTOS Kernel v10.4.2 or newer. */
+/* const int USED uxTopUsedPriority = configMAX_PRIORITIES - 1; */

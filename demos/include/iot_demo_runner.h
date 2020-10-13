@@ -48,6 +48,46 @@
         #undef democonfigDEMO_PRIORITY
         #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
     #endif
+#elif defined( CONFIG_CORE_MQTT_PLAINTEXT_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreMqttPlaintextDemo
+    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
+        #undef democonfigDEMO_STACKSIZE
+        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
+    #endif
+    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
+        #undef democonfigDEMO_PRIORITY
+        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
+    #endif
+#elif defined( CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreMqttMutualAuthDemo
+    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
+        #undef democonfigDEMO_STACKSIZE
+        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
+    #endif
+    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
+        #undef democonfigDEMO_PRIORITY
+        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
+    #endif
+#elif defined( CONFIG_CORE_MQTT_SERIALIZER_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreMqttSerializerDemo
+    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
+        #undef democonfigDEMO_STACKSIZE
+        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
+    #endif
+    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
+        #undef democonfigDEMO_PRIORITY
+        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
+    #endif
+#elif defined( CONFIG_CORE_MQTT_KEEP_ALIVE_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreMqttKeepAliveDemo
+    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
+        #undef democonfigDEMO_STACKSIZE
+        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
+    #endif
+    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
+        #undef democonfigDEMO_PRIORITY
+        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
+    #endif
 #elif defined( CONFIG_SHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunShadowDemo
     #if defined( democonfigSHADOW_DEMO_TASK_STACK_SIZE )
@@ -102,6 +142,8 @@
     #define DEMO_entryFUNCTION             RunHttpsSyncUploadDemo
 #elif defined( CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             RunHttpsAsyncUploadDemo
+#elif defined( CONFIG_MQTT_BLE_TRANSPORT_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunMQTTBLETransportDemo
 #elif defined( CONFIG_CLI_UART_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vRunCLIUartDemo
 #else /* if defined( CONFIG_MQTT_DEMO_ENABLED ) */
