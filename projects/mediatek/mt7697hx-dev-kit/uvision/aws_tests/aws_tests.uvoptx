@@ -2230,8 +2230,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pkcs11.h</PathWithFileName>
-      <FilenameWithoutPath>iot_pkcs11.h</FilenameWithoutPath>
+      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</PathWithFileName>
+      <FilenameWithoutPath>core_pkcs11.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2250,8 +2250,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/iot_pkcs11.c</PathWithFileName>
-      <FilenameWithoutPath>iot_pkcs11.c</FilenameWithoutPath>
+      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</PathWithFileName>
+      <FilenameWithoutPath>core_pkcs11.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2270,8 +2270,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/ports/pkcs11/iot_pkcs11_pal.c</PathWithFileName>
-      <FilenameWithoutPath>iot_pkcs11_pal.c</FilenameWithoutPath>
+      <PathWithFileName>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/ports/pkcs11/core_pkcs11_pal.c</PathWithFileName>
+      <FilenameWithoutPath>core_pkcs11_pal.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2290,8 +2290,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/iot_pkcs11_mbedtls.c</PathWithFileName>
-      <FilenameWithoutPath>iot_pkcs11_mbedtls.c</FilenameWithoutPath>
+      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c</PathWithFileName>
+      <FilenameWithoutPath>core_pkcs11_mbedtls.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2334,8 +2334,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/iot_pki_utils.c</PathWithFileName>
-      <FilenameWithoutPath>iot_pki_utils.c</FilenameWithoutPath>
+      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</PathWithFileName>
+      <FilenameWithoutPath>core_pki_utils.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2366,8 +2366,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pki_utils.h</PathWithFileName>
-      <FilenameWithoutPath>iot_pki_utils.h</FilenameWithoutPath>
+      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</PathWithFileName>
+      <FilenameWithoutPath>core_pki_utils.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -3966,8 +3966,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/iot_pkcs11_config.h</PathWithFileName>
-      <FilenameWithoutPath>iot_pkcs11_config.h</FilenameWithoutPath>
+      <PathWithFileName>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/core_pkcs11_config.h</PathWithFileName>
+      <FilenameWithoutPath>core_pkcs11_config.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -3978,8 +3978,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/iot_test_pkcs11_config.h</PathWithFileName>
-      <FilenameWithoutPath>iot_test_pkcs11_config.h</FilenameWithoutPath>
+      <PathWithFileName>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/core_test_pkcs11_config.h</PathWithFileName>
+      <FilenameWithoutPath>core_test_pkcs11_config.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

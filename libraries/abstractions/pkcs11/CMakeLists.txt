@@ -10,8 +10,8 @@ set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source/include")
 afr_module_sources(
     pkcs11_utils
     PRIVATE
-        "${src_dir}/iot_pki_utils.c"
-        "${inc_dir}/iot_pki_utils.h"
+        "${src_dir}/core_pki_utils.c"
+        "${inc_dir}/core_pki_utils.h"
 )
 
 afr_module_include_dirs(
@@ -31,8 +31,8 @@ set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source/include")
 afr_module_sources(
     pkcs11
     PRIVATE
-        "${inc_dir}/iot_pkcs11.h"
-        "${src_dir}/iot_pkcs11.c"
+        "${inc_dir}/core_pkcs11.h"
+        "${src_dir}/core_pkcs11.c"
 )
 
 afr_module_include_dirs(
@@ -109,7 +109,7 @@ if(ECC608_IN_USE)
         INTERFACE
             "${atca_config_dir}/atca_cert_chain.h"
             "${atca_config_dir}/atca_cert_chain.c"
-            "${atca_config_dir}/iot_pkcs11_secure_element.c"
+            "${atca_config_dir}/core_pkcs11_secure_element.c"
             "${ecc608_src_list}"
     )
 
@@ -160,9 +160,9 @@ else()
     afr_module_sources(
         pkcs11_mbedtls 
         INTERFACE
-            "${src_dir}/iot_pkcs11_mbedtls.c"
+            "${src_dir}/core_pkcs11_mbedtls.c"
             "${src_dir}/include/threading_alt.h"
-            "${inc_dir}/iot_pkcs11_pal.h"
+            "${inc_dir}/core_pkcs11_pal.h"
     )
 
     afr_module_dependencies(

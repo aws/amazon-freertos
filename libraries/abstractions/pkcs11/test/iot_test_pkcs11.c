@@ -32,16 +32,16 @@
 #include "FreeRTOSIPConfig.h"
 #include "task.h"
 #include "event_groups.h"
-#include "iot_pki_utils.h"
+#include "core_pki_utils.h"
 
 /* Crypto includes. */
 #include "iot_crypto.h"
 #include "aws_clientcredential.h"
 #include "iot_default_root_certificates.h"
-#include "iot_pkcs11_config.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11_config.h"
+#include "core_pkcs11.h"
 #include "aws_dev_mode_key_provisioning.h"
-#include "iot_test_pkcs11_config.h"
+#include "core_test_pkcs11_config.h"
 #include "mbedtls/x509_crt.h"
 
 #if ( pkcs11testRSA_KEY_SUPPORT == 0 ) && ( pkcs11testEC_KEY_SUPPORT == 0 )
@@ -53,7 +53,7 @@
 #endif
 
 #include "iot_test_pkcs11_globals.h"
-#include "iot_pkcs11_config.h"
+#include "core_pkcs11_config.h"
 
 /* Test includes. */
 #include "unity_fixture.h"
@@ -407,12 +407,12 @@ static MultithreadTaskParams_t xGlobalTaskParams[ pkcs11testMULTI_THREAD_TASK_CO
 /*-----------------------------------------------------------*/
 /*           Multitask loop configuration.                   */
 /*-----------------------------------------------------------*/
-/* Stack size of each task. This can be configured in iot_test_pkcs11_config.h. */
+/* Stack size of each task. This can be configured in core_test_pkcs11_config.h. */
 #ifndef pkcs11testMULTI_TASK_STACK_SIZE
     #define pkcs11testMULTI_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 6 )
 #endif
 
-/* Priority of each task. This can be configured in iot_test_pkcs11_config.h. */
+/* Priority of each task. This can be configured in core_test_pkcs11_config.h. */
 #ifndef pkcs11testMULTI_TASK_PRIORITY
     #define pkcs11testMULTI_TASK_PRIORITY    ( tskIDLE_PRIORITY )
 #endif

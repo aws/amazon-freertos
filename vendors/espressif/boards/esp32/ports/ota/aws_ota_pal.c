@@ -28,7 +28,7 @@
 #include "types/iot_network_types.h"
 #include "aws_iot_network_config.h"
 #include "iot_crypto.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11.h"
 #include "esp_system.h"
 #include "esp_log.h"
 #include "soc/rtc_cntl_reg.h"

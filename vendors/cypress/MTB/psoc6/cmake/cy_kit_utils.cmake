@@ -479,7 +479,7 @@ function(cy_kit_generate)
         target_sources(
             AFR::pkcs11_implementation::mcu_port
             INTERFACE
-            "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+            "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
         )
     endif()
 

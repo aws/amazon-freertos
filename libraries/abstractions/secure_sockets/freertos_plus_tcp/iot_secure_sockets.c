@@ -37,7 +37,7 @@
 #include "iot_secure_sockets.h"
 #include "iot_tls.h"
 #include "task.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11.h"
 #include "iot_crypto.h"
 
 #undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE

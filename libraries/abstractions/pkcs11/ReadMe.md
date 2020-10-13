@@ -58,4 +58,4 @@ void PKCS11_PAL_GetObjectValueCleanup(
 
 CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle );
 ```
-A stub of the PAL interface can be found at https://github.com/aws/amazon-freertos/blob/master/vendors/vendor/boards/board/ports/pkcs11/iot_pkcs11_pal.c.
+A stub of the PAL interface can be found at https://github.com/aws/amazon-freertos/blob/master/vendors/vendor/boards/board/ports/pkcs11/core_pkcs11_pal.c.

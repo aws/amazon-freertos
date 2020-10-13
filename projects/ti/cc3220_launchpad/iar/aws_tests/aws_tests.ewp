@@ -1233,7 +1233,7 @@
 						<group>
 							<name>pkcs11</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\pkcs11\iot_pkcs11_pal.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\pkcs11\core_pkcs11_pal.c</name>
 							</file>
 						</group>
 						<group>
@@ -1338,10 +1338,10 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_mqtt_agent_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_pkcs11_config.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\core_pkcs11_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_test_pkcs11_config.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\core_test_pkcs11_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\unity_config.h</name>
@@ -1533,46 +1533,10 @@
 			<group>
 				<name>pkcs11</name>
 				<group>
-					<name>corePKCS11</name>
-					<group>
-						<name>source</name>
-						<group>
-							<name>include</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pkcs11.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pkcs11_pal.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pki_utils.h</name>
-							</file>
-						</group>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pkcs11.c</name>
-						</file>
-						<group>
-							<name>portable</name>
-							<group>
-								<name>mbedtls</name>
-								<file>
-									<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\iot_pkcs11_mbedtls.c</name>
-								</file>
-								<group>
-									<name>include</name>
-									<file>
-										<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include\threading_alt.h</name>
-									</file>
-								</group>
-							</group>
-						</group>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pki_utils.c</name>
-						</file>
-					</group>
-				</group>
-				<group>
-					<name>test</name>
+					<name>mbedtls</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\core_pkcs11_mbedtls.c</name>
+					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11.c</name>
 					</file>
@@ -1584,6 +1548,7 @@
 					<name>include</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include\iot_wifi.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include\core_pkcs11_pal.h</name>
 					</file>
 				</group>
 				<group>
@@ -1698,6 +1663,21 @@
 					</group>
 				</group>
 				<group>
+					<name>pkcs11</name>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\core_pkcs11.h</name>
+						</file>
+					</group>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\core_pkcs11.c</name>
+						</file>
+					</group>
+				</group>
+				<group>
 					<name>crypto</name>
 					<group>
 						<name>src</name>
@@ -1724,6 +1704,12 @@
 						<name>src</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\core_pki_utils.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\core_pki_utils.h</name>
 						</file>
 					</group>
 					<group>
