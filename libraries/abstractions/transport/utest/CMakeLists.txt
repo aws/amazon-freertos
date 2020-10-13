@@ -38,7 +38,6 @@ list(APPEND real_include_directories
             "${AFR_MODULES_ABSTRACTIONS_DIR}/transport/secure_sockets"
             "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
             "${AFR_TESTS_DIR}/unit_test/linux/logging-stack"
-            "${AFR_TESTS_DIR}/unit_test/linux/config_files"
         )
 
 # =====================  Create UnitTest Code here (edit)  =====================
@@ -49,7 +48,6 @@ list(APPEND test_include_directories
             "${AFR_MODULES_ABSTRACTIONS_DIR}/transport/secure_sockets"
             "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
             "${AFR_TESTS_DIR}/unit_test/linux/logging-stack"
-            "${AFR_TESTS_DIR}/unit_test/linux/config_files"
         )
 
 # =============================  (end edit)  ===================================
