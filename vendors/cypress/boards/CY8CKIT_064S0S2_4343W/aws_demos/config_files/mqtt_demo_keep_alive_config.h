@@ -115,9 +115,5 @@
  * #define democonfigMQTT_MAX_DEMO_COUNT                ( insert here. )
  */
 
-/* This demo uses xPortGetFreeHeapSize() to get the remaining heap space left.
- * This Cypress CYW943907AEVAL1F platform uses heap_3 which does not have this
- * function available. */
-#define xPortGetFreeHeapSize()                          0U
 
 #endif /* MQTT_KEEP_ALIVE_CONFIG_H */
