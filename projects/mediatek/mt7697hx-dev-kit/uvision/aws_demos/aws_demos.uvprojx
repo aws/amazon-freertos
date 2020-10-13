@@ -1849,6 +1849,11 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_keep_alive.c</FilePath>
 						</File>
+						<File>
+							<FileName>mqtt_demo_connection_sharing.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_connection_sharing.c</FilePath>
+						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -2018,6 +2023,11 @@
 							<FileName>mqtt_demo_basic_tls_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/mqtt_demo_basic_tls_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_connection_sharing_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>mqtt_demo_keep_alive_config.h</FileName>
