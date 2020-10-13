@@ -15,10 +15,9 @@
 		<Filter Include="libraries\c_sdk"/>
 		<Filter Include="libraries"/>
 		<Filter Include="libraries\c_sdk\standard\common\include"/>
-		<Filter Include="libraries\c_sdk\standard\common\logging"/>
-		<Filter Include="libraries\c_sdk\standard\common\include\private"/>
 		<Filter Include="libraries\c_sdk\standard\common\include\types"/>
 		<Filter Include="libraries\c_sdk\standard\common\taskpool"/>
+		<Filter Include="libraries\c_sdk\standard\common\include\private"/>
 		<Filter Include="libraries\abstractions\platform\include\platform"/>
 		<Filter Include="libraries\abstractions\platform\include"/>
 		<Filter Include="libraries\abstractions\platform"/>
@@ -66,6 +65,7 @@
 		<Filter Include="libraries\freertos_plus\standard\utils\src"/>
 		<Filter Include="libraries\freertos_plus\standard\utils"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
+		<Filter Include="libraries\logging"/>
 		<Filter Include="demos\dev_mode_key_provisioning\src"/>
 		<Filter Include="demos\dev_mode_key_provisioning"/>
 		<Filter Include="demos\dev_mode_key_provisioning\include"/>
@@ -235,21 +235,6 @@
 			<Filter>libraries\c_sdk\standard\common\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h">
-			<Filter>libraries\c_sdk\standard\common\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_levels.h">
-			<Filter>libraries\c_sdk\standard\common\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_stack.h">
-			<Filter>libraries\c_sdk\standard\common\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_logging.h">
-			<Filter>libraries\c_sdk\standard\common\include\private</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_task.h">
-			<Filter>libraries\c_sdk\standard\common\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_setup.h">
 			<Filter>libraries\c_sdk\standard\common\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_network_types.h">
@@ -935,9 +920,6 @@
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_init.c">
 			<Filter>libraries\c_sdk\standard\common</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\logging\iot_logging.c">
-			<Filter>libraries\c_sdk\standard\common\logging</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_static_memory_common.c">
 			<Filter>libraries\c_sdk\standard\common</Filter>
 		</ClCompile>
@@ -1231,6 +1213,9 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c">
 			<Filter>libraries\freertos_plus\standard\utils\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\logging\iot_logging.c">
+			<Filter>libraries\logging</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">
 			<Filter>demos\dev_mode_key_provisioning\src</Filter>

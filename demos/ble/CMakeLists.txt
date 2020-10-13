@@ -38,7 +38,7 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/mqtt_transport
-        ${AFR_MODULES_C_SDK_DIR}/standard/logging_stack/
+        ${AFR_MODULES_DIR}/logging/include
 )
 
 afr_module_dependencies(

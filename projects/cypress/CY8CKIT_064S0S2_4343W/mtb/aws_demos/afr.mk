@@ -276,7 +276,7 @@ endif
 
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/common/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/common/logging/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/logging/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/common/taskpool/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/https/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/*c)\
@@ -310,7 +310,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include/private\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include/types\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/logging_stack\
+	$(CY_AFR_ROOT)/libraries/logging/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/include/types\

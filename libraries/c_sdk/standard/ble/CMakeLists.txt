@@ -100,7 +100,7 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${inc_dir}"
-        "${AFR_MODULES_DIR}/c_sdk/standard/logging_stack"
+        "${AFR_MODULES_DIR}/logging/include"
         "$<${AFR_IS_TESTING}:${src_dir}>"
     PRIVATE
         "${test_dir}"

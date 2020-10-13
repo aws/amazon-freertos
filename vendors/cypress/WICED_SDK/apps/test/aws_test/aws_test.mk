@@ -55,6 +55,7 @@ export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../../libraries/freertos_plus/aw
 
 GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)common/include \
+                    $(AFR_LIBRARIES_PATH)logging/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include  \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include \
                     $(AFR_ABSTRACTIONS_PATH)retry_utils \
@@ -120,8 +121,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_tests/application_code/main.c \
-                      $(AFR_C_SDK_STANDARD_PATH)common/logging/iot_logging_task_dynamic_buffers.c \
-                      $(AFR_C_SDK_STANDARD_PATH)common/logging/iot_logging.c \
+                      $(AFR_LIBRARIES_PATH)logging/iot_logging_task_dynamic_buffers.c \
+                      $(AFR_LIBRARIES_PATH)logging/iot_logging.c \
                       $(AMAZON_FREERTOS_PATH)tests/common/aws_test_runner.c \
                       $(AMAZON_FREERTOS_PATH)tests/common/aws_test_framework.c \
                       $(AMAZON_FREERTOS_PATH)tests/common/aws_test.c \
