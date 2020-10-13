@@ -11,6 +11,16 @@ list(APPEND mock_list
             "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include/iot_secure_sockets.h"
         )
 
+#list the definitions of your mocks to control what to be included
+list(APPEND mock_include_list
+            ""
+       )
+
+#list the definitions of your mocks to control what to be included
+list(APPEND mock_define_list
+            ""
+       )
+
 # ================= Create the library under test here (edit) ==================
 
 # Include filepaths for source and include.
@@ -46,10 +56,10 @@ set(mock_name "${project_name}_mock")
 set(real_name "${project_name}_real")
 
 create_mock_list(${mock_name}
-            "${mock_list}"
-            "${CMAKE_CURRENT_LIST_DIR}/project.yml"
-            ""
-            ""
+                "${mock_list}"
+                "${MODULE_ROOT_DIR}/tools/cmock/project.yml"
+                "${mock_include_list}"
+                "${mock_define_list}"
         )
 
 create_real_library(${real_name}
