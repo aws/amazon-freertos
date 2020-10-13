@@ -83,7 +83,7 @@
  *        `TCP    0.0.0.0:1883           <HOST-NAME>:0       LISTENING`
  *     d. If there is no output on step c,go through the Mosquitto documentation
  *        listed above to check if the installation was successful.
- * 
+ *
  * #define democonfigMQTT_BROKER_ENDPOINT               "insert here."
  */
 
@@ -97,7 +97,7 @@
 
 /**
  * @brief The maximum number of times to run the demo's subscribe publish loop.
- * 
+ *
  * #define democonfigMQTT_MAX_DEMO_COUNT                ( insert here. )
  */
 

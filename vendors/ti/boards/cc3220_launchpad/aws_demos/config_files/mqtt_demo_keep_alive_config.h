@@ -111,7 +111,7 @@
 
 /**
  * @brief The maximum number of times to run the demo's subscribe publish loop.
- * 
+ *
  * #define democonfigMQTT_MAX_DEMO_COUNT                ( insert here. )
  */
 

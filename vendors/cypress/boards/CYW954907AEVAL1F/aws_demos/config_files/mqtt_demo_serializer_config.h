@@ -97,7 +97,7 @@
  * Windows host natively. Also note that, if the Windows host is using a
  * Virtual Private Network(VPN), connection to the Mosquitto broker may not
  * work.
- * 
+ *
  * #define democonfigMQTT_BROKER_ENDPOINT				"insert here."
  */
 
@@ -111,7 +111,7 @@
 
 /**
  * @brief The maximum number of times to run the demo's subscribe publish loop.
- * 
+ *
  * #define democonfigMQTT_MAX_DEMO_COUNT                ( insert here. )
  */
 
