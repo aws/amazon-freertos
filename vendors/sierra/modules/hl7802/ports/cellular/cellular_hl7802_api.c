@@ -191,7 +191,6 @@ static CellularPktStatus_t _Cellular_RecvFuncGetSocketStat( CellularContext_t * 
                                                             uint16_t dataLen )
 {
     char * pInputLine = NULL, * pToken = NULL;
-    bool parseStatus = true;
     socketStat_t * pSocketStat = ( socketStat_t * ) pData;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
@@ -348,7 +347,7 @@ static CellularError_t _Cellular_GetSocketStat( CellularHandle_t cellularHandle,
     uint32_t sessionId = ( uint32_t ) socketHandle->pModemData;
 
     /* Internal function. Caller checks parameters. */
-    ( void ) snprintf( cmdBuf, CELLULAR_AT_CMD_TYPICAL_MAX_SIZE, "AT+KTCPSTAT=%u", sessionId );
+    ( void ) snprintf( cmdBuf, CELLULAR_AT_CMD_TYPICAL_MAX_SIZE, "AT+KTCPSTAT=%lu", sessionId );
 
     pktStatus = _Cellular_AtcmdRequestWithCallback( pContext, atReqSocketStat );
 
@@ -364,10 +363,6 @@ static CellularPktStatus_t socketRecvDataPrefix( void * pCallbackContext,
                                                  char ** ppDataStart,
                                                  uint32_t * pDataLength )
 {
-    char * pDataStart = NULL;
-    uint32_t tempStrlen = 0;
-    int32_t tempValue = 0;
-    CellularATError_t atResult = CELLULAR_AT_SUCCESS;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     uint32_t * pRecvDataLength = ( uint32_t * ) pCallbackContext;
 
@@ -462,7 +457,6 @@ static CellularPktStatus_t _Cellular_RecvFuncData( CellularContext_t * pContext,
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     char * pInputLine = NULL, * pEndPatternLine = NULL;
     const _socketDataRecv_t * pDataRecv = ( _socketDataRecv_t * ) pData;
-    int32_t tempValue = 0;
 
     if( pContext == NULL )
     {
@@ -608,7 +602,6 @@ static CellularPktStatus_t _Cellular_RecvFuncGetTcpCfgSessionId( CellularContext
 {
     char * pInputLine = NULL;
     uint8_t * pSessionId = pData;
-    bool parseStatus = true;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     int32_t tempValue = 0;
@@ -1374,7 +1367,7 @@ CellularError_t Cellular_SocketSend( CellularHandle_t cellularHandle,
         pData,
         dataLength,
         pSentDataLength,
-        SOCKET_END_PATTERN,
+        ( const uint8_t * ) SOCKET_END_PATTERN,
         SOCKET_END_PATTERN_LEN
     };
     uint32_t sessionId = 0;
@@ -1500,7 +1493,7 @@ CellularError_t Cellular_SocketClose( CellularHandle_t cellularHandle,
         /* Close the socket. */
         if( socketHandle->socketState == SOCKETSTATE_CONNECTED )
         {
-            ( void ) snprintf( cmdBuf, CELLULAR_AT_CMD_TYPICAL_MAX_SIZE, "%s%u,1",
+            ( void ) snprintf( cmdBuf, CELLULAR_AT_CMD_TYPICAL_MAX_SIZE, "%s%lu,1",
                                "AT+KTCPCLOSE=", sessionId );
             pktStatus = _Cellular_AtcmdRequestWithCallback( pContext, atReqSocketClose );
 
@@ -1515,7 +1508,7 @@ CellularError_t Cellular_SocketClose( CellularHandle_t cellularHandle,
             ( socketHandle->socketState == SOCKETSTATE_CONNECTING ) ||
             ( socketHandle->socketState == SOCKETSTATE_DISCONNECTED ) )
         {
-            ( void ) snprintf( cmdBuf, CELLULAR_AT_CMD_TYPICAL_MAX_SIZE, "%s%u",
+            ( void ) snprintf( cmdBuf, CELLULAR_AT_CMD_TYPICAL_MAX_SIZE, "%s%lu",
                                "AT+KTCPDEL=", sessionId );
             pktStatus = _Cellular_AtcmdRequestWithCallback( pContext, atReqSocketClose );
 
@@ -1546,6 +1539,7 @@ CellularError_t Cellular_SocketConnect( CellularHandle_t cellularHandle,
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     char cmdBuf[ CELLULAR_AT_CMD_MAX_SIZE ] = { '\0' };
     uint8_t sessionId = 0;
+    uint32_t modemData = 0;
     CellularAtReq_t atReqSocketConnect =
     {
         cmdBuf,
@@ -1592,7 +1586,8 @@ CellularError_t Cellular_SocketConnect( CellularHandle_t cellularHandle,
         if( cellularStatus == CELLULAR_SUCCESS )
         {
             /* Store the session ID in the pointer directly instead allocate extra memory. */
-            socketHandle->pModemData = ( void * ) sessionId;
+            modemData = sessionId;
+            socketHandle->pModemData = ( void * ) modemData;
 
             /* Create the reverse table to store the socketIndex to sessionId. */
             pModuleContext->pSessionMap[ sessionId ] = socketHandle->socketId;
@@ -1632,9 +1627,7 @@ CellularError_t Cellular_SocketConnect( CellularHandle_t cellularHandle,
 CellularError_t Cellular_GetSimCardStatus( CellularHandle_t cellularHandle,
                                            CellularSimCardStatus_t * pSimCardStatus )
 {
-    CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
-    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
     /* Parameters are checked in this API. */
     cellularStatus = Cellular_CommonGetSimCardLockStatus( cellularHandle, pSimCardStatus );
@@ -1827,7 +1820,6 @@ CellularError_t Cellular_ActivatePdn( CellularHandle_t cellularHandle,
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     char cmdBuf[ CELLULAR_AT_CMD_MAX_SIZE ] = { '\0' };
     bool packetSwitchStatus = false;
-    bool pdnStatus = false;
 
     CellularAtReq_t atReqActPdn =
     {
