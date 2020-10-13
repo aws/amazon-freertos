@@ -641,16 +641,13 @@ int RunCoreMqttKeepAliveDemo( bool awsIotMqttMode,
 
             /* Wait for some time between two iterations to ensure that we do not
              * bombard the broker. */
-            LogInfo( ( "RunCoreMqttKeepAliveDemo() completed successfully. "
-                       "Total free heap is %u.",
-                       xPortGetFreeHeapSize() ) );
+            LogInfo( ( "Demo iteration %lu completed successfully.", ( ulDemoRunCount + 1UL ) ) );
             LogInfo( ( "Short delay before starting the next iteration.... " ) );
             vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS );
         }
         else
         {
-            LogInfo( ( "RunCoreMqttKeepAliveDemo() failed. Total free heap is %u.",
-                       xPortGetFreeHeapSize() ) );
+            LogInfo( ( "Demo failed at iteration %lu.", ( ulDemoRunCount + 1UL ) ) );
             break;
         }
     }

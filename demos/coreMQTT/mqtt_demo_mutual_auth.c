@@ -527,15 +527,14 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
         if( xDemoStatus == pdPASS )
         {
             /* Wait for some time between two iterations to ensure that we do not
-             * the broker. */
-            LogInfo( ( "Demo completed an iteration successfully. Total free heap is %u.", xPortGetFreeHeapSize() ) );
+             * bombard the broker. */
+            LogInfo( ( "Demo completed an iteration successfully." ) );
             LogInfo( ( "Demo iteration %lu completed successfully.", ( ulDemoRunCount + 1UL ) ) );
         }
         else
         {
             /* Terminate the demo due to failure. */
-            LogInfo( ( "Demo failed at iteration %lu. Total free heap is %u.",
-                       ( ulDemoRunCount + 1UL ), xPortGetFreeHeapSize() ) );
+            LogInfo( ( "Demo failed at iteration %lu.", ( ulDemoRunCount + 1UL ) ) );
             LogInfo( ( "Exiting demo." ) );
             break;
         }

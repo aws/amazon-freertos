@@ -526,15 +526,13 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
 
             /* Wait for some time between two iterations to ensure that we do not
              * bombard the MQTT broker. */
-            LogInfo( ( "RunCoreMqttSerializerDemo() completed an iteration successfully. "
-                       "Total free heap is %u.", xPortGetFreeHeapSize() ) );
+            LogInfo( ( "Demo iteration %lu completed successfully.", ( ulDemoRunCount + 1UL ) ) );
             LogInfo( ( "Short delay before starting the next iteration.... " ) );
             vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS );
         }
         else
         {
-            LogInfo( ( "RunCoreMqttSerializerDemo() failed. Total free heap is %u.",
-                       xPortGetFreeHeapSize() ) );
+            LogInfo( ( "Demo failed at iteration %lu.", ( ulDemoRunCount + 1UL ) ) );
             break;
         }
     }
