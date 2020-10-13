@@ -105,6 +105,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_plaintext.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_mutual_auth.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_serializer.c \
+                      $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_keep_alive.c \
                       $(AMAZON_FREERTOS_PATH)demos/shadow/aws_iot_demo_shadow.c \
                       $(AMAZON_FREERTOS_PATH)demos/defender/aws_iot_demo_defender.c \
                       $(AMAZON_FREERTOS_PATH)demos/tcp/aws_tcp_echo_client_single_task.c \

@@ -21,7 +21,6 @@
  *
  * http://www.FreeRTOS.org
  * http://aws.amazon.com/freertos
- *
  */
 
 /*
@@ -311,7 +310,6 @@ static topicFilterContext_t xTopicFilterContext[ mqttexampleTOPIC_COUNT ] =
     { mqttexampleTOPIC, MQTTSubAckFailure }
 };
 
-
 /**
  * @brief Static buffer used to hold MQTT messages being sent and received.
  */
@@ -339,14 +337,13 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
                               void * pNetworkCredentialInfo,
                               const void * pNetworkInterface )
 {
-    uint32_t ulPublishCount = 0U, ulTopicCount = 0U;
+    uint32_t ulPublishCount = 0U, ulTopicCount = 0U, ulDemoRunCount = 0U;
     const uint32_t ulMaxPublishCount = 5UL;
     NetworkContext_t xNetworkContext = { 0 };
     MQTTContext_t xMQTTContext;
     MQTTStatus_t xMQTTStatus;
     BaseType_t xDemoStatus = pdPASS;
     TransportSocketStatus_t xNetworkStatus;
-    uint32_t ulDemoRunCount = 0;
     BaseType_t xIsConnectionEstablished = pdFALSE;
 
     /* Remove compiler warnings about unused parameters. */
@@ -365,7 +362,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
         /* Attempt to connect to the MQTT broker. If connection fails, retry after
          * a timeout. The timeout value will be exponentially increased until the
          * maximum number of attempts are reached or the maximum timeout value is
-         * reached. The function returns a failure status if the TCP connection
+         * reached. The function below returns a failure status if the TCP connection
          * cannot be established to the broker after the configured number of
          * attempts. */
         xNetworkStatus = prvConnectToServerWithBackoffRetries( &xNetworkContext );
@@ -384,8 +381,8 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
         if( xDemoStatus == pdPASS )
         {
             /* Sends an MQTT Connect packet over the already connected TCP socket,
-             * and waits for connection acknowledgment (CONNACK) packet. */
-            LogInfo( ( "Creating an MQTT connection to %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
+             * and waits for a connection acknowledgment (CONNACK) packet. */
+            LogInfo( ( "Creating an MQTT connection to %s.", democonfigMQTT_BROKER_ENDPOINT ) );
             xDemoStatus = prvCreateMQTTConnectionWithBroker( &xMQTTContext, &xNetworkContext );
         }
 
@@ -401,42 +398,41 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
         /******************* Publish and Keep Alive Loop. *********************/
 
-        if( xDemoStatus == pdPASS )
+        /* Publish messages with QoS0, send and process keep alive messages. */
+        for( ulPublishCount = 0;
+             ( xDemoStatus == pdPASS ) && ( ulPublishCount < ulMaxPublishCount );
+             ulPublishCount++ )
         {
-            /* Publish messages with QoS0, send and process Keep alive messages. */
-            for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
+            LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
+            xDemoStatus = prvMQTTPublishToTopic( &xMQTTContext );
+
+            if( xDemoStatus == pdPASS )
             {
-                LogInfo( ( "Publish to the MQTT topic %s.\r\n", mqttexampleTOPIC ) );
-                xDemoStatus = prvMQTTPublishToTopic( &xMQTTContext );
+                /* Process the incoming publish echo. Since the application subscribed
+                 * to the same topic, the broker will send the published message back
+                 * to the application. */
+                LogInfo( ( "Attempt to receive publish message from broker." ) );
+                xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
 
-                if( xDemoStatus == pdPASS )
+                if( xMQTTStatus != MQTTSuccess )
                 {
-                    /* Process the incoming publish echo. Since the application subscribed
-                     * to the same topic, the broker will send the published message back
-                     * to the application. */
-                    LogInfo( ( "Attempt to receive publish message from broker.\r\n" ) );
-                    xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
-
-                    if( xMQTTStatus != MQTTSuccess )
-                    {
-                        LogError( ( "MQTT_ProcessLoop() call failed to receive echoed"
-                                    " PUBLISH message. Error=%s.",
-                                    MQTT_Status_strerror( xMQTTStatus ) ) );
-                        xDemoStatus = pdFAIL;
-                    }
+                    LogError( ( "MQTT_ProcessLoop() call failed to receive echoed"
+                                " PUBLISH message. Error=%s.",
+                                MQTT_Status_strerror( xMQTTStatus ) ) );
+                    xDemoStatus = pdFAIL;
                 }
-
-                /* Leave Connection Idle for some time. */
-                LogInfo( ( "Keeping Connection Idle...\r\n\r\n" ) );
-                vTaskDelay( mqttexampleDELAY_BETWEEN_PUBLISHES );
             }
+
+            /* Leave Connection Idle for some time. */
+            LogInfo( ( "Keeping Connection Idle..." ) );
+            vTaskDelay( mqttexampleDELAY_BETWEEN_PUBLISHES );
         }
 
         /******************** Unsubscribe from the topic. *********************/
 
         if( xDemoStatus == pdPASS )
         {
-            LogInfo( ( "Unsubscribe from the MQTT topic %s.\r\n", mqttexampleTOPIC ) );
+            LogInfo( ( "Unsubscribe from the MQTT topic %s.", mqttexampleTOPIC ) );
             xDemoStatus = prvMQTTUnsubscribeFromTopic( &xMQTTContext );
         }
 
@@ -464,13 +460,13 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
              * socket. There is no corresponding response for the disconnect
              * packet. After sending a disconnect, the client must close the
              * network connection. */
-            LogInfo( ( "Disconnecting the MQTT connection with %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
+            LogInfo( ( "Disconnecting the MQTT connection with %s.", democonfigMQTT_BROKER_ENDPOINT ) );
             xMQTTStatus = MQTT_Disconnect( &xMQTTContext );
 
             if( xMQTTStatus != MQTTSuccess )
             {
-                LogError( ( "MQTT_Disconnect() failed with status %s.",
-                            MQTT_Status_strerror( xMQTTStatus ) ) );
+                LogWarn( ( "MQTT_Disconnect() failed with status %s.",
+                           MQTT_Status_strerror( xMQTTStatus ) ) );
                 xDemoStatus = pdFAIL;
             }
 
@@ -502,15 +498,14 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
             /* Wait for some time between two iterations to ensure that we do not
              * bombard the broker. */
             LogInfo( ( "RunCoreMqttPlaintextDemo() completed an iteration successfully. "
-                       "Total free heap is %u.\r\n",
+                       "Total free heap is %u.",
                        xPortGetFreeHeapSize() ) );
-            LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
+            LogInfo( ( "Short delay before starting the next iteration.... " ) );
             vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS );
         }
         else
         {
-            LogInfo( ( "RunCoreMqttPlaintextDemo() failed an iteration. "
-                       "Total free heap is %u.\r\n",
+            LogInfo( ( "RunCoreMqttPlaintextDemo() failed. Total free heap is %u.",
                        xPortGetFreeHeapSize() ) );
             break;
         }
@@ -694,7 +689,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
          * will expect all the messages it sends to the broker to be sent back to it
          * from the broker. This demo uses QOS0 in Subscribe, therefore, the Publish
          * messages received from the broker will have QOS0. */
-        LogInfo( ( "Attempt to subscribe to the MQTT topic %s.\r\n", mqttexampleTOPIC ) );
+        LogInfo( ( "Attempt to subscribe to the MQTT topic %s.", mqttexampleTOPIC ) );
         xResult = MQTT_Subscribe( pxMQTTContext,
                                   xMQTTSubscription,
                                   sizeof( xMQTTSubscription ) / sizeof( MQTTSubscribeInfo_t ),
@@ -844,7 +839,7 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
             {
                 if( xTopicFilterContext[ ulTopicCount ].xSubAckStatus != MQTTSubAckFailure )
                 {
-                    LogInfo( ( "Subscribed to the topic %s with maximum QoS %u.\r\n",
+                    LogInfo( ( "Subscribed to the topic %s with maximum QoS %u.",
                                xTopicFilterContext[ ulTopicCount ].pcTopicFilter,
                                xTopicFilterContext[ ulTopicCount ].xSubAckStatus ) );
                 }
@@ -855,18 +850,18 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
             break;
 
         case MQTT_PACKET_TYPE_UNSUBACK:
-            LogInfo( ( "Unsubscribed from the topic %s.\r\n", mqttexampleTOPIC ) );
+            LogInfo( ( "Unsubscribed from the topic %s.", mqttexampleTOPIC ) );
             /* Make sure ACK packet identifier matches with Request packet identifier. */
             configASSERT( usUnsubscribePacketIdentifier == usPacketId );
             break;
 
         case MQTT_PACKET_TYPE_PINGRESP:
-            LogInfo( ( "Ping Response successfully received.\r\n" ) );
+            LogInfo( ( "Ping Response successfully received." ) );
             break;
 
         /* Any other packet type is invalid. */
         default:
-            LogWarn( ( "prvMQTTProcessResponse() called with unknown packet type:(%02X).\r\n",
+            LogWarn( ( "prvMQTTProcessResponse() called with unknown packet type:(%02X).",
                        pxIncomingPacket->type ) );
     }
 }
@@ -884,8 +879,8 @@ static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo )
     if( ( pxPublishInfo->topicNameLength == strlen( mqttexampleTOPIC ) ) &&
         ( 0 == strncmp( mqttexampleTOPIC, pxPublishInfo->pTopicName, pxPublishInfo->topicNameLength ) ) )
     {
-        LogInfo( ( "\r\nIncoming Publish Topic Name: %.*s matches subscribed topic.\r\n"
-                   "Incoming Publish Message : %.*s\r\n",
+        LogInfo( ( "Incoming Publish Topic Name: %.*s matches subscribed topic.\r\n"
+                   "Incoming Publish Message : %.*s",
                    pxPublishInfo->topicNameLength,
                    pxPublishInfo->pTopicName,
                    pxPublishInfo->payloadLength,
@@ -893,7 +888,7 @@ static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo )
     }
     else
     {
-        LogInfo( ( "Incoming Publish Topic Name: %.*s does not match subscribed topic.\r\n",
+        LogInfo( ( "Incoming Publish Topic Name: %.*s does not match subscribed topic.",
                    pxPublishInfo->topicNameLength,
                    pxPublishInfo->pTopicName ) );
     }

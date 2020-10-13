@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.3.0
+ * FreeRTOS V202010.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -98,12 +98,6 @@
  * Virtual Private Network(VPN), connection to the Mosquitto broker may not
  * work.
  *
- * As an alternative option, a publicly hosted Mosquitto broker can also be
- * used as an MQTT broker end point. This can be done by updating the config
- * democonfigMQTT_BROKER_ENDPOINT to "test.mosquitto.org". However, this is not
- * recommended due the possible downtimes of the broker as indicated by the
- * documentation in https://test.mosquitto.org/.
- *
  * #define democonfigMQTT_BROKER_ENDPOINT				"insert here."
  */
 
@@ -117,7 +111,9 @@
 
 /**
  * @brief The maximum number of times to run the demo's subscribe publish loop.
+ *
+ * #define democonfigMQTT_MAX_DEMO_COUNT                ( insert here. )
  */
-#define democonfigMQTT_MAX_DEMO_COUNT   ( 3 )
+
 
 #endif /* MQTT_DEMO_SERIALIZER_CONFIG_H */

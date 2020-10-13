@@ -77,6 +77,7 @@
 				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</itemPath>
 				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_plaintext.c</itemPath>
 				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_serializer.c</itemPath>
+				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_keep_alive.c</itemPath>
 			</logicalFolder>
 			<logicalFolder name="defender" displayName="defender" projectFiles="true">
 				<itemPath>../../../../../demos/defender/aws_iot_demo_defender.c</itemPath>
@@ -718,6 +719,7 @@
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_mqtt_agent_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_pkcs11_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_keep_alive_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_mutual_auth_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_plaintext_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_serializer_config.h</itemPath>

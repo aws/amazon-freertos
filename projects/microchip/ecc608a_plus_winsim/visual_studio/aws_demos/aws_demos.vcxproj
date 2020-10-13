@@ -505,6 +505,7 @@
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_mutual_auth.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_plaintext.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_serializer.c"/>
+		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_keep_alive.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_sync.c"/>

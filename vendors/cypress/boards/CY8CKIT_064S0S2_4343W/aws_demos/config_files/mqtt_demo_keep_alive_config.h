@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.3.0
+ * FreeRTOS V202010.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,8 +25,8 @@
  * 1 tab == 4 spaces!
  */
 
-#ifndef MQTT_DEMO_PLAINTEXT_CONFIG_H
-#define MQTT_DEMO_PLAINTEXT_CONFIG_H
+#ifndef MQTT_KEEP_ALIVE_CONFIG_H
+#define MQTT_KEEP_ALIVE_CONFIG_H
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -58,7 +58,7 @@
  * must be unique so edit as required to ensure no two clients connecting to the
  * same broker use the same client identifier.
  *
- * #define democonfigCLIENT_IDENTIFIER              "insert here."
+ * #define democonfigCLIENT_IDENTIFIER				"insert here."
  */
 
 
@@ -83,27 +83,37 @@
  *        `TCP    0.0.0.0:1883           <HOST-NAME>:0       LISTENING`
  *     d. If there is no output on step c,go through the Mosquitto documentation
  *        listed above to check if the installation was successful.
+ * 4. Make sure the Mosquitto broker is allowed to communicate through
+ * Windows Firewall. The instructions for allowing an application on Windows 10
+ * Defender Firewall can be found at the link below.
+ * https://support.microsoft.com/en-us/help/4558235/windows-10-allow-an-app-through-microsoft-defender-firewall
+ * After running this MQTT example, consider disabling the Mosquitto broker to
+ * communicate through Windows Firewall for avoiding unwanted network traffic
+ * to your machine.
+ * 5. After verifying that a Mosquitto broker is running successfully, update
+ * the config democonfigMQTT_BROKER_ENDPOINT to the local IP address of the
+ * Windows host machine. Please note that "localhost" or address "127.0.0.1"
+ * will not work as this example is running on a Windows Simulator and not on
+ * Windows host natively. Also note that, if the Windows host is using a
+ * Virtual Private Network(VPN), connection to the Mosquitto broker may not
+ * work.
  *
- * As an alternative option, a publicly hosted Mosquitto broker can also be
- * used as an MQTT broker end point. This can be done by updating the config
- * democonfigMQTT_BROKER_ENDPOINT to "test.mosquitto.org". However, this is not
- * recommended due the possible downtimes of the broker as indicated by the
- * documentation in https://test.mosquitto.org/.
- *
- * #define democonfigMQTT_BROKER_ENDPOINT               "insert here."
+ * #define democonfigMQTT_BROKER_ENDPOINT				"insert here."
  */
 
 
 /**
  * @brief The port to use for the demo.
  *
- * #define democonfigMQTT_BROKER_PORT                   ( insert here. )
+ * #define democonfigMQTT_BROKER_PORT					( insert here. )
  */
 
 
 /**
  * @brief The maximum number of times to run the demo's subscribe publish loop.
+ *
+ * #define democonfigMQTT_MAX_DEMO_COUNT                ( insert here. )
  */
-#define democonfigMQTT_MAX_DEMO_COUNT   ( 3 )
 
-#endif /* MQTT_DEMO_PLAINTEXT_CONFIG_H */
+
+#endif /* MQTT_KEEP_ALIVE_CONFIG_H */

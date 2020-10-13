@@ -428,7 +428,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
 
             /* Sends an MQTT Connect packet over the already established TLS connection,
              * and waits for connection acknowledgment (CONNACK) packet. */
-            LogInfo( ( "Creating an MQTT connection to %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
+            LogInfo( ( "Creating an MQTT connection to %s.", democonfigMQTT_BROKER_ENDPOINT ) );
             xDemoStatus = prvCreateMQTTConnectionWithBroker( &xMQTTContext, &xNetworkContext );
         }
 
@@ -449,27 +449,27 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
              ( ( xDemoStatus == pdPASS ) && ( ulPublishCount < ulMaxPublishCount ) );
              ulPublishCount++ )
         {
-            LogInfo( ( "Publish to the MQTT topic %s.\r\n", mqttexampleTOPIC ) );
+            LogInfo( ( "Publish to the MQTT topic %s.", mqttexampleTOPIC ) );
             xDemoStatus = prvMQTTPublishToTopic( &xMQTTContext );
 
             if( xDemoStatus == pdPASS )
             {
                 /* Process incoming publish echo, since application subscribed to the same
                  * topic, the broker will send publish message back to the application. */
-                LogInfo( ( "Attempt to receive publish message from broker.\r\n" ) );
+                LogInfo( ( "Attempt to receive publish message from broker." ) );
                 xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
 
                 if( xMQTTStatus != MQTTSuccess )
                 {
                     xDemoStatus = pdFAIL;
-                    LogError( ( "MQTT_ProcessLoop failed: LoopDuration=%u, Error=%s\r\n",
+                    LogError( ( "MQTT_ProcessLoop failed: LoopDuration=%u, Error=%s",
                                 mqttexamplePROCESS_LOOP_TIMEOUT_MS,
                                 MQTT_Status_strerror( xMQTTStatus ) ) );
                 }
             }
 
             /* Leave Connection Idle for some time. */
-            LogInfo( ( "Keeping Connection Idle...\r\n\r\n" ) );
+            LogInfo( ( "Keeping Connection Idle..." ) );
             vTaskDelay( mqttexampleDELAY_BETWEEN_PUBLISHES_TICKS );
         }
 
@@ -477,7 +477,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
 
         if( xDemoStatus == pdPASS )
         {
-            LogInfo( ( "Unsubscribe from the MQTT topic %s.\r\n", mqttexampleTOPIC ) );
+            LogInfo( ( "Unsubscribe from the MQTT topic %s.", mqttexampleTOPIC ) );
             xDemoStatus = prvMQTTUnsubscribeFromTopic( &xMQTTContext );
         }
 
@@ -489,7 +489,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
             if( xMQTTStatus != MQTTSuccess )
             {
                 xDemoStatus = pdFAIL;
-                LogError( ( "Failed to receive UNSUBACK packet from broker: ProcessLoopDuration=%u, Error=%s\r\n",
+                LogError( ( "Failed to receive UNSUBACK packet from broker: ProcessLoopDuration=%u, Error=%s",
                             mqttexamplePROCESS_LOOP_TIMEOUT_MS,
                             MQTT_Status_strerror( xMQTTStatus ) ) );
             }
@@ -500,7 +500,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
         /* Send an MQTT Disconnect packet over the already connected TLS over TCP connection.
          * There is no corresponding response for the disconnect packet. After sending
          * disconnect, client must close the network connection. */
-        LogInfo( ( "Disconnecting the MQTT connection with %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
+        LogInfo( ( "Disconnecting the MQTT connection with %s.", democonfigMQTT_BROKER_ENDPOINT ) );
         xMQTTStatus = MQTT_Disconnect( &xMQTTContext );
 
         /* We will always close the network connection, even if an error may have occurred during
@@ -528,19 +528,19 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
         {
             /* Wait for some time between two iterations to ensure that we do not
              * the broker. */
-            LogInfo( ( "Demo completed an iteration successfully. Total free heap is %u.\r\n", xPortGetFreeHeapSize() ) );
-            LogInfo( ( "Demo iteration %lu completed successfully.\r\n", ( ulDemoRunCount + 1UL ) ) );
+            LogInfo( ( "Demo completed an iteration successfully. Total free heap is %u.", xPortGetFreeHeapSize() ) );
+            LogInfo( ( "Demo iteration %lu completed successfully.", ( ulDemoRunCount + 1UL ) ) );
         }
         else
         {
             /* Terminate the demo due to failure. */
-            LogInfo( ( "Demo failed at iteration %lu. Total free heap is %u.\r\n",
+            LogInfo( ( "Demo failed at iteration %lu. Total free heap is %u.",
                        ( ulDemoRunCount + 1UL ), xPortGetFreeHeapSize() ) );
-            LogInfo( ( "Exiting demo.\r\n" ) );
+            LogInfo( ( "Exiting demo." ) );
             break;
         }
 
-        LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
+        LogInfo( ( "Short delay before starting the next iteration.... " ) );
         vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
     }
 
@@ -586,7 +586,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
         /* Establish a TLS session with the MQTT broker. This example connects to
          * the MQTT broker as specified in democonfigMQTT_BROKER_ENDPOINT and
          * democonfigMQTT_BROKER_PORT at the top of this file. */
-        LogInfo( ( "Creating a TLS connection to %s:%u.\r\n",
+        LogInfo( ( "Creating a TLS connection to %s:%u.",
                    democonfigMQTT_BROKER_ENDPOINT,
                    democonfigMQTT_BROKER_PORT ) );
         /* Attempt to create a mutually authenticated TLS connection. */
@@ -596,8 +596,8 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
 
         if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            LogWarn( ( "Connection to the broker failed. Status=%d \r\n."
-                       "Retrying connection with backoff and jitter.\r\n", xNetworkStatus ) );
+            LogWarn( ( "Connection to the broker failed. Status=%d ."
+                       "Retrying connection with backoff and jitter.", xNetworkStatus ) );
             xStatus = pdFAIL;
             xRetryUtilsStatus = RetryUtils_BackoffAndSleep( &xReconnectParams );
         }
@@ -660,13 +660,13 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
 
     if( xResult != MQTTSuccess )
     {
-        LogError( ( "Failed to establish MQTT connection: Server=%s, MQTTStatus=%s\r\n",
+        LogError( ( "Failed to establish MQTT connection: Server=%s, MQTTStatus=%s",
                     democonfigMQTT_BROKER_ENDPOINT, MQTT_Status_strerror( xResult ) ) );
     }
     else
     {
         /* Successfully established and MQTT connection with the broker. */
-        LogInfo( ( "An MQTT connection is established with %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
+        LogInfo( ( "An MQTT connection is established with %s.", democonfigMQTT_BROKER_ENDPOINT ) );
         xStatus = pdPASS;
     }
 
@@ -729,7 +729,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
          * will expect all the messages it sends to the broker to be sent back to it
          * from the broker. This demo uses QOS0 in Subscribe, therefore, the Publish
          * messages received from the broker will have QOS0. */
-        LogInfo( ( "Attempt to subscribe to the MQTT topic %s.\r\n", mqttexampleTOPIC ) );
+        LogInfo( ( "Attempt to subscribe to the MQTT topic %s.", mqttexampleTOPIC ) );
         xResult = MQTT_Subscribe( pxMQTTContext,
                                   xMQTTSubscription,
                                   sizeof( xMQTTSubscription ) / sizeof( MQTTSubscribeInfo_t ),
@@ -737,13 +737,13 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
 
         if( xResult != MQTTSuccess )
         {
-            LogError( ( "Failed to SUBSCRIBE to MQTT topic %s. Error=%s\r\n",
+            LogError( ( "Failed to SUBSCRIBE to MQTT topic %s. Error=%s",
                         mqttexampleTOPIC, MQTT_Status_strerror( xResult ) ) );
         }
         else
         {
             xStatus = pdPASS;
-            LogInfo( ( "SUBSCRIBE sent for topic %s to broker.\r\n", mqttexampleTOPIC ) );
+            LogInfo( ( "SUBSCRIBE sent for topic %s to broker.", mqttexampleTOPIC ) );
 
             /* Process incoming packet from the broker. After sending the subscribe, the
              * client may receive a publish before it receives a subscribe ack. Therefore,
@@ -782,7 +782,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
 
         if( xRetryUtilsStatus == RetryUtilsRetriesExhausted )
         {
-            LogError( ( "SUBSCRIBE request re-tries exhausted.\r\n" ) );
+            LogError( ( "SUBSCRIBE request re-tries exhausted." ) );
         }
     } while( ( xFailedSubscribeToTopic == true ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
 
@@ -872,7 +872,7 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
     switch( pxIncomingPacket->type )
     {
         case MQTT_PACKET_TYPE_PUBACK:
-            LogInfo( ( "PUBACK received for packet Id %u.\r\n", usPacketId ) );
+            LogInfo( ( "PUBACK received for packet Id %u.", usPacketId ) );
             /* Make sure ACK packet identifier matches with Request packet identifier. */
             configASSERT( usPublishPacketIdentifier == usPacketId );
             break;
@@ -889,7 +889,7 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
             {
                 if( xTopicFilterContext[ ulTopicCount ].xSubAckStatus != MQTTSubAckFailure )
                 {
-                    LogInfo( ( "Subscribed to the topic %s with maximum QoS %u.\r\n",
+                    LogInfo( ( "Subscribed to the topic %s with maximum QoS %u.",
                                xTopicFilterContext[ ulTopicCount ].pcTopicFilter,
                                xTopicFilterContext[ ulTopicCount ].xSubAckStatus ) );
                 }
@@ -900,18 +900,18 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
             break;
 
         case MQTT_PACKET_TYPE_UNSUBACK:
-            LogInfo( ( "Unsubscribed from the topic %s.\r\n", mqttexampleTOPIC ) );
+            LogInfo( ( "Unsubscribed from the topic %s.", mqttexampleTOPIC ) );
             /* Make sure ACK packet identifier matches with Request packet identifier. */
             configASSERT( usUnsubscribePacketIdentifier == usPacketId );
             break;
 
         case MQTT_PACKET_TYPE_PINGRESP:
-            LogInfo( ( "Ping Response successfully received.\r\n" ) );
+            LogInfo( ( "Ping Response successfully received." ) );
             break;
 
         /* Any other packet type is invalid. */
         default:
-            LogWarn( ( "prvMQTTProcessResponse() called with unknown packet type:(%02X).\r\n",
+            LogWarn( ( "prvMQTTProcessResponse() called with unknown packet type:(%02X).",
                        pxIncomingPacket->type ) );
     }
 }
@@ -929,8 +929,8 @@ static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo )
     if( ( pxPublishInfo->topicNameLength == strlen( mqttexampleTOPIC ) ) &&
         ( 0 == strncmp( mqttexampleTOPIC, pxPublishInfo->pTopicName, pxPublishInfo->topicNameLength ) ) )
     {
-        LogInfo( ( "\r\nIncoming Publish Topic Name: %.*s matches subscribed topic.\r\n"
-                   "Incoming Publish Message : %.*s\r\n",
+        LogInfo( ( "Incoming Publish Topic Name: %.*s matches subscribed topic."
+                   "Incoming Publish Message : %.*s",
                    pxPublishInfo->topicNameLength,
                    pxPublishInfo->pTopicName,
                    pxPublishInfo->payloadLength,
@@ -938,7 +938,7 @@ static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo )
     }
     else
     {
-        LogInfo( ( "Incoming Publish Topic Name: %.*s does not match subscribed topic.\r\n",
+        LogInfo( ( "Incoming Publish Topic Name: %.*s does not match subscribed topic.",
                    pxPublishInfo->topicNameLength,
                    pxPublishInfo->pTopicName ) );
     }
