@@ -2,4 +2,4 @@ It is expected that the bootloader shall support self-test of a new OTA image. I
 
 The current implementation of Renesas Bootloader does not support the self-test feature.  In case the new firmware file received has some functional issues, the device may stop working, even though the crypto signature of the firmware file is correct.
 
-If you have any questions, then please reach out to Renesas.
+If you have any questions, then please reach out to Renesas: https://www.renesas.com/support/contact.html
