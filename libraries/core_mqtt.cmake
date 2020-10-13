@@ -1,4 +1,4 @@
-afr_module(NAME "core_mqtt" )
+afr_module(NAME core_mqtt )
 
 afr_set_lib_metadata(ID "core_mqtt")
 afr_set_lib_metadata(DESCRIPTION "This library implements the MQTT protocol that enables \
