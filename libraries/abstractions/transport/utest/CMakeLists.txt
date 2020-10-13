@@ -56,10 +56,10 @@ set(mock_name "${project_name}_mock")
 set(real_name "${project_name}_real")
 
 create_mock_list(${mock_name}
-                "${mock_list}"
-                "${MODULE_ROOT_DIR}/tools/cmock/project.yml"
-                "${mock_include_list}"
-                "${mock_define_list}"
+            "${mock_list}"
+            "${CMAKE_CURRENT_LIST_DIR}/project.yml"
+            "${mock_include_list}"
+            "${mock_define_list}"
         )
 
 create_real_library(${real_name}
