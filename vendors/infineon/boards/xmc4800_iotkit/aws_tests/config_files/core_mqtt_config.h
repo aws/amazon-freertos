@@ -41,7 +41,7 @@
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
-    #define LIBRARY_LOG_LEVEL    LOG_NONE
+    #define LIBRARY_LOG_LEVEL    LOG_ERROR
 #endif
 
 #include "logging_stack.h"
