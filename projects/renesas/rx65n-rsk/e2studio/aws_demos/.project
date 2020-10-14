@@ -1847,6 +1847,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
+			<name>demos/coreMQTT/mqtt_demo_basic_tls.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT/mqtt_demo_basic_tls.c</locationURI>
+		</link>
+		<link>
 			<name>demos/coreMQTT/mqtt_demo_mutual_auth.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT/mqtt_demo_mutual_auth.c</locationURI>
@@ -2010,6 +2015,11 @@
 			<name>config_files/mbedtls_user_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/mbedtls_user_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/mqtt_demo_basic_tls_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/mqtt_demo_basic_tls_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/mqtt_demo_connection_sharing_config.h</name>

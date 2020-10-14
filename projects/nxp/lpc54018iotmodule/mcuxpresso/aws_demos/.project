@@ -1573,6 +1573,11 @@
 			<locationURI>BASE_DIR/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
+			<name>demos/coreMQTT/mqtt_demo_basic_tls.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/coreMQTT/mqtt_demo_basic_tls.c</locationURI>
+		</link>
+		<link>
 			<name>demos/coreMQTT/mqtt_demo_mutual_auth.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/coreMQTT/mqtt_demo_mutual_auth.c</locationURI>
@@ -1771,6 +1776,11 @@
 			<name>config_files/iot_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/iot_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/mqtt_demo_basic_tls_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/mqtt_demo_basic_tls_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/mqtt_demo_connection_sharing_config.h</name>

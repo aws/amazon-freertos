@@ -1429,6 +1429,11 @@
 					<GroupName>demos/coreMQTT/</GroupName>
 					<Files>
 						<File>
+							<FileName>mqtt_demo_basic_tls.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_basic_tls.c</FilePath>
+						</File>
+						<File>
 							<FileName>mqtt_demo_mutual_auth.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</FilePath>
@@ -1612,6 +1617,11 @@
 							<FileName>iot_pkcs11_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/iot_pkcs11_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_basic_tls_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_basic_tls_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>mqtt_demo_connection_sharing_config.h</FileName>
