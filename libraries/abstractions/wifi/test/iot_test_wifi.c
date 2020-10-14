@@ -170,7 +170,7 @@
 #define EXT_WIFI_EVENT_IP_READY     (1<<3)
 static EventGroupHandle_t xExtWifiEventHandle;
 
-/* Define to test extended Wifi API */
+/* Define to test extended Wifi API tests. */
 #define testwifiENABLE_EXT_WIFI_TESTS    0
 
 /* Maximum loop count waiting client connection */
@@ -684,7 +684,7 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_CountryCode);
     RUN_TEST_CASE( Full_WiFi, AFQP_GetCapability);
     #if ( testwifiENABLE_CONFIGURE_AP_TESTS == 1 )
-        RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConfigureAPExt);
+        RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConfigureAPManual );
     #endif
 #endif  // testwifiENABLE_EXT_WIFI_TESTS
     prvFinishWiFiTesting();
@@ -2181,7 +2181,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_PasswordLengthLess )
     prvSetClientNetworkParameters( &xNetworkParams );
 
     /* Set a password less. */
-    xNetworkParams.xPassword.xWPA.ucLength = strlen( clientcredentialWIFI_PASSWORD ) - 1;
+    xNetworkParams.xPassword.xWPA.ucLength = ( uint8_t ) ( strlen( clientcredentialWIFI_PASSWORD ) - 1 );
 
     if( TEST_PROTECT() )
     {
@@ -2606,7 +2606,6 @@ TEST( Full_WiFi, AFQP_WiFiSeperateTasksConnectingAndDisconnectingAtOnce )
         xTaskConnectDisconnectSyncEventGroupHandle = NULL;
     }
 }
-#if (testwifiENABLE_EXT_WIFI_TESTS == 1)
 
 // ---------------------------------------------------------------------
 static void extWifiEventCb(WIFIEvent_t * xEvent)
@@ -2786,10 +2785,7 @@ TEST( Full_WiFi, AFQP_WifiStartConnectAPDisconnect)
     TEST_ASSERT(retCode == eWiFiSuccess);
 
     if(ipConfig.xIPAddress.xType == eWiFiIPAddressTypeV4) {   // IPv4
-        ip4_addr_t addr;
-        char buff[INET_ADDRSTRLEN];
-        addr.addr = ipConfig.xIPAddress.ulAddress[0];
-        TEST_ASSERT(inet_ntop(AF_INET, &addr, buff, sizeof(buff)) != NULL);
+        TEST_ASSERT_NOT_EQUAL( 0, ipConfig.xIPAddress.ulAddress[0] );
     }
 
     // Try disconnect
@@ -2858,13 +2854,13 @@ TEST( Full_WiFi, AFQP_GetCapability)
  * status of the API.
  *
  * @note This test can only be verified manually. Set a breakpoint after
- * WIFI_ConfigureAPExt, which will block for some time. Connect to the Wi-Fi
+ * WIFI_ConfigureAPManual, which will block for some time. Connect to the Wi-Fi
  * network created by it on your phone and configure. You should expect it to
  * return eWiFiSuccess.
  */
-TEST( Full_WiFi, AFQP_WiFiConfigureAPExt )
+TEST( Full_WiFi, AFQP_WiFiConfigureAPManual )
 {
-    WIFINetworkParams_t xNetworkParams = {{ 0 }}; 
+    WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
     WIFIStationInfo_t xStationList;
     uint8_t uStationListSize, loopTime;
@@ -2880,7 +2876,7 @@ TEST( Full_WiFi, AFQP_WiFiConfigureAPExt )
 
     if( TEST_PROTECT() )
     {    
-        xWiFiStatus = WIFI_ConfigureAPExt( &xNetworkParams );
+        xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( eWiFiSuccess == xWiFiStatus, xWiFiStatus );
     }    
     else 
@@ -2899,5 +2895,3 @@ TEST( Full_WiFi, AFQP_WiFiConfigureAPExt )
     } while(uStationListSize == 0 && ++loopTime < MAX_LOOP_COUNT);
     TEST_ASSERT(loopTime < MAX_LOOP_COUNT); 
 }
-#endif
-
