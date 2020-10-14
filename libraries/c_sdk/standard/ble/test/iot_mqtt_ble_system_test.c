@@ -820,7 +820,7 @@ static void teardownBleTransportInterface( NetworkContext_t * pContext )
 /* ============================   UNITY FIXTURES ============================ */
 
 /* Called before each test method. */
-void testSetUp()
+static void testSetUp()
 {
     /* Reset file-scoped global variables. */
     receivedSubAck = false;
@@ -837,7 +837,7 @@ void testSetUp()
 }
 
 /* Called after each test method. */
-void testTearDown()
+static void testTearDown()
 {
     /* Terminate MQTT connection. */
     TEST_ASSERT_EQUAL( MQTTSuccess, MQTT_Disconnect( &context ) );
@@ -890,7 +890,7 @@ TEST_GROUP_RUNNER( coreMQTT_Integration_BLE )
  * The test subscribes to a topic, and then publishes to the same topic. The
  * broker is expected to route the publish message back to the test.
  */
-void Subscribe_Publish_With_Qos_0()
+static void Subscribe_Publish_With_Qos_0()
 {
     /* Subscribe to a topic with Qos 0. */
     TEST_ASSERT_EQUAL( MQTTSuccess, subscribeToTopic(
@@ -950,7 +950,7 @@ TEST( coreMQTT_Integration_BLE, Subscribe_Publish_With_Qos_0 )
  * The test subscribes to a topic, and then publishes to the same topic. The
  * broker is expected to route the publish message back to the test.
  */
-void Subscribe_Publish_With_Qos_1()
+static void Subscribe_Publish_With_Qos_1()
 {
     /* Subscribe to a topic with Qos 1. */
     TEST_ASSERT_EQUAL( MQTTSuccess, subscribeToTopic(
@@ -1014,7 +1014,7 @@ TEST( coreMQTT_Integration_BLE, Subscribe_Publish_With_Qos_1 )
  * @brief Verifies that the MQTT library sends a Ping Request packet if the connection is
  * idle for more than the keep-alive period.
  */
-void ProcessLoop_KeepAlive()
+static void ProcessLoop_KeepAlive()
 {
     uint32_t connectPacketTime = context.lastPacketTime;
     uint32_t elapsedTime = 0;
