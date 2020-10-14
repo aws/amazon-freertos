@@ -257,6 +257,7 @@ static void prvWifiConnect( void )
     WIFINetworkParams_t xNetworkParams;
     WIFIReturnCode_t xWifiStatus;
     WIFIIPConfiguration_t xIPConfig;
+    uint8_t * pucIP4 = NULL;    
 
     /* Initialize Network params. */
     xNetworkParams.ucSSIDLength = strnlen( clientcredentialWIFI_SSID, wificonfigMAX_SSID_LEN );

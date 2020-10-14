@@ -44,7 +44,7 @@
  *
  * @note This is the constant for IPV6 length in 32-bit words
  */
-#define IPV6_LENGTH 4
+#define IPV6_LENGTH                  4
 
 /**
  * @brief Wi-Fi lower level supported feature mask.
@@ -121,8 +121,8 @@ typedef enum
  */
 typedef struct
 {
-    char cKey[ wificonfigMAX_WEPKEY_LEN ];  /**< WEP key (binary array, not C-string). */
-    uint8_t ucLength;                       /**< Key length. */
+    char cKey[ wificonfigMAX_WEPKEY_LEN ]; /**< WEP key (binary array, not C-string). */
+    uint8_t ucLength;                      /**< Key length. */
 } WIFIWEPKey_t;
 
 /**
@@ -130,8 +130,8 @@ typedef struct
  */
 typedef struct
 {
-    char cPassphrase[ wificonfigMAX_PASSPHRASE_LEN ];   /**< WPA passphrase (binary array, not C-string). */
-    uint8_t ucLength;                                   /**< Passphrase length (must be between 8 and 64 inclusive). */
+    char cPassphrase[ wificonfigMAX_PASSPHRASE_LEN ]; /**< WPA passphrase (binary array, not C-string). */
+    uint8_t ucLength;                                 /**< Passphrase length (must be between 8 and 64 inclusive). */
 } WIFIWPAPassphrase_t;
 
 /**
@@ -143,9 +143,9 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t ucSSID[ wificonfigMAX_SSID_LEN ];       /**< SSID of the Wi-Fi network (binary array, not C-string). */
-    uint8_t ucSSIDLength;                           /**< SSID length. */
-    WIFISecurity_t xSecurity;                       /**< Wi-Fi Security. */
+    uint8_t ucSSID[ wificonfigMAX_SSID_LEN ]; /**< SSID of the Wi-Fi network (binary array, not C-string). */
+    uint8_t ucSSIDLength;                     /**< SSID length. */
+    WIFISecurity_t xSecurity;                 /**< Wi-Fi Security. */
     union
     {
         WIFIWEPKey_t xWEP[ wificonfigMAX_WEPKEYS ]; /**< WEP keys. */
@@ -193,7 +193,7 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t ucMAC[ wificonfigMAX_BSSID_LEN ];   /**< MAC address of Wi-Fi station */
+    uint8_t ucMAC[ wificonfigMAX_BSSID_LEN ]; /**< MAC address of Wi-Fi station */
 } WIFIStationInfo_t;
 
 
@@ -208,17 +208,17 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t ucSSID[ wificonfigMAX_SSID_LEN ];           /**< SSID of the Wi-Fi network to join with a NULL termination. */
-    uint8_t ucSSIDLength;                               /**< SSID length not including NULL termination. */
-    uint8_t ucBSSID[ wificonfigMAX_BSSID_LEN ];         /**< BSSID of the Wi-Fi network. */
-    char cPassword[ wificonfigMAX_PASSPHRASE_LEN ];     /**< Password needed to join the AP. */
-    uint8_t ucPasswordLength;                           /**< Password length not including null termination. */
-    WIFISecurity_t xSecurity;                           /**< Wi-Fi Security. @see WIFISecurity_t. */
+    uint8_t ucSSID[ wificonfigMAX_SSID_LEN ];       /**< SSID of the Wi-Fi network to join with a NULL termination. */
+    uint8_t ucSSIDLength;                           /**< SSID length not including NULL termination. */
+    uint8_t ucBSSID[ wificonfigMAX_BSSID_LEN ];     /**< BSSID of the Wi-Fi network. */
+    char cPassword[ wificonfigMAX_PASSPHRASE_LEN ]; /**< Password needed to join the AP. */
+    uint8_t ucPasswordLength;                       /**< Password length not including null termination. */
+    WIFISecurity_t xSecurity;                       /**< Wi-Fi Security. @see WIFISecurity_t. */
 } WIFINetworkProfile_t;
 
 /**
-* @brief Wi-Fi station IP address type.
-*/
+ * @brief Wi-Fi station IP address type.
+ */
 typedef enum
 {
     eWiFiIPAddressTypeV4,
@@ -227,12 +227,12 @@ typedef enum
 } WIFIIPAddressType_t;
 
 /**
-* @brief Wi-Fi station IP address format.
-*/
+ * @brief Wi-Fi station IP address format.
+ */
 typedef struct
 {
-    WIFIIPAddressType_t xType;  /**< IP address type (only eWiFiIPAddressTypeV4 is currently supported). */
-    uint32_t ulAddress[ IPV6_LENGTH ];    /**< IP address in binary form, use inet_ntop/inet_pton for conversion. */
+    WIFIIPAddressType_t xType;         /**< IP address type (only eWiFiIPAddressTypeV4 is currently supported). */
+    uint32_t ulAddress[ IPV6_LENGTH ]; /**< IP address in binary form, use inet_ntop/inet_pton for conversion. */
 } WIFIIPAddress_t;
 
 /**
@@ -240,11 +240,11 @@ typedef struct
  */
 typedef struct
 {
-    WIFIIPAddress_t xIPAddress;   /**< IP address */
-    WIFIIPAddress_t xNetMask;     /**< Network mask */
-    WIFIIPAddress_t xGateway;     /**< Gateway IP address */
-    WIFIIPAddress_t xDns1;        /**< First DNS server IP address */
-    WIFIIPAddress_t xDns2;        /**< Second DNS server IP address */
+    WIFIIPAddress_t xIPAddress; /**< IP address */
+    WIFIIPAddress_t xNetMask;   /**< Network mask */
+    WIFIIPAddress_t xGateway;   /**< Gateway IP address */
+    WIFIIPAddress_t xDns1;      /**< First DNS server IP address */
+    WIFIIPAddress_t xDns2;      /**< Second DNS server IP address */
 } WIFIIPConfiguration_t;
 
 /**
@@ -266,33 +266,33 @@ typedef struct
  */
 typedef enum
 {
-    eWiFiReasonUnspecified,             /**< Unspecified error */
-    eWiFiReasonAPNotFound,              /**< Cannot find the target AP. */
-    eWiFiReasonAuthExpired,             /**< Previous auth invalid. */
-    eWiFiReasonAuthLeaveBSS,            /**< Deauth leaving BSS. */
-    eWiFiReasonAuthFailed,              /**< All other AUTH errors. */
-    eWiFiReasonAssocExpired,            /**< Disassoc due to inactivity. */
-    eWiFiReasonAssocTooMany,            /**< AP is overloaded. */
-    eWiFiReasonAssocPowerCapBad,        /**< Power capability unacceptable. */
-    eWiFiReasonAssocSupChanBad,         /**< Supported channel unacceptable. */
-    eWiFiReasonAssocFailed,             /**< All other ASSOC errors. */
-    eWiFiReasonIEInvalid,               /**< Management frame IE invalid. */
-    eWiFiReasonMICFailure,              /**< MIC failure detected. */
-    eWiFiReason4WayTimeout,             /**< 4WAY handshake timeout. */
-    eWiFiReason4WayIEDiffer,            /**< 4WAY handshake IE error. */
-    eWiFiReason4WayFailed,              /**< All other 4WAY errors. */
-    eWiFiReasonAKMPInvalid,             /**< AKMP invalid. */
-    eWiFiReasonPairwiseCipherInvalid,   /**< Pairwise cipher invalid. */
-    eWiFiReasonGroupCipherInvalid,      /**< Group cipher invalid. */
-    eWiFiReasonRSNVersionInvalid,       /**< RSN version invalid. */
-    eWiFiReasonRSNCapInvalid,           /**< RSN capability invalid. */
-    eWiFiReasonGroupKeyUpdateTimeout,   /**< Group key update timeout. */
-    eWiFiReasonCipherSuiteRejected,     /**< Cipher violates security policy. */
-    eWiFiReason8021XAuthFailed,         /**< 802.1X auth errors. */
-    eWiFiReasonBeaconTimeout,           /**< Beacon timeout. */
-    eWiFiReasonLinkFailed,              /**< All other link errors. */
-    eWiFiReasonDHCPExpired,             /**< DHCP license expired. */
-    eWiFiReasonDHCPFailed,              /**< All other DHCP errors. */
+    eWiFiReasonUnspecified,           /**< Unspecified error */
+    eWiFiReasonAPNotFound,            /**< Cannot find the target AP. */
+    eWiFiReasonAuthExpired,           /**< Previous auth invalid. */
+    eWiFiReasonAuthLeaveBSS,          /**< Deauth leaving BSS. */
+    eWiFiReasonAuthFailed,            /**< All other AUTH errors. */
+    eWiFiReasonAssocExpired,          /**< Disassoc due to inactivity. */
+    eWiFiReasonAssocTooMany,          /**< AP is overloaded. */
+    eWiFiReasonAssocPowerCapBad,      /**< Power capability unacceptable. */
+    eWiFiReasonAssocSupChanBad,       /**< Supported channel unacceptable. */
+    eWiFiReasonAssocFailed,           /**< All other ASSOC errors. */
+    eWiFiReasonIEInvalid,             /**< Management frame IE invalid. */
+    eWiFiReasonMICFailure,            /**< MIC failure detected. */
+    eWiFiReason4WayTimeout,           /**< 4WAY handshake timeout. */
+    eWiFiReason4WayIEDiffer,          /**< 4WAY handshake IE error. */
+    eWiFiReason4WayFailed,            /**< All other 4WAY errors. */
+    eWiFiReasonAKMPInvalid,           /**< AKMP invalid. */
+    eWiFiReasonPairwiseCipherInvalid, /**< Pairwise cipher invalid. */
+    eWiFiReasonGroupCipherInvalid,    /**< Group cipher invalid. */
+    eWiFiReasonRSNVersionInvalid,     /**< RSN version invalid. */
+    eWiFiReasonRSNCapInvalid,         /**< RSN capability invalid. */
+    eWiFiReasonGroupKeyUpdateTimeout, /**< Group key update timeout. */
+    eWiFiReasonCipherSuiteRejected,   /**< Cipher violates security policy. */
+    eWiFiReason8021XAuthFailed,       /**< 802.1X auth errors. */
+    eWiFiReasonBeaconTimeout,         /**< Beacon timeout. */
+    eWiFiReasonLinkFailed,            /**< All other link errors. */
+    eWiFiReasonDHCPExpired,           /**< DHCP license expired. */
+    eWiFiReasonDHCPFailed,            /**< All other DHCP errors. */
     eWiFiReasonMax
 } WIFIReason_t;
 
@@ -301,18 +301,18 @@ typedef enum
  */
 typedef enum
 {
-    eWiFiEventReady,                    /**< Wi-Fi is initialized or was reset in the lower layer. */
-    eWiFiEventScanDone,                 /**< Scan is finished. */
-    eWiFiEventConnected,                /**< Station is connected to the AP. */
-    eWiFiEventDisconnected,             /**< Station is disconnected from the AP. */
-    eWiFiEventConnectionFailed,         /**< Station connection has failed. */
-    eWiFiEventIPReady,                  /**< DHCP is successful. */
-    eWiFiEventAPStateChanged,           /**< SoftAP state changed. */
-    eWiFiEventAPStationConnected,       /**< SoftAP got a new station. */
-    eWiFiEventAPStationDisconnected,    /**< SoftAP lost a new station. */
-    eWiFiEventWPSSuccess,               /**< WPS is completed successfully. */
-    eWiFiEventWPSFailed,                /**< WPS has failed. */
-    eWiFiEventWPSTimeout,               /**< WPS has timeout. */
+    eWiFiEventReady,                 /**< Wi-Fi is initialized or was reset in the lower layer. */
+    eWiFiEventScanDone,              /**< Scan is finished. */
+    eWiFiEventConnected,             /**< Station is connected to the AP. */
+    eWiFiEventDisconnected,          /**< Station is disconnected from the AP. */
+    eWiFiEventConnectionFailed,      /**< Station connection has failed. */
+    eWiFiEventIPReady,               /**< DHCP is successful. */
+    eWiFiEventAPStateChanged,        /**< SoftAP state changed. */
+    eWiFiEventAPStationConnected,    /**< SoftAP got a new station. */
+    eWiFiEventAPStationDisconnected, /**< SoftAP lost a new station. */
+    eWiFiEventWPSSuccess,            /**< WPS is completed successfully. */
+    eWiFiEventWPSFailed,             /**< WPS has failed. */
+    eWiFiEventWPSTimeout,            /**< WPS has timeout. */
     eWiFiEventMax
 } WIFIEventType_t;
 
@@ -321,7 +321,7 @@ typedef enum
  */
 typedef struct
 {
-  uint8_t dummy;
+    uint8_t dummy;
 } WiFiEventInfoReady_t;
 
 /**
@@ -329,7 +329,7 @@ typedef struct
  */
 typedef struct
 {
-    WIFIScanResult_t* pxScanResults;
+    WIFIScanResult_t * pxScanResults;
     uint16_t usNumScanResults;
 } WiFiEventInfoScanDone_t;
 
@@ -346,7 +346,7 @@ typedef struct
  */
 typedef struct
 {
-    WIFIReason_t xReason;       /**< Reason code for station disconnection. */
+    WIFIReason_t xReason; /**< Reason code for station disconnection. */
 } WiFiEventInfoDisconnected_t;
 
 /**
@@ -354,7 +354,7 @@ typedef struct
  */
 typedef struct
 {
-    WIFIReason_t xReason;       /**< Reason code for connection failure. */
+    WIFIReason_t xReason; /**< Reason code for connection failure. */
 } WiFiEventInfoConnectionFailed_t;
 
 /**
@@ -370,7 +370,7 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t ucState;            /**< AP state: 0 = DOWN, 1 = UP. */
+    uint8_t ucState; /**< AP state: 0 = DOWN, 1 = UP. */
 } WiFiEventInfoAPStateChanged_t;
 
 /**
@@ -378,7 +378,7 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t ucMac[ wificonfigMAX_BSSID_LEN ];   /**< MAC address of connected station. */
+    uint8_t ucMac[ wificonfigMAX_BSSID_LEN ]; /**< MAC address of connected station. */
 } WiFiEventInfoAPStationConnected_t;
 
 /**
@@ -386,8 +386,8 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t ucMac[ wificonfigMAX_BSSID_LEN ];   /**< MAC address of disconnected station. */
-    WIFIReason_t xReason;                       /**< Reason code for the disconnection. */
+    uint8_t ucMac[ wificonfigMAX_BSSID_LEN ]; /**< MAC address of disconnected station. */
+    WIFIReason_t xReason;                     /**< Reason code for the disconnection. */
 } WiFiEventInfoAPStationDisconnected_t;
 
 /**
@@ -396,8 +396,8 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t* pucData;       /**< Data buffer of received raw frame. */
-    uint32_t ulLength;      /**< Length of the raw frame. */
+    uint8_t * pucData; /**< Data buffer of received raw frame. */
+    uint32_t ulLength; /**< Length of the raw frame. */
 } WiFiEventInfoRxDone_t;
 
 /**
@@ -405,7 +405,7 @@ typedef struct
  */
 typedef struct
 {
-  uint8_t dummy;
+    uint8_t dummy;
 } WiFiEventInfoTxDone_t;
 
 /**
@@ -415,7 +415,7 @@ typedef struct
 {
     WIFIEventType_t xEventType;
     union
-        {
+    {
         WiFiEventInfoReady_t xReady;
         WiFiEventInfoScanDone_t xScanDone;
         WiFiEventInfoConnected_t xConnected;
@@ -436,52 +436,55 @@ typedef struct
  */
 typedef struct
 {
-    uint32_t ulTxSuccessCount;   /**< Number of TX successes, 0 if unavailable */
-    uint32_t ulTxRetryCount;     /**< Number of TX retries, 0 if unavailable */
-    uint32_t ulTxFailCount;      /**< Number of TX failures, 0 if unavailable */
-    uint32_t ulRxSuccessCount;   /**< Number of RX successes, 0 if unavailable */
-    uint32_t ulRxCRCErrorCount;  /**< Number of RX FCS errors, 0 if unavailable */
-    uint32_t ulMICErrorCount;    /**< Number of MIC errors, 0 if unavailable */
-    int8_t cNoise;               /**< Average noise level in dBm, -128 if unavailable */
-    uint16_t usPhyRate;          /**< Maximum used PHY rate, 0 if unavailable */
-    uint16_t usTxRate;           /**< Average used TX rate, 0 if unavailable */
-    uint16_t usRxRate;           /**< Average used RX rate, 0 if unavailable */
-    int8_t cRssi;                /**< Average beacon RSSI in dBm, -128 if unavailable */
-    uint8_t ucBandwidth;         /**< Average used bandwidth, 0 if unavailable */
-    uint8_t ucIdleTimePer;       /**< Percent of idle time, 0 if unavailable */
+    uint32_t ulTxSuccessCount;  /**< Number of TX successes, 0 if unavailable */
+    uint32_t ulTxRetryCount;    /**< Number of TX retries, 0 if unavailable */
+    uint32_t ulTxFailCount;     /**< Number of TX failures, 0 if unavailable */
+    uint32_t ulRxSuccessCount;  /**< Number of RX successes, 0 if unavailable */
+    uint32_t ulRxCRCErrorCount; /**< Number of RX FCS errors, 0 if unavailable */
+    uint32_t ulMICErrorCount;   /**< Number of MIC errors, 0 if unavailable */
+    int8_t cNoise;              /**< Average noise level in dBm, -128 if unavailable */
+    uint16_t usPhyRate;         /**< Maximum used PHY rate, 0 if unavailable */
+    uint16_t usTxRate;          /**< Average used TX rate, 0 if unavailable */
+    uint16_t usRxRate;          /**< Average used RX rate, 0 if unavailable */
+    int8_t cRssi;               /**< Average beacon RSSI in dBm, -128 if unavailable */
+    uint8_t ucBandwidth;        /**< Average used bandwidth, 0 if unavailable */
+    uint8_t ucIdleTimePer;      /**< Percent of idle time, 0 if unavailable */
 } WIFIStatisticInfo_t;
 
 /**
  * @brief Wi-Fi band.
  */
-typedef enum {
-    eWiFiBand2G = 0,    /**< 2.4G band */
-    eWiFiBand5G,        /**< 5G band */
-    eWiFiBandDual,      /**< Dual band */
-    eWiFiBandMax        /**< Unsupported */
+typedef enum
+{
+    eWiFiBand2G = 0, /**< 2.4G band */
+    eWiFiBand5G,     /**< 5G band */
+    eWiFiBandDual,   /**< Dual band */
+    eWiFiBandMax     /**< Unsupported */
 } WIFIBand_t;
 
 /**
  * @brief Wi-Fi PHY mode.
  */
-typedef enum {
-    eWiFiPhy11b = 0,    /**< 11B */
-    eWiFiPhy11g,        /**< 11G */
-    eWiFiPhy11n,        /**< 11N */
-    eWiFiPhy11ac,       /**< 11AC */
-    eWiFiPhy11ax,       /**< 11AX */
-    eWiFiPhyMax,        /**< Unsupported */
+typedef enum
+{
+    eWiFiPhy11b = 0, /**< 11B */
+    eWiFiPhy11g,     /**< 11G */
+    eWiFiPhy11n,     /**< 11N */
+    eWiFiPhy11ac,    /**< 11AC */
+    eWiFiPhy11ax,    /**< 11AX */
+    eWiFiPhyMax,     /**< Unsupported */
 } WIFIPhyMode_t;
 
 /**
  * @brief Wi-Fi bandwidth.
  */
-typedef enum {
-    eWiFiBW20 = 0,      /**< 20MHz only */
-    eWiFiBW40,          /**< Max 40MHz */
-    eWiFiBW80,          /**< Max 80MHz */
-    eWiFiBW160,         /**< Max 80+80 or 160MHz */
-    eWiFiBWMax          /**< Unsupported */
+typedef enum
+{
+    eWiFiBW20 = 0, /**< 20MHz only */
+    eWiFiBW40,     /**< Max 40MHz */
+    eWiFiBW80,     /**< Max 80MHz */
+    eWiFiBW160,    /**< Max 80+80 or 160MHz */
+    eWiFiBWMax     /**< Unsupported */
 } WIFIBandwidth_t;
 
 /**
@@ -506,7 +509,7 @@ typedef struct
  *
  * @return None.
  */
-typedef void (*WIFIEventHandler_t)( WIFIEvent_t * xEvent );
+typedef void (* WIFIEventHandler_t)( WIFIEvent_t * xEvent );
 
 /**
  * @brief Turns on Wi-Fi.
@@ -891,7 +894,7 @@ WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType,
 /* @[declare_wifi_registerevent] */
 
 /**
-
+ *
  * @brief Check if the Wi-Fi is connected and the AP configuration matches the query.
  *
  * param[in] pxNetworkParams - Network parameters to query, if NULL then just check the
@@ -995,7 +998,7 @@ WIFIReturnCode_t WIFI_GetRSSI( int8_t * pcRSSI );
  * @return eWiFiSuccess if stations were got successfully (manybe none),
  * failure code otherwise.
  */
-WIFIReturnCode_t WIFI_GetStationList( WIFIStationInfo_t* pxStationList,
+WIFIReturnCode_t WIFI_GetStationList( WIFIStationInfo_t * pxStationList,
                                       uint8_t * pcStationListSize );
 
 /**
@@ -1008,7 +1011,7 @@ WIFIReturnCode_t WIFI_GetStationList( WIFIStationInfo_t* pxStationList,
  *
  * @return eWiFiSuccess if disconnection was started successfully, failure code otherwise.
  */
-WIFIReturnCode_t WIFI_StartDisconnectStation( uint8_t* pucMac );
+WIFIReturnCode_t WIFI_StartDisconnectStation( uint8_t * pucMac );
 
 /**
  * @brief Set Wi-Fi MAC addresses.
@@ -1031,7 +1034,7 @@ WIFIReturnCode_t WIFI_SetMAC( uint8_t * pucMac );
  *
  * @return eWiFiSuccess if Country Code is set successfully, failure code otherwise.
  */
-WIFIReturnCode_t WIFI_SetCountryCode( const char* pcCountryCode );
+WIFIReturnCode_t WIFI_SetCountryCode( const char * pcCountryCode );
 
 /**
  * @brief Get the currently configured country code.
@@ -1059,6 +1062,6 @@ WIFIReturnCode_t WIFI_GetStatistic( WIFIStatisticInfo_t * pxStats );
  *
  * @return eWiFiSuccess if capabilities are retrieved successfully, failure code otherwise.
  */
-WIFIReturnCode_t WIFI_GetCapability( WIFICapabilityInfo_t * pxCaps);
+WIFIReturnCode_t WIFI_GetCapability( WIFICapabilityInfo_t * pxCaps );
 
 #endif /* _AWS_WIFI_H_ */

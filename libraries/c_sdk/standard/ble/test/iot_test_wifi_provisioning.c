@@ -181,7 +181,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_GetSavedNetwork )
         memset( &xNetwork, 0x00, sizeof( WIFINetworkProfile_t ) );
         TEST_ASSERT_EQUAL( eWiFiSuccess, test_GetSavedNetwork( 0, &xNetwork ) );
         TEST_ASSERT_EQUAL_INT32( strlen( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
-        TEST_ASSERT_EQUAL_INT32( 0, strncmp( ( char *) xNetwork.ucSSID, clientcredentialWIFI_SSID, strlen( clientcredentialWIFI_SSID ) ) );
+        TEST_ASSERT_EQUAL_INT32( 0, strncmp( ( char * ) xNetwork.ucSSID, clientcredentialWIFI_SSID, strlen( clientcredentialWIFI_SSID ) ) );
         TEST_ASSERT_EQUAL_INT32( strlen( clientcredentialWIFI_PASSWORD ), xNetwork.ucPasswordLength );
         TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cPassword, clientcredentialWIFI_PASSWORD, strlen( clientcredentialWIFI_PASSWORD ) ) );
         TEST_ASSERT_EQUAL_INT32( clientcredentialWIFI_SECURITY, xNetwork.xSecurity );
@@ -210,7 +210,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_DeleteNetwork )
         TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus );
         TEST_ASSERT_NOT_EQUAL( eWiFiSuccess, WIFI_NetworkGet( &xNetwork, 0 ) );
         TEST_ASSERT_EQUAL_INT32( strlen( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
-        TEST_ASSERT_EQUAL_INT32( 0, strncmp( ( char* ) xNetwork.ucSSID, clientcredentialWIFI_SSID, strlen( clientcredentialWIFI_SSID ) ) );
+        TEST_ASSERT_EQUAL_INT32( 0, strncmp( ( char * ) xNetwork.ucSSID, clientcredentialWIFI_SSID, strlen( clientcredentialWIFI_SSID ) ) );
         TEST_ASSERT_EQUAL_INT32( strlen( clientcredentialWIFI_PASSWORD ), xNetwork.ucPasswordLength );
         TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cPassword, clientcredentialWIFI_PASSWORD, strlen( clientcredentialWIFI_PASSWORD ) ) );
         TEST_ASSERT_EQUAL_INT32( clientcredentialWIFI_SECURITY, xNetwork.xSecurity );
@@ -311,7 +311,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_ChangeConnectedNetworkPriority )
         memset( &xNetwork, 0x00, sizeof( WIFINetworkProfile_t ) );
         TEST_ASSERT_EQUAL( true, test_GetConnectedNetwork( &xNetwork ) );
         TEST_ASSERT_EQUAL_INT32( strlen( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
-        TEST_ASSERT_EQUAL_INT32( 0, strncmp( ( char* ) xNetwork.ucSSID, clientcredentialWIFI_SSID, strlen( clientcredentialWIFI_SSID ) ) );
+        TEST_ASSERT_EQUAL_INT32( 0, strncmp( ( char * ) xNetwork.ucSSID, clientcredentialWIFI_SSID, strlen( clientcredentialWIFI_SSID ) ) );
         TEST_ASSERT_EQUAL_INT32( strlen( clientcredentialWIFI_PASSWORD ), xNetwork.ucPasswordLength );
         TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cPassword, clientcredentialWIFI_PASSWORD, strlen( clientcredentialWIFI_PASSWORD ) ) );
         TEST_ASSERT_EQUAL_INT32( clientcredentialWIFI_SECURITY, xNetwork.xSecurity );
@@ -324,7 +324,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_ChangeConnectedNetworkPriority )
         TEST_ASSERT_EQUAL( pdTRUE, WIFI_IsConnected( NULL ) );
         TEST_ASSERT_EQUAL( true, test_GetConnectedNetwork( &xNetwork ) );
         TEST_ASSERT_EQUAL_INT32( strlen( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
-        TEST_ASSERT_EQUAL_INT32( 0, strncmp( ( char* ) xNetwork.ucSSID, clientcredentialWIFI_SSID, strlen( clientcredentialWIFI_SSID ) ) );
+        TEST_ASSERT_EQUAL_INT32( 0, strncmp( ( char * ) xNetwork.ucSSID, clientcredentialWIFI_SSID, strlen( clientcredentialWIFI_SSID ) ) );
         TEST_ASSERT_EQUAL_INT32( strlen( clientcredentialWIFI_PASSWORD ), xNetwork.ucPasswordLength );
         TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cPassword, clientcredentialWIFI_PASSWORD, strlen( clientcredentialWIFI_PASSWORD ) ) );
         TEST_ASSERT_EQUAL_INT32( clientcredentialWIFI_SECURITY, xNetwork.xSecurity );
@@ -419,7 +419,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_ConnectSavedNetwork )
         xResult = test_GetConnectedNetwork( &xNetwork );
         TEST_ASSERT_EQUAL( true, xResult );
         TEST_ASSERT_EQUAL_INT32( strlen( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
-        TEST_ASSERT_EQUAL_INT32( 0, strncmp( ( char* ) xNetwork.ucSSID, clientcredentialWIFI_SSID, strlen( clientcredentialWIFI_SSID ) ) );
+        TEST_ASSERT_EQUAL_INT32( 0, strncmp( ( char * ) xNetwork.ucSSID, clientcredentialWIFI_SSID, strlen( clientcredentialWIFI_SSID ) ) );
         TEST_ASSERT_EQUAL_INT32( strlen( clientcredentialWIFI_PASSWORD ), xNetwork.ucPasswordLength );
         TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cPassword, clientcredentialWIFI_PASSWORD, strlen( clientcredentialWIFI_PASSWORD ) ) );
         TEST_ASSERT_EQUAL_INT32( clientcredentialWIFI_SECURITY, xNetwork.xSecurity );
@@ -443,7 +443,7 @@ static bool prvIsSameNetwork( WIFINetworkProfile_t * pxNetwork1,
 
     if( pxNetwork1->ucSSIDLength == pxNetwork2->ucSSIDLength )
     {
-        xRet = ( 0 == strncmp( ( char* ) pxNetwork1->ucSSID, ( char* ) pxNetwork2->ucSSID, pxNetwork2->ucSSIDLength ) );
+        xRet = ( 0 == strncmp( ( char * ) pxNetwork1->ucSSID, ( char * ) pxNetwork2->ucSSID, pxNetwork2->ucSSIDLength ) );
     }
 
     return xRet;
@@ -494,7 +494,7 @@ static bool prvConnectRealNetwork( void )
 static void prvGetTestWIFINetwork( WIFINetworkProfile_t * pxNetwork,
                                    uint16_t usId )
 {
-    pxNetwork->ucSSIDLength = ( snprintf( ( char* )pxNetwork->ucSSID, sizeof( pxNetwork->ucSSID ), testNETWORK, usId ));
+    pxNetwork->ucSSIDLength = ( snprintf( ( char * ) pxNetwork->ucSSID, sizeof( pxNetwork->ucSSID ), testNETWORK, usId ) );
     memset( pxNetwork->cPassword, 0x00, sizeof( pxNetwork->cPassword ) );
     pxNetwork->ucPasswordLength = 0;
     memset( pxNetwork->ucBSSID, 0x00, sizeof( pxNetwork->ucBSSID ) );

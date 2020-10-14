@@ -838,7 +838,7 @@ WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * xIPConfig )
     if ( NULL == xIPConfig )
         return eWiFiFailure;
 
-    ip_to_pxIPAddr(g_ip4_addr, &xIPConfig->xIPAddress.ulAddress[ 0 ] );    
+    ip_to_pxIPAddr(g_ip4_addr, ( uint8_t *)&xIPConfig->xIPAddress.ulAddress[ 0 ] );    
 
     return g_ip4_addr == 0 ? eWiFiFailure : eWiFiSuccess;
 }

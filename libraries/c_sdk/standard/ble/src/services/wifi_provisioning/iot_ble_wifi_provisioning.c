@@ -1214,11 +1214,13 @@ WIFIReturnCode_t _connectNetwork( WIFINetworkProfile_t * pProfile )
     memcpy( networkParams.ucSSID, pProfile->ucSSID, pProfile->ucSSIDLength );
     networkParams.ucSSIDLength = pProfile->ucSSIDLength;
     networkParams.xSecurity = pProfile->xSecurity;
+
     if( ( networkParams.xSecurity == eWiFiSecurityWPA2 ) || ( networkParams.xSecurity == eWiFiSecurityWPA ) )
     {
         memcpy( networkParams.xPassword.xWPA.cPassphrase, pProfile->cPassword, pProfile->ucPasswordLength );
         networkParams.xPassword.xWPA.ucLength = pProfile->ucPasswordLength;
     }
+
     ret = WIFI_ConnectAP( &networkParams );
     return ret;
 }
@@ -1345,7 +1347,7 @@ static void _sendSavedNetwork( int32_t responseType,
     }
     else
     {
-        IotLogError( "Failed to serialize saved network ( SSID:%.*s )", pSavedNetwork->ucSSIDLength, ( char* ) pSavedNetwork->ucSSID );
+        IotLogError( "Failed to serialize saved network ( SSID:%.*s )", pSavedNetwork->ucSSIDLength, ( char * ) pSavedNetwork->ucSSID );
     }
 
     if( message != NULL )
@@ -1367,6 +1369,7 @@ static void _sendScanNetwork( int32_t responseType,
     networkInfo.pBSSID = pScanNetwork->ucBSSID;
     networkInfo.BSSIDLength = wificonfigMAX_BSSID_LEN;
     networkInfo.RSSI = pScanNetwork->cRSSI;
+
     /**
      * Scan hidden network is currently not supported for WiFi provisioning over BLE.
      */
@@ -1393,12 +1396,12 @@ static void _sendScanNetwork( int32_t responseType,
     {
         if( IotBleDataTransfer_Send( wifiProvisioning.pChannel, message, messageLen ) != messageLen )
         {
-            IotLogError( "Failed to send scanned network network ( SSID:%.*s )",  pScanNetwork->ucSSIDLength, ( const char * ) pScanNetwork->ucSSID );
+            IotLogError( "Failed to send scanned network network ( SSID:%.*s )", pScanNetwork->ucSSIDLength, ( const char * ) pScanNetwork->ucSSID );
         }
     }
     else
     {
-        IotLogError( "Failed to serialize scanned network network ( SSID:%.*s )",  pScanNetwork->ucSSIDLength, ( const char * ) pScanNetwork->ucSSID );
+        IotLogError( "Failed to serialize scanned network network ( SSID:%.*s )", pScanNetwork->ucSSIDLength, ( const char * ) pScanNetwork->ucSSID );
     }
 
     if( message != NULL )
