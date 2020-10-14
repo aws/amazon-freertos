@@ -29,9 +29,9 @@
 /* To run a particular demo you need to define one of these.
  * Only one demo can be configured at a time
  *
+ *          CONFIG_DEVICE_SHADOW_DEMO_ENABLED
  *          CONFIG_MQTT_DEMO_ENABLED
  *          CONFIG_SHADOW_DEMO_ENABLED
- *          CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
  *          CONFIG_OTA_UPDATE_DEMO_ENABLED
  *          CONFIG_POSIX_DEMO_ENABLED
  *          CONFIG_BLE_GATT_SERVER_DEMO_ENABLED

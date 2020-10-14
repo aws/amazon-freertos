@@ -62,3 +62,9 @@ add_subdirectory(${AFR_MODULES_DIR}/logging)
 
 # Add core_mqtt modules
 include(core_mqtt.cmake)
+
+# Add core_json modules
+include(core_json.cmake)
+
+# Add device_shadow modules
+include(device_shadow.cmake)
