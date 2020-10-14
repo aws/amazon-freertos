@@ -53,6 +53,11 @@
 /************ End of logging configuration ****************/
 
 /**
+ * To use this demo, please configure the client's certificate and private key
+ * in demos/include/aws_clientcredential_keys.h.
+ */
+
+/**
  * @brief The MQTT client identifier used in this example.  Each client identifier
  * must be unique; so edit as required to ensure that no two clients connecting to
  * the same broker use the same client identifier.
