@@ -35,8 +35,9 @@
  *
  * A mutually authenticated TLS connection is used to connect to the
  * MQTT message broker in this example. Define democonfigMQTT_BROKER_ENDPOINT
- * and democonfigROOT_CA_PEM, in mqtt_demo_mutual_auth_config.h, and keys, in
- * aws_clientcredential_keys.h, to establish a mutually authenticated connection.
+ * and democonfigROOT_CA_PEM, in mqtt_demo_mutual_auth_config.h, and the client
+ * private key and certificate, in aws_clientcredential_keys.h, to establish a
+ * mutually authenticated connection.
  */
 
 /**
