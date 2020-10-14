@@ -22,6 +22,7 @@ include( ${CMAKE_CURRENT_LIST_DIR}/transport_interface.cmake )
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PUBLIC
+        "${src_dir}/transport_secure_sockets.h"
         "${src_dir}/transport_secure_sockets.c"
 )
 

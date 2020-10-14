@@ -11,6 +11,17 @@ afr_set_lib_metadata(IS_VISIBLE "true")
 # Include MQTT library's source and header path variables.
 include("${CMAKE_CURRENT_LIST_DIR}/coreMQTT/mqttFilePaths.cmake")
 
+# Create a list of all header files in the coreMQTT library.
+# The list of header files will be added to metadata required
+# for the Online Configuration Wizard.
+set(MQTT_HEADER_FILES "")
+foreach(mqtt_public_include_dir ${MQTT_INCLUDE_PUBLIC_DIRS})
+    file(GLOB mqtt_public_include_header_files
+              LIST_DIRECTORIES false
+              ${mqtt_public_include_dir}/* )
+    list(APPEND MQTT_HEADER_FILES ${mqtt_public_include_header_files})
+endforeach()
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
