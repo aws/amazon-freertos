@@ -175,6 +175,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/tinycbor/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/http_parser"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/jsmn"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/logging/include/"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.files.831986787" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.1594779853" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false"/>
