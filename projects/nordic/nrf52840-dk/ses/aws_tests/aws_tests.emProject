@@ -179,6 +179,13 @@
           </folder>
         </folder>
       </folder>
+      <folder Name="logging">
+        <file file_name="../../../../../libraries/logging/include/logging_levels.h" />
+        <file file_name="../../../../../libraries/logging/include/logging_stack.h" />
+        <file file_name="../../../../../libraries/logging/include/iot_logging_task.h" />
+        <file file_name="../../../../../libraries/logging/iot_logging.c" />
+        <file file_name="../../../../../libraries/logging/iot_logging_task_dynamic_buffers.c" />
+      </folder>
       <folder Name="c_sdk">
         <folder Name="aws">
           <folder Name="shadow">
@@ -214,7 +221,7 @@
             <file file_name="../../../../../libraries/c_sdk/standard/common/iot_static_memory_common.c" />
             <folder Name="include">
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_logging_task.h" />
+              <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_logging_setup.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_atomic.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_init.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_linear_containers.h" />
