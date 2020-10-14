@@ -133,6 +133,8 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt.c                                                \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt_state.c                                          \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt_serializer.c                                     \
+                    $(AFR_LIBRARIES_PATH)coreJSON/source/core_json.c                                                \
+                    $(AFR_LIBRARIES_PATH)device-shadow-for-aws-iot-embedded-sdk/source/shadow.c                                                \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/lwip/iot_secure_sockets.c                                \
                     $(AFR_C_SDK_AWS_PATH)shadow/src/aws_shadow.c                                                    \
                     $(AFR_C_SDK_AWS_PATH)shadow/src/aws_iot_shadow_api.c                                            \
@@ -156,6 +158,8 @@ GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_C_SDK_STANDARD_PATH)logging_stack \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/portable \
+                    $(AFR_LIBRARIES_PATH)coreJSON/source/include \
+                    $(AFR_LIBRARIES_PATH)device-shadow-for-aws-iot-embedded-sdk/source/include \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include/types \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)/greengrass/include     \
