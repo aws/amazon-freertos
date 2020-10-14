@@ -35,7 +35,7 @@
  *
  * A server-authenticated TLS connection is used to connect to the MQTT message
  * broker in this example. Define democonfigMQTT_BROKER_ENDPOINT and
- * democonfigROOT_CA_PEM in demo_config.h to establish a server-authenticated
+ * democonfigROOT_CA_PEM in mqtt_demo_basic_tls_config.h to establish a server-authenticated
  * connection.
  */
 
@@ -121,8 +121,9 @@
 /**
  * @brief The topic to subscribe and publish to in the example.
  *
- * The topic name starts with the client identifier to ensure that each demo
- * interacts with a unique topic name.
+ * The topic name starts with the client identifier. This ensures that each demo
+ * interacts with a unique topic name, as each demo is expected to have a unique
+ * client identifer.
  */
 #define mqttexampleTOPIC                             democonfigCLIENT_IDENTIFIER "/example/topic"
 
@@ -179,12 +180,12 @@
 /**
  * @brief Milliseconds per second.
  */
-#define _MILLISECONDS_PER_SECOND                     ( 1000U )
+#define MILLISECONDS_PER_SECOND                      ( 1000U )
 
 /**
  * @brief Milliseconds per FreeRTOS tick.
  */
-#define _MILLISECONDS_PER_TICK                       ( _MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+#define MILLISECONDS_PER_TICK                        ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
 
 /*-----------------------------------------------------------*/
 
@@ -202,7 +203,7 @@
 static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNetworkContext );
 
 /**
- * @brief Sends an MQTT Connect packet over the already connected TLS over TCP connection.
+ * @brief Sends an MQTT Connect packet over the already established TLS connection.
  *
  * @param[in, out] pxMQTTContext MQTT context pointer.
  * @param[in] pxNetworkContext network context.
@@ -355,13 +356,16 @@ static MQTTFixedBuffer_t xBuffer =
 /*-----------------------------------------------------------*/
 
 /**
- * @brief This example uses MQTT APIs to send and receive MQTT packets over a
- * TCP connection established using Secure Sockets. This example is single
- * threaded and uses statically allocated memory. This example uses QOS0 and
- * therefore does not implement any retransmission mechanism for Publish
- * messages. This example runs for democonfigMQTT_MAX_DEMO_COUNT, if the
- * connection to the broker goes down, the code tries to reconnect to the broker
- * with an exponential backoff mechanism.
+ * @brief The example shown below uses MQTT APIs to create MQTT messages and
+ * send them over the server-authenticated network connection established with the
+ * MQTT broker. This example is single threaded and uses statically allocated
+ * memory. It uses QoS2 for sending to and receiving messages from the broker.
+ *
+ * This MQTT client subscribes to the topic as specified in mqttexampleTOPIC at the
+ * top of this file by sending a subscribe packet and then waiting for a subscribe
+ * acknowledgment (SUBACK). The client will then publish to the same topic it
+ * subscribed to, so it will expect all the messages it sends to the broker to be
+ * sent right back from the broker. This example runs for democonfigMQTT_MAX_DEMO_COUNT.
  */
 int RunCoreMqttBasicTLSDemo( bool awsIotMqttMode,
                              const char * pIdentifier,
@@ -399,12 +403,12 @@ int RunCoreMqttBasicTLSDemo( bool awsIotMqttMode,
         /* Attempt to establish a TLS connection with the MQTT broker. This example
          * connects to the MQTT broker specified in democonfigMQTT_BROKER_ENDPOINT,
          * using the port number specified in democonfigMQTT_BROKER_PORT (these
-         * macros are defined in file demo_config.h). If the connection fails,
-         * attempt to re-connect after a timeout. The timeout value will be
-         * exponentially increased until either the maximum timeout value is
-         * reached, or the maximum number of attempts are exhausted. The function
-         * returns a failure status if the TCP connection cannot be established
-         * with the broker after a configured number of attempts. */
+         * macros are defined in file mqtt_demo_basic_tls_config.h). If the
+         * connection fails, attempt to re-connect after a timeout. The timeout
+         * value will be exponentially increased until either the maximum timeout
+         * value is reached, or the maximum number of attempts are exhausted. The
+         * function returns a failure status if the TLS connection cannot be
+         * established with the broker after a configured number of attempts. */
         xNetworkStatus = prvConnectToServerWithBackoffRetries( &xNetworkContext );
 
         if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
@@ -413,7 +417,7 @@ int RunCoreMqttBasicTLSDemo( bool awsIotMqttMode,
         }
         else
         {
-            /* Set a flag indicating a TCP connection exists. This is done to
+            /* Set a flag indicating a TLS connection exists. This is done to
              * disconnect if the loop exits before disconnection happens. */
             xIsConnectionEstablished = pdTRUE;
         }
@@ -449,7 +453,7 @@ int RunCoreMqttBasicTLSDemo( bool awsIotMqttMode,
             if( xDemoStatus == pdPASS )
             {
                 /* Process incoming publish echo. Since the application subscribed and published
-                 * to the same topic, the broker will send the incoming publish message back
+                 * to the same topic, the broker will send the published message back
                  * to the application. */
                 LogInfo( ( "Attempt to receive publish message from broker." ) );
                 xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
@@ -583,8 +587,8 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
     do
     {
         /* Establish a TLS session with the MQTT broker. This example connects to
-         * the MQTT broker as specified in democonfigMQTT_BROKER_ENDPOINT and
-         * democonfigMQTT_BROKER_PORT at the top of this file. */
+        * the MQTT broker as specified in democonfigMQTT_BROKER_ENDPOINT and
+        * democonfigMQTT_BROKER_PORT in the mqtt_demo_basic_tls_config.h file. */
         LogInfo( ( "Creating a TLS connection to %s:%u.",
                    democonfigMQTT_BROKER_ENDPOINT,
                    democonfigMQTT_BROKER_PORT ) );
@@ -690,7 +694,10 @@ static void prvUpdateSubAckStatus( MQTTPacketInfo_t * pxPacketInfo )
      * from the event callback and non-NULL parameters. */
     configASSERT( xResult == MQTTSuccess );
 
-    for( ulTopicCount = 0; ulTopicCount < ulSize; ulTopicCount++ )
+    /* The SUBACK's payload size should equal the topic count specified. */
+    configASSERT( ulSize == mqttexampleTOPIC_COUNT );
+
+    for( ulTopicCount = 0; ulTopicCount < mqttexampleTOPIC_COUNT; ulTopicCount++ )
     {
         xTopicFilterContext[ ulTopicCount ].xSubAckStatus = pucPayload[ ulTopicCount ];
     }
@@ -993,7 +1000,7 @@ static uint32_t prvGetTimeMs( void )
     xTickCount = xTaskGetTickCount();
 
     /* Convert the ticks to milliseconds. */
-    ulTimeMs = ( uint32_t ) xTickCount * _MILLISECONDS_PER_TICK;
+    ulTimeMs = ( uint32_t ) xTickCount * MILLISECONDS_PER_TICK;
 
     /* Reduce ulGlobalEntryTimeMs from obtained time so as to always return the
      * elapsed time in the application. */
