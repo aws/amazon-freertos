@@ -22,13 +22,15 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         ${MQTT_INCLUDE_PUBLIC_DIRS}
-    PRIVATE
-        ${MQTT_INCLUDE_PRIVATE_DIRS}
 )
 
-# Dependency of module on logging stack.
+# Add dependencies of the coreMQTT demos in this target
+# to support metadata required for Online Configuration Wizard.
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
-        AFR::common
+        AFR::logging
+        AFR::retry_utils
+        AFR::transport_interface_secure_sockets
+        AFR::secure_sockets
 )
