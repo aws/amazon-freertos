@@ -401,6 +401,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device-shadow-for-aws-iot-embedded-sdk\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
@@ -1342,6 +1343,9 @@
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_test_pkcs11_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\shadow_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\unity_config.h</name>
@@ -2842,6 +2846,15 @@
 				</file>
 			</group>
 		</group>
+		<group>
+			<name>device-shadow-for-aws-iot-embedded-sdk</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device-shadow-for-aws-iot-embedded-sdk\source\shadow.c</name>
+				</file>
+			</group>
+		</group>
 	</group>
 	<group>
 		<name>tests</name>
@@ -2897,6 +2910,9 @@
 			<name>integration_test</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\core_mqtt_system_test.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\shadow_system_test.c</name>
 			</file>
 		</group>
 	</group>

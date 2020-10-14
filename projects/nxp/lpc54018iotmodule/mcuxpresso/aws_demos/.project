@@ -1598,6 +1598,11 @@
 			<locationURI>BASE_DIR/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c</locationURI>
+		</link>
+		<link>
 			<name>demos/coreMQTT/mqtt_demo_mutual_auth.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/coreMQTT/mqtt_demo_mutual_auth.c</locationURI>
@@ -1801,6 +1806,11 @@
 			<name>config_files/mqtt_demo_serializer_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/mqtt_demo_serializer_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/shadow_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/shadow_config.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/main.c</name>

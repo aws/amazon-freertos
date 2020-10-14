@@ -118,6 +118,8 @@
 		<Filter Include="libraries\abstractions\retry_utils"/>
 		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
 		<Filter Include="libraries\abstractions\transport"/>
+		<Filter Include="libraries\device-shadow-for-aws-iot-embedded-sdk\source"/>
+		<Filter Include="libraries\device-shadow-for-aws-iot-embedded-sdk"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\unit"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\system"/>
@@ -1434,6 +1436,9 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\device-shadow-for-aws-iot-embedded-sdk\source\shadow.c">
+			<Filter>libraries\device-shadow-for-aws-iot-embedded-sdk\source</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">
 			<Filter>libraries\c_sdk\aws\defender\test\unit</Filter>
 		</ClCompile>
@@ -1576,6 +1581,9 @@
 			<Filter>libraries\abstractions\secure_sockets\test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\tests\integration_test\core_mqtt_system_test.c">
+			<Filter>tests\integration_test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\tests\integration_test\shadow_system_test.c">
 			<Filter>tests\integration_test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\tests\integration_test\test_freertos_tcp.c">

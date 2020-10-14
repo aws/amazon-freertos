@@ -118,6 +118,8 @@
 		<Filter Include="libraries\abstractions\retry_utils"/>
 		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
 		<Filter Include="libraries\abstractions\transport"/>
+		<Filter Include="libraries\device-shadow-for-aws-iot-embedded-sdk\source"/>
+		<Filter Include="libraries\device-shadow-for-aws-iot-embedded-sdk"/>
 		<Filter Include="demos\coreMQTT"/>
 		<Filter Include="demos\defender"/>
 		<Filter Include="demos\greengrass_connectivity"/>
@@ -1408,6 +1410,9 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\device-shadow-for-aws-iot-embedded-sdk\source\shadow.c">
+			<Filter>libraries\device-shadow-for-aws-iot-embedded-sdk\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_mutual_auth.c">
 			<Filter>demos\coreMQTT</Filter>

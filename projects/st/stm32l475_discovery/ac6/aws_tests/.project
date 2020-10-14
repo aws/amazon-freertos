@@ -1863,6 +1863,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</locationURI>
@@ -2153,6 +2158,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/tests/integration_test/core_mqtt_system_test.c</locationURI>
 		</link>
 		<link>
+			<name>tests/integration_test/shadow_system_test.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/integration_test/shadow_system_test.c</locationURI>
+		</link>
+		<link>
 			<name>application_code/st_code/cmsis_os.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/application_code/st_code/cmsis_os.c</locationURI>
@@ -2336,6 +2346,11 @@
 			<name>config_files/iot_test_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/iot_test_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/shadow_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/shadow_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/unity_config.h</name>

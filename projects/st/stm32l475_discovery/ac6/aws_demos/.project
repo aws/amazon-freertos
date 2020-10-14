@@ -1868,6 +1868,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c</locationURI>
+		</link>
+		<link>
 			<name>demos/cli/cli_uart_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/cli/cli_uart_demo.c</locationURI>
@@ -2126,6 +2131,11 @@
 			<name>config_files/mqtt_demo_serializer_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/mqtt_demo_serializer_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/shadow_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/shadow_config.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/main.c</name>

@@ -1588,6 +1588,11 @@
 			<locationURI>BASE_DIR/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</locationURI>
@@ -1818,6 +1823,11 @@
 			<locationURI>BASE_DIR/tests/integration_test/core_mqtt_system_test.c</locationURI>
 		</link>
 		<link>
+			<name>tests/integration_test/shadow_system_test.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/tests/integration_test/shadow_system_test.c</locationURI>
+		</link>
+		<link>
 			<name>application_code/nxp_code/board.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/application_code/nxp_code/board.c</locationURI>
@@ -1936,6 +1946,11 @@
 			<name>config_files/iot_test_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/iot_test_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/shadow_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/shadow_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/unity_config.h</name>
