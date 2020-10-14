@@ -14,6 +14,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/coreMQTT/mqttFilePaths.cmake")
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
+        ${MQTT_HEADER_FILES}
         ${MQTT_SOURCES}
         ${MQTT_SERIALIZER_SOURCES}
 )
@@ -30,5 +31,5 @@ afr_module_include_dirs(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
-        AFR::common
+        AFR::logging
 )
