@@ -3324,7 +3324,7 @@ TEST( Full_TCP_Extended, SOCKETS_dns_multiple_addresses )
 
     /* Require a minimum number of IP addresses for AWS IoT Core endpoints */
     TEST_ASSERT_GREATER_OR_EQUAL_UINT32_MESSAGE( dnstestNUM_UNIQUE_IP_ADDRESSES, ulNumUniqueIPAddresses, "Incorrect number of IP addresses per entry" );
-    
+
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }
 
