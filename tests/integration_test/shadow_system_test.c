@@ -97,7 +97,7 @@
 
 #ifndef SERVER_ROOT_CA_CERT
     #define SERVER_ROOT_CA_CERT    tlsATS1_ROOT_CERTIFICATE_PEM
-#endif /* ifndef SERVER_ROOT_CA_CERT_NON_AWS */
+#endif
 
 /**
  * @brief Client identifier for MQTT session in the tests.

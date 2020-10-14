@@ -355,8 +355,6 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src/private\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
-    $(CY_AFR_ROOT)/libraries/coreMQTT/source/portable
 
 # include device-shadow-for-aws-iot-embedded-sdk
 SOURCES+=\
