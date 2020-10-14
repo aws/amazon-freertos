@@ -252,6 +252,10 @@ void vApplicationDaemonTaskStartupHook( void )
         /* Connect to the Wi-Fi before running the tests. */
         prvWifiConnect();
 
+        /* Assert to check if the priority of the test runner task is lesser than
+         * #configMAX_PRIORITIES. */
+        configASSERT( mainTEST_RUNNER_TASK_PRIORITY < configMAX_PRIORITIES );
+
         /* Create the task to run tests. */
         xTaskCreate( TEST_RUNNER_RunTests_task,
                      "TestRunner",
