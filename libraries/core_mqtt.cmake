@@ -13,8 +13,8 @@ include("${CMAKE_CURRENT_LIST_DIR}/coreMQTT/mqttFilePaths.cmake")
 
 # Create a list of all header files in the coreMQTT library.
 # The list of header files will be added to metadata required
-# for the Online Configuration Wizard (FreeRTOS Device Software)
-# service.
+# for the FreeRTOS Device Software service of downloading 
+# FreeRTOS from the AWS IoT console.
 set(MQTT_HEADER_FILES "")
 foreach(mqtt_public_include_dir ${MQTT_INCLUDE_PUBLIC_DIRS})
     file(GLOB mqtt_public_include_header_files
@@ -28,9 +28,9 @@ afr_module_sources(
     PRIVATE
         ${MQTT_SOURCES}
         ${MQTT_SERIALIZER_SOURCES}
-        # List of files added to the target to include them in metadata
-        # for the Online Configuration Wizard (FreeRTOS Device Software)
-        # service.
+        # List of files added to the target so that these are available
+        # in code downloaded from the FreeRTOS Device Software service
+        # on the AWS IoT console.
         ${CMAKE_CURRENT_LIST_DIR}/core_mqtt.cmake
         ${MQTT_HEADER_FILES}
 )
