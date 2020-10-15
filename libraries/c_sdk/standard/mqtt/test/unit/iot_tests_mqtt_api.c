@@ -98,7 +98,7 @@
 #define TEST_TOPIC_NAME_LENGTH                        ( ( uint16_t ) ( sizeof( TEST_TOPIC_NAME ) - 1 ) ) /**< @brief Length of topic name. */
 
 /*
- * Strings with format specifiers for printing the periodic keep alive status.
+ * Strings with format specifiers for printing the periodic keep-alive status.
  * This needed in the thread simulating incoming PINGRESP messages.
  */
 #define KEEP_ALIVE_PERIODIC_STATUS_MAIN_STRING        "KeepAlivePeriodic %d of %d DONE at %lu ms"
@@ -241,8 +241,8 @@ static void _incomingPingresp( void * pArgument )
         }
         else
         {
-            /* Otherwise write a period with some line endings for pretty
-             * printing. The NULL termintor in the C string is also written. */
+            /* Write a period with some line endings for pretty printing. The
+             * NULL termintor in the C string is also written. */
             memcpy( &( pKeepAliveStatus[ numWritten ] ),
                     KEEP_ALIVE_PERIODIC_STATUS_ENDING_STRING,
                     sizeof( KEEP_ALIVE_PERIODIC_STATUS_ENDING_STRING ) );
