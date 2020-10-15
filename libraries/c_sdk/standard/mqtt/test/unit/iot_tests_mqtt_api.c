@@ -33,6 +33,7 @@
 
 /* Standard includes. */
 #include <string.h>
+#include <stdio.h>
 
 /* SDK initialization include. */
 #include "iot_init.h"
