@@ -22,7 +22,7 @@ afr_test_module(freertos_tcp)
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/test_freertos_tcp.c"
+        "${CMAKE_CURRENT_LIST_DIR}/test_freertos_tcp.c"
 )
 
 afr_module_dependencies(
