@@ -35,6 +35,10 @@
 
 #include "FreeRTOS.h"
 
+/* Include task.h for delay function. */
+#include "task.h"
+
+/* Include sempahore for callback synchronization. */
 #include "semphr.h"
 
 /* Unity Test framework include. */
@@ -42,9 +46,6 @@
 
 /* Include connection configurations header. */
 #include "aws_clientcredential.h"
-
-/* Include for Semaphore. */
-#include "platform/iot_threads.h"
 
 /* Include paths for public enums, structures, and macros. */
 #include "core_mqtt.h"
@@ -55,8 +56,7 @@
 /* Include BLE implementation of transport interface. */
 #include "iot_ble_mqtt_transport.h"
 
-/* Include task.h for delay function. */
-#include "task.h"
+
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
