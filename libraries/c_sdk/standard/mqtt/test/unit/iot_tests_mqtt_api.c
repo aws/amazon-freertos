@@ -99,7 +99,7 @@
 
 /*
  * Strings with format specifiers for printing the periodic keep-alive status.
- * This needed in the thread simulating incoming PINGRESP messages.
+ * This is needed in the thread simulating incoming PINGRESP messages.
  */
 #define KEEP_ALIVE_PERIODIC_STATUS_MAIN_STRING        "KeepAlivePeriodic %d of %d DONE at %lu ms"
 #define KEEP_ALIVE_PERIODIC_STATUS_INTERVAL_STRING    " (+ %lu ).\r\n"
@@ -107,7 +107,7 @@
 
 /**
  * @brief The length of the string use to print the keep-alive periodic status.
- * This needed in the thread simulating incoming PINGRESP messages.
+ * This is needed in the thread simulating incoming PINGRESP messages.
  */
 #define KEEP_ALIVE_PERIODIC_STATUS_LENGTH             128
 
