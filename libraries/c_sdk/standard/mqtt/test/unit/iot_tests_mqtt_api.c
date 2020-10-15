@@ -185,6 +185,12 @@ static IotMqttNetworkInfo_t _networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
  */
 static IotNetworkInterface_t _networkInterface = { 0 };
 
+/**
+ * @brief Buffer holding the keep-alive periodic status string.
+ * This needed in the thread simulating incoming PINGRESP messages.
+ */
+static char pKeepAliveStatus[ KEEP_ALIVE_PERIODIC_STATUS_LENGTH ] = { 0 };
+
 /*-----------------------------------------------------------*/
 
 /* Using initialized connToContext variable. */
@@ -203,7 +209,6 @@ static void _incomingPingresp( void * pArgument )
     static int32_t invokeCount = 0;
     static uint64_t lastInvokeTime = 0;
     uint64_t currentTime = IotClock_GetTimeMs();
-    char pKeepAliveStatus[ KEEP_ALIVE_PERIODIC_STATUS_LENGTH ] = { 0 };
 
     /* The number of characters written in snprintf. */
     int numWritten = 0;
