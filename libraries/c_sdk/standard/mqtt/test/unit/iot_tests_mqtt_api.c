@@ -121,12 +121,25 @@
 #define DUP_CHECK_RETRY_LIMIT      ( 3 )    /**< @brief How many duplicate packets to send. */
 #define DUP_CHECK_TIMEOUT          ( 3000 ) /**< @brief Total time allowed to send all duplicate packets.
                                              * Duplicates are sent using an exponential backoff strategy. */
-/** @brief The minimum amount of time the test can take. */
+
+/**
+ * @brief The minimum amount of time the #TEST_MQTT_Unit_API_PublishDuplicate
+ * test can take.
+ */
 #define DUP_CHECK_MINIMUM_WAIT \
     ( DUP_CHECK_RETRY_MS +     \
       2 * DUP_CHECK_RETRY_MS + \
       4 * DUP_CHECK_RETRY_MS + \
       IOT_MQTT_RESPONSE_WAIT_MS )
+
+/**
+ * @brief The length of the string use to print the keep-alive periodic status
+ * of the thread simulating incoming PINGRESP messages.
+ *
+ * The longest status string created during testing has the possible form:
+ * "KeepAlivePeriodic of <INT32_MAX> DONE at <UINT64_MAX> ms (+<UINT64_MAX> ms)."
+ */
+#define KEEP_ALIVE_PERIODIC_STATUS_LENGTH    100
 
 /*-----------------------------------------------------------*/
 
@@ -183,6 +196,12 @@ static void _incomingPingresp( void * pArgument )
     static int32_t invokeCount = 0;
     static uint64_t lastInvokeTime = 0;
     uint64_t currentTime = IotClock_GetTimeMs();
+    char pKeepAliveStatus[ KEEP_ALIVE_PERIODIC_STATUS_LENGTH ] = { 0 };
+
+    /* Length of the current status string, not including the NULL terminator.
+     * A string's length never includes the NULL terminator, but we are explicit
+     * here to avoid confusion. */
+    int statuslength = 0;
 
     /* Increment invoke count for this function. */
     invokeCount++;
@@ -195,26 +214,34 @@ static void _incomingPingresp( void * pArgument )
     if( invokeCount <= KEEP_ALIVE_COUNT )
     {
         /* Log a status with Unity, as this test may take a while. */
-        UnityPrint( "KeepAlivePeriodic " );
-        UnityPrintNumber( ( UNITY_INT ) invokeCount );
-        UnityPrint( " of " );
-        UnityPrintNumber( ( UNITY_INT ) KEEP_ALIVE_COUNT );
-        UnityPrint( " DONE at " );
-        UnityPrintNumber( ( UNITY_INT ) IotClock_GetTimeMs() );
-        UnityPrint( " ms" );
+        statuslength = snprintf( pKeepAliveStatus,
+                                 KEEP_ALIVE_PERIODIC_STATUS_LENGTH,
+                                 "KeepAlivePeriodic %d of %d DONE at %lu ms",
+                                 invokeCount,
+                                 KEEP_ALIVE_COUNT,
+                                 IotClock_GetTimeMs() );
+        /* Assert there are not unlikely encoding errors. */
+        TEST_ASSERT( statuslength > 0 );
 
         if( invokeCount > 1 )
         {
-            UnityPrint( " (+" );
-            UnityPrintNumber( ( UNITY_INT ) ( currentTime - lastInvokeTime ) );
-            UnityPrint( " ms)." );
+            int prevStatusLength = statuslength;
+            statuslength += snprintf( &( pKeepAliveStatus[ statuslength ] ),
+                                      KEEP_ALIVE_PERIODIC_STATUS_LENGTH - statuslength,
+                                      " (+ %lu ).",
+                                      currentTime - lastInvokeTime );
+            /* Assert there are not unlikely encoding errors. */
+            TEST_ASSERT( statuslength > prevStatusLength );
         }
         else
         {
-            UnityPrint( "." );
+            pKeepAliveStatus[ statuslength++ ] = '.';
+            pKeepAliveStatus[ statuslength ] = '\0';
         }
 
-        UNITY_PRINT_EOL();
+        /* Print the status. */
+        UnityPrint( pKeepAliveStatus );
+
         lastInvokeTime = currentTime;
 
         IotMqtt_ReceiveCallback( NULL,
