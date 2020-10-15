@@ -13,7 +13,8 @@ include("${CMAKE_CURRENT_LIST_DIR}/coreMQTT/mqttFilePaths.cmake")
 
 # Create a list of all header files in the coreMQTT library.
 # The list of header files will be added to metadata required
-# for the Online Configuration Wizard.
+# for the Online Configuration Wizard (FreeRTOS Device Software)
+# service.
 set(MQTT_HEADER_FILES "")
 foreach(mqtt_public_include_dir ${MQTT_INCLUDE_PUBLIC_DIRS})
     file(GLOB mqtt_public_include_header_files
@@ -25,17 +26,19 @@ endforeach()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-        ${MQTT_HEADER_FILES}
         ${MQTT_SOURCES}
         ${MQTT_SERIALIZER_SOURCES}
+        # List of files added to the target to include them in metadata
+        # for the Online Configuration Wizard (FreeRTOS Device Software)
+        # service.
+        ${CMAKE_CURRENT_LIST_DIR}/core_mqtt.cmake
+        ${MQTT_HEADER_FILES}
 )
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         ${MQTT_INCLUDE_PUBLIC_DIRS}
-    PRIVATE
-        ${MQTT_INCLUDE_PRIVATE_DIRS}
 )
 
 # Dependency of module on logging stack.
