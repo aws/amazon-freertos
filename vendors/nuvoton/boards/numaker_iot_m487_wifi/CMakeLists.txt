@@ -159,6 +159,8 @@ if(AFR_ENABLE_ETH)
             "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_1.c"
             "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/M487/m480_eth.c"
             "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/M487/NetworkInterface.c"
+            # Header file added to the target so that these are available in code downloaded from the FreeRTOS console.
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/M487/m480_eth.h"
     )
 
     target_include_directories(

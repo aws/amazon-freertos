@@ -4,12 +4,11 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}")
 
-# Create a list of all pack_struct_*.h files in the FreeRTOS+TCP
+# Create a list of all FReeRTOS+TCP headers files in the FreeRTOS+TCP
 # library.
 # The list of header files will be added to metadata required
 # for the FreeRTOS console.
 file(GLOB_RECURSE INCLUDE_HEADER_FILES "${inc_dir}/*.h")
-file(GLOB_RECURSE PORTABLE_HEADER_FILES "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp/portable/*/*.h")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -27,7 +26,6 @@ afr_module_sources(
         # in code downloaded from the FreeRTOS console.
         ${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp.cmake
         ${INCLUDE_HEADER_FILES}
-        ${PORTABLE_HEADER_FILES}
 )
 
 afr_module_include_dirs(
