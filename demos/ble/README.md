@@ -8,3 +8,6 @@ It is possible to have the iOS or Android SDK perform the MQTT demo, while inter
 
 The iOS and Android SDK can run this demo at the same time as MQTT demo by creating two GATT servers to demonstrate this ability. 
 This demo creates a special service with two characteristics, one used to count, the other used to control the counter. From the application, the user can chose to stop/start/reset the counter.
+
+## MQTT BLE Transport Demo
+This demo demonstrates the transport interface implementation of BLE to send MQTT packets through a mobile device application to the cloud. The demo requires a companion mobile application written using the [iOS](https://github.com/aws/amazon-freertos-ble-ios-sdk) or [Android](https://github.com/aws/amazon-freertos-ble-android-sdk) SDK. Sample mobile application can be found in the respective repositories. The demo facilitates applications written using the MQTT library to seamlessly send and receive data with the cloud, over BLE through a companion device. 

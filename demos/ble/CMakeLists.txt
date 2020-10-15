@@ -21,7 +21,7 @@ afr_module_dependencies(
 )
 
 
-# MQTT on BLE demo
+# MQTT over BLE demo
 afr_demo_module(mqtt_ble)
 
 afr_set_demo_metadata(ID "MQTT_BLE_DEMO")
@@ -31,19 +31,20 @@ afr_set_demo_metadata(DISPLAY_NAME "MQTT over BLE Hello World")
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${CMAKE_CURRENT_LIST_DIR}/mqtt_transport/mqtt_demo_transport.c"
+        "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_ble_transport.c"
 )
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/mqtt_transport
         ${AFR_MODULES_DIR}/logging/include
 )
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
+        AFR::core_mqtt
+        AFR::ble
         AFR::mqtt_ble
 )
 
@@ -61,7 +62,7 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${AFR_DEMOS_DIR}/include/iot_ble_numericComparison.h"
-        "${CMAKE_CURRENT_LIST_DIR}/iot_ble_numericComparison.c"   
+        "${CMAKE_CURRENT_LIST_DIR}/iot_ble_numericComparison.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
