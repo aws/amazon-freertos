@@ -1,6 +1,6 @@
 afr_module(NAME core_mqtt )
 
-afr_set_lib_metadata(ID "core_mqtt")
+afr_set_lib_metadata(ID "core_mqtt_demo_dependencies")
 afr_set_lib_metadata(DESCRIPTION "This library implements the MQTT protocol that enables \
 communication with AWS IoT. MQTT is an ISO standard publish-subscribe-based messaging protocol.")
 afr_set_lib_metadata(DISPLAY_NAME "Core MQTT")
@@ -24,11 +24,14 @@ afr_module_include_dirs(
         ${MQTT_INCLUDE_PUBLIC_DIRS}
 )
 
+afr_module(NAME core_mqtt_demo_dependencies )
+
 # Add dependencies of the coreMQTT demos in this target
 # to support metadata required for Online Configuration Wizard.
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
+        AFR::core_mqtt
         AFR::logging
         AFR::retry_utils
         AFR::transport_interface_secure_sockets

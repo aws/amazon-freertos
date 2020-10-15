@@ -61,4 +61,4 @@ endforeach()
 add_subdirectory(${AFR_MODULES_DIR}/logging)
 
 # Add core_mqtt modules
-include(core_mqtt.cmake)
+include(core_mqtt_demo_dependencies.cmake)
