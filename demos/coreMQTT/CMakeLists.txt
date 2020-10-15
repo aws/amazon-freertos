@@ -20,5 +20,5 @@ afr_module_sources(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        AFR::core_mqtt
+        AFR::core_mqtt_demo_dependencies
 )

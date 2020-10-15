@@ -29,7 +29,7 @@ afr_module_sources(
         ${MQTT_SERIALIZER_SOURCES}
         # List of files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/core_mqtt.cmake
+        ${CMAKE_CURRENT_LIST_DIR}/core_mqtt_demo_dependencies.cmake
         ${MQTT_HEADER_FILES}
 )
 
@@ -39,6 +39,12 @@ afr_module_include_dirs(
         ${MQTT_INCLUDE_PUBLIC_DIRS}
 )
 
+# Metadata module used for the MQTT library in the FreeRTOS console.
+# It represents a collection of module dependencies required 
+# by the coreMQTT demos. 
+# This module enables the FreeRTOS console experience of enabling
+# library dependencies when selecting the MQTT library, so that the
+# coreMQTT demos can be downloaded.
 afr_module(NAME core_mqtt_demo_dependencies )
 
 # Add dependencies of the coreMQTT demos in this target
