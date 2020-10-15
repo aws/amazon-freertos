@@ -33,6 +33,7 @@
 
 /* Standard includes. */
 #include <string.h>
+#include <stdio.h>
 
 /* SDK initialization include. */
 #include "iot_init.h"
@@ -71,30 +72,45 @@
  * @brief Timeout to use for the tests. This can be short, but should allow time
  * for other threads to run.
  */
-#define TIMEOUT_MS                  ( 400 )
+#define TIMEOUT_MS                                    ( 400 )
 
 /**
  * @brief A short keep-alive interval to use for the keep-alive tests. It may be
  * shorter than the minimum 1 second specified by the MQTT spec.
  */
-#define SHORT_KEEP_ALIVE_MS         ( IOT_MQTT_RESPONSE_WAIT_MS + 100 )
+#define SHORT_KEEP_ALIVE_MS                           ( IOT_MQTT_RESPONSE_WAIT_MS + 100 )
 
 /**
  * @brief The number of times the periodic keep-alive should run.
  */
-#define KEEP_ALIVE_COUNT            ( 10 )
+#define KEEP_ALIVE_COUNT                              ( 10 )
 
 /*
  * Client identifier and length to use for the MQTT API tests.
  */
-#define CLIENT_IDENTIFIER           ( "test" )                                           /**< @brief Client identifier. */
-#define CLIENT_IDENTIFIER_LENGTH    ( ( uint16_t ) ( sizeof( CLIENT_IDENTIFIER ) - 1 ) ) /**< @brief Length of client identifier. */
+#define CLIENT_IDENTIFIER                             ( "test" )                                           /**< @brief Client identifier. */
+#define CLIENT_IDENTIFIER_LENGTH                      ( ( uint16_t ) ( sizeof( CLIENT_IDENTIFIER ) - 1 ) ) /**< @brief Length of client identifier. */
 
 /*
  * Will topic name and length to use for the MQTT API tests.
  */
-#define TEST_TOPIC_NAME             ( "/test/topic" )                                  /**< @brief An arbitrary topic name. */
-#define TEST_TOPIC_NAME_LENGTH      ( ( uint16_t ) ( sizeof( TEST_TOPIC_NAME ) - 1 ) ) /**< @brief Length of topic name. */
+#define TEST_TOPIC_NAME                               ( "/test/topic" )                                  /**< @brief An arbitrary topic name. */
+#define TEST_TOPIC_NAME_LENGTH                        ( ( uint16_t ) ( sizeof( TEST_TOPIC_NAME ) - 1 ) ) /**< @brief Length of topic name. */
+
+/*
+ * Strings with format specifiers for printing the periodic keep-alive status.
+ * This is needed in the thread simulating incoming PINGRESP messages.
+ */
+#define KEEP_ALIVE_PERIODIC_STATUS_MAIN_STRING        "KeepAlivePeriodic %d of %d DONE at %lu ms"
+#define KEEP_ALIVE_PERIODIC_STATUS_INTERVAL_STRING    " (+ %lu ).\r\n"
+#define KEEP_ALIVE_PERIODIC_STATUS_ENDING_STRING      ".\r\n"
+
+/**
+ * @brief The length of the string use to print the keep-alive periodic status.
+ * This is needed in the thread simulating incoming PINGRESP messages.
+ */
+#define KEEP_ALIVE_PERIODIC_STATUS_LENGTH             128
+
 
 /**
  * @brief A non-NULL function pointer to use for subscription callback. This
@@ -121,7 +137,11 @@
 #define DUP_CHECK_RETRY_LIMIT      ( 3 )    /**< @brief How many duplicate packets to send. */
 #define DUP_CHECK_TIMEOUT          ( 3000 ) /**< @brief Total time allowed to send all duplicate packets.
                                              * Duplicates are sent using an exponential backoff strategy. */
-/** @brief The minimum amount of time the test can take. */
+
+/**
+ * @brief The minimum amount of time the #TEST_MQTT_Unit_API_PublishDuplicate
+ * test can take.
+ */
 #define DUP_CHECK_MINIMUM_WAIT \
     ( DUP_CHECK_RETRY_MS +     \
       2 * DUP_CHECK_RETRY_MS + \
@@ -165,6 +185,12 @@ static IotMqttNetworkInfo_t _networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
  */
 static IotNetworkInterface_t _networkInterface = { 0 };
 
+/**
+ * @brief Buffer holding the keep-alive periodic status string.
+ * This needed in the thread simulating incoming PINGRESP messages.
+ */
+static char pKeepAliveStatus[ KEEP_ALIVE_PERIODIC_STATUS_LENGTH ] = { 0 };
+
 /*-----------------------------------------------------------*/
 
 /* Using initialized connToContext variable. */
@@ -184,6 +210,9 @@ static void _incomingPingresp( void * pArgument )
     static uint64_t lastInvokeTime = 0;
     uint64_t currentTime = IotClock_GetTimeMs();
 
+    /* The number of characters written in snprintf. */
+    int numWritten = 0;
+
     /* Increment invoke count for this function. */
     invokeCount++;
 
@@ -195,26 +224,38 @@ static void _incomingPingresp( void * pArgument )
     if( invokeCount <= KEEP_ALIVE_COUNT )
     {
         /* Log a status with Unity, as this test may take a while. */
-        UnityPrint( "KeepAlivePeriodic " );
-        UnityPrintNumber( ( UNITY_INT ) invokeCount );
-        UnityPrint( " of " );
-        UnityPrintNumber( ( UNITY_INT ) KEEP_ALIVE_COUNT );
-        UnityPrint( " DONE at " );
-        UnityPrintNumber( ( UNITY_INT ) IotClock_GetTimeMs() );
-        UnityPrint( " ms" );
+        numWritten = snprintf( pKeepAliveStatus,
+                               KEEP_ALIVE_PERIODIC_STATUS_LENGTH,
+                               KEEP_ALIVE_PERIODIC_STATUS_MAIN_STRING,
+                               invokeCount,
+                               KEEP_ALIVE_COUNT,
+                               ( unsigned long ) IotClock_GetTimeMs() );
+        /* Assert there are no unlikely encoding errors. */
+        TEST_ASSERT( numWritten > 0 );
 
         if( invokeCount > 1 )
         {
-            UnityPrint( " (+" );
-            UnityPrintNumber( ( UNITY_INT ) ( currentTime - lastInvokeTime ) );
-            UnityPrint( " ms)." );
+            /* Write the ms interval between the PINGRESP's. */
+            int prevNumWritten = numWritten;
+            numWritten += snprintf( &( pKeepAliveStatus[ numWritten ] ),
+                                    KEEP_ALIVE_PERIODIC_STATUS_LENGTH - numWritten,
+                                    KEEP_ALIVE_PERIODIC_STATUS_INTERVAL_STRING,
+                                    ( unsigned long ) ( currentTime - lastInvokeTime ) );
+            /* Assert there are no unlikely encoding errors. */
+            TEST_ASSERT( numWritten > prevNumWritten );
         }
         else
         {
-            UnityPrint( "." );
+            /* Write a period with some line endings for pretty printing. The
+             * NULL termintor in the C string is also written. */
+            memcpy( &( pKeepAliveStatus[ numWritten ] ),
+                    KEEP_ALIVE_PERIODIC_STATUS_ENDING_STRING,
+                    sizeof( KEEP_ALIVE_PERIODIC_STATUS_ENDING_STRING ) );
         }
 
-        UNITY_PRINT_EOL();
+        /* Print the status. */
+        UnityPrint( pKeepAliveStatus );
+
         lastInvokeTime = currentTime;
 
         IotMqtt_ReceiveCallback( NULL,

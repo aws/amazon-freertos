@@ -3277,7 +3277,6 @@ TEST( Full_TCP, AFQP_SOCKETS_htons_HappyCase )
 
 TEST( Full_TCP_Extended, SOCKETS_dns_multiple_addresses )
 {
-    BaseType_t xResult = pdFAIL;
     uint32_t i;
     uint32_t j;
     uint32_t ulIPAddress;
@@ -3295,9 +3294,9 @@ TEST( Full_TCP_Extended, SOCKETS_dns_multiple_addresses )
      * call will return one of the addresses which the name resolves to.
      *
      * NOTE: Resolving addresses can take some time, so allow up to
-     *   60 seconds to collect all of them.
+     *   120 seconds to collect all of them.
      */
-    for( i = 0; ( i < 60 ) && ( ulNumUniqueIPAddresses < dnstestNUM_UNIQUE_IP_ADDRESSES ); i++ )
+    for( i = 0; ( i < 120 ) && ( ulNumUniqueIPAddresses < dnstestNUM_UNIQUE_IP_ADDRESSES ); i++ )
     {
         ulIPAddress = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
 
@@ -3323,12 +3322,8 @@ TEST( Full_TCP_Extended, SOCKETS_dns_multiple_addresses )
                     clientcredentialMQTT_BROKER_ENDPOINT ) );
 
     /* Require a minimum number of IP addresses for AWS IoT Core endpoints */
-    if( ulNumUniqueIPAddresses >= dnstestNUM_UNIQUE_IP_ADDRESSES )
-    {
-        xResult = pdPASS;
-    }
+    TEST_ASSERT_GREATER_OR_EQUAL_UINT32_MESSAGE( dnstestNUM_UNIQUE_IP_ADDRESSES, ulNumUniqueIPAddresses, "Incorrect number of IP addresses per entry" );
 
-    TEST_ASSERT_EQUAL_UINT32_MESSAGE( pdPASS, xResult, "Incorrect number of IP addresses per entry" );
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }
 
