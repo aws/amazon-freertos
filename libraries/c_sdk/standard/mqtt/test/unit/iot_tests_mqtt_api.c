@@ -225,7 +225,7 @@ static void _incomingPingresp( void * pArgument )
                                invokeCount,
                                KEEP_ALIVE_COUNT,
                                ( unsigned long ) IotClock_GetTimeMs() );
-        /* Assert there are not unlikely encoding errors. */
+        /* Assert there are no unlikely encoding errors. */
         TEST_ASSERT( numWritten > 0 );
 
         if( invokeCount > 1 )
@@ -236,7 +236,7 @@ static void _incomingPingresp( void * pArgument )
                                     KEEP_ALIVE_PERIODIC_STATUS_LENGTH - numWritten,
                                     KEEP_ALIVE_PERIODIC_STATUS_INTERVAL_STRING,
                                     ( unsigned long ) ( currentTime - lastInvokeTime ) );
-            /* Assert there are not unlikely encoding errors. */
+            /* Assert there are no unlikely encoding errors. */
             TEST_ASSERT( numWritten > prevNumWritten );
         }
         else
