@@ -67,7 +67,12 @@
 #define shadowDemoUPDATE_TASK_STACK_SIZE                             ( configMINIMAL_STACK_SIZE * 5 )
 
 #define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT                  pdMS_TO_TICKS( 12000 )
-#define democonfigMQTT_ECHO_TASK_PRIORITY                            ( tskIDLE_PRIORITY )
+
+/* Keeping the MQTT demo task priority higher than that of the network receive task
+ * priority( #IOT_NETWORK_RECEIVE_TASK_PRIORITY ) so as to make sure that the
+ * receive of the incoming packets are only happening after successfully updating
+ * the internal data structures in MQTT demo task for a send. */
+#define democonfigMQTT_ECHO_TASK_PRIORITY                            ( tskIDLE_PRIORITY + 2 )
 
 /* MQTT Connection sharing demo task priority. */
 #define democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
