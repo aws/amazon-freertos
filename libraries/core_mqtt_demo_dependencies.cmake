@@ -39,6 +39,13 @@ afr_module_include_dirs(
         ${MQTT_INCLUDE_PUBLIC_DIRS}
 )
 
+# Dependency of module on logging stack.
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    PUBLIC
+        AFR::logging
+)
+
 # Metadata module used for the MQTT library in the FreeRTOS console.
 # It represents a collection of module dependencies required 
 # by the coreMQTT demos. 
@@ -48,12 +55,11 @@ afr_module_include_dirs(
 afr_module(NAME core_mqtt_demo_dependencies )
 
 # Add dependencies of the coreMQTT demos in this target
-# to support metadata required for Online Configuration Wizard.
+# to support metadata required for FreeRTOS console.
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::core_mqtt
-        AFR::logging
         AFR::retry_utils
         AFR::transport_interface_secure_sockets
         AFR::secure_sockets
