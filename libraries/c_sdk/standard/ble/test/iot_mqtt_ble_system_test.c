@@ -21,9 +21,9 @@
  */
 
 /**
- * @file core_mqtt_system_test.c
+ * @file iot_mqtt_ble_system_test.c
  * @brief Integration tests for the coreMQTT library for the FreeRTOS platform
- * over Secure Sockets as the transport layer.
+ * over BLE transport interface.
  */
 
 /* Standard header includes. */
@@ -32,6 +32,10 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
+
+#include "FreeRTOS.h"
+
+#include "semphr.h"
 
 /* Unity Test framework include. */
 #include "unity_fixture.h"
@@ -69,7 +73,7 @@
 
 /* Logging configuration for the Demo. */
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "TEST"
+    #define LIBRARY_LOG_NAME    "CoreMQTTBLETest"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
@@ -78,19 +82,6 @@
 #include "logging_stack.h"
 
 /**************Default Configurations values***********************/
-
-/**
- * This file contains 2 test groups:
- * - coreMQTT_Integration_AWS_IoT_Compatible for running tests against AWS IoT
- * - coreMQTT_Integration for running tests against a non-AWS IoT MQTT 3.1.1 MQTT broker.
- *
- * Thus, the 2 test groups have different broker endpoint and TLS credentials
- * for running to connect against their brokers. However, this test shares the same
- * macros (BROKER_ENDPOINT, BROKER_PORT, SERVER_ROOT_CA_CERT, and macros in
- * tests/include/aws_clientcredential_key.h file) for the test groups.
- * Thus, ONLY ONE test group (either against AWS IoT or a different broker) can be run
- * for a single build depending on the credentials provided.
- */
 
 #ifndef BROKER_ENDPOINT
     #define BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
@@ -330,12 +321,12 @@ static bool isBleConnected;
 /**
  * @brief Semaphore used to synchronize with BLE connection callback.
  */
-static IotSemaphore_t bleConnectionSem;
+static SemaphoreHandle_t bleConnectionSem;
 
 /**
  * @brief Semaphore used to synchronize with BLE channel callback.
  */
-static IotSemaphore_t bleChannelSem;
+static SemaphoreHandle_t bleChannelSem;
 
 /**
  * @brief The timer query function provided to the MQTT context.
@@ -377,12 +368,6 @@ static void eventCallback( MQTTContext_t * pContext,
                            MQTTPacketInfo_t * pPacketInfo,
                            MQTTDeserializedInfo_t * pDeserializedInfo );
 
-/**
- * The function for initializing the BLE stack.
- * The function implementation is provided by the vendor.
- */
-extern BTStatus_t bleStackInit( void );
-
 /*
  * Callback invoked when physical BLE connection is established.
  */
@@ -412,6 +397,14 @@ static void setupBleTransportInterface( NetworkContext_t * pContext );
  */
 static void teardownBleTransportInterface( NetworkContext_t * pContext );
 
+
+/**
+ * The function for initializing the BLE stack.
+ * The function implementation is provided by the vendor.
+ */
+extern BTStatus_t bleStackInit( void );
+
+
 /*-----------------------------------------------------------*/
 
 static void _BLEConnectionCallback( BTStatus_t status,
@@ -429,7 +422,7 @@ static void _BLEConnectionCallback( BTStatus_t status,
     }
 
     isBleConnected = connected;
-    IotSemaphore_Post( &bleConnectionSem );
+    ( void ) xSemaphoreGive( bleConnectionSem );
 }
 
 
@@ -453,7 +446,9 @@ static void bleEnable( void )
         isBleStackInitialized = true;
     }
 
-    TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &bleConnectionSem, 0, 1 ) );
+    bleConnectionSem = xSemaphoreCreateBinary();
+
+    TEST_ASSERT_NOT_NULL( bleConnectionSem );
 
     eventCb.pConnectionCb = _BLEConnectionCallback;
 
@@ -465,7 +460,7 @@ static void bleEnable( void )
 
     TEST_ASSERT_EQUAL_MESSAGE( eBTStatusSuccess, status, "Failed to turn on BLE" );
 
-    TEST_ASSERT_TRUE_MESSAGE( IotSemaphore_TimedWait( &bleConnectionSem, TEST_BLE_CONNECTION_TIMEOUT_MS ), "Failed to establish BLE connection" );
+    TEST_ASSERT_EQUAL_MESSAGE( pdTRUE, xSemaphoreTake( bleConnectionSem, pdMS_TO_TICKS( TEST_BLE_CONNECTION_TIMEOUT_MS ) ), "Failed to establish BLE connection" );
 
     TEST_ASSERT_TRUE_MESSAGE( isBleConnected, "Failed to establish BLE connection" );
 }
@@ -478,14 +473,14 @@ static void bleDisable( void )
     status = IotBle_Off();
     TEST_ASSERT_EQUAL_MESSAGE( eBTStatusSuccess, status, "Failed to turn off BLE" );
 
-    TEST_ASSERT_TRUE_MESSAGE( IotSemaphore_TimedWait( &bleConnectionSem, TEST_BLE_CONNECTION_TIMEOUT_MS ), "Failed to disconnect BLE" );
+    TEST_ASSERT_EQUAL_MESSAGE( pdTRUE, xSemaphoreTake( bleConnectionSem, pdMS_TO_TICKS( TEST_BLE_CONNECTION_TIMEOUT_MS ) ), "Failed to disconnect BLE" );
     TEST_ASSERT_FALSE_MESSAGE( isBleConnected, "Failed to disconnect BLE" );
 
     eventCb.pConnectionCb = _BLEConnectionCallback;
     status = IotBle_UnRegisterEventCb( eBLEConnection, eventCb );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, status );
 
-    IotSemaphore_Destroy( &bleConnectionSem );
+    vSemaphoreDelete( bleConnectionSem );
 }
 
 
@@ -773,7 +768,7 @@ static void bleChannelCallback( IotBleDataTransferChannelEvent_t event,
     /* Event to see when the data channel is ready to receive data. */
     if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED )
     {
-        IotSemaphore_Post( &bleChannelSem );
+        ( void ) xSemaphoreGive( bleChannelSem );
     }
 
     /* Event for when data is received over the channel. */
@@ -798,14 +793,13 @@ static void setupBleTransportInterface( NetworkContext_t * pContext )
     pContext->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
     TEST_ASSERT_NOT_NULL_MESSAGE( pContext->pChannel, "Failed to create BLE data transfer channel." );
 
-    status = IotSemaphore_Create( &bleChannelSem, 0, 1 );
-    TEST_ASSERT_TRUE( status );
+    bleChannelSem = xSemaphoreCreateBinary();
+    TEST_ASSERT_NOT_NULL( bleChannelSem );
 
     status = IotBleDataTransfer_SetCallback( pContext->pChannel, bleChannelCallback, NULL );
     TEST_ASSERT_TRUE( status );
 
-    status = IotSemaphore_TimedWait( &bleChannelSem, TEST_BLE_CONNECTION_TIMEOUT_MS );
-    TEST_ASSERT_TRUE_MESSAGE( status, "Timed out to open BLE data transfer channel" );
+    TEST_ASSERT_EQUAL_MESSAGE( pdTRUE, xSemaphoreTake( bleChannelSem, pdMS_TO_TICKS( TEST_BLE_CONNECTION_TIMEOUT_MS ) ), "Timed out to open BLE data transfer channel" );
 }
 
 static void teardownBleTransportInterface( NetworkContext_t * pContext )
@@ -813,7 +807,7 @@ static void teardownBleTransportInterface( NetworkContext_t * pContext )
     IotBleMqttTransportCleanup( pContext );
     IotBleDataTransfer_Close( pContext->pChannel );
     IotBleDataTransfer_Reset( pContext->pChannel );
-    IotSemaphore_Destroy( &bleChannelSem );
+    vSemaphoreDelete( bleChannelSem );
 }
 
 
