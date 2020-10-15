@@ -693,7 +693,25 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
             IOT_GOTO_CLEANUP();
         }
     }
-    IotMutex_Lock( &( mqttConnection->referencesMutex ) );
+
+    if( status == IOT_MQTT_SUCCESS )
+    {
+        IotMutex_Lock( &( mqttConnection->referencesMutex ) );
+
+        /* Operation must be linked. */
+        IotMqtt_Assert( IotLink_IsLinked( &( pSubscriptionOperation->link ) ) );
+
+        /* Transfer to pending response list. */
+        IotListDouble_Remove( &( pSubscriptionOperation->link ) );
+        IotListDouble_InsertHead( &( mqttConnection->pendingResponse ),
+                                  &( pSubscriptionOperation->link ) );
+
+
+        /* Processing operation after sending it on the network. */
+        _IotMqtt_ProcessOperation( pSubscriptionOperation );
+
+        IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
+    }
 
     /* Set the reference, if provided. */
     if( pOperationReference != NULL )
@@ -722,23 +740,15 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
         EMPTY_ELSE_MARKER;
     }
 
-    if( status == IOT_MQTT_SUCCESS )
+    if( status != IOT_MQTT_SUCCESS )
     {
-
+        IotMutex_Lock( &( mqttConnection->referencesMutex ) );
         /* Operation must be linked. */
         IotMqtt_Assert( IotLink_IsLinked( &( pSubscriptionOperation->link ) ) );
-
-        /* Transfer to pending response list. */
+        /* Remove operation from pending response list. */
         IotListDouble_Remove( &( pSubscriptionOperation->link ) );
-        IotListDouble_InsertHead( &( mqttConnection->pendingResponse ),
-                                  &( pSubscriptionOperation->link ) );
+        IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
 
-
-        /* Processing operation after sending it on the network. */
-        _IotMqtt_ProcessOperation( pSubscriptionOperation );
-    }
-    else
-    {
         IotLogError( "(MQTT connection %p) Failed to send %s packet on the network.",
                      mqttConnection,
                      IotMqtt_OperationType( operation ) );
@@ -755,9 +765,7 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
         {
             *pOperationReference = IOT_MQTT_OPERATION_INITIALIZER;
         }
-
     }
-    IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
 
     /* Clean up if this function failed. */
     IOT_FUNCTION_CLEANUP_BEGIN();
