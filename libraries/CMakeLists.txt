@@ -59,4 +59,4 @@ foreach(module IN LISTS afr_modules_csdk afr_modules_freertos_plus afr_modules_a
 endforeach()
 
 # Add core_mqtt modules
-include(core_mqtt.cmake)
+include(core_mqtt_demo_dependencies.cmake)
