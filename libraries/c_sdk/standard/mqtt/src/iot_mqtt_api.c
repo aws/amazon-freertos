@@ -693,6 +693,7 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
             IOT_GOTO_CLEANUP();
         }
     }
+    IotMutex_Lock( &( mqttConnection->referencesMutex ) );
 
     /* Set the reference, if provided. */
     if( pOperationReference != NULL )
@@ -723,7 +724,6 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
 
     if( status == IOT_MQTT_SUCCESS )
     {
-        IotMutex_Lock( &( mqttConnection->referencesMutex ) );
 
         /* Operation must be linked. */
         IotMqtt_Assert( IotLink_IsLinked( &( pSubscriptionOperation->link ) ) );
@@ -733,7 +733,6 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
         IotListDouble_InsertHead( &( mqttConnection->pendingResponse ),
                                   &( pSubscriptionOperation->link ) );
 
-        IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
 
         /* Processing operation after sending it on the network. */
         _IotMqtt_ProcessOperation( pSubscriptionOperation );
@@ -757,8 +756,8 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
             *pOperationReference = IOT_MQTT_OPERATION_INITIALIZER;
         }
 
-        IOT_GOTO_CLEANUP();
     }
+    IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
 
     /* Clean up if this function failed. */
     IOT_FUNCTION_CLEANUP_BEGIN();
@@ -1730,15 +1729,16 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
         EMPTY_ELSE_MARKER;
     }
 
-    /* Calling PUBLISH wrapper to send PUBLISH packet on the network using MQTT LTS PUBLISH API. */
-    status = _IotMqtt_managedPublish( mqttConnection,
-                                      pOperation,
-                                      pPublishInfo );
+
 
     if( status == IOT_MQTT_SUCCESS )
     {
         /* Processing operation after sending the packet on the network. */
         _IotMqtt_ProcessOperation( pOperation );
+        /* Calling PUBLISH wrapper to send PUBLISH packet on the network using MQTT LTS PUBLISH API. */
+        status = _IotMqtt_managedPublish( mqttConnection,
+                                          pOperation,
+                                          pPublishInfo );
     }
     else
     {
