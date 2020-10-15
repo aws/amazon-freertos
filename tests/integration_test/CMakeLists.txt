@@ -17,7 +17,8 @@ afr_module_dependencies(
         AFR::retry_utils
 )
 
-afr_test_module(freertos_tcp)
+# FreeRTOS+TCP Test
+afr_test_module(freertos_tcp_test)
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
