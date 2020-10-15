@@ -29,6 +29,7 @@ afr_module_sources(
         ${MQTT_SERIALIZER_SOURCES}
         # List of files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
+        ${CMAKE_CURRENT_LIST_DIR}/coreMQTT/mqttFilePaths.cmake
         ${CMAKE_CURRENT_LIST_DIR}/core_mqtt_demo_dependencies.cmake
         ${MQTT_HEADER_FILES}
 )
