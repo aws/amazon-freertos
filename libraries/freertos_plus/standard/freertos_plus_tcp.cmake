@@ -4,11 +4,12 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}")
 
-# Create a list of all pack_struct_start.h files in the FreeRTOS+TCP
+# Create a list of all pack_struct_*.h files in the FreeRTOS+TCP
 # library.
 # The list of header files will be added to metadata required
 # for the FreeRTOS console.
-file(GLOB_RECURSE PACK_STRUCT_START_FILES "pack_struct_start.h")
+file(GLOB_RECURSE INCLUDE_HEADER_FILES "${inc_dir}/*.h")
+file(GLOB_RECURSE PORTABLE_HEADER_FILES "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp/portable/*/*.h")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -22,25 +23,11 @@ afr_module_sources(
         "${src_dir}/FreeRTOS_TCP_IP.c"
         "${src_dir}/FreeRTOS_TCP_WIN.c"
         "${src_dir}/FreeRTOS_UDP_IP.c"
-        "${inc_dir}/FreeRTOS_ARP.h"
-        "${inc_dir}/FreeRTOS_DHCP.h"
-        "${inc_dir}/FreeRTOS_DNS.h"
-        "${inc_dir}/FreeRTOS_errno_TCP.h"
-        "${inc_dir}/FreeRTOSIPConfigDefaults.h"
-        "${inc_dir}/FreeRTOS_IP.h"
-        "${inc_dir}/FreeRTOS_IP_Private.h"
-        "${inc_dir}/FreeRTOS_Sockets.h"
-        "${inc_dir}/FreeRTOS_Stream_Buffer.h"
-        "${inc_dir}/FreeRTOS_TCP_IP.h"
-        "${inc_dir}/FreeRTOS_TCP_WIN.h"
-        "${inc_dir}/FreeRTOS_UDP_IP.h"
-        "${inc_dir}/IPTraceMacroDefaults.h"
-        "${inc_dir}/NetworkBufferManagement.h"
-        "${inc_dir}/NetworkInterface.h"
         # List of files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
         ${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp.cmake
-        ${PACK_STRUCT_START_FILES}
+        ${INCLUDE_HEADER_FILES}
+        ${PORTABLE_HEADER_FILES}
 )
 
 afr_module_include_dirs(
