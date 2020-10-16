@@ -1647,16 +1647,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/coreMQTT/</GroupName>
-					<Files>
-						<File>
-							<FileName>mqttFilePaths.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreMQTT/mqttFilePaths.cmake</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/coreMQTT/source/include/</GroupName>
 					<Files>
 						<File>
