@@ -1404,6 +1404,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                                                IOT_MQTT_FLAG_WAITABLE,
                                                NULL,
                                                &pOperation );
+            IotMutex_Lock( &( mqttConnection->referencesMutex ) );
 
             if( status == IOT_MQTT_SUCCESS )
             {
@@ -1442,6 +1443,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                             mqttConnection );
                 _IotMqtt_DestroyOperation( pOperation );
             }
+            IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
         }
         else
         {
