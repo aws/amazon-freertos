@@ -220,7 +220,7 @@ afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${xmc4800_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+        "${xmc4800_ports_dir}/pkcs11/core_pkcs11_pal.c"
 )
 
 # Secure sockets

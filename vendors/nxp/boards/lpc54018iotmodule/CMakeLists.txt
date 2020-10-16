@@ -235,7 +235,7 @@ afr_mcu_port(pkcs11_implementation)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${lpc54018_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+        "${lpc54018_ports_dir}/pkcs11/core_pkcs11_pal.c"
         "${lpc54018_ports_dir}/pkcs11/hw_poll.c"
 )
 
