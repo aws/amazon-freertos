@@ -891,7 +891,6 @@ BaseType_t TLS_Connect( void * pvContext )
     }
 
     #ifdef MBEDTLS_DEBUG_C
-
         /* If mbedTLS is being compiled with debug support, assume that the
          * runtime configuration should use verbose output. */
         mbedtls_ssl_conf_dbg( &pxCtx->xMbedSslConfig, prvTlsDebugPrint, NULL );
@@ -905,15 +904,15 @@ BaseType_t TLS_Connect( void * pvContext )
     }
 
     #ifdef MBEDTLS_SSL_MAX_FRAGMENT_LENGTH
-    if( 0 == xResult )
-    {
-        /* Enable the max fragment extension. 4096 bytes is currently the largest fragment size permitted.
-         * See RFC 8449 https://tools.ietf.org/html/rfc8449 for more information.
-         *
-         * Smaller values can be found in "mbedtls/include/ssl.h".
-         */
-        xResult = mbedtls_ssl_conf_max_frag_len( &pxCtx->xMbedSslConfig, MBEDTLS_SSL_MAX_FRAG_LEN_4096 );
-    }
+        if( 0 == xResult )
+        {
+            /* Enable the max fragment extension. 4096 bytes is currently the largest fragment size permitted.
+             * See RFC 8449 https://tools.ietf.org/html/rfc8449 for more information.
+             *
+             * Smaller values can be found in "mbedtls/include/ssl.h".
+             */
+            xResult = mbedtls_ssl_conf_max_frag_len( &pxCtx->xMbedSslConfig, MBEDTLS_SSL_MAX_FRAG_LEN_4096 );
+        }
     #endif
 
     /* Set the hostname, if requested. */
