@@ -1142,9 +1142,9 @@
 					<GroupName>libraries/abstractions/pkcs11/corePKCS11/source/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_pkcs11.h</FileName>
+							<FileName>core_pkcs11.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pkcs11.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1152,9 +1152,9 @@
 					<GroupName>libraries/abstractions/pkcs11/corePKCS11/source/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_pkcs11.c</FileName>
+							<FileName>core_pkcs11.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/iot_pkcs11.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1162,9 +1162,9 @@
 					<GroupName>vendors/nuvoton/boards/numaker_iot_m487_wifi/ports/pkcs11/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_pkcs11_pal.c</FileName>
+							<FileName>core_pkcs11_pal.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/ports/pkcs11/iot_pkcs11_pal.c</FilePath>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/ports/pkcs11/core_pkcs11_pal.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1172,9 +1172,9 @@
 					<GroupName>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_pkcs11_mbedtls.c</FileName>
+							<FileName>core_pkcs11_mbedtls.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/iot_pkcs11_mbedtls.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c</FilePath>
 						</File>
 						<File>
 							<FileName>threading_alt.h</FileName>
@@ -1187,9 +1187,9 @@
 					<GroupName>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_pkcs11_pal.h</FileName>
+							<FileName>core_pkcs11_pal.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/iot_pkcs11_pal.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/core_pkcs11_pal.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1202,9 +1202,9 @@
 							<FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c</FilePath>
 						</File>
 						<File>
-							<FileName>iot_pki_utils.c</FileName>
+							<FileName>core_pki_utils.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/iot_pki_utils.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1217,9 +1217,9 @@
 							<FilePath>../../../../../libraries/freertos_plus/standard/utils/include/iot_system_init.h</FilePath>
 						</File>
 						<File>
-							<FileName>iot_pki_utils.h</FileName>
+							<FileName>core_pki_utils.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pki_utils.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1767,9 +1767,9 @@
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/iot_mqtt_agent_config.h</FilePath>
 						</File>
 						<File>
-							<FileName>iot_pkcs11_config.h</FileName>
+							<FileName>core_pkcs11_config.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/iot_pkcs11_config.h</FilePath>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/core_pkcs11_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>mqtt_demo_basic_tls_config.h</FileName>

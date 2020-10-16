@@ -25,7 +25,7 @@
 
 #include "unity_fixture.h"
 #include "unity.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11.h"
 
 extern CK_SESSION_HANDLE xGlobalSession;
 extern CK_FUNCTION_LIST_PTR pxGlobalFunctionList;

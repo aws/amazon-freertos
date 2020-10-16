@@ -248,20 +248,20 @@
 					<logicalFolder name="corePKCS11" displayName="corePKCS11" projectFiles="true">
 						<logicalFolder name="source" displayName="source" projectFiles="true">
 							<logicalFolder name="include" displayName="include" projectFiles="true">
-								<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pkcs11.h</itemPath>
-								<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pkcs11_pal.h</itemPath>
+								<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</itemPath>
+								<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11_pal.h</itemPath>
 								<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pki_utils.h</itemPath>
 							</logicalFolder>
-							<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/iot_pkcs11.c</itemPath>
+							<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</itemPath>
 							<logicalFolder name="portable" displayName="portable" projectFiles="true">
 								<logicalFolder name="mbedtls" displayName="mbedtls" projectFiles="true">
-									<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/iot_pkcs11_mbedtls.c</itemPath>
+									<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c</itemPath>
 									<logicalFolder name="include" displayName="include" projectFiles="true">
 										<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</itemPath>
 									</logicalFolder>
 								</logicalFolder>
 							</logicalFolder>
-							<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/iot_pki_utils.c</itemPath>
+							<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</itemPath>
 						</logicalFolder>
 					</logicalFolder>
 				</logicalFolder>
@@ -687,7 +687,7 @@
 					<logicalFolder name="curiosity_pic32mzef" displayName="curiosity_pic32mzef" projectFiles="true">
 						<logicalFolder name="ports" displayName="ports" projectFiles="true">
 							<logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
-								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/iot_pkcs11_pal.c</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/core_pkcs11_pal.c</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/pkcs11_nvm.c</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/pkcs11_nvm.h</itemPath>
 							</logicalFolder>
@@ -720,7 +720,8 @@
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/core_mqtt_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_mqtt_agent_config.h</itemPath>
-								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_pkcs11_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/core_pkcs11_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_basic_tls_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_keep_alive_config.h</itemPath>
