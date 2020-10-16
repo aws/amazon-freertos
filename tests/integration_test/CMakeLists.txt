@@ -18,16 +18,17 @@ afr_module_dependencies(
 )
 
 # FreeRTOS+TCP Test
-afr_test_module(freertos_tcp_test)
+if(TARGET AFR::freertos_plus_tcp)
+    afr_test_module(freertos_tcp_test)
 
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        "${CMAKE_CURRENT_LIST_DIR}/test_freertos_tcp.c"
-)
+    afr_module_sources(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE
+            "${CMAKE_CURRENT_LIST_DIR}/test_freertos_tcp.c"
+    )
 
-afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE AFR::freertos_plus_tcp
-)
-
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE AFR::freertos_plus_tcp
+    )
+endif()
