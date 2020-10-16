@@ -123,8 +123,8 @@
 		<Filter Include="libraries\abstractions\transport"/>
 		<Filter Include="libraries\coreJSON\source"/>
 		<Filter Include="libraries\coreJSON"/>
-		<Filter Include="libraries\device-shadow-for-aws-iot-embedded-sdk\source"/>
-		<Filter Include="libraries\device-shadow-for-aws-iot-embedded-sdk"/>
+		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk\source"/>
+		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\unit"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\system"/>
@@ -1465,8 +1465,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
 			<Filter>libraries\coreJSON\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\device-shadow-for-aws-iot-embedded-sdk\source\shadow.c">
-			<Filter>libraries\device-shadow-for-aws-iot-embedded-sdk\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c">
+			<Filter>libraries\device_shadow_for_aws_iot_embedded_sdk\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">
 			<Filter>libraries\c_sdk\aws\defender\test\unit</Filter>

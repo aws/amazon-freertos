@@ -923,9 +923,9 @@
 			<locationURI>AFR_ROOT/libraries/coreJSON/source/core_json.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c</name>
+			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>

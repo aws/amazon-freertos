@@ -9,7 +9,7 @@ afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
 # Include Shadow library's source and header path variables.
-include("${CMAKE_CURRENT_LIST_DIR}/device-shadow-for-aws-iot-embedded-sdk/shadowFilePaths.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}

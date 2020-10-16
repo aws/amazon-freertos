@@ -1704,9 +1704,9 @@
 			<locationURI>AFR_HOME/libraries/coreJSON/source/core_json.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c</name>
+			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/device-shadow-for-aws-iot-embedded-sdk/source/shadow.c</locationURI>
+			<locationURI>AFR_HOME/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</locationURI>
 		</link>
 		<link>
 			<name>demos/coreMQTT/mqtt_demo_basic_tls.c</name>
@@ -1744,14 +1744,14 @@
 			<locationURI>AFR_HOME/demos/defender/aws_iot_demo_defender.c</locationURI>
 		</link>
 		<link>
-			<name>demos/device-shadow-for-aws-iot-embedded-sdk/shadow_demo_main.c</name>
+			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_main.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/demos/device-shadow-for-aws-iot-embedded-sdk/shadow_demo_main.c</locationURI>
+			<locationURI>AFR_HOME/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_main.c</locationURI>
 		</link>
 		<link>
-			<name>demos/device-shadow-for-aws-iot-embedded-sdk/shadow_demo_helpers.c</name>
+			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/demos/device-shadow-for-aws-iot-embedded-sdk/shadow_demo_helpers.c</locationURI>
+			<locationURI>AFR_HOME/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c</locationURI>
 		</link>
 		<link>
 			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>
