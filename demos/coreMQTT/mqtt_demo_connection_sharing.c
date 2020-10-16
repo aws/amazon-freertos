@@ -246,8 +246,9 @@
 /**
  * @brief The maximum number of loop iterations to wait before declaring failure.
  *
- * Each `while` loop that waits for a task notification will wait for
- * `mqttexampleDEMO_TICKS_TO_WAIT * this amount of ticks before exiting.
+ * Each `while` loop waiting for a task notification will wait for a total
+ * number of ticks equal to `mqttexampleDEMO_TICKS_TO_WAIT` * this number of
+ * iterations before the loop exits.
  *
  * @note This value should not be too small, as the reason for a long loop
  * may be a loss of network connection.
@@ -1801,7 +1802,11 @@ void prvSubscribeTask( void * pvParameters )
                    mqttexampleSUBSCRIBE_TASK_DELAY_MS ) );
         vTaskDelay( pdMS_TO_TICKS( mqttexampleSUBSCRIBE_TASK_DELAY_MS ) );
 
-        /*  Break if we have been stuck in this loop for too long. */
+        /* Break if we have been stuck in this loop for too long. The total wait
+         * here will be ( (loop delay + queue check delay) * `mqttexampleMAX_WAIT_ITERATIONS` ).
+         * For example, with a 1000 ms queue delay, a 400 ms loop delay, and a
+         * maximum iteration of 20, this will wait 28 seconds after receiving
+         * the last publish. */
         if( ++ulWaitCounter > mqttexampleMAX_WAIT_ITERATIONS )
         {
             LogError( ( "Publish receive loop exceeded maximum wait time." ) );
