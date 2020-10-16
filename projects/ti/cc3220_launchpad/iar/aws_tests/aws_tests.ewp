@@ -1349,6 +1349,9 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\shadow_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\shadow_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\unity_config.h</name>
 							</file>
 						</group>
@@ -2265,6 +2268,9 @@
 					</file>
 				</group>
 			</group>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\mqttFilePaths.cmake</name>
+			</file>
 		</group>
 		<group>
 			<name>3rdparty</name>
@@ -2930,6 +2936,9 @@
 			<name>integration_test</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\core_mqtt_system_test.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\shadow_system_test.c</name>
 			</file>
 		</group>
 	</group>

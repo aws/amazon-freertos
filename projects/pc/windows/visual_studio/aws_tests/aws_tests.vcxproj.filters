@@ -1303,6 +1303,9 @@
 		<ClCompile Include="..\..\..\..\..\tests\integration_test\core_mqtt_system_test.c">
 			<Filter>tests\integration_test</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\tests\integration_test\shadow_system_test.c">
+			<Filter>tests\integration_test</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\tests\integration_test\test_freertos_tcp.c">
 			<Filter>tests\integration_test</Filter>
 		</ClCompile>

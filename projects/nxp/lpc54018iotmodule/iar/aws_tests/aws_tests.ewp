@@ -1905,6 +1905,9 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\shadow_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\shadow_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\unity_config.h</name>
 							</file>
 						</group>
@@ -1967,6 +1970,9 @@
 			<name>integration_test</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\core_mqtt_system_test.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\shadow_system_test.c</name>
 			</file>
 		</group>
 	</group>

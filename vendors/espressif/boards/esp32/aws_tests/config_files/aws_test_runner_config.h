@@ -41,6 +41,7 @@
 #define testrunnerFULL_MQTT_ALPN_ENABLED               0
 #define testrunnerFULL_CORE_MQTT_ENABLED               0
 #define testrunnerFULL_CORE_MQTT_AWS_IOT_ENABLED       0
+#define testrunnerFULL_DEVICE_SHADOW_ENABLED           0
 #define testrunnerFULL_PKCS11_ENABLED                  0
 #define testrunnerFULL_DEFENDER_ENABLED                1
 #define testrunnerFULL_CRYPTO_ENABLED                  0
