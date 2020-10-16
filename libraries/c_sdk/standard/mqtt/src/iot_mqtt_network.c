@@ -984,6 +984,9 @@ void IotMqtt_ReceiveCallback( void * pNetworkConnection,
 
         _IotMqtt_CloseNetworkConnection( IOT_MQTT_BAD_PACKET_RECEIVED,
                                          pMqttConnection );
+
+        /* A bad reponse is received and will no longer use this MQTT connection. */
+        _IotMqtt_DecrementConnectionReferences( pMqttConnection );
     }
     else
     {

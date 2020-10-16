@@ -849,6 +849,9 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
     {
         _IotMqtt_CloseNetworkConnection( IOT_MQTT_KEEP_ALIVE_TIMEOUT,
                                          pMqttConnection );
+
+        /* Keep-alive has failed and will no longer use this MQTT connection. */
+        _IotMqtt_DecrementConnectionReferences( pMqttConnection );
     }
     else
     {
