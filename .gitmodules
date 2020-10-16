@@ -29,7 +29,7 @@
 	branch = mbedtls-2.16.8
 [submodule "libraries/abstractions/pkcs11/psa"]
 	path = libraries/abstractions/pkcs11/psa
-	url = https://github.com/lundinc2/freertos-pkcs11-psa.git
+	url = https://github.com/Linaro/freertos-pkcs11-psa.git
 [submodule "libraries/coreMQTT"]
 	path = libraries/coreMQTT
 	url = https://github.com/FreeRTOS/coreMQTT.git
