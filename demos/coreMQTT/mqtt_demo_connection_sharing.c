@@ -838,6 +838,7 @@ static BaseType_t prvConnectNetwork( NetworkContext_t * pxNetworkContext )
 
     /* Set the Secure Socket configurations. */
     xSocketConfig.enableTls = true;
+    xSocketConfig.disableSni = false;
     xSocketConfig.sendTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;
     xSocketConfig.recvTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;
     xSocketConfig.pRootCa = democonfigROOT_CA_PEM;
