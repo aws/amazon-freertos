@@ -148,6 +148,9 @@ target_sources(
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_hw.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/uncached_memory.c"
+        # Header files added to the target so that these are available in code downloaded from the FreeRTOS console.
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_end.h"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_start.h"
 )
 
 target_include_directories(

@@ -217,6 +217,9 @@ target_sources(
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/RX/ether_callback.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/RX/NetworkInterface.c"
+        # Header files added to the target so that these are available in code downloaded from the FreeRTOS console.
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/Renesas/pack_struct_end.h"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/Renesas/pack_struct_start.h"
 )
 
 target_include_directories(

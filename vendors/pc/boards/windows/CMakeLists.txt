@@ -102,7 +102,11 @@ target_sources(
     INTERFACE
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/WinPCap/NetworkInterface.c"
+        # Header files added to the target so that these are available in code downloaded from the FreeRTOS console.
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/MSVC/pack_struct_end.h"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/MSVC/pack_struct_start.h"
 )
+
 target_include_directories(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
