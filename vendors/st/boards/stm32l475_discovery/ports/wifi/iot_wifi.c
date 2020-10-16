@@ -250,12 +250,22 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     uint32_t x;
 
     configASSERT( pxNetworkParams != NULL );
-    configASSERT( pxNetworkParams->ucSSIDLength > 0 );
+
+    if( pxNetworkParams->ucSSIDLength == 0 
+        || pxNetworkParams->ucSSIDLength > wificonfigMAX_SSID_LEN )
+    {
+        return eWiFiFailure; 
+    } 
 
     if ( pxNetworkParams->xSecurity != eWiFiSecurityOpen )
     {
-        configASSERT( pxNetworkParams->xPassword.xWPA.ucLength > 0 );
+        if( pxNetworkParams->xPassword.xWPA.ucLength == 0 
+            || pxNetworkParams->xPassword.xWPA.ucLength > wificonfigMAX_PASSPHRASE_LEN )
+        {
+            return eWiFiFailure;
+        }
     }
+    
 
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
@@ -279,7 +289,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             xRetVal = eWiFiFailure;
 
             char pcSSID[ pxNetworkParams->ucSSIDLength + 1 ];
-            char pcPassword[ pxNetworkParams->xPassword.xWPA.ucLength + 1];
+            char pcPassword[ wificonfigMAX_PASSPHRASE_LEN + 1];
             prvByteArrayToString( pcSSID,
 					     		  pxNetworkParams->ucSSID,
 								  pxNetworkParams->ucSSIDLength,
@@ -619,7 +629,21 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     ES_WIFI_APConfig_t xApConfig;
 
     configASSERT( pxNetworkParams != NULL );
-    configASSERT( pxNetworkParams->ucSSIDLength > 0 );
+    
+    if( pxNetworkParams->ucSSIDLength == 0 
+        || pxNetworkParams->ucSSIDLength > wificonfigMAX_SSID_LEN )
+    {
+        return eWiFiFailure; 
+    } 
+
+    if ( pxNetworkParams->xSecurity != eWiFiSecurityOpen )
+    {
+        if( pxNetworkParams->xPassword.xWPA.ucLength == 0 
+            || pxNetworkParams->xPassword.xWPA.ucLength > wificonfigMAX_PASSPHRASE_LEN )
+        {
+            return eWiFiFailure;
+        }
+    }
 
     char pcSSID[ pxNetworkParams->ucSSIDLength + 1 ];
     prvByteArrayToString( pcSSID,
@@ -632,7 +656,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     {
         configASSERT( pxNetworkParams->xPassword.xWPA.ucLength > 0 );
 
-        char pcPassword[ pxNetworkParams->xPassword.xWPA.ucLength + 1];
+        char pcPassword[ wificonfigMAX_PASSPHRASE_LEN + 1];
         prvByteArrayToString( pcPassword,
     						  pxNetworkParams->xPassword.xWPA.cPassphrase,
     						  pxNetworkParams->xPassword.xWPA.ucLength,

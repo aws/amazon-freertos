@@ -931,8 +931,7 @@ static bool _mtk_wifi_apply_setting( uint8_t port,
 
     if( NULL == pxNetworkParams ||
         0 == pxNetworkParams->ucSSIDLength ||
-        pxNetworkParams->ucSSIDLength <= 1 ||
-        pxNetworkParams->ucSSIDLength > ( wificonfigMAX_SSID_LEN + 1 ) )
+        pxNetworkParams->ucSSIDLength > wificonfigMAX_SSID_LEN )
     {
         return false;
     }

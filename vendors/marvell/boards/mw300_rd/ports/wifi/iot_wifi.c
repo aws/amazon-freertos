@@ -167,10 +167,10 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         goto fail;
     }
 
-    if (!IS_SSID_LEN_VALID(pxNetworkParams->ucSSIDLength) ||
-            (pxNetworkParams->xSecurity != eWiFiSecurityOpen &&
-            !IS_PASSPHRASE_LEN_VALID(pxNetworkParams->xPassword.xWPA.ucLength))) {
-	goto fail;
+    if (!IS_SSID_LEN_VALID(pxNetworkParams->ucSSIDLength) 
+        || (pxNetworkParams->xSecurity != eWiFiSecurityOpen 
+            && !IS_PASSPHRASE_LEN_VALID(pxNetworkParams->xPassword.xWPA.ucLength))) {
+    goto fail;
     }
 
     if (wlan_get_connection_state(&state)) {
@@ -221,7 +221,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
 
     if(pxNetworkParams->xPassword.xWPA.ucLength > 0) {
         /* Set the passphrase */
-        char pcPassphrase[pxNetworkParams->xPassword.xWPA.ucLength + 1];
+        char pcPassphrase[ wificonfigMAX_PASSPHRASE_LEN + 1];
         memcpy(pcPassphrase, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength);
         pcPassphrase[pxNetworkParams->xPassword.xWPA.ucLength] = '\0';
 

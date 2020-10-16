@@ -143,8 +143,9 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     WIFIReturnCode_t xWiFiRet = eWiFiFailure;
     uint32_t i;
 
-    if (pxNetworkParams == NULL || pxNetworkParams->ucSSIDLength == 0 || 
-        (pxNetworkParams->xSecurity != eWiFiSecurityOpen && pxNetworkParams->xPassword.xWPA.ucLength == 0)) {
+    if (pxNetworkParams == NULL 
+        || pxNetworkParams->ucSSIDLength == 0 || pxNetworkParams->ucSSIDLength > wificonfigMAX_SSID_LEN  
+        || (pxNetworkParams->xSecurity != eWiFiSecurityOpen && pxNetworkParams->xPassword.xWPA.ucLength == 0)) {
         return xWiFiRet;
     }
 
@@ -163,7 +164,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             xWiFiRet = eWiFiFailure;
 
 						char pcSSID[ pxNetworkParams->ucSSIDLength + 1];
-						char pcPassword [ pxNetworkParams->xPassword.xWPA.ucLength + 1 ];
+						char pcPassword [ wificonfigMAX_PASSPHRASE_LEN + 1 ];
 						prvByteArrayToString( pcSSID, 
 																	pxNetworkParams->ucSSID, 
 																	pxNetworkParams->ucSSIDLength, 

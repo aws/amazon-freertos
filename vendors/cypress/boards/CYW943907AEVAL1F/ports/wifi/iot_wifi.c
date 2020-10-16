@@ -161,9 +161,9 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     wiced_result_t      result;
     wiced_scan_result_t ap_info;
     wiced_ap_info_t     ap;
-    char pcSSID[ pxNetworkParams->ucSSIDLength + 1 ];
+    char pcSSID[ wificonfigMAX_SSID_LEN + 1 ];
 
-    if( (pxNetworkParams == NULL) || (pxNetworkParams->ucSSIDLength == 0 ) )
+    if( (pxNetworkParams == NULL) || (pxNetworkParams->ucSSIDLength == 0 ) || ( pxNetworkParams->ucSSIDLength > wificonfigMAX_SSID_LEN ) )
     {
         return eWiFiFailure;
     }
@@ -558,7 +558,7 @@ BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
         }
     }
 
-    return isConnected;
+    return xIsConnected;
 }
 
 WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )
