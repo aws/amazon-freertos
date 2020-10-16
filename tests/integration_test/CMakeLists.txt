@@ -26,12 +26,6 @@ afr_module_sources(
         "${CMAKE_CURRENT_LIST_DIR}/test_freertos_tcp.c"
 )
 
-afr_module_include_dirs(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        "${CMAKE_CURRENT_LIST_DIR}"
-)
-
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE AFR::freertos_plus_tcp
