@@ -36,26 +36,24 @@ afr_module_dependencies(
     PRIVATE AFR::${AFR_CURRENT_MODULE}::mcu_port
 )
 
-if(TARGET AFR::freertos_plus_tcp)
-    # Link to this INTERFACE target to use the default implementation based on FreeRTOS-Plus-TCP.
-    afr_module(NAME secure_sockets_freertos_plus_tcp INTERFACE)
+# Link to this INTERFACE target to use the default implementation based on FreeRTOS-Plus-TCP.
+afr_module(NAME secure_sockets_freertos_plus_tcp INTERFACE)
 
-    set(src_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp")
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp")
 
-    afr_module_sources(
-        secure_sockets_freertos_plus_tcp INTERFACE
-        "${src_dir}/iot_secure_sockets.c"
-    )
+afr_module_sources(
+    secure_sockets_freertos_plus_tcp INTERFACE
+    "${src_dir}/iot_secure_sockets.c"
+)
 
-    afr_module_dependencies(
-        secure_sockets_freertos_plus_tcp
-        INTERFACE
-            AFR::freertos_plus_tcp
-            AFR::tls
-            AFR::crypto
-            AFR::pkcs11
-    )
-endif()
+afr_module_dependencies(
+    secure_sockets_freertos_plus_tcp
+    INTERFACE
+        AFR::freertos_plus_tcp
+        AFR::tls
+        AFR::crypto
+        AFR::pkcs11
+)
 
 # Link to this INTERFACE target to use the default implementation based on lwip.
 afr_module(NAME secure_sockets_lwip INTERFACE)
