@@ -80,7 +80,6 @@ if(TARGET AFR::secure_sockets::mcu_port)
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}
         PUBLIC
-            AFR::core_mqtt
             AFR::retry_utils
             AFR::transport_interface_secure_sockets
             AFR::secure_sockets
