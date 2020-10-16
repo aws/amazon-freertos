@@ -28,12 +28,12 @@
 #include "FreeRTOSIPConfig.h"
 #include "iot_tls.h"
 #include "iot_crypto.h"
-#include "iot_pkcs11_config.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11_config.h"
+#include "core_pkcs11.h"
 #include "task.h"
 #include "aws_clientcredential_keys.h"
 #include "iot_default_root_certificates.h"
-#include "iot_pki_utils.h"
+#include "core_pki_utils.h"
 
 /* mbedTLS includes. */
 #include "mbedtls/platform.h"

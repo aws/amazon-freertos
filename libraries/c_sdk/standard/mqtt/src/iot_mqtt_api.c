@@ -521,9 +521,17 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     int8_t contextIndex = -1;
     bool mutexStatus = true;
 
+    IotMqtt_Assert( pMqttConnection != NULL );
+
     /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
-    IotMqtt_Assert( contextIndex != -1 );
+
+    /* An MQTT connection can be created without having MQTT Context associated.
+     * This can happen in case of an error in #IotMqtt_Connect() API. */
+    if( contextIndex == -1 )
+    {
+        IotLogWarn( "(MQTT connection %p) does not have an MQTT Context." );
+    }
 
     /* Clean up keep-alive if still allocated. */
     if( pMqttConnection->keepAliveMs != 0 )
@@ -552,20 +560,23 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     IotMqtt_Assert( pMqttConnection->pPingreqPacket == NULL );
     IotMqtt_Assert( pMqttConnection->pingreqPacketSize == 0 );
 
-    /* Remove all subscriptions. */
-    if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == true )
+    if( contextIndex != -1 )
     {
-        IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), NULL );
+        /* Remove all subscriptions. */
+        if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == true )
+        {
+            IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), NULL );
 
-        mutexStatus = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
-    }
-    else
-    {
-        /* Fail to take context mutex due to timeout. */
-        mutexStatus = false;
-    }
+            mutexStatus = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
+        }
+        else
+        {
+            /* Fail to take context mutex due to timeout. */
+            mutexStatus = false;
+        }
 
-    IotMqtt_Assert( mutexStatus == true );
+        IotMqtt_Assert( mutexStatus == true );
+    }
 
     /* Destroy an owned network connection. */
     if( pMqttConnection->ownNetworkConnection == true )
@@ -589,12 +600,15 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     }
 
     /* Destroy mutexes. */
-    IotMutex_Delete( &( connToContext[ contextIndex ].contextMutex ) );
     IotMutex_Destroy( &( pMqttConnection->referencesMutex ) );
-    IotMutex_Delete( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
-    /* Free the MQTT Context for the MQTT connection to be destroyed. */
-    _IotMqtt_removeContext( pMqttConnection );
+    if( contextIndex != -1 )
+    {
+        IotMutex_Delete( &( connToContext[ contextIndex ].contextMutex ) );
+        IotMutex_Delete( &( connToContext[ contextIndex ].subscriptionMutex ) );
+        /* Free the MQTT Context for the MQTT connection to be destroyed. */
+        _IotMqtt_removeContext( pMqttConnection );
+    }
 
     IotLogDebug( "(MQTT connection %p) Connection destroyed.", pMqttConnection );
 

@@ -866,6 +866,9 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
             break;
         }
 
+        /* Reset flag before checking suback responses. */
+        xFailedSubscribeToTopic = false;
+
         /* Check if recent subscription request has been rejected. #xTopicFilterContext is updated
          * in the event callback to reflect the status of the SUBACK sent by the broker. It represents
          * either the QoS level granted by the server upon subscription, or acknowledgement of
@@ -885,7 +888,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
         if( xRetryUtilsStatus == RetryUtilsRetriesExhausted )
         {
             LogError( ( "Failed to subscribe to the broker: Subscription request"
-                        " retires exhausted. NumberOfAttempts=%ul",
+                        " retries exhausted. NumberOfAttempts=%lu",
                         ( unsigned long ) ( xRetryParams.maxRetryAttempts ) ) );
             xReturnStatus = pdFAIL;
         }

@@ -86,6 +86,9 @@
 			<name>freertos_kernel/include/list.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/list.h</locationURI>
+			<name>config_files/core_pkcs11_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/core_pkcs11_config.h</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/include/message_buffer.h</name>
@@ -1378,24 +1381,24 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pkcs11.h</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pkcs11.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/iot_pkcs11.c</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/iot_pkcs11.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/st/boards/stm32l475_discovery/ports/pkcs11/iot_pkcs11_pal.c</name>
+			<name>vendors/st/boards/stm32l475_discovery/ports/pkcs11/core_pkcs11_pal.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/pkcs11/core_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/iot_pkcs11_mbedtls.c</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</name>
@@ -1403,9 +1406,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pkcs11_pal.h</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11_pal.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pkcs11_pal.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11_pal.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
@@ -1418,14 +1421,14 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/wifi/iot_wifi.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/iot_pki_utils.c</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/iot_pki_utils.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pki_utils.h</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pki_utils.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
@@ -1751,6 +1754,14 @@
 			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</locationURI>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c</name>
@@ -2298,9 +2309,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/iot_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/iot_pkcs11_config.h</name>
+			<name>config_files/core_pkcs11_config.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/iot_pkcs11_config.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/core_pkcs11_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/iot_test_common_io_config.h</name>
@@ -2308,9 +2319,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/iot_test_common_io_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/iot_test_pkcs11_config.h</name>
+			<name>config_files/core_test_pkcs11_config.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/iot_test_pkcs11_config.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/core_test_pkcs11_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/unity_config.h</name>
@@ -2806,6 +2817,19 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/cipher_internal.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/cipher_internal.h</locationURI>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11_pal.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11_pal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/cmac.h</name>
@@ -2976,6 +3000,9 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs11.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/pkcs11.h</locationURI>
+			<name>vendors/st/boards/stm32l475_discovery/ports/pkcs11/core_pkcs11_pal.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/pkcs11/core_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</name>
@@ -3206,6 +3233,9 @@
 			<name>libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</locationURI>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/http_parser/http_parser.h</name>
