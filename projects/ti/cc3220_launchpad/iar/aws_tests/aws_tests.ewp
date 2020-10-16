@@ -2279,9 +2279,6 @@
 					</file>
 				</group>
 			</group>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\mqttFilePaths.cmake</name>
-			</file>
 		</group>
 		<group>
 			<name>3rdparty</name>
@@ -2874,9 +2871,6 @@
 				</file>
 			</group>
 		</group>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\core_mqtt_demo_dependencies.cmake</name>
-		</file>
 		<group>
 			<name>coreJSON</name>
 			<group>

@@ -1857,16 +1857,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/</GroupName>
-					<Files>
-						<File>
-							<FileName>core_mqtt_demo_dependencies.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/core_mqtt_demo_dependencies.cmake</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/abstractions/retry_utils/freertos/</GroupName>
 					<Files>
 						<File>
