@@ -333,7 +333,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h">
 			<Filter>libraries\freertos_plus\standard\crypto\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pkcs11.h">
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pkcs11.h">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.h">
@@ -498,7 +498,7 @@
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11t.h">
 			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pki_utils.h">
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pki_utils.h">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
@@ -986,7 +986,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c">
 			<Filter>libraries\freertos_plus\standard\crypto\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pkcs11.c">
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pkcs11.c">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.c">
@@ -1010,7 +1010,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\ecc608a\atca_cert_chain.c">
 			<Filter>libraries\abstractions\pkcs11\ecc608a</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\ecc608a\iot_pkcs11_secure_element.c">
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\ecc608a\core_pkcs11_secure_element.c">
 			<Filter>libraries\abstractions\pkcs11\ecc608a</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_command.c">
@@ -1208,7 +1208,7 @@
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_util.c">
 			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pki_utils.c">
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pki_utils.c">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c">

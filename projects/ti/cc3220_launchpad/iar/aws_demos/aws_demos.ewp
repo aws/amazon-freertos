@@ -1220,7 +1220,7 @@
 						<group>
 							<name>pkcs11</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\pkcs11\iot_pkcs11_pal.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\pkcs11\core_pkcs11_pal.c</name>
 							</file>
 						</group>
 						<group>
@@ -1316,7 +1316,7 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_mqtt_agent_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_pkcs11_config.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\core_pkcs11_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\mqtt_demo_basic_tls_config.h</name>
@@ -1514,24 +1514,24 @@
 						<group>
 							<name>include</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pkcs11.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pkcs11.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pkcs11_pal.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pkcs11_pal.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pki_utils.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pki_utils.h</name>
 							</file>
 						</group>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pkcs11.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pkcs11.c</name>
 						</file>
 						<group>
 							<name>portable</name>
 							<group>
 								<name>mbedtls</name>
 								<file>
-									<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\iot_pkcs11_mbedtls.c</name>
+									<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\core_pkcs11_mbedtls.c</name>
 								</file>
 								<group>
 									<name>include</name>
@@ -1542,7 +1542,7 @@
 							</group>
 						</group>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pki_utils.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pki_utils.c</name>
 						</file>
 					</group>
 				</group>

@@ -33,7 +33,7 @@
  * AWS endpoint, certificate, private key & thing name. */
 #include "aws_clientcredential.h"
 #include "iot_default_root_certificates.h"
-#include "iot_pkcs11_config.h"
+#include "core_pkcs11_config.h"
 
 /* FreeRTOS header files. */
 #include "FreeRTOS.h"
@@ -45,7 +45,7 @@
 #include "aws_test_runner.h"
 #include "iot_logging_task.h"
 #include "aws_dev_mode_key_provisioning.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11.h"
 
 /* TI-Driver includes. */
 #include <ti/drivers/GPIO.h>
