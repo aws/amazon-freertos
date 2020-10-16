@@ -566,7 +566,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
     xSocketsConfig.enableTls = true;
     xSocketsConfig.pAlpnProtos = NULL;
     xSocketsConfig.maxFragmentLength = 0;
-    xSocketsConfig.disableSni = true;
+    xSocketsConfig.disableSni = false;
     xSocketsConfig.pRootCa = democonfigROOT_CA_PEM;
     xSocketsConfig.rootCaSize = sizeof( democonfigROOT_CA_PEM );
     xSocketsConfig.sendTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;

@@ -571,6 +571,7 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
     /* Configure credentials for TLS server-authenticated session. */
     xSocketsConfig.enableTls = true;
     xSocketsConfig.pAlpnProtos = NULL;
+    xSocketsConfig.disableSni = false;
     xSocketsConfig.pRootCa = democonfigROOT_CA_PEM;
     xSocketsConfig.rootCaSize = sizeof( democonfigROOT_CA_PEM );
     xSocketsConfig.sendTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;
