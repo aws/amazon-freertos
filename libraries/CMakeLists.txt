@@ -60,3 +60,9 @@ endforeach()
 
 # Add core_mqtt modules
 include(core_mqtt_demo_dependencies.cmake)
+
+# Add core_json modules
+include(core_json.cmake)
+
+# Add device_shadow modules
+include(device_shadow.cmake)
