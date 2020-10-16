@@ -67,6 +67,15 @@ afr_module_sources(
 
 # Add dependencies of the coreMQTT demos in this target
 # to support metadata required for FreeRTOS console.
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    PUBLIC
+        AFR::core_mqtt
+)
+
+# Add more dependencies for Secure Sockets based MQTT demo 
+# (at demos/coreMQTT folder) ONLY if the board supports 
+# the Secure Sockets library.
 if(TARGET AFR::secure_sockets::mcu_port)
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}
@@ -75,11 +84,5 @@ if(TARGET AFR::secure_sockets::mcu_port)
             AFR::retry_utils
             AFR::transport_interface_secure_sockets
             AFR::secure_sockets
-    )
-else()
-    afr_module_dependencies(
-        ${AFR_CURRENT_MODULE}
-        PUBLIC
-            AFR::core_mqtt
     )
 endif()
