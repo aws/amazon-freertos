@@ -2,6 +2,7 @@ afr_module(NAME "freertos_plus_tcp" INTERNAL)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp/include")
+set(test_dir "${AFR_TESTS_DIR}/integration_test")
 
 # Create a list of all FReeRTOS+TCP headers files in the FreeRTOS+TCP
 # library.
@@ -30,6 +31,7 @@ afr_module_sources(
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC "${inc_dir}"
+    PRIVATE "${test_dir}"
 )
 
 afr_module_dependencies(
