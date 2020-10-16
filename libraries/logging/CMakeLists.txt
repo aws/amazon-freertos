@@ -11,14 +11,17 @@ endif()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-       # Logging
         "${aws_logging_task}"
         "${CMAKE_CURRENT_LIST_DIR}/iot_logging.c"
+        "${CMAKE_CURRENT_LIST_DIR}/include/iot_logging_task.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/logging_levels.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/logging_stack.h"
 )
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include"
+    PUBLIC 
+        "${CMAKE_CURRENT_LIST_DIR}/include"
 )
 
 afr_module_dependencies(

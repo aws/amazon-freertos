@@ -1825,6 +1825,11 @@
 					<GroupName>demos/coreMQTT/</GroupName>
 					<Files>
 						<File>
+							<FileName>mqtt_demo_basic_tls.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_basic_tls.c</FilePath>
+						</File>
+						<File>
 							<FileName>mqtt_demo_mutual_auth.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</FilePath>
@@ -2013,6 +2018,11 @@
 							<FileName>lwipopts.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/lwipopts.h</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_basic_tls_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/mqtt_demo_basic_tls_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>mqtt_demo_connection_sharing_config.h</FileName>

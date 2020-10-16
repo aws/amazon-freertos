@@ -4,7 +4,7 @@ if(AFR_ENABLE_UNIT_TESTS)
 endif()
 
 # Transport Interface 
-afr_module(NAME transport_interface_secure_sockets)
+afr_module(NAME transport_interface_secure_sockets INTERNAL)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/secure_sockets")
 
@@ -14,6 +14,7 @@ include( ${CMAKE_CURRENT_LIST_DIR}/transport_interface.cmake )
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PUBLIC
+        "${src_dir}/transport_secure_sockets.h"
         "${src_dir}/transport_secure_sockets.c"
 )
 

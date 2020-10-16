@@ -1394,6 +1394,9 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_basic_tls.c">
+			<Filter>demos\coreMQTT</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_mutual_auth.c">
 			<Filter>demos\coreMQTT</Filter>
 		</ClCompile>
