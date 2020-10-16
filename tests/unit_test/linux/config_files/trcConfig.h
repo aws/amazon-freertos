@@ -54,6 +54,11 @@
 
     #include "trcPortDefines.h"
 
+    #define TRC_CFG_NSTREAMBUFFER             50
+    #define TRC_CFG_NMESSAGEBUFFER            50
+    #define TRC_CFG_NAME_LEN_STREAMBUFFER     50
+    #define TRC_CFG_NAME_LEN_MESSAGEBUFFER    50
+
 /******************************************************************************
  * Include of processor header file
  *

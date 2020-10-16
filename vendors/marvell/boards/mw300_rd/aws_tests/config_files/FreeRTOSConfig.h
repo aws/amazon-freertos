@@ -242,4 +242,11 @@ void wm_printf(const char *format, ...);
  * and a time stamp. */
 #define configLOGGING_INCLUDE_TIME_AND_TASK_NAME    1
 
+
+/* The size of the output buffer is set to maximum length required by the tests,
+ * which is the length enough to accomodate largest error string written to
+ * console from CLI.
+ */
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE    120
+
 #endif /* FREERTOS_CONFIG_H */

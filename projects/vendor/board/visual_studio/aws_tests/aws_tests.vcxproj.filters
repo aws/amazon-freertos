@@ -306,7 +306,7 @@
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\pkcs5.h">
       <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\iot_pkcs11.h">
+    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\core_pkcs11.h">
       <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\pkcs12.h">
@@ -435,7 +435,7 @@
     <ClInclude Include="..\..\..\..\lib\include\iot_mqtt_lib.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\iot_pkcs11.h">
+    <ClInclude Include="..\..\..\..\lib\include\core_pkcs11.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\iot_secure_sockets.h">
@@ -908,10 +908,10 @@
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\rsa_internal.c">
       <Filter>lib\third_party\mbedtls\library</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\iot_pkcs11_mbedtls.c">
+    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\core_pkcs11_mbedtls.c">
       <Filter>lib\aws\pkcs11</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\iot_pkcs11_pal.c">
+    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\core_pkcs11_pal.c">
       <Filter>lib\aws\pkcs11</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">

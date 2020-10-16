@@ -40,7 +40,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\..\demos\common\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\Compiler\MSVC;..\..\..\..\lib\FreeRTOS\portable\Compiler\Arch;..\common\config_files;..\common\application_code\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\BufferManagement;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\tinycbor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\demos\common\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\portable\Compiler\MSVC;..\..\..\..\lib\FreeRTOS\portable\Compiler\Arch;..\common\config_files;..\common\application_code\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\portable\BufferManagement;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\tinycbor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>VENDOR;_DEBUG;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -99,8 +99,8 @@
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
     <ClCompile Include="..\..\..\..\lib\ota\portable\vendor\board\aws_ota_pal.c" />
-    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\iot_pkcs11_mbedtls.c" />
-    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\iot_pkcs11_pal.c" />
+    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\core_pkcs11_mbedtls.c" />
+    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\core_pkcs11_pal.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\iot_secure_sockets.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_shadow.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_shadow_json.c" />
@@ -205,7 +205,7 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_greengrass_discovery.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_mqtt_agent.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_mqtt_lib.h" />
-    <ClInclude Include="..\..\..\..\lib\include\iot_pkcs11.h" />
+    <ClInclude Include="..\..\..\..\lib\include\core_pkcs11.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_secure_sockets.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_shadow.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_system_init.h" />

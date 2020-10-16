@@ -120,7 +120,7 @@ target_sources(
 afr_mcu_port(pkcs11_implementation)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
-    INTERFACE "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+    INTERFACE "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
 )
 # Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
 target_link_libraries(
@@ -153,6 +153,14 @@ target_sources(
         "${afr_ports_dir}/common_io/iot_spi.c"
         # test code
         $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
+)
+
+target_include_directories(
+    AFR::common_io::mcu_port
+    INTERFACE
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/platform/freertos/include"
+        # test code
+        $<${AFR_IS_TESTING}:${AFR_MODULES_ABSTRACTIONS_DIR}/common_io/test>
 )
 
 # -------------------------------------------------------------------------------------------------

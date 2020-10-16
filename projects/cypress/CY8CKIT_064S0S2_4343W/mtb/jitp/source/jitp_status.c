@@ -22,7 +22,7 @@
  */
 
 /**
- * @file iot_pkcs11_psa_jitp_status.c
+ * @file core_pkcs11_psa_jitp_status.c
  * @brief PSA based PKCS#11 implementation.
  */
 
@@ -34,7 +34,7 @@
 #include "FreeRTOS.h"
 
 /* PKCS#11 includes. */
-#include "iot_pkcs11_config.h"
+#include "core_pkcs11_config.h"
 #include "jitp_status.h"
 
 /* PSA includes. */

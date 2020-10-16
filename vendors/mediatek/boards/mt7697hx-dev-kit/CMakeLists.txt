@@ -224,7 +224,7 @@ target_include_directories(
         "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/utils/include"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/corePKCS11/source/include"
         "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/Include"
         ${compiler_specific_include}
 )
@@ -285,8 +285,8 @@ afr_mcu_port(pkcs11_implementation)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/iot_pkcs11_mbedtls.c"
+        "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/src/iot_crypto.c"
 )
 target_link_libraries(

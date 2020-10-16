@@ -131,7 +131,7 @@ if(AFR_ESP_FREERTOS_TCP)
     "${extra_components_dir}/freertos_tcpip/ethernet/include"
     "${extra_components_dir}/freertos_tcpip/smartconfig_ack/include"
     "${extra_components_dir}/freertos_tcpip/tcpip_adapter/include"
-    "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
+    "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/GCC"
     )
 else()
     list(APPEND kernel_inc_dirs
@@ -156,7 +156,7 @@ target_include_directories(
     AFR::kernel::mcu_port
     INTERFACE
         ${kernel_inc_dirs}
-        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include/"
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32_IDF3/include/"
         "${aws_credentials_include}"
         "${board_dir}/config_files"
         "$<$<NOT:${AFR_METADATA_MODE}>:${CMAKE_BINARY_DIR}/config>"
@@ -273,7 +273,7 @@ else()
     target_sources(
         AFR::pkcs11_implementation::mcu_port
         INTERFACE
-            "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+            "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
     )
 endif()
 
@@ -283,8 +283,8 @@ afr_mcu_port(freertos_plus_tcp)
 target_sources(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/esp32/NetworkInterface.c"
 )
 
 # Secure sockets

@@ -42,6 +42,11 @@
 
 /* Transport interface include. */
 #include "transport_interface.h"
+#include "iot_secure_sockets.h"
+
+/* Kernel include. */
+#include "FreeRTOS.h"
+#include "task.h"
 
 /* Include header that defines log levels. */
 #include "logging_levels.h"
@@ -64,10 +69,7 @@
  */
 struct NetworkContext
 {
-    /**
-     * @brief Points to the secure socket context.
-     */
-    void * pContext;
+    Socket_t tcpSocket;
 };
 
 /**

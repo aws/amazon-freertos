@@ -38,12 +38,6 @@
 /* Set the MQTT v4 demo publish burst size. */
 #define AWS_IOT_DEMO_MQTT_PUBLISH_BURST_SIZE    ( 2 )
 
-/* Define additional serializer initialization functions for the BLE Module on ESP. */
-extern bool AwsIotMqttBLE_InitSerialize( void );
-extern void AwsIotMqttBLE_CleanupSerialize( void );
-#define AwsIotMqttInternal_InitSerializeAdditional AwsIotMqttBLE_InitSerialize
-#define AwsIotMqttInternal_CleanupSerializeAdditional AwsIotMqttBLE_CleanupSerialize
-
 /* Include the default configuration file at the bottom of this file. */
 #include "aws_iot_config_common.h"
 

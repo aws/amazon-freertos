@@ -41,7 +41,7 @@
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
-    #define LIBRARY_LOG_LEVEL    LOG_INFO
+    #define LIBRARY_LOG_LEVEL    LOG_NONE
 #endif
 
 #include "logging_stack.h"
@@ -58,7 +58,7 @@
  * macro sets the limit on how many simultaneous PUBLISH states an MQTT
  * context maintains.
  */
-#define MQTT_STATE_ARRAY_MAX_COUNT    ( 10U )
+#define MQTT_STATE_ARRAY_MAX_COUNT    ( 20U )
 
 /**
  * @brief Number of milliseconds to wait for a ping response to a ping

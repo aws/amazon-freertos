@@ -29,11 +29,9 @@
  */
 
 /* Standard includes. */
-#include <stdlib.h>
 #include <string.h>
 
 /* TCP/IP abstraction includes. */
-#include "iot_secure_sockets.h"
 #include "transport_secure_sockets.h"
 
 
@@ -84,6 +82,18 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
                          size_t hostnameLength );
 
 
+/**
+ * Connect to the server specified in @p pServerInfo using @p tcpSocket.
+ *
+ * @param[in] tcpSocket The socket to establish connect.
+ * @param[in] pServerInfo Server connection info.
+ *
+ * @return #TRANSPORT_SOCKET_STATUS_SUCCESS on success;
+ *         #TRANSPORT_SOCKET_STATUS_DNS_FAILURE, #TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE on failure.
+ */
+static TransportSocketStatus_t connectToServer( Socket_t tcpSocket,
+                                                const ServerInfo_t * pServerInfo );
+
 /*-----------------------------------------------------------*/
 
 int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
@@ -97,17 +107,17 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
         ( pNetworkContext == NULL ) )
     {
         LogError( ( "Invalid parameter: pMessage=%p, bytesToSend=%lu, pNetworkContext=%p",
-                    pMessage, bytesToSend, pNetworkContext ) );
+                    pMessage, bytesToSend, ( void * ) pNetworkContext ) );
         bytesSent = SOCKETS_EINVAL;
     }
-    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->pContext == NULL ) )
+    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET ) )
     {
-        LogError( ( "Invalid parameter: pNetworkContext->pContext cannot be NULL." ) );
+        LogError( ( "Invalid parameter: pNetworkContext->tcpSocket cannot be SOCKETS_INVALID_SOCKET." ) );
         bytesSent = SOCKETS_EINVAL;
     }
     else
     {
-        bytesSent = SOCKETS_Send( ( Socket_t ) pNetworkContext->pContext,
+        bytesSent = SOCKETS_Send( pNetworkContext->tcpSocket,
                                   pMessage,
                                   bytesToSend,
                                   0 );
@@ -115,18 +125,18 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
         /* If an error occurred, a negative value is returned. @ref SocketsErrors. */
         if( bytesSent >= 0 )
         {
-            if( bytesSent < bytesToSend )
+            if( bytesSent < ( int32_t ) bytesToSend )
             {
-                LogWarn( ( "bytesSent %ld < bytesToSend %ld.", bytesSent, bytesToSend ) );
+                LogWarn( ( "bytesSent %d < bytesToSend %lu.", bytesSent, bytesToSend ) );
             }
             else
             {
-                LogInfo( ( "Successfully sent %ld bytes over network.", bytesSent ) );
+                LogInfo( ( "Successfully sent %d bytes over network.", bytesSent ) );
             }
         }
         else
         {
-            LogError( ( "Failed to send data over network. bytesSent=%ld.", bytesSent ) );
+            LogError( ( "Failed to send data over network. bytesSent=%d.", bytesSent ) );
         }
     }
 
@@ -147,17 +157,17 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
         ( pNetworkContext == NULL ) )
     {
         LogError( ( "Invalid parameter: pBuffer=%p, bytesToRecv=%lu, pNetworkContext=%p",
-                    pBuffer, bytesToRecv, pNetworkContext ) );
+                    pBuffer, bytesToRecv, ( void * ) pNetworkContext ) );
         bytesReceived = SOCKETS_EINVAL;
     }
-    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->pContext == NULL ) )
+    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET ) )
     {
-        LogError( ( "Invalid parameter: pNetworkContext->pContext cannot be NULL." ) );
+        LogError( ( "Invalid parameter: pNetworkContext->tcpSocket cannot be SOCKETS_INVALID_SOCKET." ) );
         bytesReceived = SOCKETS_EINVAL;
     }
     else
     {
-        bytesReceived = SOCKETS_Recv( ( Socket_t ) pNetworkContext->pContext,
+        bytesReceived = SOCKETS_Recv( pNetworkContext->tcpSocket,
                                       pRecvBuffer,
                                       bytesToRecv,
                                       0 );
@@ -174,15 +184,15 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
         }
         else
         {
-            if( bytesReceived < bytesToRecv )
+            if( bytesReceived < ( int32_t ) bytesToRecv )
             {
-                LogInfo( ( "Receive requested %lu bytes, but %lu bytes received instead.",
+                LogInfo( ( "Receive requested %d bytes, but %lu bytes received instead.",
                            bytesToRecv,
                            bytesReceived ) );
             }
             else
             {
-                LogInfo( ( "Successfully received %lu bytes.",
+                LogInfo( ( "Successfully received %d bytes.",
                            bytesReceived ) );
             }
         }
@@ -199,6 +209,10 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
                          size_t hostnameLength )
 {
     int32_t secureSocketStatus = SOCKETS_ERROR_NONE;
+
+    configASSERT( tcpSocket != SOCKETS_INVALID_SOCKET );
+    configASSERT( pSocketsConfig != NULL );
+    configASSERT( pHostName != NULL );
 
     /* ALPN options for AWS IoT. */
     /* ppcALPNProtos is unused. putting here to align behavior in IotNetworkAfr_Create. */
@@ -269,6 +283,43 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 
 /*-----------------------------------------------------------*/
 
+static TransportSocketStatus_t connectToServer( Socket_t tcpSocket,
+                                                const ServerInfo_t * pServerInfo )
+{
+    TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
+    int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
+    SocketsSockaddr_t serverAddress = { 0 };
+
+    /* Establish connection. */
+    serverAddress.ucSocketDomain = SOCKETS_AF_INET;
+    serverAddress.usPort = SOCKETS_htons( pServerInfo->port );
+    serverAddress.ulAddress = SOCKETS_GetHostByName( pServerInfo->pHostName );
+
+    /* Check for errors from DNS lookup. */
+    if( serverAddress.ulAddress == ( uint32_t ) 0 )
+    {
+        LogError( ( "Failed to connect to server: DNS resolution failed: Server=%s.",
+                    pServerInfo->pHostName ) );
+        returnStatus = TRANSPORT_SOCKET_STATUS_DNS_FAILURE;
+    }
+    else
+    {
+        secureSocketStatus = SOCKETS_Connect( tcpSocket,
+                                              &serverAddress,
+                                              sizeof( SocketsSockaddr_t ) );
+
+        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        {
+            LogError( ( "Failed to establish new connection. secureSocketStatus=%d.", secureSocketStatus ) );
+            returnStatus = TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE;
+        }
+    }
+
+    return returnStatus;
+}
+
+/*-----------------------------------------------------------*/
+
 static int32_t transportTimeoutSetup( Socket_t tcpSocket,
                                       uint32_t sendTimeoutMs,
                                       uint32_t recvTimeoutMs )
@@ -276,10 +327,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
     TickType_t receiveTimeout = 0, sendTimeout = 0;
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
 
-    if( tcpSocket == NULL )
-    {
-        secureSocketStatus = SOCKETS_EINVAL;
-    }
+    configASSERT( tcpSocket != SOCKETS_INVALID_SOCKET );
 
     if( secureSocketStatus == SOCKETS_ERROR_NONE )
     {
@@ -339,12 +387,17 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     Socket_t tcpSocket = ( Socket_t ) SOCKETS_INVALID_SOCKET;
     TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
-    SocketsSockaddr_t serverAddress = { 0 };
-    const size_t hostnameLength = pServerInfo->hostNameLength;
+    size_t hostnameLength = 0U;
+
+    configASSERT( pNetworkContext != NULL );
+    configASSERT( pServerInfo != NULL );
+    configASSERT( pSocketsConfig != NULL );
+
+    hostnameLength = pServerInfo->hostNameLength;
 
     if( ( hostnameLength > ( size_t ) securesocketsMAX_DNS_NAME_LENGTH ) )
     {
-        LogError( ( "Host name length %d exceeds max length %d",
+        LogError( ( "Host name length %lu exceeds max length %d",
                     hostnameLength, securesocketsMAX_DNS_NAME_LENGTH ) );
         returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
     }
@@ -356,9 +409,9 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
                                     SOCKETS_SOCK_STREAM,
                                     SOCKETS_IPPROTO_TCP );
 
-        if( tcpSocket == ( Socket_t ) SOCKETS_INVALID_SOCKET )
+        if( tcpSocket == SOCKETS_INVALID_SOCKET )
         {
-            LogError( ( "Failed to create new socket. tcpSocket=%d\n", tcpSocket ) );
+            LogError( ( "Failed to create new socket. tcpSocket=%p\n", ( void * ) tcpSocket ) );
             returnStatus = TRANSPORT_SOCKET_STATUS_INSUFFICIENT_MEMORY;
         }
     }
@@ -380,30 +433,9 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
-        /* Establish connection. */
-        serverAddress.ucSocketDomain = SOCKETS_AF_INET;
-        serverAddress.usPort = SOCKETS_htons( pServerInfo->port );
-        serverAddress.ulAddress = SOCKETS_GetHostByName( pServerInfo->pHostName );
-
-        /* Check for errors from DNS lookup. */
-        if( serverAddress.ulAddress == ( uint32_t ) 0 )
-        {
-            LogError( ( "Failed to connect to server: DNS resolution failed: Server=%s.", pServerInfo->pHostName ) );
-            returnStatus = TRANSPORT_SOCKET_STATUS_DNS_FAILURE;
-        }
-    }
-
-    if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
-    {
-        secureSocketStatus = SOCKETS_Connect( tcpSocket,
-                                              &serverAddress,
-                                              sizeof( SocketsSockaddr_t ) );
-
-        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
-        {
-            LogError( ( "Failed to establish new connection. secureSocketStatus=%d.", secureSocketStatus ) );
-            returnStatus = TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE;
-        }
+        /* Establish the TCP connection. */
+        returnStatus = connectToServer( tcpSocket,
+                                        pServerInfo );
     }
 
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
@@ -421,12 +453,15 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
         /* Set the socket in the network context. */
-        pNetworkContext->pContext = tcpSocket;
+        pNetworkContext->tcpSocket = tcpSocket;
     }
     else
     {
         /* Clean up socket on failure. */
-        ( void ) SOCKETS_Close( tcpSocket );
+        if( tcpSocket != ( Socket_t ) SOCKETS_INVALID_SOCKET )
+        {
+            ( void ) SOCKETS_Close( tcpSocket );
+        }
     }
 
     return returnStatus;
@@ -444,6 +479,11 @@ TransportSocketStatus_t SecureSocketsTransport_Connect( NetworkContext_t * pNetw
     if( pSocketsConfig == NULL )
     {
         LogError( ( "Parameter check failed: pSocketsConfig is NULL." ) );
+        returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
+    }
+    else if( pNetworkContext == NULL )
+    {
+        LogError( ( "Parameter check failed: pNetworkContext is NULL." ) );
         returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
     }
     else if( pServerInfo == NULL )
@@ -482,7 +522,7 @@ TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_
     if( pNetworkContext != NULL )
     {
         /* Call Secure Sockets shutdown function to close connection. */
-        transportSocketStatus = SOCKETS_Shutdown( ( Socket_t ) pNetworkContext->pContext, SOCKETS_SHUT_RDWR );
+        transportSocketStatus = SOCKETS_Shutdown( pNetworkContext->tcpSocket, SOCKETS_SHUT_RDWR );
 
         if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
@@ -492,7 +532,7 @@ TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_
         else
         {
             /* Call Secure Sockets close function to close socket. */
-            transportSocketStatus = SOCKETS_Close( ( Socket_t ) pNetworkContext->pContext );
+            transportSocketStatus = SOCKETS_Close( pNetworkContext->tcpSocket );
 
             if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
             {

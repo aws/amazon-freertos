@@ -28,12 +28,12 @@
 #include "FreeRTOSIPConfig.h"
 #include "iot_tls.h"
 #include "iot_crypto.h"
-#include "iot_pkcs11_config.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11_config.h"
+#include "core_pkcs11.h"
 #include "task.h"
 #include "aws_clientcredential_keys.h"
 #include "iot_default_root_certificates.h"
-#include "iot_pki_utils.h"
+#include "core_pki_utils.h"
 
 /* mbedTLS includes. */
 #include "mbedtls/platform.h"
@@ -526,7 +526,6 @@ static int prvReadCertificateIntoContext( TLSContext_t * pxTlsContext,
 static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 {
     BaseType_t xResult = CKR_OK;
-    CK_ULONG xCount = 0;
     CK_ATTRIBUTE xTemplate[ 2 ];
     mbedtls_pk_type_t xKeyAlgo = ( mbedtls_pk_type_t ) ~0;
     char * pcJitrCertificate = keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;

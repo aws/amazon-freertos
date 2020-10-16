@@ -41,6 +41,7 @@ size_t http_parser_execute (http_parser *parser,
   if (_httpsResponse->foundHeaderField) {
     __CPROVER_assume(valueLength <= len);
     _httpsResponse->pReadHeaderValue = malloc(valueLength+1);
+    __CPROVER_assume(_httpsResponse->pReadHeaderValue != NULL);
     _httpsResponse->pReadHeaderValue[valueLength] = 0;
     _httpsResponse->readHeaderValueLength = valueLength;
   }
@@ -66,6 +67,7 @@ IotNetworkError_t IotNetworkInterfaceCreate( void * pConnectionInfo,
    * stubbing out, so we just ensure that it points to a memory
    * object. */
   *(char **)pConnection = malloc(1); /* network connection is opaque.  */
+  __CPROVER_assume(*(char **)pConnection != NULL);
 
   IotNetworkError_t error;
   return error;
