@@ -43,7 +43,7 @@ afr_module_include_dirs(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        AFR::core_mqtt
+        AFR::core_mqtt_demo_dependencies
         AFR::ble
         AFR::mqtt_ble
 )
