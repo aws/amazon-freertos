@@ -142,24 +142,9 @@
 #define TEST_MQTT_TOPIC                       TEST_CLIENT_IDENTIFIER "/iot/integration/test"
 
 /**
- * @brief Sample topic filter 2 to use in tests.
- */
-#define TEST_MQTT_TOPIC_2                     TEST_CLIENT_IDENTIFIER "/iot/integration/test2"
-
-/**
  * @brief Length of sample topic filter.
  */
 #define TEST_MQTT_TOPIC_LENGTH                ( sizeof( TEST_MQTT_TOPIC ) - 1 )
-
-/**
- * @brief Sample topic filter to subscribe to.
- */
-#define TEST_MQTT_LWT_TOPIC                   TEST_CLIENT_IDENTIFIER "/iot/integration/test/lwt"
-
-/**
- * @brief Length of sample topic filter.
- */
-#define TEST_MQTT_LWT_TOPIC_LENGTH            ( sizeof( TEST_MQTT_LWT_TOPIC ) - 1 )
 
 /**
  * @brief Size of the network buffer for MQTT packets.
@@ -257,8 +242,7 @@ static uint16_t globalUnsubscribePacketIdentifier = 0U;
 static uint16_t globalPublishPacketIdentifier = 0U;
 
 /**
- * @brief Represents the OpenSSL context used for TLS session with the broker
- * for tests.
+ * @brief Represents the BLE transport interface context used to send data over BLE channel.
  */
 static NetworkContext_t networkContext;
 
@@ -292,7 +276,7 @@ static MQTTPublishInfo_t incomingInfo;
 /**
  * @brief Buffer to store incoming publish topic name for assertions in tests.
  */
-static uint8_t incomingTopicBuffer[ TEST_MQTT_LWT_TOPIC_LENGTH ];
+static uint8_t incomingTopicBuffer[ TEST_MQTT_TOPIC_LENGTH ];
 
 /**
  * @brief Buffer to store incoming PUBLUSH payload for assertions in tests.
@@ -369,7 +353,11 @@ static void eventCallback( MQTTContext_t * pContext,
                            MQTTDeserializedInfo_t * pDeserializedInfo );
 
 /*
- * Callback invoked when physical BLE connection is established.
+ * @brief Callback invoked when physical BLE connection is established.
+ * @param[in] status Status of the BlE callback
+ * @param[in] connId Connection handle identifier
+ * @param[in] connected BLE is connected or disconnected.
+ * @param[in] pBa Bluetooth address of the peer.
  */
 static void bleConnectionCallback( BTStatus_t status,
                                    uint16_t connId,
@@ -377,30 +365,33 @@ static void bleConnectionCallback( BTStatus_t status,
                                    BTBdaddr_t * pBa );
 
 /**
- * Enable BLE and GATT services.
- * Waits for the BLE phyical connection to be established.
+ * @brief Enables BLE and starts Bluetooth advertisement.
+ * Waits for the BLE central to be connected.
  */
 static void bleEnable( void );
 
 /**
- * Disconnect and turn off BLE.
+ * @brief Disconnects with BLE central, turns off advertisment and disable BLE.
  */
 static void bleDisable( void );
 
 /**
- * Sets up transport interface used for sending and receiving MQTT data.
+ * @brief Sets up transport interface used for sending and receiving MQTT data over BLE.
+ * @param[in] pContext BLE transport interface context, used by the MQTT library.
  */
 static void setupBleTransportInterface( NetworkContext_t * pContext );
 
 /*
- * Cleans up transport interface used for sending receiving MQTT data.
+ * @brief Cleans up transport interface used for sending receiving MQTT data.
+ * @param[in] pContext BLE transport interface context, used by the MQTT library.
  */
 static void teardownBleTransportInterface( NetworkContext_t * pContext );
 
 
 /**
- * The function for initializing the BLE stack.
+ * @brief The function for initializing the BLE stack.
  * The function implementation is provided by the vendor.
+ * @return Success or Failure if stack initialization was successfull or not.
  */
 extern BTStatus_t bleStackInit( void );
 
@@ -647,7 +638,7 @@ static void eventCallback( MQTTContext_t * pContext,
     if( ( pPacketInfo->type == packetTypeForDisconnection ) ||
         ( ( pPacketInfo->type & 0xF0U ) == packetTypeForDisconnection ) )
     {
-        /* Terminate TLS session and TCP connection to test session restoration
+        /* Terminate BLE channel to test session restoration
          * across network connection. */
         ( void ) teardownBleTransportInterface( &networkContext );
     }
