@@ -261,7 +261,7 @@ void vApplicationDaemonTaskStartupHook( void )
                      "TestRunner",
                      mainTEST_RUNNER_TASK_STACK_SIZE,
                      NULL,
-                     mainTEST_RUNNER_TASK_PRIORITY,
+                     tskIDLE_PRIORITY,
                      NULL );
     }
 }
