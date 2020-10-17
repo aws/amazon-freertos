@@ -209,7 +209,7 @@ function(afr_write_metadata)
 
         # Some Cmake files are of the form <module_name>.cmake and the section
         # below handles cmake files for those.
-        get_filename_component(cmake_filename_without_extension "${cmake_file}" NAME_WLE)
+        get_filename_component(cmake_filename_without_extension "${cmake_file}" NAME_WE)
         if(cmake_filename_without_extension IN_LIST AFR_MODULES_ENABLED)
             list(APPEND cmake_files "${cmake_file}")
             list(APPEND src_console "${module_dir}")
