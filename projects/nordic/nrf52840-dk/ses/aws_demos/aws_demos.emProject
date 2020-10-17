@@ -56,10 +56,7 @@
         <folder Name="ble">
           <file file_name="../../../../../demos/ble/aws_ble_gatt_server_demo.c" />
           <file file_name="../../../../../demos/ble/iot_ble_numericComparison.c" />
-          <folder Name="mqtt_transport">
-            <file file_name="../../../../../demos/ble/mqtt_transport/demo_config.h" />
-            <file file_name="../../../../../demos/ble/mqtt_transport/mqtt_demo_transport.c" />
-          </folder>
+          <file file_name="../../../../../demos/ble/mqtt_demo_ble_transport.c" />
         </folder>
         <folder Name="demo_runner">
           <file file_name="../../../../../demos/demo_runner/aws_demo.c" />

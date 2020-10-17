@@ -13,5 +13,7 @@ afr_module_sources(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
+        AFR::freertos_plus_cli
+        AFR::common_io
         AFR::freertos_cli_plus_uart
 )
