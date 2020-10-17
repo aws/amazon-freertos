@@ -3,6 +3,8 @@ afr_module(NAME "freertos_plus_tcp" INTERNAL)
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp/include")
 
+afr_add_additional_cmake_files(FILES "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp.cmake" )
+
 # Create a list of all FReeRTOS+TCP headers files in the FreeRTOS+TCP
 # library.
 # The list of header files will be added to metadata required

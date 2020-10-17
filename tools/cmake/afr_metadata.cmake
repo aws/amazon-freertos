@@ -152,6 +152,20 @@ function(afr_add_subdirectory module_name)
   afr_cache_append(AFR_METADATA_CMAKE_FILES "${module_name}/CMakeLists.txt")
 endfunction()
 
+# Function to add <module_name>.cmake file types to the metadata cmake lists.
+function(afr_add_additional_cmake_files)
+    cmake_parse_arguments(
+        PARSE_ARGV 0
+        "ARG"                          # Prefix of parsed results.
+        ""                             # Option arguments.
+        ""                             # One value arguments.
+        "FILES"                        # Multi value arguments.
+    )
+    foreach(additional_cmake_file IN LISTS ARG_FILES)
+        afr_cache_append(AFR_METADATA_CMAKE_FILES ${additional_cmake_file})
+    endforeach()
+endfunction()
+
 function(afr_write_metadata)
     set(ide_dir "${AFR_METADATA_OUTPUT_DIR}/ide")
     set(console_dir "${AFR_METADATA_OUTPUT_DIR}/console")
@@ -189,6 +203,14 @@ function(afr_write_metadata)
         get_filename_component(module_dir "${cmake_file}" DIRECTORY)
         get_filename_component(module "${module_dir}" NAME)
         if(module IN_LIST AFR_MODULES_ENABLED OR "demo_${module}" IN_LIST AFR_MODULES_ENABLED)
+            list(APPEND cmake_files "${cmake_file}")
+            list(APPEND src_console "${module_dir}")
+        endif()
+
+        # Some Cmake files are of the form <module_name>.cmake and the section
+        # below handles cmake files for those.
+        get_filename_component(cmake_filename_without_extension "${cmake_file}" NAME_WLE)
+        if(cmake_filename_without_extension IN_LIST AFR_MODULES_ENABLED)
             list(APPEND cmake_files "${cmake_file}")
             list(APPEND src_console "${module_dir}")
         endif()
