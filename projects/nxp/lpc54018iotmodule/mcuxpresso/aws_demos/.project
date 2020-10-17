@@ -1178,6 +1178,21 @@
 			<locationURI>BASE_DIR/libraries/logging/iot_logging.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/logging/include/iot_logging_task.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/logging/include/iot_logging_task.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/logging/include/logging_levels.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/logging/include/logging_levels.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/logging/include/logging_stack.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/logging/include/logging_stack.h</locationURI>
+		</link>
+		<link>
 			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
@@ -1296,6 +1311,36 @@
 			<name>libraries/coreMQTT/source/core_mqtt_serializer.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/mqttFilePaths.cmake</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT/mqttFilePaths.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/include/core_mqtt.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT/source/include/core_mqtt.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/include/core_mqtt_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT/source/include/core_mqtt_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/include/core_mqtt_serializer.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT/source/include/core_mqtt_serializer.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/include/core_mqtt_state.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT/source/include/core_mqtt_state.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/portable/transport_interface.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT/source/portable/transport_interface.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
@@ -1563,14 +1608,39 @@
 			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/core_mqtt_demo_dependencies.cmake</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/core_mqtt_demo_dependencies.cmake</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/retry_utils/retry_utils.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/retry_utils/retry_utils.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreJSON/source/core_json.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreJSON/source/core_json.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</locationURI>
 		</link>
 		<link>
 			<name>demos/coreMQTT/mqtt_demo_basic_tls.c</name>
@@ -1606,6 +1676,16 @@
 			<name>demos/defender/aws_iot_demo_defender.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/defender/aws_iot_demo_defender.c</locationURI>
+		</link>
+		<link>
+			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_main.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_main.c</locationURI>
+		</link>
+		<link>
+			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c</locationURI>
 		</link>
 		<link>
 			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>
@@ -1806,6 +1886,16 @@
 			<name>config_files/mqtt_demo_serializer_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/mqtt_demo_serializer_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/shadow_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/shadow_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/shadow_demo_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/shadow_demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/main.c</name>

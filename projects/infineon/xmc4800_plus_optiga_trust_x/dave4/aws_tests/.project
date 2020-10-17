@@ -1234,6 +1234,21 @@
 			<locationURI>AFR_HOME/libraries/logging/iot_logging.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/logging/include/iot_logging_task.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/logging/include/iot_logging_task.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/logging/include/logging_levels.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/logging/include/logging_levels.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/logging/include/logging_stack.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/logging/include/logging_stack.h</locationURI>
+		</link>
+		<link>
 			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
@@ -1352,6 +1367,36 @@
 			<name>libraries/coreMQTT/source/core_mqtt_serializer.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/mqttFilePaths.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreMQTT/mqttFilePaths.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/include/core_mqtt.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreMQTT/source/include/core_mqtt.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/include/core_mqtt_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreMQTT/source/include/core_mqtt_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/include/core_mqtt_serializer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreMQTT/source/include/core_mqtt_serializer.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/include/core_mqtt_state.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreMQTT/source/include/core_mqtt_state.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT/source/portable/transport_interface.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreMQTT/source/portable/transport_interface.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
@@ -1619,14 +1664,39 @@
 			<locationURI>AFR_HOME/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/core_mqtt_demo_dependencies.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/core_mqtt_demo_dependencies.cmake</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/retry_utils/retry_utils.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/retry_utils/retry_utils.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreJSON/source/core_json.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreJSON/source/core_json.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
@@ -1977,6 +2047,11 @@
 			<name>config_files/core_test_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_tests/config_files/core_test_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/shadow_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_tests/config_files/shadow_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/unity_config.h</name>
