@@ -133,6 +133,8 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt.c                                                \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt_state.c                                          \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt_serializer.c                                     \
+                    $(AFR_LIBRARIES_PATH)coreJSON/source/core_json.c                                                \
+                    $(AFR_LIBRARIES_PATH)device_shadow_for_aws_iot_embedded_sdk/source/shadow.c                     \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/lwip/iot_secure_sockets.c                                \
                     $(AFR_C_SDK_AWS_PATH)shadow/src/aws_shadow.c                                                    \
                     $(AFR_C_SDK_AWS_PATH)shadow/src/aws_iot_shadow_api.c                                            \
@@ -143,12 +145,12 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)utils/src/iot_system_init.c                                           \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c                                     \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/wifi/iot_wifi.c           \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/portable/mbedtls/iot_pkcs11_mbedtls.c                              \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/iot_pki_utils.c                              \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/iot_pkcs11.c                              \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c                              \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/core_pki_utils.c                              \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/core_pkcs11.c                              \
                     $(AFR_THIRDPARTY_PATH)mbedtls_utils/mbedtls_utils.c                              \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/src/iot_crypto.c                                               \
-                    $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/iot_pkcs11_pal.c   \
+                    $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/core_pkcs11_pal.c   \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/hw_poll.c
 
 GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
@@ -156,6 +158,8 @@ GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_C_SDK_STANDARD_PATH)logging_stack \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/portable \
+                    $(AFR_LIBRARIES_PATH)coreJSON/source/include \
+                    $(AFR_LIBRARIES_PATH)device_shadow_for_aws_iot_embedded_sdk/source/include \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include/types \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)/greengrass/include     \

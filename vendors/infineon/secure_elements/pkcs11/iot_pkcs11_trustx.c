@@ -35,13 +35,13 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "semphr.h"
-#include "iot_pkcs11_config.h"
+#include "core_pkcs11_config.h"
 #ifdef FREERTOS_ENABLE_UNIT_TESTS
-    #include "iot_test_pkcs11_config.h"
+    #include "core_test_pkcs11_config.h"
 #endif
 #include "iot_crypto.h"
-#include "iot_pkcs11.h"
-#include "iot_pkcs11_pal.h"
+#include "core_pkcs11.h"
+#include "core_pkcs11_pal.h"
 
 /* OPTIGA(TM) Trust X Includes */
 #include "optiga/optiga_crypt.h"

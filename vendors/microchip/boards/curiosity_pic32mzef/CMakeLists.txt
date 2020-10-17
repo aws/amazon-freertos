@@ -196,7 +196,7 @@ afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+        "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
         "${afr_ports_dir}/pkcs11/pkcs11_nvm.c"
         "${afr_ports_dir}/pkcs11/pkcs11_nvm.h"
 )
@@ -209,6 +209,9 @@ target_sources(
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/BufferAllocation_2.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/NetworkInterface_wifi.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/NetworkInterface_eth.c"
+        # Header files added to the target so that these are available in code downloaded from the FreeRTOS console.
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_end.h"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_start.h"
 )
 
 target_include_directories(

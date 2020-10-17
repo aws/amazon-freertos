@@ -755,8 +755,8 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( Socket_t xMQTTSocket )
     {
         xStatus = pdFAIL;
         LogError( ( "The size of the MQTT CONNECT packet must be less than the "
-                    "size of the demo's shared buffer. ConnectPacketSize=%ul,"
-                    "SharedBufferSize=%ul",
+                    "size of the demo's shared buffer. ConnectPacketSize=%lu,"
+                    "SharedBufferSize=%lu",
                     ( unsigned long ) xPacketSize,
                     ( unsigned long ) mqttexampleSHARED_BUFFER_SIZE ) );
     }
@@ -836,8 +836,8 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( Socket_t xMQTTSocket )
         {
             xStatus = pdFAIL;
             LogError( ( "The length of the incoming packet must not exceed the "
-                        "size of the shared demo buffer. RemainingLength=%ul, "
-                        "SharedBufferSize=%ul",
+                        "size of the shared demo buffer. RemainingLength=%lu, "
+                        "SharedBufferSize=%lu",
                         ( unsigned long ) xIncomingPacket.remainingLength,
                         ( unsigned long ) mqttexampleSHARED_BUFFER_SIZE ) );
         }
@@ -927,8 +927,8 @@ static BaseType_t prvMQTTSubscribeToTopic( Socket_t xMQTTSocket )
     {
         xStatus = pdFAIL;
         LogError( ( "The size of the MQTT SUBSCRIBE packet must be less than the "
-                    "size of the demo's shared buffer. ConnectPacketSize=%ul,"
-                    "SharedBufferSize=%ul",
+                    "size of the demo's shared buffer. ConnectPacketSize=%lu,"
+                    "SharedBufferSize=%lu",
                     ( unsigned long ) xPacketSize,
                     ( unsigned long ) mqttexampleSHARED_BUFFER_SIZE ) );
     }
@@ -1031,6 +1031,9 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( Socket_t xMQTTSocket )
             break;
         }
 
+        /* Reset flag before checking suback responses. */
+        xFailedSubscribeToTopic = false;
+
         /* Check if recent subscription request has been rejected. #xTopicFilterContext is updated
          * in the event callback to reflect the status of the SUBACK sent by the broker. It represents
          * either the QoS level granted by the server upon subscription, or acknowledgement of
@@ -1051,7 +1054,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( Socket_t xMQTTSocket )
         {
             xStatus = pdFAIL;
             LogError( ( "Failed to subscribe to the broker, subscription request"
-                        " retires exhausted. NumberOfAttempts=%ul",
+                        " retries exhausted. NumberOfAttempts=%lu",
                         ( unsigned long ) ( xRetryParams.maxRetryAttempts ) ) );
         }
     } while( ( xFailedSubscribeToTopic == true ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
@@ -1136,8 +1139,8 @@ static BaseType_t prvMQTTPublishToTopic( Socket_t xMQTTSocket )
     {
         xStatus = pdFAIL;
         LogError( ( "The size of the MQTT PUBLISH packet must be less than the "
-                    "size of the demo's shared buffer. PublishPacketSize=%ul,"
-                    "SharedBufferSize=%ul",
+                    "size of the demo's shared buffer. PublishPacketSize=%lu,"
+                    "SharedBufferSize=%lu",
                     ( unsigned long ) xPacketSize,
                     ( unsigned long ) mqttexampleSHARED_BUFFER_SIZE ) );
     }
@@ -1238,8 +1241,8 @@ static BaseType_t prvMQTTUnsubscribeFromTopic( Socket_t xMQTTSocket )
     {
         xStatus = pdFAIL;
         LogError( ( "The size of the MQTT UNSUBSCRIBE packet must be less than the "
-                    "size of the demo's shared buffer. UnsubscribePacketSize=%ul,"
-                    "SharedBufferSize=%ul",
+                    "size of the demo's shared buffer. UnsubscribePacketSize=%lu,"
+                    "SharedBufferSize=%lu",
                     ( unsigned long ) xPacketSize,
                     ( unsigned long ) mqttexampleSHARED_BUFFER_SIZE ) );
     }
@@ -1307,8 +1310,8 @@ static BaseType_t prvMQTTKeepAlive( Socket_t xMQTTSocket )
     {
         xStatus = pdFAIL;
         LogError( ( "The length of the ping packet must not exceed the "
-                    "size of the shared demo buffer. PingPacketSize=%ul, "
-                    "SharedBufferSize=%ul",
+                    "size of the shared demo buffer. PingPacketSize=%lu, "
+                    "SharedBufferSize=%lu",
                     ( unsigned long ) xPacketSize,
                     ( unsigned long ) mqttexampleSHARED_BUFFER_SIZE ) );
     }
@@ -1369,8 +1372,8 @@ static BaseType_t prvMQTTDisconnect( Socket_t xMQTTSocket )
     {
         xStatus = pdFAIL;
         LogError( ( "The size of the MQTT DISCONNECT packet must be less than the "
-                    "size of the demo's shared buffer. ConnectPacketSize=%ul,"
-                    "SharedBufferSize=%ul",
+                    "size of the demo's shared buffer. ConnectPacketSize=%lu,"
+                    "SharedBufferSize=%lu",
                     ( unsigned long ) xPacketSize,
                     ( unsigned long ) mqttexampleSHARED_BUFFER_SIZE ) );
     }
@@ -1510,8 +1513,8 @@ static BaseType_t prvMQTTProcessIncomingPacket( Socket_t xMQTTSocket )
         {
             xStatus = pdFAIL;
             LogError( ( "The length of the incoming packet must not exceed the "
-                        "size of the shared demo buffer. RemainingLength=%ul, "
-                        "SharedBufferSize=%ul",
+                        "size of the shared demo buffer. RemainingLength=%lu, "
+                        "SharedBufferSize=%lu",
                         ( unsigned long ) xIncomingPacket.remainingLength,
                         ( unsigned long ) mqttexampleSHARED_BUFFER_SIZE ) );
         }

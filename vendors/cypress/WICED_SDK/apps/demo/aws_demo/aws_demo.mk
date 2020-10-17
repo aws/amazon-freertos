@@ -91,6 +91,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_C_SDK_STANDARD_PATH)https/include \
                     $(AFR_C_SDK_STANDARD_PATH)https/include/types \
                     $(AFR_THIRDPARTY_PATH)http_parser \
+                    $(AFR_LIBRARIES_PATH)coreJSON/source/include \
+                    $(AFR_LIBRARIES_PATH)device_shadow_for_aws_iot_embedded_sdk/source/include \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/main.c \
@@ -108,6 +110,8 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_serializer.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_keep_alive.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_connection_sharing.c \
+                      $(AMAZON_FREERTOS_PATH)demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_main.c \
+                      $(AMAZON_FREERTOS_PATH)demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c \
                       $(AMAZON_FREERTOS_PATH)demos/shadow/aws_iot_demo_shadow.c \
                       $(AMAZON_FREERTOS_PATH)demos/defender/aws_iot_demo_defender.c \
                       $(AMAZON_FREERTOS_PATH)demos/tcp/aws_tcp_echo_client_single_task.c \

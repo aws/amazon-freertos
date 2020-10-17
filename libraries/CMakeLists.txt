@@ -59,4 +59,13 @@ foreach(module IN LISTS afr_modules_csdk afr_modules_freertos_plus afr_modules_a
 endforeach()
 
 # Add core_mqtt modules
-include(core_mqtt.cmake)
+include(core_mqtt_demo_dependencies.cmake)
+
+# Add FreeRTOS+TCP module
+afr_add_subdirectory(${AFR_MODULES_DIR}/freertos_plus/standard)
+
+# Add core_json modules
+include(core_json.cmake)
+
+# Add device_shadow modules
+include(device_shadow.cmake)

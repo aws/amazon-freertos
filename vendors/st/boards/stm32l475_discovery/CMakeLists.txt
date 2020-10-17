@@ -120,7 +120,7 @@ target_sources(
 afr_mcu_port(pkcs11_implementation)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
-    INTERFACE "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+    INTERFACE "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
 )
 # Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
 target_link_libraries(

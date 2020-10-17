@@ -52,7 +52,7 @@
 #include "psa/crypto.h"
 #include "psa/protected_storage.h"
 
-#include "iot_pkcs11_config.h"
+#include "core_pkcs11_config.h"
 #include "jitp_status.h"
 
 /**

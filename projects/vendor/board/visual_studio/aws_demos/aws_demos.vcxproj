@@ -99,8 +99,8 @@
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
     <ClCompile Include="..\..\..\..\lib\ota\portable\vendor\board\aws_ota_pal.c" />
-    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\iot_pkcs11_mbedtls.c" />
-    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\iot_pkcs11_pal.c" />
+    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\core_pkcs11_mbedtls.c" />
+    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\core_pkcs11_pal.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\iot_secure_sockets.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_shadow.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_shadow_json.c" />
@@ -205,7 +205,7 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_greengrass_discovery.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_mqtt_agent.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_mqtt_lib.h" />
-    <ClInclude Include="..\..\..\..\lib\include\iot_pkcs11.h" />
+    <ClInclude Include="..\..\..\..\lib\include\core_pkcs11.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_secure_sockets.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_shadow.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_system_init.h" />

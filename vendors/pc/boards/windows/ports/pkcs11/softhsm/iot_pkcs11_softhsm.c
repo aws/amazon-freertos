@@ -24,7 +24,7 @@
  */
 
 /**
- * @file iot_pkcs11_softhsm.c
+ * @file core_pkcs11_softhsm.c
  * @brief Wrapper module for using https://github.com/opendnssec/SoftHSMv2 with
  * FreeRTOS. This file deviates from the FreeRTOS style standard for
  * some function names and data types in order to maintain compliance with
@@ -33,7 +33,7 @@
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11.h"
 
 typedef CK_RV ( * PFN_GET_FUNCTION_LIST )( CK_FUNCTION_LIST_PTR_PTR ppFunctionList );
 
