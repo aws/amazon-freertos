@@ -44,7 +44,7 @@
 
 /* TLS includes. */
 #include "iot_tls.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11.h"
 
 /* Socket and WiFi interface includes. */
 #include "iot_wifi.h"

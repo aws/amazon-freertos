@@ -65,6 +65,7 @@
 		<Filter Include="libraries\freertos_plus\standard\utils"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
 		<Filter Include="libraries\logging"/>
+		<Filter Include="libraries\logging\include"/>
 		<Filter Include="demos\dev_mode_key_provisioning\src"/>
 		<Filter Include="demos\dev_mode_key_provisioning"/>
 		<Filter Include="demos"/>
@@ -78,6 +79,8 @@
 		<Filter Include="libraries\c_sdk\standard\mqtt"/>
 		<Filter Include="libraries\coreMQTT\source"/>
 		<Filter Include="libraries\coreMQTT"/>
+		<Filter Include="libraries\coreMQTT\source\include"/>
+		<Filter Include="libraries\coreMQTT\source\portable"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src"/>
 		<Filter Include="libraries\c_sdk\standard\serializer"/>
@@ -118,6 +121,10 @@
 		<Filter Include="libraries\abstractions\retry_utils"/>
 		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
 		<Filter Include="libraries\abstractions\transport"/>
+		<Filter Include="libraries\coreJSON\source"/>
+		<Filter Include="libraries\coreJSON"/>
+		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk\source"/>
+		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\unit"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\system"/>
@@ -352,7 +359,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h">
 			<Filter>libraries\freertos_plus\standard\crypto\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pkcs11.h">
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pkcs11.h">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.h">
@@ -517,11 +524,20 @@
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11t.h">
 			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pki_utils.h">
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pki_utils.h">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
 			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\logging\include\iot_logging_task.h">
+			<Filter>libraries\logging\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\logging\include\logging_levels.h">
+			<Filter>libraries\logging\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\logging\include\logging_stack.h">
+			<Filter>libraries\logging\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
 			<Filter>demos\dev_mode_key_provisioning\include</Filter>
@@ -531,6 +547,24 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\include\aws_iot_defender.h">
 			<Filter>libraries\c_sdk\aws\defender\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\mqttFilePaths.cmake">
+			<Filter>libraries\coreMQTT</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt.h">
+			<Filter>libraries\coreMQTT\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_config_defaults.h">
+			<Filter>libraries\coreMQTT\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_serializer.h">
+			<Filter>libraries\coreMQTT\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_state.h">
+			<Filter>libraries\coreMQTT\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\portable\transport_interface.h">
+			<Filter>libraries\coreMQTT\source\portable</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_serializer.h">
 			<Filter>libraries\c_sdk\standard\serializer\include</Filter>
@@ -630,6 +664,15 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\core_mqtt_demo_dependencies.cmake">
+			<Filter>libraries</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h">
+			<Filter>libraries\abstractions\retry_utils</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
+			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aes.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
@@ -1011,7 +1054,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c">
 			<Filter>libraries\freertos_plus\standard\crypto\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pkcs11.c">
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pkcs11.c">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.c">
@@ -1035,7 +1078,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\ecc608a\atca_cert_chain.c">
 			<Filter>libraries\abstractions\pkcs11\ecc608a</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\ecc608a\iot_pkcs11_secure_element.c">
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\ecc608a\core_pkcs11_secure_element.c">
 			<Filter>libraries\abstractions\pkcs11\ecc608a</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_command.c">
@@ -1233,7 +1276,7 @@
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_util.c">
 			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pki_utils.c">
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pki_utils.c">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c">
@@ -1418,6 +1461,12 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
+			<Filter>libraries\coreJSON\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c">
+			<Filter>libraries\device_shadow_for_aws_iot_embedded_sdk\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">
 			<Filter>libraries\c_sdk\aws\defender\test\unit</Filter>

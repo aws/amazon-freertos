@@ -32,7 +32,7 @@
 #include "FreeRTOS.h"
 #include "aws_iot_ota_agent.h"
 #include "iot_crypto.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11.h"
 #include "aws_ota_codesigner_certificate.h"
 #include "aws_ota_agent_config.h"
 

@@ -41,8 +41,8 @@
 
 #include "iot_default_root_certificates.h"
 #include "aws_secure_sockets_config.h"
-#include "iot_pkcs11.h"
-#include "iot_pkcs11_config.h"
+#include "core_pkcs11.h"
+#include "core_pkcs11_config.h"
 
 /* Demo priorities & stack sizes. */
 #include "aws_demo_config.h"

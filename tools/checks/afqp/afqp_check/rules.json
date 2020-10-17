@@ -16,7 +16,7 @@
         "tests/{vendor}/{board}/common/config_files/aws_pkcs11_config.h",
         "tests/{vendor}/{board}/common/config_files/aws_secure_sockets_config.h",
         "tests/{vendor}/{board}/common/config_files/FreeRTOSConfig.h",
-        "lib/pkcs11/portable/{vendor}/{board}/iot_pkcs11_pal.c"
+        "lib/pkcs11/portable/{vendor}/{board}/core_pkcs11_pal.c"
     ],
     "warning":[
         "demos/{vendor}/{board}/common/config_files/aws_ggd_config.h",
