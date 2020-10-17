@@ -1711,12 +1711,9 @@ TEST( MQTT_Unit_API, KeepAlivePeriodic )
     /* Sleep to allow ample time for periodic PINGREQ sends and PINGRESP responses. */
     IotClock_SleepMs( sleepTimeMs );
 
-    /* Disconnect the connection. */
-    IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
-
     /* Check the counters for PINGREQ send and close. */
     TEST_ASSERT_EQUAL_INT32( KEEP_ALIVE_COUNT + 1, _pingreqSendCount );
-    TEST_ASSERT_EQUAL_INT32( 2, _closeCount );
+    TEST_ASSERT_EQUAL_INT32( 1, _closeCount );
 
     /* Check that the disconnect callback was invoked once (with reason
      * "keep-alive timeout"). */
