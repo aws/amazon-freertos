@@ -1,5 +1,5 @@
 # core_mqtt module.
-afr_module(NAME core_mqtt )
+afr_module(NAME core_mqtt INTERNAL )
 
 # Include MQTT library's source and header path variables.
 include("${CMAKE_CURRENT_LIST_DIR}/coreMQTT/mqttFilePaths.cmake")
@@ -60,6 +60,10 @@ afr_set_lib_metadata(IS_VISIBLE "true")
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
+        # Adding sources so that CMake can generate the 
+        # core_mqtt_demo_dependencies target; otherwise, it gives the 
+        # "Cannot determine link language for target" error.
+        ${MQTT_SOURCES}
         # This file is added to the target so that it is available
         # in code downloaded from the FreeRTOS console.
         ${CMAKE_CURRENT_LIST_DIR}/core_mqtt_demo_dependencies.cmake
@@ -71,7 +75,17 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::core_mqtt
-        AFR::retry_utils
-        AFR::transport_interface_secure_sockets
-        AFR::secure_sockets
 )
+
+# Add more dependencies for Secure Sockets based MQTT demo 
+# (at demos/coreMQTT folder) ONLY if the board supports 
+# the Secure Sockets library.
+if(TARGET AFR::secure_sockets::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::retry_utils
+            AFR::transport_interface_secure_sockets
+            AFR::secure_sockets
+    )
+endif()
