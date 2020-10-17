@@ -371,6 +371,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test</state>
@@ -382,7 +383,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\logging_stack</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable</state>
@@ -401,6 +401,8 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
@@ -1344,6 +1346,9 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\core_test_pkcs11_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\shadow_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\unity_config.h</name>
 							</file>
 						</group>
@@ -1566,11 +1571,17 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c</name>
 					</file>
 				</group>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h</name>
+				</file>
 			</group>
 			<group>
 				<name>transport</name>
 				<group>
 					<name>secure_sockets</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h</name>
+					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c</name>
 					</file>
@@ -1876,27 +1887,6 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h</name>
 						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_levels.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_stack.h</name>
-						</file>
-						<group>
-							<name>private</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_logging.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_taskpool_internal.h</name>
-							</file>
-						</group>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_task.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_setup.h</name>
-						</file>
 						<group>
 							<name>types</name>
 							<file>
@@ -1909,15 +1899,12 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_taskpool.h</name>
 						</file>
-					</group>
-					<group>
-						<name>logging</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\logging\iot_logging_task_dynamic_buffers.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\logging\iot_logging.c</name>
-						</file>
+						<group>
+							<name>private</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_taskpool_internal.h</name>
+							</file>
+						</group>
 					</group>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\iot_static_memory_common.c</name>
@@ -2223,6 +2210,27 @@
 			</group>
 		</group>
 		<group>
+			<name>logging</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\iot_logging_task_dynamic_buffers.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\iot_logging.c</name>
+			</file>
+			<group>
+				<name>include</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include\iot_logging_task.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include\logging_levels.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include\logging_stack.h</name>
+				</file>
+			</group>
+		</group>
+		<group>
 			<name>coreMQTT</name>
 			<group>
 				<name>source</name>
@@ -2235,6 +2243,27 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c</name>
 				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_config_defaults.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_serializer.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_state.h</name>
+					</file>
+				</group>
+				<group>
+					<name>portable</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable\transport_interface.h</name>
+					</file>
+				</group>
 			</group>
 		</group>
 		<group>
@@ -2825,6 +2854,24 @@
 				</file>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c</name>
+				</file>
+			</group>
+		</group>
+		<group>
+			<name>coreJSON</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\core_json.c</name>
+				</file>
+			</group>
+		</group>
+		<group>
+			<name>device_shadow_for_aws_iot_embedded_sdk</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c</name>
 				</file>
 			</group>
 		</group>

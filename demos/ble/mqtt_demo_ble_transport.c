@@ -24,15 +24,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Include demo_config.h first for logging and other configuration */
-#include "demo_config.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 
+
+#include "mqtt_demo_ble_transport_config.h"
+#include "iot_ble_config.h"
 #include "iot_ble_mqtt_transport.h"
 #include "iot_ble_data_transfer.h"
-#include "iot_ble_config_defaults.h"
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 #include "types/iot_platform_types.h"

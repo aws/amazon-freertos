@@ -66,6 +66,7 @@
 		<Filter Include="libraries\freertos_plus\standard\utils"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
 		<Filter Include="libraries\logging"/>
+		<Filter Include="libraries\logging\include"/>
 		<Filter Include="demos\dev_mode_key_provisioning\src"/>
 		<Filter Include="demos\dev_mode_key_provisioning"/>
 		<Filter Include="demos\dev_mode_key_provisioning\include"/>
@@ -78,6 +79,8 @@
 		<Filter Include="libraries\c_sdk\standard\mqtt"/>
 		<Filter Include="libraries\coreMQTT\source"/>
 		<Filter Include="libraries\coreMQTT"/>
+		<Filter Include="libraries\coreMQTT\source\include"/>
+		<Filter Include="libraries\coreMQTT\source\portable"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src"/>
 		<Filter Include="libraries\c_sdk\standard\serializer"/>
@@ -118,8 +121,13 @@
 		<Filter Include="libraries\abstractions\retry_utils"/>
 		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
 		<Filter Include="libraries\abstractions\transport"/>
+		<Filter Include="libraries\coreJSON\source"/>
+		<Filter Include="libraries\coreJSON"/>
+		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk\source"/>
+		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk"/>
 		<Filter Include="demos\coreMQTT"/>
 		<Filter Include="demos\defender"/>
+		<Filter Include="demos\device_shadow_for_aws_iot_embedded_sdk"/>
 		<Filter Include="demos\greengrass_connectivity"/>
 		<Filter Include="demos\https"/>
 		<Filter Include="demos\mqtt"/>
@@ -504,6 +512,15 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
 			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\logging\include\iot_logging_task.h">
+			<Filter>libraries\logging\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\logging\include\logging_levels.h">
+			<Filter>libraries\logging\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\logging\include\logging_stack.h">
+			<Filter>libraries\logging\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
 			<Filter>demos\dev_mode_key_provisioning\include</Filter>
 		</ClInclude>
@@ -512,6 +529,24 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\include\aws_iot_defender.h">
 			<Filter>libraries\c_sdk\aws\defender\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\mqttFilePaths.cmake">
+			<Filter>libraries\coreMQTT</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt.h">
+			<Filter>libraries\coreMQTT\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_config_defaults.h">
+			<Filter>libraries\coreMQTT\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_serializer.h">
+			<Filter>libraries\coreMQTT\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_state.h">
+			<Filter>libraries\coreMQTT\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\portable\transport_interface.h">
+			<Filter>libraries\coreMQTT\source\portable</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_serializer.h">
 			<Filter>libraries\c_sdk\standard\serializer\include</Filter>
@@ -611,6 +646,15 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\core_mqtt_demo_dependencies.cmake">
+			<Filter>libraries</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h">
+			<Filter>libraries\abstractions\retry_utils</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
+			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_tasks.h">
 			<Filter>demos\tcp</Filter>
@@ -1394,6 +1438,12 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
+			<Filter>libraries\coreJSON\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c">
+			<Filter>libraries\device_shadow_for_aws_iot_embedded_sdk\source</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_basic_tls.c">
 			<Filter>demos\coreMQTT</Filter>
 		</ClCompile>
@@ -1414,6 +1464,12 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c">
 			<Filter>demos\defender</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\shadow_demo_main.c">
+			<Filter>demos\device_shadow_for_aws_iot_embedded_sdk</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\shadow_demo_helpers.c">
+			<Filter>demos\device_shadow_for_aws_iot_embedded_sdk</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c">
 			<Filter>demos\greengrass_connectivity</Filter>

@@ -11,6 +11,11 @@ if(${AFR_IS_TESTING})
     list(APPEND extra_mqtt_test_includes "${test_dir}/mock")
 endif()
 
+# Compile BLE MQTT on supported platforms.
+if(${BLE_SUPPORTED})
+    set(extra_mqtt_dependencies AFR::mqtt_ble AFR::serializer AFR::ble)
+endif()
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
