@@ -1444,7 +1444,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
             {
                 /* Processing the operation after sending it on the network. */
                 _IotMqtt_ProcessOperation( pOperation );
-
+                IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
                 /* Destroying the operation after the DISCONNECT Packet is sent on the network. */
                 if( _IotMqtt_DecrementOperationReferences( pOperation, false ) == true )
                 {
@@ -1456,8 +1456,8 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                 IotLogWarn( "(MQTT connection %p) Failed to send DISCONNECT packet. ",
                             mqttConnection );
                 _IotMqtt_DestroyOperation( pOperation );
+                IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
             }
-            IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
         }
         else
         {
