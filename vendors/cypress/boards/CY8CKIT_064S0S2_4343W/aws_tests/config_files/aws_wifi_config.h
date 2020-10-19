@@ -63,6 +63,16 @@
 #define wificonfigMAX_BSSID_LEN               ( 6 )
 
 /**
+ * @brief Max number of WEP keys supported.
+ */
+#define wificonfigMAX_WEPKEYS                  ( 4 )
+
+/**
+ * @brief Max WEP key length
+ */
+#define wificonfigMAX_WEPKEY_LEN              ( 26 )
+
+/**
  * @brief Max passphrase length
  */
 #define wificonfigMAX_PASSPHRASE_LEN          ( 32 )

@@ -126,7 +126,7 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
+WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * pxIPConfig )
 {
     /* FIX ME. */
     return eWiFiNotSupported;
@@ -185,7 +185,7 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t WIFI_IsConnected(void)
+BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
 {
 	/* FIX ME. */
 	return pdFALSE;

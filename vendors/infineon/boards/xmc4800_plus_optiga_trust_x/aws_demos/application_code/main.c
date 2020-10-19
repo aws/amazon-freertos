@@ -127,9 +127,11 @@ void vApplicationDaemonTaskStartupHook( void )
 void prvWifiConnect( void )
 {
     /* FIX ME: Delete surrounding compiler directives when the Wi-Fi library is ported. */
-        WIFINetworkParams_t xNetworkParams;
-        WIFIReturnCode_t xWifiStatus;
-        uint8_t ucTempIp[4] = { 0 };
+    WIFINetworkParams_t xNetworkParams = { 0 };
+    WIFIReturnCode_t xWifiStatus = eWiFiSuccess;
+    WIFIIPConfiguration_t xIpConfig;
+    uint8_t *pucIPV4Byte;
+    size_t xSSIDLength, xPasswordLength;
 
         xWifiStatus = WIFI_On();
 
@@ -150,26 +152,80 @@ void prvWifiConnect( void )
             }
         }
 
-        /* Setup parameters. */
-        xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-        xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-        xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-        xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-        xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-        xNetworkParams.cChannel = 0;
+  /* Setup WiFi parameters to connect to access point. */
+    if( clientcredentialWIFI_SSID != NULL )
+    {
+        xSSIDLength = strlen( clientcredentialWIFI_SSID );
+        if( ( xSSIDLength > 0 ) && ( xSSIDLength <= wificonfigMAX_SSID_LEN ) )
+        {
+            xNetworkParams.ucSSIDLength = xSSIDLength;
+            memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
+        }
+        else
+        {
+            configPRINTF(( "Invalid WiFi SSID configured, empty or exceeds allowable length %d.\n", wificonfigMAX_SSID_LEN ));
+            xWifiStatus = eWiFiFailure;
+        }
+    }
+    else
+    {
+        configPRINTF(( "WiFi SSID is not configured.\n" ));
+        xWifiStatus = eWiFiFailure;
+    }
 
+    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
+    if( clientcredentialWIFI_SECURITY == eWiFiSecurityWPA2 )
+    {
+        if( clientcredentialWIFI_PASSWORD != NULL )
+        {
+            xPasswordLength = strlen( clientcredentialWIFI_PASSWORD );
+            if( ( xPasswordLength > 0 ) && ( xSSIDLength <= wificonfigMAX_PASSPHRASE_LEN ) )
+            {
+                xNetworkParams.xPassword.xWPA.ucLength = xPasswordLength;
+                memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xPasswordLength );
+            }
+            else
+            {
+                configPRINTF(( "Invalid WiFi password configured, empty password or exceeds allowable password length %d.\n", wificonfigMAX_PASSPHRASE_LEN ));
+                xWifiStatus = eWiFiFailure;
+            }
+        }
+        else
+        {
+            configPRINTF(( "WiFi password is not configured.\n" ));
+            xWifiStatus = eWiFiFailure;
+        }
+    }
+    xNetworkParams.ucChannel = 0;
+
+    if( xWifiStatus == eWiFiSuccess )
+    {
+        /* Try connecting using provided wifi credentials. */
         xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
 
         if( xWifiStatus == eWiFiSuccess )
         {
-            configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
+            configPRINTF( ( "WiFi connected to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID ) );
 
-            xWifiStatus = WIFI_GetIP( ucTempIp );
-            if ( eWiFiSuccess == xWifiStatus )
+            /* Get IP address of the device. */
+            xWifiStatus = WIFI_GetIPInfo( &xIpConfig );
+            if( xWifiStatus == eWiFiSuccess )
             {
-                configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                                ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
+                pucIPV4Byte = ( uint8_t * ) ( &xIpConfig.xIPAddress.ulAddress[0] );
+                configPRINTF( ( "IP Address acquired %d.%d.%d.%d.\r\n",
+                        pucIPV4Byte[ 0 ], pucIPV4Byte[ 1 ], pucIPV4Byte[ 2 ], pucIPV4Byte[ 3 ] ) );
             }
+        }
+        else
+        {
+            /* Connection failed configure softAP to allow user to set wifi credentials. */
+            configPRINTF( ( "WiFi failed to connect to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID  ) );
+        }
+    }
+
+        if( xWifiStatus == eWiFiSuccess )
+        {
+            configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
         }
         else
         {

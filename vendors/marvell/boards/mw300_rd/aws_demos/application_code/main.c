@@ -365,10 +365,11 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 
 void prvWifiConnect( void )
 {
-
-    WIFINetworkParams_t xNetworkParams;
-    WIFIReturnCode_t xWifiStatus;
-    uint8_t ucTempIp[4] = { 0 };
+    WIFINetworkParams_t xNetworkParams = { 0 };
+    WIFIReturnCode_t xWifiStatus = eWiFiSuccess;
+    WIFIIPConfiguration_t xIpConfig;
+    uint8_t *pucIPV4Byte;
+    size_t xSSIDLength, xPasswordLength;
 
     configPRINT("\r\nWill attempt to start wlan \r\n");
     xWifiStatus = WIFI_On();
@@ -386,41 +387,143 @@ void prvWifiConnect( void )
         }
     }
 
-    /* Setup parameters. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    xNetworkParams.cChannel = 0;
-
-    xWifiStatus = WIFI_ConnectAP(&xNetworkParams);
-    if( xWifiStatus == eWiFiSuccess ) {
-        configPRINT( "\r\nWi-Fi Connected to AP. Creating tasks which use network...\r\n" );
-        xWifiStatus = WIFI_GetIP( ucTempIp );
-        if ( eWiFiSuccess == xWifiStatus ) {
-            wmprintf( "IP Address acquired %d.%d.%d.%d\r\n",
-                ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] );
+  /* Setup WiFi parameters to connect to access point. */
+    if( clientcredentialWIFI_SSID != NULL )
+    {
+        xSSIDLength = strlen( clientcredentialWIFI_SSID );
+        if( ( xSSIDLength > 0 ) && ( xSSIDLength <= wificonfigMAX_SSID_LEN ) )
+        {
+            xNetworkParams.ucSSIDLength = xSSIDLength;
+            memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
         }
-    } else {
-        /* Connection failed, configure SoftAP. */
-        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
-        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
-        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
-        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
-
-        configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
-                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-
-        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess ) {
-                configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
-                                xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+        else
+        {
+            configPRINTF(( "Invalid WiFi SSID configured, empty or exceeds allowable length %d.\n", wificonfigMAX_SSID_LEN ));
+            xWifiStatus = eWiFiFailure;
         }
-
-        configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
     }
+    else
+    {
+        configPRINTF(( "WiFi SSID is not configured.\n" ));
+        xWifiStatus = eWiFiFailure;
+    }
+
+    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
+    if( clientcredentialWIFI_SECURITY == eWiFiSecurityWPA2 )
+    {
+        if( clientcredentialWIFI_PASSWORD != NULL )
+        {
+            xPasswordLength = strlen( clientcredentialWIFI_PASSWORD );
+            if( ( xPasswordLength > 0 ) && ( xSSIDLength <= wificonfigMAX_PASSPHRASE_LEN ) )
+            {
+                xNetworkParams.xPassword.xWPA.ucLength = xPasswordLength;
+                memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xPasswordLength );
+            }
+            else
+            {
+                configPRINTF(( "Invalid WiFi password configured, empty password or exceeds allowable password length %d.\n", wificonfigMAX_PASSPHRASE_LEN ));
+                xWifiStatus = eWiFiFailure;
+            }
+        }
+        else
+        {
+            configPRINTF(( "WiFi password is not configured.\n" ));
+            xWifiStatus = eWiFiFailure;
+        }
+    }
+    xNetworkParams.ucChannel = 0;
+
+    if( xWifiStatus == eWiFiSuccess )
+    {
+        /* Try connecting using provided wifi credentials. */
+        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
+
+        if( xWifiStatus == eWiFiSuccess )
+        {
+            configPRINTF( ( "WiFi connected to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID ) );
+
+            /* Get IP address of the device. */
+            xWifiStatus = WIFI_GetIPInfo( &xIpConfig );
+            if( xWifiStatus == eWiFiSuccess )
+            {
+                pucIPV4Byte = ( uint8_t * ) ( &xIpConfig.xIPAddress.ulAddress[0] );
+                configPRINTF( ( "IP Address acquired %d.%d.%d.%d.\r\n",
+                        pucIPV4Byte[ 0 ], pucIPV4Byte[ 1 ], pucIPV4Byte[ 2 ], pucIPV4Byte[ 3 ] ) );
+            }
+        }
+        else
+        {
+            /* Connection failed configure softAP to allow user to set wifi credentials. */
+            configPRINTF( ( "WiFi failed to connect to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID  ) );
+        }
+    }
+
+    if( xWifiStatus != eWiFiSuccess )
+    {
+        /* Enter SOFT AP mode to provision access point credentials. */
+        configPRINTF(( "Entering soft access point WiFi provisioning mode.\n" ));
+        xWifiStatus = eWiFiSuccess;
+        if( wificonfigACCESS_POINT_SSID_PREFIX != NULL )
+        {
+            xSSIDLength = strlen( wificonfigACCESS_POINT_SSID_PREFIX );
+            if( ( xSSIDLength > 0 ) && ( xSSIDLength <= wificonfigMAX_SSID_LEN ) )
+            {
+                xNetworkParams.ucSSIDLength = xSSIDLength;
+                memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
+            }
+            else
+            {
+                configPRINTF(( "Invalid AP SSID configured, empty or exceeds allowable length %d.\n", wificonfigMAX_SSID_LEN ));
+                xWifiStatus = eWiFiFailure;
+            }
+        }
+        else
+        {
+            configPRINTF(( "WiFi AP SSID is not configured.\n" ));
+            xWifiStatus = eWiFiFailure;
+        }
+
+        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
+        if( wificonfigACCESS_POINT_SECURITY == eWiFiSecurityWPA2 )
+        {
+            if( wificonfigACCESS_POINT_PASSKEY != NULL )
+            {
+                xPasswordLength = strlen( wificonfigACCESS_POINT_PASSKEY );
+                if( ( xPasswordLength > 0 ) && ( xSSIDLength <= wificonfigMAX_PASSPHRASE_LEN ) )
+                {
+                    xNetworkParams.xPassword.xWPA.ucLength = xPasswordLength;
+                    memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, wificonfigACCESS_POINT_PASSKEY, xPasswordLength );
+                }
+                else
+                {
+                    configPRINTF(( "Invalid WiFi AP password, empty or exceeds allowable password length %d.\n", wificonfigMAX_PASSPHRASE_LEN ));
+                    xWifiStatus = eWiFiFailure;
+                }
+            }
+            else
+            {
+                configPRINTF(( "WiFi AP password is not configured.\n" ));
+                xWifiStatus = eWiFiFailure;
+            }
+        }
+        xNetworkParams.ucChannel = wificonfigACCESS_POINT_CHANNEL;
+
+        if( xWifiStatus == eWiFiSuccess )
+        {
+            configPRINTF( ( "Connect to softAP %.*s using password %.*s. \r\n",
+                    xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID,
+                    xNetworkParams.xPassword.xWPA.ucLength, xNetworkParams.xPassword.xWPA.cPassphrase ) );
+            do
+            {
+                xWifiStatus = WIFI_ConfigureAP( &xNetworkParams );
+                configPRINTF( ( "Connect to softAP and configure wiFi returned %d\r\n", xWifiStatus ) );
+                vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+
+            } while( ( xWifiStatus != eWiFiSuccess ) && ( xWifiStatus != eWiFiNotSupported ) );
+        }
+    }
+
+    configASSERT( xWifiStatus == eWiFiSuccess );
 }
 
 /*-----------------------------------------------------------*/
