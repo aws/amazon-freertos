@@ -27,5 +27,5 @@ afr_module_dependencies(
         # Add dependency on the core_mqtt_demo_dependencies 
         # metadata module so that this demo is only shown when the
         # core MQTT library is selected on the FreeRTOS console.
-        AFR::device_shadow_demo_dependencies
+        AFR::core_mqtt_demo_dependencies
 )
