@@ -29,6 +29,10 @@ afr_module_dependencies(
         AFR::freertos_plus_cli
 )
 
+# ONLY enable the module if board support AFR::common_io.
+# This prevents build failures in code downloaded from
+# FreeRTOS console for boards that do not support the 
+# common_io module.
 if(TARGET AFR::common_io::mcu_port)
     afr_module(NAME freertos_cli_plus_uart)
 

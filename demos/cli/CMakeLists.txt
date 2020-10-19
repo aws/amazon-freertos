@@ -1,3 +1,7 @@
+# ONLY enable the demo if board support AFR::common_io.
+# This prevents build failure of code downloaded from
+# FreeRTOS console for boards that do not support the 
+# common_io module.
 if(TARGET AFR::common_io::mcu_port)
     # CLI demo using UART
     afr_demo_module(cli_uart)
