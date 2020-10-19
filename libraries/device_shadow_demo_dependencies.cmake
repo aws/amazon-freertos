@@ -43,10 +43,10 @@ afr_module_dependencies(
 # device_shadow_demo_dependencies module.
 # Metadata module used for the Device Shadow library in the FreeRTOS console.
 # It represents a collection of module dependencies required 
-# by the coreMQTT demos. 
+# by the Device Shadow demo. 
 # This module enables the FreeRTOS console experience of enabling
-# library dependencies when selecting the MQTT library, so that the
-# coreMQTT demos can be downloaded.
+# library dependencies when selecting the Device Shadow library, so that the
+# Device Shadow demo can be downloaded.
 afr_module(NAME device_shadow_demo_dependencies )
 
 afr_set_lib_metadata(ID "device_shadow_demo_dependencies")
@@ -61,7 +61,7 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         # Adding sources so that CMake can generate the 
-        # core_mqtt_demo_dependencies target; otherwise, it gives the 
+        # device_shadow_demo_dependencies target; otherwise, it gives the 
         # "Cannot determine link language for target" error.
         ${SHADOW_SOURCES}
         # This file is added to the target so that it is available
