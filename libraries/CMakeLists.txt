@@ -61,8 +61,8 @@ endforeach()
 # Add core_mqtt modules
 include(core_mqtt_demo_dependencies.cmake)
 
-# Add freertos_plus_tcp modules
-include(freertos_plus/standard/freertos_plus_tcp.cmake)
+# Add FreeRTOS+TCP module
+afr_add_subdirectory(${AFR_MODULES_DIR}/freertos_plus/standard)
 
 # Add core_json modules
 include(core_json.cmake)
