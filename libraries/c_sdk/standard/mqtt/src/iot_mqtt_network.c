@@ -283,7 +283,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_STATUS_PENDING );
     _mqttOperation_t * pOperation = NULL;
-    MQTTPublishState_t publishStateStatus = MQTTStateNull;
+    MQTTStatus_t mqttStatus = MQTTBadParameter;
     MQTTPublishState_t publishRecordState = MQTTStateNull;
     int8_t contextIndex = -1;
 
@@ -505,10 +505,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     }
 
                     /* Updating the status for the outgoing publishes after the corresponding puback is received. */
-                    publishStateStatus = MQTT_UpdateStateAck( &( connToContext[ contextIndex ].context ),
-                                                              pIncomingPacket->packetIdentifier,
-                                                              MQTTPuback,
-                                                              MQTT_RECEIVE, &publishRecordState );
+                    mqttStatus = MQTT_UpdateStateAck( &( connToContext[ contextIndex ].context ),
+                                                      pIncomingPacket->packetIdentifier,
+                                                      MQTTPuback,
+                                                      MQTT_RECEIVE, &publishRecordState );
+
+                    status = convertReturnCode( mqttStatus );
 
                     if( IotMutex_GiveRecursive( &( connToContext[ contextIndex ].contextMutex ) ) == false )
                     {

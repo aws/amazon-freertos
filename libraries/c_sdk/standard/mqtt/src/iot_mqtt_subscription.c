@@ -301,8 +301,6 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     size_t i = 0;
-    _mqttSubscription_t * pNewSubscription = NULL;
-    IotLink_t * pSubscriptionLink = NULL;
     _topicMatchParams_t topicMatchParams = { .exactMatchOnly = true };
     int8_t contextIndex = -1;
     int8_t matchedIndex = -1;
@@ -409,7 +407,6 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
                                           IotMqttCallbackParam_t * pCallbackParam )
 {
     _mqttSubscription_t * pSubscription = NULL;
-    IotLink_t * pCurrentLink = NULL, * pNextLink = NULL;
     void * pCallbackContext = NULL;
     int8_t contextIndex = -1;
     int8_t index = 0;
@@ -527,7 +524,7 @@ void _IotMqtt_RemoveSubscriptionByPacket( _mqttConnection_t * pMqttConnection,
         .order            = order
     };
     int8_t contextIndex = -1;
-    bool mutexStatus = true, subscriptionStatus = true;
+    bool mutexStatus = true;
 
     /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
@@ -556,7 +553,6 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
 {
     size_t i = 0;
     _mqttSubscription_t * pSubscription = NULL;
-    IotLink_t * pSubscriptionLink = NULL;
     _topicMatchParams_t topicMatchParams = { 0 };
     int8_t contextIndex = -1;
     int8_t matchedIndex = -1;
@@ -633,7 +629,6 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
 {
     bool status = false, mutexStatus = true;
     _mqttSubscription_t * pSubscription = NULL;
-    IotLink_t * pSubscriptionLink = NULL;
     _topicMatchParams_t topicMatchParams =
     {
         .pTopicName      = pTopicFilter,
