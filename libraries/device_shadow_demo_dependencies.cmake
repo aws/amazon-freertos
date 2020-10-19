@@ -50,8 +50,8 @@ afr_module_dependencies(
 afr_module(NAME device_shadow_demo_dependencies )
 
 afr_set_lib_metadata(ID "device_shadow_demo_dependencies")
-afr_set_lib_metadata(DESCRIPTION "The AWS IoT Device Shadow library enables you to \
-store and retrieve the current state (the “shadow”) of every registered device.")
+afr_set_lib_metadata(DESCRIPTION "This library enables you to store and retrieve the \
+current state (the “shadow”) of every registered device on AWS IoT.")
 afr_set_lib_metadata(DISPLAY_NAME "Device Shadow")
 afr_set_lib_metadata(CATEGORY "Connectivity")
 afr_set_lib_metadata(VERSION "1.0.0")
