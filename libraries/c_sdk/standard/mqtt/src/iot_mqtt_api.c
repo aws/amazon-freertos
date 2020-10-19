@@ -985,7 +985,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     int8_t contextIndex = -1;
     bool subscriptionMutexCreated = false;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
-    bool contextMutex = false;
+    bool contextMutexCreated = false;
 
     /* Default CONNECT serializer function. */
     IotMqttError_t ( * serializeConnect )( const IotMqttConnectInfo_t *,
@@ -1148,11 +1148,11 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
     /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
      * on the network using MQTT LTS API. */
-    contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ),
-                                                  &( connToContext[ contextIndex ].contextMutexStorage ) );
+    contextMutexCreated = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ),
+                                                         &( connToContext[ contextIndex ].contextMutexStorage ) );
     /* Create the subscription mutex for a new connection. */
 
-    if( contextMutex == true )
+    if( contextMutexCreated == true )
     {
         /* Assigning the MQTT Connection. */
         connToContext[ contextIndex ].mqttConnection = newMqttConnection;
