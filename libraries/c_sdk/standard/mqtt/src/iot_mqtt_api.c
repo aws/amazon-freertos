@@ -530,7 +530,7 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
      * This can happen in case of an error in #IotMqtt_Connect() API. */
     if( contextIndex == -1 )
     {
-        IotLogWarn( "(MQTT connection %p) does not have an MQTT Context." );
+        IotLogWarn( "(MQTT connection %p) does not have an MQTT Context.", pMqttConnection );
     }
 
     /* Clean up keep-alive if still allocated. */
