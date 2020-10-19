@@ -60,17 +60,24 @@ afr_set_lib_metadata(IS_VISIBLE "true")
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
+        # Adding sources so that CMake can generate the 
+        # core_mqtt_demo_dependencies target; otherwise, it gives the 
+        # "Cannot determine link language for target" error.
         ${SHADOW_SOURCES}
         # This file is added to the target so that it is available
         # in code downloaded from the FreeRTOS console.
         ${CMAKE_CURRENT_LIST_DIR}/device_shadow_demo_dependencies.cmake
 )
 
-# Add dependencies of the coreMQTT demos in this target
+# Add dependencies of the Device Shadow demo in this target
 # to support metadata required for FreeRTOS console.
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
-        AFR::core_mqtt_demo_dependencies
+        AFR::device_shadow
         AFR::core_json
+        # Add dependency on core_mqtt_demo_dependencies module 
+        # so that coreMQTT library is auto-included when selecting
+        # Device Shadow library on the FreeRTOS console.
+        AFR::core_mqtt_demo_dependencies
 )
