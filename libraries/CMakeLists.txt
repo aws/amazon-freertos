@@ -63,17 +63,17 @@ if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/core_mqtt_demo_dependencies.cmake)
     include(core_mqtt_demo_dependencies.cmake)
 endif()
 
-# Add FreeRTOS+TCP module if present in FreeRTOS console download.
+# Add FreeRTOS+TCP module ONLY if present in FreeRTOS console download.
 if(EXISTS ${AFR_MODULES_DIR}/freertos_plus/standard/freertos_plus_tcp.cmake)
     include(${AFR_MODULES_DIR}/freertos_plus/standard/freertos_plus_tcp.cmake)
 endif()
 
-# Add core_json modules if present in FreeRTOS console download.
+# Add core_json modules ONLY if present in FreeRTOS console download.
 if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/core_json.cmake)
     include(core_json.cmake)
 endif()
 
-# Add device_shadow modules if present in FreeRTOS console download.
-if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/device_shadow.cmake)
-    include(device_shadow.cmake)
+# Add device_shadow modules ONLY if present in FreeRTOS console download.
+if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/device_shadow_demo_dependencies.cmake)
+  include(device_shadow_demo_dependencies.cmake)
 endif()
