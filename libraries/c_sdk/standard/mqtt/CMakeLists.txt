@@ -59,6 +59,12 @@ afr_module_dependencies(
         AFR::common
         ${extra_mqtt_dependencies}
         AFR::core_mqtt
+        # This dependency is required for auto-including
+        # coreMQTT library on FreeRTOS console when a library
+        # (like Defender) depends on AFR::mqtt.
+        # AFR::core_mqtt_demo_dependencies is the visible library
+        # target on FreeRTOS console.
+        AFR::core_mqtt_demo_dependencies
 )
 
 # MQTT test

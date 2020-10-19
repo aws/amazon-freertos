@@ -68,4 +68,4 @@ afr_add_subdirectory(${AFR_MODULES_DIR}/freertos_plus/standard)
 include(core_json.cmake)
 
 # Add device_shadow modules
-include(device_shadow.cmake)
+include(device_shadow_demo_dependencies.cmake)

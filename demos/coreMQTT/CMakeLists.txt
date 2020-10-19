@@ -24,4 +24,8 @@ afr_module_dependencies(
         AFR::retry_utils
         AFR::transport_interface_secure_sockets
         AFR::secure_sockets
+        # Add dependency on the core_mqtt_demo_dependencies 
+        # metadata module so that this demo is only shown when the
+        # core MQTT library is selected on the FreeRTOS console.
+        AFR::core_mqtt_demo_dependencies
 )

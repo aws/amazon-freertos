@@ -23,4 +23,8 @@ afr_module_dependencies(
         AFR::device_shadow
         AFR::retry_utils
         AFR::transport_interface_secure_sockets
+        # Add dependency on the device_shadow_demo_dependencies 
+        # metadata module so that this demo is only shown when the
+        # Device Shadow library is selected on the FreeRTOS console.
+        AFR::device_shadow_demo_dependencies
 )
