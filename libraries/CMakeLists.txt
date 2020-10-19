@@ -77,3 +77,8 @@ endif()
 if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/device_shadow_demo_dependencies.cmake)
   include(device_shadow_demo_dependencies.cmake)
 endif()
+
+# Add transport interface implementation module ONLY if present in FreeRTOS console download.
+if(EXISTS ${AFR_MODULES_DIR}/abstractions/transport/transport_interface_secure_sockets.cmake)
+  include(${AFR_MODULES_DIR}/abstractions/transport/transport_interface_secure_sockets.cmake)
+endif()
