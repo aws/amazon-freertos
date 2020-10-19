@@ -24,18 +24,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-
+/* FreeRTOS includes for task syncrhonization and delay. */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 
-
-#include "mqtt_demo_ble_transport_config.h"
+/* Defines configs used by BLE library and transport interface demo. */
 #include "iot_ble_config.h"
+#include "mqtt_demo_ble_transport_config.h"
+
+#include "core_mqtt.h"
 #include "iot_ble_mqtt_transport.h"
 #include "iot_ble_data_transfer.h"
-#include "platform/iot_clock.h"
-#include "platform/iot_threads.h"
-#include "types/iot_platform_types.h"
+
 
 /**
  * @brief The first characters in the client identifier. A timestamp is appended
@@ -166,7 +167,7 @@ static uint8_t fixedBufferBuf[ SINGLE_INCOMING_PACKET_MAX_SIZE ];
 /**
  * @brief Semaphore used to synchronize with the data transfer channel callback.
  */
-static IotSemaphore_t channelSemaphore = { 0 };
+static SemaphoreHandle_t channelSemaphore;
 
 
 /*-----------------------------------------------------------*/
@@ -184,7 +185,7 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
     /* Event to see when the data channel is ready to receive data. */
     if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED )
     {
-        IotSemaphore_Post( &channelSemaphore );
+        ( void ) xSemaphoreGive( channelSemaphore );
     }
 
     /* Event for when data is received over the channel. */
@@ -221,11 +222,13 @@ static MQTTStatus_t demoInitChannel( void )
 
     if( xContext.pChannel != NULL )
     {
-        if( IotSemaphore_Create( &channelSemaphore, 0, 1 ) == true )
+        channelSemaphore = xSemaphoreCreateBinary();
+
+        if( channelSemaphore != NULL )
         {
             ( void ) IotBleDataTransfer_SetCallback( xContext.pChannel, demoCallback, NULL );
 
-            if( IotSemaphore_TimedWait( &channelSemaphore, IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) == true )
+            if( xSemaphoreTake( channelSemaphore, pdMS_TO_TICKS( IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) ) == pdTRUE )
             {
                 LogInfo( ( "The channel was initialized successfully" ) );
 
@@ -341,7 +344,7 @@ static MQTTStatus_t createMQTTConnectionWithBroker( const MQTTFixedBuffer_t * bu
     status = ( size_t ) snprintf( demoClientIdentifier,
                                   CLIENT_IDENTIFIER_MAX_LENGTH,
                                   CLIENT_IDENTIFIER_PREFIX "%u",
-                                  ( uint16_t ) IotClock_GetTimeMs() );
+                                  ( uint16_t ) xTaskGetTickCount() );
 
     LogInfo( ( "Generated client identifier is %s", demoClientIdentifier ) );
 
