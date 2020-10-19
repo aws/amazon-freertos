@@ -58,14 +58,22 @@ foreach(module IN LISTS afr_modules_csdk afr_modules_freertos_plus afr_modules_a
     endif()
 endforeach()
 
-# Add core_mqtt modules
-include(core_mqtt_demo_dependencies.cmake)
+# Add core_mqtt modules ONLY if present in the FreeRTOS console download.
+if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/core_mqtt_demo_dependencies.cmake)
+    include(core_mqtt_demo_dependencies.cmake)
+endif()
 
-# Add FreeRTOS+TCP module
-afr_add_subdirectory(${AFR_MODULES_DIR}/freertos_plus/standard)
+# Add FreeRTOS+TCP module ONLY if present in FreeRTOS console download.
+if(EXISTS ${AFR_MODULES_DIR}/freertos_plus/standard/freertos_plus_tcp.cmake)
+    include(${AFR_MODULES_DIR}/freertos_plus/standard/freertos_plus_tcp.cmake)
+endif()
 
-# Add core_json modules
-include(core_json.cmake)
+# Add core_json modules ONLY if present in FreeRTOS console download.
+if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/core_json.cmake)
+    include(core_json.cmake)
+endif()
 
-# Add device_shadow modules
-include(device_shadow_demo_dependencies.cmake)
+# Add device_shadow modules ONLY if present in FreeRTOS console download.
+if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/device_shadow_demo_dependencies.cmake)
+  include(device_shadow_demo_dependencies.cmake)
+endif()
