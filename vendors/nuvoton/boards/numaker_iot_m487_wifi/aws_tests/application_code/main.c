@@ -59,6 +59,16 @@
 
 #define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 40 )
 
+#ifdef IOT_NETWORK_RECEIVE_TASK_PRIORITY
+
+/* Keeping the test runner task priority higher than that of the Network receive task
+ * priority so as to make sure that the receive of the incoming packets are only happening
+ * after successfully updating the internal data structures in test runner task for a send. */
+    #define mainTEST_RUNNER_TASK_PRIORITY    ( IOT_NETWORK_RECEIVE_TASK_PRIORITY + 1 )
+#else
+    #define mainTEST_RUNNER_TASK_PRIORITY    ( tskIDLE_PRIORITY )
+#endif
+
 /* The default IP and MAC address used by the demo.  The address configuration
  * defined here will be used if ipconfigUSE_DHCP is 0, or if ipconfigUSE_DHCP is
  * 1 but a DHCP server could not be contacted.  See the online documentation for
@@ -242,6 +252,10 @@ void vApplicationDaemonTaskStartupHook( void )
     {
         /* Connect to the Wi-Fi before running the tests. */
         prvWifiConnect();
+
+        /* Assert to check if the priority of the test runner task is lesser than
+         * #configMAX_PRIORITIES. */
+        configASSERT( mainTEST_RUNNER_TASK_PRIORITY < configMAX_PRIORITIES );
 
         /* Create the task to run tests. */
         xTaskCreate( TEST_RUNNER_RunTests_task,
