@@ -219,15 +219,23 @@ static void prvWifiConnect( void )
 {
     WIFIReturnCode_t xWifiStatus;
     WIFINetworkParams_t xNetworkParams;
-    uint8_t ucTempIp[ 4 ];
+    WIFIIPConfiguration_t xIPConfig;
 
     /* Initialize Network params. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
+    xNetworkParams.ucSSIDLength = strlen( clientcredentialWIFI_SSID );
+    if( xNetworkParams.ucSSIDLength > wificonfigMAX_SSID_LEN )
+    {
+        xNetworkParams.ucSSIDLength = wificonfigMAX_SSID_LEN;
+    }
+    memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xNetworkParams.ucSSIDLength );
+    xNetworkParams.xPassword.xWPA.ucLength = strlen( clientcredentialWIFI_PASSWORD );
+    if( xNetworkParams.xPassword.xWPA.ucLength > wificonfigMAX_PASSPHRASE_LEN )
+    {
+        xNetworkParams.xPassword.xWPA.ucLength = wificonfigMAX_PASSPHRASE_LEN;
+    }
+    memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xNetworkParams.xPassword.xWPA.ucLength );
     xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    xNetworkParams.cChannel = 0;
+    xNetworkParams.ucChannel = 0;
 
 
     /* Connect to Wi-Fi. */
@@ -235,12 +243,13 @@ static void prvWifiConnect( void )
 
     if( xWifiStatus == eWiFiSuccess )
     {
-        configPRINTF( ( "Wi-Fi connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
+        configPRINTF( ( "Wi-Fi connected to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, xNetworkParams.ucSSID ) );
 
-        xWifiStatus = WIFI_GetIP( ucTempIp );
+        xWifiStatus = WIFI_GetIPInfo( &xIPConfig );
 
         if( eWiFiSuccess == xWifiStatus )
         {
+            uint8_t *ucTempIp = ( uint8_t * )&xIPConfig.xIPAddress.ulAddress[ 0 ];
             configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                             ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
         }

@@ -27,16 +27,6 @@
 	</natures>
 	<linkedResources>
 
-		<link>
-			<name>./</name>
-			<type>2</type>
-			<locationURI>./</locationURI>
-		</link>
- 		<link>
-			<name>./include</name>
-			<type>2</type>
-			<locationURI>./include</locationURI>
-		</link>
  		<link>
 			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/aws_demos/application_code</name>
 			<type>2</type>
@@ -588,12 +578,6 @@
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/whd/src/include</locationURI>
 		</link>
- 		<link>
-			<name>./include</name>
-			<type>2</type>
-			<locationURI>./include</locationURI>
-		</link>
-
 
 		<link>
 			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/aws_demos/application_code/main.c</name>

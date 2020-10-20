@@ -660,7 +660,6 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
 {
     bool status = true;
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
-    size_t bytesSent = 0;
     uint32_t scheduleDelay = 0;
     uint64_t elapsedTime = 0;
     IotMqttError_t pingStatus = IOT_MQTT_BAD_PARAMETER;
@@ -849,6 +848,9 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
     {
         _IotMqtt_CloseNetworkConnection( IOT_MQTT_KEEP_ALIVE_TIMEOUT,
                                          pMqttConnection );
+
+        /* Keep-alive has failed and will no longer use this MQTT connection. */
+        _IotMqtt_DecrementConnectionReferences( pMqttConnection );
     }
     else
     {
@@ -1312,7 +1314,6 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
                                            const uint16_t * pPacketIdentifier )
 {
     bool waitable = false;
-    IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     _mqttOperation_t * pResult = NULL;
     IotLink_t * pResultLink = NULL;
     _operationMatchParam_t param = { .type = type, .pPacketIdentifier = pPacketIdentifier };

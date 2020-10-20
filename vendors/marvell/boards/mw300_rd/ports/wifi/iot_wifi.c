@@ -157,19 +157,20 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     if(pxNetworkParams == NULL)
         goto fail;
 
-    if (pxNetworkParams->pcSSID == NULL || pxNetworkParams->xSecurity ==
-            eWiFiSecurityNotSupported) {
+    if (pxNetworkParams->ucSSIDLength == 0
+        || pxNetworkParams->xSecurity == eWiFiSecurityNotSupported) {
         goto fail;
     }
 
-    if (pxNetworkParams->xSecurity != eWiFiSecurityOpen && pxNetworkParams->pcPassword == NULL) {
+    if (pxNetworkParams->xSecurity != eWiFiSecurityOpen
+        && pxNetworkParams->xPassword.xWPA.ucLength == 0) {
         goto fail;
     }
 
-    if (!IS_SSID_LEN_VALID(pxNetworkParams->ucSSIDLength) ||
-            (pxNetworkParams->xSecurity != eWiFiSecurityOpen &&
-            !IS_PASSPHRASE_LEN_VALID(pxNetworkParams->ucPasswordLength))) {
-	goto fail;
+    if (!IS_SSID_LEN_VALID(pxNetworkParams->ucSSIDLength) 
+        || (pxNetworkParams->xSecurity != eWiFiSecurityOpen 
+            && !IS_PASSPHRASE_LEN_VALID(pxNetworkParams->xPassword.xWPA.ucLength))) {
+    goto fail;
     }
 
     if (wlan_get_connection_state(&state)) {
@@ -209,18 +210,28 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     strncpy(home_nw.name, "aws_network", WLAN_NETWORK_NAME_MAX_LENGTH);
 
     /* Set SSID as passed by the user */
-    strncpy(home_nw.ssid, pxNetworkParams->pcSSID, IEEEtypes_SSID_SIZE + 1);
+    if (pxNetworkParams->ucSSIDLength > 0)
+    {
+        char pcSSID[pxNetworkParams->ucSSIDLength + 1];
+        memcpy(pcSSID, pxNetworkParams->ucSSID, pxNetworkParams->ucSSIDLength);
+        pcSSID[pxNetworkParams->ucSSIDLength] = '\0';
 
-    if(pxNetworkParams->pcPassword) {
+        strlcpy(home_nw.ssid, pcSSID, IEEEtypes_SSID_SIZE + 1);
+    }
+
+    if(pxNetworkParams->xPassword.xWPA.ucLength > 0) {
         /* Set the passphrase */
-        //strncpy(home_nw.security.psk, pxNetworkParams->pcPassword, PASSWORD_MAX_LENGTH);
-        strcpy(home_nw.security.psk, pxNetworkParams->pcPassword);
+        char pcPassphrase[ wificonfigMAX_PASSPHRASE_LEN + 1];
+        memcpy(pcPassphrase, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength);
+        pcPassphrase[pxNetworkParams->xPassword.xWPA.ucLength] = '\0';
+
+        strlcpy(home_nw.security.psk, pcPassphrase, PASSWORD_MAX_LENGTH);
 
         /* Set the passphrase length */
         home_nw.security.psk_len = strlen(home_nw.security.psk);
     }
 
-    home_nw.channel = pxNetworkParams->cChannel;
+    home_nw.channel = pxNetworkParams->ucChannel;
 
     if (pxNetworkParams->xSecurity == eWiFiSecurityOpen)
         home_nw.security.type = WLAN_SECURITY_NONE;
@@ -464,16 +475,12 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     }
 
     for(i = 0; i < ucNumNetworks; i++) {
-        pxBuffer[i].cChannel = survey.sites[i].channel;
+        pxBuffer[i].ucChannel = survey.sites[i].channel;
         pxBuffer[i].cRSSI = survey.sites[i].rssi;
 
-
         if (survey.sites[i].ssid_len) {
-            strncpy(pxBuffer[i].cSSID, survey.sites[i].ssid, wificonfigMAX_SSID_LEN + 1);
-            pxBuffer[i].ucHidden = 0;
-        } else {
-//            strncpy(pxBuffer[i].cSSID, survey.sites[i].ssid, wificonfigMAX_SSID_LEN + 1);
-            pxBuffer[i].ucHidden = 1;
+            pxBuffer[i].ucSSIDLength = strnlen( survey.sites[i].ssid, wificonfigMAX_SSID_LEN );
+            memcpy(pxBuffer[i].ucSSID, survey.sites[i].ssid, pxBuffer[i].ucSSIDLength);
         }
 
         strncpy((char *)pxBuffer[i].ucBSSID, survey.sites[i].bssid, wificonfigMAX_BSSID_LEN);
@@ -548,24 +555,23 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
+WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * xIPConfig )
 {
     struct wlan_ip_config ip_addr;
     int ret;
 
-    if (pucIPAddr == NULL) {
+    if (xIPConfig == NULL) {
         return eWiFiFailure;
     }
+    memset(xIPConfig, 0, sizeof(xIPConfig));
 
     ret = wlan_get_address(&ip_addr);
-
     if (ret != WM_SUCCESS) {
         wm_wlan_e("app_network_config: failed to get IP address");
-        memset(pucIPAddr, 0, 4);
         return eWiFiFailure;
      }
 
-    memcpy(pucIPAddr, &(ip_addr.ipv4.address), 4);
+    memcpy( &xIPConfig->xIPAddress.ulAddress[0], &ip_addr.ipv4.address, 4 );
 
     return eWiFiSuccess;
 }
@@ -648,16 +654,30 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t WIFI_IsConnected(void)
+BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
 {
-    if(is_sta_connected())
+    if (pxNetworkParams && pxNetworkParams->ucSSIDLength > 0)
+    {
+        struct wlan_network xCurrentNetwork;
+        if ( WM_SUCCESS == wlan_get_current_network( &xCurrentNetwork ) )
+        {
+            if (0 == memcmp(pxNetworkParams->ucSSID, xCurrentNetwork.ssid, pxNetworkParams->ucSSIDLength))
+            {
+                return pdTRUE;
+            }
+        }
+    }
+    else if(is_sta_connected())
+    {
         return pdTRUE;
+    }
+
 
     return pdFALSE;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )
 {
     /** Needs to implement dispatching network state change events **/
     return eWiFiNotSupported;
