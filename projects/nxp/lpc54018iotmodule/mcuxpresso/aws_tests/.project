@@ -1136,6 +1136,8 @@
 			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</locationURI>
