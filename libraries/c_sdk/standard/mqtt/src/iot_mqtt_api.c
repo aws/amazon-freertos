@@ -739,7 +739,6 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
 
     if( status == IOT_MQTT_SUCCESS )
     {
-
         /* Operation must be linked. */
         IotMqtt_Assert( IotLink_IsLinked( &( pSubscriptionOperation->link ) ) );
 
@@ -770,7 +769,6 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
         {
             *pOperationReference = IOT_MQTT_OPERATION_INITIALIZER;
         }
-
     }
 
     IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
@@ -1445,6 +1443,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                 /* Processing the operation after sending it on the network. */
                 _IotMqtt_ProcessOperation( pOperation );
                 IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
+
                 /* Destroying the operation after the DISCONNECT Packet is sent on the network. */
                 if( _IotMqtt_DecrementOperationReferences( pOperation, false ) == true )
                 {
@@ -1746,6 +1745,7 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
     {
         EMPTY_ELSE_MARKER;
     }
+
     IotMutex_Lock( &( mqttConnection->referencesMutex ) );
 
     /* Calling PUBLISH wrapper to send PUBLISH packet on the network using MQTT LTS PUBLISH API. */
@@ -1782,6 +1782,7 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
     }
 
     IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
+
     /* Clean up the PUBLISH operation if this function fails. Otherwise, set the
      * appropriate return code based on QoS. */
     IOT_FUNCTION_CLEANUP_BEGIN();

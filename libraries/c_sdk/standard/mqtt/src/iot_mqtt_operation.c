@@ -1162,7 +1162,6 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
          * pending processing to the pending response list. */
         if( destroyOperation == false )
         {
-
             /* Operation must be linked. */
             IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) );
 
