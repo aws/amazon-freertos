@@ -20,61 +20,13 @@ afr_module_dependencies(
         AFR::ble
 )
 
+if( EXISTS ${CMAKE_CURRENT_LIST_DIR}/mqtt_ble )
+    include("${CMAKE_CURRENT_LIST_DIR}/mqtt_ble/mqtt_demo_ble.cmake")
+endif()
 
-# MQTT over BLE demo
-afr_demo_module(mqtt_ble)
-
-afr_set_demo_metadata(ID "MQTT_BLE_DEMO")
-afr_set_demo_metadata(DESCRIPTION "An example that demonstrates MQTT over BLE assisted by a companion device")
-afr_set_demo_metadata(DISPLAY_NAME "MQTT over BLE Hello World")
-
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_ble_transport.c"
-)
-
-afr_module_include_dirs(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        ${AFR_MODULES_DIR}/logging/include
-)
-
-afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        AFR::core_mqtt
-        AFR::ble
-)
-
-# MQTT over BLE demo
-afr_demo_module(shadow_ble)
-
-afr_set_demo_metadata(ID "SHADOW_BLE_DEMO")
-afr_set_demo_metadata(DESCRIPTION "An example that demonstrates Shadow updates over BLE assisted by a companion device")
-afr_set_demo_metadata(DISPLAY_NAME "Shadow over BLE demo")
-
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_ble_transport.c"
-)
-
-afr_module_include_dirs(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        ${AFR_MODULES_DIR}/logging/include
-)
-
-afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        AFR::core_mqtt
-        AFR::core_json
-        AFR::device_shadow
-        AFR::ble
-)
-
+if( EXISTS ${CMAKE_CURRENT_LIST_DIR}/shadow_ble )
+    include("${CMAKE_CURRENT_LIST_DIR}/shadow_ble/shadow_demo_ble.cmake")
+endif()
 
 # BLE Number Comparison Demo
 # Only build on boards that support BLE.

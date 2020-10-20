@@ -96,17 +96,17 @@
  */
 #define REMAINING_LENGTH_INVALID    ( ( size_t ) 268435456 )
 
-#define ENCODE_PACKET_TYPE( packetType ) ( ( uint8_t ) ( packetType << 4 ) )
+#define ENCODE_PACKET_TYPE( packetType )    ( ( uint8_t ) ( packetType << 4 ) )
 
-#define DECODE_PACKET_TYPE( packetFlag ) ( ( uint8_t ) ( packetFlag >> 4 ) )
- 
+#define DECODE_PACKET_TYPE( packetFlag )    ( ( uint8_t ) ( packetFlag >> 4 ) )
+
 /**
  * @brief Macro for checking if a bit is set in a 1-byte unsigned int.
  *
  * @param[in] x The unsigned int to check.
  * @param[in] position Which bit to check.
  */
-#define UINT8_CHECK_BIT( x, position )    ( ( ( x ) & ( 0x01U << ( position ) ) ) == ( 0x01U << ( position ) ) )
+#define UINT8_CHECK_BIT( x, position )      ( ( ( x ) & ( 0x01U << ( position ) ) ) == ( 0x01U << ( position ) ) )
 
 /* @brief Macro for decoding a 2-byte unsigned int from a sequence of bytes.
  *
@@ -976,7 +976,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
                                  size_t bytesToWrite )
 {
     size_t bytesSent = 0;
-    uint8_t * pBuf = ( uint8_t *) pBuffer;
+    uint8_t * pBuf = ( uint8_t * ) pBuffer;
     MQTTBLEStatus_t status = MQTTBLESuccess;
     uint8_t * pSerializedPacket = NULL;
     size_t serializedLength = 0;
@@ -997,6 +997,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     else
     {
         packetType = DECODE_PACKET_TYPE( pBuf[ 0 ] );
+
         switch( packetType )
         {
             case IOT_BLE_MQTT_MSG_TYPE_CONNECT:

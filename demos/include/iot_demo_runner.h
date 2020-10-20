@@ -175,7 +175,7 @@
 #elif defined( CONFIG_MQTT_BLE_TRANSPORT_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             RunMQTTBLETransportDemo
 #elif defined( CONFIG_SHADOW_BLE_TRANSPORT_DEMO_ENABLED )
-   #define  DEMO_entryFUNCTION             RunShadowBLETransportDemo
+    #define  DEMO_entryFUNCTION            RunShadowBLETransportDemo
 #elif defined( CONFIG_CLI_UART_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vRunCLIUartDemo
 #else /* if defined( CONFIG_MQTT_DEMO_ENABLED ) */
