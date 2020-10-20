@@ -394,7 +394,7 @@ static _mqttConnection_t * _createMqttConnection( bool awsIotMqttMode,
 {
     IOT_FUNCTION_ENTRY( bool, true );
     _mqttConnection_t * pMqttConnection = NULL;
-    bool referencesMutexCreated = false, subscriptionMutexCreated = false;
+    bool referencesMutexCreated = false;
 
     /* Allocate memory for the new MQTT connection. */
     pMqttConnection = IotMqtt_MallocConnection( sizeof( _mqttConnection_t ) );
@@ -985,6 +985,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     int8_t contextIndex = -1;
     bool subscriptionMutexCreated = false;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
+    bool contextMutexCreated = false;
 
     /* Default CONNECT serializer function. */
     IotMqttError_t ( * serializeConnect )( const IotMqttConnectInfo_t *,
@@ -1147,11 +1148,11 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
     /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
      * on the network using MQTT LTS API. */
-    bool contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ),
-                                                       &( connToContext[ contextIndex ].contextMutexStorage ) );
+    contextMutexCreated = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ),
+                                                         &( connToContext[ contextIndex ].contextMutexStorage ) );
     /* Create the subscription mutex for a new connection. */
 
-    if( contextMutex == true )
+    if( contextMutexCreated == true )
     {
         /* Assigning the MQTT Connection. */
         connToContext[ contextIndex ].mqttConnection = newMqttConnection;

@@ -286,7 +286,6 @@ void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
                                const _packetMatchParams_t * pMatch )
 {
     size_t index = 0;
-    bool status = false;
 
     IotMqtt_Assert( pSubscriptionArray != NULL );
 
