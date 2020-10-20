@@ -33,23 +33,21 @@ afr_module_include_dirs(
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
 )
 
-if(TARGET ADR::posix)
-    # Test
-    afr_test_module()
-    afr_module_sources(
-        ${AFR_CURRENT_MODULE}
-        INTERFACE
-            "${test_dir}/iot_test_posix_clock.c"
-            "${test_dir}/iot_test_posix_mqueue.c"
-            "${test_dir}/iot_test_posix_pthread.c"
-            "${test_dir}/iot_test_posix_semaphore.c"
-            "${test_dir}/iot_test_posix_stress.c"
-            "${test_dir}/iot_test_posix_timer.c"
-            "${test_dir}/iot_test_posix_unistd.c"
-            "${test_dir}/iot_test_posix_utils.c"
-    )
-    afr_module_dependencies(
-        ${AFR_CURRENT_MODULE}
-        INTERFACE AFR::posix
-    )
-endif()
+# Test
+afr_test_module()
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/iot_test_posix_clock.c"
+        "${test_dir}/iot_test_posix_mqueue.c"
+        "${test_dir}/iot_test_posix_pthread.c"
+        "${test_dir}/iot_test_posix_semaphore.c"
+        "${test_dir}/iot_test_posix_stress.c"
+        "${test_dir}/iot_test_posix_timer.c"
+        "${test_dir}/iot_test_posix_unistd.c"
+        "${test_dir}/iot_test_posix_utils.c"
+)
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE AFR::freertos_plus_posix
+)
