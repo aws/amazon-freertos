@@ -263,7 +263,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
     TLSParams_t xTLSParams = { 0 };
     SOCKADDR_T xTempAddress = { 0 };
 
-    if( ( SOCKETS_INVALID_CONTEXT != pxContext ) && ( NULL != pxAddress ) && WIFI_IsConnected())
+    if( ( SOCKETS_INVALID_CONTEXT != pxContext ) && ( NULL != pxAddress ) && WIFI_IsConnected( NULL ))
     {
         /* Connect the wrapped socket. */
 

@@ -100,7 +100,7 @@ void prvWiFiConnectTask( void * pvParams )
                 {
                     for( ulNetworkIndex = 0; ulNetworkIndex < ulNumNetworks; ulNetworkIndex++ )
                     {
-                        if( WIFI_IsConnected() == pdFALSE )
+                        if( WIFI_IsConnected( NULL ) == pdFALSE )
                         {
                             xWiFiConnected = IotBleWifiProv_Connect( ulNetworkIndex );
                         }

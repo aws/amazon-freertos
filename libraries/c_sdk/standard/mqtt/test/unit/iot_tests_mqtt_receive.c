@@ -1326,6 +1326,7 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
  */
 TEST( MQTT_Unit_Receive, PubackValid )
 {
+    int8_t contextIndex = -1;
     _mqttOperation_t publish = INITIALIZE_OPERATION( IOT_MQTT_PUBLISH_TO_SERVER );
 
     /* Create the wait semaphore so notifications don't crash. The value of
@@ -1333,6 +1334,15 @@ TEST( MQTT_Unit_Receive, PubackValid )
     TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &( publish.u.operation.notify.waitSemaphore ),
                                                       0,
                                                       10 ) );
+
+    /* Set the content in the state records for receiving a PUBACK. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
+    TEST_ASSERT_NOT_EQUAL( -1, contextIndex );
+
+    /* Add a publish record at the start index. */
+    connToContext[ contextIndex ].context.outgoingPublishRecords[ 0 ].packetId = 1U;
+    connToContext[ contextIndex ].context.outgoingPublishRecords[ 0 ].publishState = MQTTPubAckPending;
+    connToContext[ contextIndex ].context.outgoingPublishRecords[ 0 ].qos = MQTTQoS1;
 
     /* Even though no PUBLISH is in the receive queue, 4 bytes should still be
      * processed (should not crash). */
@@ -1344,6 +1354,14 @@ TEST( MQTT_Unit_Receive, PubackValid )
                                                      IOT_MQTT_STATUS_PENDING ) );
     }
 
+    /* The state record should be deleted after receiving a PUBACK. */
+    TEST_ASSERT_EQUAL_INT( MQTT_PACKET_ID_INVALID, connToContext[ contextIndex ].context.outgoingPublishRecords[ 0 ].packetId );
+
+    /* Add a publish record at the start index. */
+    connToContext[ contextIndex ].context.outgoingPublishRecords[ 0 ].packetId = 1U;
+    connToContext[ contextIndex ].context.outgoingPublishRecords[ 0 ].publishState = MQTTPubAckPending;
+    connToContext[ contextIndex ].context.outgoingPublishRecords[ 0 ].qos = MQTTQoS1;
+
     /* Process a valid PUBACK. */
     {
         DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
@@ -1353,6 +1371,9 @@ TEST( MQTT_Unit_Receive, PubackValid )
                                                      pubackSize,
                                                      IOT_MQTT_SUCCESS ) );
     }
+
+    /* The state record should be deleted after receiving a PUBACK. */
+    TEST_ASSERT_EQUAL_INT( MQTT_PACKET_ID_INVALID, connToContext[ contextIndex ].context.outgoingPublishRecords[ 0 ].packetId );
 
     IotSemaphore_Destroy( &( publish.u.operation.notify.waitSemaphore ) );
 
