@@ -52,9 +52,6 @@ afr_module_dependencies(
         # selected on the console.
         AFR::core_mqtt_demo_dependencies
 )
-)
-
-
 
 # BLE Number Comparison Demo
 # Only build on boards that support BLE.
