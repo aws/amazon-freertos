@@ -10,9 +10,13 @@ afr_module_sources(
     INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_main.c"
         "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_helpers.c"
-        # Add header files to generate their metadata so that 
+        # Add the header file to generate their metadata so that 
         # they are present in code downloaded from FreeRTOS console.
         "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_helpers.h"
+        # Add the CMake file to the source list so that metadata is
+        # generated for it, and it is present in code downloaded from
+        # the FreeRTOS console.
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
 )
 
 afr_module_dependencies(
