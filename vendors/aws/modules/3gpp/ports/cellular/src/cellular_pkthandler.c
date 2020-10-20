@@ -220,6 +220,7 @@ static CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallbackRaw( Cellula
         IotLogDebug( ">>>>>Start sending [%s]<<<<<", atReq.pAtCmd );
         pContext->pPktUsrData = atReq.pData;
         pContext->PktUsrDataLen = ( uint16_t ) atReq.dataLen;
+        pContext->pCurrentCmd = atReq.pAtCmd;
         pktStatus = _Cellular_PktioSendAtCmd( pContext, atReq.pAtCmd, atReq.atCmdType, atReq.pAtRspPrefix );
 
         if( pktStatus != CELLULAR_PKT_STATUS_OK )
@@ -250,6 +251,7 @@ static CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallbackRaw( Cellula
         /* No command is waiting response. */
         pContext->PktioAtCmdType = CELLULAR_AT_NO_COMMAND;
         pContext->pktRespCB = NULL;
+        pContext->pCurrentCmd = NULL;
         IotLogDebug( "<<<<<Exit sending [%s] status[%d]<<<<<", atReq.pAtCmd, pktStatus );
     }
 
@@ -265,6 +267,7 @@ static CellularPktStatus_t _Cellular_DataSendWithTimeoutRaw( CellularContext_t *
     CellularPktStatus_t respCode = CELLULAR_PKT_STATUS_OK;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     BaseType_t qStatus = pdFALSE;
+    uint32_t sendEndPatternLen = 0U;
 
     /* Check the pContext. */
     if( pContext == NULL )
@@ -285,7 +288,19 @@ static CellularPktStatus_t _Cellular_DataSendWithTimeoutRaw( CellularContext_t *
 
         if( *dataReq.pSentDataLength != dataReq.dataLen )
         {
-            IotLogError( "_Cellular_DataSendWithTimeoutRaw, incomplete data transfer " );
+            IotLogError( "_Cellular_DataSendWithTimeoutRaw, incomplete data transfer" );
+            pktStatus = CELLULAR_PKT_STATUS_SEND_ERROR;
+        }
+    }
+
+    /* End pattern for specific modem. */
+    if( ( pktStatus == CELLULAR_PKT_STATUS_OK ) && ( dataReq.pEndPattern != NULL ) )
+    {
+        sendEndPatternLen = _Cellular_PktioSendData( pContext, dataReq.pEndPattern, dataReq.endPatternLen );
+
+        if( sendEndPatternLen != dataReq.endPatternLen )
+        {
+            IotLogError( "_Cellular_DataSendWithTimeoutRaw, incomplete endpattern transfer" );
             pktStatus = CELLULAR_PKT_STATUS_SEND_ERROR;
         }
     }
@@ -507,19 +522,26 @@ void _Cellular_HandlePacket( CellularContext_t * pContext,
                              _atRespType_t atRespType,
                              const void * pBuf )
 {
-    switch( atRespType )
+    if( pContext == NULL )
     {
-        case AT_SOLICITED:
-            _convertAndQueueRespPacket( pContext, pBuf );
-            break;
+        IotLogError( "_Cellular_HandlePacket : Invalid cellular context" );
+    }
+    else
+    {
+        switch( atRespType )
+        {
+            case AT_SOLICITED:
+                _convertAndQueueRespPacket( pContext, pBuf );
+                break;
 
-        case AT_UNSOLICITED:
-            _processUrcPacket( pContext, pBuf );
-            break;
+            case AT_UNSOLICITED:
+                _processUrcPacket( pContext, pBuf );
+                break;
 
-        default:
-            IotLogError( "_Cellular_HandlePacket Callback type (%d) error", atRespType );
-            break;
+            default:
+                IotLogError( "_Cellular_HandlePacket Callback type (%d) error", atRespType );
+                break;
+        }
     }
 }
 
@@ -528,6 +550,7 @@ void _Cellular_HandlePacket( CellularContext_t * pContext,
 CellularPktStatus_t _Cellular_AtcmdRequestWithCallback( CellularContext_t * pContext,
                                                         CellularAtReq_t atReq )
 {
+    /* Parameters are checked in this function. */
     return _Cellular_TimeoutAtcmdRequestWithCallback( pContext, atReq, PACKET_REQ_TIMEOUT_MS );
 }
 
@@ -539,9 +562,18 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallback( CellularContext_t
 {
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
-    _Cellular_PktHandlerAcquirePktRequestMutex( pContext );
-    pktStatus = _Cellular_TimeoutAtcmdRequestWithCallbackRaw( pContext, atReq, timeoutMS );
-    _Cellular_PktHandlerReleasePktRequestMutex( pContext );
+    if( pContext == NULL )
+    {
+        IotLogError( "_Cellular_TimeoutAtcmdRequestWithCallback : Invalid cellular context" );
+        pktStatus = CELLULAR_PKT_STATUS_INVALID_HANDLE;
+    }
+    else
+    {
+        _Cellular_PktHandlerAcquirePktRequestMutex( pContext );
+        pktStatus = _Cellular_TimeoutAtcmdRequestWithCallbackRaw( pContext, atReq, timeoutMS );
+        _Cellular_PktHandlerReleasePktRequestMutex( pContext );
+    }
+
     return pktStatus;
 }
 
@@ -550,20 +582,35 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallback( CellularContext_t
 CellularPktStatus_t _Cellular_TimeoutAtcmdDataRecvRequestWithCallback( CellularContext_t * pContext,
                                                                        CellularAtReq_t atReq,
                                                                        uint32_t timeoutMS,
-                                                                       CellularATCommandDataPrefixCallback_t pktDataPrefixCallback )
+                                                                       CellularATCommandDataPrefixCallback_t pktDataPrefixCallback,
+                                                                       void * pCallbackContext )
 {
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
-    _Cellular_PktHandlerAcquirePktRequestMutex( pContext );
-    pContext->pktDataPrefixCB = pktDataPrefixCallback;
-    pktStatus = _Cellular_TimeoutAtcmdRequestWithCallbackRaw( pContext, atReq, timeoutMS );
-    pContext->pktDataPrefixCB = NULL;
-    _Cellular_PktHandlerReleasePktRequestMutex( pContext );
+    if( pContext == NULL )
+    {
+        IotLogError( "_Cellular_TimeoutAtcmdDataRecvRequestWithCallback : Invalid cellular context" );
+        pktStatus = CELLULAR_PKT_STATUS_INVALID_HANDLE;
+    }
+    else
+    {
+        _Cellular_PktHandlerAcquirePktRequestMutex( pContext );
+        pContext->pktDataPrefixCB = pktDataPrefixCallback;
+        pContext->pDataPrefixCBContext = pCallbackContext;
+        pktStatus = _Cellular_TimeoutAtcmdRequestWithCallbackRaw( pContext, atReq, timeoutMS );
+        pContext->pktDataPrefixCB = NULL;
+        pContext->pDataPrefixCBContext = NULL;
+        _Cellular_PktHandlerReleasePktRequestMutex( pContext );
+    }
+
     return pktStatus;
 }
 
 /*-----------------------------------------------------------*/
 
+/* This function is provided as common code to cellular module porting.
+ * Vendor may choose to use this function or use their implementation. */
+/* coverity[misra_c_2012_rule_8_7_violation]. */
 CellularPktStatus_t _Cellular_TimeoutAtcmdDataSendRequestWithCallback( CellularContext_t * pContext,
                                                                        CellularAtReq_t atReq,
                                                                        CellularAtDataReq_t dataReq,
@@ -572,15 +619,61 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdDataSendRequestWithCallback( CellularC
 {
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
-    _Cellular_PktHandlerAcquirePktRequestMutex( pContext );
-    pktStatus = _Cellular_TimeoutAtcmdRequestWithCallbackRaw( pContext, atReq, atTimeoutMS );
-
-    if( pktStatus == CELLULAR_PKT_STATUS_OK )
+    if( pContext == NULL )
     {
-        pktStatus = _Cellular_DataSendWithTimeoutRaw( pContext, dataReq, dataTimeoutMS );
+        IotLogError( "_Cellular_TimeoutAtcmdDataSendRequestWithCallback : Invalid cellular context" );
+        pktStatus = CELLULAR_PKT_STATUS_INVALID_HANDLE;
+    }
+    else
+    {
+        _Cellular_PktHandlerAcquirePktRequestMutex( pContext );
+        pktStatus = _Cellular_TimeoutAtcmdRequestWithCallbackRaw( pContext, atReq, atTimeoutMS );
+
+        if( pktStatus == CELLULAR_PKT_STATUS_OK )
+        {
+            pktStatus = _Cellular_DataSendWithTimeoutRaw( pContext, dataReq, dataTimeoutMS );
+        }
+
+        _Cellular_PktHandlerReleasePktRequestMutex( pContext );
     }
 
-    _Cellular_PktHandlerReleasePktRequestMutex( pContext );
+    return pktStatus;
+}
+
+/*-----------------------------------------------------------*/
+
+CellularPktStatus_t _Cellular_TimeoutAtcmdDataSendSuccessToken( CellularContext_t * pContext,
+                                                                CellularAtReq_t atReq,
+                                                                CellularAtDataReq_t dataReq,
+                                                                uint32_t atTimeoutMS,
+                                                                uint32_t dataTimeoutMS,
+                                                                const char ** pCellularSrcTokenSuccessTable,
+                                                                uint32_t cellularSrcTokenSuccessTableSize )
+{
+    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
+
+    if( pContext == NULL )
+    {
+        IotLogError( "_Cellular_TimeoutAtcmdDataSendSuccessToken : Invalid cellular context" );
+        pktStatus = CELLULAR_PKT_STATUS_INVALID_HANDLE;
+    }
+    else
+    {
+        _Cellular_PktHandlerAcquirePktRequestMutex( pContext );
+        pContext->tokenTable.pCellularSrcExtraTokenSuccessTable = pCellularSrcTokenSuccessTable;
+        pContext->tokenTable.cellularSrcExtraTokenSuccessTableSize = cellularSrcTokenSuccessTableSize;
+        pktStatus = _Cellular_TimeoutAtcmdRequestWithCallbackRaw( pContext, atReq, atTimeoutMS );
+        pContext->tokenTable.cellularSrcExtraTokenSuccessTableSize = 0;
+        pContext->tokenTable.pCellularSrcExtraTokenSuccessTable = NULL;
+
+        if( pktStatus == CELLULAR_PKT_STATUS_OK )
+        {
+            pktStatus = _Cellular_DataSendWithTimeoutRaw( pContext, dataReq, dataTimeoutMS );
+        }
+
+        _Cellular_PktHandlerReleasePktRequestMutex( pContext );
+    }
+
     return pktStatus;
 }
 
