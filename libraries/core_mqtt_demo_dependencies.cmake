@@ -89,3 +89,14 @@ if(TARGET AFR::secure_sockets::mcu_port)
             AFR::secure_sockets
     )
 endif()
+
+# Add dependency on WiFi module so that WiFi library is auto-included
+# when selecting core MQTT library on FreeRTOS console for boards that
+# support the WiFi library.
+if(TARGET AFR::wifi::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::wifi
+    )
+endif()
