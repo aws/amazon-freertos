@@ -49,5 +49,5 @@ afr_module_sources(
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
-    INTERFACE AFR::freertos_plus_posix
+    INTERFACE AFR::posix
 )
