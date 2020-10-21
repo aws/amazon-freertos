@@ -119,7 +119,7 @@
 #define TRANSPORT_SEND_RECV_TIMEOUT_MS      ( 2000U )
 
 /**
- * @brief Timeout for receiving CONNACK packet in milli seconds.
+ * @brief Timeout for receiving CONNACK packet in milliseconds.
  */
 #define CONNACK_RECV_TIMEOUT_MS             ( 1000U )
 
@@ -444,7 +444,6 @@ static void eventCallback( MQTTContext_t * pContext,
     if( ( pPacketInfo->type & 0xF0U ) == MQTT_PACKET_TYPE_PUBLISH )
     {
         assert( pDeserializedInfo->pPublishInfo != NULL );
-        /* Handle incoming publish. */
 
         /* Handle incoming publish. */
         /* Let the Device Shadow library tell us whether this is a device shadow message. */
@@ -741,7 +740,7 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     socketsConfig.enableTls = true;
     socketsConfig.pAlpnProtos = NULL;
     socketsConfig.maxFragmentLength = 0;
-    socketsConfig.disableSni = true;
+    socketsConfig.disableSni = false;
     socketsConfig.pRootCa = SERVER_ROOT_CA_CERT;
     socketsConfig.rootCaSize = strlen( SERVER_ROOT_CA_CERT ) + 1U;
     socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
