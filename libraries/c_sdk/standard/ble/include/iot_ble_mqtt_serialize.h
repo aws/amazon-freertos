@@ -25,8 +25,8 @@
 
 /**
  * @file iot_ble_mqtt_serialize.h
- * @brief File contains types and serializer,deserializer APIS for sending and receiving MQTT messages
- * over BLE using a companion device SDK.
+ * @brief File exposes types and serializer, deserializer APIs for sending and receiving MQTT messages
+ * over BLE using a companion mobile device (iOS/Android) SDK.
  */
 
 #ifndef IOT_BLE_MQTT_SERIALIZE_H
