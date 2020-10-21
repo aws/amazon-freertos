@@ -175,11 +175,6 @@ static MQTTBLEStatus_t parseSubscribe( size_t * subscriptionCount,
                                        uint16_t * pIdentifier,
                                        bool subscribe );
 
-/**
- * @brief Deserializes a Publish packet in MQTT Format
- * @param[in]
- *
- * statis MQTTBLEStatus_t */
 /*-----------------------------------------------------------*/
 
 /**
