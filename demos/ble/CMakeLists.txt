@@ -21,11 +21,7 @@ afr_module_dependencies(
 )
 
 if( EXISTS ${CMAKE_CURRENT_LIST_DIR}/mqtt_ble )
-    include("${CMAKE_CURRENT_LIST_DIR}/mqtt_ble/mqtt_demo_ble.cmake")
-endif()
-
-if( EXISTS ${CMAKE_CURRENT_LIST_DIR}/shadow_ble )
-    include("${CMAKE_CURRENT_LIST_DIR}/shadow_ble/shadow_demo_ble.cmake")
+    afr_add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/mqtt_ble")
 endif()
 
 # BLE Number Comparison Demo
