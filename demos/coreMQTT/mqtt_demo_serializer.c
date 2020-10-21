@@ -312,7 +312,7 @@ static BaseType_t prvMQTTProcessIncomingPacket( Socket_t xMQTTSocket );
  * @return Number of bytes received or zero to indicate transportTimeout;
  * negative value on error.
  */
-static int32_t prvTransportRecv( const NetworkContext_t * pxContext,
+static int32_t prvTransportRecv( NetworkContext_t * pxContext,
                                  void * pvBuffer,
                                  size_t xBytesToRecv );
 
@@ -577,7 +577,7 @@ static void prvGracefulShutDown( Socket_t xSocket )
 }
 /*-----------------------------------------------------------*/
 
-static int32_t prvTransportRecv( const NetworkContext_t * pxContext,
+static int32_t prvTransportRecv( NetworkContext_t * pxContext,
                                  void * pvBuffer,
                                  size_t xBytesToRecv )
 {
