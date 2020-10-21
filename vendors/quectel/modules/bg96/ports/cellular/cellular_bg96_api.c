@@ -100,6 +100,11 @@
 
 #define INVALID_PDN_INDEX                        ( 0xFFU )
 
+#define DATA_PREFIX_STRING                       "+QIRD:"
+#define DATA_PREFIX_STRING_LENGTH                ( 6U )
+
+#define MAX_QIRD_STRING_PREFIX_STRING            ( 14U )    /* The max data prefix string is "+QIRD: 1460\r\n" */
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -194,7 +199,8 @@ static CellularPktStatus_t _Cellular_RecvFuncGetPsmSettings( CellularContext_t *
                                                              void * pData,
                                                              uint16_t dataLen );
 static CellularPktStatus_t socketRecvDataPrefix( void * pCallbackContext,
-                                                 const char * pLine,
+                                                 char * pLine,
+                                                 uint32_t lineLength,
                                                  char ** ppDataStart,
                                                  uint32_t * pDataLength );
 static CellularError_t storeAccessModeAndAddress( CellularContext_t * pContext,
@@ -211,6 +217,9 @@ static uint32_t appendBinaryPattern( char * cmdBuf,
                                      uint32_t cmdLen,
                                      uint32_t value,
                                      bool endOfString );
+static CellularPktStatus_t socketSendDataPrefix( void * pCallbackContext,
+                                                 char * pLine,
+                                                 uint32_t * pBytesRead );
 
 /*-----------------------------------------------------------*/
 
@@ -1679,7 +1688,8 @@ static CellularPktStatus_t _Cellular_RecvFuncGetPsmSettings( CellularContext_t *
 /*-----------------------------------------------------------*/
 
 static CellularPktStatus_t socketRecvDataPrefix( void * pCallbackContext,
-                                                 const char * pLine,
+                                                 char * pLine,
+                                                 uint32_t lineLength,
                                                  char ** ppDataStart,
                                                  uint32_t * pDataLength )
 {
@@ -1688,6 +1698,9 @@ static CellularPktStatus_t socketRecvDataPrefix( void * pCallbackContext,
     int32_t tempValue = 0;
     CellularATError_t atResult = CELLULAR_AT_SUCCESS;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
+    uint32_t i = 0;
+    char pLocalLine[ MAX_QIRD_STRING_PREFIX_STRING + 1 ] = "\0";
+    uint32_t localLineLength = MAX_QIRD_STRING_PREFIX_STRING > lineLength ? lineLength : MAX_QIRD_STRING_PREFIX_STRING;
 
     if( ( pLine == NULL ) || ( ppDataStart == NULL ) || ( pDataLength == NULL ) )
     {
@@ -1696,7 +1709,28 @@ static CellularPktStatus_t socketRecvDataPrefix( void * pCallbackContext,
     else
     {
         /* Check if the message is a data response. */
-        pDataStart = strstr( pLine, "+QIRD:" );
+        if( strncmp( pLine, DATA_PREFIX_STRING, DATA_PREFIX_STRING_LENGTH ) == 0 )
+        {
+            strncpy( pLocalLine, pLine, MAX_QIRD_STRING_PREFIX_STRING );
+            pLocalLine[ MAX_QIRD_STRING_PREFIX_STRING ] = '\0';
+            pDataStart = pLocalLine;
+
+            /* Add a '\0' char at the end of the line. */
+            for( i = 0; i < localLineLength; i++ )
+            {
+                if( ( pDataStart[ i ] == '\r' ) || ( pDataStart[ i ] == '\n' ) )
+                {
+                    pDataStart[ i ] = '\0';
+                    break;
+                }
+            }
+
+            if( i == localLineLength )
+            {
+                IotLogDebug( "Data prefix invalid line : %s", pLocalLine );
+                pDataStart = NULL;
+            }
+        }
 
         if( pDataStart != NULL )
         {
@@ -1706,10 +1740,23 @@ static CellularPktStatus_t socketRecvDataPrefix( void * pCallbackContext,
             if( ( atResult == CELLULAR_AT_SUCCESS ) && ( tempValue >= 0 ) &&
                 ( tempValue <= ( int32_t ) CELLULAR_MAX_RECV_DATA_LEN ) )
             {
-                *pDataLength = ( uint32_t ) tempValue;
                 /* Save the start of data point in pTemp. */
-                pDataStart = &pDataStart[ strnlen( pDataStart, PKTIO_READ_BUFFER_SIZE ) + 2U ];
-                IotLogDebug( "DataLength at pktIo = %d", *pDataLength );
+                if( ( uint32_t ) ( strnlen( pDataStart, MAX_QIRD_STRING_PREFIX_STRING ) + 2 ) > lineLength )
+                {
+                    /* More data is required. */
+                    *pDataLength = 0;
+                    pDataStart = NULL;
+                    pktStatus = CELLULAR_PKT_STATUS_SIZE_MISMATCH;
+                }
+                else
+                {
+                    pDataStart = &pLine[ strnlen( pDataStart, MAX_QIRD_STRING_PREFIX_STRING ) ];
+                    pDataStart[ 0 ] = '\0';
+                    pDataStart = &pDataStart[ 2 ];
+                    *pDataLength = ( uint32_t ) tempValue;
+                }
+
+                IotLogDebug( "DataLength %p at pktIo = %d", pDataStart, *pDataLength );
             }
             else
             {
@@ -2124,6 +2171,41 @@ static uint32_t appendBinaryPattern( char * cmdBuf,
     }
 
     return retLen;
+}
+
+/*-----------------------------------------------------------*/
+
+static CellularPktStatus_t socketSendDataPrefix( void * pCallbackContext,
+                                                 char * pLine,
+                                                 uint32_t * pBytesRead )
+{
+    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
+
+    if( ( pLine == NULL ) || ( pBytesRead == NULL ) )
+    {
+        IotLogError( "socketSendDataPrefix: pLine is invalid or pBytesRead is invalid" );
+        pktStatus = CELLULAR_PKT_STATUS_BAD_PARAM;
+    }
+    else if( pCallbackContext != NULL )
+    {
+        IotLogError( "socketSendDataPrefix: pCallbackContext is not NULL" );
+        pktStatus = CELLULAR_PKT_STATUS_BAD_PARAM;
+    }
+    else if( *pBytesRead != 2U )
+    {
+        IotLogDebug( "socketSendDataPrefix: pBytesRead %u %s is not 1", *pBytesRead, pLine );
+    }
+    else
+    {
+        /* After the data prefix, there should not be any data in stream.
+         * Cellular commmon processes AT command in lines. Add a '\0' after '>'. */
+        if( strcmp( pLine, "> " ) == 0 )
+        {
+            pLine[ 1 ] = '\n';
+        }
+    }
+
+    return pktStatus;
 }
 
 /*-----------------------------------------------------------*/
@@ -2573,8 +2655,9 @@ CellularError_t Cellular_SocketSend( CellularHandle_t cellularHandle,
         ( void ) snprintf( cmdBuf, CELLULAR_AT_CMD_TYPICAL_MAX_SIZE, "%s%ld,%ld",
                            "AT+QISEND=", socketHandle->socketId, atDataReqSocketSend.dataLen );
 
-        pktStatus = _Cellular_TimeoutAtcmdDataSendRequestWithCallback( pContext, atReqSocketSend, atDataReqSocketSend,
-                                                                       PACKET_REQ_TIMEOUT_MS, sendTimeout );
+        pktStatus = _Cellular_AtcmdDataSend( pContext, atReqSocketSend, atDataReqSocketSend,
+                                             socketSendDataPrefix, NULL,
+                                             PACKET_REQ_TIMEOUT_MS, sendTimeout, 0U );
 
         if( pktStatus != CELLULAR_PKT_STATUS_OK )
         {

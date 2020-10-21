@@ -728,46 +728,6 @@ CellularATError_t Cellular_ATStrDup( char ** ppDst,
 
 /*-----------------------------------------------------------*/
 
-CellularATError_t Cellular_ATFindNextEOL( char ** ppEol,
-                                          char * pString )
-{
-    CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
-    char * pTempString = pString;
-
-    if( ( ppEol == NULL ) || ( pTempString == NULL ) )
-    {
-        atStatus = CELLULAR_AT_BAD_PARAMETER;
-    }
-
-    if( atStatus == CELLULAR_AT_SUCCESS )
-    {
-        /* Special handling for QISEND and CMGS commands.
-         * Response for these commands is '\r' + '\n' + '>' + ' ', and there have no trailing '\r' + '\n'
-         * Replace ' ' with '\r' to no leftover the previous processed URC
-         * (i.e. "+QIOPEN: 0, 0") in the buffer. */
-        if( strcmp( pTempString, "> " ) == 0 )
-        {
-            pTempString++;
-            *pTempString = '\r';
-            *ppEol = pTempString;
-        }
-        else
-        {
-            /* Find next newline. */
-            while( ( *pTempString != '\0' ) && ( *pTempString != '\r' ) && ( *pTempString != '\n' ) )
-            {
-                pTempString++;
-            }
-
-            *ppEol = ( *pTempString == '\0' ) ? NULL : pTempString;
-        }
-    }
-
-    return atStatus;
-}
-
-/*-----------------------------------------------------------*/
-
 CellularATError_t Cellular_ATStrtoi( const char * pStr,
                                      int32_t base,
                                      int32_t * pResult )

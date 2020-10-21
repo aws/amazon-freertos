@@ -74,7 +74,6 @@ uint32_t CellularUrcHandlerTableSize = sizeof( CellularUrcHandlerTable ) / sizeo
 static void _cellular_UrcProcessKtcpInd( CellularContext_t * pContext,
                                          char * pInputLine )
 {
-    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     char * pLocalInputLine = pInputLine;
     char * pToken = NULL;
@@ -117,7 +116,7 @@ static void _cellular_UrcProcessKtcpInd( CellularContext_t * pContext,
             {
                 IotLogError( "_cellular_UrcProcessKtcpInd : invalid socket index %d", socketIndex );
             }
-            else if( pSocketData->pModemData != ( void * ) sessionId )
+            else if( pSocketData->pModemData != ( void * ) ( ( uint32_t ) sessionId ) )
             {
                 IotLogError( "_cellular_UrcProcessKtcpInd : session not match %d socket index %d",
                              ( uint32_t ) pSocketData->pModemData, socketIndex );
@@ -179,7 +178,6 @@ static void handleTcpNotif( CellularSocketContext_t * pSocketData,
 static void _cellular_UrcProcessKtcpNotif( CellularContext_t * pContext,
                                            char * pInputLine )
 {
-    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     char * pLocalInputLine = pInputLine;
     char * pToken = NULL;
@@ -255,7 +253,7 @@ static void _cellular_UrcProcessKtcpNotif( CellularContext_t * pContext,
             {
                 IotLogError( "_cellular_UrcProcessKtcpNotif : invalid socket index %d", socketIndex );
             }
-            else if( pSocketData->pModemData != ( void * ) sessionId )
+            else if( pSocketData->pModemData != ( void * ) ( ( uint32_t ) sessionId ) )
             {
                 IotLogError( "_cellular_UrcProcessKtcpNotif : session not match %d socket index %d",
                              ( uint32_t ) pSocketData->pModemData, socketIndex );
@@ -273,12 +271,11 @@ static void _cellular_UrcProcessKtcpNotif( CellularContext_t * pContext,
 static void _cellular_UrcProcessKtcpData( CellularContext_t * pContext,
                                           char * pInputLine )
 {
-    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     char * pLocalInputLine = pInputLine;
     char * pToken = NULL;
     CellularSocketContext_t * pSocketData = NULL;
-    uint8_t sessionId = 0, tcpNotif = 0;
+    uint8_t sessionId = 0;
     uint32_t socketIndex = 0;
     int32_t tempValue = 0;
 
@@ -319,7 +316,7 @@ static void _cellular_UrcProcessKtcpData( CellularContext_t * pContext,
             {
                 IotLogError( "_cellular_UrcProcessKtcpData : invalid socket index %d", socketIndex );
             }
-            else if( pSocketData->pModemData != ( void * ) sessionId )
+            else if( pSocketData->pModemData != ( void * ) ( ( uint32_t ) sessionId ) )
             {
                 IotLogError( "_cellular_UrcProcessKtcpData : session not match %d socket index %d",
                              ( uint32_t ) pSocketData->pModemData, socketIndex );
