@@ -96,8 +96,14 @@
  */
 #define REMAINING_LENGTH_INVALID    ( ( size_t ) 268435456 )
 
+/**
+ * @brief Macro to encode the packet type into MQTT serialized packet.
+ */
 #define ENCODE_PACKET_TYPE( packetType )    ( ( uint8_t ) ( packetType << 4 ) )
 
+/**
+ * @brief Macro to decode the packet type from MQTT serialized packet.
+ */
 #define DECODE_PACKET_TYPE( packetFlag )    ( ( uint8_t ) ( packetFlag >> 4 ) )
 
 /**
