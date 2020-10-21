@@ -72,9 +72,9 @@
 
 #include "logging_levels.h"
 
-/* Logging configuration for the Demo. */
+/* Logging configuration for the Tests. */
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "TEST"
+    #define LIBRARY_LOG_NAME    "SHADOW_TEST"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
@@ -82,10 +82,7 @@
 #endif
 #include "logging_stack.h"
 
-/**
- * These configuration settings are required to run the shadow library integration test.
- * Throw compilation error if the below configs are not defined.
- */
+/* Default values for configs. */
 
 #ifndef BROKER_ENDPOINT
     #define BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
@@ -357,6 +354,8 @@ static uint32_t getTimeMs()
     return timeMs;
 }
 
+/*-----------------------------------------------------------*/
+
 static void establishMqttSession( MQTTContext_t * pContext,
                                   NetworkContext_t * pNetworkContext,
                                   bool createCleanSession,
@@ -420,6 +419,8 @@ static void establishMqttSession( MQTTContext_t * pContext,
                                                   pSessionPresent ) );
 }
 
+/*-----------------------------------------------------------*/
+
 static void eventCallback( MQTTContext_t * pContext,
                            MQTTPacketInfo_t * pPacketInfo,
                            MQTTDeserializedInfo_t * pDeserializedInfo )
@@ -458,7 +459,6 @@ static void eventCallback( MQTTContext_t * pContext,
             {
                 receivedUpdateDeltaResult = true;
                 LogInfo( ( "/update/delta payload:%s.\n\n", ( const char * ) pDeserializedInfo->pPublishInfo->pPayload ) );
-                /* validate the each field in json payload if meet our expectation. */
             }
             else if( ( messageType == ShadowMessageTypeUpdateDocuments ) )
             {
@@ -590,6 +590,8 @@ static void eventCallback( MQTTContext_t * pContext,
     }
 }
 
+/*-----------------------------------------------------------*/
+
 static MQTTStatus_t subscribeToTopic( MQTTContext_t * pContext,
                                       const char * pTopic,
                                       uint16_t topicLength,
@@ -633,6 +635,8 @@ static MQTTStatus_t subscribeToTopic( MQTTContext_t * pContext,
     return mqttStatus;
 }
 
+/*-----------------------------------------------------------*/
+
 static MQTTStatus_t unsubscribeFromTopic( MQTTContext_t * pContext,
                                           const char * pTopic,
                                           uint16_t topicLength,
@@ -653,7 +657,7 @@ static MQTTStatus_t unsubscribeFromTopic( MQTTContext_t * pContext,
     pSubscriptionList[ 0 ].pTopicFilter = pTopic;
     pSubscriptionList[ 0 ].topicFilterLength = topicLength;
 
-    /* Generate packet identifier for the SUBSCRIBE packet. */
+    /* Generate packet identifier for the UNSUBSCRIBE packet. */
     globalUnsubscribePacketIdentifier = MQTT_GetPacketId( pContext );
 
     /* Send UNSUBSCRIBE packet. */
@@ -674,6 +678,8 @@ static MQTTStatus_t unsubscribeFromTopic( MQTTContext_t * pContext,
 
     return mqttStatus;
 }
+
+/*-----------------------------------------------------------*/
 
 static MQTTStatus_t publishToTopic( MQTTContext_t * pContext,
                                     const char * pTopic,
@@ -716,6 +722,8 @@ static MQTTStatus_t publishToTopic( MQTTContext_t * pContext,
 
     return mqttStatus;
 }
+
+/*-----------------------------------------------------------*/
 
 static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
 {
@@ -772,6 +780,8 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
 
     return isSuccessful;
 }
+
+/*-----------------------------------------------------------*/
 
 /* ============================   UNITY FIXTURES ============================ */
 
@@ -836,8 +846,8 @@ TEST_GROUP_RUNNER( deviceShadow_Integration )
 TEST( deviceShadow_Integration, test_Shadow_System )
 {
     /* A buffer containing the update document. It has static duration to prevent
-     * it from being placed on the call stack. */
-    static char updateDocument[ 1 ] = { 0 };
+     * it from being placed on the stack. */
+    static char emptyDocument[ 1 ] = { 0 };
 
     /* Subscribe to shadow topic /delete/accepted with Qos 0. */
     TEST_ASSERT_EQUAL( MQTTSuccess, subscribeToTopic( &context,
@@ -893,7 +903,7 @@ TEST( deviceShadow_Integration, test_Shadow_System )
      */
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic( &context,
                                                     SHADOW_TOPIC_STRING_DELETE( THING_NAME ),
-                                                    updateDocument,
+                                                    emptyDocument,
                                                     MQTTQoS0 ) );
 
     /* Check the flag for /delete/accepted or /delete/rejected. */
@@ -918,7 +928,7 @@ TEST( deviceShadow_Integration, test_Shadow_System )
     /* Finally, sending null payload on topic /get to trigger /get/accepted. */
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic( &context,
                                                     SHADOW_TOPIC_STRING_GET( THING_NAME ),
-                                                    updateDocument,
+                                                    emptyDocument,
                                                     MQTTQoS0 ) );
 
     /* Check the flag for /get/accepted and /get/rejected. */
