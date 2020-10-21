@@ -86,7 +86,7 @@
 /**
  * @brief Milliseconds per second definition.
  */
-#define MILLISECONDS_PER_SECOND             1000U
+#define MILLISECONDS_PER_SECOND              1000U
 
 /**
  * @brief Number of time network receive will be attempted
