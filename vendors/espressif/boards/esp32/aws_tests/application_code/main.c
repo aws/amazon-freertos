@@ -227,6 +227,9 @@ void prvWifiConnect( void )
     WIFIReturnCode_t eWiFiStatus;
     uint32_t ulInitialRetryPeriodMs = 500;
     BaseType_t xMaxRetries = 6;
+    size_t xSSIDLength = 0, xPasswordLength = 0;
+    const char *pcSSID = ( const char * ) clientcredentialWIFI_SSID;
+    const char *pcPassword = ( const char * ) clientcredentialWIFI_PASSWORD;
 
     eWiFiStatus = WIFI_On();
 
@@ -243,12 +246,57 @@ void prvWifiConnect( void )
         }
     }
 
+
     /* Setup parameters. */
-    xJoinAPParams.pcSSID = clientcredentialWIFI_SSID;
-    xJoinAPParams.ucSSIDLength = strlen( clientcredentialWIFI_SSID );
-    xJoinAPParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xJoinAPParams.ucPasswordLength = strlen( clientcredentialWIFI_PASSWORD );
+    if( ( pcSSID == NULL ) || ( strcmp( pcSSID, "") == 0 ) )
+    {
+        configPRINTF(( "[Error] WiFi SSID is not configured (either null or empty).\r\n" ));
+        while( 1 )
+        {
+        }
+    }
+    else
+    {
+        xSSIDLength = strlen( pcSSID );
+
+        if( xSSIDLength > sizeof( xJoinAPParams.ucSSID ) )
+        {
+            configPRINTF(( "[Error] WiFi SSID length exceeeds allowable size of %u bytes.", sizeof( xJoinAPParams.ucSSID ) ));
+            while( 1 )
+            {
+            }
+        } 
+    }
+
+    memcpy( xJoinAPParams.ucSSID, pcSSID, xSSIDLength );
+    xJoinAPParams.ucSSIDLength = xSSIDLength;
     xJoinAPParams.xSecurity = clientcredentialWIFI_SECURITY;
+
+    if ( ( xJoinAPParams.xSecurity == eWiFiSecurityWPA2 ) ||
+         ( xJoinAPParams.xSecurity == eWiFiSecurityWPA ) )
+    {
+        if( pcPassword != NULL )
+        {
+            xPasswordLength = strlen( pcPassword );
+            if( xPasswordLength > sizeof( xJoinAPParams.xPassword.xWPA.cPassphrase ) )
+            {
+                configPRINTF(( "[Error] WiFi password exceeds allowable size of %u bytes.\r\n", sizeof( xJoinAPParams.xPassword.xWPA.cPassphrase ) ));
+                while( 1 )
+                {
+                }
+            }
+            memcpy( xJoinAPParams.xPassword.xWPA.cPassphrase, pcPassword, xPasswordLength );
+            xJoinAPParams.xPassword.xWPA.ucLength = xPasswordLength;
+        }
+        else
+        {
+            configPRINTF(( "[Error] WiFi security is configured as WPA2 but password is not provided.\r\n" ));
+            while( 1 )
+            {
+            }
+        }
+        
+    }
 
     RETRY_EXPONENTIAL( eWiFiStatus = WIFI_ConnectAP( &( xJoinAPParams ) ),
                        eWiFiSuccess, ulInitialRetryPeriodMs, xMaxRetries );

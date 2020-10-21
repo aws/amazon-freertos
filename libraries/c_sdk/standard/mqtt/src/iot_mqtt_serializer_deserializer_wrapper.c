@@ -210,8 +210,8 @@ IotMqttError_t _IotMqtt_connectSerializeWrapper( const IotMqttConnectInfo_t * pC
 {
     IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     size_t remainingLength = 0UL;
-    MQTTConnectInfo_t connectInfo;
-    MQTTFixedBuffer_t networkBuffer;
+    MQTTConnectInfo_t connectInfo = { 0 };
+    MQTTFixedBuffer_t networkBuffer = { 0 };
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTPublishInfo_t willInfo;
 
@@ -281,7 +281,7 @@ IotMqttError_t _IotMqtt_disconnectSerializeWrapper( uint8_t ** pDisconnectPacket
                                                     size_t * pPacketSize )
 {
     IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
-    MQTTFixedBuffer_t networkBuffer;
+    MQTTFixedBuffer_t networkBuffer = { 0 };
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
 
     IotMqtt_Assert( pDisconnectPacket != NULL );
@@ -328,7 +328,7 @@ IotMqttError_t _IotMqtt_subscribeSerializeWrapper( const IotMqttSubscription_t *
     size_t remainingLength = 0UL;
     MQTTSubscribeInfo_t * subscriptionList = NULL;
     size_t i = 0;
-    MQTTFixedBuffer_t networkBuffer;
+    MQTTFixedBuffer_t networkBuffer = { 0 };
     uint16_t packetId = 0;
 
     IotMqtt_Assert( pSubscriptionList != NULL );
@@ -413,7 +413,7 @@ IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t
     MQTTSubscribeInfo_t * unsubscriptionList = NULL;
     size_t i = 0;
     uint16_t packetId = 0;
-    MQTTFixedBuffer_t networkBuffer;
+    MQTTFixedBuffer_t networkBuffer = { 0 };
 
     IotMqtt_Assert( pUnsubscriptionList != NULL );
     IotMqtt_Assert( pUnsubscribePacket != NULL );
@@ -496,7 +496,10 @@ IotMqttError_t _IotMqtt_publishSerializeWrapper( const IotMqttPublishInfo_t * pP
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTPublishInfo_t publishInfo;
     uint16_t packetId = 0;
-    MQTTFixedBuffer_t networkBuffer;
+    MQTTFixedBuffer_t networkBuffer = { 0 };
+
+    /* Unused parameter. */
+    ( void ) pPacketIdentifierHigh;
 
     /* Null Check for publishInfo. */
     IotMqtt_Assert( pPublishInfo != NULL );
@@ -556,7 +559,7 @@ IotMqttError_t _IotMqtt_pingreqSerializeWrapper( uint8_t ** pPingreqPacket,
                                                  size_t * pPacketSize )
 {
     IotMqttError_t serializeStatus = IOT_MQTT_BAD_PARAMETER;
-    MQTTFixedBuffer_t networkBuffer;
+    MQTTFixedBuffer_t networkBuffer = { 0 };
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
 
     IotMqtt_Assert( pPingreqPacket != NULL );

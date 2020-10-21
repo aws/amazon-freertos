@@ -23,8 +23,8 @@ afr_module_sources(
         "${src_dir}/FreeRTOS_UDP_IP.c"
         # List of files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp.cmake
         ${FREERTOS_PLUS_TCP_HEADER_FILES}
+        ${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp.cmake
 )
 
 afr_module_include_dirs(

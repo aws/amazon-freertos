@@ -140,27 +140,27 @@ void cy_convert_network_params(
     whd_security_t *security,
     uint8_t *channel)
 {
-    *key = (uint8_t*)pxNetworkParams->pcPassword;
-    *keylen = strlen(pxNetworkParams->pcPassword);
+    *key = (uint8_t*)pxNetworkParams->xPassword.xWPA.cPassphrase;
+    *keylen = pxNetworkParams->xPassword.xWPA.ucLength;
 
-    ssid->length = strlen(pxNetworkParams->pcSSID);
-    memcpy(ssid->value, pxNetworkParams->pcSSID, ssid->length);
+    ssid->length = pxNetworkParams->ucSSIDLength;
+    memcpy(ssid->value, pxNetworkParams->ucSSID, ssid->length);
 
     *security = whd_fromsecurity(pxNetworkParams->xSecurity);
 
-    *channel = (uint8_t)pxNetworkParams->cChannel;
+    *channel = (uint8_t)pxNetworkParams->ucChannel;
 }
 
 void cy_check_network_params(const WIFINetworkParams_t * const pxNetworkParams)
 {
     configASSERT(pxNetworkParams != NULL);
-    configASSERT(pxNetworkParams->pcSSID != NULL);
+    configASSERT(pxNetworkParams->ucSSIDLength != 0);
     configASSERT(pxNetworkParams->ucSSIDLength < wificonfigMAX_SSID_LEN);
     if (pxNetworkParams->xSecurity != eWiFiSecurityOpen)
     {
-        configASSERT(pxNetworkParams->pcPassword != NULL);
+        configASSERT(pxNetworkParams->xPassword.xWPA.ucLength != 0);
     }
-    configASSERT(pxNetworkParams->ucPasswordLength < wificonfigMAX_PASSPHRASE_LEN);
+    configASSERT(pxNetworkParams->xPassword.xWPA.ucLength <= wificonfigMAX_PASSPHRASE_LEN);
     configASSERT(pxNetworkParams->xSecurity != eWiFiSecurityNotSupported);
 }
 
@@ -254,16 +254,17 @@ static void whd_scan_handler(whd_scan_result_t **result_ptr,
     }   
 
     WIFIScanResult_t ap;
-    uint8_t length = (record->SSID.length > sizeof(ap.cSSID) - 1) 
-        ? sizeof(ap.cSSID) - 1
-        : record->SSID.length;
-    memcpy(ap.cSSID, record->SSID.value, length);
-    ap.cSSID[length] = '\0';
+
+    ap.ucSSIDLength = record->SSID.length;
+    if( ap.ucSSIDLength > wificonfigMAX_SSID_LEN )
+    {
+        ap.ucSSIDLength = wificonfigMAX_SSID_LEN;
+    }
+    memcpy( ap.ucSSID, record->SSID.value, ap.ucSSIDLength );
     memcpy(ap.ucBSSID, record->BSSID.octet, sizeof(ap.ucBSSID));
     ap.xSecurity = whd_tosecurity(record->security);
     ap.cRSSI = record->signal_strength;
-    ap.cChannel = record->channel;
-    ap.ucHidden = 0;
+    ap.ucChannel = record->channel;
     data->aps[data->offset] = ap;
     data->offset++;  
 }
@@ -620,12 +621,35 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t WIFI_IsConnected(void)
+BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
 {
-    return isConnected ? pdTRUE : pdFALSE;
+    BaseType_t xIsConnected = pdFALSE;
+
+    if ( isConnected )
+    {
+        if( pxNetworkParams )
+        {
+            whd_bss_info_t xAPInfo;
+            whd_security_t xSecurity;
+            if ( pxNetworkParams->ucSSIDLength > 0
+                 && pxNetworkParams->ucSSIDLength <= wificonfigMAX_SSID_LEN
+                 && WHD_SUCCESS == whd_wifi_get_ap_info( primaryInterface, &xAPInfo, &xSecurity)
+                 && 0 == memcmp( pxNetworkParams->ucSSID, xAPInfo.SSID, pxNetworkParams->ucSSIDLength )
+                 && pxNetworkParams->ucSSIDLength == xAPInfo.SSID_len )
+            {
+                xIsConnected = pdTRUE;
+            }
+        }
+        else
+        {
+            xIsConnected = pdTRUE;
+        }
+    }
+
+    return xIsConnected;
 }
 
-WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback )
+WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )
 {
     /* FIX ME. */
     return eWiFiNotSupported;

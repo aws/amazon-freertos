@@ -36,6 +36,7 @@
 /* RTOS port includes. */
 #include "pthread.h"
 #include "unistd.h"
+#include <string.h>
 
 /* TI Network interface includes. */
 #include "network_if.h"
@@ -70,6 +71,11 @@ static BaseType_t xWIFIInitDone;
  * @brief Wi-Fi device status.
  */
 extern volatile unsigned long g_ulStatus;
+
+/**
+ * @brief Current connection SSID.
+ */
+extern unsigned char * g_ucConnectionSSID;
 
 /**
  * @brief Maximum time to wait in ticks for obtaining the Wi-Fi semaphore
@@ -373,6 +379,38 @@ static WIFIReturnCode_t prvStartScan( uint32_t ulIntervalSec,
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Copies byte array into char array, appending '\0'. Assumes char array can hold length of byte array + 1.
+ *        Null terminator is guaranteed so long as xLen > 0. A maximum of xCap - 1 pucSrc bytes will be copied into pcDest,
+ *        therefore truncation is possible.
+ *
+ * @param[in] pcDest The string to copy pucSrc contents into
+ *
+ * @param[in] pucSrc The byte array to copy into pcDest
+ *
+ * @param[in] xLen The queried number of byte to copy from pucSrc to pcDest
+ *
+ * @param[in] xCap Capacity of pcDest i.e. max characters it can store
+ *
+ */
+static size_t prvByteArrayToString( char *pcDest, const void *pucSrc, size_t xLen, size_t xCap )
+{
+    configASSERT( pcDest );
+    configASSERT( pucSrc );
+
+    if ( xLen > ( xCap - 1 ) )
+    {
+        xLen = xCap - 1;
+    }
+
+    memcpy( pcDest, pucSrc, xLen );
+    pcDest[ xLen ] = '\0';
+
+    return xLen;
+}
+
+/*-----------------------------------------------------------*/
+
 static WIFIReturnCode_t prvStopScan( void )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
@@ -399,6 +437,7 @@ static WIFIReturnCode_t prvStopScan( void )
 
 
 /*-----------------------------------------------------------*/
+
 
 WIFIReturnCode_t WIFI_On( void )
 {
@@ -472,14 +511,15 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     WIFIReturnCode_t xRetVal = eWiFiSuccess;
     int32_t lRetVal;
     SlWlanSecParams_t xSecurityParams = { 0 };
-    char pcSsidCopy[ wificonfigMAX_SSID_LEN + 1 ] = { 0 };
+    char cSSID[ wificonfigMAX_SSID_LEN + 1 ] = { 0 };
+    char cPassword[ wificonfigMAX_PASSPHRASE_LEN + 1 ] = { 0 };
 
     configASSERT( pxNetworkParams != NULL );
-    configASSERT( pxNetworkParams->pcSSID != NULL );
+    configASSERT( pxNetworkParams->ucSSIDLength > 0 );
 
     if ( pxNetworkParams->xSecurity != eWiFiSecurityOpen )
     {
-        configASSERT( pxNetworkParams->pcPassword != NULL );
+        configASSERT( pxNetworkParams->xPassword.xWPA.ucLength > 0 );
     }
 
     /* Try to acquire the semaphore. */
@@ -490,11 +530,12 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             /* Write the input constant SSID to the local copy. A local copy of the
             * Wi-Fi SSID parameter is needed because Network_IF_ConnectAP() will
             * attempt to write to it's input parameter pcSsid. */
-            memcpy( pcSsidCopy, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength );
+            prvByteArrayToString( cSSID, pxNetworkParams->ucSSID, pxNetworkParams->ucSSIDLength, wificonfigMAX_SSID_LEN );
 
             /* Initialize AP security params. */
-            xSecurityParams.Key = ( signed char * ) pxNetworkParams->pcPassword;
-            xSecurityParams.KeyLen = pxNetworkParams->ucPasswordLength;
+            prvByteArrayToString( cPassword, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength, wificonfigMAX_PASSPHRASE_LEN );
+            xSecurityParams.Key = ( signed char * ) cPassword;
+            xSecurityParams.KeyLen = strlen(cPassword);
 
             xSecurityParams.Type = prvConvertSecurityAbstractedToTI( pxNetworkParams->xSecurity );
 
@@ -502,7 +543,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             {
                 /* Connect to the Access Point. If the credentials are incorrect this
                 * function will ask for an open SSID. */
-                lRetVal = Network_IF_ConnectAP( pcSsidCopy,
+                lRetVal = Network_IF_ConnectAP( cSSID,
                                                 xSecurityParams );
             }
             else
@@ -718,7 +759,7 @@ WIFIReturnCode_t WIFI_NetworkAdd( const WIFINetworkProfile_t * const pxNetworkPr
 
         if ( xSecurityParams.Type != wificonfigSEC_TYPE_UNKNOWN )
         {
-            sRetcode = sl_WlanProfileAdd( ( signed char * ) pxNetworkProfile->cSSID,
+            sRetcode = sl_WlanProfileAdd( ( signed char * ) pxNetworkProfile->ucSSID,
                                           pxNetworkProfile->ucSSIDLength,
                                           pxNetworkProfile->ucBSSID,
                                           &xSecurityParams,
@@ -775,7 +816,7 @@ WIFIReturnCode_t WIFI_NetworkGet( WIFINetworkProfile_t * pxNetworkProfile,
     if( xSemaphoreTake( xWiFiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
     {
         sRetCode = sl_WlanProfileGet( usIndex,
-                                      ( signed char * ) pxNetworkProfile->cSSID,
+                                      ( signed char * ) pxNetworkProfile->ucSSID,
                                       &sSSIDLength,
                                       pxNetworkProfile->ucBSSID,
                                       &xSecurityParams,
@@ -854,12 +895,13 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
+WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * xIPConfig )
 {
     WIFIReturnCode_t xRetVal = eWiFiSuccess;
     int16_t sRetCode;
 
-    configASSERT( pucIPAddr != NULL );
+    configASSERT( xIPConfig != NULL );
+    memset(xIPConfig, 0, sizeof( WIFIIPConfiguration_t ) );
 
     unsigned long ulDestinationIP = 0;
     unsigned long ulSubMask = 0;
@@ -879,10 +921,11 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
     else
     {
         /*fill the return buffer.*/
-        *( pucIPAddr ) = SL_IPV4_BYTE( ulDestinationIP, 3 );
-        *( pucIPAddr + 1 ) = SL_IPV4_BYTE( ulDestinationIP, 2 );
-        *( pucIPAddr + 2 ) = SL_IPV4_BYTE( ulDestinationIP, 1 );
-        *( pucIPAddr + 3 ) = SL_IPV4_BYTE( ulDestinationIP, 0 );
+        uint8_t * pucIPv4Addr = ( uint8_t * )&xIPConfig->xIPAddress.ulAddress[ 0 ];
+        *( pucIPv4Addr ) = SL_IPV4_BYTE( ulDestinationIP, 3 );
+        *( pucIPv4Addr + 1 ) = SL_IPV4_BYTE( ulDestinationIP, 2 );
+        *( pucIPv4Addr + 2 ) = SL_IPV4_BYTE( ulDestinationIP, 1 );
+        *( pucIPv4Addr + 3 ) = SL_IPV4_BYTE( ulDestinationIP, 0 );
     }
 
     return xRetVal;
@@ -995,22 +1038,22 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
 
                 for( i = 0 ; i < ucNumNetworks ; i++ )
                 {
-                    strncpy( ( char * ) pxBuffer[ i ].cSSID,
-                            ( char * ) pxNetEntries[ i ].Ssid,
-                            wificonfigMAX_SSID_LEN );
-                    pxBuffer[ i ].cSSID[ wificonfigMAX_SSID_LEN ] = '\0';
+                    /* strnlen not offered in bsp string.h */
+                    size_t xInputSSIDLength = strlen( ( char * ) pxNetEntries[ i ].Ssid );
+                    pxBuffer[ i ].ucSSIDLength = xInputSSIDLength > wificonfigMAX_SSID_LEN ? wificonfigMAX_SSID_LEN : xInputSSIDLength;
+                    memcpy( pxBuffer[ i ].ucSSID,
+                            ( uint8_t * ) pxNetEntries[ i ].Ssid,
+                            pxBuffer[ i ].ucSSIDLength );
 
                     strncpy( ( char * ) pxBuffer[ i ].ucBSSID,
-                            ( char * ) pxNetEntries[ i ].Bssid,
-                            wificonfigMAX_BSSID_LEN );
+                             ( char * ) pxNetEntries[ i ].Bssid,
+                             wificonfigMAX_BSSID_LEN );
 
-                    pxBuffer[ i ].cChannel = pxNetEntries[ i ].Channel;
+                    pxBuffer[ i ].ucChannel = pxNetEntries[ i ].Channel;
                     pxBuffer[ i ].cRSSI = pxNetEntries[ i ].Rssi;
 
                     /* security types as supported by simplelink . */
                     pxBuffer[ i ].xSecurity = prvConvertSecurityTIToAbstracted( SL_WLAN_SCAN_RESULT_SEC_TYPE_BITMAP( pxNetEntries[ i ].SecurityInfo ) );
-
-                    pxBuffer[ i ].ucHidden = SL_WLAN_SCAN_RESULT_HIDDEN_SSID( pxNetEntries[ i ].SecurityInfo );
                 }
 
                 vPortFree( pxNetEntries );
@@ -1055,18 +1098,18 @@ WIFIReturnCode_t WIFI_StopAP( void )
 WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
-    uint8_t ucSSIDStr[ wificonfigMAX_SSID_LEN + 1 ];
-    uint8_t ucPassStr[ wificonfigMAX_PASSPHRASE_LEN + 1 ];
     int16_t sRetCode;
     uint8_t ucChannel;
     uint8_t ucSecurityType;
+    char cSSID[ wificonfigMAX_SSID_LEN + 1 ] = { 0 };
+    char cPassword[ wificonfigMAX_PASSPHRASE_LEN + 1 ] = { 0 };
 
     configASSERT( pxNetworkParams != NULL );
-    configASSERT( pxNetworkParams->pcSSID != NULL );
+    configASSERT( pxNetworkParams->ucSSIDLength > 0 );
 
     if ( pxNetworkParams->xSecurity != eWiFiSecurityOpen )
     {
-        configASSERT( pxNetworkParams->pcPassword != NULL );
+        configASSERT( pxNetworkParams->xPassword.xWPA.ucLength > 0 );
     }
 
     /* Try to acquire the semaphore. */
@@ -1082,12 +1125,11 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
         else
         {
             /*Set Access point SSID.*/
-            memcpy( ucSSIDStr, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength );
-            ucSSIDStr[ pxNetworkParams->ucSSIDLength ] = '\0';
+            prvByteArrayToString( cSSID, pxNetworkParams->ucSSID, pxNetworkParams->ucSSIDLength, wificonfigMAX_SSID_LEN );
             sRetCode = sl_WlanSet( SL_WLAN_CFG_AP_ID,
-                                SL_WLAN_AP_OPT_SSID,
-                                pxNetworkParams->ucSSIDLength,
-                                ucSSIDStr );
+                                   SL_WLAN_AP_OPT_SSID,
+                                   strlen( cSSID ),
+                                   cSSID );
         }
 
         /* Print error, if there is one. */
@@ -1100,7 +1142,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
         if ( sRetCode == 0 )
         {
             /*Set Access point Channel.*/
-            ucChannel = pxNetworkParams->cChannel;
+            ucChannel = pxNetworkParams->ucChannel;
             sRetCode = sl_WlanSet( SL_WLAN_CFG_AP_ID,
                                    SL_WLAN_AP_OPT_CHANNEL,
                                    1,
@@ -1134,7 +1176,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
             if ( pxNetworkParams->xSecurity != eWiFiSecurityOpen )
             {
 
-                if( pxNetworkParams->ucPasswordLength > wificonfigMAX_PASSPHRASE_LEN )
+                if( pxNetworkParams->xPassword.xWPA.ucLength > wificonfigMAX_PASSPHRASE_LEN )
                 {
                     /* Set a negative error code to fall out and give up the semaphore. */
                     sRetCode = wifiGENERAL_INTERNAL_ERROR;
@@ -1142,13 +1184,11 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
                 else
                 {
                     /*Set Access point password.*/
-                    memcpy( ucPassStr, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength );
-                    ucPassStr[ pxNetworkParams->ucPasswordLength ] = '\0';
-
+                    prvByteArrayToString( cPassword, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength, wificonfigMAX_PASSPHRASE_LEN );
                     sRetCode = sl_WlanSet( SL_WLAN_CFG_AP_ID,
-                                        SL_WLAN_AP_OPT_PASSWORD,
-                                        pxNetworkParams->ucPasswordLength,
-                                        ( uint8_t * ) ucPassStr );
+                                          SL_WLAN_AP_OPT_PASSWORD,
+                                          strlen( cPassword ),
+                                          ( uint8_t * ) cPassword );
                 }
 
                 if( sRetCode != 0 )
@@ -1291,18 +1331,30 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t WIFI_IsConnected( void )
+BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
 {
     BaseType_t xIsConnected = pdFALSE;
 
     if ( IS_CONNECTED( Network_IF_CurrentMCUState() ) ){
-        xIsConnected = pdTRUE;
+        if ( pxNetworkParams )
+        {
+            if ( pxNetworkParams->ucSSIDLength > 0
+                 && pxNetworkParams->ucSSIDLength <= wificonfigMAX_SSID_LEN
+                 && 0 == memcmp( pxNetworkParams->ucSSID, g_ucConnectionSSID, pxNetworkParams->ucSSIDLength ))
+            {
+                xIsConnected = pdTRUE;
+            }
+        }
+        else
+        {
+            xIsConnected = pdTRUE;
+        }
     }
 
     return xIsConnected;
 }
 
-WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )
 {
     /** Needs to implement dispatching network state change events **/
     return eWiFiNotSupported;

@@ -67,6 +67,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define wificonfigMAX_BSSID_LEN               ( 6 )
 
 /**
+ * @brief Max number of WEP keys supported.
+ */
+#define wificonfigMAX_WEPKEYS                  ( 4 )
+
+/**
+ * @brief Max WEP key length
+ */
+#define wificonfigMAX_WEPKEY_LEN              ( 26 )
+
+/**
  * @brief Max passphrase length
  * 
  * This is the max Passphrase length expected by sl_WlanSet().

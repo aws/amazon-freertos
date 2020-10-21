@@ -442,7 +442,8 @@ void prvWifiConnect( void )
 
     WIFINetworkParams_t xNetworkParams;
     WIFIReturnCode_t xWifiStatus;
-    uint8_t ucTempIp[4] = { 0 };
+    WIFIIPConfiguration_t xIPConfig;
+    uint8_t * pucIP4 = NULL;
 
     configPRINT("\r\nWill attempt to start wlan \r\n");
     xWifiStatus = WIFI_On();
@@ -461,36 +462,45 @@ void prvWifiConnect( void )
     }
 
     /* Setup parameters. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
+    xNetworkParams.ucSSIDLength = strlen( clientcredentialWIFI_SSID );
+    memcpy(&xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xNetworkParams.ucSSIDLength );
+    xNetworkParams.xPassword.xWPA.ucLength = strlen( clientcredentialWIFI_PASSWORD );
+    memcpy(&xNetworkParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xNetworkParams.xPassword.xWPA.ucLength );
     xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    xNetworkParams.cChannel = 0;
+    xNetworkParams.ucChannel = 0;
 
     xWifiStatus = WIFI_ConnectAP(&xNetworkParams);
     if( xWifiStatus == eWiFiSuccess ) {
         configPRINT( "\r\nWi-Fi Connected to AP. Creating tasks which use network...\r\n" );
-        xWifiStatus = WIFI_GetIP( ucTempIp );
+        xWifiStatus = WIFI_GetIPInfo( &xIPConfig );
         if ( eWiFiSuccess == xWifiStatus ) {
+            pucIP4 = ( uint8_t * )&xIPConfig.xIPAddress.ulAddress[0];
             wmprintf( "IP Address acquired %d.%d.%d.%d\r\n",
-        		    ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] );
+                      pucIP4[ 0 ], 
+                      pucIP4[ 1 ], 
+                      pucIP4[ 2 ], 
+                      pucIP4[ 3 ] ); 
         }
     } else {
         /* Connection failed, configure SoftAP. */
-        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
+        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", clientcredentialWIFI_SSID ) );
 
-        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
-        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
+        xNetworkParams.ucSSIDLength = strlen(wificonfigACCESS_POINT_SSID_PREFIX);
+        memcpy(xNetworkParams.ucSSID, wificonfigACCESS_POINT_SSID_PREFIX, xNetworkParams.ucSSIDLength);
+        xNetworkParams.xPassword.xWPA.ucLength = strlen(wificonfigACCESS_POINT_PASSKEY);
+        memcpy(xNetworkParams.xPassword.xWPA.cPassphrase, wificonfigACCESS_POINT_PASSKEY, xNetworkParams.xPassword.xWPA.ucLength);
         xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
-        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
+        xNetworkParams.ucChannel = wificonfigACCESS_POINT_CHANNEL;
 
         configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
-                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+                      wificonfigACCESS_POINT_SSID_PREFIX,
+                      wificonfigACCESS_POINT_PASSKEY ) );
 
         while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess ) {
                 configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
-                                xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+                               wificonfigACCESS_POINT_SSID_PREFIX,
+                               wificonfigACCESS_POINT_PASSKEY ) );
+                vTaskDelay( pdMS_TO_TICKS(3000) );
         }
 
         configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
