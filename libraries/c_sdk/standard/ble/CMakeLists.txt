@@ -56,21 +56,10 @@ afr_module_dependencies(
         AFR::serializer
 )
 
-#BLE integration Test with MQTT library
-afr_test_module()
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        "${test_dir}/iot_test_ble_mqtt_serialize.c"
-        "${test_dir}/iot_mqtt_ble_system_test.c"
-        "${test_dir}/iot_test_ble_end_to_end.c"
-)
-afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        AFR::ble
-        AFR::core_mqtt
-)
+if( EXISTS ${CMAKE_CURRENT_LIST_DIR}/test )
+    afr_add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/test")
+endif()
+
 
 afr_module(NAME ble_wifi_provisioning)
 
