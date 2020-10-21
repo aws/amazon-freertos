@@ -333,7 +333,10 @@ target_sources(
         "${afr_ports_dir}/common_io/iot_i2c.c"
         "${afr_ports_dir}/common_io/iot_spi.c"
         "${afr_ports_dir}/common_io/iot_uart.c"
-         $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
+        $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
+        # Add the header file to generate metadata for it so that
+        # it is present in the code downloaded from FreeRTOS console.
+        "${afr_ports_dir}/common_io/include/iot_board_gpio.h" 
 )
 target_include_directories(
     AFR::common_io::mcu_port

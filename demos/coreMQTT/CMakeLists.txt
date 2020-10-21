@@ -15,6 +15,11 @@ afr_module_sources(
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_serializer.c"
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_keep_alive.c"
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_connection_sharing.c"
+        # As the containing directory name (coreMQTT) does not match the
+        # module name (core_mqtt), we add dependency on the CMake file so
+        # that metadata is generated for it, and it is present in code 
+        # downloaded from the FreeRTOS console.
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
 )
 
 afr_module_dependencies(

@@ -1,19 +1,27 @@
 afr_module( NAME core_json )
 
-afr_set_lib_metadata(ID "core_json")
-afr_set_lib_metadata(DESCRIPTION "This library is a parser that enforces the ECMA-404 JSON standard.")
-afr_set_lib_metadata(DISPLAY_NAME "Core JSON")
-afr_set_lib_metadata(CATEGORY "Tool")
-afr_set_lib_metadata(VERSION "1.0.0")
-afr_set_lib_metadata(IS_VISIBLE "false")
-
 # Include Json library's source and header path variables.
 include("${CMAKE_CURRENT_LIST_DIR}/coreJSON/jsonFilePaths.cmake")
+
+# Create a list of all header files in the coreJSON library.
+# The list of header files will be added to metadata required
+# for the FreeRTOS console.
+set(JSON_HEADER_FILES "")
+foreach(json_public_include_dir ${JSON_INCLUDE_PUBLIC_DIRS})
+    file(GLOB json_public_include_header_files
+              LIST_DIRECTORIES false
+              ${json_public_include_dir}/* )
+    list(APPEND JSON_HEADER_FILES ${json_public_include_header_files})
+endforeach()
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         ${JSON_SOURCES}
+        # List of files added to the target so that these are available
+        # in code downloaded from the FreeRTOS console.
+        ${CMAKE_CURRENT_LIST_DIR}/coreJSON/jsonFilePaths.cmake
+        ${JSON_HEADER_FILES}
 )
 
 afr_module_include_dirs(
