@@ -84,6 +84,11 @@
 #define MQTT_KEEP_ALIVE_PERIOD_SECONDS       5U
 
 /**
+ * @brief Milliseconds per second definition.
+ */
+#define MILLISECONDS_PER_SECOND             1000U
+
+/**
  * @brief Number of time network receive will be attempted
  * if it fails due to transportTimeout.
  */
@@ -808,7 +813,7 @@ MQTTStatus_t RunMQTTBLETransportDemo( void )
                  * loop will send out a PINGREQ if PUBLISH was not sent for this iteration.
                  * The broker will wait till 1.5 times keep-alive period before it disconnects
                  * the client. */
-                ( void ) sleep( MQTT_KEEP_ALIVE_PERIOD_SECONDS );
+                ( void ) vTaskDelay( pdMS_TO_TICKS( MQTT_KEEP_ALIVE_PERIOD_SECONDS * MILLISECONDS_PER_SECOND ) );
             }
 
             /* If we disconnected along the way, exit the loop and log an error */
