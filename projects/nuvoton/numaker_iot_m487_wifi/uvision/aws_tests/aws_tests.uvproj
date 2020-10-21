@@ -1798,6 +1798,11 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../tests/integration_test/core_mqtt_system_test.c</FilePath>
 						</File>
+						<File>
+							<FileName>shadow_system_test.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../tests/integration_test/shadow_system_test.c</FilePath>
+						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -1887,6 +1892,11 @@
 							<FileName>core_test_pkcs11_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_tests/config_files/core_test_pkcs11_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>shadow_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_tests/config_files/shadow_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>shadow_config.h</FileName>

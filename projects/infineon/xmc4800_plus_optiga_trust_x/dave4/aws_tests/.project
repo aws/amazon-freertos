@@ -1929,6 +1929,11 @@
 			<locationURI>AFR_HOME/tests/integration_test/core_mqtt_system_test.c</locationURI>
 		</link>
 		<link>
+			<name>tests/integration_test/shadow_system_test.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/tests/integration_test/shadow_system_test.c</locationURI>
+		</link>
+		<link>
 			<name>application_code/infineon_code/console_io.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_tests/application_code/infineon_code/console_io.c</locationURI>
@@ -2047,6 +2052,11 @@
 			<name>config_files/core_test_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_tests/config_files/core_test_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/shadow_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_tests/config_files/shadow_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/shadow_config.h</name>

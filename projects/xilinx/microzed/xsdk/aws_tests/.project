@@ -1118,6 +1118,11 @@
 			<locationURI>AFR_ROOT/tests/integration_test/core_mqtt_system_test.c</locationURI>
 		</link>
 		<link>
+			<name>tests/integration_test/shadow_system_test.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/tests/integration_test/shadow_system_test.c</locationURI>
+		</link>
+		<link>
 			<name>tests/integration_test/test_freertos_tcp.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/tests/integration_test/test_freertos_tcp.c</locationURI>
@@ -1231,6 +1236,11 @@
 			<name>config_files/core_test_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/core_test_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/shadow_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/shadow_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/shadow_config.h</name>

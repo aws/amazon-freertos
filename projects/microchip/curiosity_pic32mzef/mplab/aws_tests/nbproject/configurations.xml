@@ -62,6 +62,7 @@
 			</logicalFolder>
 			<logicalFolder name="integration_test" displayName="integration_test" projectFiles="true">
 				<itemPath>../../../../../tests/integration_test/core_mqtt_system_test.c</itemPath>
+				<itemPath>../../../../../tests/integration_test/shadow_system_test.c</itemPath>
 				<itemPath>../../../../../tests/integration_test/test_freertos_tcp.c</itemPath>
 			</logicalFolder>
 		</logicalFolder>

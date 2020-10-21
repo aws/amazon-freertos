@@ -467,6 +467,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_threads.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c"/>
 		<ClCompile Include="..\..\..\..\..\tests\integration_test\core_mqtt_system_test.c"/>
+		<ClCompile Include="..\..\..\..\..\tests\integration_test\shadow_system_test.c"/>
 		<ClCompile Include="..\..\..\..\..\tests\integration_test\test_freertos_tcp.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\main.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.c"/>

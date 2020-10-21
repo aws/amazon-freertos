@@ -118,6 +118,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)https/test/access \
                     $(AFR_C_SDK_STANDARD_PATH)https/test/unit \
                     $(AFR_THIRDPARTY_PATH)http_parser \
+                    $(AFR_LIBRARIES_PATH)device-shadow-for-aws-iot-embedded-sdk/source/include \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_tests/application_code/main.c \
@@ -208,6 +209,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_client.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_utils.c \
                       $(AFR_THIRDPARTY_PATH)http_parser/http_parser.c \
+                      $(AMAZON_FREERTOS_PATH)tests/integration_test/shadow_system_test.c \
 
 
 $(NAME)_COMPONENTS += utilities/wifi

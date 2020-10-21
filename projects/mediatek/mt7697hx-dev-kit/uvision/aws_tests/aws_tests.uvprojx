@@ -2214,6 +2214,11 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../tests/integration_test/core_mqtt_system_test.c</FilePath>
 						</File>
+						<File>
+							<FileName>shadow_system_test.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../tests/integration_test/shadow_system_test.c</FilePath>
+						</File>
 					</Files>
 				</Group>
 				<Group>

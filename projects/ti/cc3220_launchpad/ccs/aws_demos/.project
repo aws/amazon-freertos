@@ -1013,6 +1013,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/core_mqtt_demo_dependencies.cmake</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/core_mqtt_demo_dependencies.cmake</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>

@@ -2053,6 +2053,9 @@
 					</file>
 				</group>
 			</group>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\mqttFilePaths.cmake</name>
+			</file>
 		</group>
 		<group>
 			<name>3rdparty</name>

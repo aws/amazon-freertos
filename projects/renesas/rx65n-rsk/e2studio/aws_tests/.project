@@ -2097,6 +2097,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/tests/integration_test/core_mqtt_system_test.c</locationURI>
 		</link>
 		<link>
+			<name>tests/integration_test/shadow_system_test.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/integration_test/shadow_system_test.c</locationURI>
+		</link>
+		<link>
 			<name>tests/integration_test/test_freertos_tcp.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/tests/integration_test/test_freertos_tcp.c</locationURI>

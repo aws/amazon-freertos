@@ -63,5 +63,6 @@
 #define testrunnerFULL_OTA_AGENT_ENABLED           0
 #define testrunnerFULL_OTA_PAL_ENABLED             0
 #define testrunnerFULL_HTTPS_CLIENT_ENABLED        0
+#define testrunnerFULL_DEVICE_SHADOW_ENABLED       0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */
