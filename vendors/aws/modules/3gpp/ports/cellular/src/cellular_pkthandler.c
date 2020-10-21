@@ -66,9 +66,10 @@ static void _processUrcPacket( CellularContext_t * pContext,
 static CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallbackRaw( CellularContext_t * pContext,
                                                                          CellularAtReq_t atReq,
                                                                          uint32_t timeoutMS );
-static CellularPktStatus_t _Cellular_DataSendWithTimeoutRaw( CellularContext_t * pContext,
-                                                             CellularAtDataReq_t dataReq,
-                                                             uint32_t timeoutMs );
+static CellularPktStatus_t _Cellular_DataSendWithTimeoutDelayRaw( CellularContext_t * pContext,
+                                                                  CellularAtDataReq_t dataReq,
+                                                                  uint32_t timeoutMs,
+                                                                  uint32_t interDelayMS );
 static void _Cellular_PktHandlerAcquirePktRequestMutex( CellularContext_t * pContext );
 static void _Cellular_PktHandlerReleasePktRequestMutex( CellularContext_t * pContext );
 static int _searchCompareFunc( const void * pInputToken,
@@ -139,7 +140,7 @@ static CellularPktStatus_t urcParseToken( CellularContext_t * pContext,
     }
     else
     {
-        IotLogDebug( "Next to Parse[%s]", pInputLine );
+        IotLogDebug( "Next URC token to parse [%s]", pInputLine );
 
         /* First check for + at the beginning and advance to point to the next
          * byte. Use that string to pass to strtok and retrieve the token. Once the
@@ -260,9 +261,10 @@ static CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallbackRaw( Cellula
 
 /*-----------------------------------------------------------*/
 
-static CellularPktStatus_t _Cellular_DataSendWithTimeoutRaw( CellularContext_t * pContext,
-                                                             CellularAtDataReq_t dataReq,
-                                                             uint32_t timeoutMs )
+static CellularPktStatus_t _Cellular_DataSendWithTimeoutDelayRaw( CellularContext_t * pContext,
+                                                                  CellularAtDataReq_t dataReq,
+                                                                  uint32_t timeoutMs,
+                                                                  uint32_t interDelayMS )
 {
     CellularPktStatus_t respCode = CELLULAR_PKT_STATUS_OK;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
@@ -276,7 +278,7 @@ static CellularPktStatus_t _Cellular_DataSendWithTimeoutRaw( CellularContext_t *
     }
     else if( ( dataReq.pData == NULL ) || ( dataReq.pSentDataLength == NULL ) )
     {
-        IotLogError( "_Cellular_DataSendWithTimeoutRaw, null input" );
+        IotLogError( "_Cellular_DataSendWithTimeoutDelayRaw, null input" );
         pktStatus = CELLULAR_PKT_STATUS_BAD_REQUEST;
     }
     else
@@ -288,10 +290,13 @@ static CellularPktStatus_t _Cellular_DataSendWithTimeoutRaw( CellularContext_t *
 
         if( *dataReq.pSentDataLength != dataReq.dataLen )
         {
-            IotLogError( "_Cellular_DataSendWithTimeoutRaw, incomplete data transfer" );
+            IotLogError( "_Cellular_DataSendWithTimeoutDelayRaw, incomplete data transfer" );
             pktStatus = CELLULAR_PKT_STATUS_SEND_ERROR;
         }
     }
+
+    /* Some driver required wait for a minimum of delay before sending data. */
+    vTaskDelay( pdMS_TO_TICKS( interDelayMS ) );
 
     /* End pattern for specific modem. */
     if( ( pktStatus == CELLULAR_PKT_STATUS_OK ) && ( dataReq.pEndPattern != NULL ) )
@@ -300,7 +305,7 @@ static CellularPktStatus_t _Cellular_DataSendWithTimeoutRaw( CellularContext_t *
 
         if( sendEndPatternLen != dataReq.endPatternLen )
         {
-            IotLogError( "_Cellular_DataSendWithTimeoutRaw, incomplete endpattern transfer" );
+            IotLogError( "_Cellular_DataSendWithTimeoutDelayRaw, incomplete endpattern transfer" );
             pktStatus = CELLULAR_PKT_STATUS_SEND_ERROR;
         }
     }
@@ -547,6 +552,9 @@ void _Cellular_HandlePacket( CellularContext_t * pContext,
 
 /*-----------------------------------------------------------*/
 
+/* This function is provided as common code to cellular module porting.
+ * Vendor may choose to use this function or use their implementation. */
+/* coverity[misra_c_2012_rule_8_7_violation]. */
 CellularPktStatus_t _Cellular_AtcmdRequestWithCallback( CellularContext_t * pContext,
                                                         CellularAtReq_t atReq )
 {
@@ -556,6 +564,9 @@ CellularPktStatus_t _Cellular_AtcmdRequestWithCallback( CellularContext_t * pCon
 
 /*-----------------------------------------------------------*/
 
+/* This function is provided as common code to cellular module porting.
+ * Vendor may choose to use this function or use their implementation. */
+/* coverity[misra_c_2012_rule_8_7_violation]. */
 CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallback( CellularContext_t * pContext,
                                                                CellularAtReq_t atReq,
                                                                uint32_t timeoutMS )
@@ -579,6 +590,9 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallback( CellularContext_t
 
 /*-----------------------------------------------------------*/
 
+/* This function is provided as common code to cellular module porting.
+ * Vendor may choose to use this function or use their implementation. */
+/* coverity[misra_c_2012_rule_8_7_violation]. */
 CellularPktStatus_t _Cellular_TimeoutAtcmdDataRecvRequestWithCallback( CellularContext_t * pContext,
                                                                        CellularAtReq_t atReq,
                                                                        uint32_t timeoutMS,
@@ -611,11 +625,14 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdDataRecvRequestWithCallback( CellularC
 /* This function is provided as common code to cellular module porting.
  * Vendor may choose to use this function or use their implementation. */
 /* coverity[misra_c_2012_rule_8_7_violation]. */
-CellularPktStatus_t _Cellular_TimeoutAtcmdDataSendRequestWithCallback( CellularContext_t * pContext,
-                                                                       CellularAtReq_t atReq,
-                                                                       CellularAtDataReq_t dataReq,
-                                                                       uint32_t atTimeoutMS,
-                                                                       uint32_t dataTimeoutMS )
+CellularPktStatus_t _Cellular_AtcmdDataSend( CellularContext_t * pContext,
+                                             CellularAtReq_t atReq,
+                                             CellularAtDataReq_t dataReq,
+                                             CellularATCommandDataSendPrefixCallback_t pktDataSendPrefixCallback,
+                                             void * pCallbackContext,
+                                             uint32_t atTimeoutMS,
+                                             uint32_t dataTimeoutMS,
+                                             uint32_t interDelayMS )
 {
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
@@ -627,11 +644,15 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdDataSendRequestWithCallback( CellularC
     else
     {
         _Cellular_PktHandlerAcquirePktRequestMutex( pContext );
+        pContext->pktDataSendPrefixCB = pktDataSendPrefixCallback;
+        pContext->pDataSendPrefixCBContext = pCallbackContext;
         pktStatus = _Cellular_TimeoutAtcmdRequestWithCallbackRaw( pContext, atReq, atTimeoutMS );
+        pContext->pDataSendPrefixCBContext = NULL;
+        pContext->pktDataSendPrefixCB = NULL;
 
         if( pktStatus == CELLULAR_PKT_STATUS_OK )
         {
-            pktStatus = _Cellular_DataSendWithTimeoutRaw( pContext, dataReq, dataTimeoutMS );
+            pktStatus = _Cellular_DataSendWithTimeoutDelayRaw( pContext, dataReq, dataTimeoutMS, interDelayMS );
         }
 
         _Cellular_PktHandlerReleasePktRequestMutex( pContext );
@@ -642,6 +663,23 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdDataSendRequestWithCallback( CellularC
 
 /*-----------------------------------------------------------*/
 
+/* This function is provided as common code to cellular module porting.
+ * Vendor may choose to use this function or use their implementation. */
+/* coverity[misra_c_2012_rule_8_7_violation]. */
+CellularPktStatus_t _Cellular_TimeoutAtcmdDataSendRequestWithCallback( CellularContext_t * pContext,
+                                                                       CellularAtReq_t atReq,
+                                                                       CellularAtDataReq_t dataReq,
+                                                                       uint32_t atTimeoutMS,
+                                                                       uint32_t dataTimeoutMS )
+{
+    return _Cellular_AtcmdDataSend( pContext, atReq, dataReq, NULL, NULL, atTimeoutMS, dataTimeoutMS, 0U );
+}
+
+/*-----------------------------------------------------------*/
+
+/* This function is provided as common code to cellular module porting.
+ * Vendor may choose to use this function or use their implementation. */
+/* coverity[misra_c_2012_rule_8_7_violation]. */
 CellularPktStatus_t _Cellular_TimeoutAtcmdDataSendSuccessToken( CellularContext_t * pContext,
                                                                 CellularAtReq_t atReq,
                                                                 CellularAtDataReq_t dataReq,
@@ -668,7 +706,7 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdDataSendSuccessToken( CellularContext_
 
         if( pktStatus == CELLULAR_PKT_STATUS_OK )
         {
-            pktStatus = _Cellular_DataSendWithTimeoutRaw( pContext, dataReq, dataTimeoutMS );
+            pktStatus = _Cellular_DataSendWithTimeoutDelayRaw( pContext, dataReq, dataTimeoutMS, 0U );
         }
 
         _Cellular_PktHandlerReleasePktRequestMutex( pContext );

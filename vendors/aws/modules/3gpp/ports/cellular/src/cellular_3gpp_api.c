@@ -1341,24 +1341,39 @@ static CellularPktStatus_t _Cellular_RecvFuncGetEidrxSettings( CellularContext_t
         pEidrxSettingsList = ( CellularEidrxSettingsList_t * ) pData;
         pCommnadItem = pAtResp->pItm;
 
-        while( pCommnadItem != NULL )
+        while( ( pCommnadItem != NULL ) && ( pktStatus == CELLULAR_PKT_STATUS_OK ) )
         {
             pInputLine = pCommnadItem->pLine;
-            atCoreStatus = parseEidrxLine( pInputLine, count, pEidrxSettingsList );
-            pktStatus = _Cellular_TranslateAtCoreStatus( atCoreStatus );
 
-            if( pktStatus != CELLULAR_PKT_STATUS_OK )
+            if( pInputLine == NULL )
             {
-                IotLogError( "GetEidrx: Parsing Error encountered, atCoreStatus: %d", atCoreStatus );
+                IotLogError( "GetEidrx: Invalid input line" );
+                pktStatus = CELLULAR_PKT_STATUS_FAILURE;
+            }
+            else if( ( strcmp( "+CEDRXS: 0", pInputLine ) == 0 ) ||
+                     ( strcmp( "+CEDRXS:", pInputLine ) == 0 ) )
+            {
+                IotLogDebug( "GetEidrx: empty EDRXS setting %s", pInputLine );
             }
             else
             {
-                IotLogDebug( "GetEidrx setting[%d]: RAT: %d, Value: 0x%x",
-                             count, pEidrxSettingsList->eidrxList[ count ].rat, pEidrxSettingsList->eidrxList[ count ].requestedEdrxVaue );
+                atCoreStatus = parseEidrxLine( pInputLine, count, pEidrxSettingsList );
+                pktStatus = _Cellular_TranslateAtCoreStatus( atCoreStatus );
+
+                if( pktStatus != CELLULAR_PKT_STATUS_OK )
+                {
+                    IotLogError( "GetEidrx: Parsing Error encountered, atCoreStatus: %d", atCoreStatus );
+                }
+                else
+                {
+                    IotLogDebug( "GetEidrx setting[%d]: RAT: %d, Value: 0x%x",
+                                 count, pEidrxSettingsList->eidrxList[ count ].rat,
+                                 pEidrxSettingsList->eidrxList[ count ].requestedEdrxVaue );
+                    count++;
+                }
             }
 
             pCommnadItem = pCommnadItem->pNext;
-            count++;
             pEidrxSettingsList->count = count;
         }
     }

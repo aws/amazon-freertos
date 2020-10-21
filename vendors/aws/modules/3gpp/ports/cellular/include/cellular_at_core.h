@@ -345,18 +345,6 @@ CellularATError_t Cellular_ATStrDup( char ** ppDst,
                                      const char * pSrc );
 
 /**
- * @brief Find the next EOL by searching \r \n
- *
- * @param[in] pString: input string contains multiple \r \n
- * @param[out] ppEol: ouput pointer points to the next line
- *  *
- * @return CELLULAR_AT_SUCCESS if the operation is successful, otherwise an
- * error code indicating the cause of the error.
- */
-CellularATError_t Cellular_ATFindNextEOL( char ** ppEol,
-                                          char * pString );
-
-/**
  * @brief check if a string starts with certain prefix
  *
  * @param[in] pString: input string

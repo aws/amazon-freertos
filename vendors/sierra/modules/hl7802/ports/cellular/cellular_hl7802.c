@@ -109,7 +109,6 @@ CellularError_t Cellular_ModuleInit( const CellularContext_t * pContext,
                                      void ** ppModuleContext )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
-    bool status = false;
     uint32_t i = 0;
 
     if( pContext == NULL )
@@ -171,7 +170,7 @@ CellularError_t Cellular_ModuleEnableUE( CellularContext_t * pContext )
     CellularAtReq_t atReqGetWithResult =
     {
         NULL,
-        CELLULAR_AT_WO_PREFIX,
+        CELLULAR_AT_MULTI_WO_PREFIX,
         NULL,
         NULL,
         NULL,

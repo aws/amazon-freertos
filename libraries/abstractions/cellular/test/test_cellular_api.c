@@ -651,6 +651,11 @@ static CellularSocketHandle_t prvSocketConnectionSetup( uint16_t serverPort,
                                                                  &prvCellularSocketOpenCallback,
                                                                  socketHandle );
     TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+    xCellularStatus = Cellular_SocketRegisterClosedCallback( _cellularHandle,
+                                                             socketHandle,
+                                                             &prvSocketClosedCallback,
+                                                             socketHandle );
+    TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
 
     /* Connect Socket. */
     remoteSocketAddress.port = serverPort;
@@ -1236,8 +1241,6 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_TCPDataTransfer )
 {
     CellularError_t xCellularStatus = CELLULAR_SUCCESS;
     CellularSocketHandle_t socketHandle = NULL;
-    CellularSocketAddress_t remoteSocketAddress = { 0 };
-    uint32_t sendTimeout = testCELLULAR_SOCKET_SEND_TIMEOUT_MS;
     uint8_t tries = 0;
     uint32_t sentDataLen = 0;
     char receiveBuff[ 100 ] = { 0 };
@@ -2108,7 +2111,6 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_Data_Loop )
     uint8_t index = 0;
     CellularError_t xCellularStatus = CELLULAR_SUCCESS;
     CellularSocketHandle_t socketHandle = NULL;
-    uint32_t sendTimeout = testCELLULAR_SOCKET_SEND_TIMEOUT_MS;
     uint8_t tries = 0;
     uint32_t sentDataLen = 0;
     char receiveBuff[ 100 ] = { 0 };

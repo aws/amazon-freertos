@@ -133,7 +133,8 @@ static CellularError_t _Cellular_GetSocketStat( CellularHandle_t cellularHandle,
                                                 CellularSocketHandle_t socketHandle,
                                                 socketStat_t * pSocketStat );
 static CellularPktStatus_t socketRecvDataPrefix( void * pCallbackContext,
-                                                 const char * pLine,
+                                                 char * pLine,
+                                                 uint32_t lineLength,
                                                  char ** ppDataStart,
                                                  uint32_t * pDataLength );
 static CellularATError_t getDataFromResp( const CellularATCommandResponse_t * pAtResp,
@@ -359,7 +360,8 @@ static CellularError_t _Cellular_GetSocketStat( CellularHandle_t cellularHandle,
 /*-----------------------------------------------------------*/
 
 static CellularPktStatus_t socketRecvDataPrefix( void * pCallbackContext,
-                                                 const char * pLine,
+                                                 char * pLine,
+                                                 uint32_t lineLength,
                                                  char ** ppDataStart,
                                                  uint32_t * pDataLength )
 {
@@ -370,6 +372,11 @@ static CellularPktStatus_t socketRecvDataPrefix( void * pCallbackContext,
     {
         IotLogError( "socketRecvData: Bad parameters" );
         pktStatus = CELLULAR_PKT_STATUS_BAD_PARAM;
+    }
+    else if( ( lineLength < ( SOCKET_DATA_CONNECT_TOKEN_LEN + 2U ) ) && ( *pRecvDataLength > 0 ) )
+    {
+        /* Need more data to decide the data prefix. */
+        pktStatus = CELLULAR_PKT_STATUS_SIZE_MISMATCH;
     }
     else
     {

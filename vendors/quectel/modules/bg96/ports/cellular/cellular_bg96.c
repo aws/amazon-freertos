@@ -194,7 +194,7 @@ CellularError_t Cellular_ModuleEnableUE( CellularContext_t * pContext )
     CellularAtReq_t atReqGetWithResult =
     {
         NULL,
-        CELLULAR_AT_WO_PREFIX,
+        CELLULAR_AT_MULTI_WO_PREFIX,
         NULL,
         NULL,
         NULL,
