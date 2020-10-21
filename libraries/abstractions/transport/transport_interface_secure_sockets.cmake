@@ -16,6 +16,10 @@ afr_module_sources(
     PRIVATE
         "${src_dir}/transport_secure_sockets.h"
         "${src_dir}/transport_secure_sockets.c"
+        # Following files are added to the source list to generate their
+        # metadata so that are part of code downloaded from FreeRTOS console.
+        "${CMAKE_CURRENT_LIST_DIR}/transport_interface.cmake"
+        "${CMAKE_CURRENT_LIST_DIR}/transport_interface_secure_sockets.cmake"
 )
 
 afr_module_dependencies(
