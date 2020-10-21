@@ -490,7 +490,7 @@ static void eventCallback( MQTTContext_t * pContext,
 /**
  * @brief Transport send interface provided to the MQTT context used in calling MQTT LTS APIs.
  */
-static int32_t transportSend( const NetworkContext_t * pNetworkContext,
+static int32_t transportSend( NetworkContext_t * pNetworkContext,
                               const void * pMessage,
                               size_t bytesToSend )
 {
@@ -529,7 +529,7 @@ static int32_t transportSend( const NetworkContext_t * pNetworkContext,
  *
  * @return The number of bytes received or a negative error code.
  */
-static int32_t transportRecv( const NetworkContext_t * pNetworkContext,
+static int32_t transportRecv( NetworkContext_t * pNetworkContext,
                               void * pBuffer,
                               size_t bytesToRecv )
 {
