@@ -1,6 +1,6 @@
 afr_demo_module(shadow_ble)
 
-afr_set_demo_metadata(ID "SHADOW_BLE_DEMO")
+afr_set_demo_metadata(ID "SHADOW_BLE_TRANSPORT_DEMO")
 afr_set_demo_metadata(DESCRIPTION "An example that demonstrates Shadow updates over BLE assisted by a companion device")
 afr_set_demo_metadata(DISPLAY_NAME "Shadow demo using BLE transport")
 
