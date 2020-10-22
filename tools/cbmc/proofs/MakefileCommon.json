@@ -74,7 +74,17 @@
         "--32",
         "--bounds-check",
         "--pointer-check",
-        "--pointer-primitive-check"
+        "--pointer-primitive-check",
+	"--conversion-check",
+	"--div-by-zero-check",
+	"--float-overflow-check",
+	"--malloc-fail-null",
+	"--malloc-may-fail",
+	"--nan-check",
+	"--pointer-overflow-check",
+	"--signed-overflow-check",
+	"--undefined-shift-check",
+	"--unsigned-overflow-check"
     ],
 
     "FORWARD_SLASH": ["/"],
