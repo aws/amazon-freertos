@@ -1,5 +1,5 @@
 #BLE integration Test with MQTT library
-if(TARGET AFR::core_mqtt)
+if(AFR_ENABLE_TESTS)
     afr_test_module(ble_mqtt_integration)
     afr_module_sources(
         ${AFR_CURRENT_MODULE}
