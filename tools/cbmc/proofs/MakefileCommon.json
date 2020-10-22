@@ -74,7 +74,9 @@
         "--32",
         "--bounds-check",
         "--pointer-check",
-        "--pointer-primitive-check"
+        "--pointer-primitive-check",
+	"--malloc-fail-null",
+	"--malloc-may-fail"
     ],
 
     "FORWARD_SLASH": ["/"],
