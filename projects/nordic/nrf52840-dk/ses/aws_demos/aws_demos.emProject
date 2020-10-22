@@ -54,10 +54,14 @@
           <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/application_code/nordic_code/thumb_crt0.s" />
         </folder>
         <folder Name="ble">
-          <file file_name="../../../../../demos/ble/aws_ble_gatt_server_demo.c" />
-          <file file_name="../../../../../demos/ble/iot_ble_numericComparison.c" />
           <folder Name="mqtt_ble">
             <file file_name="../../../../../demos/ble/mqtt_ble/mqtt_demo_ble_transport.c" />
+          </folder>
+          <folder Name="gatt_server">
+            <file file_name="../../../../../demos/ble/gatt_server/aws_ble_gatt_server_demo.c" />
+          </folder>
+          <folder Name="numeric_comparison">
+            <file file_name="../../../../../demos/ble/numeric_comparison/iot_ble_numericComparison.c" />
           </folder>
         </folder>
         <folder Name="demo_runner">

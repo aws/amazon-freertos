@@ -842,7 +842,7 @@ MQTTStatus_t RunMQTTBLETransportDemo( void )
             /* Wait for some time between two iterations to ensure that we do not
              * bombard the broker. */
             LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
-            ( void ) sleep( MQTT_DEMO_ITERATION_DELAY_SECONDS );
+            ( void ) vTaskDelay( pdMS_TO_TICKS( MQTT_DEMO_ITERATION_DELAY_SECONDS * MILLISECONDS_PER_SECOND ) );
 
             /* Clean up the channel in between iterations */
             IotBleMqttTransportCleanup( &xContext );
