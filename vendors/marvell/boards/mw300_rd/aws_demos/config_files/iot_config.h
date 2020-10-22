@@ -51,6 +51,7 @@
 #define IOT_THREAD_DEFAULT_STACK_SIZE           1024
 #define IOT_THREAD_DEFAULT_PRIORITY             5
 
+#define IOT_NETWORK_RECEIVE_TASK_STACK_SIZE     1024
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
