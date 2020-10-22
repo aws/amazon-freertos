@@ -1,4 +1,3 @@
-# BLE Number Comparison Demo
 # Only build on boards that support BLE.
 # BLE Number Comparison Demo
 afr_demo_module()
