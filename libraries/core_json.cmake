@@ -21,6 +21,7 @@ afr_module_sources(
         # List of files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
         ${CMAKE_CURRENT_LIST_DIR}/coreJSON/jsonFilePaths.cmake
+        ${CMAKE_CURRENT_LIST_DIR}/core_json.cmake
         ${JSON_HEADER_FILES}
 )
 

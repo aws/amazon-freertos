@@ -53,6 +53,15 @@
 /************ End of logging configuration ****************/
 
 /**
+ * To use this demo, please configure the client's certificate and private key
+ * in demos/include/aws_clientcredential_keys.h.
+ * 
+ * For the AWS IoT MQTT broker, refer to the AWS documentation below for details
+ * regarding client authentication.
+ * https://docs.aws.amazon.com/iot/latest/developerguide/client-authentication.html
+ */
+
+/**
  * @brief The MQTT client identifier used in this example.  Each client identifier
  * must be unique; so edit as required to ensure that no two clients connecting to
  * the same broker use the same client identifier.
@@ -102,40 +111,6 @@
  * "-----END CERTIFICATE-----\n"
  *
  * #define democonfigROOT_CA_PEM    "...insert here..."
- */
-
-/**
- * @brief Client certificate.
- *
- * For AWS IoT MQTT broker, refer to the AWS documentation below for details
- * regarding client authentication.
- * https://docs.aws.amazon.com/iot/latest/developerguide/client-authentication.html
- *
- * @note This certificate should be PEM-encoded.
- *
- * Must include the PEM header and footer:
- * "-----BEGIN CERTIFICATE-----\n"\
- * "...base64 data...\n"\
- * "-----END CERTIFICATE-----\n"
- *
- * #define democonfigCLIENT_CERTIFICATE_PEM    "...insert here..."
- */
-
-/**
- * @brief Client's private key.
- *
- * For AWS IoT MQTT broker, refer to the AWS documentation below for details
- * regarding clientauthentication.
- * https://docs.aws.amazon.com/iot/latest/developerguide/client-authentication.html
- *
- * @note This private key should be PEM-encoded.
- *
- * Must include the PEM header and footer:
- * "-----BEGIN RSA PRIVATE KEY-----\n"\
- * "...base64 data...\n"\
- * "-----END RSA PRIVATE KEY-----\n"
- *
- * #define democonfigCLIENT_PRIVATE_KEY_PEM    "...insert here..."
  */
 
 /**

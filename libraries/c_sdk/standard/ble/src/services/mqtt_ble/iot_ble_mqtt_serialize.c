@@ -38,17 +38,34 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "iot_ble_config.h"
-#include "core_mqtt_serializer.h"
 
 /* MQTT internal includes. */
-#include "platform/iot_threads.h"
 #include "iot_serializer.h"
 #include "iot_ble_data_transfer.h"
 #include "iot_ble_mqtt_serialize.h"
+
+/**************************************************/
+/******* DO NOT CHANGE the following order ********/
+/**************************************************/
+
+/* Include logging header files and define logging macros in the following order:
+ * 1. Include the header file "logging_levels.h".
+ * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros depending on
+ * the logging configuration for DEMO.
+ * 3. Include the header file "logging_stack.h", if logging is enabled for DEMO.
+ */
+
+#include "logging_levels.h"
+
+/* Logging configuration for the Demo. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME    "MQTTBLE"
+#endif
+
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_INFO
+#endif
 #include "logging_stack.h"
-
-#define _INVALID_MQTT_PACKET_TYPE    ( 0xF0 )
-
 
 #define _IS_VALID_SERIALIZER_RET( ret, pSerializerBuf ) \
     ( ( ret == IOT_SERIALIZER_SUCCESS ) ||              \
@@ -63,15 +80,15 @@
 #define _NUM_PINGREQUEST_PARAMS        ( 1 )
 
 
-static inline uint16_t _getNumPublishParams( const MQTTPublishInfo_t * const pPublish )
+static inline uint16_t _getNumPublishParams( const MQTTBLEPublishInfo_t * const pPublish )
 {
     return ( pPublish->qos > 0 ) ? ( _NUM_DEFAULT_PUBLISH_PARMAS + 1 ) : _NUM_DEFAULT_PUBLISH_PARMAS;
 }
 
-static IotSerializerError_t _serializeConnect( const MQTTConnectInfo_t * const pConnectInfo,
+static IotSerializerError_t _serializeConnect( const MQTTBLEConnectInfo_t * const pConnectInfo,
                                                uint8_t * const pBuffer,
                                                size_t * const pSize );
-static IotSerializerError_t _serializePublish( const MQTTPublishInfo_t * const pPublishInfo,
+static IotSerializerError_t _serializePublish( const MQTTBLEPublishInfo_t * const pPublishInfo,
                                                uint8_t * pBuffer,
                                                size_t * pSize,
                                                uint16_t packetIdentifier );
@@ -79,15 +96,13 @@ static IotSerializerError_t _serializePubAck( uint16_t packetIdentifier,
                                               uint8_t * pBuffer,
                                               size_t * pSize );
 
-
-
-static IotSerializerError_t _serializeSubscribe( const MQTTSubscribeInfo_t * const pSubscriptionList,
+static IotSerializerError_t _serializeSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
                                                  size_t subscriptionCount,
                                                  uint8_t * const pBuffer,
                                                  size_t * const pSize,
                                                  uint16_t packetIdentifier );
 
-static IotSerializerError_t _serializeUnSubscribe( const MQTTSubscribeInfo_t * const pSubscriptionList,
+static IotSerializerError_t _serializeUnSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
                                                    size_t subscriptionCount,
                                                    uint8_t * const pBuffer,
                                                    size_t * const pSize,
@@ -110,7 +125,7 @@ extern int snprintf( char * s,
 
 /*-----------------------------------------------------------*/
 
-static IotSerializerError_t _serializeConnect( const MQTTConnectInfo_t * pConnectInfo,
+static IotSerializerError_t _serializeConnect( const MQTTBLEConnectInfo_t * pConnectInfo,
                                                uint8_t * const pBuffer,
                                                size_t * const pSize )
 {
@@ -182,7 +197,7 @@ static IotSerializerError_t _serializeConnect( const MQTTConnectInfo_t * pConnec
     return error;
 }
 
-static IotSerializerError_t _serializePublish( const MQTTPublishInfo_t * const pPublishInfo,
+static IotSerializerError_t _serializePublish( const MQTTBLEPublishInfo_t * const pPublishInfo,
                                                uint8_t * pBuffer,
                                                size_t * pSize,
                                                uint16_t packetIdentifier )
@@ -324,7 +339,7 @@ static IotSerializerError_t _serializePubAck( uint16_t packetIdentifier,
 }
 
 
-static IotSerializerError_t _serializeSubscribe( const MQTTSubscribeInfo_t * const pSubscriptionList,
+static IotSerializerError_t _serializeSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
                                                  size_t subscriptionCount,
                                                  uint8_t * const pBuffer,
                                                  size_t * const pSize,
@@ -441,7 +456,7 @@ static IotSerializerError_t _serializeSubscribe( const MQTTSubscribeInfo_t * con
     return error;
 }
 
-static IotSerializerError_t _serializeUnSubscribe( const MQTTSubscribeInfo_t * const pSubscriptionList,
+static IotSerializerError_t _serializeUnSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
                                                    size_t subscriptionCount,
                                                    uint8_t * const pBuffer,
                                                    size_t * const pSize,
@@ -626,15 +641,14 @@ static IotSerializerError_t _serializePingRequest( uint8_t * const pBuffer,
     return error;
 }
 
-
-MQTTStatus_t IotBleMqtt_SerializeConnect( const MQTTConnectInfo_t * const pConnectInfo,
-                                          uint8_t ** const pConnectPacket,
-                                          size_t * const pPacketSize )
+MQTTBLEStatus_t IotBleMqtt_SerializeConnect( const MQTTBLEConnectInfo_t * const pConnectInfo,
+                                             uint8_t ** const pConnectPacket,
+                                             size_t * const pPacketSize )
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
     IotSerializerError_t error;
-    MQTTStatus_t ret = MQTTSuccess;
+    MQTTBLEStatus_t ret = MQTTBLESuccess;
 
 
     error = _serializeConnect( pConnectInfo, NULL, &bufLen );
@@ -642,10 +656,10 @@ MQTTStatus_t IotBleMqtt_SerializeConnect( const MQTTConnectInfo_t * const pConne
     if( error != IOT_SERIALIZER_SUCCESS )
     {
         LogError( ( "Failed to find length of serialized CONNECT message, error = %d", error ) );
-        ret = MQTTBadParameter;
+        ret = MQTTBLEBadParameter;
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
@@ -653,22 +667,22 @@ MQTTStatus_t IotBleMqtt_SerializeConnect( const MQTTConnectInfo_t * const pConne
         if( pBuffer == NULL )
         {
             LogError( ( "Failed to allocate memory for CONNECT packet." ) );
-            ret = MQTTNoMemory;
+            ret = MQTTBLENoMemory;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         error = _serializeConnect( pConnectInfo, pBuffer, &bufLen );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
             LogError( ( "Failed to serialize CONNECT message, error = %d", error ) );
-            ret = MQTTBadParameter;
+            ret = MQTTBLEBadParameter;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         *pConnectPacket = pBuffer;
         *pPacketSize = bufLen;
@@ -687,23 +701,24 @@ MQTTStatus_t IotBleMqtt_SerializeConnect( const MQTTConnectInfo_t * const pConne
     return ret;
 }
 
-MQTTStatus_t IotBleMqtt_DeserializeConnack( MQTTPacketInfo_t * pConnack )
+MQTTBLEStatus_t IotBleMqtt_DeserializeConnack( const uint8_t * pBuffer,
+                                               size_t length )
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
-    MQTTStatus_t ret = MQTTSuccess;
+    MQTTBLEStatus_t ret = MQTTBLESuccess;
     int64_t respCode = 0L;
 
-    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pConnack->pRemainingData, pConnack->remainingLength );
+    error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
 
     if( ( error != IOT_SERIALIZER_SUCCESS ) ||
         ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
         LogError( ( "Malformed CONNACK, decoding the packet failed, decoder error = %d, type: %d", error, decoderObj.type ) );
-        ret = MQTTBadResponse;
+        ret = MQTTBLEBadResponse;
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_STATUS, &decoderValue );
 
@@ -711,7 +726,7 @@ MQTTStatus_t IotBleMqtt_DeserializeConnack( MQTTPacketInfo_t * pConnack )
             ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             LogError( ( "Invalid CONNACK, response code decode failed, error = %d, decoded value type = %d", error, decoderValue.type ) );
-            ret = MQTTBadResponse;
+            ret = MQTTBLEBadResponse;
         }
         else
         {
@@ -720,7 +735,7 @@ MQTTStatus_t IotBleMqtt_DeserializeConnack( MQTTPacketInfo_t * pConnack )
             if( ( respCode != IOT_BLE_MQTT_STATUS_CONNECTING ) &&
                 ( respCode != IOT_BLE_MQTT_STATUS_CONNECTED ) )
             {
-                ret = MQTTServerRefused;
+                ret = MQTTBLEServerRefused;
             }
         }
     }
@@ -729,26 +744,25 @@ MQTTStatus_t IotBleMqtt_DeserializeConnack( MQTTPacketInfo_t * pConnack )
 
     return ret;
 }
-
-MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPublishInfo,
-                                          uint8_t ** const pPublishPacket,
-                                          size_t * const pPacketSize,
-                                          uint16_t packetIdentifier )
+MQTTBLEStatus_t IotBleMqtt_SerializePublish( const MQTTBLEPublishInfo_t * const pPublishInfo,
+                                             uint8_t ** const pPublishPacket,
+                                             size_t * const pPacketSize,
+                                             uint16_t packetIdentifier )
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
     IotSerializerError_t error;
-    MQTTStatus_t ret = MQTTSuccess;
+    MQTTBLEStatus_t ret = MQTTBLESuccess;
 
     error = _serializePublish( pPublishInfo, NULL, &bufLen, packetIdentifier );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
         LogError( ( "Failed to find size of serialized PUBLISH message, error = %d", error ) );
-        ret = MQTTBadParameter;
+        ret = MQTTBLEBadParameter;
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
@@ -756,22 +770,22 @@ MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPubli
         if( pBuffer == NULL )
         {
             LogError( ( "Failed to allocate memory for PUBLISH packet." ) );
-            ret = MQTTNoMemory;
+            ret = MQTTBLENoMemory;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         error = _serializePublish( pPublishInfo, pBuffer, &bufLen, packetIdentifier );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
             LogError( ( "Failed to serialize PUBLISH message, error = %d", error ) );
-            ret = MQTTBadParameter;
+            ret = MQTTBLEBadParameter;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         *pPublishPacket = pBuffer;
         *pPacketSize = bufLen;
@@ -797,24 +811,25 @@ void IotBleMqtt_PublishSetDup( uint8_t * const pPublishPacket,
     /** TODO: Currently DUP flag is not supported by BLE SDKs **/
 }
 
-MQTTStatus_t IotBleMqtt_DeserializePublish( MQTTPacketInfo_t * pPublish,
-                                            MQTTPublishInfo_t * publishInfo,
-                                            uint16_t * packetIdentifier )
+MQTTBLEStatus_t IotBleMqtt_DeserializePublish( uint8_t * pBuffer,
+                                               size_t length,
+                                               MQTTBLEPublishInfo_t * publishInfo,
+                                               uint16_t * packetIdentifier )
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t xSerializerRet;
-    MQTTStatus_t ret = MQTTSuccess;
+    MQTTBLEStatus_t ret = MQTTBLESuccess;
 
-    xSerializerRet = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pPublish->pRemainingData, pPublish->remainingLength );
+    xSerializerRet = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
 
     if( ( xSerializerRet != IOT_SERIALIZER_SUCCESS ) ||
         ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
         LogError( ( "Decoding PUBLISH packet failed, decoder error = %d, object type = %d", xSerializerRet, decoderObj.type ) );
-        ret = MQTTBadResponse;
+        ret = MQTTBLEBadResponse;
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         xSerializerRet = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_QOS, &decoderValue );
 
@@ -822,7 +837,7 @@ MQTTStatus_t IotBleMqtt_DeserializePublish( MQTTPacketInfo_t * pPublish,
             ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             LogError( ( "QOS Value decode failed, error = %d, decoded value type = %d", xSerializerRet, decoderValue.type ) );
-            ret = MQTTBadResponse;
+            ret = MQTTBLEBadResponse;
         }
         else
         {
@@ -830,7 +845,7 @@ MQTTStatus_t IotBleMqtt_DeserializePublish( MQTTPacketInfo_t * pPublish,
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         decoderValue.u.value.u.string.pString = NULL;
         decoderValue.u.value.u.string.length = 0;
@@ -840,7 +855,7 @@ MQTTStatus_t IotBleMqtt_DeserializePublish( MQTTPacketInfo_t * pPublish,
             ( decoderValue.type != IOT_SERIALIZER_SCALAR_TEXT_STRING ) )
         {
             LogError( ( "Topic value decode failed, error = %d", xSerializerRet ) );
-            ret = MQTTBadResponse;
+            ret = MQTTBLEBadResponse;
         }
         else
         {
@@ -849,7 +864,7 @@ MQTTStatus_t IotBleMqtt_DeserializePublish( MQTTPacketInfo_t * pPublish,
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         decoderValue.u.value.u.string.pString = NULL;
         decoderValue.u.value.u.string.length = 0;
@@ -859,7 +874,7 @@ MQTTStatus_t IotBleMqtt_DeserializePublish( MQTTPacketInfo_t * pPublish,
             ( decoderValue.type != IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
         {
             LogError( ( "Payload value decode failed, error = %d", xSerializerRet ) );
-            ret = MQTTBadResponse;
+            ret = MQTTBLEBadResponse;
         }
         else
         {
@@ -868,7 +883,7 @@ MQTTStatus_t IotBleMqtt_DeserializePublish( MQTTPacketInfo_t * pPublish,
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         if( publishInfo->qos != 0 )
         {
@@ -878,7 +893,7 @@ MQTTStatus_t IotBleMqtt_DeserializePublish( MQTTPacketInfo_t * pPublish,
                 ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
             {
                 LogError( ( "Message identifier decode failed, error = %d, decoded value type = %d", xSerializerRet, decoderValue.type ) );
-                ret = MQTTBadResponse;
+                ret = MQTTBLEBadResponse;
             }
             else
             {
@@ -887,7 +902,7 @@ MQTTStatus_t IotBleMqtt_DeserializePublish( MQTTPacketInfo_t * pPublish,
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         publishInfo->retain = false;
     }
@@ -897,24 +912,24 @@ MQTTStatus_t IotBleMqtt_DeserializePublish( MQTTPacketInfo_t * pPublish,
     return ret;
 }
 
-MQTTStatus_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
-                                         uint8_t ** const pPubackPacket,
-                                         size_t * const pPacketSize )
+MQTTBLEStatus_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
+                                            uint8_t ** const pPubackPacket,
+                                            size_t * const pPacketSize )
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
     IotSerializerError_t error;
-    MQTTStatus_t ret = MQTTSuccess;
+    MQTTBLEStatus_t ret = MQTTBLESuccess;
 
     error = _serializePubAck( packetIdentifier, NULL, &bufLen );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
         LogError( ( "Failed to find size of serialized PUBACK message, error = %d", error ) );
-        ret = MQTTBadParameter;
+        ret = MQTTBLEBadParameter;
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
@@ -922,22 +937,22 @@ MQTTStatus_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
         if( pBuffer == NULL )
         {
             LogError( ( "Failed to allocate memory for PUBACK packet, packet identifier = %d", packetIdentifier ) );
-            ret = MQTTNoMemory;
+            ret = MQTTBLENoMemory;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         error = _serializePubAck( packetIdentifier, pBuffer, &bufLen );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
             LogError( ( "Failed to find size of serialized PUBACK message, error = %d", error ) );
-            ret = MQTTBadParameter;
+            ret = MQTTBLEBadParameter;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         *pPubackPacket = pBuffer;
         *pPacketSize = bufLen;
@@ -956,23 +971,24 @@ MQTTStatus_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
     return ret;
 }
 
-MQTTStatus_t IotBleMqtt_DeserializePuback( MQTTPacketInfo_t * pPuback,
-                                           uint16_t * packetIdentifier )
+MQTTBLEStatus_t IotBleMqtt_DeserializePuback( uint8_t * pBuffer,
+                                              size_t length,
+                                              uint16_t * packetIdentifier )
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
-    MQTTStatus_t ret = MQTTSuccess;
+    MQTTBLEStatus_t ret = MQTTBLESuccess;
 
-    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pPuback->pRemainingData, pPuback->remainingLength );
+    error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
 
     if( ( error != IOT_SERIALIZER_SUCCESS ) ||
         ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
         LogError( ( "Malformed PUBACK, decoding the packet failed, decoder error = %d, object type: %d", error, decoderObj.type ) );
-        ret = MQTTBadResponse;
+        ret = MQTTBLEBadResponse;
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MESSAGE_ID, &decoderValue );
 
@@ -980,7 +996,7 @@ MQTTStatus_t IotBleMqtt_DeserializePuback( MQTTPacketInfo_t * pPuback,
             ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             LogError( ( "Message ID decode failed, error = %d, decoded value type = %d", error, decoderValue.type ) );
-            ret = MQTTBadResponse;
+            ret = MQTTBLEBadResponse;
         }
         else
         {
@@ -993,26 +1009,26 @@ MQTTStatus_t IotBleMqtt_DeserializePuback( MQTTPacketInfo_t * pPuback,
     return ret;
 }
 
-MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pSubscriptionList,
-                                            size_t subscriptionCount,
-                                            uint8_t ** const pSubscribePacket,
-                                            size_t * const pPacketSize,
-                                            uint16_t * const pPacketIdentifier )
+MQTTBLEStatus_t IotBleMqtt_SerializeSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
+                                               size_t subscriptionCount,
+                                               uint8_t ** const pSubscribePacket,
+                                               size_t * const pPacketSize,
+                                               uint16_t * const pPacketIdentifier )
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
     IotSerializerError_t error;
-    MQTTStatus_t ret = MQTTSuccess;
+    MQTTBLEStatus_t ret = MQTTBLESuccess;
 
     error = _serializeSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
         LogError( ( "Failed to find serialized length of SUBSCRIBE message, error = %d", error ) );
-        ret = MQTTBadParameter;
+        ret = MQTTBLEBadParameter;
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
@@ -1020,22 +1036,22 @@ MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pS
         if( pBuffer == NULL )
         {
             LogError( ( "Failed to allocate memory for SUBSCRIBE message." ) );
-            ret = MQTTNoMemory;
+            ret = MQTTBLENoMemory;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         error = _serializeSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
             LogError( ( "Failed to serialize SUBSCRIBE message, error = %d", error ) );
-            ret = MQTTBadParameter;
+            ret = MQTTBLEBadParameter;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         *pSubscribePacket = pBuffer;
         *pPacketSize = bufLen;
@@ -1054,24 +1070,25 @@ MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pS
     return ret;
 }
 
-MQTTStatus_t IotBleMqtt_DeserializeSuback( MQTTPacketInfo_t * pSuback,
-                                           uint16_t * packetIdentifier,
-                                           uint8_t * pStatusCode )
+MQTTBLEStatus_t IotBleMqtt_DeserializeSuback( const uint8_t * pBuffer,
+                                              size_t length,
+                                              uint16_t * packetIdentifier,
+                                              uint8_t * pStatusCode )
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
-    MQTTStatus_t ret = MQTTSuccess;
+    MQTTBLEStatus_t ret = MQTTBLESuccess;
 
-    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pSuback->pRemainingData, pSuback->remainingLength );
+    error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
 
     if( ( error != IOT_SERIALIZER_SUCCESS ) ||
         ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
         LogError( ( "Malformed SUBACK, decoding the packet failed, decoder error = %d, type: %d", error, decoderObj.type ) );
-        ret = MQTTBadResponse;
+        ret = MQTTBLEBadResponse;
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MESSAGE_ID, &decoderValue );
 
@@ -1079,7 +1096,7 @@ MQTTStatus_t IotBleMqtt_DeserializeSuback( MQTTPacketInfo_t * pSuback,
             ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             LogError( ( "Message ID decode failed, error = %d, decoded value type = %d", error, decoderValue.type ) );
-            ret = MQTTBadResponse;
+            ret = MQTTBLEBadResponse;
         }
         else
         {
@@ -1087,7 +1104,7 @@ MQTTStatus_t IotBleMqtt_DeserializeSuback( MQTTPacketInfo_t * pSuback,
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_STATUS, &decoderValue );
 
@@ -1095,7 +1112,7 @@ MQTTStatus_t IotBleMqtt_DeserializeSuback( MQTTPacketInfo_t * pSuback,
             ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             LogError( ( "Status code decode failed, error = %d, decoded value type = %d", error, decoderValue.type ) );
-            ret = MQTTBadResponse;
+            ret = MQTTBLEBadResponse;
         }
         else
         {
@@ -1108,26 +1125,26 @@ MQTTStatus_t IotBleMqtt_DeserializeSuback( MQTTPacketInfo_t * pSuback,
     return ret;
 }
 
-MQTTStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTSubscribeInfo_t * const pSubscriptionList,
-                                              size_t subscriptionCount,
-                                              uint8_t ** const pUnsubscribePacket,
-                                              size_t * const pPacketSize,
-                                              uint16_t * const pPacketIdentifier )
+MQTTBLEStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
+                                                 size_t subscriptionCount,
+                                                 uint8_t ** const pUnsubscribePacket,
+                                                 size_t * const pPacketSize,
+                                                 uint16_t * const pPacketIdentifier )
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
     IotSerializerError_t error;
-    MQTTStatus_t ret = MQTTSuccess;
+    MQTTBLEStatus_t ret = MQTTBLESuccess;
 
     error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
         LogError( ( "Failed to find serialized length of UNSUBSCRIBE message, error = %d", error ) );
-        ret = MQTTBadParameter;
+        ret = MQTTBLEBadParameter;
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
@@ -1135,22 +1152,22 @@ MQTTStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTSubscribeInfo_t * const 
         if( pBuffer == NULL )
         {
             LogError( ( "Failed to allocate memory for UNSUBSCRIBE message." ) );
-            ret = MQTTNoMemory;
+            ret = MQTTBLENoMemory;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
             LogError( ( "Failed to serialize UNSUBSCRIBE message, error = %d", error ) );
-            ret = MQTTBadParameter;
+            ret = MQTTBLEBadParameter;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         *pUnsubscribePacket = pBuffer;
         *pPacketSize = bufLen;
@@ -1169,23 +1186,24 @@ MQTTStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTSubscribeInfo_t * const 
     return ret;
 }
 
-MQTTStatus_t IotBleMqtt_DeserializeUnsuback( MQTTPacketInfo_t * pUnsuback,
-                                             uint16_t * packetIdentifier )
+MQTTBLEStatus_t IotBleMqtt_DeserializeUnsuback( uint8_t * pBuffer,
+                                                size_t length,
+                                                uint16_t * packetIdentifier )
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
-    MQTTStatus_t ret = MQTTSuccess;
+    MQTTBLEStatus_t ret = MQTTBLESuccess;
 
-    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pUnsuback->pRemainingData, pUnsuback->remainingLength );
+    error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
 
     if( ( error != IOT_SERIALIZER_SUCCESS ) ||
         ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
         LogError( ( "Malformed UNSUBACK, decoding the packet failed, decoder error = %d, type:%d ", error, decoderObj.type ) );
-        ret = MQTTBadResponse;
+        ret = MQTTBLEBadResponse;
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MESSAGE_ID, &decoderValue );
 
@@ -1193,7 +1211,7 @@ MQTTStatus_t IotBleMqtt_DeserializeUnsuback( MQTTPacketInfo_t * pUnsuback,
             ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             LogError( ( "UNSUBACK Message identifier decode failed, error = %d, decoded value type = %d", error, decoderValue.type ) );
-            ret = MQTTBadResponse;
+            ret = MQTTBLEBadResponse;
         }
         else
         {
@@ -1206,23 +1224,23 @@ MQTTStatus_t IotBleMqtt_DeserializeUnsuback( MQTTPacketInfo_t * pUnsuback,
     return ret;
 }
 
-MQTTStatus_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
-                                             size_t * const pPacketSize )
+MQTTBLEStatus_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
+                                                size_t * const pPacketSize )
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
     IotSerializerError_t error;
-    MQTTStatus_t ret = MQTTSuccess;
+    MQTTBLEStatus_t ret = MQTTBLESuccess;
 
     error = _serializeDisconnect( NULL, &bufLen );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
         LogError( ( "Failed to find serialized length of DISCONNECT message, error = %d", error ) );
-        ret = MQTTBadParameter;
+        ret = MQTTBLEBadParameter;
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
@@ -1230,22 +1248,22 @@ MQTTStatus_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
         if( pBuffer == NULL )
         {
             LogError( ( "Failed to allocate memory for DISCONNECT message." ) );
-            ret = MQTTNoMemory;
+            ret = MQTTBLENoMemory;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         error = _serializeDisconnect( pBuffer, &bufLen );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
             LogError( ( "Failed to serialize DISCONNECT message, error = %d", error ) );
-            ret = MQTTBadParameter;
+            ret = MQTTBLEBadParameter;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         *pDisconnectPacket = pBuffer;
         *pPacketSize = bufLen;
@@ -1275,15 +1293,12 @@ size_t IotBleMqtt_GetRemainingLength( IotBleDataTransferChannel_t * pNetworkConn
 }
 
 
-uint8_t IotBleMqtt_GetPacketType( IotBleDataTransferChannel_t * pNetworkConnection )
+uint8_t IotBleMqtt_GetPacketType( const uint8_t * pBuffer,
+                                  size_t length )
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
-    uint8_t value = 0xFF, packetType = _INVALID_MQTT_PACKET_TYPE;
-    const uint8_t * pBuffer;
-    size_t length;
-
-    IotBleDataTransfer_PeekReceiveBuffer( pNetworkConnection, &pBuffer, &length );
+    uint8_t value, packetType = IOT_BLE_MQTT_MSG_TYPE_INVALID;
 
     error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
 
@@ -1296,9 +1311,7 @@ uint8_t IotBleMqtt_GetPacketType( IotBleDataTransferChannel_t * pNetworkConnecti
             ( decoderValue.type == IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             value = ( uint16_t ) decoderValue.u.value.u.signedInt;
-
-            /** Left shift by 4 bits as MQTT library expects packet type to be upper 4 bits **/
-            packetType = value << 4;
+            packetType = value;
         }
         else
         {
@@ -1315,23 +1328,23 @@ uint8_t IotBleMqtt_GetPacketType( IotBleDataTransferChannel_t * pNetworkConnecti
     return packetType;
 }
 
-MQTTStatus_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
-                                          size_t * const pPacketSize )
+MQTTBLEStatus_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
+                                             size_t * const pPacketSize )
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
     IotSerializerError_t error;
-    MQTTStatus_t ret = MQTTSuccess;
+    MQTTBLEStatus_t ret = MQTTBLESuccess;
 
     error = _serializePingRequest( NULL, &bufLen );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
         LogError( ( "Failed to find serialized length of DISCONNECT message, error = %d", error ) );
-        ret = MQTTBadParameter;
+        ret = MQTTBLEBadParameter;
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
@@ -1339,22 +1352,22 @@ MQTTStatus_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
         if( pBuffer == NULL )
         {
             LogError( ( "Failed to allocate memory for DISCONNECT message." ) );
-            ret = MQTTNoMemory;
+            ret = MQTTBLENoMemory;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         error = _serializePingRequest( pBuffer, &bufLen );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
             LogError( ( "Failed to serialize DISCONNECT message, error = %d", error ) );
-            ret = MQTTBadParameter;
+            ret = MQTTBLEBadParameter;
         }
     }
 
-    if( ret == MQTTSuccess )
+    if( ret == MQTTBLESuccess )
     {
         *pPingreqPacket = pBuffer;
         *pPacketSize = bufLen;
@@ -1373,11 +1386,12 @@ MQTTStatus_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
     return ret;
 }
 
-MQTTStatus_t IotBleMqtt_DeserializePingresp( MQTTPacketInfo_t * pPingresp )
+MQTTBLEStatus_t IotBleMqtt_DeserializePingresp( const uint8_t * pBuffer,
+                                                size_t length )
 {
     /* Ping Response for BLE contains only packet type field in CBOR, which is already decoded
      * in IotBleMqtt_GetPacketType() function. Returning MQTTSuccess. */
-    return MQTTSuccess;
+    return MQTTBLESuccess;
 }
 
 void IotBleMqtt_FreePacket( uint8_t * pPacket )

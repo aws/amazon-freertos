@@ -54,9 +54,15 @@
           <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/application_code/nordic_code/thumb_crt0.s" />
         </folder>
         <folder Name="ble">
-          <file file_name="../../../../../demos/ble/aws_ble_gatt_server_demo.c" />
-          <file file_name="../../../../../demos/ble/iot_ble_numericComparison.c" />
-          <file file_name="../../../../../demos/ble/mqtt_demo_ble_transport.c" />
+          <folder Name="mqtt_ble">
+            <file file_name="../../../../../demos/ble/mqtt_ble/mqtt_demo_ble_transport.c" />
+          </folder>
+          <folder Name="gatt_server">
+            <file file_name="../../../../../demos/ble/gatt_server/aws_ble_gatt_server_demo.c" />
+          </folder>
+          <folder Name="numeric_comparison">
+            <file file_name="../../../../../demos/ble/numeric_comparison/iot_ble_numericComparison.c" />
+          </folder>
         </folder>
         <folder Name="demo_runner">
           <file file_name="../../../../../demos/demo_runner/aws_demo.c" />
@@ -100,6 +106,7 @@
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/iot_ble_config.h" />
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/iot_config.h" />
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/iot_mqtt_agent_config.h" />
+      <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/mqtt_demo_ble_transport_config.h" />
     </folder>
     <folder Name="freertos_kernel">
       <file file_name="../../../../../freertos_kernel/event_groups.c" />
@@ -411,6 +418,23 @@
           </folder>
         </folder>
       </folder>
+      <folder Name="device_shadow">
+        <folder Name="source">
+          <folder Name="include">
+            <file file_name="../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h" />
+            <file file_name="../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h" />
+          </folder>
+          <file file_name="../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c" />
+        </folder>
+      </folder>
+      <folder Name="coreJSON">
+        <folder Name="source">
+          <folder Name="include">
+            <file file_name="../../../../../libraries/coreJSON/source/include/core_json.h" />
+          </folder>
+          <file file_name="../../../../../libraries/coreJSON/source/core_json.c" />
+        </folder>
+      </folder>
     </folder>
     <folder Name="ports">
       <folder Name="ble">
@@ -684,7 +708,7 @@
     Name="Debug"
     arm_fp_abi="None"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/portable;$(SolutionDir)/../../../../../demos/ble/mqtt_transport"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/portable;$(SolutionDir)/../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;$(SolutionDir)/../../../../../libraries/coreJSON/source/include"
     gcc_debugging_level="Level 3"
     gcc_optimization_level="None"
     link_include_standard_libraries="Yes" />

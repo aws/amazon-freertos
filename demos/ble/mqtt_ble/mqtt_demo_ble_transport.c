@@ -24,18 +24,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-
+/* FreeRTOS includes for task syncrhonization and delay. */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 
-
-#include "mqtt_demo_ble_transport_config.h"
+/* Defines configs used by BLE library and transport interface demo. */
 #include "iot_ble_config.h"
+#include "mqtt_demo_ble_transport_config.h"
+
+#include "core_mqtt.h"
 #include "iot_ble_mqtt_transport.h"
 #include "iot_ble_data_transfer.h"
-#include "platform/iot_clock.h"
-#include "platform/iot_threads.h"
-#include "types/iot_platform_types.h"
+
 
 /**
  * @brief The first characters in the client identifier. A timestamp is appended
@@ -81,6 +82,11 @@
  * @brief Keep alive period in seconds for MQTT connection.
  */
 #define MQTT_KEEP_ALIVE_PERIOD_SECONDS       5U
+
+/**
+ * @brief Milliseconds per second definition.
+ */
+#define MILLISECONDS_PER_SECOND              1000U
 
 /**
  * @brief Number of time network receive will be attempted
@@ -166,7 +172,7 @@ static uint8_t fixedBufferBuf[ SINGLE_INCOMING_PACKET_MAX_SIZE ];
 /**
  * @brief Semaphore used to synchronize with the data transfer channel callback.
  */
-static IotSemaphore_t channelSemaphore = { 0 };
+static SemaphoreHandle_t channelSemaphore;
 
 
 /*-----------------------------------------------------------*/
@@ -184,7 +190,7 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
     /* Event to see when the data channel is ready to receive data. */
     if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED )
     {
-        IotSemaphore_Post( &channelSemaphore );
+        ( void ) xSemaphoreGive( channelSemaphore );
     }
 
     /* Event for when data is received over the channel. */
@@ -221,11 +227,13 @@ static MQTTStatus_t demoInitChannel( void )
 
     if( xContext.pChannel != NULL )
     {
-        if( IotSemaphore_Create( &channelSemaphore, 0, 1 ) == true )
+        channelSemaphore = xSemaphoreCreateBinary();
+
+        if( channelSemaphore != NULL )
         {
             ( void ) IotBleDataTransfer_SetCallback( xContext.pChannel, demoCallback, NULL );
 
-            if( IotSemaphore_TimedWait( &channelSemaphore, IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) == true )
+            if( xSemaphoreTake( channelSemaphore, pdMS_TO_TICKS( IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) ) == pdTRUE )
             {
                 LogInfo( ( "The channel was initialized successfully" ) );
 
@@ -341,7 +349,7 @@ static MQTTStatus_t createMQTTConnectionWithBroker( const MQTTFixedBuffer_t * bu
     status = ( size_t ) snprintf( demoClientIdentifier,
                                   CLIENT_IDENTIFIER_MAX_LENGTH,
                                   CLIENT_IDENTIFIER_PREFIX "%u",
-                                  ( uint16_t ) IotClock_GetTimeMs() );
+                                  ( uint16_t ) xTaskGetTickCount() );
 
     LogInfo( ( "Generated client identifier is %s", demoClientIdentifier ) );
 
@@ -805,7 +813,7 @@ MQTTStatus_t RunMQTTBLETransportDemo( void )
                  * loop will send out a PINGREQ if PUBLISH was not sent for this iteration.
                  * The broker will wait till 1.5 times keep-alive period before it disconnects
                  * the client. */
-                ( void ) sleep( MQTT_KEEP_ALIVE_PERIOD_SECONDS );
+                ( void ) vTaskDelay( pdMS_TO_TICKS( MQTT_KEEP_ALIVE_PERIOD_SECONDS * MILLISECONDS_PER_SECOND ) );
             }
 
             /* If we disconnected along the way, exit the loop and log an error */
@@ -834,7 +842,7 @@ MQTTStatus_t RunMQTTBLETransportDemo( void )
             /* Wait for some time between two iterations to ensure that we do not
              * bombard the broker. */
             LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
-            ( void ) sleep( MQTT_DEMO_ITERATION_DELAY_SECONDS );
+            ( void ) vTaskDelay( pdMS_TO_TICKS( MQTT_DEMO_ITERATION_DELAY_SECONDS * MILLISECONDS_PER_SECOND ) );
 
             /* Clean up the channel in between iterations */
             IotBleMqttTransportCleanup( &xContext );

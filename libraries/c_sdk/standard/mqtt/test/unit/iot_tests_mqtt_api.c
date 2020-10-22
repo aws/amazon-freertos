@@ -557,7 +557,7 @@ static void _decrementReferencesJob( IotTaskPool_t pTaskPool,
 /**
  * @brief Transport send interface provided to the MQTT context used in calling MQTT LTS APIs.
  */
-static int32_t transportSend( const NetworkContext_t * pNetworkContext,
+static int32_t transportSend( NetworkContext_t * pNetworkContext,
                               const void * pMessage,
                               size_t bytesToSend )
 {
@@ -585,7 +585,7 @@ static int32_t transportSend( const NetworkContext_t * pNetworkContext,
 /**
  * @brief A transport send function that delays.
  */
-static int32_t transportSendDelay( const NetworkContext_t * pSendContext,
+static int32_t transportSendDelay( NetworkContext_t * pSendContext,
                                    const void * pMessage,
                                    size_t messageLength )
 {
@@ -620,7 +620,7 @@ static int32_t transportSendDelay( const NetworkContext_t * pSendContext,
  *
  * @return The number of bytes received or a negative error code.
  */
-static int32_t transportRecv( const NetworkContext_t * pNetworkContext,
+static int32_t transportRecv( NetworkContext_t * pNetworkContext,
                               void * pBuffer,
                               size_t bytesToRecv )
 {
