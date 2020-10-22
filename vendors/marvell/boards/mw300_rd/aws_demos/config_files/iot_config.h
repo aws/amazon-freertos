@@ -39,9 +39,9 @@
  * no logs will be printed. */
 #define IOT_LOG_LEVEL_GLOBAL                    IOT_LOG_NONE
 #define IOT_LOG_LEVEL_DEMO                      IOT_LOG_INFO
-#define IOT_LOG_LEVEL_PLATFORM                  IOT_LOG_NONE
+#define IOT_LOG_LEVEL_PLATFORM                  IOT_LOG_ERROR
 #define IOT_LOG_LEVEL_NETWORK                   IOT_LOG_ERROR
-#define IOT_LOG_LEVEL_TASKPOOL                  IOT_LOG_NONE
+#define IOT_LOG_LEVEL_TASKPOOL                  IOT_LOG_ERROR
 #define IOT_LOG_LEVEL_MQTT                      IOT_LOG_ERROR
 #define AWS_IOT_LOG_LEVEL_SHADOW                IOT_LOG_ERROR
 #define AWS_IOT_LOG_LEVEL_DEFENDER              IOT_LOG_ERROR
@@ -50,8 +50,6 @@
 /* Platform thread stack size and priority. */
 #define IOT_THREAD_DEFAULT_STACK_SIZE           1024
 #define IOT_THREAD_DEFAULT_PRIORITY             5
-
-#define IOT_NETWORK_RECEIVE_TASK_STACK_SIZE           1024
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
