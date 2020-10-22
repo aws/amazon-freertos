@@ -26,10 +26,15 @@ afr_module_sources(
         "${src_dir}/iot_ble_internal.h"
         "${src_dir}/services/device_information/iot_ble_device_information.c"
         "${src_dir}/services/data_transfer/iot_ble_data_transfer.c"
+        "${src_dir}/services/mqtt_ble/iot_network_ble.c"
+        "${src_dir}/services/mqtt_ble/iot_ble_mqtt_serialize.c"
+        "${src_dir}/services/mqtt_ble/iot_ble_mqtt_transport.c"
         "${inc_dir}/iot_ble_config_defaults.h"
         "${inc_dir}/iot_ble_data_transfer.h"
         "${inc_dir}/iot_ble_device_information.h"
         "${inc_dir}/iot_ble_mqtt_serialize.h"
+        "${inc_dir}/iot_ble_mqtt_transport.h"
+        "${inc_dir}/iot_ble_mqtt_transport_config.h"
         "${inc_dir}/iot_ble_wifi_provisioning.h"
         "${inc_dir}/iot_ble.h"
 )
@@ -38,6 +43,7 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${inc_dir}"
+        "${AFR_MODULES_DIR}/logging/include"
     PRIVATE
         "${test_dir}"
 )
@@ -47,7 +53,12 @@ afr_module_dependencies(
     PUBLIC
         AFR::ble_hal
         AFR::common
+        AFR::serializer
 )
+
+if( EXISTS ${CMAKE_CURRENT_LIST_DIR}/test )
+    afr_add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/test")
+endif()
 
 
 afr_module(NAME ble_wifi_provisioning)
@@ -86,46 +97,3 @@ afr_module_dependencies(
         AFR::ble_wifi_provisioning
 )
 
-#MQTT over BLE
-afr_module(NAME mqtt_ble)
-
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    PRIVATE
-        "${src_dir}/services/mqtt_ble/iot_network_ble.c"
-        "${src_dir}/services/mqtt_ble/iot_ble_mqtt_serialize.c"
-        "${src_dir}/services/mqtt_ble/iot_ble_mqtt_transport.c"
-)
-
-afr_module_include_dirs(
-    ${AFR_CURRENT_MODULE}
-    PUBLIC
-        "${inc_dir}"
-        "${AFR_MODULES_DIR}/logging/include"
-        "$<${AFR_IS_TESTING}:${src_dir}>"
-    PRIVATE
-        "${test_dir}"
-)
-
-afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    PUBLIC
-        AFR::serializer
-        AFR::ble
-	    AFR::core_mqtt
-)
-
-#MQTT over BLE Test
-afr_test_module(mqtt_ble)
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        "${test_dir}/iot_test_ble_mqtt_serialize.c"
-        "${test_dir}/iot_mqtt_ble_system_test.c"
-        "${test_dir}/iot_test_ble_end_to_end.c"
-)
-afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        AFR::mqtt_ble
-)

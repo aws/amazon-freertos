@@ -33,27 +33,16 @@
 #include "stream_buffer.h"
 
 #include "iot_ble_mqtt_transport_config.h"
-#include "core_mqtt_serializer.h"
 #include "iot_ble_mqtt_serialize.h"
 #include "iot_ble_data_transfer.h"
 
-/**
- * @brief Structure to hold the MQTT publish information to be send over BLE channel.
- */
-typedef struct MQTTBLEPublishInfo
-{
-    MQTTPublishInfo_t info;
-    uint16_t packetIdentifier;
-    bool pending;
-} MQTTBLEPublishInfo_t;
-
-struct NetworkContext
+typedef struct NetworkContext
 {
     IotBleDataTransferChannel_t * pChannel;
     StreamBufferHandle_t xStreamBuffer;
     StaticStreamBuffer_t xStreamBufferStruct;
     MQTTBLEPublishInfo_t publishInfo;
-};
+} NetworkContext_t;
 
 /**
  * @brief Initiailzes the Circular buffer to store the received data
@@ -81,7 +70,7 @@ void IotBleMqttTransportCleanup( const NetworkContext_t * pContext );
  * @param[in] pContext An opaque used by transport interface.
  * @return the status of the accept
  */
-MQTTStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext );
+MQTTBLEStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext );
 
 /**
  * @brief Transport interface write function.

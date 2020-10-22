@@ -13,7 +13,7 @@ endif()
 
 # Compile BLE MQTT on supported platforms.
 if(${BLE_SUPPORTED})
-    set(extra_mqtt_dependencies AFR::mqtt_ble AFR::serializer AFR::ble)
+    set(extra_mqtt_dependencies AFR::ble)
 endif()
 
 afr_module_sources(

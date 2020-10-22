@@ -361,7 +361,9 @@ INCLUDES+=\
 ifneq ($(BLE_SUPPORT),)
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/ble_hal/*c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/ble/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/ble/gatt_server/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/ble/mqtt_ble/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/ble/numeric_comparison/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/device_information/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/mqtt_ble/*c)\

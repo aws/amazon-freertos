@@ -53,7 +53,7 @@ if(TARGET AFR::wifi::mcu_port AND TARGET AFR::ble_hal::mcu_port)
 endif()
 
 # Add other modules.
-file(GLOB afr_demos "${AFR_DEMOS_DIR}/*")
+file(GLOB_RECURSE afr_demos LIST_DIRECTORIES true "${AFR_DEMOS_DIR}/*")
 foreach(demo IN LISTS afr_demos)
     if(IS_DIRECTORY "${demo}" AND EXISTS "${demo}/CMakeLists.txt")
         afr_add_subdirectory("${demo}")
