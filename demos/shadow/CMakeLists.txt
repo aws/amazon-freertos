@@ -1,4 +1,4 @@
-# C SDK Shadow demo
+# Device Shadow demo module
 afr_demo_module(shadow)
 
 set(inc_dir "${AFR_MODULES_C_SDK_DIR}/standard/serializer/include")
