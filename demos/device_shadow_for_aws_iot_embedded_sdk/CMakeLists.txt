@@ -1,4 +1,4 @@
-# C SDK Shadow demo
+# Device Shadow demo module.
 afr_demo_module(device_shadow)
 
 afr_set_demo_metadata(ID "DEVICE_SHADOW_DEMO")
