@@ -1105,8 +1105,8 @@ static int32_t prvUnsubscribeFromTopic( MQTTContext_t * pxMqttContext,
                    usTopicFilterLength,
                    pcTopicFilter ) );
 
-        /* Process incoming packet from the broker. Acknowledgment for subscription
-         * ( SUBACK ) will be received here. However after sending the subscribe, the
+        /* Process incoming packet from the broker. Acknowledgment for unsubscribe operation
+         * ( UNSUBACK ) will be received here. However after sending the subscribe, the
          * client may receive a publish before it receives a subscribe ack. Since this
          * demo is subscribing to the topic to which no one is publishing, probability
          * of receiving publish message before subscribe ack is zero; but application
