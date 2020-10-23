@@ -193,8 +193,11 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( Socket_t xMQTTSocket );
  *
  * @param xMQTTSocket is a TCP socket that is connected to an MQTT broker to which
  * an MQTT connection has been established.
+ *
+ * @return pdPASS if the graceful shutdown of the socket was successful,
+ * pdFAIL otherwise.
  */
-static void prvGracefulShutDown( Socket_t xSocket );
+static BaseType_t prvGracefulShutDown( Socket_t xSocket );
 
 /**
  * @brief Subscribes to the topic as specified in mqttexampleTOPIC at the top of
@@ -511,7 +514,7 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
             xStatus = prvMQTTDisconnect( xMQTTSocket );
 
             /* Close the network connection. */
-            prvGracefulShutDown( xMQTTSocket );
+            xStatus = prvGracefulShutDown( xMQTTSocket );
             xIsConnectionEstablished = pdFALSE;
         }
 
@@ -541,39 +544,34 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
 }
 /*-----------------------------------------------------------*/
 
-static void prvGracefulShutDown( Socket_t xSocket )
+static BaseType_t prvGracefulShutDown( Socket_t xSocket )
 {
-    uint8_t ucDummy[ 20 ];
-    const TickType_t xShortDelay = pdMS_TO_TICKS( 250 );
-    BaseType_t xShutdownLoopCount = 0;
+    BaseType_t xStatus = pdFAIL;
+    int32_t lSocketStatus = ( int32_t ) SOCKETS_SOCKET_ERROR;
 
-    if( xSocket != ( Socket_t ) 0 )
+    /* Call Secure Sockets shutdown function to close connection. */
+    lSocketStatus = SOCKETS_Shutdown( xSocket, SOCKETS_SHUT_RDWR );
+
+    if( lSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
     {
-        if( xSocket != SOCKETS_INVALID_SOCKET )
+        LogError( ( "Failed to close connection: SOCKETS_Shutdown call failed. SocketStatus %d.", lSocketStatus ) );
+    }
+    else
+    {
+        /* Call Secure Sockets close function to close socket. */
+        lSocketStatus = SOCKETS_Close( xSocket );
+
+        if( lSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            /* Initiate graceful shutdown. */
-            SOCKETS_Shutdown( xSocket, SOCKETS_SHUT_RDWR );
-
-            /* Wait for the socket to disconnect gracefully (indicated by FreeRTOS_recv()
-             * returning a FREERTOS_EINVAL error) before closing the socket. */
-            while( SOCKETS_Recv( xSocket, ucDummy, sizeof( ucDummy ), 0 ) >= 0 )
-            {
-                /* Wait for shutdown to complete.  If a receive block time is used then
-                 * this delay will not be necessary as FreeRTOS_recv() will place the RTOS task
-                 * into the Blocked state anyway. */
-                vTaskDelay( xShortDelay );
-
-                /* Limit the number of FreeRTOS_recv loops to avoid infinite loop. */
-                if( ++xShutdownLoopCount >= mqttexampleMAX_SOCKET_SHUTDOWN_LOOPS )
-                {
-                    break;
-                }
-            }
-
-            /* The socket has shut down and is safe to close. */
-            SOCKETS_Close( xSocket );
+            LogError( ( "Failed to close connection: SOCKETS_Close call failed. SocketStatus %d.", lSocketStatus ) );
+        }
+        else
+        {
+            xStatus = pdPASS;
         }
     }
+
+    return xStatus;
 }
 /*-----------------------------------------------------------*/
 
