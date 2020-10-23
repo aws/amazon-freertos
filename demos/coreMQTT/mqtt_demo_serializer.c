@@ -547,14 +547,14 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
 static BaseType_t prvGracefulShutDown( Socket_t xSocket )
 {
     BaseType_t xStatus = pdFAIL;
-    int32_t lSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
+    int32_t lSocketStatus = ( int32_t ) SOCKETS_SOCKET_ERROR;
 
     /* Call Secure Sockets shutdown function to close connection. */
     lSocketStatus = SOCKETS_Shutdown( xSocket, SOCKETS_SHUT_RDWR );
 
     if( lSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
     {
-        LogError( ( "Failed to close connection: SOCKETS_Shutdown call failed. %d", lSocketStatus ) );
+        LogError( ( "Failed to close connection: SOCKETS_Shutdown call failed. SocketStatus %d.", lSocketStatus ) );
     }
     else
     {
@@ -563,7 +563,7 @@ static BaseType_t prvGracefulShutDown( Socket_t xSocket )
 
         if( lSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Failed to close connection: SOCKETS_Close call failed. SocketStatus %d", lSocketStatus ) );
+            LogError( ( "Failed to close connection: SOCKETS_Close call failed. SocketStatus %d.", lSocketStatus ) );
         }
         else
         {
