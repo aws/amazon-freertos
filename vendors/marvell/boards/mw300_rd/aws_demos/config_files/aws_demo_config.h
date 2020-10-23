@@ -87,7 +87,7 @@
 #define democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
 
 /* Shadow demo task parameters. */
-#define democonfigSHADOW_DEMO_TASK_STACK_SIZE                        ( configMINIMAL_STACK_SIZE * 6 )
+#define democonfigSHADOW_DEMO_TASK_STACK_SIZE                        ( configMINIMAL_STACK_SIZE * 5 )
 #define democonfigSHADOW_DEMO_TASK_PRIORITY                          ( tskIDLE_PRIORITY )
 
 /* Number of shadow light switch tasks running. */

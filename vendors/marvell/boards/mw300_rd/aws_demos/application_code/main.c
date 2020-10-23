@@ -57,7 +57,7 @@ const AppVersion32_t xAppFirmwareVersion = {
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
-#define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
+#define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 6 )
 
 /* Startup defines. */
 #define mainSTARTUP_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 4 )
