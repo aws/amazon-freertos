@@ -42,7 +42,7 @@
  * to send MQTT packets to cloud assisted by a companion mobile device.
  *
  * The Example establishes a BLE data transfer channel over BLE GATT connection with a companion mobile
- * device and  uses MQTT APIs to create and send  packets over the channel to a broker.
+ * device and uses MQTT APIs to create and send packets over the channel to a broker.
  * This example is single threaded and uses statically allocated
  * memory. It uses QoS0 by default for sending to and receiving messages from the broker.
  *
