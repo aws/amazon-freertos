@@ -338,12 +338,12 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
  * @param[in] context User context owned by the application.
  */
 static void bleChannelCallback( IotBleDataTransferChannelEvent_t event,
-                                   IotBleDataTransferChannel_t * pChannel,
-                                   void * context );
+                                IotBleDataTransferChannel_t * pChannel,
+                                void * context );
 
 /**
  * @brief Sets up BLE transport interface.
- * 
+ *
  * @param[in] pTransportCtxt Context passed to transport interface from MQTT library.
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
@@ -360,7 +360,7 @@ static int32_t prvBLETransportInterfaceDisconnect( NetworkContext_t * pTransport
 
 /**
  * @brief Callback used to handle MQTT control packets.
- * 
+ *
  * @param[in] pxPacketInfo Pointer to the MQTT packet information.
  * @param[in] usPacketIdentifier Packet identifier for the packet.
  */
@@ -369,22 +369,22 @@ static void prvHandleMQTTControlPacket( MQTTPacketInfo_t * pxPacketInfo,
 
 /**
  * @brief Callback generated for delta information in shadow document.
- * 
+ *
  * @param[in] pxPublishInfo Publish information for the shadow delta.
  */
 static void prvUpdateDeltaHandler( MQTTPublishInfo_t * pxPublishInfo );
 
 /**
  * @brief Callback generated for shadow document update acknowledgement.
- * 
+ *
  * @param[in] pxPublishInfo Publish information for the acknowledgement.
  */
 static void prvUpdateAcceptedHandler( MQTTPublishInfo_t * pxPublishInfo );
 
 /**
- * @brief Setups underlying BLE transport interface connection. 
+ * @brief Setups underlying BLE transport interface connection.
  * Sends an MQTT connect to the broker.
- * 
+ *
  * @param[in] pxNetworkContext Context for the underlying network connection.
  * @param[in] pxMqttContext Context used by the MQTT library.
  * @param[in] Eventcallback Callback to be invoked for MQTT packets.
@@ -398,7 +398,7 @@ static int32_t prvEstablishMqttSession( NetworkContext_t * pxNetworkContext,
 /**
  * @brief Sends disconnect packet to the broker if already connected. Tearsdown the
  * underlying network connection.
- * 
+ *
  * @param[in] pxMqttContext Context used by the MQTT library.
  * @param[in] pxNetworkContext Context for the underlying network connection.
  * @return EXIT_SUCCESS or EXIT_FAILURE
@@ -408,44 +408,44 @@ static int32_t prvDisconnectMqttSession( MQTTContext_t * pxMqttContext,
 
 /**
  * @brief Subscribes to a topic filter with QOS 1 value.
- * 
+ *
  * @param[in] pxMqttContext Context used by the MQTT library.
  * @param[in] pcTopicFilter Topic filter string.
  * @param[in] usTopicFilterLength topic filter string length.
  * @return EXIT_SUCCESS or EXIT_FAILURE
- */                                        
+ */
 static int32_t prvSubscribeToTopic( MQTTContext_t * pxMqttContext,
                                     const char * pcTopicFilter,
                                     uint16_t usTopicFilterLength );
 
 /**
  * @brief Unsubscribes from a topic filter.
- * 
+ *
  * @param[in] pxMqttContext Context used by the MQTT library.
  * @param[in] pcTopicFilter Topic filter string.
  * @param[in] usTopicFilterLength topic filter string length.
  * @return EXIT_SUCCESS or EXIT_FAILURE
- */ 
+ */
 static int32_t prvUnsubscribeFromTopic( MQTTContext_t * pxMqttContext,
                                         const char * pcTopicFilter,
                                         uint16_t usTopicFilterLength );
 
 /**
  * @brief Publishes given payload to an MQTT topic
- * 
+ *
  * @param[in] pxMqttContext Context used by the MQTT library.
  * @param[in] pcTopicFilter Topic string.
  * @param[in] topicFilterLength topic string length.
  * @param[in] pcPayload Payload value.
  * @param[in] payloadLength length of the payload.
  * @return EXIT_SUCCESS or EXIT_FAILURE
- */ 
+ */
 static int32_t prvPublishToTopic( MQTTContext_t * pxMqttContext,
                                   const char * pcTopicFilter,
                                   int32_t topicFilterLength,
                                   const char * pcPayload,
                                   size_t payloadLength );
-                
+
 /*--------------------------------------------------------------*/
 static void bleChannelCallback( IotBleDataTransferChannelEvent_t event,
                                 IotBleDataTransferChannel_t * pChannel,
