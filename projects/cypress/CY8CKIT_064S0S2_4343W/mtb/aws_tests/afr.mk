@@ -316,13 +316,19 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c
 
+# Device Shadow and core JSON
+SOURCES+=\
+	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c\
+	$(CY_AFR_ROOT)/libraries/coreJSON/source/core_json.c
+
 # Test code
 SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/unit/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/system/*.c)\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c\
-	$(CY_AFR_ROOT)/tests/integration_test/core_mqtt_system_test.c
+	$(CY_AFR_ROOT)/tests/integration_test/core_mqtt_system_test.c\
+	$(CY_AFR_ROOT)/tests/integration_test/shadow_system_test.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common\
@@ -357,6 +363,8 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src/private\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/portable\
+	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include\
+	$(CY_AFR_ROOT)/libraries/coreJSON/source/include\
 
 ################################################################################
 # libraries (freertos_plus)
