@@ -104,7 +104,6 @@ set(CMAKE_STATIC_LIBRARY_PREFIX "")
 add_subdirectory("libraries")
 add_subdirectory("demos")
 add_subdirectory("tests")
-add_subdirectory("tests/integration_test")
 
 # Resolve dependencies.
 afr_status("=========================Resolving dependencies==========================")

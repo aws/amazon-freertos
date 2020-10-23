@@ -54,4 +54,3 @@ if(AFR_ENABLE_TESTS)
     )
 
 endif()
-
