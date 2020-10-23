@@ -38,7 +38,7 @@
 #include "iot_ble_data_transfer.h"
 
 /*
- * Demo for showing how to use  the MQTT API with BLE transport interface implementation
+ * Demo for showing the use of MQTT API with transport interface implementation based on the BLE connectivity layer
  * to send MQTT packets to cloud assisted by a companion mobile device.
  *
  * The Example establishes a BLE data transfer channel over BLE GATT connection with a companion mobile
