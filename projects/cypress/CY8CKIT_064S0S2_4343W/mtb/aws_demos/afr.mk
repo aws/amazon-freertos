@@ -181,7 +181,8 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)
+	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_shadow_for_aws_iot_embedded_sdk/*.c)
 
 INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common\
@@ -190,7 +191,8 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/demos/https\
 	$(CY_AFR_ROOT)/demos/include\
 	$(CY_AFR_ROOT)/demos/network_manager\
-	$(CY_AFR_ROOT)/demos/tcp
+	$(CY_AFR_ROOT)/demos/tcp\
+	$(CY_AFR_ROOT)/demos/device_shadow_for_aws_iot_embedded_sdk\
 
 ################################################################################
 # libraries (3rd party)
