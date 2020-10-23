@@ -48,7 +48,7 @@
  *
  * A smartphone application using the FreeRTOS companion mobile SDK, in BLE central role should scan and
  * connect to this device successfully, before starting the demo.
- * Broker endpoint and the thing name should be configured in aws_clientcredential.h.
+ * Broker endpoint and the thing name should be configured in demos/include/aws_clientcredential.h.
  */
 
 
