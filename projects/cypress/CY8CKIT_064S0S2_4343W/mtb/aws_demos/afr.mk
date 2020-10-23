@@ -307,6 +307,10 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c
 
+# Device Shadow
+SOURCES+=\
+	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c
+
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include\
@@ -332,6 +336,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/portable\
+	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include\
 
 ################################################################################
 # libraries (freertos_plus)
