@@ -1118,9 +1118,7 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
     waitable = ( pOperation->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
 
     /* Update the timestamp of the last message on successful transmission. */
-    IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
     pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
-    IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
 
     /* DISCONNECT operations are considered successful upon successful
      * transmission. In addition, non-waitable operations with no callback
@@ -1166,8 +1164,6 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
          * pending processing to the pending response list. */
         if( destroyOperation == false )
         {
-            IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
-
             /* Operation must be linked. */
             IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) );
 
@@ -1175,8 +1171,6 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
             IotListDouble_Remove( &( pOperation->link ) );
             IotListDouble_InsertHead( &( pMqttConnection->pendingResponse ),
                                       &( pOperation->link ) );
-
-            IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
 
             /* This operation is now awaiting a response from the network. */
             networkPending = true;

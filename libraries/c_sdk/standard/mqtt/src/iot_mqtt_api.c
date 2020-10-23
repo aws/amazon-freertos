@@ -708,6 +708,8 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
         }
     }
 
+    IotMutex_Lock( &( mqttConnection->referencesMutex ) );
+
     /* Set the reference, if provided. */
     if( pOperationReference != NULL )
     {
@@ -737,8 +739,6 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
 
     if( status == IOT_MQTT_SUCCESS )
     {
-        IotMutex_Lock( &( mqttConnection->referencesMutex ) );
-
         /* Operation must be linked. */
         IotMqtt_Assert( IotLink_IsLinked( &( pSubscriptionOperation->link ) ) );
 
@@ -747,7 +747,6 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
         IotListDouble_InsertHead( &( mqttConnection->pendingResponse ),
                                   &( pSubscriptionOperation->link ) );
 
-        IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
 
         /* Processing operation after sending it on the network. */
         _IotMqtt_ProcessOperation( pSubscriptionOperation );
@@ -770,9 +769,9 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
         {
             *pOperationReference = IOT_MQTT_OPERATION_INITIALIZER;
         }
-
-        IOT_GOTO_CLEANUP();
     }
+
+    IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
 
     /* Clean up if this function failed. */
     IOT_FUNCTION_CLEANUP_BEGIN();
@@ -1418,6 +1417,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                                                IOT_MQTT_FLAG_WAITABLE,
                                                NULL,
                                                &pOperation );
+            IotMutex_Lock( &( mqttConnection->referencesMutex ) );
 
             if( status == IOT_MQTT_SUCCESS )
             {
@@ -1443,6 +1443,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
             {
                 /* Processing the operation after sending it on the network. */
                 _IotMqtt_ProcessOperation( pOperation );
+                IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
 
                 /* Destroying the operation after the DISCONNECT Packet is sent on the network. */
                 if( _IotMqtt_DecrementOperationReferences( pOperation, false ) == true )
@@ -1455,6 +1456,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                 IotLogWarn( "(MQTT connection %p) Failed to send DISCONNECT packet. ",
                             mqttConnection );
                 _IotMqtt_DestroyOperation( pOperation );
+                IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
             }
         }
         else
@@ -1745,6 +1747,8 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
         EMPTY_ELSE_MARKER;
     }
 
+    IotMutex_Lock( &( mqttConnection->referencesMutex ) );
+
     /* Calling PUBLISH wrapper to send PUBLISH packet on the network using MQTT LTS PUBLISH API. */
     status = _IotMqtt_managedPublish( mqttConnection,
                                       pOperation,
@@ -1776,9 +1780,9 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
         {
             EMPTY_ELSE_MARKER;
         }
-
-        IOT_GOTO_CLEANUP();
     }
+
+    IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
 
     /* Clean up the PUBLISH operation if this function fails. Otherwise, set the
      * appropriate return code based on QoS. */
