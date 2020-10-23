@@ -193,8 +193,11 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( Socket_t xMQTTSocket );
  *
  * @param xMQTTSocket is a TCP socket that is connected to an MQTT broker to which
  * an MQTT connection has been established.
+ *
+ * @return pdPASS if the graceful shutdown of the socket was successful,
+ * pdFAIL otherwise.
  */
-static void prvGracefulShutDown( Socket_t xSocket );
+static BaseType_t prvGracefulShutDown( Socket_t xSocket );
 
 /**
  * @brief Subscribes to the topic as specified in mqttexampleTOPIC at the top of
@@ -511,7 +514,7 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
             xStatus = prvMQTTDisconnect( xMQTTSocket );
 
             /* Close the network connection. */
-            prvGracefulShutDown( xMQTTSocket );
+            xStatus = prvGracefulShutDown( xMQTTSocket );
             xIsConnectionEstablished = pdFALSE;
         }
 
@@ -541,8 +544,9 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
 }
 /*-----------------------------------------------------------*/
 
-static void prvGracefulShutDown( Socket_t xSocket )
+static BaseType_t prvGracefulShutDown( Socket_t xSocket )
 {
+    BaseType_t xStatus = pdFAIL;
     int32_t lSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
 
     /* Call Secure Sockets shutdown function to close connection. */
@@ -561,7 +565,13 @@ static void prvGracefulShutDown( Socket_t xSocket )
         {
             LogError( ( "Failed to close connection: SOCKETS_Close call failed. SocketStatus %d", lSocketStatus ) );
         }
+        else
+        {
+            xStatus = pdPASS;
+        }
     }
+
+    return xStatus;
 }
 /*-----------------------------------------------------------*/
 
