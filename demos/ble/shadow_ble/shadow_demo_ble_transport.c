@@ -533,7 +533,6 @@ static int32_t prvBLETransportInterfaceDisconnect( NetworkContext_t * pTransport
 {
     int32_t status = EXIT_SUCCESS;
 
-    /* Open is a handshake proceture, so we need to wait until it is ready to use. */
     ( void ) IotBleMqttTransportCleanup( pTransportCtxt );
     ( void ) IotBleDataTransfer_Close( pTransportCtxt->pChannel );
     ( void ) IotBleDataTransfer_Reset( pTransportCtxt->pChannel );
