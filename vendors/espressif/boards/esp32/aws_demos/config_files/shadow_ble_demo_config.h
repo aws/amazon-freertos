@@ -25,8 +25,8 @@
  * 1 tab == 4 spaces!
  */
 
-#ifndef SHADOW_DEMO_CONFIG_H
-#define SHADOW_DEMO_CONFIG_H
+#ifndef SHADOW_BLE_DEMO_CONFIG_H
+#define SHADOW_BLE_DEMO_CONFIG_H
 
 
 /**************************************************/
@@ -124,4 +124,4 @@
  */
 #define democonfigBLE_TRANSPORT_BUFFER_SIZE   ( 256U )
 
-#endif /* SHADOW_DEMO_CONFIG_H */
+#endif /* SHADOW_BLE_DEMO_CONFIG_H */

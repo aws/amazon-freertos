@@ -202,11 +202,19 @@
  */
 #define THING_NAME_LENGTH    ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
 
-
+/**
+ * @brief BLE transport interface context passed in by the MQTT library.
+ */
 static NetworkContext_t xBLETransportCtxt = { 0 };
 
+/**
+ * @brief Semaphore used to synchronize BLE data transfer channel callback.
+ */
 static SemaphoreHandle_t xChannelSemaphore;
 
+/**
+ * @brief Global flag to represent channel closure.
+ */
 static bool channelActive = false;
 
 /**
@@ -214,7 +222,9 @@ static bool channelActive = false;
  */
 static uint8_t ucTransportBuffer[ democonfigBLE_TRANSPORT_BUFFER_SIZE ] = { 0 };
 
-
+/**
+ * @breif MQTT context passed by the application to the MQTT library.
+ */
 static MQTTContext_t xMQTTContext = { 0 };
 
 /**
@@ -320,14 +330,127 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
                               MQTTPacketInfo_t * pxPacketInfo,
                               MQTTDeserializedInfo_t * pxDeserializedInfo );
 
+/**
+ * @brief BLE data transfer channel callback.
+ *
+ * @param[in] event Event received from the data transfer channel.
+ * @param[in] pChannel Pointer to the data transfer channel.
+ * @param[in] context User context owned by the application.
+ */
+static void bleChannelCallback( IotBleDataTransferChannelEvent_t event,
+                                   IotBleDataTransferChannel_t * pChannel,
+                                   void * context );
+
+/**
+ * @brief Sets up BLE transport interface.
+ * 
+ * @param[in] pTransportCtxt Context passed to transport interface from MQTT library.
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+static int32_t prvBLETransportInterfaceConnect( NetworkContext_t * pTransportCtxt );
 
 
+/**
+ * @brief Disconnect BLE transport interface.
+ *
+ * @param[in] pTransportCtxt Context passed to transport interface from MQTT library.
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+static int32_t prvBLETransportInterfaceDisconnect( NetworkContext_t * pTransportCtxt );
+
+/**
+ * @brief Callback used to handle MQTT control packets.
+ * 
+ * @param[in] pxPacketInfo Pointer to the MQTT packet information.
+ * @param[in] usPacketIdentifier Packet identifier for the packet.
+ */
+static void prvHandleMQTTControlPacket( MQTTPacketInfo_t * pxPacketInfo,
+                                        uint16_t usPacketIdentifier );
+
+/**
+ * @brief Callback generated for delta information in shadow document.
+ * 
+ * @param[in] pxPublishInfo Publish information for the shadow delta.
+ */
+static void prvUpdateDeltaHandler( MQTTPublishInfo_t * pxPublishInfo );
+
+/**
+ * @brief Callback generated for shadow document update acknowledgement.
+ * 
+ * @param[in] pxPublishInfo Publish information for the acknowledgement.
+ */
+static void prvUpdateAcceptedHandler( MQTTPublishInfo_t * pxPublishInfo );
+
+/**
+ * @brief Setups underlying BLE transport interface connection. 
+ * Sends an MQTT connect to the broker.
+ * 
+ * @param[in] pxNetworkContext Context for the underlying network connection.
+ * @param[in] pxMqttContext Context used by the MQTT library.
+ * @param[in] Eventcallback Callback to be invoked for MQTT packets.
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+static int32_t prvEstablishMqttSession( NetworkContext_t * pxNetworkContext,
+                                        MQTTContext_t * pxMqttContext,
+                                        MQTTEventCallback_t eventCallback );
+
+
+/**
+ * @brief Sends disconnect packet to the broker if already connected. Tearsdown the
+ * underlying network connection.
+ * 
+ * @param[in] pxMqttContext Context used by the MQTT library.
+ * @param[in] pxNetworkContext Context for the underlying network connection.
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+static int32_t prvDisconnectMqttSession( MQTTContext_t * pxMqttContext,
+                                         NetworkContext_t * pxNetworkContext );
+
+/**
+ * @brief Subscribes to a topic filter with QOS 1 value.
+ * 
+ * @param[in] pxMqttContext Context used by the MQTT library.
+ * @param[in] pcTopicFilter Topic filter string.
+ * @param[in] usTopicFilterLength topic filter string length.
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */                                        
+static int32_t prvSubscribeToTopic( MQTTContext_t * pxMqttContext,
+                                    const char * pcTopicFilter,
+                                    uint16_t usTopicFilterLength );
+
+/**
+ * @brief Unsubscribes from a topic filter.
+ * 
+ * @param[in] pxMqttContext Context used by the MQTT library.
+ * @param[in] pcTopicFilter Topic filter string.
+ * @param[in] usTopicFilterLength topic filter string length.
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */ 
+static int32_t prvUnsubscribeFromTopic( MQTTContext_t * pxMqttContext,
+                                        const char * pcTopicFilter,
+                                        uint16_t usTopicFilterLength );
+
+/**
+ * @brief Publishes given payload to an MQTT topic
+ * 
+ * @param[in] pxMqttContext Context used by the MQTT library.
+ * @param[in] pcTopicFilter Topic string.
+ * @param[in] topicFilterLength topic string length.
+ * @param[in] pcPayload Payload value.
+ * @param[in] payloadLength length of the payload.
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */ 
+static int32_t prvPublishToTopic( MQTTContext_t * pxMqttContext,
+                                  const char * pcTopicFilter,
+                                  int32_t topicFilterLength,
+                                  const char * pcPayload,
+                                  size_t payloadLength );
+                
+/*--------------------------------------------------------------*/
 static void bleChannelCallback( IotBleDataTransferChannelEvent_t event,
                                 IotBleDataTransferChannel_t * pChannel,
                                 void * context )
 {
-    MQTTStatus_t acceptCode;
-
     /* Unused parameters. */
     ( void ) pChannel;
     ( void ) context;
@@ -363,7 +486,6 @@ static int32_t prvBLETransportInterfaceConnect( NetworkContext_t * pTransportCtx
 {
     int32_t status = EXIT_SUCCESS;
 
-    /* Open is a handshake proceture, so we need to wait until it is ready to use. */
     pTransportCtxt->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
 
     if( pTransportCtxt->pChannel != NULL )
@@ -374,6 +496,7 @@ static int32_t prvBLETransportInterfaceConnect( NetworkContext_t * pTransportCtx
         {
             ( void ) IotBleDataTransfer_SetCallback( pTransportCtxt->pChannel, bleChannelCallback, NULL );
 
+            /* Open is a handshake proceture, so we need to wait until it is ready to use. */
             if( xSemaphoreTake( xChannelSemaphore, pdMS_TO_TICKS( IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) ) == pdTRUE )
             {
                 LogInfo( ( "The channel was initialized successfully" ) );
@@ -452,7 +575,6 @@ static void prvHandleMQTTControlPacket( MQTTPacketInfo_t * pxPacketInfo,
                        usPacketIdentifier ) );
             assert( globalPublishPacketIdentifier == usPacketIdentifier );
             pubAckReceived = true;
-            /* TODO assert the packet identifier */
             break;
 
         /* Any other packet type is invalid. */
@@ -461,6 +583,7 @@ static void prvHandleMQTTControlPacket( MQTTPacketInfo_t * pxPacketInfo,
                         pxPacketInfo->type ) );
     }
 }
+
 static void prvUpdateDeltaHandler( MQTTPublishInfo_t * pxPublishInfo )
 {
     static uint32_t ulCurrentVersion = 0; /* Remember the latestVersion # we've ever received */
@@ -1118,8 +1241,7 @@ static uint32_t prvGetTimeMs( void )
  * - SHADOW_TOPIC_STRING_UPDATE for "$aws/things/thingName/shadow/update"
  *
  * The helper functions this demo uses for MQTT operations have internal
- * loops to process incoming messages. Those are not the focus of this demo
- * and therefor, are placed in a separate file shadow_demo_helpers.c.
+ * loops to process incoming messages.
  */
 
 int RunShadowBLETransportDemo( bool awsIotMqttMode,
