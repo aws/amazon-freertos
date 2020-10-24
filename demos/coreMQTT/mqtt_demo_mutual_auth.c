@@ -602,7 +602,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
                        "Retrying connection with backoff and jitter.", xNetworkStatus ) );
             xStatus = pdFAIL;
 
-            LogInfo( ( "Retry attempt %ul out of maximum retry attempts %ul.",
+            LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
                        ( xReconnectParams.attemptsDone + 1 ),
                        MAX_RETRY_ATTEMPTS ) );
             xRetryUtilsStatus = RetryUtils_BackoffAndSleep( &xReconnectParams );
