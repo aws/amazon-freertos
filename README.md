@@ -5,11 +5,7 @@ This repo uses [Git Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodu
 
 Note: If you download the ZIP file provided by GitHub UI, you will not get the contents of the submodules. (The ZIP file is also not a valid git repository)
 
-To clone using HTTPS:
-```
-git clone https://github.com/aws/amazon-freertos.git --recurse-submodules
-```
-Using SSH:
+
 ```
 git clone git@github.com:aws/amazon-freertos.git --recurse-submodules
 ```
