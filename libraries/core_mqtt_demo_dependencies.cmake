@@ -100,3 +100,14 @@ if(TARGET AFR::wifi::mcu_port)
             AFR::wifi
     )
 endif()
+
+# Add dependency on BLE module so that the BLE library is auto-included
+# when selecting core MQTT library on FreeRTOS console for boards that
+# support BLE.
+if(BLE_SUPPORTED)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::ble
+    )
+endif()
