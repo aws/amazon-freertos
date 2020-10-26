@@ -314,7 +314,8 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_serializer.c\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/test/iot_test_ble_mqtt_serialize.c
 
 # Device Shadow and core JSON
 SOURCES+=\
