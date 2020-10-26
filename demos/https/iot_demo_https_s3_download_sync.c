@@ -300,7 +300,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     }
 
     /* Set the connection configurations.
-     * Note: TLS Connection to AWS S3 service does not client certificate.
+     * Note: TLS Connection to AWS S3 service does not need a client certificate.
      * The client authentication is performed at the HTTP protocol layer with a pre-signed URL. */
     connConfig.pAddress = pAddress;
     connConfig.addressLen = addressLen;
