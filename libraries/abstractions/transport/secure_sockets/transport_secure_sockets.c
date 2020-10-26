@@ -59,7 +59,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
  *
  * @return #TRANSPORT_SOCKET_STATUS_SUCCESS on success;
  *         #TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, #TRANSPORT_SOCKET_STATUS_INSUFFICIENT_MEMORY,
- *         #TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, #TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR,
+ *         #TRANSPORT_SOCKET_STATUS_CREDENTIALS_INVALID, #TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR,
  *         #TRANSPORT_SOCKET_STATUS_DNS_FAILURE, #TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE on failure.
  */
 static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkContext,
@@ -254,7 +254,7 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
                                                  0,
                                                  SOCKETS_SO_SERVER_NAME_INDICATION,
                                                  pHostName,
-                                                 hostnameLength + 1 );
+                                                 ( size_t ) ( hostnameLength + 1 ) );
 
         if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
@@ -426,7 +426,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
                                                             pServerInfo->pHostName,
                                                             hostnameLength ) )
             {
-                returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS;
+                returnStatus = TRANSPORT_SOCKET_STATUS_CREDENTIALS_INVALID;
             }
         }
     }
