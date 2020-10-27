@@ -474,8 +474,12 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * xIPConfig )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
+    
+    if( xIPConfig == NULL )
+    {
+        return eWiFiFailure;
+    }    
 
-    configASSERT( xIPConfig != NULL );
     memset( xIPConfig, 0, sizeof( WIFIIPConfiguration_t ) );
 
     /* Try to acquire the semaphore. */
