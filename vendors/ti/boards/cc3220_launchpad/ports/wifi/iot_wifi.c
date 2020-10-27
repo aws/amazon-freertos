@@ -899,10 +899,6 @@ WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * xIPConfig )
 {
     WIFIReturnCode_t xRetVal = eWiFiSuccess;
     int16_t sRetCode;
-
-    configASSERT( xIPConfig != NULL );
-    memset(xIPConfig, 0, sizeof( WIFIIPConfiguration_t ) );
-
     unsigned long ulDestinationIP = 0;
     unsigned long ulSubMask = 0;
     unsigned long ulDefGateway = 0;
@@ -914,12 +910,14 @@ WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * xIPConfig )
                                                    &ulDefGateway,
                                                    &ulDns );
 
-    if( sRetCode != 0 )
+    if( sRetCode != 0 || xIPConfig == NULL )
     {
         xRetVal = eWiFiFailure;
     }
     else
     {
+        memset(xIPConfig, 0, sizeof( WIFIIPConfiguration_t ) );
+
         /*fill the return buffer.*/
         uint8_t * pucIPv4Addr = ( uint8_t * )&xIPConfig->xIPAddress.ulAddress[ 0 ];
         *( pucIPv4Addr ) = SL_IPV4_BYTE( ulDestinationIP, 3 );
