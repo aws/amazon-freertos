@@ -92,11 +92,8 @@
     #define democonfigMQTT_BROKER_PORT    clientcredentialMQTT_BROKER_PORT
 #endif
 
-/* Use Starfield Root CA as the default Root CA because the TI C3220 Launchpad board
- * requires that the Root CA certificate have its certificate self-signed. The Amazon Root CAs
- * are cross-signed by Starfield Root CA.*/
 #ifndef democonfigROOT_CA_PEM
-    #define democonfigROOT_CA_PEM    tlsSTARFIELD_ROOT_CERTIFICATE_PEM
+    #define democonfigROOT_CA_PEM    tlsATS1_ROOT_CERTIFICATE_PEM
 #endif
 
 /**
