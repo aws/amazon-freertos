@@ -916,6 +916,8 @@ WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * xIPConfig )
     }
     else
     {
+        memset(xIPConfig, 0, sizeof( WIFIIPConfiguration_t ) );
+
         /*fill the return buffer.*/
         uint8_t * pucIPv4Addr = ( uint8_t * )&xIPConfig->xIPAddress.ulAddress[ 0 ];
         *( pucIPv4Addr ) = SL_IPV4_BYTE( ulDestinationIP, 3 );
