@@ -481,10 +481,14 @@ WIFIReturnCode_t WIFI_Disconnect( void )
 
 WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * pxIPInfo )
 {
-    configASSERT(pxIPInfo != NULL);
+    if( pxIPInfo == NULL )
+    {
+        return eWiFiFailure;
+    }
+
     if (cy_rtos_get_mutex(&wifiMutex, wificonfigMAX_SEMAPHORE_WAIT_TIME_MS) == CY_RSLT_SUCCESS)
     {
-        if ( pxIPInfo == NULL && netInterface == NULL)
+        if ( netInterface == NULL)
         {
             cy_rtos_set_mutex(&wifiMutex);
             return eWiFiFailure;

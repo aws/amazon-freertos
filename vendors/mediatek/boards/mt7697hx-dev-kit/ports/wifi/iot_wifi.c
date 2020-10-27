@@ -1472,7 +1472,7 @@ WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * pxIPConfig )
     ip4_addr_t      ip4_addr;
     struct netif    *iface;
 
-    if( NULL == ( iface = netif_find( "st2" ) ) )
+    if( NULL == ( iface = netif_find( "st2" ) ) || NULL == pxIPConfig )
     {
         return eWiFiFailure;
     }

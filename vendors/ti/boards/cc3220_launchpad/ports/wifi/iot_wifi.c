@@ -899,10 +899,6 @@ WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * xIPConfig )
 {
     WIFIReturnCode_t xRetVal = eWiFiSuccess;
     int16_t sRetCode;
-
-    configASSERT( xIPConfig != NULL );
-    memset(xIPConfig, 0, sizeof( WIFIIPConfiguration_t ) );
-
     unsigned long ulDestinationIP = 0;
     unsigned long ulSubMask = 0;
     unsigned long ulDefGateway = 0;
@@ -914,7 +910,7 @@ WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * xIPConfig )
                                                    &ulDefGateway,
                                                    &ulDns );
 
-    if( sRetCode != 0 )
+    if( sRetCode != 0 || xIPConfig == NULL )
     {
         xRetVal = eWiFiFailure;
     }
