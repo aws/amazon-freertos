@@ -84,7 +84,7 @@
  * @brief The root CA certificate belonging to the broker.
  */
 #ifndef democonfigROOT_CA_PEM
-    #define democonfigROOT_CA_PEM    "Please provide Root CA for the MQTT Basic TLS demo."
+    #error "Please define democonfigROOT_CA_PEM to provide server Root CA certificate for the MQTT Basic TLS demo."
 #endif
 
 /**
