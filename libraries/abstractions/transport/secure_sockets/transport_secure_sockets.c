@@ -182,7 +182,7 @@ int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
         {
             LogError( ( "Failed to receive data over network. bytesReceived=%d", bytesReceived ) );
         }
-        else
+        else if ( bytesReceived >= 0 )
         {
             if( bytesReceived < ( int32_t ) bytesToRecv )
             {
@@ -196,6 +196,11 @@ int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
                            bytesReceived ) );
             }
         }
+        else
+        {
+            /* MISRA 15.7 */
+        }
+        
     }
 
     return bytesReceived;
