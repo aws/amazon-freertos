@@ -329,6 +329,7 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c\
 	$(CY_AFR_ROOT)/tests/integration_test/core_mqtt_system_test.c\
 	$(CY_AFR_ROOT)/tests/integration_test/shadow_system_test.c
+	
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common\
@@ -411,7 +412,8 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/ble_hal/test/src/*.c)\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/test/iot_test_ble_end_to_end.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/test/iot_mqtt_ble_system_test.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/test/iot_test_wifi_provisioning.c
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/test/iot_test_wifi_provisioning.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/test/iot_test_ble_mqtt_serialize.c
 
 INCLUDES+=\
 	$(CY_AFR_BOARD_PATH)/ports/ble\
