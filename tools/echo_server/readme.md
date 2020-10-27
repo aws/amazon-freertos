@@ -41,6 +41,10 @@ The JSON file contains the following options:
     1. The repeat interval in seconds. When in repeat mode, the echo server will wait for this amount of time until the next echoing.
 1. server-port
     1. Specify which port to open a socket on.
+1. server-certificate
+    1. Server certificate in X509 format. When both `server-certificate` and `server-certificate-location` are specified, this option will be used instead.
+1. server-key
+    1. Server private key in X509 format. When both `server-key` and `server-key-location` are specified, this option will be used instead.
 1. server-certificate-location
     1. Relative or absolute path to the server certificate generated in the credential creation prerequisite.
 1. server-key-location
@@ -54,8 +58,11 @@ The JSON file contains the following options:
     "repeat-mode": false,
     "repeat-interval-seconds": 1,
     "server-port": "9000",
+    "server-certificate": "<cert-content>",
+    "server-key": "<key-content>",
     "server-certificate-location": "./certs/server.pem",
     "server-key-location": "./certs/server.key"
+
 }
 ```
 # Running the Echo Server From the Command Line
@@ -67,9 +74,10 @@ The JSON file contains the following options:
 ## With Server Certificate and Key passed from command line args
 `go run echo_server.go -cert='<x509-cert-content>' -key='<x509-key-content>'`
 
-Note: When using command line args, the echo server will be configured in secure mode if either the `-cert` flag or the `-key` flag is used.
-
-Note: If you wish to run the unsecure and secure TCP tests at the same time, make sure you start a secure and unsecure echo server, this will require changing the configuration (You can create a second "secure" configuration, and pass it to the echo server via the -config flag.), as well as using seperate TCP ports.
+Note:
+- The `-cert` and `-key` flags will overwrite any other server credential settings (`server-certificate`, `server-certificate-location`, `server-key`, `server-key-location`) in config.json file.
+- When using command line args, the echo server will be automatically configured in secure mode if both the `-cert` flag and the `-key` flag are present.
+- If you wish to run the unsecure and secure TCP tests at the same time, make sure you start a secure and unsecure echo server, this will require changing the configuration (You can create a second "secure" configuration, and pass it to the echo server via the -config flag.), as well as using seperate TCP ports.
 
 # Client Device Configuration
 Before running the TCP tests on your device, it is recommended to have already read through the [FreeRTOS getting started guide](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-getting-started.html).

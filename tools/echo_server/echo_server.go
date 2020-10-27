@@ -58,13 +58,35 @@ type Argument struct {
 	ServerPort 				string `json:"server-port"`
 	ServerCert 				string `json:"server-certificate"`
 	ServerKey  				string `json:"server-key"`
+	ServerCertPath          string `json:"server-certificate-location"`
+	ServerKeyPath           string `json:"server-key-location"`
 }
 
 func secureEcho(config *Argument) {
 
 	// load certificates
-	serverCertBytes := []byte(config.ServerCert)
-	servertCert, err := tls.X509KeyPair(serverCertBytes, []byte(config.ServerKey))
+	var serverCertBytes []byte
+	var err error
+	if config.ServerCert != "" {
+		serverCertBytes = []byte(config.ServerCert)
+	} else {
+		serverCertBytes, err = ioutil.ReadFile(config.ServerCertPath)
+		if err != nil {
+			log.Fatalf("Error %s while reading server certificates", err)
+		}
+	}
+
+	var serverKeyBytes []byte
+	if config.ServerKey != "" {
+		serverKeyBytes = []byte(config.ServerKey)
+	} else {
+		serverKeyBytes, err = ioutil.ReadFile(config.ServerKeyPath)
+		if err != nil {
+			log.Fatalf("Error %s while reading server key file", err)
+		}
+	}
+
+	servertCert, err := tls.X509KeyPair(serverCertBytes, serverKeyBytes)
 	if err != nil {
 		log.Fatalf("Error %s while loading server certificates", err)
 	}
@@ -124,11 +146,7 @@ func echoServerThread(config *Argument, tlsConfig *tls.Config) {
 		if err != nil {
 			log.Printf("Error %s while trying to connect.", err)
 		} else {
-			if config.RepeatMode {
-				go repeatEchoing(config, connection)
-			} else {
-				go readWrite(config, connection)
-			}
+			go readWrite(config, connection)
 		}
 	}
 }
@@ -168,19 +186,25 @@ func repeatEchoing(config *Argument, connection net.Conn) {
 func readWrite(config *Argument, connection net.Conn) {
 	defer connection.Close()
 	buffer := make([]byte, 4096)
+	isFirstRead := true
+	readBytes := 0
+	var err error
 	for {
-		connection.SetReadDeadline(time.Now().Add(readTimeoutSecond * time.Second))
-		readBytes, err := connection.Read(buffer)
-		if err != nil {
-			if err != io.EOF {
-				log.Printf("Error %s while reading data. Expected an EOF to signal end of connection", err)
+		if !config.RepeatMode || isFirstRead {
+			connection.SetReadDeadline(time.Now().Add(readTimeoutSecond * time.Second))
+			readBytes, err = connection.Read(buffer)
+			if err != nil {
+				if err != io.EOF {
+					log.Printf("Error %s while reading data. Expected an EOF to signal end of connection", err)
+				}
+				break
+			} else {
+				log.Printf("Read %d bytes.", readBytes)
+				if config.Verbose {
+					log.Printf("Message:\n %s", buffer)
+				}
 			}
-			break
-		} else {
-			log.Printf("Read %d bytes.", readBytes)
-			if config.Verbose {
-				log.Printf("Message:\n %s", buffer)
-			}
+			isFirstRead = false
 		}
 		writeBytes, err := connection.Write(buffer[:readBytes])
 		if err != nil {
@@ -190,6 +214,10 @@ func readWrite(config *Argument, connection net.Conn) {
 
 		if writeBytes != 0 {
 			log.Printf("Succesfully echoed back %d bytes.", writeBytes)
+		}
+
+		if config.RepeatMode {
+			time.Sleep(time.Duration(config.RepeatIntervalSeconds) * time.Second)
 		}
 	}
 }
@@ -242,6 +270,7 @@ func main() {
 		logSetup()
 	}
 
+	secureArgsCount := 0
 	// overwrite config only if the flags are set
 	flag.Visit(func (f *flag.Flag) {
 		if f.Name == portFlagName {
@@ -252,12 +281,17 @@ func main() {
 			config.RepeatIntervalSeconds = *repeatIntervalSeconds
 		} else if f.Name == certFlagName {
 			config.ServerCert = *serverCert
-			config.Secure = true
+			secureArgsCount++
 		} else if f.Name == keyFlagName {
 			config.ServerKey = *serverKey
-			config.Secure = true
+			secureArgsCount++
 		}
 	})
+
+	// auto-enable secure mode if both cert & key cmdline args are provided.
+	if secureArgsCount >= 2 {
+		config.Secure = true
+	}
 
 	startup(&config)
 }
