@@ -110,7 +110,7 @@ int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
                     pMessage, bytesToSend, ( void * ) pNetworkContext ) );
         bytesSent = SOCKETS_EINVAL;
     }
-    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET ) )
+    else if( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET )
     {
         LogError( ( "Invalid parameter: pNetworkContext->tcpSocket cannot be SOCKETS_INVALID_SOCKET." ) );
         bytesSent = SOCKETS_EINVAL;
@@ -160,7 +160,7 @@ int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
                     pBuffer, bytesToRecv, ( void * ) pNetworkContext ) );
         bytesReceived = SOCKETS_EINVAL;
     }
-    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET ) )
+    else if( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET )
     {
         LogError( ( "Invalid parameter: pNetworkContext->tcpSocket cannot be SOCKETS_INVALID_SOCKET." ) );
         bytesReceived = SOCKETS_EINVAL;
@@ -329,27 +329,19 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
 
     configASSERT( tcpSocket != SOCKETS_INVALID_SOCKET );
 
-    if( secureSocketStatus == SOCKETS_ERROR_NONE )
+    /* Secure Sockets uses TickType_t therefore replace the timeout value with portMAX_DELAY if it is exceeded. */
+    receiveTimeout = pdMS_TO_TICKS( recvTimeoutMs );
+
+    if( receiveTimeout > portMAX_DELAY )
     {
-        /* Secure Sockets uses TickType_t therefore replace the timeout value with portMAX_DELAY if it is exceeded. */
-        receiveTimeout = pdMS_TO_TICKS( recvTimeoutMs );
-
-        if( receiveTimeout > portMAX_DELAY )
-        {
-            receiveTimeout = portMAX_DELAY;
-        }
-
-        secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
-                                                 0,
-                                                 SOCKETS_SO_RCVTIMEO,
-                                                 &receiveTimeout,
-                                                 sizeof( TickType_t ) );
-
-        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
-        {
-            LogError( ( "Failed to set socket receive timeout. secureSocketStatus=%d.", secureSocketStatus ) );
-        }
+        receiveTimeout = portMAX_DELAY;
     }
+
+    secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
+                                                0,
+                                                SOCKETS_SO_RCVTIMEO,
+                                                &receiveTimeout,
+                                                sizeof( TickType_t ) );
 
     if( secureSocketStatus == SOCKETS_ERROR_NONE )
     {
@@ -374,6 +366,11 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
             LogError( ( "Failed to set socket send timeout. secureSocketStatus=%d.", secureSocketStatus ) );
         }
     }
+    else
+    {
+        LogError( ( "Failed to set socket receive timeout. secureSocketStatus=%d.", secureSocketStatus ) );
+    }
+    
 
     return secureSocketStatus;
 }
