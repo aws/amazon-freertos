@@ -215,9 +215,9 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 {
     int32_t secureSocketStatus = SOCKETS_ERROR_NONE;
 
-    configASSERT( tcpSocket != SOCKETS_INVALID_SOCKET );
-    configASSERT( pSocketsConfig != NULL );
-    configASSERT( pHostName != NULL );
+    configASSERT( (tcpSocket != SOCKETS_INVALID_SOCKET) ? pdTRUE:pdFALSE );
+    configASSERT( (pSocketsConfig != NULL) ? pdTRUE:pdFALSE );
+    configASSERT( (pHostName != NULL) ? pdTRUE:pdFALSE );
 
     /* ALPN options for AWS IoT. */
     /* ppcALPNProtos is unused. putting here to align behavior in IotNetworkAfr_Create. */
@@ -259,7 +259,7 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
                                                  0,
                                                  SOCKETS_SO_SERVER_NAME_INDICATION,
                                                  pHostName,
-                                                 ( size_t ) ( hostnameLength + 1 ) );
+                                                 ( size_t ) ( hostnameLength + 1U ) );
 
         if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
@@ -332,7 +332,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
     TickType_t receiveTimeout = 0, sendTimeout = 0;
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
 
-    configASSERT( tcpSocket != SOCKETS_INVALID_SOCKET );
+    configASSERT( (tcpSocket != SOCKETS_INVALID_SOCKET) ? pdTRUE:pdFALSE );
 
     /* Secure Sockets uses TickType_t therefore replace the timeout value with portMAX_DELAY if it is exceeded. */
     receiveTimeout = pdMS_TO_TICKS( recvTimeoutMs );
@@ -391,9 +391,9 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
     size_t hostnameLength = 0U;
 
-    configASSERT( pNetworkContext != NULL );
-    configASSERT( pServerInfo != NULL );
-    configASSERT( pSocketsConfig != NULL );
+    configASSERT( (pNetworkContext != NULL) ? pdTRUE:pdFALSE );
+    configASSERT( (pServerInfo != NULL) ? pdTRUE:pdFALSE );
+    configASSERT( (pSocketsConfig != NULL) ? pdTRUE:pdFALSE );
 
     hostnameLength = pServerInfo->hostNameLength;
 
