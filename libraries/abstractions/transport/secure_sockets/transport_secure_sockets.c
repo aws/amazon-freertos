@@ -182,7 +182,7 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
         {
             LogError( ( "Failed to receive data over network. bytesReceived=%d", bytesReceived ) );
         }
-        else if ( bytesReceived >= 0 )
+        else if( bytesReceived >= 0 )
         {
             if( bytesReceived < ( int32_t ) bytesToRecv )
             {
@@ -200,7 +200,6 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
         {
             /* MISRA 15.7 */
         }
-        
     }
 
     return bytesReceived;
@@ -215,9 +214,9 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 {
     int32_t secureSocketStatus = SOCKETS_ERROR_NONE;
 
-    configASSERT( (tcpSocket != SOCKETS_INVALID_SOCKET) ? pdTRUE:pdFALSE );
-    configASSERT( (pSocketsConfig != NULL) ? pdTRUE:pdFALSE );
-    configASSERT( (pHostName != NULL) ? pdTRUE:pdFALSE );
+    configASSERT( ( tcpSocket != SOCKETS_INVALID_SOCKET ) ? pdTRUE : pdFALSE );
+    configASSERT( ( pSocketsConfig != NULL ) ? pdTRUE : pdFALSE );
+    configASSERT( ( pHostName != NULL ) ? pdTRUE : pdFALSE );
 
     /* ALPN options for AWS IoT. */
     /* ppcALPNProtos is unused. putting here to align behavior in IotNetworkAfr_Create. */
@@ -332,7 +331,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
     TickType_t receiveTimeout = 0, sendTimeout = 0;
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
 
-    configASSERT( (tcpSocket != SOCKETS_INVALID_SOCKET) ? pdTRUE:pdFALSE );
+    configASSERT( ( tcpSocket != SOCKETS_INVALID_SOCKET ) ? pdTRUE : pdFALSE );
 
     /* Secure Sockets uses TickType_t therefore replace the timeout value with portMAX_DELAY if it is exceeded. */
     receiveTimeout = pdMS_TO_TICKS( recvTimeoutMs );
@@ -343,10 +342,10 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
     }
 
     secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
-                                                0,
-                                                SOCKETS_SO_RCVTIMEO,
-                                                &receiveTimeout,
-                                                sizeof( TickType_t ) );
+                                             0,
+                                             SOCKETS_SO_RCVTIMEO,
+                                             &receiveTimeout,
+                                             sizeof( TickType_t ) );
 
     if( secureSocketStatus == SOCKETS_ERROR_NONE )
     {
@@ -375,7 +374,6 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
     {
         LogError( ( "Failed to set socket receive timeout. secureSocketStatus=%d.", secureSocketStatus ) );
     }
-    
 
     return secureSocketStatus;
 }
@@ -391,9 +389,9 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
     size_t hostnameLength = 0U;
 
-    configASSERT( (pNetworkContext != NULL) ? pdTRUE:pdFALSE );
-    configASSERT( (pServerInfo != NULL) ? pdTRUE:pdFALSE );
-    configASSERT( (pSocketsConfig != NULL) ? pdTRUE:pdFALSE );
+    configASSERT( ( pNetworkContext != NULL ) ? pdTRUE : pdFALSE );
+    configASSERT( ( pServerInfo != NULL ) ? pdTRUE : pdFALSE );
+    configASSERT( ( pSocketsConfig != NULL ) ? pdTRUE : pdFALSE );
 
     hostnameLength = pServerInfo->hostNameLength;
 
