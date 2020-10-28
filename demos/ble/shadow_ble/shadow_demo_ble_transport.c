@@ -77,7 +77,7 @@
 /**
  * @brief Timeout for MQTT_ProcessLoop in milliseconds.
  */
-#define mqttexamplePROCESS_LOOP_TIMEOUT_MS    ( 2000U )
+#define mqttexamplePROCESS_LOOP_TIMEOUT_MS    ( 5000U )
 
 
 /**
@@ -94,7 +94,7 @@
 /**
  * @brief Timeout for receiving CONNACK packet in milliseconds.
  */
-#define mqttexampleCONNACK_RECV_TIMEOUT_MS    ( 2000U )
+#define mqttexampleCONNACK_RECV_TIMEOUT_MS    ( 5000U )
 
 /**
  * @brief Milliseconds per second.
