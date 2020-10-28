@@ -185,7 +185,7 @@ TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_
  *         0 if the socket times out without reading any bytes;
  *         negative value on error.
  */
-int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
+int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
                                      void * pBuffer,
                                      size_t bytesToRecv );
 
@@ -201,7 +201,7 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
  *
  * @return Number of bytes sent if successful; negative value on error.
  */
-int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
+int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
                                      const void * pMessage,
                                      size_t bytesToSend );
 
