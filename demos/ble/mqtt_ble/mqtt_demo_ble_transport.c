@@ -59,8 +59,6 @@
  * @brief The first characters in the client identifier. A timestamp is appended
  * to this prefix to create a unique client identifer.
  *
- * This prefix is also used to generate topic names and topic filters used in this
- * demo.
  */
 #define CLIENT_IDENTIFIER_PREFIX           "iotdemo"
 
