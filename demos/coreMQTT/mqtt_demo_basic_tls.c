@@ -82,9 +82,13 @@
 
 /**
  * @brief The root CA certificate belonging to the broker.
+ *
+ * @note This demo cannot be run against AWS IoT as it requires client authentication
+ * for TLS connection. Please define a valid value of the server Root CA certificate relevant to
+ * the MQTT broker that supports server-only authentication for this demo.
  */
 #ifndef democonfigROOT_CA_PEM
-    #define democonfigROOT_CA_PEM    tlsATS1_ROOT_CERTIFICATE_PEM
+    #define democonfigROOT_CA_PEM    "Please define a valid Root CA cert for this macro."
 #endif
 
 /**

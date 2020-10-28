@@ -552,7 +552,10 @@ WIFIReturnCode_t WIFI_GetHostIP( char * pcHost,
  */
 WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * pxIPInfo )
 {
-    configASSERT( pxIPInfo != NULL );
+    if( pxIPInfo == NULL )
+    {
+        return eWiFiFailure;
+    }
 
     memset( pxIPInfo, 0x00, sizeof( WIFIIPConfiguration_t ) );
     pxIPInfo->xIPAddress.ulAddress[0] = FreeRTOS_GetIPAddress();
