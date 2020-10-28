@@ -17,7 +17,7 @@
 	url = https://github.com/ThrowTheSwitch/CMock.git
 [submodule "vendors/espressif/esp-idf"]
 	path = vendors/espressif/esp-idf
-	url = git@github.com:espressif/esp-afr-sdk.git
+	url = https://github.com/espressif/esp-afr-sdk.git
 	branch = release/v3.3
 [submodule "mbedtls"]
 	path = libraries/3rdparty/mbedtls
@@ -50,9 +50,6 @@
 [submodule "libraries/device_defender_for_aws"]
 	path = libraries/device_defender_for_aws
 	url = https://github.com/aws/device-defender-for-aws-iot-embedded-sdk.git
-[submodule "vendors/cypress/MTB/libraries/--force"]
-	path = vendors/cypress/MTB/libraries/--force
-	url = https://github.com/cypresssemiconductorco/serial-flash.git
 [submodule "vendors/cypress/MTB/libraries/serial-flash"]
 	path = vendors/cypress/MTB/libraries/serial-flash
 	url = https://github.com/cypresssemiconductorco/serial-flash.git

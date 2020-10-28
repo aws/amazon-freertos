@@ -256,7 +256,6 @@ WIFIReturnCode_t WIFI_Reset( void )
 
 
 /*-----------------------------------------------------------*/
-
 static void whd_scan_handler(whd_scan_result_t **result_ptr,
                              void *user_data, whd_scan_status_t status)
 {
@@ -284,26 +283,30 @@ static void whd_scan_handler(whd_scan_result_t **result_ptr,
     }
 
     const whd_scan_result_t *record = *result_ptr;
-
+    
     /* Filter Duplicates */
-    for (unsigned int i = 0; i < data->offset; i++) {
-        if (CMP_MAC(data->aps[i].ucBSSID, record->BSSID.octet)) {
+    for (unsigned int i = 0; i < data->offset; i++)
+    {
+        if (CMP_MAC(data->aps[i].ucBSSID, record->BSSID.octet))
+        {
             return;
         }
-    }
+    }   
 
     WIFIScanResult_t ap;
-    uint8_t length = (record->SSID.length > sizeof(ap.cSSID) - 1)
-        ? sizeof(ap.cSSID) - 1
-        : record->SSID.length;
-    memcpy(ap.cSSID, record->SSID.value, length);
-    ap.cSSID[length] = '\0';
+
+    ap.ucSSIDLength = record->SSID.length;
+    if( ap.ucSSIDLength > wificonfigMAX_SSID_LEN )
+    {
+        ap.ucSSIDLength = wificonfigMAX_SSID_LEN;
+    }
+    memcpy( ap.ucSSID, record->SSID.value, ap.ucSSIDLength );
     memcpy(ap.ucBSSID, record->BSSID.octet, sizeof(ap.ucBSSID));
     ap.xSecurity = whd_tosecurity(record->security);
     ap.cRSSI = record->signal_strength;
-    ap.cChannel = record->channel;
+    ap.ucChannel = record->channel;
     data->aps[data->offset] = ap;
-    data->offset++;
+    data->offset++;  
 }
 
 WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer, uint8_t ucNumNetworks )
@@ -686,9 +689,14 @@ BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
     return xIsConnected;
 }
 
-WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )
+WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback )
 {
     userCb = xCallback;
     return eWiFiSuccess;
 }
 
+WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;
+}

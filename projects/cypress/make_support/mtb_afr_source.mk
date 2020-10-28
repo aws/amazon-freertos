@@ -165,7 +165,6 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c
@@ -206,7 +205,7 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/test/system/aws_iot_tests_defender_system.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_ble_mqtt_serialize.c
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/test/access\
@@ -276,3 +275,38 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/$(CY_AFR_TOOLCHAIN)
 
 endif
+
+################################################################################
+# core MQTT
+################################################################################
+SOURCES+=\
+	$(wildcard $(CY_AFR_ROOT)/libraries/coreMQTT/source/*.c)
+
+INCLUDES+=\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/portable/
+
+
+################################################################################
+# Logging
+################################################################################
+
+SOURCES+=\
+	$(wildcard $(CY_AFR_ROOT)/libraries/logging/*.c)
+
+INCLUDES+=\
+	$(CY_AFR_ROOT)/libraries/logging/include
+
+################################################################################
+# PKCS11
+################################################################################
+
+SOURCES+=\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa/*.c)
+	
+
+INCLUDES+=\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/include\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include

@@ -1,4 +1,0 @@
-32906a857594334dd9bd1981bcac9ed572d527874512a085d6af4dcc99902770 gcc/gcc-7.2.1-1.0.0.1-macos.zip
-f5edcf630ef6b1fb6c81ea971e043318b5d4776678701e479841fb58a9c25236 cmake/cmake-3.15.3-Darwin-x86_64.tar.gz
-e65c94ccd72d6bf8adbc95de6ba8e30e7c1b8607c2c9cbfb79ba34ff90276b5b ninja/ninja-1.9.0-mac.zip
-28cc7b2020c47316aaa34a8afc451a6f64a2f48a62b5c624ff6e3c8d0edd7d60 afr-device-tester/devicetester_freertos_mac_3.1.0.zip createdir

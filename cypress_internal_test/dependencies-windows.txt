@@ -1,6 +1,0 @@
-ae49b767941ca9e2972704e5b720c8236301447ff8ed63764d871af351e0e18b gcc/gcc-7.2.1-1.0.0.1-windows.zip
-a18d96b7839ac3294e5e9f464f0af4c8336a16cd5f95e69a90a259207d7e5177 cmake/cmake-3.15.3-win64-x64.zip
-9d0de706043de5b86410c29e01a2541fc90aecc6419f662562a5f6ac3a60d4b6 ninja/ninja-1.9.0-win.zip
-2e3250ec8ee1bb2b25b5e7d8d8a8326a6a5138320e3be01ed4281606da0d9b4a arm/arm-compiler/arm-compiler-6.12-windows-x86_64.zip
-72a84c1380787b7835d343632cdf8224bf402252a7f794b346fc635effbaed12 afr-device-tester/devicetester_freertos_win_3.1.0.zip createdir
-c9396f554e5d3648441c4395333bbfedaf60af099675e00722016ac26e39ac14 http://iot-webserver.aus.cypress.com/projects/iot_release/ASSETS/repo/cyopenocd/icw/4.0/820/deploy/openocd-4.0.0.820-windows.zip createdir

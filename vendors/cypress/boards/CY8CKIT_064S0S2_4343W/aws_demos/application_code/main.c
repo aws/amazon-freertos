@@ -461,9 +461,7 @@ void prvWifiConnect( void )
         {
             configPRINTF( ( "SoftAP Start failed \r\n") );
         }
-
-            } while( ( xWifiStatus != eWiFiSuccess ) && ( xWifiStatus != eWiFiNotSupported ) );
-        }
+        while( ( xWifiStatus != eWiFiSuccess ) && ( xWifiStatus != eWiFiNotSupported ) );
     }
 
     configASSERT( xWifiStatus == eWiFiSuccess );
