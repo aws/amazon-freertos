@@ -164,6 +164,22 @@
     #endif
 #elif defined( CONFIG_BLE_GATT_SERVER_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vGattDemoSvcInit
+    #if defined( democonfigNETWORK_TYPES )
+        #undef democonfigNETWORK_TYPES
+        #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_BLE )
+    #endif
+#elif defined( CONFIG_MQTT_BLE_TRANSPORT_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunMQTTBLETransportDemo
+    #if defined( democonfigNETWORK_TYPES )
+        #undef democonfigNETWORK_TYPES
+        #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_BLE )
+    #endif
+#elif defined( CONFIG_SHADOW_BLE_TRANSPORT_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunShadowBLETransportDemo
+    #if defined( democonfigNETWORK_TYPES )
+        #undef democonfigNETWORK_TYPES
+        #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_BLE )
+    #endif
 #elif defined( CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             RunHttpsSyncDownloadDemo
 #elif defined( CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED )
@@ -172,10 +188,7 @@
     #define DEMO_entryFUNCTION             RunHttpsSyncUploadDemo
 #elif defined( CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             RunHttpsAsyncUploadDemo
-#elif defined( CONFIG_MQTT_BLE_TRANSPORT_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION             RunMQTTBLETransportDemo
-#elif defined( CONFIG_SHADOW_BLE_TRANSPORT_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION             RunShadowBLETransportDemo
+
 #elif defined( CONFIG_CLI_UART_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vRunCLIUartDemo
 #else /* if defined( CONFIG_MQTT_DEMO_ENABLED ) */
