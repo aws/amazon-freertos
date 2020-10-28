@@ -663,6 +663,8 @@ static CellularCommInterfaceError_t prvCellularSend( CellularCommInterfaceHandle
 
                     if( uartStatus != IOT_UART_SUCCESS )
                     {
+                        IotLogError( "iot_uart_ioctl eGetTxNoOfbytes returns error %d", uartStatus );
+                        ret = IOT_COMM_INTERFACE_DRIVER_ERROR;
                     }
                     else if( transferSize >= dataLength )
                     {
@@ -674,7 +676,7 @@ static CellularCommInterfaceError_t prvCellularSend( CellularCommInterfaceHandle
                     }
                 }
 
-                if( pDataSentLength != NULL )
+                if( ( pDataSentLength != NULL ) && ( ret == IOT_COMM_INTERFACE_SUCCESS ) )
                 {
                     *pDataSentLength = transferSize;
                 }
