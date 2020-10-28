@@ -110,7 +110,7 @@ int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
                     pMessage, bytesToSend, ( void * ) pNetworkContext ) );
         bytesSent = SOCKETS_EINVAL;
     }
-    else if( ( void ) pNetworkContext->tcpSocket == ( void ) SOCKETS_INVALID_SOCKET )
+    else if( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET )
     {
         LogError( ( "Invalid parameter: pNetworkContext->tcpSocket cannot be SOCKETS_INVALID_SOCKET." ) );
         bytesSent = SOCKETS_EINVAL;
@@ -160,7 +160,7 @@ int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
                     pBuffer, bytesToRecv, ( void * ) pNetworkContext ) );
         bytesReceived = SOCKETS_EINVAL;
     }
-    else if( ( void ) pNetworkContext->tcpSocket == ( void ) SOCKETS_INVALID_SOCKET )
+    else if( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET )
     {
         LogError( ( "Invalid parameter: pNetworkContext->tcpSocket cannot be SOCKETS_INVALID_SOCKET." ) );
         bytesReceived = SOCKETS_EINVAL;
@@ -214,7 +214,7 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 {
     int32_t secureSocketStatus = SOCKETS_ERROR_NONE;
 
-    configASSERT( ( ( void ) tcpSocket != ( void ) SOCKETS_INVALID_SOCKET ) ? pdTRUE : pdFALSE );
+    configASSERT( ( tcpSocket != SOCKETS_INVALID_SOCKET ) ? pdTRUE : pdFALSE );
     configASSERT( ( pSocketsConfig != NULL ) ? pdTRUE : pdFALSE );
     configASSERT( ( pHostName != NULL ) ? pdTRUE : pdFALSE );
 
@@ -331,7 +331,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
     TickType_t receiveTimeout = 0, sendTimeout = 0;
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
 
-    configASSERT( ( ( void ) tcpSocket != ( void ) SOCKETS_INVALID_SOCKET ) ? pdTRUE : pdFALSE );
+    configASSERT( ( tcpSocket != SOCKETS_INVALID_SOCKET ) ? pdTRUE : pdFALSE );
 
     /* Secure Sockets uses TickType_t therefore replace the timeout value with portMAX_DELAY if it is exceeded. */
     receiveTimeout = pdMS_TO_TICKS( recvTimeoutMs );
@@ -458,7 +458,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     else
     {
         /* Clean up socket on failure. */
-        if( ( void ) tcpSocket != ( void ) SOCKETS_INVALID_SOCKET )
+        if( tcpSocket != ( Socket_t ) SOCKETS_INVALID_SOCKET )
         {
             ( void ) SOCKETS_Close( tcpSocket );
         }
