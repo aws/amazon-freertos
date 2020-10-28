@@ -22,7 +22,7 @@ afr_module_dependencies(
     INTERFACE
         AFR::core_mqtt
         AFR::ble
-	  # Add dependency on the core_mqtt_demo_dependencies metadata module
+        # Add dependency on the core_mqtt_demo_dependencies metadata module
         # so that FreeRTOS console shows this demo when BOTH the core MQTT
         # (or another library depending on coreMQTT) AND BLE libraries are
         # selected on the console.
