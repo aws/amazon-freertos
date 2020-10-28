@@ -621,8 +621,8 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
             /* Free the MQTT Context for the MQTT connection to be destroyed. */
             _IotMqtt_removeContext( pMqttConnection );
 
-            /* Lock mutex before updating the #connToContext array. */
-            connContextMutexStatus = IotMutex_TakeRecursive( &connContextMutex );
+            /* Release mutex. */
+            connContextMutexStatus = IotMutex_GiveRecursive( &connContextMutex );
         }
 
         IotMqtt_Assert( connContextMutexStatus == true );
