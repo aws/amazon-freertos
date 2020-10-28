@@ -29,6 +29,9 @@
 #include "task.h"
 #include "semphr.h"
 
+/* Header to include the broker endpoint and Thing Name. */
+#include "aws_clientcredential.h"
+
 /* Defines configs used by BLE library and transport interface demo. */
 #include "iot_ble_config.h"
 #include "mqtt_ble_demo_config.h"
@@ -56,31 +59,43 @@
  * @brief The first characters in the client identifier. A timestamp is appended
  * to this prefix to create a unique client identifer.
  *
- * This prefix is also used to generate topic names and topic filters used in this
- * demo.
  */
-#define CLIENT_IDENTIFIER_PREFIX             "iotdemo"
+#define CLIENT_IDENTIFIER_PREFIX           "iotdemo"
 
 /**
  * @brief The maximum length the demo will use for client identifier.
  */
-#define CLIENT_IDENTIFIER_MAX_LENGTH         12U
+#define CLIENT_IDENTIFIER_MAX_LENGTH       12U
 
 /**
  * @brief The size of the buffer in bytes passed to the transport code to hold streaming data.
  */
-#define SINGLE_INCOMING_PACKET_MAX_SIZE      128U
+#define SINGLE_INCOMING_PACKET_MAX_SIZE    128U
 
 /**
  * @brief The size of the circular buffer used by the transport code to hold incoming packets.
  */
-#define INCOMING_PACKET_QUEUE_SIZE           256U
+#define INCOMING_PACKET_QUEUE_SIZE         256U
 
 /**
  * @brief The number of subscription/unsubscription requests sent per packet in this demo
  *        IMPORTANT: If you change thie value, update the static subscriptionArray variable with this number of topics.
  */
-#define NUM_SUBS_AT_ONCE                     2U
+#define NUM_SUBS_AT_ONCE                   2U
+
+
+/**
+ * @brief The first topic to which the application subscribes to. The demo publishes the sample
+ * payload to this topic and checks whether the same payload is received back.
+ */
+#define mqttexampleTOPIC1    clientcredentialIOT_THING_NAME "/example/topic1"
+
+/**
+ * @brief The second topic to which the application subscribes to. The demo publishes the sample
+ * payload to this topic and checks whether the same payload is received back.
+ */
+#define mqttexampleTOPIC2    clientcredentialIOT_THING_NAME "/example/topic2"
+
 
 /**
  * @brief The QoS used by the demo.  Can be MQTTQoS0 or MQTTQoS1.  Qos 2 is not currently supported.
@@ -148,7 +163,7 @@ static uint16_t getNextPacketIdentifier( void );
  * @brief Array of topic filters to subscribe and publish to.
  * IMPORTANT: If you alter this array, change NUM_SUBS_AT_ONCE above to get expected behavior.
  */
-static char * subscriptionArray[ NUM_SUBS_AT_ONCE ] = { "iotdemo/test/abc1", "iotdemo/test/abc2" };
+static char * subscriptionArray[ NUM_SUBS_AT_ONCE ] = { mqttexampleTOPIC1, mqttexampleTOPIC2 };
 
 /**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
