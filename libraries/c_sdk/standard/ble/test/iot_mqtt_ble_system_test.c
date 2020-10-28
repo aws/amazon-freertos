@@ -179,7 +179,7 @@
 /**
  * @brief Timeout for receiving CONNACK packet in milli seconds.
  */
-#define CONNACK_RECV_TIMEOUT_MS               ( 2000U )
+#define CONNACK_RECV_TIMEOUT_MS               ( 5000U )
 
 /**
  * @brief Time interval in seconds at which an MQTT PINGREQ need to be sent to
@@ -199,7 +199,7 @@
  * PUBLISH message and ack responses for QoS 1 and QoS 2 communications
  * with the broker.
  */
-#define MQTT_PROCESS_LOOP_TIMEOUT_MS          ( 2000U )
+#define MQTT_PROCESS_LOOP_TIMEOUT_MS          ( 5000U )
 
 /**
  * @brief The MQTT message published in this example.
