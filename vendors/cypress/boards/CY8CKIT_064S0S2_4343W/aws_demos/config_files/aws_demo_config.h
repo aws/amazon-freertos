@@ -43,6 +43,9 @@
  *          CONFIG_DEFENDER_DEMO_ENABLED
  *          CONFIG_POSIX_DEMO_ENABLED
  *          CONFIG_OTA_UPDATE_DEMO_ENABLED
+ *          CONFIG_BLE_GATT_SERVER_DEMO_ENABLED
+ *          CONFIG_MQTT_BLE_TRANSPORT_DEMO_ENABLED
+ *          CONFIG_SHADOW_BLE_TRANSPORT_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 
@@ -69,7 +72,6 @@
 
 #define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
 #define democonfigMQTT_SUB_PUB_TASK_PRIORITY           ( tskIDLE_PRIORITY )
-
 
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */
