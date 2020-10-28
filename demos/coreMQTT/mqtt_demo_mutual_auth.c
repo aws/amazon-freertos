@@ -90,10 +90,16 @@
  *   - keyCLIENT_PRIVATE_KEY_PEM for client private key.
  */
 
+/**
+ * @brief The MQTT broker endpoint used for this demo.
+ */
 #ifndef democonfigMQTT_BROKER_ENDPOINT
     #define democonfigMQTT_BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
 #endif
 
+/**
+ * @brief The root CA certificate belonging to the broker.
+ */
 #ifndef democonfigROOT_CA_PEM
     #define democonfigROOT_CA_PEM    tlsATS1_ROOT_CERTIFICATE_PEM
 #endif
@@ -497,11 +503,14 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
 
         /**************************** Disconnect. ******************************/
 
-        /* Send an MQTT Disconnect packet over the already connected TLS over TCP connection.
-         * There is no corresponding response for the disconnect packet. After sending
-         * disconnect, client must close the network connection. */
-        LogInfo( ( "Disconnecting the MQTT connection with %s.", democonfigMQTT_BROKER_ENDPOINT ) );
-        xMQTTStatus = MQTT_Disconnect( &xMQTTContext );
+        if( xDemoStatus == pdPASS )
+        {
+            /* Send an MQTT Disconnect packet over the already connected TLS over TCP connection.
+             * There is no corresponding response for the disconnect packet. After sending
+             * disconnect, client must close the network connection. */
+            LogInfo( ( "Disconnecting the MQTT connection with %s.", democonfigMQTT_BROKER_ENDPOINT ) );
+            xMQTTStatus = MQTT_Disconnect( &xMQTTContext );
+        }
 
         /* We will always close the network connection, even if an error may have occurred during
          * demo execution, to clean up the system resources that it may have consumed. */
@@ -598,6 +607,10 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
             LogWarn( ( "Connection to the broker failed. Status=%d ."
                        "Retrying connection with backoff and jitter.", xNetworkStatus ) );
             xStatus = pdFAIL;
+
+            LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
+                       ( xReconnectParams.attemptsDone + 1 ),
+                       MAX_RETRY_ATTEMPTS ) );
             xRetryUtilsStatus = RetryUtils_BackoffAndSleep( &xReconnectParams );
         }
 

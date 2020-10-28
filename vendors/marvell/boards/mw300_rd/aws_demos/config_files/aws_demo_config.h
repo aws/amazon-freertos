@@ -52,7 +52,7 @@
 #define CONFIG_MQTT_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
-#define democonfigDEMO_STACKSIZE    ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigDEMO_STACKSIZE    ( 2048 )
 #define democonfigDEMO_PRIORITY     ( tskIDLE_PRIORITY + 5 )
 #define democonfigNETWORK_TYPES     ( AWSIOT_NETWORK_TYPE_WIFI )
 
@@ -72,41 +72,41 @@
 #define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT                  pdMS_TO_TICKS( 12000 )
 
 /* MQTT echo task example parameters. */
-#define democonfigMQTT_ECHO_TASK_STACK_SIZE                          ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigMQTT_ECHO_TASK_STACK_SIZE                          ( 2048 )
 #define democonfigMQTT_ECHO_TASK_PRIORITY                            ( tskIDLE_PRIORITY + 5 )
 
 /* IoT simple subscribe/publish example task parameters. */
-#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE                       ( configMINIMAL_STACK_SIZE * 5 )
+#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE                       ( 1280 )
 #define democonfigMQTT_SUB_PUB_TASK_PRIORITY                         ( tskIDLE_PRIORITY )
 
 /* Greengrass discovery example task parameters. */
-#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 16 )
+#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE               ( 2048 )
 #define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
 
 /* MQTT Connection sharing demo task priority. */
 #define democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
 
 /* Shadow demo task parameters. */
-#define democonfigSHADOW_DEMO_TASK_STACK_SIZE                        ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigSHADOW_DEMO_TASK_STACK_SIZE                        ( 1280 )
 #define democonfigSHADOW_DEMO_TASK_PRIORITY                          ( tskIDLE_PRIORITY )
 
 /* Number of shadow light switch tasks running. */
 #define democonfigSHADOW_DEMO_NUM_TASKS                              ( 1 )
 
 /* TCP Echo Client tasks single example parameters. */
-#define democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE              ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE              ( 1024 )
 #define democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 
 /* OTA Update task example parameters. */
-#define democonfigOTA_UPDATE_TASK_STACK_SIZE                         ( 4 * configMINIMAL_STACK_SIZE )
+#define democonfigOTA_UPDATE_TASK_STACK_SIZE                         ( 1024 )
 #define democonfigOTA_UPDATE_TASK_TASK_PRIORITY                      ( tskIDLE_PRIORITY )
 
 /* Simple TCP Echo Server task example parameters */
-#define democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE                    ( configMINIMAL_STACK_SIZE * 6 )
+#define democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE                    ( 1536 )
 #define democonfigTCP_ECHO_SERVER_TASK_PRIORITY                      ( tskIDLE_PRIORITY )
 
 /* TCP Echo Client tasks multi task example parameters. */
-#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE            ( 1024 )
 #define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY              ( tskIDLE_PRIORITY )
 
 /* Send AWS IoT MQTT traffic encrypted to destination port 443. */

@@ -31,11 +31,25 @@
 
 /* Defines configs used by BLE library and transport interface demo. */
 #include "iot_ble_config.h"
-#include "mqtt_demo_ble_transport_config.h"
+#include "mqtt_ble_demo_config.h"
 
 #include "core_mqtt.h"
 #include "iot_ble_mqtt_transport.h"
 #include "iot_ble_data_transfer.h"
+
+/*
+ * Demo for showing the use of MQTT API with transport interface implementation based on the BLE connectivity layer
+ * to send MQTT packets to cloud assisted by a companion mobile device.
+ *
+ * The Example establishes a BLE data transfer channel over BLE GATT connection with a companion mobile
+ * device and uses MQTT APIs to create and send packets over the channel to a broker.
+ * This example is single threaded and uses statically allocated
+ * memory. It uses QoS0 by default for sending to and receiving messages from the broker.
+ *
+ * A smartphone application using the FreeRTOS companion mobile SDK, in BLE central role should scan and
+ * connect to this device successfully, before starting the demo.
+ * Broker endpoint and the thing name should be configured in demos/include/aws_clientcredential.h.
+ */
 
 
 /**
