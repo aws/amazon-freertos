@@ -1573,11 +1573,6 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_connection_sharing.c</FilePath>
 						</File>
-						<File>
-							<FileName>CMakeLists.txt</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/CMakeLists.txt</FilePath>
-						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -1607,11 +1602,6 @@
 							<FileName>shadow_demo_helpers.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</FilePath>
-						</File>
-						<File>
-							<FileName>CMakeLists.txt</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</FilePath>
 						</File>
 					</Files>
 				</Group>
