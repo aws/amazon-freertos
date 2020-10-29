@@ -35,7 +35,6 @@ if(TARGET AFR::secure_sockets::mcu_port)
         ${AFR_CURRENT_MODULE}
         PRIVATE
         "${inc_dir}/platform/iot_metrics.h"
-        "${inc_dir}/platform/transport_interface.h"
         "${src_dir}/iot_metrics.c"
         "${src_dir}/iot_network_freertos.c"
         "${src_dir}/include/platform/iot_network_freertos.h"
