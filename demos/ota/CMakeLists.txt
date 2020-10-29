@@ -14,4 +14,5 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         AFR::ota
+        AFR::mqtt
 )

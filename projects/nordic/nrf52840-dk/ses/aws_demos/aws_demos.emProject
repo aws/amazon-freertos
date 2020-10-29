@@ -81,12 +81,6 @@
         <folder Name="ota">
           <file file_name="../../../../../demos/ota/aws_iot_ota_update_demo.c" />
         </folder>
-        <folder Name="mqtt">
-          <file file_name="../../../../../demos/mqtt/iot_demo_mqtt.c" />
-        </folder>
-        <folder Name="shadow">
-          <file file_name="../../../../../demos/shadow/aws_iot_demo_shadow.c" />
-        </folder>
         <folder Name="posix">
           <file file_name="../../../../../demos/posix/aws_posix_demo.c" />
           <file file_name="../../../../../demos/posix/CMakeLists.txt" />
