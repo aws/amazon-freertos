@@ -10,7 +10,6 @@ afr_module_sources(
         "${inc_dir}/platform/iot_clock.h"
         "${inc_dir}/platform/iot_network.h"
         "${inc_dir}/platform/iot_threads.h"
-        "${inc_dir}/platform/transport_interface.h"
         "${inc_dir}/types/iot_platform_types.h"
         "${src_dir}/iot_clock_freertos.c"
         "${src_dir}/iot_threads_freertos.c"
