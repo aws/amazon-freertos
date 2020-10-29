@@ -270,7 +270,7 @@
 							<logicalFolder name="include" displayName="include" projectFiles="true">
 								<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</itemPath>
 								<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11_pal.h</itemPath>
-								<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pki_utils.h</itemPath>
+								<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</itemPath>
 							</logicalFolder>
 							<itemPath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</itemPath>
 							<logicalFolder name="portable" displayName="portable" projectFiles="true">
@@ -296,6 +296,20 @@
 						<itemPath>../../../../../libraries/abstractions/wifi/test/iot_test_wifi.c</itemPath>
 					</logicalFolder>
 				</logicalFolder>
+				<logicalFolder name="retry_utils" displayName="retry_utils" projectFiles="true">
+					<logicalFolder name="freertos" displayName="freertos" projectFiles="true">
+						<itemPath>../../../../../libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</itemPath>
+					</logicalFolder>
+					<itemPath>../../../../../libraries/abstractions/retry_utils/retry_utils.h</itemPath>
+				</logicalFolder>
+				<logicalFolder name="transport" displayName="transport" projectFiles="true">
+					<logicalFolder name="secure_sockets" displayName="secure_sockets" projectFiles="true">
+						<itemPath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</itemPath>
+						<itemPath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</itemPath>
+					</logicalFolder>
+					<itemPath>../../../../../libraries/abstractions/transport/transport_interface.cmake</itemPath>
+					<itemPath>../../../../../libraries/abstractions/transport/transport_interface_secure_sockets.cmake</itemPath>
+				</logicalFolder>
 				<logicalFolder name="posix" displayName="posix" projectFiles="true">
 					<logicalFolder name="include" displayName="include" projectFiles="true">
 						<logicalFolder name="FreeRTOS_POSIX" displayName="FreeRTOS_POSIX" projectFiles="true">
@@ -315,18 +329,6 @@
 						</logicalFolder>
 					</logicalFolder>
 				</logicalFolder>
-				<logicalFolder name="retry_utils" displayName="retry_utils" projectFiles="true">
-					<logicalFolder name="freertos" displayName="freertos" projectFiles="true">
-						<itemPath>../../../../../libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</itemPath>
-					</logicalFolder>
-					<itemPath>../../../../../libraries/abstractions/retry_utils/retry_utils.h</itemPath>
-				</logicalFolder>
-				<logicalFolder name="transport" displayName="transport" projectFiles="true">
-					<logicalFolder name="secure_sockets" displayName="secure_sockets" projectFiles="true">
-						<itemPath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</itemPath>
-						<itemPath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</itemPath>
-					</logicalFolder>
-				</logicalFolder>
 			</logicalFolder>
 			<logicalFolder name="freertos_plus" displayName="freertos_plus" projectFiles="true">
 				<logicalFolder name="standard" displayName="standard" projectFiles="true">
@@ -341,11 +343,10 @@
 						<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_TCP_WIN.c</itemPath>
 						<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_UDP_IP.c</itemPath>
 						<logicalFolder name="include" displayName="include" projectFiles="true">
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOSIPConfigDefaults.h</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_ARP.h</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_DHCP.h</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_DNS.h</itemPath>
-							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_errno_TCP.h</itemPath>
-							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOSIPConfigDefaults.h</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_IP.h</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_IP_Private.h</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_Sockets.h</itemPath>
@@ -353,9 +354,12 @@
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_TCP_IP.h</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_TCP_WIN.h</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_UDP_IP.h</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_errno_TCP.h</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/IPTraceMacroDefaults.h</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/NetworkBufferManagement.h</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/NetworkInterface.h</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/tcp_dump_packets.h</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/tcp_mem_stats.h</itemPath>
 						</logicalFolder>
 						<logicalFolder name="portable" displayName="portable" projectFiles="true">
 							<logicalFolder name="NetworkInterface" displayName="NetworkInterface" projectFiles="true">
@@ -365,8 +369,15 @@
 									<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/NetworkInterface_eth.c</itemPath>
 								</logicalFolder>
 							</logicalFolder>
+							<logicalFolder name="Compiler" displayName="Compiler" projectFiles="true">
+								<logicalFolder name="GCC" displayName="GCC" projectFiles="true">
+									<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_end.h</itemPath>
+									<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_start.h</itemPath>
+								</logicalFolder>
+							</logicalFolder>
 						</logicalFolder>
 					</logicalFolder>
+					<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp.cmake</itemPath>
 					<logicalFolder name="tls" displayName="tls" projectFiles="true">
 						<logicalFolder name="src" displayName="src" projectFiles="true">
 							<itemPath>../../../../../libraries/freertos_plus/standard/tls/src/iot_tls.c</itemPath>
@@ -512,6 +523,7 @@
 				</logicalFolder>
 				<itemPath>../../../../../libraries/coreMQTT/mqttFilePaths.cmake</itemPath>
 			</logicalFolder>
+			<itemPath>../../../../../libraries/core_mqtt_demo_dependencies.cmake</itemPath>
 			<logicalFolder name="3rdparty" displayName="3rdparty" projectFiles="true">
 				<logicalFolder name="mbedtls" displayName="mbedtls" projectFiles="true">
 					<logicalFolder name="library" displayName="library" projectFiles="true">
@@ -769,17 +781,27 @@
 					<itemPath>../../../../../libraries/3rdparty/http_parser/http_parser.c</itemPath>
 				</logicalFolder>
 			</logicalFolder>
-			<itemPath>../../../../../libraries/core_mqtt_demo_dependencies.cmake</itemPath>
 			<logicalFolder name="coreJSON" displayName="coreJSON" projectFiles="true">
 				<logicalFolder name="source" displayName="source" projectFiles="true">
 					<itemPath>../../../../../libraries/coreJSON/source/core_json.c</itemPath>
+					<logicalFolder name="include" displayName="include" projectFiles="true">
+						<itemPath>../../../../../libraries/coreJSON/source/include/core_json.h</itemPath>
+					</logicalFolder>
 				</logicalFolder>
+				<itemPath>../../../../../libraries/coreJSON/jsonFilePaths.cmake</itemPath>
 			</logicalFolder>
+			<itemPath>../../../../../libraries/core_json.cmake</itemPath>
 			<logicalFolder name="device_shadow_for_aws_iot_embedded_sdk" displayName="device_shadow_for_aws_iot_embedded_sdk" projectFiles="true">
 				<logicalFolder name="source" displayName="source" projectFiles="true">
 					<itemPath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</itemPath>
+					<logicalFolder name="include" displayName="include" projectFiles="true">
+						<itemPath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h</itemPath>
+						<itemPath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</itemPath>
+					</logicalFolder>
 				</logicalFolder>
+				<itemPath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</itemPath>
 			</logicalFolder>
+			<itemPath>../../../../../libraries/device_shadow_demo_dependencies.cmake</itemPath>
 		</logicalFolder>
 		<logicalFolder name="vendors" displayName="vendors" projectFiles="true">
 			<logicalFolder name="microchip" displayName="microchip" projectFiles="true">
@@ -821,10 +843,10 @@
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_test_wifi_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_wifi_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/core_mqtt_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/core_pkcs11_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/core_test_pkcs11_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/iot_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/iot_mqtt_agent_config.h</itemPath>
-								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/core_pkcs11_config.h</itemPath>
-								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/iot_test_pkcs11_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/shadow_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/unity_config.h</itemPath>
 							</logicalFolder>
@@ -1128,7 +1150,7 @@
 				<property key="enable-symbols" value="true"/>
 				<property key="enable-unroll-loops" value="false"/>
 				<property key="exclude-floating-point" value="false"/>
-				<property key="extra-include-directories" value="../../../../../freertos_kernel/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code;../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../../vendors/microchip/harmony/v2.05/framework;../../../../../vendors/microchip/harmony/v2.05/bsp;../../../../../tests/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/abstractions/secure_sockets/include;../../../../../tests/integration_test;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../vendors/microchip/harmony/v2.05/framework/system/common;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/aws/defender/src;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/test/mock;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/portable;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/c_sdk/standard/https/test/access;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/c_sdk/standard/https/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/freertos_plus/aws/ota/src;../../../../../libraries/freertos_plus/aws/ota/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/abstractions/posix/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix;../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include;../../../../../libraries/abstractions/retry_utils;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/tinycrypt/asn1;../../../../../libraries/3rdparty/tinycrypt/lib/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/http_parser"/>
+				<property key="extra-include-directories" value="../../../../../freertos_kernel/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code;../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../../vendors/microchip/harmony/v2.05/framework;../../../../../vendors/microchip/harmony/v2.05/bsp;../../../../../tests/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/abstractions/secure_sockets/include;../../../../../tests/integration_test;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../vendors/microchip/harmony/v2.05/framework/system/common;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/aws/defender/src;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/test/mock;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/portable;../../../../../libraries/abstractions/retry_utils;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/c_sdk/standard/https/test/access;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/c_sdk/standard/https/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/freertos_plus/aws/ota/src;../../../../../libraries/freertos_plus/aws/ota/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/abstractions/posix/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix;../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/tinycrypt/asn1;../../../../../libraries/3rdparty/tinycrypt/lib/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/http_parser"/>
 				<property key="generate-16-bit-code" value="false"/>
 				<property key="generate-micro-compressed-code" value="false"/>
 				<property key="isolate-each-function" value="true"/>
@@ -1156,7 +1178,7 @@
 				<property key="exclude-floating-point-library" value="false"/>
 				<property key="expand-macros" value="false"/>
 				<property key="extra-include-directories-for-assembler" value=""/>
-				<property key="extra-include-directories-for-preprocessor" value="../../../../../freertos_kernel/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code;../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../../vendors/microchip/harmony/v2.05/framework;../../../../../vendors/microchip/harmony/v2.05/bsp;../../../../../tests/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/abstractions/secure_sockets/include;../../../../../tests/integration_test;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../vendors/microchip/harmony/v2.05/framework/system/common;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/aws/defender/src;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/test/mock;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/portable;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/c_sdk/standard/https/test/access;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/c_sdk/standard/https/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/freertos_plus/aws/ota/src;../../../../../libraries/freertos_plus/aws/ota/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/abstractions/posix/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix;../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include;../../../../../libraries/abstractions/retry_utils;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/tinycrypt/asn1;../../../../../libraries/3rdparty/tinycrypt/lib/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/http_parser"/>
+				<property key="extra-include-directories-for-preprocessor" value="../../../../../freertos_kernel/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code;../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../../vendors/microchip/harmony/v2.05/framework;../../../../../vendors/microchip/harmony/v2.05/bsp;../../../../../tests/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/abstractions/secure_sockets/include;../../../../../tests/integration_test;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../vendors/microchip/harmony/v2.05/framework/system/common;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/aws/defender/src;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/test/mock;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/portable;../../../../../libraries/abstractions/retry_utils;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/c_sdk/standard/https/test/access;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/c_sdk/standard/https/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/freertos_plus/aws/ota/src;../../../../../libraries/freertos_plus/aws/ota/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/abstractions/posix/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix;../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/tinycrypt/asn1;../../../../../libraries/3rdparty/tinycrypt/lib/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/http_parser"/>
 				<property key="false-conditionals" value="false"/>
 				<property key="generate-16-bit-code" value="false"/>
 				<property key="generate-micro-compressed-code" value="false"/>
