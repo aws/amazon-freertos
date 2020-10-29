@@ -327,14 +327,14 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/private\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/portable\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/interface\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include/types\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/portable\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/interface\
 	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include\
 	$(CY_AFR_ROOT)/libraries/coreJSON/source/include\
 

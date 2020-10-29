@@ -488,11 +488,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/include/platform/iot_threads.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/include/platform/transport_interface.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/include/platform/transport_interface.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/platform/include/types/iot_platform_types.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/include/types/iot_platform_types.h</locationURI>
@@ -793,9 +788,9 @@
 			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT/source/include/core_mqtt_state.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreMQTT/source/portable/transport_interface.h</name>
+			<name>libraries/coreMQTT/source/interface/transport_interface.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT/source/portable/transport_interface.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/core_mqtt_demo_dependencies.cmake</name>

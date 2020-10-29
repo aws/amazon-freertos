@@ -76,7 +76,7 @@
 		<Filter Include="libraries\coreMQTT\source"/>
 		<Filter Include="libraries\coreMQTT"/>
 		<Filter Include="libraries\coreMQTT\source\include"/>
-		<Filter Include="libraries\coreMQTT\source\portable"/>
+		<Filter Include="libraries\coreMQTT\source\interface"/>
 		<Filter Include="libraries\abstractions\retry_utils\freertos"/>
 		<Filter Include="libraries\abstractions\retry_utils"/>
 		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
@@ -276,9 +276,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h">
 			<Filter>libraries\abstractions\platform\include\platform</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\transport_interface.h">
-			<Filter>libraries\abstractions\platform\include\platform</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\types\iot_platform_types.h">
 			<Filter>libraries\abstractions\platform\include\types</Filter>
 		</ClInclude>
@@ -414,8 +411,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_state.h">
 			<Filter>libraries\coreMQTT\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\portable\transport_interface.h">
-			<Filter>libraries\coreMQTT\source\portable</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h">
+			<Filter>libraries\coreMQTT\source\interface</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\core_mqtt_demo_dependencies.cmake">
 			<Filter>libraries</Filter>

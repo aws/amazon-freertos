@@ -379,7 +379,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
@@ -1457,9 +1457,6 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\transport_interface.h</name>
-						</file>
-						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h</name>
 						</file>
 					</group>
@@ -2055,7 +2052,7 @@
 				<group>
 					<name>portable</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable\transport_interface.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h</name>
 					</file>
 				</group>
 			</group>

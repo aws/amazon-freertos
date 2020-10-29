@@ -411,7 +411,7 @@
             <file file_name="../../../../../libraries/coreMQTT/source/include/core_mqtt_state.h" />
           </folder>
           <folder Name="portable">
-            <file file_name="../../../../../libraries/coreMQTT/source/portable/transport_interface.h" />
+            <file file_name="../../../../../libraries/coreMQTT/source/interface/transport_interface.h" />
           </folder>
         </folder>
       </folder>
@@ -705,7 +705,7 @@
     Name="Debug"
     arm_fp_abi="None"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/portable;$(SolutionDir)/../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;$(SolutionDir)/../../../../../libraries/coreJSON/source/include"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;$(SolutionDir)/../../../../../libraries/coreJSON/source/include"
     gcc_debugging_level="Level 3"
     gcc_optimization_level="None"
     link_include_standard_libraries="Yes" />
