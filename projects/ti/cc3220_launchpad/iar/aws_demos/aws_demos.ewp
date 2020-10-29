@@ -379,7 +379,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>

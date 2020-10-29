@@ -76,7 +76,7 @@
 		<Filter Include="libraries\coreMQTT\source"/>
 		<Filter Include="libraries\coreMQTT"/>
 		<Filter Include="libraries\coreMQTT\source\include"/>
-		<Filter Include="libraries\coreMQTT\source\portable"/>
+		<Filter Include="libraries\coreMQTT\source\interface"/>
 		<Filter Include="libraries\abstractions\retry_utils\freertos"/>
 		<Filter Include="libraries\abstractions\retry_utils"/>
 		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
