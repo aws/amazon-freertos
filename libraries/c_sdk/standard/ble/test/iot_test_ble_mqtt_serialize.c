@@ -653,9 +653,9 @@ static void prvCreatePUBLISHPacket( uint8_t * pBuffer,
 TEST( BLE_Unit_MQTT_Serialize, DeserializePUBLISH )
 {
     MQTTBLEStatus_t status;
-    uint8_t buffer[ TEST_MESG_LEN ];
+    uint8_t buffer[ TEST_MESG_LEN ] = { 0 };
     size_t length = TEST_MESG_LEN;
-    MQTTBLEPublishInfo_t publishInfo;
+    MQTTBLEPublishInfo_t publishInfo = { 0 };
     uint16_t packetIdentifier;
 
 
@@ -761,7 +761,7 @@ TEST( BLE_Unit_MQTT_Serialize, DeserializePUBLISH_QOS0 )
     MQTTBLEStatus_t status = MQTTBLESuccess;
     uint8_t buffer[ TEST_MESG_LEN ] = { 0 };
     size_t length = TEST_MESG_LEN;
-    MQTTBLEPublishInfo_t publishInfo;
+    MQTTBLEPublishInfo_t publishInfo = { 0 };
     uint16_t packetIdentifier;
 
 
@@ -840,7 +840,7 @@ static void prvCreateSUBACKPacket( uint8_t * pBuffer,
 TEST( BLE_Unit_MQTT_Serialize, DeserializeSUBACK )
 {
     MQTTBLEStatus_t status;
-    uint8_t buffer[ TEST_MESG_LEN ];
+    uint8_t buffer[ TEST_MESG_LEN ] = { 0 };
     size_t length = TEST_MESG_LEN;
     uint16_t packetIdentifier;
     uint8_t statusCode;
@@ -853,6 +853,7 @@ TEST( BLE_Unit_MQTT_Serialize, DeserializeSUBACK )
     TEST_ASSERT_EQUAL( TEST_QOS1, statusCode );
 
     /** Malformed message **/
+    memset( buffer, 0x00, TEST_MESG_LEN );
     length = TEST_MESG_LEN;
     prvCreateSUBACKPacket( buffer, &length, TEST_QOS1, TEST_PACKET_IDENTIFIER, 2 );
     buffer[ 0 ] = 0x00;
