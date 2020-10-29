@@ -1018,11 +1018,6 @@
 			<locationURI>BASE_DIR/libraries/abstractions/platform/include/platform/iot_threads.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/include/platform/transport_interface.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/platform/include/platform/transport_interface.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/platform/include/types/iot_platform_types.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/abstractions/platform/include/types/iot_platform_types.h</locationURI>

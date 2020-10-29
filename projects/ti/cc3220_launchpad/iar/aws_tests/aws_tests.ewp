@@ -1467,9 +1467,6 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\transport_interface.h</name>
-						</file>
-						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h</name>
 						</file>
 					</group>

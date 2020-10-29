@@ -1125,11 +1125,6 @@
 							<FilePath>../../../../../libraries/abstractions/platform/include/platform/iot_threads.h</FilePath>
 						</File>
 						<File>
-							<FileName>transport_interface.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/include/platform/transport_interface.h</FilePath>
-						</File>
-						<File>
 							<FileName>iot_metrics.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/abstractions/platform/include/platform/iot_metrics.h</FilePath>

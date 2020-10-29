@@ -227,7 +227,6 @@
 							<itemPath>../../../../../libraries/abstractions/platform/include/platform/iot_clock.h</itemPath>
 							<itemPath>../../../../../libraries/abstractions/platform/include/platform/iot_network.h</itemPath>
 							<itemPath>../../../../../libraries/abstractions/platform/include/platform/iot_threads.h</itemPath>
-							<itemPath>../../../../../libraries/abstractions/platform/include/platform/transport_interface.h</itemPath>
 							<itemPath>../../../../../libraries/abstractions/platform/include/platform/iot_metrics.h</itemPath>
 						</logicalFolder>
 						<logicalFolder name="types" displayName="types" projectFiles="true">

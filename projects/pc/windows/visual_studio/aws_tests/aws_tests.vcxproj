@@ -122,7 +122,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_clock.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_network.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\transport_interface.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\types\iot_platform_types.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_freertos.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h"/>
