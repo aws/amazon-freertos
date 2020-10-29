@@ -44,7 +44,7 @@ The JSON file contains the following options:
 1. server-certificate
     1. Server certificate in X509 format. When both `server-certificate` and `server-certificate-location` are specified, this option will be used instead.
 1. server-key
-    1. Server private key in X509 format. When both `server-key` and `server-key-location` are specified, this option will be used instead.
+    1. Server private key. When both `server-key` and `server-key-location` are specified, this option will be used instead.
 1. server-certificate-location
     1. Relative or absolute path to the server certificate generated in the credential creation prerequisite.
 1. server-key-location
@@ -62,7 +62,6 @@ The JSON file contains the following options:
     "server-key": "<key-content>",
     "server-certificate-location": "./certs/server.pem",
     "server-key-location": "./certs/server.key"
-
 }
 ```
 # Running the Echo Server From the Command Line

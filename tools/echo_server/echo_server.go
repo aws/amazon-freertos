@@ -41,25 +41,25 @@ import (
 
 const (
 	readTimeoutSecond = 300
-	portFlagName = "port"
-	repeatFlagName = "repeat"
-	intervalFlagName = "interval"
-	certFlagName = "cert"
-	keyFlagName = "key"
+	portFlagName      = "port"
+	repeatFlagName    = "repeat"
+	intervalFlagName  = "interval"
+	certFlagName      = "cert"
+	keyFlagName       = "key"
 )
 
 // Argument struct for JSON configuration
 type Argument struct {
-	Verbose    				bool   `json:"verbose"`
-	Logging    				bool   `json:"logging"`
-	Secure     				bool   `json:"secure-connection"`
-	RepeatMode 				bool   `json:"repeat-mode"`
-	RepeatIntervalSeconds	int    `json:"repeat-interval-seconds"`
-	ServerPort 				string `json:"server-port"`
-	ServerCert 				string `json:"server-certificate"`
-	ServerKey  				string `json:"server-key"`
-	ServerCertPath          string `json:"server-certificate-location"`
-	ServerKeyPath           string `json:"server-key-location"`
+	Verbose               bool   `json:"verbose"`
+	Logging               bool   `json:"logging"`
+	Secure                bool   `json:"secure-connection"`
+	RepeatMode            bool   `json:"repeat-mode"`
+	RepeatIntervalSeconds int    `json:"repeat-interval-seconds"`
+	ServerPort            string `json:"server-port"`
+	ServerCert            string `json:"server-certificate"`
+	ServerKey             string `json:"server-key"`
+	ServerCertPath        string `json:"server-certificate-location"`
+	ServerKeyPath         string `json:"server-key-location"`
 }
 
 func secureEcho(config *Argument) {
@@ -272,7 +272,7 @@ func main() {
 
 	secureArgsCount := 0
 	// overwrite config only if the flags are set
-	flag.Visit(func (f *flag.Flag) {
+	flag.Visit(func(f *flag.Flag) {
 		if f.Name == portFlagName {
 			config.ServerPort = *serverPort
 		} else if f.Name == repeatFlagName {
