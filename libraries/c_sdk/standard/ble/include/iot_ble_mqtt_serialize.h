@@ -23,6 +23,7 @@
  * http://www.FreeRTOS.org
  */
 
+
 /**
  * @file iot_ble_mqtt_serialize.h
  * @brief File exposes types and serializer, deserializer APIs for sending and receiving MQTT messages
