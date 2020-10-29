@@ -80,7 +80,7 @@
 		<Filter Include="libraries\coreMQTT\source"/>
 		<Filter Include="libraries\coreMQTT"/>
 		<Filter Include="libraries\coreMQTT\source\include"/>
-		<Filter Include="libraries\coreMQTT\source\portable"/>
+		<Filter Include="libraries\coreMQTT\source\interface"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src"/>
 		<Filter Include="libraries\c_sdk\standard\serializer"/>
@@ -545,8 +545,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_state.h">
 			<Filter>libraries\coreMQTT\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\portable\transport_interface.h">
-			<Filter>libraries\coreMQTT\source\portable</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h">
+			<Filter>libraries\coreMQTT\source\interface</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_serializer.h">
 			<Filter>libraries\c_sdk\standard\serializer\include</Filter>
