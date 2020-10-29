@@ -1699,26 +1699,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>demos/mqtt/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_demo_mqtt.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/mqtt/iot_demo_mqtt.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>demos/shadow/</GroupName>
-					<Files>
-						<File>
-							<FileName>aws_iot_demo_shadow.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/shadow/aws_iot_demo_shadow.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>demos/tcp/</GroupName>
 					<Files>
 						<File>

@@ -398,6 +398,8 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
@@ -406,8 +408,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
@@ -1881,13 +1881,13 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\core_mqtt_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\core_pkcs11_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_mqtt_agent_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\core_pkcs11_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\mqtt_demo_basic_tls_config.h</name>
@@ -2013,6 +2013,9 @@
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_connection_sharing.c</name>
 			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\CMakeLists.txt</name>
+			</file>
 		</group>
 		<group>
 			<name>defender</name>
@@ -2027,6 +2030,12 @@
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\shadow_demo_helpers.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\shadow_demo_helpers.h</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\CMakeLists.txt</name>
 			</file>
 		</group>
 		<group>
@@ -2051,18 +2060,6 @@
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_common.c</name>
-			</file>
-		</group>
-		<group>
-			<name>mqtt</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\mqtt\iot_demo_mqtt.c</name>
-			</file>
-		</group>
-		<group>
-			<name>shadow</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\shadow\aws_iot_demo_shadow.c</name>
 			</file>
 		</group>
 		<group>
@@ -2425,6 +2422,36 @@
 				</group>
 			</group>
 			<group>
+				<name>retry_utils</name>
+				<group>
+					<name>freertos</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c</name>
+					</file>
+				</group>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h</name>
+				</file>
+			</group>
+			<group>
+				<name>transport</name>
+				<group>
+					<name>secure_sockets</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c</name>
+					</file>
+				</group>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\transport_interface.cmake</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\transport_interface_secure_sockets.cmake</name>
+				</file>
+			</group>
+			<group>
 				<name>posix</name>
 				<group>
 					<name>include</name>
@@ -2467,30 +2494,6 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\utils.h</name>
 						</file>
 					</group>
-				</group>
-			</group>
-			<group>
-				<name>retry_utils</name>
-				<group>
-					<name>freertos</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c</name>
-					</file>
-				</group>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h</name>
-				</file>
-			</group>
-			<group>
-				<name>transport</name>
-				<group>
-					<name>secure_sockets</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c</name>
-					</file>
 				</group>
 			</group>
 		</group>
@@ -2708,8 +2711,20 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\core_json.c</name>
 				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include\core_json.h</name>
+					</file>
+				</group>
 			</group>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\jsonFilePaths.cmake</name>
+			</file>
 		</group>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\core_json.cmake</name>
+		</file>
 		<group>
 			<name>device_shadow_for_aws_iot_embedded_sdk</name>
 			<group>
@@ -2717,8 +2732,23 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c</name>
 				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include\shadow.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include\shadow_config_defaults.h</name>
+					</file>
+				</group>
 			</group>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\shadowFilePaths.cmake</name>
+			</file>
 		</group>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_demo_dependencies.cmake</name>
+		</file>
 		<group>
 			<name>3rdparty</name>
 			<group>

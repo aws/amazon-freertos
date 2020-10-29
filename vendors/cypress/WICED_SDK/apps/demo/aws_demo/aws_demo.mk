@@ -103,7 +103,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_network_addr.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_version.c \
-                      $(AMAZON_FREERTOS_PATH)demos/mqtt/iot_demo_mqtt.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_basic_tls.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_plaintext.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_mutual_auth.c \
@@ -112,7 +111,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_connection_sharing.c \
                       $(AMAZON_FREERTOS_PATH)demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_main.c \
                       $(AMAZON_FREERTOS_PATH)demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c \
-                      $(AMAZON_FREERTOS_PATH)demos/shadow/aws_iot_demo_shadow.c \
                       $(AMAZON_FREERTOS_PATH)demos/defender/aws_iot_demo_defender.c \
                       $(AMAZON_FREERTOS_PATH)demos/tcp/aws_tcp_echo_client_single_task.c \
                       $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c \

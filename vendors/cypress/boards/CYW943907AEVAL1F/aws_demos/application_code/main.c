@@ -30,7 +30,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#define CONFIG_MQTT_DEMO_ENABLED
+#define CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
 
 /* AWS library includes. */
 #include "iot_system_init.h"

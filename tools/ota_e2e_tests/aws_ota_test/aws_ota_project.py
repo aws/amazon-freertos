@@ -184,7 +184,7 @@ class OtaAfrProject:
         demoRunnerFilePath = os.path.join(self._projectRootDir, OtaAfrProject.RUNNER_PATH)
         print("demoRunnerFilePath: " + demoRunnerFilePath)
 
-        startMQTTdemo = "#define CONFIG_MQTT_DEMO_ENABLED"
+        startMQTTdemo = "#define CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED"
         startotaUpdateDemo = "#define CONFIG_OTA_UPDATE_DEMO_ENABLED"
         for line in fileinput.input(files=demoRunnerFilePath, inplace=True):
             if (startMQTTdemo in line) and ("//" not in line) and ("/*" not in line):
