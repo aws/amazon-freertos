@@ -639,7 +639,6 @@ function(cy_kit_generate)
         # common ota sources
         target_sources(AFR::ota::mcu_port INTERFACE
             "${cy_ota_dir}/ports/${AFR_BOARD_NAME}/aws_ota_pal.c"
-            "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_map.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_psoc6.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/flash_qspi/flash_qspi.c"
@@ -680,6 +679,7 @@ function(cy_kit_generate)
                 "${AFR_DEMOS_DIR}/demo_runner/iot_demo_runner.c"
                 "${AFR_DEMOS_DIR}/network_manager/aws_iot_demo_network.c"
                 "${AFR_DEMOS_DIR}/network_manager/aws_iot_network_manager.c"
+                "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
             )
 
             # add extra includes
@@ -718,6 +718,9 @@ function(cy_kit_generate)
             set(APP_VERSION_MAJOR 0)
             set(APP_VERSION_MINOR 9)
             set(APP_VERSION_BUILD 0)
+            target_include_directories( AFR::ota::mcu_port INTERFACE
+                "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
+            )
             # add extra includes
             target_include_directories(AFR::ota::mcu_port INTERFACE
                 "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/test"
