@@ -41,7 +41,7 @@
 # list the directories the module under test includes
     list(APPEND real_include_directories
         .
-		"${AFR_ROOT_DIR}/libraries/c_sdk/standard/ble/include"
+        "${AFR_ROOT_DIR}/libraries/c_sdk/standard/ble/include"
         "${AFR_ROOT_DIR}/freertos_kernel/include/"
         "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
         "${AFR_ROOT_DIR}/libraries/logging/include"
@@ -64,6 +64,7 @@
             "${AFR_ROOT_DIR}/freertos_kernel/include/"
             "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
             "${AFR_ROOT_DIR}/libraries/coreMQTT/source/include"
+            "${AFR_ROOT_DIR}/tests/unit_test/linux/logging-stack"
             "${CMAKE_CURRENT_BINARY_DIR}/mocks"
             ${abstraction_dir}/ble_hal/include
             ${abstraction_dir}/platform/freertos/include
