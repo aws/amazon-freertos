@@ -42,6 +42,6 @@
 [submodule "libraries/freertos_plus/standard/freertos_plus_tcp"]
 	path = libraries/freertos_plus/standard/freertos_plus_tcp
 	url = https://github.com/FreeRTOS/FreeRTOS-Plus-TCP/
-[submodule "device_shadow_for_aws"]
-	path = device_shadow_for_aws
+[submodule "libraries/device_shadow_for_aws"]
+	path = libraries/device_shadow_for_aws
 	url = https://github.com/aws/device-shadow-for-aws-iot-embedded-sdk.git
