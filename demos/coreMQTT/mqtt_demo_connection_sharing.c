@@ -259,7 +259,7 @@
 /**
  * @brief The stack size to use for the publish and subscribe tasks.
  */
-#define mqttexampleTASK_STACK_SIZE                   ( configMINIMAL_STACK_SIZE * 6 )
+#define mqttexampleTASK_STACK_SIZE                   ( configMINIMAL_STACK_SIZE * 4 )
 
 /**
  * @brief The maximum number of loop iterations to wait before declaring failure.
@@ -434,14 +434,6 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext );
  * @return `pdPASS` if disconnect succeeds, else `pdFAIL`.
  */
 static BaseType_t prvSocketDisconnect( NetworkContext_t * pxNetworkContext );
-
-/**
- * @brief Callback for adding a process loop call to a command queue, when data
- * is available on a socket.
- *
- * @param[in] pxSocket Socket with data, unused.
- */
-static void prvMQTTClientSocketWakeupCallback( Socket_t pxSocket );
 
 /**
  * @brief Initialize context for a command.
@@ -981,16 +973,6 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
         }
     } while( ( xConnected != pdPASS ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
 
-    /* Set the socket wakeup callback. */
-    if( xConnected )
-    {
-        ( void ) SOCKETS_SetSockOpt( pxNetworkContext->tcpSocket,
-                                     0, /* Level - Unused. */
-                                     SOCKETS_SO_WAKEUP_CALLBACK,
-                                     ( void * ) prvMQTTClientSocketWakeupCallback,
-                                     sizeof( &( prvMQTTClientSocketWakeupCallback ) ) );
-    }
-
     return xConnected;
 }
 
@@ -998,40 +980,10 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
 
 static BaseType_t prvSocketDisconnect( NetworkContext_t * pxNetworkContext )
 {
-    /* Set the wakeup callback to NULL since the socket will disconnect. */
-    ( void ) SOCKETS_SetSockOpt( pxNetworkContext->tcpSocket,
-                                 0, /* Level - Unused. */
-                                 SOCKETS_SO_WAKEUP_CALLBACK,
-                                 NULL,
-                                 sizeof( void * ) );
-
     LogInfo( ( "Disconnecting TLS connection.\n" ) );
     TransportSocketStatus_t xNetworkStatus = SecureSocketsTransport_Disconnect( pxNetworkContext );
 
     return ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS ) ? pdPASS : pdFAIL;
-}
-
-/*-----------------------------------------------------------*/
-
-static void prvMQTTClientSocketWakeupCallback( Socket_t pxSocket )
-{
-    BaseType_t xResult;
-    Command_t xCommand;
-
-    /* Just to avoid compiler warnings.  The socket is not used but the function
-     * prototype cannot be changed because this is a callback function. */
-    ( void ) pxSocket;
-
-    configASSERT( xCommandQueue );
-
-    /* A socket used by the MQTT task may need attention.  Send an event
-     * to the MQTT task to make sure the task is not blocked on xCommandQueue. */
-    if( uxQueueMessagesWaiting( xCommandQueue ) == ( UBaseType_t ) 0 )
-    {
-        prvCreateCommand( PROCESSLOOP, NULL, NULL, &xCommand );
-        xResult = prvAddCommandToQueue( &xCommand );
-        configASSERT( xResult == pdTRUE );
-    }
 }
 
 /*-----------------------------------------------------------*/
@@ -1583,6 +1535,10 @@ static int prvCommandLoop( void )
         if( xQueueReceive( xCommandQueue, &xCommand, mqttexampleDEMO_TICKS_TO_WAIT ) == pdFALSE )
         {
             LogInfo( ( "No commands in the queue. Trying again." ) );
+
+            /* Add the process loop back into the queue. */
+            prvCreateCommand( PROCESSLOOP, NULL, NULL, &xNewCommand );
+            ( void ) prvAddCommandToQueue( &xNewCommand );
             continue;
         }
 
@@ -1615,6 +1571,20 @@ static int prvCommandLoop( void )
 
         /* Keep a count of processed operations, for debug logs. */
         lNumProcessed++;
+
+        if( pxCommand->xCommandType == PROCESSLOOP )
+        {
+            /* Add process loop back to end of queue. */
+            prvCreateCommand( PROCESSLOOP, NULL, NULL, &xNewCommand );
+            xCommandAdded = prvAddCommandToQueue( &xNewCommand );
+
+            /* Ensure the command was re-added. */
+            if( xCommandAdded != pdTRUE )
+            {
+                ret = EXIT_FAILURE;
+                break;
+            }
+        }
 
         /* Delay after sending a subscribe. This is to so that the broker
          * creates a subscription for us before processing our next publish,
@@ -1721,7 +1691,7 @@ void prvSyncPublishTask( void * pvParameters )
     xPublishInfo.pPayload = payloadBuf;
 
     /* Synchronous publishes. In case mqttexamplePUBLISH_COUNT is odd, round up. */
-    for( int i = 0; i < ( ( mqttexamplePUBLISH_COUNT + 1 ) / 2 ); i++ )
+    for( i = 0; i < ( ( mqttexamplePUBLISH_COUNT + 1 ) / 2 ); i++ )
     {
         snprintf( payloadBuf, mqttexampleDEMO_BUFFER_SIZE, mqttexamplePUBLISH_PAYLOAD_FORMAT, "Sync", i + 1 );
         xPublishInfo.payloadLength = ( uint16_t ) strlen( payloadBuf );
