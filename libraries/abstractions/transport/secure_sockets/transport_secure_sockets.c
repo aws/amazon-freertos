@@ -96,6 +96,10 @@ static TransportSocketStatus_t connectToServer( Socket_t tcpSocket,
 
 /*-----------------------------------------------------------*/
 
+/* MISRA Rule 18.3 flags the following line for not using the const qualifier
+ * on `pNetworkContext`. Indeed, the object pointed by it is not modified
+ * by Secure Sockets, but other implementations of `TransportSend_t` may do so. */
+/* coverity[misra_c_2012_rule_8_13_violation] */
 int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
                                      const void * pMessage,
                                      size_t bytesToSend )
@@ -145,6 +149,10 @@ int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
 
 /*-----------------------------------------------------------*/
 
+/* MISRA Rule 18.3 flags the following line for not using the const qualifier
+ * on `pNetworkContext`. Indeed, the object pointed by it is not modified
+ * by Secure Sockets, but other implementations of `TransportRecv_t` may do so. */
+/* coverity[misra_c_2012_rule_8_13_violation] */
 int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
                                      void * pBuffer,
                                      size_t bytesToRecv )
@@ -214,9 +222,9 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 {
     int32_t secureSocketStatus = SOCKETS_ERROR_NONE;
 
-    configASSERT( ( tcpSocket != SOCKETS_INVALID_SOCKET ) ? pdTRUE : pdFALSE );
-    configASSERT( ( pSocketsConfig != NULL ) ? pdTRUE : pdFALSE );
-    configASSERT( ( pHostName != NULL ) ? pdTRUE : pdFALSE );
+    configASSERT( tcpSocket != SOCKETS_INVALID_SOCKET );
+    configASSERT( pSocketsConfig != NULL );
+    configASSERT( pHostName != NULL );
 
     /* ALPN options for AWS IoT. */
     /* ppcALPNProtos is unused. putting here to align behavior in IotNetworkAfr_Create. */
@@ -331,7 +339,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
     TickType_t receiveTimeout = 0, sendTimeout = 0;
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
 
-    configASSERT( ( tcpSocket != SOCKETS_INVALID_SOCKET ) ? pdTRUE : pdFALSE );
+    configASSERT( tcpSocket != SOCKETS_INVALID_SOCKET );
 
     /* Secure Sockets uses TickType_t therefore replace the timeout value with portMAX_DELAY if it is exceeded. */
     receiveTimeout = pdMS_TO_TICKS( recvTimeoutMs );
@@ -389,9 +397,9 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
     size_t hostnameLength = 0U;
 
-    configASSERT( ( pNetworkContext != NULL ) ? pdTRUE : pdFALSE );
-    configASSERT( ( pServerInfo != NULL ) ? pdTRUE : pdFALSE );
-    configASSERT( ( pSocketsConfig != NULL ) ? pdTRUE : pdFALSE );
+    configASSERT( pNetworkContext != NULL );
+    configASSERT( pServerInfo != NULL );
+    configASSERT( pSocketsConfig != NULL );
 
     hostnameLength = pServerInfo->hostNameLength;
 
