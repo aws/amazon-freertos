@@ -180,7 +180,7 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/device_shadow_for_aws_iot_embedded_sdk/*.c)
+	$(wildcard $(CY_AFR_ROOT)/demos/device_shadow_for_aws/*.c)
 
 INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common\
@@ -190,7 +190,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/demos/include\
 	$(CY_AFR_ROOT)/demos/network_manager\
 	$(CY_AFR_ROOT)/demos/tcp\
-	$(CY_AFR_ROOT)/demos/device_shadow_for_aws_iot_embedded_sdk\
+	$(CY_AFR_ROOT)/demos/device_shadow_for_aws\
 
 ################################################################################
 # libraries (3rd party)
@@ -307,7 +307,7 @@ SOURCES+=\
 
 # Device Shadow and core JSON
 SOURCES+=\
-	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c\
+	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/shadow.c\
 	$(CY_AFR_ROOT)/libraries/coreJSON/source/core_json.c
 
 INCLUDES+=\
@@ -335,7 +335,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/interface\
-	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include\
+	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/include\
 	$(CY_AFR_ROOT)/libraries/coreJSON/source/include\
 
 ################################################################################

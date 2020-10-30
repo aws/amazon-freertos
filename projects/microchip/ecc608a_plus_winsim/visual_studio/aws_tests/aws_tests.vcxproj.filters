@@ -126,9 +126,9 @@
 		<Filter Include="libraries\coreJSON\source"/>
 		<Filter Include="libraries\coreJSON"/>
 		<Filter Include="libraries\coreJSON\source\include"/>
-		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk\source"/>
-		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk"/>
-		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk\source\include"/>
+		<Filter Include="libraries\device_shadow_for_aws\source"/>
+		<Filter Include="libraries\device_shadow_for_aws"/>
+		<Filter Include="libraries\device_shadow_for_aws\source\include"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\unit"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\system"/>
@@ -705,14 +705,14 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h">
 			<Filter>libraries\coreJSON\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\shadowFilePaths.cmake">
-			<Filter>libraries\device_shadow_for_aws_iot_embedded_sdk</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\shadowFilePaths.cmake">
+			<Filter>libraries\device_shadow_for_aws</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include\shadow.h">
-			<Filter>libraries\device_shadow_for_aws_iot_embedded_sdk\source\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow.h">
+			<Filter>libraries\device_shadow_for_aws\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include\shadow_config_defaults.h">
-			<Filter>libraries\device_shadow_for_aws_iot_embedded_sdk\source\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow_config_defaults.h">
+			<Filter>libraries\device_shadow_for_aws\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_demo_dependencies.cmake">
 			<Filter>libraries</Filter>
@@ -1508,8 +1508,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
 			<Filter>libraries\coreJSON\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c">
-			<Filter>libraries\device_shadow_for_aws_iot_embedded_sdk\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\shadow.c">
+			<Filter>libraries\device_shadow_for_aws\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">
 			<Filter>libraries\c_sdk\aws\defender\test\unit</Filter>
