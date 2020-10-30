@@ -45,3 +45,12 @@
 [submodule "libraries/freertos_plus/standard/freertos_plus_tcp"]
 	path = libraries/freertos_plus/standard/freertos_plus_tcp
 	url = https://github.com/FreeRTOS/FreeRTOS-Plus-TCP/
+[submodule "libraries/coreHTTP"]
+	path = libraries/coreHTTP
+	url = https://github.com/FreeRTOS/coreHTTP.git
+[submodule "libraries/device_defender_for_aws_iot_embedded_sdk"]
+	path = libraries/device_defender_for_aws_iot_embedded_sdk
+	url = https://github.com/aws/device-defender-for-aws-iot-embedded-sdk.git
+[submodule "libraries/jobs_for_aws_iot_embedded_sdk"]
+	path = libraries/jobs_for_aws_iot_embedded_sdk
+	url = https://github.com/aws/jobs-for-aws-iot-embedded-sdk.git
