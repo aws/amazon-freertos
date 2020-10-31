@@ -1003,24 +1003,24 @@
 			<locationURI>AFR_ROOT/libraries/coreJSON/source/include/core_json.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</name>
+			<name>libraries/device_shadow_for_aws/source/shadow.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws/source/shadow.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</name>
+			<name>libraries/device_shadow_for_aws/shadowFilePaths.cmake</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</locationURI>
+			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws/shadowFilePaths.cmake</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h</name>
+			<name>libraries/device_shadow_for_aws/source/include/shadow.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws/source/include/shadow.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</name>
+			<name>libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/device_shadow_demo_dependencies.cmake</name>
@@ -1068,24 +1068,24 @@
 			<locationURI>AFR_ROOT/demos/defender/aws_iot_demo_defender.c</locationURI>
 		</link>
 		<link>
-			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_main.c</name>
+			<name>demos/device_shadow_for_aws/shadow_demo_main.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_main.c</locationURI>
+			<locationURI>AFR_ROOT/demos/device_shadow_for_aws/shadow_demo_main.c</locationURI>
 		</link>
 		<link>
-			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c</name>
+			<name>demos/device_shadow_for_aws/shadow_demo_helpers.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c</locationURI>
+			<locationURI>AFR_ROOT/demos/device_shadow_for_aws/shadow_demo_helpers.c</locationURI>
 		</link>
 		<link>
-			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</name>
+			<name>demos/device_shadow_for_aws/shadow_demo_helpers.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</locationURI>
+			<locationURI>AFR_ROOT/demos/device_shadow_for_aws/shadow_demo_helpers.h</locationURI>
 		</link>
 		<link>
-			<name>demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</name>
+			<name>demos/device_shadow_for_aws/CMakeLists.txt</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</locationURI>
+			<locationURI>AFR_ROOT/demos/device_shadow_for_aws/CMakeLists.txt</locationURI>
 		</link>
 		<link>
 			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>

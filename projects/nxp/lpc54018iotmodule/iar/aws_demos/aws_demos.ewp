@@ -409,7 +409,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</state>
@@ -2024,18 +2024,18 @@
 			</file>
 		</group>
 		<group>
-			<name>device_shadow_for_aws_iot_embedded_sdk</name>
+			<name>device_shadow_for_aws</name>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\shadow_demo_main.c</name>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws\shadow_demo_main.c</name>
 			</file>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\shadow_demo_helpers.c</name>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws\shadow_demo_helpers.c</name>
 			</file>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\shadow_demo_helpers.h</name>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws\shadow_demo_helpers.h</name>
 			</file>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\CMakeLists.txt</name>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws\CMakeLists.txt</name>
 			</file>
 		</group>
 		<group>
@@ -2723,24 +2723,24 @@
 			<name>$PROJ_DIR$\..\..\..\..\..\libraries\core_json.cmake</name>
 		</file>
 		<group>
-			<name>device_shadow_for_aws_iot_embedded_sdk</name>
+			<name>device_shadow_for_aws</name>
 			<group>
 				<name>source</name>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\shadow.c</name>
 				</file>
 				<group>
 					<name>include</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include\shadow.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow.h</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include\shadow_config_defaults.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow_config_defaults.h</name>
 					</file>
 				</group>
 			</group>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\shadowFilePaths.cmake</name>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\shadowFilePaths.cmake</name>
 			</file>
 		</group>
 		<file>

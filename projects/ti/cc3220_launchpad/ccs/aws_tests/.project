@@ -1058,24 +1058,24 @@
 			<locationURI>BASE_DIR_ROOT/libraries/coreJSON/source/include/core_json.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</name>
+			<name>libraries/device_shadow_for_aws/source/shadow.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/device_shadow_for_aws/source/shadow.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</name>
+			<name>libraries/device_shadow_for_aws/shadowFilePaths.cmake</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/device_shadow_for_aws/shadowFilePaths.cmake</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h</name>
+			<name>libraries/device_shadow_for_aws/source/include/shadow.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/device_shadow_for_aws/source/include/shadow.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</name>
+			<name>libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/device_shadow_demo_dependencies.cmake</name>

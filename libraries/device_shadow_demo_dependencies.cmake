@@ -2,7 +2,7 @@
 afr_module(NAME device_shadow )
 
 # Include Shadow library's source and header path variables.
-include("${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws/shadowFilePaths.cmake")
 
 # Create a list of all header files in the Device Shadow library.
 # The list of header files will be added to metadata required
@@ -21,7 +21,7 @@ afr_module_sources(
         ${SHADOW_SOURCES}
         # List of files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake
+        ${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws/shadowFilePaths.cmake
         ${DEVICE_SHADOW_HEADER_FILES}
 )
 

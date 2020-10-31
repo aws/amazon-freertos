@@ -402,7 +402,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
@@ -2870,11 +2870,11 @@
 			</group>
 		</group>
 		<group>
-			<name>device_shadow_for_aws_iot_embedded_sdk</name>
+			<name>device_shadow_for_aws</name>
 			<group>
 				<name>source</name>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\shadow.c</name>
 				</file>
 			</group>
 		</group>
