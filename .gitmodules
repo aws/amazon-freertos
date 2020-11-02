@@ -50,3 +50,6 @@
 [submodule "libraries/device_defender_for_aws"]
 	path = libraries/device_defender_for_aws
 	url = https://github.com/aws/device-defender-for-aws-iot-embedded-sdk.git
+[submodule "tools/litani"]
+	path = tools/litani
+	url = https://github.com/awslabs/aws-build-accumulator
