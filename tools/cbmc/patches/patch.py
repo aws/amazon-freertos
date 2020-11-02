@@ -9,7 +9,7 @@ from glob import glob
 from patches_constants import PATCHES_DIR
 
 def patch():
-    if os.path.isfile("patched"):
+    if os.path.isfile(os.path.join(PATCHES_DIR, "patched")):
         sys.exit()
 
     applied_patches = []
