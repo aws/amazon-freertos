@@ -462,7 +462,7 @@
 						<itemPath>../../../../../libraries/coreMQTT/source/include/core_mqtt_serializer.h</itemPath>
 						<itemPath>../../../../../libraries/coreMQTT/source/include/core_mqtt_state.h</itemPath>
 					</logicalFolder>
-					<logicalFolder name="portable" displayName="portable" projectFiles="true">
+					<logicalFolder name="interface" displayName="interface" projectFiles="true">
 						<itemPath>../../../../../libraries/coreMQTT/source/interface/transport_interface.h</itemPath>
 					</logicalFolder>
 				</logicalFolder>
