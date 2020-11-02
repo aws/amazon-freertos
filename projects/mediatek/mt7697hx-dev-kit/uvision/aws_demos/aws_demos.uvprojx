@@ -1637,16 +1637,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/coreMQTT/</GroupName>
-					<Files>
-						<File>
-							<FileName>mqttFilePaths.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreMQTT/mqttFilePaths.cmake</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/coreMQTT/source/include/</GroupName>
 					<Files>
 						<File>
@@ -1682,26 +1672,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/</GroupName>
-					<Files>
-						<File>
-							<FileName>core_mqtt_demo_dependencies.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/core_mqtt_demo_dependencies.cmake</FilePath>
-						</File>
-						<File>
-							<FileName>core_json.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/core_json.cmake</FilePath>
-						</File>
-						<File>
-							<FileName>device_shadow_demo_dependencies.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/device_shadow_demo_dependencies.cmake</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/abstractions/retry_utils/freertos/</GroupName>
 					<Files>
 						<File>
@@ -1733,21 +1703,6 @@
 							<FileName>transport_secure_sockets.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/abstractions/transport/</GroupName>
-					<Files>
-						<File>
-							<FileName>transport_interface.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/transport/transport_interface.cmake</FilePath>
-						</File>
-						<File>
-							<FileName>transport_interface_secure_sockets.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/transport/transport_interface_secure_sockets.cmake</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1942,16 +1897,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/coreJSON/</GroupName>
-					<Files>
-						<File>
-							<FileName>jsonFilePaths.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreJSON/jsonFilePaths.cmake</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/coreJSON/source/include/</GroupName>
 					<Files>
 						<File>
@@ -2029,11 +1974,6 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_connection_sharing.c</FilePath>
 						</File>
-						<File>
-							<FileName>CMakeLists.txt</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/CMakeLists.txt</FilePath>
-						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -2063,11 +2003,6 @@
 							<FileName>shadow_demo_helpers.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../demos/device_shadow_for_aws/shadow_demo_helpers.h</FilePath>
-						</File>
-						<File>
-							<FileName>CMakeLists.txt</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/device_shadow_for_aws/CMakeLists.txt</FilePath>
 						</File>
 					</Files>
 				</Group>
