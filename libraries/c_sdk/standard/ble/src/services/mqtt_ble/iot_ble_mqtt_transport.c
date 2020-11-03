@@ -1054,12 +1054,12 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
 
             if( bytesSent != serializedLength )
             {
-                LogError( ( "Cannot send %d bytes through BLE channel, sent %d bytes.", serializedLength, bytesSent ) );
+                LogError( ( "Cannot send %lu bytes through BLE channel, sent %lu bytes.", serializedLength, bytesSent ) );
                 bytesWritten = 0;
             }
             else
             {
-                LogDebug( ( "Successfully sent %d bytes through BLE channel.", serializedLength ) );
+                LogDebug( ( "Successfully sent %lu bytes through BLE channel.", serializedLength ) );
             }
 
             IotMqtt_FreeMessage( pSerializedPacket );
