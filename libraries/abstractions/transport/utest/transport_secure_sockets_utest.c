@@ -222,7 +222,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SetRequireTLS( void
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &socketsConfig );
-    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, returnStatus );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_CREDENTIALS_INVALID, returnStatus );
 }
 
 /*-----------------------------------------------------------*/
@@ -271,7 +271,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_AlpnProtos( void )
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
-    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, returnStatus );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_CREDENTIALS_INVALID, returnStatus );
 }
 
 /*-----------------------------------------------------------*/
@@ -320,7 +320,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SNI( void )
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
-    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, returnStatus );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_CREDENTIALS_INVALID, returnStatus );
 }
 
 /*-----------------------------------------------------------*/
@@ -369,7 +369,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &serverInfo,
                                                    &localSocketsConfig );
-    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, returnStatus );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_CREDENTIALS_INVALID, returnStatus );
 }
 
 /*-----------------------------------------------------------*/
