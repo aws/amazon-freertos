@@ -137,7 +137,7 @@
                                           pSocketContext ) == NULL )
         {
             /* Allocate memory for a new metrics connection. */
-            pTcpConnection = pvPortMalloc( sizeof( IotMetricsTcpConnection_t ) );
+            pTcpConnection = IotMetrics_MallocTcpConnection( sizeof( IotMetricsTcpConnection_t ) );
 
             if( pTcpConnection != NULL )
             {

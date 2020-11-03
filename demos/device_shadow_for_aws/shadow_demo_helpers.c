@@ -99,7 +99,7 @@
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 200U )
+#define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 500U )
 
 /**
  * @brief Maximum number of outgoing publishes maintained in the application

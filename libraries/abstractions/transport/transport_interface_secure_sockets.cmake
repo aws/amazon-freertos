@@ -3,7 +3,7 @@ if(AFR_ENABLE_UNIT_TESTS)
     return()
 endif()
 
-# Transport Interface 
+# Transport Interface
 afr_module(NAME transport_interface_secure_sockets INTERNAL)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/secure_sockets")

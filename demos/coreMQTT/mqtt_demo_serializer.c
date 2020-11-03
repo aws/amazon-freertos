@@ -99,6 +99,11 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Timeout value in milliseconds for socket send and receive.
+ */
+#define mqttexampleSOCKET_SEND_RECV_TIMEOUT_MS      ( 500U )
+
+/**
  * @brief The topic to subscribe and publish to in the example.
  *
  * The topic name starts with the client identifier to ensure that each demo
@@ -177,6 +182,20 @@ static Socket_t prvCreateTCPConnectionToBroker( void );
  * @return The socket of the final connection attempt.
  */
 static Socket_t prvConnectToServerWithBackoffRetries();
+
+/**
+ * @brief Configure the socket send and receive timeouts.
+ *
+ * @param[in] tcpSocket The context.
+ * @param[in] sendTimeoutMs The timeout duration for network send on the socket.
+ * @param[in] recvTimeoutMs The timeout duration for network receive on the socket.
+ *
+ * @return pdPASS if timeout configuration of socket send and receive was successful;
+ * pdFAIL otherwise.
+ */
+static BaseType_t prvSetSocketTimeouts( Socket_t xMQTTSocket,
+                                        uint32_t ulSendTimeoutMs,
+                                        uint32_t ulRecvTimeoutMs );
 
 /**
  * @brief Sends an MQTT Connect packet over the already connected TCP socket.
@@ -428,6 +447,14 @@ int RunCoreMqttSerializerDemo( bool awsIotMqttMode,
             /* Set a flag indicating a MQTT connection exists. This is done to
              * disconnect if the loop exits before disconnection happens. */
             xIsConnectionEstablished = pdTRUE;
+        }
+
+        if( xStatus == pdPASS )
+        {
+            /* Set the timeout values for the network receive and send calls on the socket. */
+            xStatus = prvSetSocketTimeouts( xMQTTSocket,
+                                            mqttexampleSOCKET_SEND_RECV_TIMEOUT_MS,
+                                            mqttexampleSOCKET_SEND_RECV_TIMEOUT_MS );
         }
 
         if( xStatus == pdPASS )
@@ -697,6 +724,66 @@ static Socket_t prvConnectToServerWithBackoffRetries()
 
     return xSocket;
 }
+
+/*-----------------------------------------------------------*/
+
+static BaseType_t prvSetSocketTimeouts( Socket_t xMQTTSocket,
+                                        uint32_t ulSendTimeoutMs,
+                                        uint32_t ulRecvTimeoutMs )
+{
+    BaseType_t xStatus = pdPASS;
+    TickType_t xReceiveTimeout = 0, xSendTimeout = 0;
+    int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
+
+    configASSERT( xMQTTSocket != SOCKETS_INVALID_SOCKET );
+
+
+    /* Secure Sockets uses TickType_t therefore replace the timeout value with portMAX_DELAY if it is exceeded. */
+    xReceiveTimeout = pdMS_TO_TICKS( ulRecvTimeoutMs );
+
+    if( xReceiveTimeout > portMAX_DELAY )
+    {
+        xReceiveTimeout = portMAX_DELAY;
+    }
+
+    secureSocketStatus = SOCKETS_SetSockOpt( xMQTTSocket,
+                                             0,
+                                             SOCKETS_SO_RCVTIMEO,
+                                             &xReceiveTimeout,
+                                             sizeof( TickType_t ) );
+
+    if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+    {
+        xStatus = pdFAIL;
+        LogError( ( "Failed to set socket receive timeout. secureSocketStatus=%d.", secureSocketStatus ) );
+    }
+
+    if( xStatus == pdPASS )
+    {
+        /* Secure Sockets uses TickType_t therefore replace timeout vale with portMAX_DELAY if it exceeds. */
+        xSendTimeout = pdMS_TO_TICKS( ulSendTimeoutMs );
+
+        if( xSendTimeout > portMAX_DELAY )
+        {
+            xSendTimeout = portMAX_DELAY;
+        }
+
+        secureSocketStatus = SOCKETS_SetSockOpt( xMQTTSocket,
+                                                 0,
+                                                 SOCKETS_SO_SNDTIMEO,
+                                                 &xSendTimeout,
+                                                 sizeof( TickType_t ) );
+
+        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        {
+            xStatus = pdFAIL;
+            LogError( ( "Failed to set socket send timeout. secureSocketStatus=%d.", secureSocketStatus ) );
+        }
+    }
+
+    return xStatus;
+}
+
 /*-----------------------------------------------------------*/
 
 static BaseType_t prvCreateMQTTConnectionWithBroker( Socket_t xMQTTSocket )
