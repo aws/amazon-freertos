@@ -34,10 +34,9 @@ static size_t bufferSize = 0;
 
 /*-----------------------------------------------------------*/
 
+uint8_t buffer[ 100 ];
 void setUp( void )
 {
-    uint8_t buffer[ 100 ];
-
     fixedBuffer.pBuffer = buffer;
     fixedBuffer.size = 100;
 }
@@ -332,6 +331,8 @@ void test_IotBleMqttTransportSend_ConnectBadParameters2( void )
         0x00, 0x00
     };
 
+    IotBleMqtt_SerializeConnect_IgnoreAndReturn( MQTTBLESuccess );
+
     packetSize = 12U;
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context,
                                                     ( void * ) MQTTPacketWillQos,
@@ -391,16 +392,18 @@ void test_IotBleMqttTransportSend_ConnectBadParametersr4( void )
 void test_IotBleMqttTransportSend_PublishBasic( void )
 {
     size_t bytesSent = 0;
+
+    context.publishInfo.topicNameLength = 20;
     char buffer[ context.publishInfo.topicNameLength ];
-    size_t packetSize = 38U;
 
     uint8_t MQTTPacket[] =
     {
         0x30, 0x24, 0x00, 0x11, 0x69, 0x6f, 0x74, 0x64, 0x65, 0x6d,
         0x6f, 0x2f, 0x74, 0x65, 0x73, 0x74, 0x2f, 0x61, 0x62, 0x63,
         0x32, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x4d, 0x51, 0x54,
-        0x54, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21
+        0x54, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21, 0x00
     };
+    size_t packetSize = 38U;
 
     IotBleMqtt_SerializePublish_ExpectAnyArgsAndReturn( MQTTBLESuccess );
     IotBleMqtt_SerializePublish_ReturnThruPtr_pPacketSize( &packetSize );
@@ -412,7 +415,7 @@ void test_IotBleMqttTransportSend_PublishBasic( void )
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context,
                                                     ( void * ) MQTTPacket,
                                                     packetSize );
-    TEST_ASSERT_EQUAL_INT( packetSize, bytesSent );
+    TEST_ASSERT_EQUAL_INT( 38U, bytesSent );
 }
 /* ----- End Publish Basic Test ----- */
 
@@ -427,6 +430,8 @@ void test_IotBleMqttTransportSend_PublishBasic( void )
 void test_IotBleMqttTransportSend_PublishBadDeserialize( void )
 {
     size_t bytesSent = 0;
+
+    context.publishInfo.topicNameLength = 20;
     char buffer[ context.publishInfo.topicNameLength ];
     uint8_t MQTTPacket[] =
     {
@@ -511,7 +516,7 @@ void test_IotBleMqttTransportSend_PubackBadDeserialize( void )
  * @brief Sends a subscribe packet with one topic with QoS 0
  * @details Well formatted subscribe with minimum requirements
  */
-MQTTBLEStatus_t basicSubscribeCallback( const MQTTSubscribeInfo_t * const pSubscriptionList,
+MQTTBLEStatus_t basicSubscribeCallback( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
                                         size_t subscriptionCount,
                                         uint8_t ** const pSubscribePacket,
                                         size_t * const pPacketSize,
@@ -554,7 +559,7 @@ void test_IotBleMqttTransportSend_SubscribeBasic( void )
  * @brief Sends a subscribe packet with two topics with QoS 0
  * @details Well formatted subscribe with multiple subscription requests
  */
-MQTTBLEStatus_t multiSubscribeCallback( const MQTTSubscribeInfo_t * const pSubscriptionList,
+MQTTBLEStatus_t multiSubscribeCallback( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
                                         size_t subscriptionCount,
                                         uint8_t ** const pSubscribePacket,
                                         size_t * const pPacketSize,
@@ -602,7 +607,7 @@ void test_IotBleMqttTransportSend_SubscribeMulti( void )
  * @brief Sends a subscribe packet with two topics with QoS 1
  * @details Well formatted subscribe with multiple subscription requests
  */
-MQTTBLEStatus_t multiQosSubscribeCallback( const MQTTSubscribeInfo_t * const pSubscriptionList,
+MQTTBLEStatus_t multiQosSubscribeCallback( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
                                            size_t subscriptionCount,
                                            uint8_t ** const pSubscribePacket,
                                            size_t * const pPacketSize,
@@ -673,7 +678,7 @@ void test_IotBleMqttTransportSend_SubscribeBad( void )
  * @details Well formatted unsubscribe with multiple subscription requests
  *          Subscribe and unsubscribe use the same code
  */
-MQTTBLEStatus_t unsubscribeCallback( const MQTTSubscribeInfo_t * const pSubscriptionList,
+MQTTBLEStatus_t unsubscribeCallback( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
                                      size_t subscriptionCount,
                                      uint8_t ** const pSubscribePacket,
                                      size_t * const pPacketSize,
@@ -930,9 +935,23 @@ MQTTBLEStatus_t forgePacketIdentifierGood2( const uint8_t * pBuffer,
 /**
  * @brief Callback for deserialize acks, sets packetID to 0U (invalid)
  */
-MQTTBLEStatus_t forgePacketIdentifierBad( MQTTPacketInfo_t * pPuback,
+MQTTBLEStatus_t forgePacketIdentifierBad( uint8_t * pBuffer,
+                                          size_t length,
                                           uint16_t * packetIdentifier,
                                           int num_calls )
+{
+    *packetIdentifier = 0U;
+    return MQTTBLESuccess;
+}
+
+/**
+ * @brief Callback for deserialize acks, sets packetID to 0U (invalid)
+ */
+MQTTBLEStatus_t forgePacketSubPackIdentifierBad( const uint8_t * pBuffer,
+                                                 size_t length,
+                                                 uint16_t * packetIdentifier,
+                                                 uint8_t * pStatusCode,
+                                                 int num_calls )
 {
     *packetIdentifier = 0U;
     return MQTTBLESuccess;
@@ -1104,11 +1123,11 @@ void test_IotBleMqttTransportAccept_PubackBadDeserialize( void )
  */
 MQTTBLEStatus_t incomingPublishCallback( uint8_t * pBuffer,
                                          size_t length,
-                                         MQTTPublishInfo_t * publishInfo,
+                                         MQTTBLEPublishInfo_t * publishInfo,
                                          uint16_t * packetIdentifier,
                                          int num_calls )
 {
-    publishInfo->qos = MQTTQoS0;
+    publishInfo->qos = MQTTBLEQoS0;
     publishInfo->pTopicName = "test/123";
     publishInfo->topicNameLength = 8U;
     publishInfo->pPayload = "testing, testing";
@@ -1116,13 +1135,13 @@ MQTTBLEStatus_t incomingPublishCallback( uint8_t * pBuffer,
     return MQTTBLESuccess;
 }
 
-MQTTBLEStatus_t changePacketSize( const MQTTPublishInfo_t * pPublishInfo,
-                                  size_t * pRemainingLength,
-                                  size_t * pPacketSize,
-                                  int num_calls )
+MQTTStatus_t changePacketSize( const MQTTPublishInfo_t * pPublishInfo,
+                               size_t * pRemainingLength,
+                               size_t * pPacketSize,
+                               int num_calls )
 {
     *pPacketSize = 5U;
-    return MQTTBLESuccess;
+    return MQTTSuccess;
 }
 
 void test_IotBleMqttTransportAccept_Publish( void )
@@ -1281,10 +1300,10 @@ void test_IotBleMqttTransportAccept_PublishBadDeserialize( void )
     fixedBuffer.pBuffer = buf;
     IotBleMqtt_GetPacketType_IgnoreAndReturn( IOT_BLE_MQTT_MSG_TYPE_PUBLISH );
     IotBleDataTransfer_PeekReceiveBuffer_Stub( receiveCallback );
-    IotBleMqtt_DeserializePublish_IgnoreAndReturn( MQTTRecvFailed );
+    IotBleMqtt_DeserializePublish_IgnoreAndReturn( MQTTBLEBadResponse );
 
     status = IotBleMqttTransportAcceptData( &context );
-    TEST_ASSERT_EQUAL_INT( MQTTRecvFailed, status );
+    TEST_ASSERT_EQUAL_INT( MQTTBLEBadResponse, status );
 }
 /* ----- End Publish Bad Deserialize Test ----- */
 
@@ -1366,7 +1385,7 @@ void test_IotBleMqttTransportAccept_SubackBadID( void )
     fixedBuffer.pBuffer = buf;
     IotBleMqtt_GetPacketType_IgnoreAndReturn( MQTT_PACKET_TYPE_SUBACK );
     IotBleDataTransfer_PeekReceiveBuffer_Stub( receiveCallback );
-    IotBleMqtt_DeserializeSuback_Stub( forgePacketIdentifierBad );
+    IotBleMqtt_DeserializeSuback_Stub( forgePacketSubPackIdentifierBad );
 
     status = IotBleMqttTransportAcceptData( &context );
     TEST_ASSERT_EQUAL_INT( MQTTBLEBadParameter, status );
