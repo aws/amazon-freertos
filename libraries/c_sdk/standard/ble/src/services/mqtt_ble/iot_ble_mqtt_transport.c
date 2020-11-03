@@ -1064,6 +1064,10 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
 
             IotMqtt_FreeMessage( pSerializedPacket );
         }
+        else
+        {
+            bytesWritten = 0;
+        }
     }
     else
     {
