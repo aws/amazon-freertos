@@ -386,6 +386,8 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src</state>
@@ -399,8 +401,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
@@ -1334,19 +1334,16 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\core_mqtt_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_mqtt_agent_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\core_pkcs11_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\core_test_pkcs11_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\shadow_config.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_mqtt_agent_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\shadow_config.h</name>
@@ -1538,10 +1535,46 @@
 			<group>
 				<name>pkcs11</name>
 				<group>
-					<name>mbedtls</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\core_pkcs11_mbedtls.c</name>
-					</file>
+					<name>corePKCS11</name>
+					<group>
+						<name>source</name>
+						<group>
+							<name>include</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pkcs11.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pkcs11_pal.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pki_utils.h</name>
+							</file>
+						</group>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pkcs11.c</name>
+						</file>
+						<group>
+							<name>portable</name>
+							<group>
+								<name>mbedtls</name>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\core_pkcs11_mbedtls.c</name>
+								</file>
+								<group>
+									<name>include</name>
+									<file>
+										<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include\threading_alt.h</name>
+									</file>
+								</group>
+							</group>
+						</group>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pki_utils.c</name>
+						</file>
+					</group>
+				</group>
+				<group>
+					<name>test</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11.c</name>
 					</file>
@@ -1553,7 +1586,6 @@
 					<name>include</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include\iot_wifi.h</name>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include\core_pkcs11_pal.h</name>
 					</file>
 				</group>
 				<group>
@@ -1674,21 +1706,6 @@
 					</group>
 				</group>
 				<group>
-					<name>pkcs11</name>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\core_pkcs11.h</name>
-						</file>
-					</group>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\core_pkcs11.c</name>
-						</file>
-					</group>
-				</group>
-				<group>
 					<name>crypto</name>
 					<group>
 						<name>src</name>
@@ -1715,12 +1732,6 @@
 						<name>src</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\core_pki_utils.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\core_pki_utils.h</name>
 						</file>
 					</group>
 					<group>
@@ -2259,15 +2270,12 @@
 					</file>
 				</group>
 				<group>
-					<name>portable</name>
+					<name>interface</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h</name>
 					</file>
 				</group>
 			</group>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\mqttFilePaths.cmake</name>
-			</file>
 		</group>
 		<group>
 			<name>3rdparty</name>
@@ -2867,6 +2875,12 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\core_json.c</name>
 				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include\core_json.h</name>
+					</file>
+				</group>
 			</group>
 		</group>
 		<group>
@@ -2876,6 +2890,15 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\shadow.c</name>
 				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow_config_defaults.h</name>
+					</file>
+				</group>
 			</group>
 		</group>
 	</group>

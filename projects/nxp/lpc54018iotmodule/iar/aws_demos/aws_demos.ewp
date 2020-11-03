@@ -2688,7 +2688,7 @@
 					</file>
 				</group>
 				<group>
-					<name>portable</name>
+					<name>interface</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h</name>
 					</file>
