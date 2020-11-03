@@ -156,7 +156,7 @@
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 200U )
+#define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 500U )
 
 #define _MILLISECONDS_PER_SECOND                     ( 1000U )                                         /**< @brief Milliseconds per second. */
 #define _MILLISECONDS_PER_TICK                       ( _MILLISECONDS_PER_SECOND / configTICK_RATE_HZ ) /**< Milliseconds per FreeRTOS tick. */
