@@ -23,6 +23,7 @@
  * http://www.FreeRTOS.org
  */
 
+
 /**
  * @file iot_ble_mqtt_serialize.h
  * @brief File exposes types and serializer, deserializer APIs for sending and receiving MQTT messages
@@ -31,6 +32,15 @@
 
 #ifndef IOT_BLE_MQTT_SERIALIZE_H
 #define IOT_BLE_MQTT_SERIALIZE_H
+
+/* bool is defined in only C99+. */
+#if defined( __cplusplus ) || ( defined( __STDC_VERSION__ ) && ( __STDC_VERSION__ >= 199901L ) )
+    #include <stdbool.h>
+#elif !defined( bool ) && !defined( false ) && !defined( true )
+    #define bool     int8_t
+    #define false    ( int8_t ) 0
+    #define true     ( int8_t ) 1
+#endif
 
 /**
  *  @defgroup

@@ -2,7 +2,7 @@
 
 if (AFR_ENABLE_UNIT_TESTS)
     add_subdirectory(abstractions/secure_sockets)
-    add_subdirectory(abstractions/transport)
+    add_subdirectory(abstractions/transport/utest)
     add_subdirectory(c_sdk/standard/ble)
     return()
 endif()
