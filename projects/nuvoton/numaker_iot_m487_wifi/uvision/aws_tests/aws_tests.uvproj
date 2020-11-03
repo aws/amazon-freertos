@@ -1506,16 +1506,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/device_shadow_for_aws/</GroupName>
-					<Files>
-						<File>
-							<FileName>shadowFilePaths.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/device_shadow_for_aws/shadowFilePaths.cmake</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/device_shadow_for_aws/source/include/</GroupName>
 					<Files>
 						<File>
