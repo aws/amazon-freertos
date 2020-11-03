@@ -392,16 +392,18 @@ void test_IotBleMqttTransportSend_ConnectBadParametersr4( void )
 void test_IotBleMqttTransportSend_PublishBasic( void )
 {
     size_t bytesSent = 0;
+
+    context.publishInfo.topicNameLength = 20;
     char buffer[ context.publishInfo.topicNameLength ];
-    size_t packetSize = 38U;
 
     uint8_t MQTTPacket[] =
     {
         0x30, 0x24, 0x00, 0x11, 0x69, 0x6f, 0x74, 0x64, 0x65, 0x6d,
         0x6f, 0x2f, 0x74, 0x65, 0x73, 0x74, 0x2f, 0x61, 0x62, 0x63,
         0x32, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x4d, 0x51, 0x54,
-        0x54, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21
+        0x54, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21, 0x00
     };
+    size_t packetSize = 38U;
 
     IotBleMqtt_SerializePublish_ExpectAnyArgsAndReturn( MQTTBLESuccess );
     IotBleMqtt_SerializePublish_ReturnThruPtr_pPacketSize( &packetSize );
@@ -413,7 +415,7 @@ void test_IotBleMqttTransportSend_PublishBasic( void )
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context,
                                                     ( void * ) MQTTPacket,
                                                     packetSize );
-    TEST_ASSERT_EQUAL_INT( packetSize, bytesSent );
+    TEST_ASSERT_EQUAL_INT( 38U, bytesSent );
 }
 /* ----- End Publish Basic Test ----- */
 
@@ -428,6 +430,8 @@ void test_IotBleMqttTransportSend_PublishBasic( void )
 void test_IotBleMqttTransportSend_PublishBadDeserialize( void )
 {
     size_t bytesSent = 0;
+
+    context.publishInfo.topicNameLength = 20;
     char buffer[ context.publishInfo.topicNameLength ];
     uint8_t MQTTPacket[] =
     {
