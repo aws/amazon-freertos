@@ -331,6 +331,8 @@ void test_IotBleMqttTransportSend_ConnectBadParameters2( void )
         0x00, 0x00
     };
 
+    IotBleMqtt_SerializeConnect_IgnoreAndReturn( MQTTBLESuccess );
+
     packetSize = 12U;
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context,
                                                     ( void * ) MQTTPacketWillQos,
