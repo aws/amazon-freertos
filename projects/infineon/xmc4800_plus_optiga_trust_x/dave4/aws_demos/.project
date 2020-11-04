@@ -1749,29 +1749,9 @@
 			<locationURI>AFR_HOME/libraries/device_shadow_demo_dependencies.cmake</locationURI>
 		</link>
 		<link>
-			<name>demos/coreMQTT/mqtt_demo_basic_tls.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_basic_tls.c</locationURI>
-		</link>
-		<link>
 			<name>demos/coreMQTT/mqtt_demo_mutual_auth.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_mutual_auth.c</locationURI>
-		</link>
-		<link>
-			<name>demos/coreMQTT/mqtt_demo_plaintext.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_plaintext.c</locationURI>
-		</link>
-		<link>
-			<name>demos/coreMQTT/mqtt_demo_serializer.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_serializer.c</locationURI>
-		</link>
-		<link>
-			<name>demos/coreMQTT/mqtt_demo_keep_alive.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_keep_alive.c</locationURI>
 		</link>
 		<link>
 			<name>demos/coreMQTT/mqtt_demo_connection_sharing.c</name>
@@ -1954,19 +1934,9 @@
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/iot_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/mqtt_demo_basic_tls_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/mqtt_demo_basic_tls_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/mqtt_demo_connection_sharing_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/mqtt_demo_keep_alive_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/mqtt_demo_keep_alive_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/mqtt_demo_mutual_auth_config.h</name>
@@ -1977,11 +1947,6 @@
 			<name>config_files/mqtt_demo_plaintext_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/mqtt_demo_plaintext_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/mqtt_demo_serializer_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/mqtt_demo_serializer_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/shadow_config.h</name>

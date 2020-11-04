@@ -74,11 +74,7 @@
 				</logicalFolder>
 			</logicalFolder>
 			<logicalFolder name="coreMQTT" displayName="coreMQTT" projectFiles="true">
-				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_basic_tls.c</itemPath>
 				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</itemPath>
-				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_plaintext.c</itemPath>
-				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_serializer.c</itemPath>
-				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_keep_alive.c</itemPath>
 				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_connection_sharing.c</itemPath>
 				<itemPath>../../../../../demos/coreMQTT/CMakeLists.txt</itemPath>
 			</logicalFolder>
@@ -771,12 +767,9 @@
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/core_pkcs11_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_mqtt_agent_config.h</itemPath>
-								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_basic_tls_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</itemPath>
-								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_keep_alive_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_mutual_auth_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_plaintext_config.h</itemPath>
-								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_serializer_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/shadow_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/shadow_demo_config.h</itemPath>
 							</logicalFolder>
