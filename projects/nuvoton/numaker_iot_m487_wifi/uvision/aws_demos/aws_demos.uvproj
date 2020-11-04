@@ -1246,16 +1246,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/coreMQTT/</GroupName>
-					<Files>
-						<File>
-							<FileName>mqttFilePaths.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreMQTT/mqttFilePaths.cmake</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/coreMQTT/source/include/</GroupName>
 					<Files>
 						<File>
@@ -1551,16 +1541,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/coreJSON/</GroupName>
-					<Files>
-						<File>
-							<FileName>jsonFilePaths.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreJSON/jsonFilePaths.cmake</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/coreJSON/source/include/</GroupName>
 					<Files>
 						<File>
@@ -1638,11 +1618,6 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_connection_sharing.c</FilePath>
 						</File>
-						<File>
-							<FileName>CMakeLists.txt</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/CMakeLists.txt</FilePath>
-						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -1672,11 +1647,6 @@
 							<FileName>shadow_demo_helpers.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</FilePath>
-						</File>
-						<File>
-							<FileName>CMakeLists.txt</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</FilePath>
 						</File>
 					</Files>
 				</Group>
