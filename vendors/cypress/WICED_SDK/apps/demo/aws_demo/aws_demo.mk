@@ -103,11 +103,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_network_addr.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_version.c \
-                      $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_basic_tls.c \
-                      $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_plaintext.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_mutual_auth.c \
-                      $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_serializer.c \
-                      $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_keep_alive.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_connection_sharing.c \
                       $(AMAZON_FREERTOS_PATH)demos/device_shadow_for_aws/shadow_demo_main.c \
                       $(AMAZON_FREERTOS_PATH)demos/device_shadow_for_aws/shadow_demo_helpers.c \

@@ -1935,29 +1935,9 @@
 					<GroupName>demos/coreMQTT/</GroupName>
 					<Files>
 						<File>
-							<FileName>mqtt_demo_basic_tls.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_basic_tls.c</FilePath>
-						</File>
-						<File>
 							<FileName>mqtt_demo_mutual_auth.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_plaintext.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_plaintext.c</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_serializer.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_serializer.c</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_keep_alive.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_keep_alive.c</FilePath>
 						</File>
 						<File>
 							<FileName>mqtt_demo_connection_sharing.c</FileName>
@@ -2130,19 +2110,9 @@
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/lwipopts.h</FilePath>
 						</File>
 						<File>
-							<FileName>mqtt_demo_basic_tls_config.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/mqtt_demo_basic_tls_config.h</FilePath>
-						</File>
-						<File>
 							<FileName>mqtt_demo_connection_sharing_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_keep_alive_config.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/mqtt_demo_keep_alive_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>mqtt_demo_mutual_auth_config.h</FileName>
@@ -2153,11 +2123,6 @@
 							<FileName>mqtt_demo_plaintext_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/mqtt_demo_plaintext_config.h</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_serializer_config.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/mqtt_demo_serializer_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>shadow_config.h</FileName>
