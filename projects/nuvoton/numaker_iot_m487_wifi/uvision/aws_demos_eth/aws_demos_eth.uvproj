@@ -1602,29 +1602,9 @@
 					<GroupName>demos/coreMQTT/</GroupName>
 					<Files>
 						<File>
-							<FileName>mqtt_demo_basic_tls.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_basic_tls.c</FilePath>
-						</File>
-						<File>
 							<FileName>mqtt_demo_mutual_auth.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_plaintext.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_plaintext.c</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_serializer.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_serializer.c</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_keep_alive.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_keep_alive.c</FilePath>
 						</File>
 						<File>
 							<FileName>mqtt_demo_connection_sharing.c</FileName>
