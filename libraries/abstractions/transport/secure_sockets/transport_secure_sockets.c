@@ -59,7 +59,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
  *
  * @return #TRANSPORT_SOCKET_STATUS_SUCCESS on success;
  *         #TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, #TRANSPORT_SOCKET_STATUS_INSUFFICIENT_MEMORY,
- *         #TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, #TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR,
+ *         #TRANSPORT_SOCKET_STATUS_CREDENTIALS_INVALID, #TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR,
  *         #TRANSPORT_SOCKET_STATUS_DNS_FAILURE, #TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE on failure.
  */
 static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkContext,
@@ -96,6 +96,9 @@ static TransportSocketStatus_t connectToServer( Socket_t tcpSocket,
 
 /*-----------------------------------------------------------*/
 
+/* MISRA Rule 8.13 flags the following line for not using the const qualifier
+ * on `pNetworkContext`. Indeed, the object pointed by it is not modified
+ * by Secure Sockets, but other implementations of `TransportSend_t` may do so. */
 int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
                                      const void * pMessage,
                                      size_t bytesToSend )
@@ -110,7 +113,7 @@ int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
                     pMessage, bytesToSend, ( void * ) pNetworkContext ) );
         bytesSent = SOCKETS_EINVAL;
     }
-    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET ) )
+    else if( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET )
     {
         LogError( ( "Invalid parameter: pNetworkContext->tcpSocket cannot be SOCKETS_INVALID_SOCKET." ) );
         bytesSent = SOCKETS_EINVAL;
@@ -145,6 +148,9 @@ int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
 
 /*-----------------------------------------------------------*/
 
+/* MISRA Rule 8.13 flags the following line for not using the const qualifier
+ * on `pNetworkContext`. Indeed, the object pointed by it is not modified
+ * by Secure Sockets, but other implementations of `TransportRecv_t` may do so. */
 int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
                                      void * pBuffer,
                                      size_t bytesToRecv )
@@ -160,7 +166,7 @@ int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
                     pBuffer, bytesToRecv, ( void * ) pNetworkContext ) );
         bytesReceived = SOCKETS_EINVAL;
     }
-    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET ) )
+    else if( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET )
     {
         LogError( ( "Invalid parameter: pNetworkContext->tcpSocket cannot be SOCKETS_INVALID_SOCKET." ) );
         bytesReceived = SOCKETS_EINVAL;
@@ -182,7 +188,7 @@ int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
         {
             LogError( ( "Failed to receive data over network. bytesReceived=%d", bytesReceived ) );
         }
-        else
+        else if( bytesReceived >= 0 )
         {
             if( bytesReceived < ( int32_t ) bytesToRecv )
             {
@@ -195,6 +201,10 @@ int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
                 LogInfo( ( "Successfully received %d bytes.",
                            bytesReceived ) );
             }
+        }
+        else
+        {
+            /* MISRA 15.7 */
         }
     }
 
@@ -254,7 +264,7 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
                                                  0,
                                                  SOCKETS_SO_SERVER_NAME_INDICATION,
                                                  pHostName,
-                                                 hostnameLength + 1 );
+                                                 ( size_t ) ( hostnameLength + 1U ) );
 
         if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
@@ -329,27 +339,19 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
 
     configASSERT( tcpSocket != SOCKETS_INVALID_SOCKET );
 
-    if( secureSocketStatus == SOCKETS_ERROR_NONE )
+    /* Secure Sockets uses TickType_t therefore replace the timeout value with portMAX_DELAY if it is exceeded. */
+    receiveTimeout = pdMS_TO_TICKS( recvTimeoutMs );
+
+    if( receiveTimeout > portMAX_DELAY )
     {
-        /* Secure Sockets uses TickType_t therefore replace the timeout value with portMAX_DELAY if it is exceeded. */
-        receiveTimeout = pdMS_TO_TICKS( recvTimeoutMs );
-
-        if( receiveTimeout > portMAX_DELAY )
-        {
-            receiveTimeout = portMAX_DELAY;
-        }
-
-        secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
-                                                 0,
-                                                 SOCKETS_SO_RCVTIMEO,
-                                                 &receiveTimeout,
-                                                 sizeof( TickType_t ) );
-
-        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
-        {
-            LogError( ( "Failed to set socket receive timeout. secureSocketStatus=%d.", secureSocketStatus ) );
-        }
+        receiveTimeout = portMAX_DELAY;
     }
+
+    secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
+                                             0,
+                                             SOCKETS_SO_RCVTIMEO,
+                                             &receiveTimeout,
+                                             sizeof( TickType_t ) );
 
     if( secureSocketStatus == SOCKETS_ERROR_NONE )
     {
@@ -373,6 +375,10 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
         {
             LogError( ( "Failed to set socket send timeout. secureSocketStatus=%d.", secureSocketStatus ) );
         }
+    }
+    else
+    {
+        LogError( ( "Failed to set socket receive timeout. secureSocketStatus=%d.", secureSocketStatus ) );
     }
 
     return secureSocketStatus;
@@ -426,7 +432,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
                                                             pServerInfo->pHostName,
                                                             hostnameLength ) )
             {
-                returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS;
+                returnStatus = TRANSPORT_SOCKET_STATUS_CREDENTIALS_INVALID;
             }
         }
     }
