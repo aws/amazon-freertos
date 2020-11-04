@@ -3,11 +3,26 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 ## 202011.00 November 2020
 
-### Updates
+### coreMQTT V1.0.1
+
+- The [coreMQTT](https://github.com/FreeRTOS/coreMQTT) library provides the ability to establish an MQTT connection with a broker over a customer-implemented transport layer, which can either be a secure channel like a TLS session (mutually authenticated or server-only authentication) or a non-secure channel like a plaintext TCP connection. This MQTT connection can be used for performing publish operations to MQTT topics and subscribing to MQTT topics. The library provides a mechanism to register customer-defined callbacks for receiving incoming PUBLISH, acknowledgement and keep-alive response events from the broker. The library has been refactored for memory optimization and is compliant with the [MQTT 3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/mqtt-v3.1.1.html) standard. It has no dependencies on any additional libraries other than the standard C library, a customer-implemented network transport interface, and optionally a customer-implemented platform time function. The refactored design embraces different use-cases, ranging from resource-constrained platforms using only QoS 0 MQTT PUBLISH messages to resource-rich platforms using QoS 2 MQTT PUBLISH over TLS connections.
+See memory requirements for the latest release [here](https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/standard/coreMQTT/docs/doxygen/output/html/index.html#mqtt_memory_requirements).
+
+#### AWS IoT Device Shadow V1.0.1
+
+- The [AWS IoT Device Shadow](https://github.com/aws/device-shadow-for-aws-iot-embedded-sdk) library enables you to store and retrieve the current state (the “shadow”) of every registered device. The device’s shadow is a persistent, virtual representation of your device that you can interact with from AWS IoT Core even if the device is offline. The device state captured as its “shadow” is itself a JSON document. The device can send commands over MQTT or HTTP to update its latest state. Each device’s shadow is uniquely identified by the name of the corresponding “thing”, a representation of a specific device or logical entity on AWS IoT. More details about AWS IoT Device Shadow can be found in [AWS IoT documentation](https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html).
+The AWS IoT Device Shadow library has no dependencies on additional libraries other than the standard C library. It also doesn’t have any platform dependencies, such as threading or synchronization. It can be used with any MQTT library and any JSON library (see [demos](https://github.com/aws/aws-iot-device-sdk-embedded-C/tree/master/demos/shadow) with coreMQTT and coreJSON).
+See memory requirements for the latest release [here](https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/device-shadow-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#shadow_memory_requirements).
+
+#### coreJSON V2.0.0
+
+- The [coreJSON](https://github.com/FreeRTOS/coreJSON) library is a JSON parser that strictly enforces the [ECMA-404 JSON standard](https://www.json.org/json-en.html). It provides a function to validate a JSON document, and a function to search for a key and return its value. A search can descend into nested structures using a compound query key. A JSON document validation also checks for illegal UTF8 encodings and illegal Unicode escape sequences.
+See memory requirements for the latest release [here](https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/standard/coreJSON/docs/doxygen/output/html/index.html#json_memory_requirements).
+
+#### Updates
 
 - New MQTT client, JSON parser, PKCS 11, and AWS IoT Device Shadow client libraries have been added as submodules. These submodules refer to the [coreMQTT](https://github.com/FreeRTOS/coreMQTT), [coreJSON](https://github.com/FreeRTOS/coreJSON) and [Device Shadow](https://github.com/aws/device-shadow-for-aws-iot-embedded-sdk) repositories respectively. We encourage utilizing the new MQTT and Shadow library APIs for new development.
 - This release supports backward compatibility with the old MQTT and Shadow library APIs (i.e. present in 202007.00 and earlier releases). Thus, all libraries that depend on the old MQTT library API, including Shadow, Defender, GreenGrass Discovery (present under libraries/c_sdk folder), are backward compatible with the previous 202007.00 release.
-- PKCS11 and FreeRTOS+TCP libraries have been submoduled to the [FreeRTOS/corePKCS11](https://github.com/FreeRTOS/corePKCS11) and [FreeRTOS/FreeRTOS-Plus-TCP](https://github.com/FreeRTOS/FreeRTOS-Plus-TCP) repositories respectively.
 
 #### Bluetooth Low Energy (BLE) Hardware Abstraction Library (HAL) V5.1.0
 
@@ -29,6 +44,13 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 - Added FreeRTOS Console API to interact with CLI over common IO or UDP interface.
 - Added sample which demonstrates executing commands using FreeRTOS+CLI and UART interface.
 
+#### FreeRTOS+TCP V2.3.1
+
+- Sub-moduled to the [FreeRTOS/FreeRTOS-Plus-TCP](https://github.com/FreeRTOS/FreeRTOS-Plus-TCP) repository
+- Updated use of ipconfigUSE_TCP to make it compilable when UDP is chosen
+- Added descriptions for functions and variables in Doxygen compatible format
+- Updated prvParseDNSReply function signature
+
 #### FreeRTOS+TLS V1.3.0
 
 - Added missing Max Fragment Length runtime configuration if MFL macro is enabled
@@ -43,17 +65,19 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 #### MQTT Client Library V2.3.0
 
-- Refactored to use shim layer for CoreMQTT.
+- Refactored as shim layer for V2.x.x MQTT APIs using CoreMQTT library.
+
+#### OTA PAL for Renesas Starter Kit + RX65N-2MB
+
+- Added OTA PAL Port for Renesas RX65N-2MB board
 
 #### Over the Air Update V1.2.1
 
-- Added PAL for Renesas.
-- Added the functionality to abort the image if job status update fails.
-- Separated OTA control and data cleanup.
-- Removed unnecessary checks of OTA agent.
+- Added check to abort the update if updating job status as self-test in service fails, this helps in early detection of mismatch in device and jobs states before activating new image.
 
 #### PKCS11 V2.1.1
 
+- Sub-moduled to the [FreeRTOS/corePKCS11](https://github.com/FreeRTOS/corePKCS11) repository
 - Updated ECC608A and PSA library dependencies to corePKCS naming scheme. Refactored AFQP tests to support HSMs that have locked down credentials.
 
 #### Secure Sockets LwIP V1.3.0
