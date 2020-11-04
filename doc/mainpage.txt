@@ -5,14 +5,11 @@
 The documentation for FreeRTOS hosted libraries can be found at the top half of: https://docs.aws.amazon.com/freertos/latest/lib-ref/index.html<br><br>
 
 The CSDK libraries shared with FreeRTOS include:
-- MQTT
-- Thing Shadows
-- Defender
-- Linear Containers
-- Logging
-- Static Memory
-- Task Pool
 
-The documentation for these libraries can be found: https://docs.aws.amazon.com/freertos/latest/lib-ref/c-sdk/main/index.html
+- coreMQTT
+- coreJSON
+- AWS IoT Device Shadow
+
+The documentation for these libraries can be found in the CSDK ReadMe (https://github.com/aws/aws-iot-device-sdk-embedded-C#releases) 
 */
 
