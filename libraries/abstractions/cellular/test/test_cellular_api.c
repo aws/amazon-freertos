@@ -180,6 +180,9 @@
 /* RAT priority count for testing. This value should larger or equal to
  * CELLULAR_MAX_RAT_PRIORITY_COUNT. */
 #define TEST_MAX_RAT_PRIORITY_COUNT          ( 3U )
+#if CELLULAR_MAX_RAT_PRIORITY_COUNT > TEST_MAX_RAT_PRIORITY_COUNT
+    #error "TEST_MAX_RAT_PRIORITY_COUNT should not larger or equal to CELLULAR_MAX_RAT_PRIORITY_COUNT"
+#endif
 
 /*-----------------------------------------------------------*/
 
@@ -1649,7 +1652,7 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_AirplaneMode )
 
         configPRINTF( ( "serviceStatus.psRegistrationStatus %d\r\n", serviceStatus.psRegistrationStatus ) );
 
-        /* Add also psRegistrationStatus=4 if +CGREG: 2,0 and +CEREG: 2,4 */
+        /* Add also psRegistrationStatus=4 if +CGREG: 2,0 and +CEREG: 2,4. */
         TEST_ASSERT_MESSAGE( ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_NOT_REGISTERED_NOT_SEARCHING ) ||
                              ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_UNKNOWN ),
                              "Airplane mode network registration check failed" );
