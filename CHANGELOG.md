@@ -1,6 +1,120 @@
 # Change Log
 This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT.  The repository contains projects for many different microcontroller evaluation boards.
 
+## 202011.00 November 2020
+
+### New Features
+
+#### AWS IoT Device Shadow V1.0.1
+
+- The [AWS IoT Device Shadow](https://github.com/aws/device-shadow-for-aws-iot-embedded-sdk) library enables you to store and retrieve the current state (the “shadow”) of every registered device. The device’s shadow is a persistent, virtual representation of your device that you can interact with from AWS IoT Core even if the device is offline. The device state captured as its “shadow” is itself a JSON document. The device can send commands over MQTT or HTTP to update its latest state. Each device’s shadow is uniquely identified by the name of the corresponding “thing”, a representation of a specific device or logical entity on AWS IoT. More details about AWS IoT Device Shadow can be found in [AWS IoT documentation](https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html).
+- The AWS IoT Device Shadow library has no dependencies on additional libraries other than the standard C library. It also doesn’t have any platform dependencies, such as threading or synchronization. It can be used with any MQTT library and any JSON library (see [demos](https://github.com/aws/aws-iot-device-sdk-embedded-C/tree/master/demos/shadow) with coreMQTT and coreJSON).
+- See memory requirements for the latest release [here](https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/device-shadow-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#shadow_memory_requirements).
+
+#### coreJSON V2.0.0
+
+- The [coreJSON](https://github.com/FreeRTOS/coreJSON) library is a JSON parser that strictly enforces the [ECMA-404 JSON standard](https://www.json.org/json-en.html). It provides a function to validate a JSON document, and a function to search for a key and return its value. A search can descend into nested structures using a compound query key. A JSON document validation also checks for illegal UTF8 encodings and illegal Unicode escape sequences.
+- See memory requirements for the latest release [here](https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/standard/coreJSON/docs/doxygen/output/html/index.html#json_memory_requirements).
+
+#### coreMQTT V1.0.1
+
+- The [coreMQTT](https://github.com/FreeRTOS/coreMQTT) library provides the ability to establish an MQTT connection with a broker over a customer-implemented transport layer, which can either be a secure channel like a TLS session (mutually authenticated or server-only authentication) or a non-secure channel like a plaintext TCP connection. This MQTT connection can be used for performing publish operations to MQTT topics and subscribing to MQTT topics. The library provides a mechanism to register customer-defined callbacks for receiving incoming PUBLISH, acknowledgement and keep-alive response events from the broker. The library has been refactored for memory optimization and is compliant with the [MQTT 3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/mqtt-v3.1.1.html) standard. It has no dependencies on any additional libraries other than the standard C library, a customer-implemented network transport interface, and optionally a customer-implemented platform time function. The refactored design embraces different use-cases, ranging from resource-constrained platforms using only QoS 0 MQTT PUBLISH messages to resource-rich platforms using QoS 2 MQTT PUBLISH over TLS connections.
+- See memory requirements for the latest release [here](https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/standard/coreMQTT/docs/doxygen/output/html/index.html#mqtt_memory_requirements).
+
+### Updates
+
+- New MQTT client, JSON parser, PKCS 11, and AWS IoT Device Shadow client libraries have been added as submodules. These submodules refer to the [coreMQTT](https://github.com/FreeRTOS/coreMQTT), [coreJSON](https://github.com/FreeRTOS/coreJSON) and [Device Shadow](https://github.com/aws/device-shadow-for-aws-iot-embedded-sdk) repositories respectively. We encourage utilizing the new MQTT and Shadow library APIs for new development.
+- This release supports backward compatibility with the old MQTT and Shadow library APIs (i.e. present in 202007.00 and earlier releases). Thus, all libraries that depend on the old MQTT library API, including Shadow, Defender, GreenGrass Discovery (present under libraries/c_sdk folder), are backward compatible with the previous 202007.00 release.
+
+#### Bluetooth Low Energy (BLE) Hardware Abstraction Library (HAL) V5.1.0
+
+- Added ACL connection state change callback for BLE HAL
+
+#### Bluetooth Low Energy Management Library V2.2.0
+
+- Added transport interface for BLE library to send data to AWS IoT using the new MQTT and Shadow client libraries. The transport interface utilizes a companion device mobile application implemented using FreeRTOS BLE android and IOS SDKs to send data to AWS IoT.
+- Added new MQTT and shadow demos for BLE. The demo uses the new MQTT and Shadow client libraries and the BLE transport interface to send and receive data with AWS IoT.
+- Added the SHIM network interface for backwards compatiblity of existing MQTT, Shadow and OTA demos with Bluetooth Low Energy.
+
+#### Common_IO V0.1.2
+
+- Added more peripherals to CMake.
+
+#### FreeRTOS+CLI V1.0.5
+
+- Added FreeRTOS+CLI V1.0.4 to Amazon FreeRTOS repository.
+- Added FreeRTOS Console API to interact with CLI over common IO or UDP interface.
+- Added sample which demonstrates executing commands using FreeRTOS+CLI and UART interface.
+
+#### FreeRTOS+TCP V2.3.1
+
+- Sub-moduled to the [FreeRTOS/FreeRTOS-Plus-TCP](https://github.com/FreeRTOS/FreeRTOS-Plus-TCP) repository
+- Updated use of ipconfigUSE_TCP to make it compilable when UDP is chosen
+- Added descriptions for functions and variables in Doxygen compatible format
+- Updated prvParseDNSReply function signature
+
+#### FreeRTOS+TLS V1.3.0
+
+- Added missing Max Fragment Length runtime configuration if MFL macro is enabled
+
+#### FreeRTOS+UTILS V1.2.0
+
+- Renamed iot_pki_utils to core_pki_utils.
+
+#### Greengrass Discovery V2.0.2
+
+- Added more logging in library.
+
+#### MQTT Client Library V2.3.0
+
+- Refactored as shim layer for V2.x.x MQTT APIs using CoreMQTT library.
+
+#### OTA PAL for Espressif ESP32-DevKitC
+
+- Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
+
+#### OTA PAL for Espressif ESP-WROVER-KIT
+
+- Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
+
+#### OTA PAL for Renesas Starter Kit + RX65N-2MB
+
+- Added OTA PAL Port for Renesas RX65N-2MB board
+
+#### OTA PAL for Microsoft Windows Simulator
+
+- Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
+
+#### OTA PAL for Microchip ATECC608A with Windows Simulator
+
+- Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
+
+#### OTA PAL for Microchip Curiosity PIC32MZEF
+
+- Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
+
+#### Over the Air Update V1.2.1
+
+- Added check to abort the update if updating job status as self-test in service fails, this helps in early detection of mismatch in device and jobs states before activating new image.
+
+#### PKCS11 V2.1.1
+
+- Sub-moduled to the [FreeRTOS/corePKCS11](https://github.com/FreeRTOS/corePKCS11) repository
+- Updated ECC608A and PSA library dependencies to corePKCS naming scheme. Refactored AFQP tests to support HSMs that have locked down credentials.
+
+#### Secure Sockets LwIP V1.3.0
+
+- Added new optional API "SOCKETS_Bind".
+- Extended SOCKETS_SetSockOpt to support TCP keepalive settings.
+
+#### Shadow V2.2.3
+
+- Updated unit tests to work with the MQTT shim.
+
+#### Wi-Fi V2.0.0
+
+- Added new API to "iot_wifi.h".
+
 ## 202007.00 July 2020
 
 ### New Features
@@ -11,7 +125,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 - Updated the OTA demo to demonstrate how to suspend an in-progress OTA update should the MQTT connection disconnect, then resume the same update when the MQTT connection reconnects. In line with best practice, the reconnect logic uses an exponential backoff and jitter algorithm to prevent the MQTT server getting overwhelmed with connection requests if a fleet of devices get disconnected and then attempt to reconnect at the same time.
 - For testing purposes only, it is now possible to use the OTA agent to downgrade a version number or revert to an older version.  This new functionality is disabled by default.
 
-#### New Board: Cypress PSoC 64 Standard Secure AWS Wi-Fi Bluetooth Pioneer Kit 
+#### New Board: Cypress PSoC 64 Standard Secure AWS Wi-Fi Bluetooth Pioneer Kit
 - New Board: The <b>Cypress PSoC 64</b> board is now qualified with FreeRTOS.
 
 #### New Board: ESP32-WROOM-32SE
@@ -66,14 +180,14 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 #### Over the Air Update V1.2.0
 
-- Fixed an issue encountered when an OTA job is force cancelled while the related download is in progress. It was caused due to the self-start timer starting after the OTA job document is received. The fix starts the self-start timer when the OTA agent on the device starts.  
+- Fixed an issue encountered when an OTA job is force cancelled while the related download is in progress. It was caused due to the self-start timer starting after the OTA job document is received. The fix starts the self-start timer when the OTA agent on the device starts.
 
 #### Espressif
 
 - Support OTA via HTTP over the BLE channel for ESP32 (when SPIRAM is enabled).
-- Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows provisioning devices with Wi-Fi credentials via a web-server running on the device and a provisioning mobile application.  This mode requires the use of lwIP as the networking stack. 
+- Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows provisioning devices with Wi-Fi credentials via a web-server running on the device and a provisioning mobile application.  This mode requires the use of lwIP as the networking stack.
 - Replaced ESP-IDF code to be a submodule pointer to the official ESP-IDF repository.
-- Updated LwIP as the default networking stack. 
+- Updated LwIP as the default networking stack.
 
 ## 202002.00 2/18/2020
 
