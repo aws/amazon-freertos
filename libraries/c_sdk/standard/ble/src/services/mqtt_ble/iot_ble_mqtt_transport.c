@@ -684,7 +684,7 @@ static MQTTBLEStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t * pPublishInf
                                               size_t * pSerializedBufLength )
 {
     MQTTBLEStatus_t status = MQTTBLESuccess;
-    uint16_t packetIdentifier = 0;
+    uint16_t packetIdentifier;
 
     LogDebug( ( "Processing outgoing PUBLISH." ) );
 
@@ -696,20 +696,12 @@ static MQTTBLEStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t * pPublishInf
     }
     else
     {
-        pPublishInfo->pending = parsePublish( buf,
-                                              bytesToSend,
-                                              pPublishInfo,
-                                              &packetIdentifier );
+        pPublishInfo->pending = parsePublish( buf, bytesToSend, pPublishInfo, &packetIdentifier );
     }
-
-    LogDebug( ( "IotBleMqtt_SerializePublish before if" ) );
 
     if( pPublishInfo->pending == false )
     {
-        status = IotBleMqtt_SerializePublish( pPublishInfo,
-                                              pSerializedBuf,
-                                              pSerializedBufLength,
-                                              packetIdentifier );
+        status = IotBleMqtt_SerializePublish( pPublishInfo, pSerializedBuf, pSerializedBufLength, packetIdentifier );
 
         if( pPublishInfo->pTopicName != NULL )
         {
@@ -742,9 +734,7 @@ static MQTTBLEStatus_t handleOutgoingPuback( const void * buf,
 
     packetIdentifier = UINT16_DECODE( &buffer[ 2 ] );
 
-    status = IotBleMqtt_SerializePuback( packetIdentifier,
-                                         pSerializedBuf,
-                                         pSerializedBufLength );
+    status = IotBleMqtt_SerializePuback( packetIdentifier, pSerializedBuf, pSerializedBufLength );
 
     return status;
 }
@@ -920,10 +910,7 @@ static MQTTBLEStatus_t handleIncomingSuback( StreamBufferHandle_t streamBuffer,
         buffer[ 3 ] = ( uint8_t ) ( packetIdentifier & 0x00FFU );
         buffer[ 4 ] = statusCode;
 
-        ( void ) xStreamBufferSend( streamBuffer,
-                                    buffer,
-                                    SIZE_OF_SUB_ACK,
-                                    pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
+        ( void ) xStreamBufferSend( streamBuffer, buffer, SIZE_OF_SUB_ACK, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
     }
 
     return status;
@@ -999,67 +986,47 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     /* The send function returns the CBOR bytes written, so need to return 0 or full amount of bytes sent. */
     int32_t bytesWritten = ( int32_t ) bytesToWrite;
 
+
     /*
      * The payload of publish can be send as a separate packet from the header. The flag is used to check for pending publish
      * payload information and process the payload part of the publish.
      */
-
     if( pContext->publishInfo.pending == true )
     {
-        status = handleOutgoingPublish( ( MQTTBLEPublishInfo_t * ) &pContext->publishInfo,
-                                        pBuffer,
-                                        bytesToWrite,
-                                        &pSerializedPacket,
-                                        &serializedLength );
+        status = handleOutgoingPublish( ( MQTTBLEPublishInfo_t * ) &pContext->publishInfo, pBuffer, bytesToWrite, &pSerializedPacket, &serializedLength );
     }
     else
     {
         packetType = DECODE_PACKET_TYPE( pBuf[ 0 ] );
 
-        LogError( ( "packet type is %d ", packetType ) );
-
         switch( packetType )
         {
             case IOT_BLE_MQTT_MSG_TYPE_CONNECT:
-                status = handleOutgoingConnect( pBuffer,
-                                                &pSerializedPacket,
-                                                &serializedLength );
+                status = handleOutgoingConnect( pBuffer, &pSerializedPacket, &serializedLength );
                 break;
 
             case IOT_BLE_MQTT_MSG_TYPE_PUBLISH:
-                status = handleOutgoingPublish( ( MQTTBLEPublishInfo_t * ) &pContext->publishInfo,
-                                                pBuffer,
-                                                bytesToWrite,
-                                                &pSerializedPacket,
-                                                &serializedLength );
+                status = handleOutgoingPublish( ( MQTTBLEPublishInfo_t * ) &pContext->publishInfo, pBuffer, bytesToWrite, &pSerializedPacket, &serializedLength );
                 break;
 
             case IOT_BLE_MQTT_MSG_TYPE_PUBACK:
-                status = handleOutgoingPuback( pBuffer,
-                                               &pSerializedPacket,
-                                               &serializedLength );
+                status = handleOutgoingPuback( pBuffer, &pSerializedPacket, &serializedLength );
                 break;
 
             case IOT_BLE_MQTT_MSG_TYPE_SUBSCRIBE:
-                status = handleOutgoingSubscribe( pBuffer,
-                                                  &pSerializedPacket,
-                                                  &serializedLength );
+                status = handleOutgoingSubscribe( pBuffer, &pSerializedPacket, &serializedLength );
                 break;
 
             case IOT_BLE_MQTT_MSG_TYPE_UNSUBSCRIBE:
-                status = handleOutgoingUnsubscribe( pBuffer,
-                                                    &pSerializedPacket,
-                                                    &serializedLength );
+                status = handleOutgoingUnsubscribe( pBuffer, &pSerializedPacket, &serializedLength );
                 break;
 
             case IOT_BLE_MQTT_MSG_TYPE_PINGREQ:
-                status = handleOutgoingPingReq( &pSerializedPacket,
-                                                &serializedLength );
+                status = handleOutgoingPingReq( &pSerializedPacket, &serializedLength );
                 break;
 
             case IOT_BLE_MQTT_MSG_TYPE_DISCONNECT:
-                status = handleOutgoingDisconnect( &pSerializedPacket,
-                                                   &serializedLength );
+                status = handleOutgoingDisconnect( &pSerializedPacket, &serializedLength );
                 break;
 
             /* QoS 2 cases, currently not supported by BLE */
@@ -1083,20 +1050,16 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     {
         if( serializedLength > 0 )
         {
-            bytesSent = IotBleDataTransfer_Send( pContext->pChannel,
-                                                 pSerializedPacket,
-                                                 serializedLength );
+            bytesSent = IotBleDataTransfer_Send( pContext->pChannel, pSerializedPacket, serializedLength );
 
             if( bytesSent != serializedLength )
             {
-                LogError( ( "Cannot send %lu bytes through BLE channel, sent %lu bytes.",
-                            serializedLength, bytesSent ) );
+                LogError( ( "Cannot send %lu bytes through BLE channel, sent %lu bytes.", serializedLength, bytesSent ) );
                 bytesWritten = 0;
             }
             else
             {
-                LogDebug( ( "Successfully sent %d bytes through BLE channel.",
-                            serializedLength ) );
+                LogDebug( ( "Successfully sent %lu bytes through BLE channel.", serializedLength ) );
             }
 
             IotMqtt_FreeMessage( pSerializedPacket );
@@ -1122,13 +1085,13 @@ MQTTBLEStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext
     uint8_t * pPacket;
     size_t packetLength;
 
-    configASSERT( pContext != NULL );
+    IotBleDataTransfer_PeekReceiveBuffer( pContext->pChannel, ( const uint8_t ** ) &pPacket, &packetLength );
 
-    IotBleDataTransfer_PeekReceiveBuffer( pContext->pChannel,
-                                          ( const uint8_t ** ) &pPacket,
-                                          &packetLength );
 
     packetType = IotBleMqtt_GetPacketType( pPacket, packetLength );
+
+
+    LogDebug( ( "Receiving a packet from the server." ) );
 
     switch( packetType )
     {
