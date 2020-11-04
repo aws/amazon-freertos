@@ -20,6 +20,7 @@
         ${AFR_ROOT_DIR}/freertos_kernel/include/
         ${AFR_ROOT_DIR}/libraries/coreMQTT/source/include
         ${AFR_ROOT_DIR}/tests/include
+        "${AFR_ROOT_DIR}/libraries/coreMQTT/source/interface"
         ${abstraction_dir}/platform/include
         ${abstraction_dir}/platform/include/platform
         ${abstraction_dir}/platform/include/types
@@ -64,6 +65,7 @@
             "${AFR_ROOT_DIR}/freertos_kernel/include/"
             "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
             "${AFR_ROOT_DIR}/libraries/coreMQTT/source/include"
+            "${AFR_ROOT_DIR}/libraries/coreMQTT/source/interface"
             "${AFR_ROOT_DIR}/tests/unit_test/linux/logging-stack"
             "${CMAKE_CURRENT_BINARY_DIR}/mocks"
             ${abstraction_dir}/ble_hal/include
