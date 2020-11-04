@@ -1,6 +1,74 @@
 # Change Log
 This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT.  The repository contains projects for many different microcontroller evaluation boards.
 
+## 202011.00 November 2020
+
+### Updates
+
+- New MQTT client, JSON parser, PKCS 11, and AWS IoT Device Shadow client libraries have been added as submodules. These submodules refer to the [coreMQTT](https://github.com/FreeRTOS/coreMQTT), [coreJSON](https://github.com/FreeRTOS/coreJSON) and [Device Shadow](https://github.com/aws/device-shadow-for-aws-iot-embedded-sdk) repositories respectively. We encourage utilizing the new MQTT and Shadow library APIs for new development.
+- This release supports backward compatibility with the old MQTT and Shadow library APIs (i.e. present in 202007.00 and earlier releases). Thus, all libraries that depend on the old MQTT library API, including Shadow, Defender, GreenGrass Discovery (present under libraries/c_sdk folder), are backward compatible with the previous 202007.00 release.
+- PKCS11 and FreeRTOS+TCP libraries have been submoduled to the [FreeRTOS/corePKCS11](https://github.com/FreeRTOS/corePKCS11) and [FreeRTOS/FreeRTOS-Plus-TCP](https://github.com/FreeRTOS/FreeRTOS-Plus-TCP) repositories respectively.
+
+#### Bluetooth Low Energy (BLE) Hardware Abstraction Library (HAL) V5.1.0
+
+- Added ACL connection state change callback for BLE HAL
+
+#### Bluetooth Low Energy Management Library V2.2.0
+
+- Added transport interface for BLE library to send data to AWS IoT using the new MQTT and Shadow client libraries. The transport interface utilizes a companion device mobile application implemented using FreeRTOS BLE android and IOS SDKs to send data to AWS IoT.
+- Added new MQTT and shadow demos for BLE. The demo uses the new MQTT and Shadow client libraries and the BLE transport interface to send and receive data with AWS IoT.
+- Added the SHIM network interface for backwards compatiblity of existing MQTT, Shadow and OTA demos with Bluetooth Low Energy.
+
+#### Common_IO V0.1.2
+
+- Added more peripherals to CMake.
+
+#### FreeRTOS+CLI V1.0.5
+
+- Added FreeRTOS+CLI V1.0.4 to Amazon FreeRTOS repository.
+- Added FreeRTOS Console API to interact with CLI over common IO or UDP interface.
+- Added sample which demonstrates executing commands using FreeRTOS+CLI and UART interface.
+
+#### FreeRTOS+TLS V1.3.0
+
+- Added missing Max Fragment Length runtime configuration if MFL macro is enabled
+
+#### FreeRTOS+UTILS V1.2.0
+
+- Renamed iot_pki_utils to core_pki_utils.
+
+#### Greengrass Discovery V2.0.2
+
+- Added more logging in library.
+
+#### MQTT Client Library V2.3.0
+
+- Refactored to use shim layer for CoreMQTT.
+
+#### Over the Air Update V1.2.1
+
+- Added PAL for Renesas.
+- Added the functionality to abort the image if job status update fails.
+- Separated OTA control and data cleanup.
+- Removed unnecessary checks of OTA agent.
+
+#### PKCS11 V2.1.1
+
+- Updated ECC608A and PSA library dependencies to corePKCS naming scheme. Refactored AFQP tests to support HSMs that have locked down credentials.
+
+#### Secure Sockets LwIP V1.3.0
+
+- Added new optional API "SOCKETS_Bind".
+- Extended SOCKETS_SetSockOpt to support TCP keepalive settings.
+
+#### Shadow V2.2.3
+
+- Updated unit tests to work with the MQTT shim.
+
+#### Wi-Fi V2.0.0
+
+- Added new API to "iot_wifi.h".
+
 ## 202007.00 July 2020
 
 ### New Features
@@ -11,7 +79,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 - Updated the OTA demo to demonstrate how to suspend an in-progress OTA update should the MQTT connection disconnect, then resume the same update when the MQTT connection reconnects. In line with best practice, the reconnect logic uses an exponential backoff and jitter algorithm to prevent the MQTT server getting overwhelmed with connection requests if a fleet of devices get disconnected and then attempt to reconnect at the same time.
 - For testing purposes only, it is now possible to use the OTA agent to downgrade a version number or revert to an older version.  This new functionality is disabled by default.
 
-#### New Board: Cypress PSoC 64 Standard Secure AWS Wi-Fi Bluetooth Pioneer Kit 
+#### New Board: Cypress PSoC 64 Standard Secure AWS Wi-Fi Bluetooth Pioneer Kit
 - New Board: The <b>Cypress PSoC 64</b> board is now qualified with FreeRTOS.
 
 #### New Board: ESP32-WROOM-32SE
@@ -66,14 +134,14 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 #### Over the Air Update V1.2.0
 
-- Fixed an issue encountered when an OTA job is force cancelled while the related download is in progress. It was caused due to the self-start timer starting after the OTA job document is received. The fix starts the self-start timer when the OTA agent on the device starts.  
+- Fixed an issue encountered when an OTA job is force cancelled while the related download is in progress. It was caused due to the self-start timer starting after the OTA job document is received. The fix starts the self-start timer when the OTA agent on the device starts.
 
 #### Espressif
 
 - Support OTA via HTTP over the BLE channel for ESP32 (when SPIRAM is enabled).
-- Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows provisioning devices with Wi-Fi credentials via a web-server running on the device and a provisioning mobile application.  This mode requires the use of lwIP as the networking stack. 
+- Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows provisioning devices with Wi-Fi credentials via a web-server running on the device and a provisioning mobile application.  This mode requires the use of lwIP as the networking stack.
 - Replaced ESP-IDF code to be a submodule pointer to the official ESP-IDF repository.
-- Updated LwIP as the default networking stack. 
+- Updated LwIP as the default networking stack.
 
 ## 202002.00 2/18/2020
 
