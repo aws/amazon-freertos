@@ -307,10 +307,12 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c
 
-# Device Shadow and core JSON
+# Device Shadow, Device Defender, Jobs and core JSON
 SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c\
-	$(CY_AFR_ROOT)/libraries/coreJSON/source/core_json.c
+	$(CY_AFR_ROOT)/libraries/coreJSON/source/core_json.c \
+	$(CY_AFR_ROOT)/libraries/device_defender_for_aws/source/defender.c\
+	$(CY_AFR_ROOT)/libraries/jobs_for_aws/source/jobs.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common\
@@ -339,6 +341,8 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/portable\
 	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include\
 	$(CY_AFR_ROOT)/libraries/coreJSON/source/include\
+	$(CY_AFR_ROOT)/libraries/device_defender_for_aws/source/include\
+	$(CY_AFR_ROOT)/libraries/jobs_for_aws/source/include
 
 ################################################################################
 # libraries (freertos_plus)

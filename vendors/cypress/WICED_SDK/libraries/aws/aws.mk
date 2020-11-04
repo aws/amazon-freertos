@@ -135,6 +135,8 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt_serializer.c                                     \
                     $(AFR_LIBRARIES_PATH)coreJSON/source/core_json.c                                                \
                     $(AFR_LIBRARIES_PATH)device_shadow_for_aws_iot_embedded_sdk/source/shadow.c                     \
+                    $(AFR_LIBRARIES_PATH)device_defender_for_aws/source/defender.c                                  \
+                    $(AFR_LIBRARIES_PATH)jobs_for_aws/source/jobs.c                                                 \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/lwip/iot_secure_sockets.c                                \
                     $(AFR_C_SDK_AWS_PATH)shadow/src/aws_shadow.c                                                    \
                     $(AFR_C_SDK_AWS_PATH)shadow/src/aws_iot_shadow_api.c                                            \
