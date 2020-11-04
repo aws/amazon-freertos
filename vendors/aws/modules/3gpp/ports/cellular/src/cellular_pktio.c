@@ -581,6 +581,7 @@ static char * _Cellular_ReadLine( CellularContext_t * pContext,
             /* Add a NULL after the bytesRead. This is required for further processing. */
             pRead[ bytesRead ] = '\0';
 
+            IotLogDebug( "AT Read %d bytes, data[%p]", bytesRead, pRead );
             /* Set the pBytesRead only when actual bytes read from comm interface. */
             *pBytesRead = bytesRead + partialDataRead;
 
@@ -1191,7 +1192,7 @@ CellularPktStatus_t _Cellular_PktioSendAtCmd( CellularContext_t * pContext,
         IotLogError( "_Cellular_PktioSendAtCmd : invalid cellular context" );
         pktStatus = CELLULAR_PKT_STATUS_INVALID_HANDLE;
     }
-    else if( ( pContext->pCommIntf == NULL ) && ( pContext->hPktioCommIntf == NULL ) )
+    else if( ( pContext->pCommIntf == NULL ) || ( pContext->hPktioCommIntf == NULL ) )
     {
         IotLogError( "_Cellular_PktioSendAtCmd : invalid comm interface handle" );
         pktStatus = CELLULAR_PKT_STATUS_INVALID_HANDLE;
@@ -1242,7 +1243,7 @@ uint32_t _Cellular_PktioSendData( CellularContext_t * pContext,
     {
         IotLogError( "_Cellular_PktioSendData : invalid cellular context" );
     }
-    else if( ( pContext->pCommIntf == NULL ) && ( pContext->hPktioCommIntf == NULL ) )
+    else if( ( pContext->pCommIntf == NULL ) || ( pContext->hPktioCommIntf == NULL ) )
     {
         IotLogError( "_Cellular_PktioSendData : invalid comm interface handle" );
     }

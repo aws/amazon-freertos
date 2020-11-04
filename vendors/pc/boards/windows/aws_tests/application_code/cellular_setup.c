@@ -38,11 +38,6 @@
 #include "aws_test_runner.h"
 
 /* AWS System application includes. */
-#include "FreeRTOS_IP.h"
-#include "FreeRTOS_Sockets.h"
-#include "FreeRTOS_DHCP.h"
-#include "aws_demo_logging.h"
-#include "iot_system_init.h"
 
 #if defined( BOARD_HAS_CELLULAR )
     #include "aws_cellular_config.h"
@@ -99,14 +94,14 @@
                     ( ( simStatus.simCardState == CELLULAR_SIM_CARD_INSERTED ) &&
                       ( simStatus.simCardLockState == CELLULAR_SIM_CARD_READY ) ) )
                 {
-                    FreeRTOS_printf( ( ">>>  Cellular SIM okay  <<<\r\n" ) );
+                    configPRINTF( ( ">>>  Cellular SIM okay  <<<\r\n" ) );
                     break;
                 }
                 else
                 {
-                    FreeRTOS_printf( ( ">>>  Cellular SIM card state %d, Lock State  <<<\r\n",
-                                       simStatus.simCardState,
-                                       simStatus.simCardLockState ) );
+                    configPRINTF( ( ">>>  Cellular SIM card state %d, Lock State %d <<<\r\n",
+                                    simStatus.simCardState,
+                                    simStatus.simCardLockState ) );
                 }
 
                 vTaskDelay( pdMS_TO_TICKS( CELLULAR_SIM_CARD_WAIT_INTERVAL_MS ) );
@@ -121,7 +116,7 @@
         else
         {
             /* TODO : consider to loop here? */
-            FreeRTOS_printf( ( ">>>  Cellular SIM failure  <<<\r\n" ) );
+            configPRINTF( ( ">>>  Cellular SIM failure  <<<\r\n" ) );
         }
 
         /* Rescan network. */
@@ -129,6 +124,7 @@
         {
             cellularStatus = Cellular_RfOff( CellularHandle );
         }
+
         if( cellularStatus == CELLULAR_SUCCESS )
         {
             cellularStatus = Cellular_RfOn( CellularHandle );
@@ -145,13 +141,13 @@
                     ( ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_HOME ) ||
                       ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING ) ) )
                 {
-                    FreeRTOS_printf( ( ">>>  Cellular module registered  <<<\r\n" ) );
+                    configPRINTF( ( ">>>  Cellular module registered  <<<\r\n" ) );
                     break;
                 }
                 else
                 {
-                    FreeRTOS_printf( ( ">>>  Cellular GetServiceStatus failed %d, ps registration status %d  <<<\r\n",
-                                       cellularStatus, serviceStatus.psRegistrationStatus ) );
+                    configPRINTF( ( ">>>  Cellular GetServiceStatus failed %d, ps registration status %d  <<<\r\n",
+                                    cellularStatus, serviceStatus.psRegistrationStatus ) );
                 }
 
                 timeoutCount++;
@@ -159,7 +155,7 @@
                 if( timeoutCount >= timeoutCountLimit )
                 {
                     /* TODO : consider to loop here? */
-                    FreeRTOS_printf( ( ">>>  Cellular module can't be registered  <<<\r\n" ) );
+                    configPRINTF( ( ">>>  Cellular module can't be registered  <<<\r\n" ) );
                 }
 
                 vTaskDelay( pdMS_TO_TICKS( CELLULAR_SIM_CARD_WAIT_INTERVAL_MS * 2 ) );
@@ -184,6 +180,13 @@
         if( cellularStatus == CELLULAR_SUCCESS )
         {
             cellularStatus = Cellular_SetDns( CellularHandle, CellularSocketPdnContextId, testCELLULAR_DNS_SERVER_ADDRESS );
+
+            /* Modem use dynamic DNS. */
+            if( cellularStatus == CELLULAR_UNSUPPORTED )
+            {
+                configPRINTF( ( ">>>  Set DNS upsupported. Cellular module use dynamic DNS.  <<<\r\n" ) );
+                cellularStatus = CELLULAR_SUCCESS;
+            }
         }
 
         if( ( cellularStatus == CELLULAR_SUCCESS ) && ( PdnStatusBuffers.state == 1 ) )

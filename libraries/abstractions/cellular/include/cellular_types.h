@@ -65,6 +65,7 @@ typedef enum CellularError
     CELLULAR_INTERNAL_FAILURE,       /**< The Cellular library internal failure. */
     CELLULAR_RESOURCE_CREATION_FAIL, /**< Resource creation for Cellular library failed. */
     CELLULAR_UNSUPPORTED,            /**< The operation is not supported. */
+    CELLULAR_NOT_ALLOWED,            /**< The operation is not allowed. */
     CELLULAR_UNKNOWN                 /**< Any other error other than the above mentioned ones. */
 } CellularError_t;
 
