@@ -1,5 +1,7 @@
 # Overview
-This is about how to use Doxygen to maintain the API documents. There are three parts:
+This is about how to use Doxygen to maintain the API documents. These instructions will only generate the libraries in this repository.  
+
+There are three parts:
 
 - Doxygen configuration and layout.
 - A separate file to structure the documents
