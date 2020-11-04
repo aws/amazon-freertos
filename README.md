@@ -1,3 +1,8 @@
+# FreeRTOS AWS Feature Cellular Disclaimer
+The FreeRTOS cellular abstraction API is published here for evaluation purposes only. 
+The implemented 3GPP compliant AT commands and vendors’ specific AT commands are provided as examples. 
+Please use at your own risk.
+
 # FreeRTOS AWS Reference Integrations
 
 ## Cloning
