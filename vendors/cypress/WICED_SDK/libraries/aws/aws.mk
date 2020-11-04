@@ -162,6 +162,8 @@ GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/portable \
                     $(AFR_LIBRARIES_PATH)coreJSON/source/include \
                     $(AFR_LIBRARIES_PATH)device_shadow_for_aws_iot_embedded_sdk/source/include \
+                    $(AFR_LIBRARIES_PATH)device_defender_for_aws/source/include \
+                    $(AFR_LIBRARIES_PATH)jobs_for_aws/source/include \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include/types \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)/greengrass/include     \
