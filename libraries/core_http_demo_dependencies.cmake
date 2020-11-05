@@ -11,7 +11,7 @@ set(HTTP_HEADER_FILES "")
 foreach(http_public_include_dir ${HTTP_INCLUDE_PUBLIC_DIRS})
     file(GLOB http_public_include_header_files
               LIST_DIRECTORIES false
-              ${http_public_include_dir}/* )
+              ${http_public_include_dir}/*.h )
     list(APPEND HTTP_HEADER_FILES ${http_public_include_header_files})
 endforeach()
 
