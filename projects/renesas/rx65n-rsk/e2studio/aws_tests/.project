@@ -1802,6 +1802,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/https/src/iot_https_utils.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
@@ -1920,11 +1925,6 @@
 			<name>libraries/coreHTTP/source/core_http_client.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/core_http_client.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/core_http_demo_dependencies.cmake</name>
@@ -3260,16 +3260,6 @@
 			<name>libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/http_parser/http_parser.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/http_parser/http_parser.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/http_parser/http_parser.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/http_parser/http_parser.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.h</name>

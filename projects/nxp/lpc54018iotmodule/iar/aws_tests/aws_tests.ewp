@@ -409,6 +409,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\access</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test</state>
@@ -434,7 +435,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -2827,9 +2827,6 @@
 			<name>coreHTTP</name>
 			<group>
 				<name>source</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c</name>
-				</file>
 				<group>
 					<name>3rdparty</name>
 					<group>
@@ -2842,6 +2839,9 @@
 						</file>
 					</group>
 				</group>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c</name>
+				</file>
 				<group>
 					<name>include</name>
 					<file>
@@ -3529,15 +3529,6 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c</name>
 					</file>
 				</group>
-			</group>
-			<group>
-				<name>http_parser</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c</name>
-				</file>
 			</group>
 			<group>
 				<name>jsmn</name>

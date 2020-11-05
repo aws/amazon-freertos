@@ -374,7 +374,7 @@
 							<MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
 							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot; MBEDTLS_USER_CONFIG_FILE=\&quot;mbedtls_user_config.h\&quot; CONFIG_MEDTLS_USE_AFR_MEMORY UNITY_INCLUDE_CONFIG_H RVDS_ARMCM4_NUC4xx __LITTLE_ENDIAN__ FREERTOS_ENABLE_UNIT_TESTS M487 __little_endian__=1 NDEBUG</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_tests/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_tests/application_code/nuvoton_code;../../../../../tests/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/aws/defender/src;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/test/mock;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/portable;../../../../../libraries/abstractions/retry_utils;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/c_sdk/standard/https/test/access;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/c_sdk/standard/https/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/3rdparty/http_parser;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_tests/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_tests/application_code/nuvoton_code;../../../../../tests/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/aws/defender/src;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/test/mock;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/portable;../../../../../libraries/abstractions/retry_utils;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/c_sdk/standard/https/test/access;../../../../../libraries/coreHTTP/source/3rdparty/http_parser;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/c_sdk/standard/https/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/3rdparty/http_parser;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/jsmn</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -1231,6 +1231,16 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/coreMQTT/</GroupName>
+					<Files>
+						<File>
+							<FileName>mqttFilePaths.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/mqttFilePaths.cmake</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/coreMQTT/source/include/</GroupName>
 					<Files>
 						<File>
@@ -1266,6 +1276,41 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_mqtt_demo_dependencies.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/core_mqtt_demo_dependencies.cmake</FilePath>
+						</File>
+						<File>
+							<FileName>core_http_demo_dependencies.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/core_http_demo_dependencies.cmake</FilePath>
+						</File>
+						<File>
+							<FileName>core_json.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/core_json.cmake</FilePath>
+						</File>
+						<File>
+							<FileName>device_shadow_demo_dependencies.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/device_shadow_demo_dependencies.cmake</FilePath>
+						</File>
+						<File>
+							<FileName>device_defender_demo_dependencies.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/device_defender_demo_dependencies.cmake</FilePath>
+						</File>
+						<File>
+							<FileName>jobs_demo_dependencies.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/jobs_demo_dependencies.cmake</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/abstractions/retry_utils/freertos/</GroupName>
 					<Files>
 						<File>
@@ -1297,6 +1342,21 @@
 							<FileName>transport_secure_sockets.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/abstractions/transport/</GroupName>
+					<Files>
+						<File>
+							<FileName>transport_interface.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/abstractions/transport/transport_interface.cmake</FilePath>
+						</File>
+						<File>
+							<FileName>transport_interface_secure_sockets.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/abstractions/transport/transport_interface_secure_sockets.cmake</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1431,6 +1491,21 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/coreHTTP/source/3rdparty/http_parser/</GroupName>
+					<Files>
+						<File>
+							<FileName>http_parser.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</FilePath>
+						</File>
+						<File>
+							<FileName>http_parser.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/freertos_plus/aws/greengrass/src/</GroupName>
 					<Files>
 						<File>
@@ -1491,17 +1566,12 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/coreHTTP/source/3rdparty/http_parser/</GroupName>
+					<GroupName>libraries/coreHTTP/</GroupName>
 					<Files>
 						<File>
-							<FileName>http_parser.c</FileName>
+							<FileName>httpFilePaths.cmake</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</FilePath>
-						</File>
-						<File>
-							<FileName>http_parser.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</FilePath>
+							<FilePath>../../../../../libraries/coreHTTP/httpFilePaths.cmake</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1546,6 +1616,16 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/coreJSON/</GroupName>
+					<Files>
+						<File>
+							<FileName>jsonFilePaths.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreJSON/jsonFilePaths.cmake</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/coreJSON/source/include/</GroupName>
 					<Files>
 						<File>
@@ -1562,6 +1642,16 @@
 							<FileName>shadow.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/device_shadow_for_aws_iot_embedded_sdk/</GroupName>
+					<Files>
+						<File>
+							<FileName>shadowFilePaths.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1591,6 +1681,16 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/device_defender_for_aws/</GroupName>
+					<Files>
+						<File>
+							<FileName>defenderFilePaths.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/device_defender_for_aws/defenderFilePaths.cmake</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/device_defender_for_aws/source/include/</GroupName>
 					<Files>
 						<File>
@@ -1612,6 +1712,16 @@
 							<FileName>jobs.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/jobs_for_aws/source/jobs.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/jobs_for_aws/</GroupName>
+					<Files>
+						<File>
+							<FileName>jobsFilePaths.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/jobs_for_aws/jobsFilePaths.cmake</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -2987,21 +3097,6 @@
 							<FileName>cborparser_dup_string.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/3rdparty/http_parser/</GroupName>
-					<Files>
-						<File>
-							<FileName>http_parser.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/3rdparty/http_parser/http_parser.h</FilePath>
-						</File>
-						<File>
-							<FileName>http_parser.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/http_parser/http_parser.c</FilePath>
 						</File>
 					</Files>
 				</Group>

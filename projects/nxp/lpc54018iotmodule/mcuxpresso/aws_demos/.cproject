@@ -147,6 +147,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/transport/secure_sockets"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/serializer/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/shadow/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/coreHTTP/source/3rdparty/http_parser"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/https/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/greengrass/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include"/>
@@ -167,7 +168,6 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls_utils"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls_config"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/tinycbor/src"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/http_parser"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/jsmn"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.files.831986787" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false"/>

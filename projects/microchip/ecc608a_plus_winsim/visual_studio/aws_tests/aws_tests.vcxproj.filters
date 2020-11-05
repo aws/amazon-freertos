@@ -97,6 +97,10 @@
 		<Filter Include="libraries\c_sdk\aws\shadow\include"/>
 		<Filter Include="libraries\c_sdk\standard\https\src"/>
 		<Filter Include="libraries\c_sdk\standard\https"/>
+		<Filter Include="libraries\coreHTTP\source\3rdparty\http_parser"/>
+		<Filter Include="libraries\coreHTTP\source\3rdparty"/>
+		<Filter Include="libraries\coreHTTP\source"/>
+		<Filter Include="libraries\coreHTTP"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass\src"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass"/>
 		<Filter Include="libraries\freertos_plus\aws"/>
@@ -123,10 +127,6 @@
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
-		<Filter Include="libraries\coreHTTP\source"/>
-		<Filter Include="libraries\coreHTTP"/>
-		<Filter Include="libraries\coreHTTP\source\3rdparty\http_parser"/>
-		<Filter Include="libraries\coreHTTP\source\3rdparty"/>
 		<Filter Include="libraries\coreHTTP\source\include"/>
 		<Filter Include="libraries\coreHTTP\source\interface"/>
 		<Filter Include="libraries\coreJSON\source"/>
@@ -182,7 +182,6 @@
 		<Filter Include="libraries\3rdparty\unity\extras"/>
 		<Filter Include="libraries\3rdparty\tinycbor\src"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
-		<Filter Include="libraries\3rdparty\http_parser"/>
 		<Filter Include="libraries\3rdparty\jsmn"/>
 	</ItemGroup>
 	<ItemGroup>
@@ -1032,9 +1031,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h">
 			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h">
-			<Filter>libraries\3rdparty\http_parser</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
 			<Filter>libraries\3rdparty\jsmn</Filter>
 		</ClInclude>
@@ -1490,6 +1486,9 @@
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_utils.c">
 			<Filter>libraries\c_sdk\standard\https\src</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.c">
+			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c">
 			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
 		</ClCompile>
@@ -1558,9 +1557,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c">
 			<Filter>libraries\coreHTTP\source</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.c">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
 			<Filter>libraries\coreJSON\source</Filter>
@@ -2008,9 +2004,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c">
 			<Filter>libraries\3rdparty\tinycbor\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c">
-			<Filter>libraries\3rdparty\http_parser</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
 			<Filter>libraries\3rdparty\jsmn</Filter>

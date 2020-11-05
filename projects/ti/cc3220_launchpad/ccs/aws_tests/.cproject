@@ -84,6 +84,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/shadow/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/shadow/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/https/test/access"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/coreHTTP/source/3rdparty/http_parser"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/https/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/https/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/greengrass/test"/>
@@ -108,7 +109,6 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls_utils"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls_config"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/tinycbor/src"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/http_parser"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/jsmn"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL.1257131903" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>

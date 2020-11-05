@@ -384,6 +384,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src</state>
@@ -403,7 +404,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -2078,6 +2078,48 @@
 			<name>$PROJ_DIR$\..\..\..\..\..\libraries\core_mqtt_demo_dependencies.cmake</name>
 		</file>
 		<group>
+			<name>coreHTTP</name>
+			<group>
+				<name>source</name>
+				<group>
+					<name>3rdparty</name>
+					<group>
+						<name>http_parser</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.h</name>
+						</file>
+					</group>
+				</group>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_config_defaults.h</name>
+					</file>
+				</group>
+				<group>
+					<name>interface</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h</name>
+					</file>
+				</group>
+			</group>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\httpFilePaths.cmake</name>
+			</file>
+		</group>
+		<group>
 			<name>3rdparty</name>
 			<group>
 				<name>mbedtls</name>
@@ -2614,15 +2656,6 @@
 				</group>
 			</group>
 			<group>
-				<name>http_parser</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c</name>
-				</file>
-			</group>
-			<group>
 				<name>jsmn</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h</name>
@@ -2631,48 +2664,6 @@
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c</name>
 				</file>
 			</group>
-		</group>
-		<group>
-			<name>coreHTTP</name>
-			<group>
-				<name>source</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c</name>
-				</file>
-				<group>
-					<name>3rdparty</name>
-					<group>
-						<name>http_parser</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.h</name>
-						</file>
-					</group>
-				</group>
-				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client_private.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_config_defaults.h</name>
-					</file>
-				</group>
-				<group>
-					<name>interface</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h</name>
-					</file>
-				</group>
-			</group>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\httpFilePaths.cmake</name>
-			</file>
 		</group>
 		<file>
 			<name>$PROJ_DIR$\..\..\..\..\..\libraries\core_http_demo_dependencies.cmake</name>
