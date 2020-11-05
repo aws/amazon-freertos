@@ -180,7 +180,8 @@ typedef enum
 
 typedef enum
 {
-    OTA_HTTP_IDLE = 0,
+    OTA_HTTP_STOPPED = 0,
+    OTA_HTTP_IDLE,
     OTA_HTTP_SENDING_REQUEST,
     OTA_HTTP_WAITING_RESPONSE,
     OTA_HTTP_PROCESSING_RESPONSE
@@ -435,6 +436,12 @@ static void _httpReadReadyCallback( void * pPrivateData,
     /* Buffer to read the "Connection" field in HTTP header. */
     char connectionValueStr[ HTTP_HEADER_CONNECTION_VALUE_MAX_LEN ] = { 0 };
 
+    /* Bail out if this callback is invoked after http downloader stopped. */
+    if( _httpDownloader.state == OTA_HTTP_STOPPED )
+    {
+        return;
+    }
+
     /* A response is received from the server, setting the state to processing response. */
     _httpDownloader.state = OTA_HTTP_PROCESSING_RESPONSE;
 
@@ -499,8 +506,8 @@ static void _httpReadReadyCallback( void * pPrivateData,
         /* Check if the server returns a response with connection field set to "close". */
         if( strncmp( "close", connectionValueStr, sizeof( "close" ) ) == 0 )
         {
-            IotLogInfo( "Connection has been closed by the HTTP server, reconnecting to the server..." );
-            _httpReconnect();
+            IotLogInfo( "Connection has been closed by the HTTP server, reconnect in next request." );
+            _httpDownloader.err = OTA_HTTP_ERR_NEED_RECONNECT;
         }
     }
 
@@ -532,8 +539,8 @@ static void _httpResponseCompleteCallback( void * pPrivateData,
     /* OTA Event. */
     OTA_EventMsg_t eventMsg = { 0 };
 
-    /* Bail out if this callback is invoked after the OTA agent is stopped. */
-    if( _httpDownloader.pAgentCtx->eState == eOTA_AgentState_Stopped )
+    /* Bail out if this callback is invoked after http downloader stopped. */
+    if( _httpDownloader.state == OTA_HTTP_STOPPED )
     {
         return;
     }
@@ -608,8 +615,8 @@ static void _httpConnectionClosedCallback( void * pPrivateData,
     ( void ) connectionHandle;
     ( void ) returnCode;
 
-    IotLogInfo( "Connection has been closed by the HTTP client due to an error, reconnecting to the server..." );
-    _httpReconnect();
+    IotLogInfo( "Connection has been closed by the HTTP server, reconnect in next request." );
+    _httpDownloader.err = OTA_HTTP_ERR_NEED_RECONNECT;
 }
 
 static IotHttpsReturnCode_t _httpInitUrl( const char * pURL )
@@ -940,8 +947,9 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     /* OTA download file size from the HTTP server, this should match otaFileSize. */
     uint32_t httpFileSize = 0;
 
-    /* Store the OTA agent for later access. */
+    /* Store the OTA agent for later use and set state to idle. */
     _httpDownloader.pAgentCtx = pAgentCtx;
+    _httpDownloader.state = OTA_HTTP_IDLE;
 
     if( fileContext == NULL )
     {
@@ -1177,7 +1185,15 @@ OTA_Err_t _AwsIotOTA_CleanupData_HTTP( OTA_AgentContext_t * pAgentCtx )
     /* Unused parameters. */
     ( void ) pAgentCtx;
 
-    memset( &_httpDownloader, 0, sizeof( _httpDownloader_t ) );
+    /* Disconnect from the S3 server. */
+    IotHttpsClient_Disconnect( _httpDownloader.httpConnection.connectionHandle );
+    _httpDownloader.httpConnection.connectionHandle = NULL;
+
+    /* Reset downloader state and progress tracker. */
+    _httpDownloader.state = OTA_HTTP_STOPPED;
+    _httpDownloader.err = OTA_HTTP_ERR_NONE;
+    _httpDownloader.currBlock = 0;
+    _httpDownloader.currBlockSize = 0;
 
     _httpFreeBuffers();
 
