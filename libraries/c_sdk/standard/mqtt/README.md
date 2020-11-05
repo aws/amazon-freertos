@@ -1,6 +1,6 @@
 # MQTT Shim for MQTT V2.x.x APIs
 
-This MQTT shim library supports backward compatibility for the MQTT V2.x.x APIs using the [coreMQTT library](../../../coreMQTT/README.md). All the [APIs in MQTT v2.x.x](https://docs.aws.amazon.com/freertos/latest/lib-ref/c-sdk/mqtt/index.html) are supported in this shim implementation. 
+This MQTT shim library supports backward compatibility for the MQTT V2.x.x APIs using the [coreMQTT library](../../../coreMQTT/README.md). All the [APIs in MQTT v2.x.x](include/iot_mqtt.h) are supported in this shim implementation. 
 This shim will be supported only as a short term solution to provide backward compatibility. We recommend using the redesigned [coreMQTT library](../../../coreMQTT/README.md) for applications requiring long term support.
 
 
