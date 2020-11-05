@@ -61,7 +61,7 @@
     uint8_t CellularSocketPdnContextId = testCELLULAR_PDN_CONTEXT_ID;
 
     #define CELLULAR_SIM_CARD_WAIT_INTERVAL_MS    ( 500UL )
-    #define CELLULAR_SIM_CARD_WAIT_TIMEOUT_MS     ( 20000UL )
+    #define CELLULAR_SIM_CARD_WAIT_TIMEOUT_MS     ( 60000UL )
 
     #define CELLULAR_MAX_SIM_RETRY                ( 5U )
 

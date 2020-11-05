@@ -41,35 +41,41 @@
 #define COMM_IF_DEBUG 0
 
 #if COMM_IF_DEBUG
+
 #include <stdarg.h>
 #include "esp_log.h"
-#define ESP_LOGE(tag, format, ...) ESP_LOG_LEVEL_LOCAL(ESP_LOG_ERROR, tag, format, ##__VA_ARGS__)
-#define COMM_IF_LOGE(tag, format, ...) ESP_LOGE(tag, format, ##__VA_ARGS__)
-#define COMM_IF_LOGW(tag, format, ...) ESP_LOGW(tag, format, ##__VA_ARGS__)
-#define COMM_IF_LOGI(tag, format, ...) ESP_LOGI(tag, format, ##__VA_ARGS__)
-#define COMM_IF_LOGD(tag, format, ...) ESP_LOGD(tag, format, ##__VA_ARGS__)
-#define COMM_IF_LOGV(tag, format, ...) ESP_LOGV(tag, format, ##__VA_ARGS__)
+#define ESP_LOGE(tag, format, ...)      ESP_LOG_LEVEL_LOCAL(ESP_LOG_ERROR, tag, format, ##__VA_ARGS__)
+#define COMM_IF_LOGE(tag, format, ...)  ESP_LOGE(tag, format, ##__VA_ARGS__)
+#define COMM_IF_LOGW(tag, format, ...)  ESP_LOGW(tag, format, ##__VA_ARGS__)
+#define COMM_IF_LOGI(tag, format, ...)  ESP_LOGI(tag, format, ##__VA_ARGS__)
+#define COMM_IF_LOGD(tag, format, ...)  ESP_LOGD(tag, format, ##__VA_ARGS__)
+#define COMM_IF_LOGV(tag, format, ...)  ESP_LOGV(tag, format, ##__VA_ARGS__)
 #define COMM_IF_LOG_BUFFER_HEX(tag, buffer, buff_len) ESP_LOG_BUFFER_HEX(tag, buffer, buff_len)
 
-static const char *COMM_IF_TAG = "COMM_IF_ESP_UART1";
+static const char *COMM_IF_TAG = "COMM_IF_SIERRA";
+
 #else /* COMM_IF_DEBUG */
+
 #define COMM_IF_LOGE(tag, format, ...)
 #define COMM_IF_LOGW(tag, format, ...)
 #define COMM_IF_LOGI(tag, format, ...)
 #define COMM_IF_LOGD(tag, format, ...)
 #define COMM_IF_LOGV(tag, format, ...)
 #define COMM_IF_LOG_BUFFER_HEX(tag, buffer, buff_len)
+
 #endif /* COMM_IF_DEBUG */
 
-#define ESP32_HL78_TXD (GPIO_NUM_4)
-#define ESP32_HL78_RXD (GPIO_NUM_5)
-#define ESP32_HL78_RTS (GPIO_NUM_22)
-#define ESP32_HL78_CTS (GPIO_NUM_23)
+#define BX310X_HL78_TXD         (GPIO_NUM_12)
+#define BX310X_HL78_RXD         (GPIO_NUM_13)
+#define BX310X_HL78_RTS         (GPIO_NUM_14)
+#define BX310X_HL78_CTS         (GPIO_NUM_15)
 
-#define ESP32_HL78_UART (UART_NUM_1)
+#define BX310X_BUS_EN_PIN   (GPIO_NUM_27)
 
-#define EVENTS_QUEUE_SIZE (64)
-#define ESP_UART_BUF_SIZE (2048)
+#define BX310X_HL78_UART (UART_NUM_1)
+
+#define EVENTS_QUEUE_SIZE       (64)
+#define BX310X_UART_BUF_SIZE    (2048)
 
 /**
  * @brief A context of the communication interface.
@@ -83,7 +89,27 @@ struct CommIfContext
 };
 
 static struct CommIfContext _CommIfContext = {0};
-static QueueHandle_t uart1Queue;
+static QueueHandle_t _CommIfQueue;
+
+// this function should be called at startup
+static void hw_lowlevel_init(void)
+{
+    gpio_config_t io_conf;
+    //disable interrupt
+    io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
+    //set as output mode
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    //bit mask of the pins that you want to set,e.g.GPIO18/19
+    io_conf.pin_bit_mask = (1ULL<<BX310X_BUS_EN_PIN);
+    //disable pull-down mode
+    io_conf.pull_down_en = 0;
+    //disable pull-up mode
+    io_conf.pull_up_en = 0;
+    //configure GPIO with the given settings
+    gpio_config(&io_conf);
+
+    gpio_set_level(BX310X_BUS_EN_PIN, 0);
+}
 
 static void uart_event_task(void *pvParameters)
 {
@@ -91,7 +117,7 @@ static void uart_event_task(void *pvParameters)
     for (;;)
     {
         //Waiting for UART event.
-        if (xQueueReceive(uart1Queue, (void *)&event, (portTickType)portMAX_DELAY))
+        if (xQueueReceive(_CommIfQueue, (void *)&event, (portTickType)portMAX_DELAY))
         {
             switch (event.type)
             {
@@ -117,16 +143,16 @@ static void uart_event_task(void *pvParameters)
                 // If fifo overflow happened, you should consider adding flow control for your application.
                 // The ISR has already reset the rx FIFO,
                 // As an example, we directly flush the rx buffer here in order to read more data.
-                uart_flush_input(ESP32_HL78_UART);
-                xQueueReset(uart1Queue);
+                uart_flush_input(BX310X_HL78_UART);
+                xQueueReset(_CommIfQueue);
                 break;
             //Event of UART ring buffer full
             case UART_BUFFER_FULL:
                 COMM_IF_LOGE(COMM_IF_TAG, "ring buffer full");
                 // If buffer full happened, you should consider encreasing your buffer size
                 // As an example, we directly flush the rx buffer here in order to read more data.
-                uart_flush_input(ESP32_HL78_UART);
-                xQueueReset(uart1Queue);
+                uart_flush_input(BX310X_HL78_UART);
+                xQueueReset(_CommIfQueue);
                 break;
             //Event of UART RX break detected
             case UART_BREAK:
@@ -143,8 +169,6 @@ static void uart_event_task(void *pvParameters)
             //UART_PATTERN_DET
             case UART_PATTERN_DET:
                 COMM_IF_LOGI(COMM_IF_TAG, "[UART_PATTERN_DET]: size %d", event.size);
-
-                // uart_read_data(100);
                 if (_CommIfContext.pRecvCB != NULL)
                 {
                     COMM_IF_LOGI(COMM_IF_TAG, "[UART_PATTERN_DET]: Invoke receive callback");
@@ -211,6 +235,8 @@ static CellularCommInterfaceError_t _prvCommIntfOpen(CellularCommInterfaceReceiv
         .use_ref_tick = 0x00,
     };
 
+    hw_lowlevel_init();
+
     if (_CommIfContext.isOpen == true)
     {
         COMM_IF_LOGE(COMM_IF_TAG, "[CommIntfOpen]: Driver failure");
@@ -230,28 +256,28 @@ static CellularCommInterfaceError_t _prvCommIntfOpen(CellularCommInterfaceReceiv
     _CommIfContext.pUserData = pUserData;
     *pCommInterfaceHandle = (CellularCommInterfaceHandle_t)&_CommIfContext;
 
-    if (uart_driver_install(ESP32_HL78_UART, ESP_UART_BUF_SIZE, 0, EVENTS_QUEUE_SIZE, &uart1Queue, 0) != ESP_OK)
+    if (uart_driver_install(BX310X_HL78_UART, BX310X_UART_BUF_SIZE, 0, EVENTS_QUEUE_SIZE, &_CommIfQueue, 0) != ESP_OK)
     {
         COMM_IF_LOGE(COMM_IF_TAG, "[CommIntfOpen]: Failed to install driver");
         return IOT_COMM_INTERFACE_DRIVER_ERROR;
     }
-    if (uart_param_config(ESP32_HL78_UART, &uart_config) != ESP_OK)
+    if (uart_param_config(BX310X_HL78_UART, &uart_config) != ESP_OK)
     {
         COMM_IF_LOGE(COMM_IF_TAG, "[CommIntfOpen]: Failed to configure UART");
         return IOT_COMM_INTERFACE_DRIVER_ERROR;
     }
-    if (uart_set_pin(ESP32_HL78_UART, ESP32_HL78_TXD, ESP32_HL78_RXD, ESP32_HL78_RTS, ESP32_HL78_CTS) != ESP_OK)
+    if (uart_set_pin(BX310X_HL78_UART, BX310X_HL78_TXD, BX310X_HL78_RXD, BX310X_HL78_RTS, BX310X_HL78_CTS) != ESP_OK)
     {
         COMM_IF_LOGE(COMM_IF_TAG, "[CommIntfOpen]: Failed to change UART's pins");
         return IOT_COMM_INTERFACE_DRIVER_ERROR;
     }
     // Work around: CTS pin may not be asertted if a pull up is set
-    gpio_set_pull_mode(ESP32_HL78_CTS, GPIO_FLOATING);
+    ESP_ERROR_CHECK(gpio_set_pull_mode(BX310X_HL78_CTS, GPIO_FLOATING));
 
     _CommIfContext.isOpen = true;
 
-    ESP_ERROR_CHECK(uart_enable_rx_intr(ESP32_HL78_UART));
-    ESP_ERROR_CHECK(uart_set_rx_timeout(ESP32_HL78_UART, 9));
+    ESP_ERROR_CHECK(uart_enable_rx_intr(BX310X_HL78_UART));
+    ESP_ERROR_CHECK(uart_set_rx_timeout(BX310X_HL78_UART, 9));
 
     //Create a task to handler UART events from ISR
     xTaskCreate(uart_event_task, "uart_event_task", 2048, &_CommIfContext, tskIDLE_PRIORITY + 5, NULL);
@@ -263,7 +289,7 @@ static CellularCommInterfaceError_t _prvCommIntfOpen(CellularCommInterfaceReceiv
 
 static CellularCommInterfaceError_t _prvCommIntfClose(CellularCommInterfaceHandle_t commInterfaceHandle)
 {
-    if (uart_driver_delete(ESP32_HL78_UART) != ESP_OK)
+    if (uart_driver_delete(BX310X_HL78_UART) != ESP_OK)
     {
         COMM_IF_LOGE(COMM_IF_TAG, "[CommIntfClose]: Failed to uninstall UART driver");
         return IOT_COMM_INTERFACE_DRIVER_ERROR;
@@ -281,7 +307,7 @@ static CellularCommInterfaceError_t _prvCommIntfSend(CellularCommInterfaceHandle
 {
     COMM_IF_LOGI(COMM_IF_TAG, "[CommIntfSend]: Request to send\n");
     uint32_t len = 0;
-    len = uart_write_bytes(ESP32_HL78_UART, (const char *)pData, dataLength);
+    len = uart_write_bytes(BX310X_HL78_UART, (const char *)pData, dataLength);
     if (len != dataLength)
     {
         COMM_IF_LOGE(COMM_IF_TAG, "[CommIntfSend]: Buffer error");
@@ -291,7 +317,7 @@ static CellularCommInterfaceError_t _prvCommIntfSend(CellularCommInterfaceHandle
     {
         *pDataSentLength = len;
     }
-    if (uart_wait_tx_done(ESP32_HL78_UART, timeoutMilliseconds) != ESP_OK)
+    if (uart_wait_tx_done(BX310X_HL78_UART, timeoutMilliseconds) != ESP_OK)
     {
         COMM_IF_LOGE(COMM_IF_TAG, "[CommIntfSend]: Timeout");
         return IOT_COMM_INTERFACE_TIMEOUT;
@@ -314,9 +340,9 @@ static CellularCommInterfaceError_t _prvCommIntfReceive(CellularCommInterfaceHan
 
     int len = 0;
     size_t avail;
-    ESP_ERROR_CHECK(uart_get_buffered_data_len(ESP32_HL78_UART, &avail));
+    ESP_ERROR_CHECK(uart_get_buffered_data_len(BX310X_HL78_UART, &avail));
     avail = avail > bufferLength ? bufferLength : avail;
-    len = uart_read_bytes(ESP32_HL78_UART, pBuffer, avail, timeoutMilliseconds);
+    len = uart_read_bytes(BX310X_HL78_UART, pBuffer, avail, timeoutMilliseconds);
     if (len < 0)
     {
         COMM_IF_LOGE(COMM_IF_TAG, "[CommIntfReceive]: Timeout");
@@ -329,7 +355,7 @@ static CellularCommInterfaceError_t _prvCommIntfReceive(CellularCommInterfaceHan
     pBuffer[len] = 0;
 
     COMM_IF_LOGI(COMM_IF_TAG, "\n================\n%s\n", (char *)pBuffer);
-    COMM_IF_LOG_BUFFER_HEX(COMM_IF_TAG, pBuffer, *pDataReceivedLength);
+//     COMM_IF_LOG_BUFFER_HEX(COMM_IF_TAG, pBuffer, *pDataReceivedLength);
     COMM_IF_LOGI(COMM_IF_TAG, "\n================\n");
     COMM_IF_LOGI(COMM_IF_TAG, "[CommIntfReceive]: Received %d\n", *pDataReceivedLength);
 

@@ -417,7 +417,6 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
             AFR::ble
     )
 endif()
-
 if(AFR_METADATA_MODE)
     return()
 endif()
@@ -499,6 +498,7 @@ endif()
 
 set_property(GLOBAL PROPERTY IDF_PROJECT_EXECUTABLE ${IDF_PROJECT_EXECUTABLE})
 
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
 get_filename_component(
     ABS_EXTRA_COMPONENT_DIRS
     "${board_dir}/application_code/espressif_code" ABSOLUTE
@@ -512,6 +512,8 @@ get_filename_component(
 )
 
 list(APPEND IDF_EXTRA_COMPONENT_DIRS ${ABS_EXTRA_COMPONENT_DIRS})
+
+endif()
 
 if(AFR_ESP_FREERTOS_TCP)
 get_filename_component(
