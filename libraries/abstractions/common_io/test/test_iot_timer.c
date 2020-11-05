@@ -40,8 +40,8 @@
 #include "semphr.h"
 #include "task.h"
 
-#define testIotTIMER_DEFAULT_DELAY_US    500
-#define testIotTIMER_SLEEP_DELAY_MS      1
+#define testIotTIMER_DEFAULT_DELAY_US     500
+#define testIotTIMER_SLEEP_DELAY_MS       1
 
 /*
  * @brief timeout for the semaphore to be invoked by the iot_timer. 4 times larger to account
