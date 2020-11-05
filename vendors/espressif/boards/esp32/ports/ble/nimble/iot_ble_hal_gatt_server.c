@@ -529,6 +529,7 @@ void vESPBTGATTServerCleanup( void )
         for( index = 0; index < serviceCnt; index++ )
         {
             prvCleanupService( &espServices[ index ] );
+            vPortFree( ( void * ) afrServices[ index ] );
         }
 
         serviceCnt = 0;
@@ -882,6 +883,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
     struct ble_gatt_svc_def * pSvc = NULL;
     uint16_t handle = 0;
     uint16_t attributeCount = 0;
+    BTService_t * afrFullService = NULL;
 
     if( ( pxService == 0 ) || ( pxService->xNumberOfAttributes == 0 ) )
     {
@@ -894,7 +896,17 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
         if( serviceCnt < MAX_SERVICES )
         {
             pSvc = &espServices[ serviceCnt ];
-            afrServices[ serviceCnt ] = pxService;
+            afrFullService = pvPortCalloc( 1, sizeof( BTService_t ) );
+            if ( afrFullService == NULL )
+            {
+                xStatus = eBTStatusNoMem;
+            }
+            else
+            {
+                memcpy( afrFullService, pxService, sizeof( BTService_t ) );
+            }
+
+            afrServices[ serviceCnt ] = afrFullService;
         }
         else
         {
