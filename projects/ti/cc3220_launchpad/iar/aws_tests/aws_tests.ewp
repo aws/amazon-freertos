@@ -385,7 +385,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src</state>
@@ -2264,7 +2264,7 @@
 				<group>
 					<name>portable</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable\transport_interface.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h</name>
 					</file>
 				</group>
 			</group>

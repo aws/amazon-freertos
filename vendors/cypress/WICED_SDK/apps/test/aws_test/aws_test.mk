@@ -91,7 +91,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/test/access \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/test/mock \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
-                    $(AFR_LIBRARIES_PATH)coreMQTT/source/portable \
+                    $(AFR_LIBRARIES_PATH)coreMQTT/source/interface \
                     $(AFR_C_SDK_STANDARD_PATH)serializer/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include/types \
