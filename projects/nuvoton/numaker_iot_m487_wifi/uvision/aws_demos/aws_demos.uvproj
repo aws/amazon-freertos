@@ -1246,16 +1246,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/coreMQTT/</GroupName>
-					<Files>
-						<File>
-							<FileName>mqttFilePaths.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreMQTT/mqttFilePaths.cmake</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/coreMQTT/source/include/</GroupName>
 					<Files>
 						<File>
@@ -1291,41 +1281,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/</GroupName>
-					<Files>
-						<File>
-							<FileName>core_mqtt_demo_dependencies.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/core_mqtt_demo_dependencies.cmake</FilePath>
-						</File>
-						<File>
-							<FileName>core_http_demo_dependencies.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/core_http_demo_dependencies.cmake</FilePath>
-						</File>
-						<File>
-							<FileName>core_json.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/core_json.cmake</FilePath>
-						</File>
-						<File>
-							<FileName>device_shadow_demo_dependencies.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/device_shadow_demo_dependencies.cmake</FilePath>
-						</File>
-						<File>
-							<FileName>device_defender_demo_dependencies.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/device_defender_demo_dependencies.cmake</FilePath>
-						</File>
-						<File>
-							<FileName>jobs_demo_dependencies.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/jobs_demo_dependencies.cmake</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/abstractions/retry_utils/freertos/</GroupName>
 					<Files>
 						<File>
@@ -1357,21 +1312,6 @@
 							<FileName>transport_secure_sockets.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/abstractions/transport/</GroupName>
-					<Files>
-						<File>
-							<FileName>transport_interface.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/transport/transport_interface.cmake</FilePath>
-						</File>
-						<File>
-							<FileName>transport_interface_secure_sockets.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/transport/transport_interface_secure_sockets.cmake</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1581,12 +1521,17 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/coreHTTP/</GroupName>
+					<GroupName>libraries/coreHTTP/source/3rdparty/http_parser/</GroupName>
 					<Files>
 						<File>
-							<FileName>httpFilePaths.cmake</FileName>
+							<FileName>http_parser.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreHTTP/httpFilePaths.cmake</FilePath>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</FilePath>
+						</File>
+						<File>
+							<FileName>http_parser.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1631,16 +1576,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/coreJSON/</GroupName>
-					<Files>
-						<File>
-							<FileName>jsonFilePaths.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreJSON/jsonFilePaths.cmake</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/coreJSON/source/include/</GroupName>
 					<Files>
 						<File>
@@ -1657,16 +1592,6 @@
 							<FileName>shadow.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/device_shadow_for_aws_iot_embedded_sdk/</GroupName>
-					<Files>
-						<File>
-							<FileName>shadowFilePaths.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1696,16 +1621,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/device_defender_for_aws/</GroupName>
-					<Files>
-						<File>
-							<FileName>defenderFilePaths.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/device_defender_for_aws/defenderFilePaths.cmake</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/device_defender_for_aws/source/include/</GroupName>
 					<Files>
 						<File>
@@ -1727,16 +1642,6 @@
 							<FileName>jobs.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/jobs_for_aws/source/jobs.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/jobs_for_aws/</GroupName>
-					<Files>
-						<File>
-							<FileName>jobsFilePaths.cmake</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/jobs_for_aws/jobsFilePaths.cmake</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1783,11 +1688,6 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_connection_sharing.c</FilePath>
 						</File>
-						<File>
-							<FileName>CMakeLists.txt</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/CMakeLists.txt</FilePath>
-						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -1817,11 +1717,6 @@
 							<FileName>shadow_demo_helpers.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</FilePath>
-						</File>
-						<File>
-							<FileName>CMakeLists.txt</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</FilePath>
 						</File>
 					</Files>
 				</Group>
