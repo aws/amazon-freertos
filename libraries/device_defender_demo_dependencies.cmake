@@ -11,7 +11,7 @@ set(DEVICE_DEFENDER_HEADER_FILES "")
 foreach(defender_public_include_dir ${DEFENDER_INCLUDE_PUBLIC_DIRS})
     file(GLOB defender_public_include_header_files
               LIST_DIRECTORIES false
-              ${defender_public_include_dir}/* )
+              ${defender_public_include_dir}/*.h )
     list(APPEND DEVICE_DEFENDER_HEADER_FILES ${defender_public_include_header_files})
 endforeach()
 
