@@ -99,6 +99,7 @@ CY_IGNORE+=\
 	$(CY_AFR_VENDOR_PATH)/WICED_SDK\
 	$(CY_AFR_VENDOR_PATH)/freertos_thirdparty_port
 
+
 CY_CONFIG_MODUS_FILE=./$(CY_AFR_BOARD_APP_PATH)/design.modus
 
 SOURCES+=\
@@ -377,15 +378,26 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/mqtt_ble/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/data_transfer/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/wifi_provisioning/*c)\
+	$(wildcard $(CY_AFR_BOARD_PATH)/ports/ble/*c)\
+	$(wildcard $(CY_EXTAPP_PATH)/bluetooth/psoc6/cyosal/src/*.c)\
+	$(wildcard $(CY_EXTAPP_PATH)/bluetooth/psoc6/cyhal/src/*.c)
 
 INCLUDES+=\
 	$(CY_AFR_BOARD_PATH)/ports/ble\
+	$(CY_EXTAPP_PATH)/bluetooth/include\
+	$(CY_EXTAPP_PATH)/bluetooth/include/stackHeaders\
+	$(CY_EXTAPP_PATH)/bluetooth/psoc6/cyhal/include\
+	$(CY_EXTAPP_PATH)/bluetooth/psoc6/cyosal/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/ble_hal\
 	$(CY_AFR_ROOT)/libraries/abstractions/ble_hal/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/include\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src
+	
 
+LDLIBS=\
+	$(CY_EXTAPP_PATH)/bluetooth/bluetooth.FreeRTOS.ARM_CM4.release.a\
+	$(CY_EXTAPP_PATH)/bluetooth/shim.FreeRTOS.ARM_CM4.release.a
 endif
 
 ################################################################################
