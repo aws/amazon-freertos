@@ -21,6 +21,7 @@ afr_module_sources(
     PRIVATE
         "${src_dir}/iot_https_client.c"
         "${src_dir}/iot_https_utils.c"
+        "${AFR_MODULES_DIR}/coreHTTP/source/3rdparty/http_parser/http_parser.c"
 )
 
 afr_module_include_dirs(
@@ -30,14 +31,13 @@ afr_module_include_dirs(
         "$<${AFR_IS_TESTING}:${src_dir}>"
     PRIVATE
         ${extra_https_test_includes}
+        "${AFR_MODULES_DIR}/coreHTTP/source/3rdparty/http_parser/"
 )
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::common
-    PRIVATE
-        3rdparty::http_parser
 )
 
 # HTTPS Client test
@@ -63,5 +63,4 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         AFR::https
-        3rdparty::http_parser
 )
