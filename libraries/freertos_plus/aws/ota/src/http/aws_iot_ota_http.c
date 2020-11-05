@@ -387,6 +387,13 @@ static void _httpAppendHeaderCallback( void * pPrivateData,
 {
     IotLogDebug( "Invoking _httpAppendHeaderCallback." );
 
+    /* Cancel the request if the HTTP downloader is stopped by the OTA agent. */
+    if( _httpDownloader.state == OTA_HTTP_STOPPED )
+    {
+        IotHttpsClient_CancelRequestAsync( requestHandle );
+        return;
+    }
+
     /* Value of the "Range" field in HTTP GET request header, set when requesting the file block. */
     char * pRangeValueStr = ( ( _httpCallbackData_t * ) ( pPrivateData ) )->pRangeValueStr;
 
@@ -1186,7 +1193,11 @@ OTA_Err_t _AwsIotOTA_CleanupData_HTTP( OTA_AgentContext_t * pAgentCtx )
     ( void ) pAgentCtx;
 
     /* Disconnect from the S3 server. */
-    IotHttpsClient_Disconnect( _httpDownloader.httpConnection.connectionHandle );
+    if( IOT_HTTPS_OK != IotHttpsClient_Disconnect( _httpDownloader.httpConnection.connectionHandle ) )
+    {
+        IotLogError( "Failed to disconnect from S3 server." );
+    }
+
     _httpDownloader.httpConnection.connectionHandle = NULL;
 
     /* Reset downloader state and progress tracker. */
@@ -1195,7 +1206,10 @@ OTA_Err_t _AwsIotOTA_CleanupData_HTTP( OTA_AgentContext_t * pAgentCtx )
     _httpDownloader.currBlock = 0;
     _httpDownloader.currBlockSize = 0;
 
-    _httpFreeBuffers();
+    if( _httpDownloader.pAgentCtx->eState == eOTA_AgentState_ShuttingDown )
+    {
+        _httpFreeBuffers();
+    }
 
     return kOTA_Err_None;
 }
