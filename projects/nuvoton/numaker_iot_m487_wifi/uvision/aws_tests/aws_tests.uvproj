@@ -1431,21 +1431,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/coreHTTP/source/3rdparty/http_parser/</GroupName>
-					<Files>
-						<File>
-							<FileName>http_parser.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</FilePath>
-						</File>
-						<File>
-							<FileName>http_parser.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/freertos_plus/aws/greengrass/src/</GroupName>
 					<Files>
 						<File>
