@@ -1379,6 +1379,77 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/coreMQTT/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_mqtt.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/include/core_mqtt.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_state.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/include/core_mqtt_state.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_serializer.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/include/core_mqtt_serializer.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_config_defaults.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/include/core_mqtt_config_defaults.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreMQTT/source/include/interface/</GroupName>
+					<Files>
+						<File>
+							<FileName>transport_interface.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/interface/transport_interface.h</FilePath>
+						</File>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_http_client_private.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/core_http_client_private.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_http_config_defaults.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/core_http_config_defaults.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_http_client.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/core_http_client.h</FilePath>
+						</File>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/source/include/interface/</GroupName>
+					<Files>
+						<File>
+							<FileName>transport_interface.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/interface/transport_interface.h</FilePath>
+						</File>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_http_client.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/core_http_client.c</FilePath>
+						</File>
+				</Group>
+				<Group>
 					<GroupName>libraries/c_sdk/standard/serializer/src/cbor/</GroupName>
 					<Files>
 						<File>
