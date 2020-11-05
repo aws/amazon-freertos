@@ -26,6 +26,7 @@
 /*-----------------------------------------------------------*/
 /* The config header is always included first. */
 #include "aws_cellular_config.h"
+#include "cellular_config_defaults.h"
 
 /* Cellular comm interface include file. */
 #include "cellular_comm_interface.h"
