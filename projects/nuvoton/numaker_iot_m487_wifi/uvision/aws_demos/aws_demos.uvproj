@@ -374,7 +374,7 @@
 							<MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
 							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot; CONFIG_MEDTLS_USE_AFR_MEMORY RVDS_ARMCM4_NUC4xx __little_endian__=1 NDEBUG</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/portable;../../../../../libraries/abstractions/retry_utils;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/portable;../../../../../libraries/abstractions/retry_utils;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/3rdparty/http_parser;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -1246,6 +1246,16 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/coreMQTT/</GroupName>
+					<Files>
+						<File>
+							<FileName>mqttFilePaths.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/mqttFilePaths.cmake</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/coreMQTT/source/include/</GroupName>
 					<Files>
 						<File>
@@ -1281,6 +1291,41 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_mqtt_demo_dependencies.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/core_mqtt_demo_dependencies.cmake</FilePath>
+						</File>
+						<File>
+							<FileName>core_http_demo_dependencies.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/core_http_demo_dependencies.cmake</FilePath>
+						</File>
+						<File>
+							<FileName>core_json.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/core_json.cmake</FilePath>
+						</File>
+						<File>
+							<FileName>device_shadow_demo_dependencies.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/device_shadow_demo_dependencies.cmake</FilePath>
+						</File>
+						<File>
+							<FileName>device_defender_demo_dependencies.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/device_defender_demo_dependencies.cmake</FilePath>
+						</File>
+						<File>
+							<FileName>jobs_demo_dependencies.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/jobs_demo_dependencies.cmake</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/abstractions/retry_utils/freertos/</GroupName>
 					<Files>
 						<File>
@@ -1312,6 +1357,21 @@
 							<FileName>transport_secure_sockets.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/abstractions/transport/</GroupName>
+					<Files>
+						<File>
+							<FileName>transport_interface.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/abstractions/transport/transport_interface.cmake</FilePath>
+						</File>
+						<File>
+							<FileName>transport_interface_secure_sockets.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/abstractions/transport/transport_interface_secure_sockets.cmake</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1496,12 +1556,142 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/coreHTTP/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_http_client.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/core_http_client.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/source/3rdparty/http_parser/</GroupName>
+					<Files>
+						<File>
+							<FileName>http_parser.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</FilePath>
+						</File>
+						<File>
+							<FileName>.git</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/.git</FilePath>
+						</File>
+						<File>
+							<FileName>.gitignore</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/.gitignore</FilePath>
+						</File>
+						<File>
+							<FileName>.mailmap</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/.mailmap</FilePath>
+						</File>
+						<File>
+							<FileName>.travis.yml</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/.travis.yml</FilePath>
+						</File>
+						<File>
+							<FileName>AUTHORS</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/AUTHORS</FilePath>
+						</File>
+						<File>
+							<FileName>LICENSE-MIT</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/LICENSE-MIT</FilePath>
+						</File>
+						<File>
+							<FileName>Makefile</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/Makefile</FilePath>
+						</File>
+						<File>
+							<FileName>README.md</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/README.md</FilePath>
+						</File>
+						<File>
+							<FileName>bench.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/bench.c</FilePath>
+						</File>
+						<File>
+							<FileName>http_parser.gyp</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.gyp</FilePath>
+						</File>
+						<File>
+							<FileName>http_parser.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</FilePath>
+						</File>
+						<File>
+							<FileName>test.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/test.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/</GroupName>
+					<Files>
+						<File>
+							<FileName>httpFilePaths.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/httpFilePaths.cmake</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_http_client.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/include/core_http_client.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_http_client_private.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/include/core_http_client_private.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_http_config_defaults.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/include/core_http_config_defaults.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/source/interface/</GroupName>
+					<Files>
+						<File>
+							<FileName>transport_interface.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/interface/transport_interface.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/coreJSON/source/</GroupName>
 					<Files>
 						<File>
 							<FileName>core_json.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/coreJSON/source/core_json.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreJSON/</GroupName>
+					<Files>
+						<File>
+							<FileName>jsonFilePaths.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreJSON/jsonFilePaths.cmake</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1526,6 +1716,16 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/device_shadow_for_aws_iot_embedded_sdk/</GroupName>
+					<Files>
+						<File>
+							<FileName>shadowFilePaths.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/</GroupName>
 					<Files>
 						<File>
@@ -1537,6 +1737,71 @@
 							<FileName>shadow_config_defaults.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/device_defender_for_aws/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>defender.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/device_defender_for_aws/source/defender.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/device_defender_for_aws/</GroupName>
+					<Files>
+						<File>
+							<FileName>defenderFilePaths.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/device_defender_for_aws/defenderFilePaths.cmake</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/device_defender_for_aws/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>defender.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/device_defender_for_aws/source/include/defender.h</FilePath>
+						</File>
+						<File>
+							<FileName>defender_config_defaults.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/device_defender_for_aws/source/include/defender_config_defaults.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/jobs_for_aws/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>jobs.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/jobs_for_aws/source/jobs.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/jobs_for_aws/</GroupName>
+					<Files>
+						<File>
+							<FileName>jobsFilePaths.cmake</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/jobs_for_aws/jobsFilePaths.cmake</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/jobs_for_aws/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>jobs.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/jobs_for_aws/source/include/jobs.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1573,6 +1838,11 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_connection_sharing.c</FilePath>
 						</File>
+						<File>
+							<FileName>CMakeLists.txt</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT/CMakeLists.txt</FilePath>
+						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -1602,6 +1872,11 @@
 							<FileName>shadow_demo_helpers.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</FilePath>
+						</File>
+						<File>
+							<FileName>CMakeLists.txt</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</FilePath>
 						</File>
 					</Files>
 				</Group>
