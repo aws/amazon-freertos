@@ -446,6 +446,7 @@ static void _httpReadReadyCallback( void * pPrivateData,
     /* Bail out if this callback is invoked after http downloader stopped. */
     if( _httpDownloader.state == OTA_HTTP_STOPPED )
     {
+        IotHttpsClient_CancelResponseAsync( responseHandle );
         return;
     }
 
@@ -1192,10 +1193,15 @@ OTA_Err_t _AwsIotOTA_CleanupData_HTTP( OTA_AgentContext_t * pAgentCtx )
     /* Unused parameters. */
     ( void ) pAgentCtx;
 
+    /* Return status. */
+    IotHttpsReturnCode_t httpsStatus = IOT_HTTPS_OK;
+
     /* Disconnect from the S3 server. */
-    if( IOT_HTTPS_OK != IotHttpsClient_Disconnect( _httpDownloader.httpConnection.connectionHandle ) )
+    httpsStatus = IotHttpsClient_Disconnect( _httpDownloader.httpConnection.connectionHandle );
+
+    if( IOT_HTTPS_OK != httpsStatus )
     {
-        IotLogError( "Failed to disconnect from S3 server." );
+        IotLogError( "Failed to disconnect from S3 server. Error code: %d.", httpsStatus );
     }
 
     _httpDownloader.httpConnection.connectionHandle = NULL;
