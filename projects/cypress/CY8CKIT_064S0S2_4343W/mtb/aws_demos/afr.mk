@@ -312,7 +312,7 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c\
 	$(CY_AFR_ROOT)/libraries/coreHTTP/source/core_http_client.c\
-	$(CY_AFR_ROOT)/libraries/coreHTTP/source/3rdparty/http_parser.c
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common\
