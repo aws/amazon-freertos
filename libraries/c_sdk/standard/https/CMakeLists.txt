@@ -29,9 +29,9 @@ afr_module_include_dirs(
     PUBLIC 
         "${inc_dir}"
         "$<${AFR_IS_TESTING}:${src_dir}>"
+        "${AFR_MODULES_DIR}/coreHTTP/source/3rdparty/http_parser/"
     PRIVATE
         ${extra_https_test_includes}
-        "${AFR_MODULES_DIR}/coreHTTP/source/3rdparty/http_parser/"
 )
 
 afr_module_dependencies(
