@@ -537,33 +537,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h">
 			<Filter>libraries\coreHTTP\source\interface</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\.git">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\.gitignore">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\.mailmap">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\.travis.yml">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\AUTHORS">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\LICENSE-MIT">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\Makefile">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\README.md">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.gyp">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.h">
 			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
 		</ClInclude>
@@ -1191,12 +1164,6 @@
 			<Filter>libraries\coreHTTP\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.c">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\bench.c">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\test.c">
 			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">

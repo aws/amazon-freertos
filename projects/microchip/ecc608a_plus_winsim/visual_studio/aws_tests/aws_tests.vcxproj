@@ -263,15 +263,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client_private.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_config_defaults.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\.git"/>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\.gitignore"/>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\.mailmap"/>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\.travis.yml"/>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\AUTHORS"/>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\LICENSE-MIT"/>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\Makefile"/>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\README.md"/>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.gyp"/>
 		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\jsonFilePaths.cmake"/>
 		<ClInclude Include="..\..\..\..\..\libraries\core_json.cmake"/>
@@ -553,8 +544,6 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\bench.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\test.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\device_defender_for_aws\source\defender.c"/>

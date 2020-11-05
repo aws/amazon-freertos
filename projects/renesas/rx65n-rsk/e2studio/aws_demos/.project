@@ -1972,64 +1972,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/.git</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/.git</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/.gitignore</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/.gitignore</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/.mailmap</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/.mailmap</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/.travis.yml</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/.travis.yml</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/AUTHORS</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/AUTHORS</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/LICENSE-MIT</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/LICENSE-MIT</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/Makefile</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/Makefile</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/README.md</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/README.md</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/bench.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/bench.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/http_parser.gyp</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.gyp</locationURI>
-		</link>
-		<link>
 			<name>libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/test.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/test.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>
@@ -2292,6 +2237,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/aws_wifi_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/core_http_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/core_http_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/core_mqtt_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/core_mqtt_config.h</locationURI>
@@ -2300,6 +2250,11 @@
 			<name>config_files/core_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/core_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/defender_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/defender_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/iot_config.h</name>

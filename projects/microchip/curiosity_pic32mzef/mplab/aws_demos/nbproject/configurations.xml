@@ -720,18 +720,7 @@
 					<logicalFolder name="3rdparty" displayName="3rdparty" projectFiles="true">
 						<logicalFolder name="http_parser" displayName="http_parser" projectFiles="true">
 							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</itemPath>
-							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/.git</itemPath>
-							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/.gitignore</itemPath>
-							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/.mailmap</itemPath>
-							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/.travis.yml</itemPath>
-							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/AUTHORS</itemPath>
-							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/LICENSE-MIT</itemPath>
-							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/Makefile</itemPath>
-							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/README.md</itemPath>
-							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/bench.c</itemPath>
-							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.gyp</itemPath>
 							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</itemPath>
-							<itemPath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/test.c</itemPath>
 						</logicalFolder>
 					</logicalFolder>
 					<logicalFolder name="include" displayName="include" projectFiles="true">
@@ -825,8 +814,10 @@
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/aws_secure_sockets_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/aws_shadow_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/aws_wifi_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/core_http_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/core_mqtt_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/core_pkcs11_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/defender_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_mqtt_agent_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/mqtt_demo_basic_tls_config.h</itemPath>
