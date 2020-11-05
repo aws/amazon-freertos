@@ -11,7 +11,7 @@ set(JOBS_HEADER_FILES "")
 foreach(jobs_public_include_dir ${JOBS_INCLUDE_PUBLIC_DIRS})
     file(GLOB jobs_public_include_header_files
               LIST_DIRECTORIES false
-              ${jobs_public_include_dir}/* )
+              ${jobs_public_include_dir}/*.h )
     list(APPEND JOBS_HEADER_FILES ${jobs_public_include_header_files})
 endforeach()
 
