@@ -37,8 +37,8 @@
  * @brief Host name.
  *
  * @todo Set this to the unique name of your IoT Thing.
- * Please note for convenience of demonstration only we are
- * using a #define here. In production scenarios this  
+ * Please note that for convenience of demonstration only we
+ * are using a #define here. In production scenarios this  
  * should be something, the software can read as a 
  * unique # eg. production serial number.
  */
