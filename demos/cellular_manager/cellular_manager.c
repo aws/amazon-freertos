@@ -394,7 +394,7 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmOff( cellularSmEvent_t
             break;
 
         default:
-            IotLogWarn( "_cellularManagerSmTriggerSwitchSmOff: Wrong event received: %s", event );
+            IotLogWarn( "_cellularManagerSmTriggerSwitchSmOff: Wrong event received: %d", event );
             break;
     }
 
