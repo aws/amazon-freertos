@@ -94,7 +94,7 @@ This release supports backward compatibility with the old MQTT and Shadow librar
 
 #### Wi-Fi V2.0.0
 
-- Updated WiFi API signatures to make it more granular and to support more features in future.
+- Updated WiFi APIs  to support more granular error codes,  WEP encryption, SoftAP provisioning, optional asynchronous APIs, event handling and set country code.
 
 #### OTA PAL for Espressif ESP32-DevKitC
 
