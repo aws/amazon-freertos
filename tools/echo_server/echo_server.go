@@ -39,33 +39,60 @@ import (
 	"time"
 )
 
-const readTimeoutSecond = 300
+const (
+	readTimeoutSecond = 300
+	portFlagName      = "port"
+	repeatFlagName    = "repeat"
+	intervalFlagName  = "interval"
+	certFlagName      = "cert"
+	keyFlagName       = "key"
+)
 
 // Argument struct for JSON configuration
 type Argument struct {
-	Verbose    bool   `json:"verbose"`
-	Logging    bool   `json:"logging"`
-	Secure     bool   `json:"secure-connection"`
-	ServerPort string `json:"server-port"`
-	ServerCert string `json:"server-certificate-location"`
-	ServerKey  string `json:"server-key-location"`
+	Verbose               bool   `json:"verbose"`
+	Logging               bool   `json:"logging"`
+	Secure                bool   `json:"secure-connection"`
+	RepeatMode            bool   `json:"repeat-mode"`
+	RepeatIntervalSeconds int    `json:"repeat-interval-seconds"`
+	ServerPort            string `json:"server-port"`
+	ServerCert            string `json:"server-certificate"`
+	ServerKey             string `json:"server-key"`
+	ServerCertPath        string `json:"server-certificate-location"`
+	ServerKeyPath         string `json:"server-key-location"`
 }
 
-func secureEcho(certPath string, keyPath string, port string, verbose bool) {
+func secureEcho(config *Argument) {
 
 	// load certificates
-	servertCert, err := tls.LoadX509KeyPair(certPath, keyPath)
+	var serverCertBytes []byte
+	var err error
+	if config.ServerCert != "" {
+		serverCertBytes = []byte(config.ServerCert)
+	} else {
+		serverCertBytes, err = ioutil.ReadFile(config.ServerCertPath)
+		if err != nil {
+			log.Fatalf("Error %s while reading server certificates", err)
+		}
+	}
+
+	var serverKeyBytes []byte
+	if config.ServerKey != "" {
+		serverKeyBytes = []byte(config.ServerKey)
+	} else {
+		serverKeyBytes, err = ioutil.ReadFile(config.ServerKeyPath)
+		if err != nil {
+			log.Fatalf("Error %s while reading server key file", err)
+		}
+	}
+
+	servertCert, err := tls.X509KeyPair(serverCertBytes, serverKeyBytes)
 	if err != nil {
 		log.Fatalf("Error %s while loading server certificates", err)
 	}
 
-	serverCA, err := ioutil.ReadFile(certPath)
-	if err != nil {
-		log.Fatalf("Error %s while reading server certificates", err)
-	}
-
 	serverCAPool := x509.NewCertPool()
-	serverCAPool.AppendCertsFromPEM(serverCA)
+	serverCAPool.AppendCertsFromPEM(serverCertBytes)
 
 	//Configure TLS
 	tlsConfig := tls.Config{Certificates: []tls.Certificate{servertCert},
@@ -86,19 +113,25 @@ func secureEcho(certPath string, keyPath string, port string, verbose bool) {
 	}
 
 	tlsConfig.Rand = rand.Reader
-	echoServerThread(port, &tlsConfig, verbose)
+	echoServerThread(config, &tlsConfig)
 }
 
-func echoServerThread(port string, tlsConfig *tls.Config, verbose bool) {
+func echoServerThread(config *Argument, tlsConfig *tls.Config) {
 	// listen on all interfaces
 	var echoServer net.Listener
 	var err error
-	if tlsConfig != nil {
-		echoServer, err = tls.Listen("tcp", ":"+port, tlsConfig)
-		log.Println("Opening secure TCP server listening to port " + port)
+	var repeatModeString string
+	if config.RepeatMode {
+		repeatModeString = "enabled"
 	} else {
-		echoServer, err = net.Listen("tcp", ":"+port)
-		log.Println("Opening unsecure TCP server listening to port " + port)
+		repeatModeString = "disabled"
+	}
+	if tlsConfig != nil {
+		echoServer, err = tls.Listen("tcp", ":"+config.ServerPort, tlsConfig)
+		log.Printf("Opening secure TCP server with repeat mode %s listening to port %s\n", repeatModeString, config.ServerPort)
+	} else {
+		echoServer, err = net.Listen("tcp", ":"+config.ServerPort)
+		log.Printf("Opening unsecure TCP server with repeat mode %s listening to port %s\n", repeatModeString, config.ServerPort)
 	}
 
 	if err != nil {
@@ -113,27 +146,65 @@ func echoServerThread(port string, tlsConfig *tls.Config, verbose bool) {
 		if err != nil {
 			log.Printf("Error %s while trying to connect.", err)
 		} else {
-			go readWrite(connection, verbose)
+			go readWrite(config, connection)
 		}
 	}
 }
 
-func readWrite(connection net.Conn, verbose bool) {
+func repeatEchoing(config *Argument, connection net.Conn) {
 	defer connection.Close()
 	buffer := make([]byte, 4096)
+
+	readBytes, err := connection.Read(buffer)
+	if err != nil {
+		if err != io.EOF {
+			log.Printf("Error %s while reading data. Expected an EOF to signal end of connection", err)
+		}
+		return
+	} else {
+		log.Printf("Read %d bytes.", readBytes)
+		if config.Verbose {
+			log.Printf("Message:\n %s", buffer)
+		}
+	}
+
 	for {
-		connection.SetReadDeadline(time.Now().Add(readTimeoutSecond * time.Second))
-		readBytes, err := connection.Read(buffer)
+		writeBytes, err := connection.Write(buffer[:readBytes])
 		if err != nil {
-			if err != io.EOF {
-				log.Printf("Error %s while reading data. Expected an EOF to signal end of connection", err)
-			}
+			log.Printf("Failed to send data with error: %s ", err)
 			break
-		} else {
-			log.Printf("Read %d bytes.", readBytes)
-			if verbose {
-				log.Printf("Message:\n %s", buffer)
+		}
+
+		if writeBytes != 0 {
+			log.Printf("Succesfully echoed back %d bytes.", writeBytes)
+		}
+
+		time.Sleep(time.Duration(config.RepeatIntervalSeconds) * time.Second)
+	}
+}
+
+func readWrite(config *Argument, connection net.Conn) {
+	defer connection.Close()
+	buffer := make([]byte, 4096)
+	isFirstRead := true
+	readBytes := 0
+	var err error
+	for {
+		if !config.RepeatMode || isFirstRead {
+			connection.SetReadDeadline(time.Now().Add(readTimeoutSecond * time.Second))
+			readBytes, err = connection.Read(buffer)
+			if err != nil {
+				if err != io.EOF {
+					log.Printf("Error %s while reading data. Expected an EOF to signal end of connection", err)
+				}
+				break
+			} else {
+				log.Printf("Read %d bytes.", readBytes)
+				if config.Verbose {
+					log.Printf("Message:\n %s", buffer)
+				}
 			}
+			isFirstRead = false
 		}
 		writeBytes, err := connection.Write(buffer[:readBytes])
 		if err != nil {
@@ -144,15 +215,20 @@ func readWrite(connection net.Conn, verbose bool) {
 		if writeBytes != 0 {
 			log.Printf("Succesfully echoed back %d bytes.", writeBytes)
 		}
+
+		if config.RepeatMode {
+			time.Sleep(time.Duration(config.RepeatIntervalSeconds) * time.Second)
+		}
 	}
 }
 
-func startup(config Argument) {
+func startup(config *Argument) {
 	log.Println("Starting TCP Echo application...")
 	if config.Secure {
-		secureEcho(config.ServerCert, config.ServerKey, config.ServerPort, config.Verbose)
+		secureEcho(config)
 	}
-	echoServerThread(config.ServerPort, nil, config.Verbose)
+
+	echoServerThread(config, nil)
 }
 
 func logSetup() {
@@ -167,6 +243,11 @@ func logSetup() {
 }
 
 func main() {
+	serverPort := flag.String(portFlagName, "8883", "Port that will be used for this server.")
+	repeatMode := flag.Bool(repeatFlagName, false, "Flag indicating whether the echo server is in repeat mode.")
+	repeatIntervalSeconds := flag.Int(intervalFlagName, 1, "The repeat interval in seconds when in repeat mode.")
+	serverCert := flag.String(certFlagName, "", "X509 Server certificate for TLS connection. TLS will be enabled if this flag is set.")
+	serverKey := flag.String(keyFlagName, "", "X509 Server key for TLS connection. TLS will be enabled if this flag is set.")
 
 	configLocation := flag.String("config", "./config.json", "Path to a JSON configuration.")
 	flag.Parse()
@@ -189,5 +270,28 @@ func main() {
 		logSetup()
 	}
 
-	startup(config)
+	secureArgsCount := 0
+	// overwrite config only if the flags are set
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == portFlagName {
+			config.ServerPort = *serverPort
+		} else if f.Name == repeatFlagName {
+			config.RepeatMode = *repeatMode
+		} else if f.Name == intervalFlagName {
+			config.RepeatIntervalSeconds = *repeatIntervalSeconds
+		} else if f.Name == certFlagName {
+			config.ServerCert = *serverCert
+			secureArgsCount++
+		} else if f.Name == keyFlagName {
+			config.ServerKey = *serverKey
+			secureArgsCount++
+		}
+	})
+
+	// auto-enable secure mode if both cert & key cmdline args are provided.
+	if secureArgsCount >= 2 {
+		config.Secure = true
+	}
+
+	startup(&config)
 }
