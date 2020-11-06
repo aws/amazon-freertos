@@ -864,9 +864,9 @@
 			<locationURI>AFR_HOME/libraries/coreMQTT/source/include/core_mqtt_state.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreMQTT/source/portable/transport_interface.h</name>
+			<name>libraries/coreMQTT/source/interface/transport_interface.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreMQTT/source/portable/transport_interface.h</locationURI>
+			<locationURI>AFR_HOME/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/core_mqtt_demo_dependencies.cmake</name>
@@ -997,6 +997,11 @@
 			<name>libraries/c_sdk/standard/https/src/iot_https_utils.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/https/src/iot_https_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
@@ -1174,11 +1179,6 @@
 			<locationURI>AFR_HOME/libraries/coreHTTP/source/core_http_client.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/core_http_demo_dependencies.cmake</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/core_http_demo_dependencies.cmake</locationURI>
@@ -1209,64 +1209,9 @@
 			<locationURI>AFR_HOME/libraries/coreHTTP/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/.git</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/.git</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/.gitignore</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/.gitignore</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/.mailmap</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/.mailmap</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/.travis.yml</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/.travis.yml</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/AUTHORS</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/AUTHORS</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/LICENSE-MIT</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/LICENSE-MIT</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/Makefile</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/Makefile</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/README.md</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/README.md</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/bench.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/bench.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/http_parser.gyp</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.gyp</locationURI>
-		</link>
-		<link>
 			<name>libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/3rdparty/http_parser/test.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/test.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>
@@ -1569,6 +1514,11 @@
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/aws_wifi_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/core_http_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/core_http_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/core_mqtt_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/core_mqtt_config.h</locationURI>
@@ -1577,6 +1527,11 @@
 			<name>config_files/core_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/core_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/defender_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/defender_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/iot_config.h</name>
@@ -2777,16 +2732,6 @@
 			<name>libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/http_parser/http_parser.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/http_parser/http_parser.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/http_parser/http_parser.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/http_parser/http_parser.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.h</name>

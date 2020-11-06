@@ -1328,9 +1328,9 @@
 			<locationURI>BASE_DIR/libraries/coreMQTT/source/include/core_mqtt_state.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreMQTT/source/portable/transport_interface.h</name>
+			<name>libraries/coreMQTT/source/interface/transport_interface.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/coreMQTT/source/portable/transport_interface.h</locationURI>
+			<locationURI>BASE_DIR/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>

@@ -76,7 +76,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
-                    $(AFR_LIBRARIES_PATH)coreMQTT/source/portable \
+                    $(AFR_LIBRARIES_PATH)coreMQTT/source/interface \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/portable/Compiler/GCC \
                     $(AFR_C_SDK_AWS_PATH)shadow/include \
@@ -151,7 +151,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_encoder.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_client.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_utils.c \
-                      $(AFR_THIRDPARTY_PATH)http_parser/http_parser.c \
 
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws

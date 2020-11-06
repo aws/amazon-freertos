@@ -91,7 +91,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/test/access \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/test/mock \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
-                    $(AFR_LIBRARIES_PATH)coreMQTT/source/portable \
+                    $(AFR_LIBRARIES_PATH)coreMQTT/source/interface \
                     $(AFR_C_SDK_STANDARD_PATH)serializer/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include/types \
@@ -208,7 +208,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)https/test/system/iot_tests_https_system.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_client.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_utils.c \
-                      $(AFR_THIRDPARTY_PATH)http_parser/http_parser.c \
                       $(AMAZON_FREERTOS_PATH)tests/integration_test/shadow_system_test.c \
 
 
