@@ -1201,7 +1201,7 @@ OTA_Err_t _AwsIotOTA_CleanupData_HTTP( OTA_AgentContext_t * pAgentCtx )
 
     if( IOT_HTTPS_OK != httpsStatus )
     {
-        IotLogError( "Failed to disconnect from S3 server. Error code: %d.", httpsStatus );
+        IotLogDebug( "Failed to disconnect from S3 server. Error code: %d.", httpsStatus );
     }
 
     _httpDownloader.httpConnection.connectionHandle = NULL;
