@@ -20,8 +20,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef SHADOW_DEMO_HELPERS_H_
-#define SHADOW_DEMO_HELPERS_H_
+#ifndef MQTT_DEMO_HELPERS_H_
+#define MQTT_DEMO_HELPERS_H_
 
 /* MQTT API header. */
 #include "core_mqtt.h"
@@ -73,10 +73,10 @@
  *
  * @return The status of the final connection attempt.
  */
-TransportSocketStatus_t EstablishMqttSession( MQTTContext_t * pxContext,
-                                              NetworkContext_t * pxNetContext,
-                                              MQTTFixedBuffer_t * pxNetworkBuffer,
-                                              MQTTEventCallback_t eventCallback );
+BaseType_t EstablishMqttSession( MQTTContext_t * pxContext,
+                                 NetworkContext_t * pxNetContext,
+                                 MQTTFixedBuffer_t * pxNetworkBuffer,
+                                 MQTTEventCallback_t eventCallback );
 
 /**
  * @brief Handle the incoming packet if it's not related to the device shadow.
@@ -93,8 +93,8 @@ void vHandleOtherIncomingPacket( MQTTPacketInfo_t * pxPacketInfo,
  * @return EXIT_SUCCESS if DISCONNECT was successfully sent;
  * EXIT_FAILURE otherwise.
  */
-int32_t DisconnectMqttSession( MQTTContext_t * pxContext,
-                               NetworkContext_t * pxNetContext );
+BaseType_t DisconnectMqttSession( MQTTContext_t * pxContext,
+                                  NetworkContext_t * pxNetContext );
 
 /**
  * @brief Subscribe to a MQTT topic filter.
@@ -106,9 +106,9 @@ int32_t DisconnectMqttSession( MQTTContext_t * pxContext,
  * @return EXIT_SUCCESS if SUBSCRIBE was successfully sent;
  * EXIT_FAILURE otherwise.
  */
-int32_t SubscribeToTopic( MQTTContext_t * pxContext,
-                          const char * pcTopicFilter,
-                          uint16_t usTopicFilterLength );
+BaseType_t SubscribeToTopic( MQTTContext_t * pxContext,
+                             const char * pcTopicFilter,
+                             uint16_t usTopicFilterLength );
 
 /**
  * @brief Sends an MQTT UNSUBSCRIBE to unsubscribe from the shadow
@@ -121,9 +121,9 @@ int32_t SubscribeToTopic( MQTTContext_t * pxContext,
  * @return EXIT_SUCCESS if UNSUBSCRIBE was successfully sent;
  * EXIT_FAILURE otherwise.
  */
-int32_t UnsubscribeFromTopic( MQTTContext_t * pxContext,
-                              const char * pcTopicFilter,
-                              uint16_t usTopicFilterLength );
+BaseType_t UnsubscribeFromTopic( MQTTContext_t * pxContext,
+                                 const char * pcTopicFilter,
+                                 uint16_t usTopicFilterLength );
 
 /**
  * @brief Publish a message to a MQTT topic.
@@ -136,10 +136,10 @@ int32_t UnsubscribeFromTopic( MQTTContext_t * pxContext,
  * @return EXIT_SUCCESS if PUBLISH was successfully sent;
  * EXIT_FAILURE otherwise.
  */
-int32_t PublishToTopic( MQTTContext_t * pxContext,
-                        const char * pcTopicFilter,
-                        int32_t topicFilterLength,
-                        const char * pcPayload,
-                        size_t payloadLength );
+BaseType_t PublishToTopic( MQTTContext_t * pxContext,
+                           const char * pcTopicFilter,
+                           int32_t topicFilterLength,
+                           const char * pcPayload,
+                           size_t payloadLength );
 
-#endif /* ifndef SHADOW_DEMO_HELPERS_H_ */
+#endif /* ifndef MQTT_DEMO_HELPERS_H_ */

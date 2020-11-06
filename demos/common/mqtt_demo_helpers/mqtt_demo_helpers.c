@@ -188,8 +188,8 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
  * @param[out] pucIndex The output parameter to return the index at which an
  * outgoing publish message can be stored.
  *
- * @return EXIT_FAILURE if no more publishes can be stored;
- * EXIT_SUCCESS if an index to store the next outgoing publish is obtained.
+ * @return pdFAIL if no more publishes can be stored;
+ * pdPASS if an index to store the next outgoing publish is obtained.
  */
 static int prvGetNextFreeIndexForOutgoingPublishes( uint8_t * pucIndex );
 
@@ -294,7 +294,7 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
 
 static int prvGetNextFreeIndexForOutgoingPublishes( uint8_t * pucIndex )
 {
-    int returnStatus = EXIT_FAILURE;
+    int returnStatus = pdFAIL;
     uint8_t ucIndex = 0;
 
     assert( outgoingPublishPackets != NULL );
@@ -306,7 +306,7 @@ static int prvGetNextFreeIndexForOutgoingPublishes( uint8_t * pucIndex )
          * Check if the the ucIndex has a free slot. */
         if( outgoingPublishPackets[ ucIndex ].packetId == MQTT_PACKET_ID_INVALID )
         {
-            returnStatus = EXIT_SUCCESS;
+            returnStatus = pdPASS;
             break;
         }
     }
@@ -407,7 +407,7 @@ void vHandleOtherIncomingPacket( MQTTPacketInfo_t * pxPacketInfo,
 
 static int handlePublishResend( MQTTContext_t * pxMqttContext )
 {
-    int returnStatus = EXIT_SUCCESS;
+    int returnStatus = pdPASS;
     MQTTStatus_t eMqttStatus = MQTTSuccess;
     uint8_t ucIndex = 0U;
 
@@ -434,7 +434,7 @@ static int handlePublishResend( MQTTContext_t * pxMqttContext )
                             " failed with status %u.",
                             outgoingPublishPackets[ ucIndex ].packetId,
                             eMqttStatus ) );
-                returnStatus = EXIT_FAILURE;
+                returnStatus = pdFAIL;
                 break;
             }
             else
@@ -450,12 +450,12 @@ static int handlePublishResend( MQTTContext_t * pxMqttContext )
 
 /*-----------------------------------------------------------*/
 
-TransportSocketStatus_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
-                                              NetworkContext_t * pxNetworkContext,
-                                              MQTTFixedBuffer_t * pxNetworkBuffer,
-                                              MQTTEventCallback_t eventCallback )
+BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
+                                 NetworkContext_t * pxNetworkContext,
+                                 MQTTFixedBuffer_t * pxNetworkBuffer,
+                                 MQTTEventCallback_t eventCallback )
 {
-    TransportSocketStatus_t returnStatus = EXIT_SUCCESS;
+    BaseType_t returnStatus = pdPASS;
     MQTTStatus_t eMqttStatus;
     MQTTConnectInfo_t xConnectInfo;
     TransportInterface_t xTransport;
@@ -470,7 +470,7 @@ TransportSocketStatus_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
 
     returnStatus = prvConnectToServerWithBackoffRetries( pxNetworkContext );
 
-    if( returnStatus != EXIT_SUCCESS )
+    if( returnStatus != pdPASS )
     {
         /* Log error to indicate connection failure after all
          * reconnect attempts are over. */
@@ -494,7 +494,7 @@ TransportSocketStatus_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
 
         if( eMqttStatus != MQTTSuccess )
         {
-            returnStatus = EXIT_FAILURE;
+            returnStatus = pdFAIL;
             LogError( ( "MQTT init failed with status %u.", eMqttStatus ) );
         }
         else
@@ -533,7 +533,7 @@ TransportSocketStatus_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
 
             if( eMqttStatus != MQTTSuccess )
             {
-                returnStatus = EXIT_FAILURE;
+                returnStatus = pdFAIL;
                 LogError( ( "Connection with MQTT broker failed with status %u.", eMqttStatus ) );
             }
             else
@@ -542,7 +542,7 @@ TransportSocketStatus_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
             }
         }
 
-        if( returnStatus == EXIT_SUCCESS )
+        if( returnStatus == pdPASS )
         {
             /* Keep a flag for indicating if MQTT session is established. This
              * flag will mark that an MQTT DISCONNECT has to be sent at the end
@@ -550,7 +550,7 @@ TransportSocketStatus_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
             mqttSessionEstablished = true;
         }
 
-        if( returnStatus == EXIT_SUCCESS )
+        if( returnStatus == pdPASS )
         {
             /* Check if session is present and if there are any outgoing publishes
              * that need to resend. This is only valid if the broker is
@@ -580,11 +580,11 @@ TransportSocketStatus_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
 
 /*-----------------------------------------------------------*/
 
-int32_t DisconnectMqttSession( MQTTContext_t * pxMqttContext,
-                               NetworkContext_t * pxNetworkContext )
+BaseType_t DisconnectMqttSession( MQTTContext_t * pxMqttContext,
+                                  NetworkContext_t * pxNetworkContext )
 {
     MQTTStatus_t eMqttStatus = MQTTSuccess;
-    int returnStatus = EXIT_SUCCESS;
+    int returnStatus = pdPASS;
     TransportSocketStatus_t xNetworkStatus;
 
     assert( pxMqttContext != NULL );
@@ -599,7 +599,7 @@ int32_t DisconnectMqttSession( MQTTContext_t * pxMqttContext,
         {
             LogError( ( "Sending MQTT DISCONNECT failed with status=%u.",
                         eMqttStatus ) );
-            returnStatus = EXIT_FAILURE;
+            returnStatus = pdFAIL;
         }
     }
 
@@ -610,7 +610,7 @@ int32_t DisconnectMqttSession( MQTTContext_t * pxMqttContext,
     {
         LogError( ( "Disconnecting from SecureSocket failed with status=%u.",
                     xNetworkStatus ) );
-        returnStatus = EXIT_FAILURE;
+        returnStatus = pdFAIL;
     }
 
     return returnStatus;
@@ -618,11 +618,11 @@ int32_t DisconnectMqttSession( MQTTContext_t * pxMqttContext,
 
 /*-----------------------------------------------------------*/
 
-int32_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
-                          const char * pcTopicFilter,
-                          uint16_t usTopicFilterLength )
+BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
+                             const char * pcTopicFilter,
+                             uint16_t usTopicFilterLength )
 {
-    int returnStatus = EXIT_SUCCESS;
+    int returnStatus = pdPASS;
     MQTTStatus_t eMqttStatus;
     MQTTSubscribeInfo_t pSubscriptionList[ mqttexampleTOPIC_COUNT ];
 
@@ -651,7 +651,7 @@ int32_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
     {
         LogError( ( "Failed to send SUBSCRIBE packet to broker with error = %u.",
                     eMqttStatus ) );
-        returnStatus = EXIT_FAILURE;
+        returnStatus = pdFAIL;
     }
     else
     {
@@ -670,7 +670,7 @@ int32_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
 
         if( eMqttStatus != MQTTSuccess )
         {
-            returnStatus = EXIT_FAILURE;
+            returnStatus = pdFAIL;
             LogError( ( "MQTT_ProcessLoop returned with status = %u.",
                         eMqttStatus ) );
         }
@@ -681,11 +681,11 @@ int32_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
 
 /*-----------------------------------------------------------*/
 
-int32_t UnsubscribeFromTopic( MQTTContext_t * pxMqttContext,
-                              const char * pcTopicFilter,
-                              uint16_t usTopicFilterLength )
+BaseType_t UnsubscribeFromTopic( MQTTContext_t * pxMqttContext,
+                                 const char * pcTopicFilter,
+                                 uint16_t usTopicFilterLength )
 {
-    int returnStatus = EXIT_SUCCESS;
+    int returnStatus = pdPASS;
     MQTTStatus_t eMqttStatus;
     MQTTSubscribeInfo_t pSubscriptionList[ 1 ];
 
@@ -714,7 +714,7 @@ int32_t UnsubscribeFromTopic( MQTTContext_t * pxMqttContext,
     {
         LogError( ( "Failed to send UNSUBSCRIBE packet to broker with error = %u.",
                     eMqttStatus ) );
-        returnStatus = EXIT_FAILURE;
+        returnStatus = pdFAIL;
     }
     else
     {
@@ -733,7 +733,7 @@ int32_t UnsubscribeFromTopic( MQTTContext_t * pxMqttContext,
 
         if( eMqttStatus != MQTTSuccess )
         {
-            returnStatus = EXIT_FAILURE;
+            returnStatus = pdFAIL;
             LogError( ( "MQTT_ProcessLoop returned with status = %u.",
                         eMqttStatus ) );
         }
@@ -744,13 +744,13 @@ int32_t UnsubscribeFromTopic( MQTTContext_t * pxMqttContext,
 
 /*-----------------------------------------------------------*/
 
-int32_t PublishToTopic( MQTTContext_t * pxMqttContext,
-                        const char * pcTopicFilter,
-                        int32_t topicFilterLength,
-                        const char * pcPayload,
-                        size_t payloadLength )
+BaseType_t PublishToTopic( MQTTContext_t * pxMqttContext,
+                           const char * pcTopicFilter,
+                           int32_t topicFilterLength,
+                           const char * pcPayload,
+                           size_t payloadLength )
 {
-    int returnStatus = EXIT_SUCCESS;
+    int returnStatus = pdPASS;
     MQTTStatus_t eMqttStatus = MQTTSuccess;
     uint8_t ucPublishIndex = MAX_OUTGOING_PUBLISHES;
 
@@ -764,7 +764,7 @@ int32_t PublishToTopic( MQTTContext_t * pxMqttContext,
      * receiving a PUBACK. */
     returnStatus = prvGetNextFreeIndexForOutgoingPublishes( &ucPublishIndex );
 
-    if( returnStatus == EXIT_FAILURE )
+    if( returnStatus == pdFAIL )
     {
         LogError( ( "Unable to find a free spot for outgoing PUBLISH message.\n\n" ) );
     }
@@ -791,7 +791,7 @@ int32_t PublishToTopic( MQTTContext_t * pxMqttContext,
             LogError( ( "Failed to send PUBLISH packet to broker with error = %u.",
                         eMqttStatus ) );
             vCleanupOutgoingPublishAt( ucPublishIndex );
-            returnStatus = EXIT_FAILURE;
+            returnStatus = pdFAIL;
         }
         else
         {

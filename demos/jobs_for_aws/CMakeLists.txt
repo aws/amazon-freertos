@@ -1,20 +1,16 @@
-# Device Shadow demo module.
-afr_demo_module(device_shadow)
+# Demo module for AWS IoT Jobs library.
+afr_demo_module(jobs)
 
-afr_set_demo_metadata(ID "DEVICE_SHADOW_DEMO")
-afr_set_demo_metadata(DESCRIPTION "An example that demonstrates the use of the Device Shadow library.")
-afr_set_demo_metadata(DISPLAY_NAME "Device Shadow Demo")
+afr_set_demo_metadata(ID "JOBS_DEMO")
+afr_set_demo_metadata(DESCRIPTION "An example that demonstrates the use of the AWS IoT Jobs library.")
+afr_set_demo_metadata(DISPLAY_NAME "Jobs Demo")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_main.c"
-        "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_helpers.c"
-        # Add the header file to generate their metadata so that 
-        # they are present in code downloaded from FreeRTOS console.
-        "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_helpers.h"
-        # As the containing directory name (i.e. device_shadow_for_aws_iot_embedded_sdk)
-        # does not match the module name (i.e. device_shadow), 
+        "${CMAKE_CURRENT_LIST_DIR}/jobs_demo.c"
+        # As the containing directory name (i.e. jobs_for_aws)
+        # does not match the module name (i.e. jobs), 
         # we add the CMake file to the source list so that metadata is
         # generated for it, and it is present in code downloaded from
         # the FreeRTOS console.
@@ -24,13 +20,12 @@ afr_module_sources(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        AFR::core_mqtt
+        AFR::mqtt_demo_helpers
         AFR::core_json
-        AFR::device_shadow
+        AFR::jobs
         AFR::retry_utils
-        AFR::transport_interface_secure_sockets
         # Add dependency on the device_shadow_demo_dependencies 
         # metadata module so that this demo is only shown when the
         # Device Shadow library is selected on the FreeRTOS console.
-        AFR::device_shadow_demo_dependencies
+        AFR::jobs_demo_dependencies
 )

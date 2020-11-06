@@ -75,6 +75,7 @@
 
 /* Include common MQTT demo helpers. */
 #include "core_mqtt_helpers.h"
+#include "core_json.h"
 
 #ifndef THING_NAME
 
@@ -176,6 +177,34 @@
  */
 #define jobsexampleMS_BEFORE_EXIT            ( 10 * 60 * 1000 )
 
+/**
+ * @brief Utility macro to generate the PUBLISH topic string to the
+ * DescribePendingJobExecution API of AWS IoT Jobs service for requesting
+ * the next pending job information.
+ */
+#define DESCRIBE_NEXT_JOB_TOPIC( thingName ) \
+    ( JOBS_API_PREFIX ""                     \
+      THING_NAME "" JOBS_API_BRIDGE          \
+      "$next/"JOBS_API_DESCRIBE )
+
+/**
+ * @brief Utility macro to generate the subscription topic string for the
+ * NextJobExecutionChanged API of AWS IoT Jobs service that is required
+ * for getting notification about changes in the next pending job in the queue.
+ */
+#define NEXT_JOB_EXECUTION_CHANGED_TOPIC( thingName ) \
+    ( JOBS_API_PREFIX ""                              \
+      THING_NAME "" JOBS_API_BRIDGE                   \
+      ""JOBS_API_NEXTJOBCHANGED )
+
+/**
+ * @brief Format a JSON status message.
+ *
+ * @param[in] x one of "IN_PROGRESS", "SUCCEEDED", or "FAILED"
+ */
+#define makeReport_( x )    "{\"status\":\"" x "\"}"
+
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -195,17 +224,17 @@ typedef enum JobActionType
 /**
  * @brief The MQTT context used for MQTT operation.
  */
-static MQTTContext_t mqttContext = { 0 };
+static MQTTContext_t xMqttContext;
 
 /**
  * @brief The network context used for Openssl operation.
  */
-static NetworkContext_t networkContext = { 0 };
+static NetworkContext_t xNetworkContext;
 
 /**
  * @brief The flag to indicate the mqtt session changed.
  */
-static bool mqttSessionEstablished = false;
+static BaseType_t mqttSessionEstablished = pdTRUE;
 
 /**
  * @brief Static buffer used to hold MQTT messages being sent and received.
@@ -233,26 +262,30 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
                               MQTTDeserializedInfo_t * pxDeserializedInfo );
 
 /**
- * @brief Process payload from /update/delta topic.
+ * @brief Process payload from $aws/things<thingName>/jobs/<jobId>/get/accepted topic.
  *
- * This handler examines the version number and the powerOn state. If powerOn
- * state has changed, it sets a flag for the main function to take further actions.
+ * This handler parses the payload received about the next pending job to identify
+ * the action requested in the job document, and perform the appropriate
+ * action to execute the job.
  *
  * @param[in] pPublishInfo Deserialized publish info pointer for the incoming
  * packet.
  */
-static void prvUpdateDeltaHandler( MQTTPublishInfo_t * pxPublishInfo );
+static void prvDescribeNextJobHandler( MQTTPublishInfo_t * pxPublishInfo );
 
 /**
- * @brief Process payload from /update/accepted topic.
+ * @brief Processes success response from the UpdateJobExecution API for a job update
+ * sent to the AWS IoT Jobs service.
+ * The success response is received on the $aws/things/<thingName>/jobs/update/accepted
+ * topic.
  *
- * This handler examines the accepted message that carries the same clientToken
+ * This handler examines that the accepted message that carries the same clientToken
  * as sent before.
  *
  * @param[in] pxPublishInfo Deserialized publish info pointer for the incoming
  * packet.
  */
-static void prvUpdateAcceptedHandler( MQTTPublishInfo_t * pxPublishInfo );
+static void prvUpdateJobAcceptedResponeHandler( MQTTPublishInfo_t * pxPublishInfo );
 
 /*-----------------------------------------------------------*/
 
@@ -280,212 +313,14 @@ static JobActionType prvGetAction( const char * pcAction,
 }
 
 
-static void prvUpdateDeltaHandler( MQTTPublishInfo_t * pxPublishInfo )
+static void prvDescribeNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
 {
-    static uint32_t ulCurrentVersion = 0; /* Remember the latestVersion # we've ever received */
-    uint32_t ulVersion = 0U;
-    uint32_t ulNewState = 0U;
-    char * pcOutValue = NULL;
-    uint32_t ulOutValueLength = 0U;
-    JSONStatus_t result = JSONSuccess;
-
-    assert( pxPublishInfo != NULL );
-    assert( pxPublishInfo->pPayload != NULL );
-
-    LogInfo( ( "/update/delta json payload:%s.", ( const char * ) pxPublishInfo->pPayload ) );
-
-    /* The payload will look similar to this:
-     * {
-     *      "version": 12,
-     *      "timestamp": 1595437367,
-     *      "state": {
-     *          "powerOn": 1
-     *      },
-     *      "metadata": {
-     *          "powerOn": {
-     *          "timestamp": 1595437367
-     *          }
-     *      },
-     *      "clientToken": "388062"
-     *  }
-     */
-
-    /* Make sure the payload is a valid json document. */
-    result = JSON_Validate( pxPublishInfo->pPayload,
-                            pxPublishInfo->payloadLength );
-
-    if( result == JSONSuccess )
-    {
-        /* Then we start to get the version value by JSON keyword "version". */
-        result = JSON_Search( ( char * ) pxPublishInfo->pPayload,
-                              pxPublishInfo->payloadLength,
-                              "version",
-                              sizeof( "version" ) - 1,
-                              '.',
-                              &pcOutValue,
-                              ( size_t * ) &ulOutValueLength );
-    }
-    else
-    {
-        LogError( ( "The json document is invalid!!" ) );
-    }
-
-    if( result == JSONSuccess )
-    {
-        LogInfo( ( "version: %.*s",
-                   ulOutValueLength,
-                   pcOutValue ) );
-
-        /* Convert the extracted value to an unsigned integer value. */
-        ulVersion = ( uint32_t ) strtoul( pcOutValue, NULL, 10 );
-    }
-    else
-    {
-        LogError( ( "No version in json document!!" ) );
-    }
-
-    LogInfo( ( "version:%d, ulCurrentVersion:%d \r\n", ulVersion, ulCurrentVersion ) );
-
-    /* When the version is much newer than the on we retained, that means the powerOn
-     * state is valid for us. */
-    if( ulVersion > ulCurrentVersion )
-    {
-        /* Set to received version as the current version. */
-        ulCurrentVersion = ulVersion;
-
-        /* Get powerOn state from json documents. */
-        result = JSON_Search( ( char * ) pxPublishInfo->pPayload,
-                              pxPublishInfo->payloadLength,
-                              "state.powerOn",
-                              sizeof( "state.powerOn" ) - 1,
-                              '.',
-                              &pcOutValue,
-                              ( size_t * ) &ulOutValueLength );
-    }
-    else
-    {
-        /* In this demo, we discard the incoming message
-         * if the version number is not newer than the latest
-         * that we've received before. Your application may use a
-         * different approach.
-         */
-        LogWarn( ( "The received version is smaller than current one!!" ) );
-    }
-
-    if( result == JSONSuccess )
-    {
-        /* Convert the powerOn state value to an unsigned integer value. */
-        ulNewState = ( uint32_t ) strtoul( pcOutValue, NULL, 10 );
-
-        LogInfo( ( "The new power on state newState:%d, ulCurrentPowerOnState:%d \r\n",
-                   ulNewState, ulCurrentPowerOnState ) );
-
-        if( ulNewState != ulCurrentPowerOnState )
-        {
-            /* The received powerOn state is different from the one we retained before, so we switch them
-             * and set the flag. */
-            ulCurrentPowerOnState = ulNewState;
-
-            /* State change will be handled in main(), where we will publish a "reported"
-             * state to the device shadow. We do not do it here because we are inside of
-             * a callback from the MQTT library, so that we don't re-enter
-             * the MQTT library. */
-            stateChanged = true;
-        }
-    }
-    else
-    {
-        LogError( ( "No powerOn in json document!!" ) );
-        lUpdateDeltaReturn = EXIT_FAILURE;
-    }
+    LogInfo( ( "Received messages from the DescribeJobExecution API" ) );
 }
 
-/*-----------------------------------------------------------*/
-
-static void prvUpdateAcceptedHandler( MQTTPublishInfo_t * pxPublishInfo )
+static void prvUpdateJobAcceptedResponeHandler( MQTTPublishInfo_t * pxPublishInfo )
 {
-    char * pcOutValue = NULL;
-    uint32_t ulOutValueLength = 0U;
-    uint32_t ulReceivedToken = 0U;
-    JSONStatus_t result = JSONSuccess;
-
-    assert( pxPublishInfo != NULL );
-    assert( pxPublishInfo->pPayload != NULL );
-
-    LogInfo( ( "/update/accepted json payload:%s.", ( const char * ) pxPublishInfo->pPayload ) );
-
-    /* Handle the reported state with state change in /update/accepted topic.
-     * Thus we will retrieve the client token from the json document to see if
-     * it's the same one we sent with reported state on the /update topic.
-     * The payload will look similar to this:
-     *  {
-     *      "state": {
-     *          "reported": {
-     *          "powerOn": 1
-     *          }
-     *      },
-     *      "metadata": {
-     *          "reported": {
-     *          "powerOn": {
-     *              "timestamp": 1596573647
-     *          }
-     *          }
-     *      },
-     *      "version": 14698,
-     *      "timestamp": 1596573647,
-     *      "clientToken": "022485"
-     *  }
-     */
-
-    /* Make sure the payload is a valid json document. */
-    result = JSON_Validate( pxPublishInfo->pPayload,
-                            pxPublishInfo->payloadLength );
-
-    if( result == JSONSuccess )
-    {
-        /* Get clientToken from json documents. */
-        result = JSON_Search( ( char * ) pxPublishInfo->pPayload,
-                              pxPublishInfo->payloadLength,
-                              "clientToken",
-                              sizeof( "clientToken" ) - 1,
-                              '.',
-                              &pcOutValue,
-                              ( size_t * ) &ulOutValueLength );
-    }
-    else
-    {
-        LogError( ( "Invalid json documents !!" ) );
-    }
-
-    if( result == JSONSuccess )
-    {
-        LogInfo( ( "clientToken: %.*s", ulOutValueLength,
-                   pcOutValue ) );
-
-        /* Convert the code to an unsigned integer value. */
-        ulReceivedToken = ( uint32_t ) strtoul( pcOutValue, NULL, 10 );
-
-        LogInfo( ( "receivedToken:%d, clientToken:%u \r\n", ulReceivedToken, ulClientToken ) );
-
-        /* If the clientToken in this update/accepted message matches the one we
-         * published before, it means the device shadow has accepted our latest
-         * reported state. We are done. */
-        if( ulReceivedToken == ulClientToken )
-        {
-            LogInfo( ( "Received response from the device shadow. Previously published "
-                       "update with clientToken=%u has been accepted. ", ulClientToken ) );
-        }
-        else
-        {
-            LogWarn( ( "The received clientToken=%u is not identical with the one=%u we sent ",
-                       ulReceivedToken, ulClientToken ) );
-        }
-    }
-    else
-    {
-        LogError( ( "No clientToken in json document!!" ) );
-        lUpdateAcceptedReturn = EXIT_FAILURE;
-    }
+    LogInfo( ( "Received message from the UpdateJobExecution API" ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -499,16 +334,13 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
                               MQTTPacketInfo_t * pxPacketInfo,
                               MQTTDeserializedInfo_t * pxDeserializedInfo )
 {
-    ShadowMessageType_t messageType = ShadowMessageTypeMaxNum;
-    const char * pcThingName = NULL;
-    uint16_t usThingNameLength = 0U;
     uint16_t usPacketIdentifier;
 
     ( void ) pxMqttContext;
 
-    assert( pxDeserializedInfo != NULL );
-    assert( pxMqttContext != NULL );
-    assert( pxPacketInfo != NULL );
+    configASSERT( pxDeserializedInfo != NULL );
+    configASSERT( pxMqttContext != NULL );
+    configASSERT( pxPacketInfo != NULL );
 
     usPacketIdentifier = pxDeserializedInfo->packetIdentifier;
 
@@ -517,43 +349,71 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
      * out the lower bits to check if the packet is publish. */
     if( ( pxPacketInfo->type & 0xF0U ) == MQTT_PACKET_TYPE_PUBLISH )
     {
-        assert( pxDeserializedInfo->pPublishInfo != NULL );
-        LogInfo( ( "pPublishInfo->pTopicName:%s.", pxDeserializedInfo->pPublishInfo->pTopicName ) );
+        configASSERT( pxDeserializedInfo->pPublishInfo != NULL );
+        JobsTopic_t topicType = JobsMaxTopic;
+        const char * pcThingName = NULL;
+        uint16_t usThingNameLength = 0U;
+        char pcJobId[ JOBS_JOBID_MAX_LENGTH ] = { 0 };
+        int16_t usJobIdLength = 0;
+        JobsStatus_t xStatus = JobsError;
+
+        LogDebug( ( "Received an incoming publish message: TopicName=%.*s",
+                    pxDeserializedInfo->pPublishInfo->topicNameLength,
+                    ( const char * ) pxDeserializedInfo->pPublishInfo->pTopicName ) ) );
 
         /* Let the Device Shadow library tell us whether this is a device shadow message. */
-        if( SHADOW_SUCCESS == Jobs_MatchTopic( pxDeserializedInfo->pPublishInfo->pTopicName,
-                                               pxDeserializedInfo->pPublishInfo->topicNameLength,
-                                               &messageType,
-                                               &pcThingName,
-                                               &usThingNameLength ) )
+        xStatus == Jobs_MatchTopic( pxDeserializedInfo->pPublishInfo->pTopicName,
+                                    pxDeserializedInfo->pPublishInfo->topicNameLength,
+                                    &messageType,
+                                    &pcThingName,
+                                    &usThingNameLength );
+
+        if( xStatus == JobsSuccess )
         {
+            /* Make sure that we have received messages from the AWS IoT Jobs services for the same
+             * thing name that we requested. */
+            configASSERT( 0 == strncmp( pcThingName, usThingNameLength ) )
+
             /* Upon successful return, the messageType has been filled in. */
-            if( messageType == ShadowMessageTypeUpdateDelta )
+            if( topicType == JobsDescribeSuccess )
             {
                 /* Handler function to process payload. */
-                prvUpdateDeltaHandler( pxDeserializedInfo->pPublishInfo );
+                prvDescribeNextJobHandler( pxDeserializedInfo->pPublishInfo );
             }
-            else if( messageType == ShadowMessageTypeUpdateAccepted )
+            else if( topicType == JobsUpdateSuccess )
             {
                 /* Handler function to process payload. */
-                prvUpdateAcceptedHandler( pxDeserializedInfo->pPublishInfo );
+                prvUpdateJobAcceptedResponeHandler( pxDeserializedInfo->pPublishInfo );
             }
-            else if( messageType == ShadowMessageTypeUpdateDocuments )
+            else if( topicType == JobsDescribeFailed )
             {
-                LogInfo( ( "/update/documents json payload:%s.", ( const char * ) pxDeserializedInfo->pPublishInfo->pPayload ) );
+                LogWarn( ( "Request for next job description rejected: RejectedResponse=%.*s.",
+                           pxDeserializedInfo->pPublishInfo->payloadLength,
+                           ( const char * ) pxDeserializedInfo->pPublishInfo->pPayload ) );
             }
-            else if( messageType == ShadowMessageTypeUpdateRejected )
+            else if( topicType == JobsUpdateFailed )
             {
-                LogInfo( ( "/update/rejected json payload:%s.", ( const char * ) pxDeserializedInfo->pPublishInfo->pPayload ) );
+                LogWarn( ( "Request for job update rejected: RejectedResponse=%.*s.",
+                           pxDeserializedInfo->pPublishInfo->payloadLength,
+                           ( const char * ) pxDeserializedInfo->pPublishInfo->pPayload ) );
             }
             else
             {
-                LogInfo( ( "Other message type:%d !!", messageType ) );
+                LogWarn( ( "Received an unexpected messages from AWS IoT Jobs service: "
+                           "JobsTopicType=%u", topicType ) );
             }
+        }
+        else if( xStatus == JobsNoMatch )
+        {
+            LogWarn( ( "Incoming message topic does not belong to IoT Jobs!: topic=%.*s",
+                       pxDeserializedInfo->pPublishInfo->topicNameLength,
+                       ( const char * ) pxDeserializedInfo->pPublishInfo->pTopicName ) );
         }
         else
         {
-            LogError( ( "Shadow_MatchTopic parse failed:%s !!", ( const char * ) pxDeserializedInfo->pPublishInfo->pTopicName ) );
+            LogError( ( "Failed to parse incoming publish job. Topic=%s!",
+                        pxDeserializedInfo->pPublishInfo->topicNameLength,
+                        ( const char * ) pxDeserializedInfo->pPublishInfo->pTopicName ) );
         }
     }
     else
@@ -567,17 +427,7 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
 /**
  * @brief Entry point of the Jobs demo.
  *
- * This main function demonstrates how to use the Jobs library API Device Shadow library
- * to generate strings for the MQTT topics of the the AWS IoT Jobs service.
- * It uses these macros for topics to subscribe
- * to:
- * - SHADOW_TOPIC_STRING_UPDATE_DELTA for "$aws/things/thingName/shadow/update/delta"
- * - SHADOW_TOPIC_STRING_UPDATE_ACCEPTED for "$aws/things/thingName/shadow/update/accepted"
- * - SHADOW_TOPIC_STRING_UPDATE_REJECTED for "$aws/things/thingName/shadow/update/rejected"
- *
- * It also uses these macros for topics to publish to:
- * - SHADOW_TOPIC_STIRNG_DELETE for "$aws/things/thingName/shadow/delete"
- * - SHADOW_TOPIC_STRING_UPDATE for "$aws/things/thingName/shadow/update"
+ * This main function demonstrates how to use the Jobs library API Device Shadow library.
  *
  * The helper functions this demo uses for MQTT operations have internal
  * loops to process incoming messages. Those are not the focus of this demo
@@ -589,7 +439,7 @@ int RunJobsDemo( bool awsIotMqttMode,
                  void * pNetworkCredentialInfo,
                  const void * pNetworkInterface )
 {
-    int returnStatus = EXIT_SUCCESS;
+    BaseType_t returnStatus = pdPASS;
 
     /* A buffer containing the update document. It has static duration to prevent
      * it from being placed on the call stack. */
@@ -602,39 +452,65 @@ int RunJobsDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-    returnStatus = EstablishMqttSession( prvEventCallback );
+    /* Establish an MQTT connection with AWS IoT over a mutually authenticated TLS session */
+    demoStatus = EstablishMqttSession( &xMqttContext,
+                                       &xNetworkContext,
+                                       &xBuffer,
+                                       prvEventCallback );
 
-    if( returnStatus == EXIT_FAILURE )
+    if( returnStatus == pdFAIL )
     {
         /* Log error to indicate connection failure. */
         LogError( ( "Failed to connect to AWS IoT broker." ) );
     }
     else
     {
-        /* First of all, try to delete any Shadow document in the cloud. */
-        returnStatus = PublishToTopic( SHADOW_TOPIC_STRING_DELETE( THING_NAME ),
-                                       SHADOW_TOPIC_LENGTH_DELETE( THING_NAME_LENGTH ),
+        /* Print out a short user guide to the console. The default logging
+         * limit of 255 characters can be changed in demo_logging.c, but breaking
+         * up the only instance of a 1000+ character string is more practical. */
+        LogInfo( ( "\r\n"
+                   "/*-----------------------------------------------------------*/\r\n"
+                   "\r\n"
+                   "The Jobs demo is now ready to accept Jobs.\r\n"
+                   "Jobs may be created using the AWS IoT console or AWS CLI.\r\n"
+                   "See the following link for more information.\r\n"
+                   "\r\n" ) );
+        LogInfo( ( "\r"
+                   "https://docs.aws.amazon.com/cli/latest/reference/iot/create-job.html\r\n"
+                   "\r\n"
+                   "This demo expects Job documents to have an \"action\" JSON key.\r\n"
+                   "The following actions are currently supported:\r\n" ) );
+        LogInfo( ( "\r"
+                   " - print          \r\n"
+                   "   Logs a message to the local console. The Job document must also contain a \"message\".\r\n"
+                   "   For example: { \"action\": \"print\", \"message\": \"Hello world!\"} will cause\r\n"
+                   "   \"Hello world!\" to be printed on the console.\r\n" ) );
+        LogInfo( ( "\r"
+                   " - publish        \r\n"
+                   "   Publishes a message to an MQTT topic. The Job document must also contain a \"message\" and \"topic\".\r\n" ) );
+        LogInfo( ( "\r"
+                   "   For example: { \"action\": \"publish\", \"topic\": \"demo/jobs\", \"message\": \"Hello world!\"} will cause\r\n"
+                   "   \"Hello world!\" to be published to the topic \"demo/jobs\".\r\n" ) );
+        LogInfo( ( "\r"
+                   " - exit           \r\n"
+                   "   Exits the demo program. This program will run until { \"action\": \"exit\" } is received.\r\n"
+                   "\r\n"
+                   "/*-----------------------------------------------------------*/\r\n" ) );
+
+        /* Subscribe to the NextJobExecutionChanged API topic to receive notifications about the next pending job in the queue. */
+        returnStatus = SubscribeToTopic( &xMqttContext,
+                                         NEXT_JOB_EXECUTION_CHANGED_TOPIC( THING_NAME ),
+                                         sizeof( NEXT_JOB_EXECUTION_CHANGED_TOPIC( THING_NAME ) - 1 ) );
+    }
+
+    if( returnStatus == pdPASS )
+    {
+        /* Publish to AWS IoT Jobs on the DescribeJobExecution API to request the next pending job. */
+        returnStatus = PublishToTopic( &xMqttContext,
+                                       DESCRIBE_NEXT_JOB_TOPIC( THING_NAME ),
+                                       sizeof( DESCRIBE_NEXT_JOB_TOPIC( THING_NAME ) ) - 1,
                                        pcUpdateDocument,
                                        0U );
-
-        /* Then try to subscribe shadow topics. */
-        if( returnStatus == EXIT_SUCCESS )
-        {
-            returnStatus = SubscribeToTopic( SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
-                                             SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
-        }
-
-        if( returnStatus == EXIT_SUCCESS )
-        {
-            returnStatus = SubscribeToTopic( SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
-                                             SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
-        }
-
-        if( returnStatus == EXIT_SUCCESS )
-        {
-            returnStatus = SubscribeToTopic( SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
-                                             SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
-        }
 
         /* This demo uses a constant #THING_NAME known at compile time therefore we can use macros to
          * assemble shadow topic strings.
@@ -772,11 +648,11 @@ int RunJobsDemo( bool awsIotMqttMode,
         if( ( lUpdateAcceptedReturn != EXIT_SUCCESS ) || ( lUpdateDeltaReturn != EXIT_SUCCESS ) )
         {
             LogError( ( "Callback function failed." ) );
-            returnStatus = EXIT_FAILURE;
+            returnStatus = pdFAIL;
         }
     }
 
-    return returnStatus;
+    return( ( demoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }
 
 /*-----------------------------------------------------------*/
