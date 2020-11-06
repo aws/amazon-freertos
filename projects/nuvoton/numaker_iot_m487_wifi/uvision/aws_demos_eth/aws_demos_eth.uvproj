@@ -1411,6 +1411,7 @@
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/coreMQTT/source/interface/transport_interface.h</FilePath>
 						</File>
+					</Files>
 				</Group>
 				<Group>
 					<GroupName>libraries/coreHTTP/source/include/</GroupName>
@@ -1430,6 +1431,7 @@
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/coreHTTP/source/core_http_client.h</FilePath>
 						</File>
+					</Files>
 				</Group>
 				<Group>
 					<GroupName>libraries/coreHTTP/source/include/interface/</GroupName>
@@ -1439,6 +1441,7 @@
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/coreHTTP/source/interface/transport_interface.h</FilePath>
 						</File>
+					</Files>
 				</Group>
 				<Group>
 					<GroupName>libraries/coreHTTP/source/</GroupName>
@@ -1448,6 +1451,7 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/coreHTTP/source/core_http_client.c</FilePath>
 						</File>
+					</Files>
 				</Group>
 				<Group>
 					<GroupName>libraries/c_sdk/standard/serializer/src/cbor/</GroupName>
