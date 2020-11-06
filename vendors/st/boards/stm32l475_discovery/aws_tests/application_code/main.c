@@ -61,7 +61,7 @@
 #define mainWIFI_JOIN_AP_RETRIES            ( 2 )
 
 /* Heap 2 size for malloc. */
-#define HEAP2_SIZE                          ( 27 * 1024 + 400 )
+#define HEAP2_SIZE                          ( 27 * 1024 + 300 )
 
 void vApplicationDaemonTaskStartupHook( void );
 

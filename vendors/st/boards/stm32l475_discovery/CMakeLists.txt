@@ -4,6 +4,7 @@ set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
 set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 set(SECURE_SOCKETS_CELLULAR 0 CACHE BOOL "")
 set(BOARD_HAS_CELLULAR 0 CACHE BOOL "")
+set(COMM_IF_USE_ST_UART 0 CACHE BOOL "")
 
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
@@ -13,6 +14,10 @@ endif()
 
 if(BOARD_HAS_CELLULAR)
     set(board_has_cellular_define -DBOARD_HAS_CELLULAR=1)
+endif()
+
+if(COMM_IF_USE_ST_UART)
+    set(comm_if_use_st_uart -DCOMM_IF_USE_ST_UART=1)
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -68,6 +73,7 @@ target_compile_options(
         ${common_flags}
         $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${c_flags}>
         ${board_has_cellular_define}
+        ${comm_if_use_st_uart}
 )
 
 # Linker flags
@@ -131,9 +137,17 @@ afr_mcu_port(cellular)
 target_sources(
     AFR::cellular::mcu_port
     INTERFACE
-        "${afr_ports_dir}/comm_if/comm_if_st.c"
+        "$<IF:${COMM_IF_USE_ST_UART},${afr_ports_dir}/comm_if/comm_if_st.c,${afr_ports_dir}/comm_if/comm_if_uart.c>"
+        "${afr_ports_dir}/comm_if/device_control.c"
         "${afr_ports_dir}/comm_if/iot_fifo.c"
 )
+if(NOT COMM_IF_USE_ST_UART)
+target_include_directories(
+    AFR::cellular::mcu_port
+    INTERFACE
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/common_io/include"
+)
+endif()
 
 # Cellular module port
 include("${AFR_VENDORS_DIR}/quectel/modules/bg96/CMakeLists.txt")
@@ -187,7 +201,7 @@ target_sources(
         "${afr_ports_dir}/common_io/iot_spi.c"
         # Temporally cellular communication interface implementation.
         # Cellular communication interface will be implemented with common I/O in the future.
-        $<$<NOT:$<BOOL:${BOARD_HAS_CELLULAR}>>:${afr_ports_dir}/common_io/iot_uart.c>
+        $<$<NOT:$<BOOL:${COMM_IF_USE_ST_UART}>>:${afr_ports_dir}/common_io/iot_uart.c>
         # test code
         $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
 )
