@@ -39,7 +39,7 @@ This release supports backward compatibility with the old MQTT and Shadow librar
 
 - Added transport interface for BLE library to send data to AWS IoT using the new MQTT and Shadow client libraries. The transport interface utilizes a companion device mobile application implemented using FreeRTOS BLE android and IOS SDKs to send data to AWS IoT.
 - Added new MQTT and shadow demos for BLE. The demo uses the new MQTT and Shadow client libraries and the BLE transport interface to send and receive data with AWS IoT.
-- Added the SHIM network interface for backwards compatiblity of existing MQTT, Shadow and OTA demos with Bluetooth Low Energy.
+- Provides backwards compatibility for applications using existing MQTT, Shadow and OTA libraries with Bluetooth Low Energy.
 
 #### Common I/O Library V0.1.2
 
@@ -56,7 +56,7 @@ This release supports backward compatibility with the old MQTT and Shadow librar
 - Sub-moduled to the [FreeRTOS/FreeRTOS-Plus-TCP](https://github.com/FreeRTOS/FreeRTOS-Plus-TCP) repository. This is a breaking change for users using 202007.00 release of amazon-freertos due to change in folder structure. The version bump for this change was done in the FreeRTOS-Plus-TCP repository (V2.2.2 -> V2.3.0). Since the version number in the amazon-freertos repository is already at 2.3.0 (this discrepancy is caused by the presence of multiple FreeRTOS+TCP sources, which has since been corrected with the FreeRTOS-Plus-TCP repository as the single source of truth), only a minor version bump to 2.3.1 is being done.
 - Bug Fix for UDP only (`ipconfigUSE_TCP == 0`) compilation of FreeRTOS+TCP. Conditional compilation on the value of `ipconfigUSE_TCP` updated to exclude TCP only components.
 - Added descriptions for functions and variables in Doxygen compatible format.
-- Updated prvParseDNSReply function signature.
+- Updated `prvParseDNSReply` function signature.
 
 #### FreeRTOS+UTILS V1.2.0
 
