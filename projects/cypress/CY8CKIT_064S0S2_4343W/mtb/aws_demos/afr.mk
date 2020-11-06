@@ -200,7 +200,6 @@ INCLUDES+=\
 ################################################################################
 
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/http_parser/http_parser.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/api/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/core/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/core/ipv4/*c)\
@@ -226,7 +225,6 @@ endif
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/pkcs11\
-	$(CY_AFR_ROOT)/libraries/3rdparty/http_parser\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_config\
@@ -303,15 +301,19 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c \
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c \
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c \
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_serializer.c\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c
 
-# Device Shadow and core JSON
+# Device Shadow, Device Defender, Jobs, coreJSON, coreMQTT and coreHTTP
 SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c\
-	$(CY_AFR_ROOT)/libraries/coreJSON/source/core_json.c
+	$(CY_AFR_ROOT)/libraries/coreJSON/source/core_json.c \
+	$(CY_AFR_ROOT)/libraries/device_defender_for_aws/source/defender.c\
+	$(CY_AFR_ROOT)/libraries/jobs_for_aws/source/jobs.c\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_serializer.c\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/core_http_client.c\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common\
@@ -329,17 +331,20 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/include/types\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/private\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/portable\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include/types\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/portable\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/interface\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/include\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/interface\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/3rdparty/http_parser\
 	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include\
 	$(CY_AFR_ROOT)/libraries/coreJSON/source/include\
+	$(CY_AFR_ROOT)/libraries/device_defender_for_aws/source/include\
+	$(CY_AFR_ROOT)/libraries/jobs_for_aws/source/include
 
 ################################################################################
 # libraries (freertos_plus)

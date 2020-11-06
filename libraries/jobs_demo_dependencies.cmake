@@ -2,7 +2,7 @@
 afr_module(NAME jobs )
 
 # Include Jobs library's source and header path variables.
-include("${CMAKE_CURRENT_LIST_DIR}/jobs_for_aws_iot_embedded_sdk/jobsFilePaths.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/jobs_for_aws/jobsFilePaths.cmake")
 
 # Create a list of all header files in the Jobs library.
 # The list of header files will be added to metadata required
@@ -11,7 +11,7 @@ set(JOBS_HEADER_FILES "")
 foreach(jobs_public_include_dir ${JOBS_INCLUDE_PUBLIC_DIRS})
     file(GLOB jobs_public_include_header_files
               LIST_DIRECTORIES false
-              ${jobs_public_include_dir}/* )
+              ${jobs_public_include_dir}/*.h )
     list(APPEND JOBS_HEADER_FILES ${jobs_public_include_header_files})
 endforeach()
 
@@ -21,7 +21,7 @@ afr_module_sources(
         ${JOBS_SOURCES}
         # List of files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/jobs_for_aws_iot_embedded_sdk/jobsFilePaths.cmake
+        ${CMAKE_CURRENT_LIST_DIR}/jobs_for_aws/jobsFilePaths.cmake
         ${JOBS_HEADER_FILES}
 )
 

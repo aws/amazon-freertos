@@ -413,6 +413,11 @@
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_UDP_IP.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOSIPConfigDefaults.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOSIPConfigDefaults.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_ARP.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_ARP.h</locationURI>
@@ -426,16 +431,6 @@
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_DNS.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_DNS.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_errno_TCP.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_errno_TCP.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOSIPConfigDefaults.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOSIPConfigDefaults.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_IP.h</name>
@@ -473,6 +468,11 @@
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_UDP_IP.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_errno_TCP.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_errno_TCP.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/IPTraceMacroDefaults.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/IPTraceMacroDefaults.h</locationURI>
@@ -486,6 +486,11 @@
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/NetworkInterface.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/NetworkInterface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp.cmake</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c</name>
@@ -513,14 +518,39 @@
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_hw.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/uncached_memory.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/uncached_memory.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_end.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_end.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_start.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_start.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_topology.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_topology.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/uncached_memory.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/uncached_memory.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/uncached_memory.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/uncached_memory.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_hw.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_hw.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/tls/src/iot_tls.c</name>
@@ -763,9 +793,44 @@
 			<locationURI>AFR_ROOT/libraries/coreMQTT/source/include/core_mqtt_state.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreMQTT/source/portable/transport_interface.h</name>
+			<name>libraries/coreMQTT/source/interface/transport_interface.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/coreMQTT/source/portable/transport_interface.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/core_mqtt_demo_dependencies.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/core_mqtt_demo_dependencies.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/retry_utils/retry_utils.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/abstractions/retry_utils/retry_utils.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/transport/transport_interface.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/abstractions/transport/transport_interface.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/transport/transport_interface_secure_sockets.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/abstractions/transport/transport_interface_secure_sockets.cmake</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
@@ -863,6 +928,11 @@
 			<locationURI>AFR_ROOT/libraries/c_sdk/standard/https/src/iot_https_utils.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
@@ -898,29 +968,44 @@
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/core_mqtt_demo_dependencies.cmake</name>
+			<name>libraries/coreHTTP/source/core_http_client.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/core_mqtt_demo_dependencies.cmake</locationURI>
+			<locationURI>AFR_ROOT/libraries/coreHTTP/source/core_http_client.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
+			<name>libraries/core_http_demo_dependencies.cmake</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/core_http_demo_dependencies.cmake</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/retry_utils/retry_utils.h</name>
+			<name>libraries/coreHTTP/httpFilePaths.cmake</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/abstractions/retry_utils/retry_utils.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/coreHTTP/httpFilePaths.cmake</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
+			<name>libraries/coreHTTP/source/include/core_http_client.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/coreHTTP/source/include/core_http_client.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
+			<name>libraries/coreHTTP/source/include/core_http_client_private.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/coreHTTP/source/include/core_http_client_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/include/core_http_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/coreHTTP/source/include/core_http_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/interface/transport_interface.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/coreHTTP/source/interface/transport_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>
@@ -928,9 +1013,89 @@
 			<locationURI>AFR_ROOT/libraries/coreJSON/source/core_json.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/coreJSON/jsonFilePaths.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/coreJSON/jsonFilePaths.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/core_json.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/core_json.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreJSON/source/include/core_json.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/coreJSON/source/include/core_json.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_shadow_demo_dependencies.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/device_shadow_demo_dependencies.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_defender_for_aws/source/defender.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/device_defender_for_aws/source/defender.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_defender_for_aws/defenderFilePaths.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/device_defender_for_aws/defenderFilePaths.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_defender_for_aws/source/include/defender.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/device_defender_for_aws/source/include/defender.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_defender_for_aws/source/include/defender_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/device_defender_for_aws/source/include/defender_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_defender_demo_dependencies.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/device_defender_demo_dependencies.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/jobs_for_aws/source/jobs.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/jobs_for_aws/source/jobs.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/jobs_for_aws/jobsFilePaths.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/jobs_for_aws/jobsFilePaths.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/jobs_for_aws/source/include/jobs.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/jobs_for_aws/source/include/jobs.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/jobs_demo_dependencies.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/jobs_demo_dependencies.cmake</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
@@ -1213,19 +1378,14 @@
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/aws_wifi_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/core_http_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/core_http_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/core_mqtt_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/core_mqtt_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/iot_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/iot_mqtt_agent_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/core_pkcs11_config.h</name>
@@ -1238,9 +1398,19 @@
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/core_test_pkcs11_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/shadow_config.h</name>
+			<name>config_files/defender_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/shadow_config.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/defender_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_mqtt_agent_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/shadow_config.h</name>
@@ -2141,16 +2311,6 @@
 			<name>libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/http_parser/http_parser.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/3rdparty/http_parser/http_parser.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/http_parser/http_parser.c</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/3rdparty/http_parser/http_parser.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.h</name>

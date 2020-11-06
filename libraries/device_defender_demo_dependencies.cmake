@@ -2,7 +2,7 @@
 afr_module(NAME device_defender )
 
 # Include Defender library's source and header path variables.
-include("${CMAKE_CURRENT_LIST_DIR}/device_defender_for_aws_iot_embedded_sdk/defenderFilePaths.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/device_defender_for_aws/defenderFilePaths.cmake")
 
 # Create a list of all header files in the Device Defender library.
 # The list of header files will be added to metadata required
@@ -11,7 +11,7 @@ set(DEVICE_DEFENDER_HEADER_FILES "")
 foreach(defender_public_include_dir ${DEFENDER_INCLUDE_PUBLIC_DIRS})
     file(GLOB defender_public_include_header_files
               LIST_DIRECTORIES false
-              ${defender_public_include_dir}/* )
+              ${defender_public_include_dir}/*.h )
     list(APPEND DEVICE_DEFENDER_HEADER_FILES ${defender_public_include_header_files})
 endforeach()
 
@@ -21,7 +21,7 @@ afr_module_sources(
         ${DEFENDER_SOURCES}
         # List of files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/device_defender_for_aws_iot_embedded_sdk/defenderFilePaths.cmake
+        ${CMAKE_CURRENT_LIST_DIR}/device_defender_for_aws/defenderFilePaths.cmake
         ${DEVICE_DEFENDER_HEADER_FILES}
 )
 

@@ -402,11 +402,14 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\access</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test</state>
@@ -416,10 +419,13 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</state>
@@ -429,7 +435,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -1887,13 +1892,10 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_wifi_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\core_http_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\core_mqtt_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\iot_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\iot_mqtt_agent_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\core_pkcs11_config.h</name>
@@ -1902,7 +1904,13 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\core_test_pkcs11_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\shadow_config.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\defender_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\iot_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\iot_mqtt_agent_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\shadow_config.h</name>
@@ -2473,6 +2481,36 @@
 				</group>
 			</group>
 			<group>
+				<name>retry_utils</name>
+				<group>
+					<name>freertos</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c</name>
+					</file>
+				</group>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h</name>
+				</file>
+			</group>
+			<group>
+				<name>transport</name>
+				<group>
+					<name>secure_sockets</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c</name>
+					</file>
+				</group>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\transport_interface.cmake</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\transport_interface_secure_sockets.cmake</name>
+				</file>
+			</group>
+			<group>
 				<name>posix</name>
 				<group>
 					<name>include</name>
@@ -2515,30 +2553,6 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\utils.h</name>
 						</file>
 					</group>
-				</group>
-			</group>
-			<group>
-				<name>retry_utils</name>
-				<group>
-					<name>freertos</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c</name>
-					</file>
-				</group>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h</name>
-				</file>
-			</group>
-			<group>
-				<name>transport</name>
-				<group>
-					<name>secure_sockets</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c</name>
-					</file>
 				</group>
 			</group>
 		</group>
@@ -2798,7 +2812,7 @@
 				<group>
 					<name>portable</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable\transport_interface.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h</name>
 					</file>
 				</group>
 			</group>
@@ -2810,14 +2824,71 @@
 			<name>$PROJ_DIR$\..\..\..\..\..\libraries\core_mqtt_demo_dependencies.cmake</name>
 		</file>
 		<group>
+			<name>coreHTTP</name>
+			<group>
+				<name>source</name>
+				<group>
+					<name>3rdparty</name>
+					<group>
+						<name>http_parser</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.h</name>
+						</file>
+					</group>
+				</group>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_config_defaults.h</name>
+					</file>
+				</group>
+				<group>
+					<name>interface</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h</name>
+					</file>
+				</group>
+			</group>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\httpFilePaths.cmake</name>
+			</file>
+		</group>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\core_http_demo_dependencies.cmake</name>
+		</file>
+		<group>
 			<name>coreJSON</name>
 			<group>
 				<name>source</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\core_json.c</name>
 				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include\core_json.h</name>
+					</file>
+				</group>
 			</group>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\jsonFilePaths.cmake</name>
+			</file>
 		</group>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\core_json.cmake</name>
+		</file>
 		<group>
 			<name>device_shadow_for_aws_iot_embedded_sdk</name>
 			<group>
@@ -2825,8 +2896,68 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c</name>
 				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include\shadow.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include\shadow_config_defaults.h</name>
+					</file>
+				</group>
 			</group>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\shadowFilePaths.cmake</name>
+			</file>
 		</group>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_demo_dependencies.cmake</name>
+		</file>
+		<group>
+			<name>device_defender_for_aws</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\defender.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include\defender.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include\defender_config_defaults.h</name>
+					</file>
+				</group>
+			</group>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\defenderFilePaths.cmake</name>
+			</file>
+		</group>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_demo_dependencies.cmake</name>
+		</file>
+		<group>
+			<name>jobs_for_aws</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\jobs.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\include\jobs.h</name>
+					</file>
+				</group>
+			</group>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\jobsFilePaths.cmake</name>
+			</file>
+		</group>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_demo_dependencies.cmake</name>
+		</file>
 		<group>
 			<name>3rdparty</name>
 			<group>
@@ -3398,15 +3529,6 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c</name>
 					</file>
 				</group>
-			</group>
-			<group>
-				<name>http_parser</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c</name>
-				</file>
 			</group>
 			<group>
 				<name>jsmn</name>
