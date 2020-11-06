@@ -165,7 +165,7 @@ GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/interface \
                     $(AFR_LIBRARIES_PATH)coreHTTP/source/include \
                     $(AFR_LIBRARIES_PATH)coreHTTP/source/interface \
-                    $(AFR_LIBRARIES_PATH)coreHTTP/source/3rdparty \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/3rdparty/http_parser \
                     $(AFR_LIBRARIES_PATH)coreJSON/source/include \
                     $(AFR_LIBRARIES_PATH)device_shadow_for_aws_iot_embedded_sdk/source/include \
                     $(AFR_LIBRARIES_PATH)device_defender_for_aws/source/include \
