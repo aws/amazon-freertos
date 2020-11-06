@@ -152,7 +152,9 @@ CellularATError_t Cellular_ATIsPrefixPresent( const char * pString,
             /* There should be only '+', '_', characters or digit before seperator. */
             for( ptrChar = ( char * ) pString; ptrChar < ptrPrefixChar; ptrChar++ )
             {
-                if( ( isalpha( *ptrChar ) == 0 ) && ( isdigit( *ptrChar ) == 0 ) && ( *ptrChar != '+' ) && ( *ptrChar != '_' ) )
+                if( ( ( isalpha( ( ( int ) ( *ptrChar ) ) ) ) == 0 ) &&
+                    ( ( isdigit( ( ( int ) ( *ptrChar ) ) ) ) == 0 ) &&
+                    ( *ptrChar != '+' ) && ( *ptrChar != '_' ) )
                 {
                     *result = false;
                     break;

@@ -172,11 +172,17 @@ static _cellularCommContext_t * _getCellularCommContext( void )
 static uint32_t prvProcessUartInt( void )
 {
     _cellularCommContext_t * pCellularCommContext = _getCellularCommContext();
+    CellularCommInterfaceError_t retComm = IOT_COMM_INTERFACE_SUCCESS;
 
     if( pCellularCommContext->commReceiveCallback != NULL )
     {
-        pCellularCommContext->commReceiveCallback( pCellularCommContext->pUserData,
-                                                   pCellularCommContext->commInterfaceHandle );
+        retComm = pCellularCommContext->commReceiveCallback( pCellularCommContext->pUserData,
+                                                             pCellularCommContext->commInterfaceHandle );
+
+        if( retComm == IOT_COMM_INTERFACE_SUCCESS )
+        {
+            portYIELD_FROM_ISR( pdTRUE );
+        }
     }
 
     return pdTRUE;
