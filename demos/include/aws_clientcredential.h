@@ -38,9 +38,10 @@
  *
  * @todo Set this to the unique name of your IoT Thing.
  * Please note that for convenience of demonstration only we
- * are using a #define here. In production scenarios this  
- * should be something, the software can read as a 
- * unique # eg. production serial number.
+ * are using a #define here. In production scenarios the thing 
+ * name can be something unique to the device that can be read 
+ * by software, such as a production serial number, rather 
+ * than a hard coded constant.
  */
 #define clientcredentialIOT_THING_NAME               ""
 
