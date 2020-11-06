@@ -1016,7 +1016,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     {
         packetType = DECODE_PACKET_TYPE( pBuf[ 0 ] );
 
-        LogError( ( "packet type is %d ", packetType ) );
+        LogDebug( ( "Outgoing packet type is %d ", packetType ) );
 
         switch( packetType )
         {
@@ -1100,10 +1100,6 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
             }
 
             IotMqtt_FreeMessage( pSerializedPacket );
-        }
-        else
-        {
-            bytesWritten = 0;
         }
     }
     else
