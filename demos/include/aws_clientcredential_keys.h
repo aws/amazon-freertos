@@ -65,6 +65,8 @@
  *
  * @todo If you are running one of the FreeRTOS demo projects, set this
  * to the private key that will be used for TLS client authentication.
+ * Please note that this is for demo purposes ONLY and NOT for production
+ * scenarios. NEVER use a genuine secure key like this.
  *
  * @note Must include the PEM header and footer:
  * "-----BEGIN RSA PRIVATE KEY-----\n"\
