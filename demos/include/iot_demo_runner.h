@@ -48,38 +48,8 @@
         #undef democonfigDEMO_PRIORITY
         #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
     #endif
-#elif defined( CONFIG_CORE_MQTT_PLAINTEXT_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              RunCoreMqttPlaintextDemo
-    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
-        #undef democonfigDEMO_STACKSIZE
-        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
-    #endif
-    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
-        #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
-    #endif
 #elif defined( CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunCoreMqttMutualAuthDemo
-    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
-        #undef democonfigDEMO_STACKSIZE
-        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
-    #endif
-    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
-        #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
-    #endif
-#elif defined( CONFIG_CORE_MQTT_SERIALIZER_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              RunCoreMqttSerializerDemo
-    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
-        #undef democonfigDEMO_STACKSIZE
-        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
-    #endif
-    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
-        #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
-    #endif
-#elif defined( CONFIG_CORE_MQTT_KEEP_ALIVE_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              RunCoreMqttKeepAliveDemo
     #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
         #undef democonfigDEMO_STACKSIZE
         #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
