@@ -5,6 +5,10 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 ### New Features
 
+This release includes refactored MQTT, JSON Parser, and AWS IoT Device Shadow libraries for optimized memory usage and modularity, and includes dependent libraries via GitHub submoduling. These libraries have gone through code quality checks including verification that no function has a [GNU Complexity](https://www.gnu.org/software/complexity/manual/complexity.html) score over 8, and checks against deviations from mandatory rules in the [MISRA coding standard](https://www.misra.org.uk/MISRAHome/MISRAC2012/tabid/196/Default.aspx). Deviations from the MISRA C:2012 guidelines are documented under [MISRA Deviations](https://github.com/aws/aws-iot-device-sdk-embedded-C/blob/202009.00/MISRA.md). This library has also undergone both static code analysis from [Coverity static analysis](https://github.com/aws/aws-iot-device-sdk-embedded-C/blob/202009.00/MISRA.md), and validation of memory safety and proof of functional correctness through the CBMC automated reasoning tool.
+
+This release supports backward compatibility with the old MQTT and Shadow library APIs (i.e. present in 202007.00 and earlier releases). Thus, all libraries that depend on the old MQTT library API, including Shadow, Defender, GreenGrass Discovery (present under libraries/c_sdk folder), are backward compatible with the previous 202007.00 release
+
 #### AWS IoT Device Shadow V1.0.1
 
 - The [AWS IoT Device Shadow](https://github.com/aws/device-shadow-for-aws-iot-embedded-sdk) library enables you to store and retrieve the current state (the “shadow”) of every registered device. The device’s shadow is a persistent, virtual representation of your device that you can interact with from AWS IoT Core even if the device is offline. The device state captured as its “shadow” is itself a JSON document. The device can send commands over MQTT or HTTP to update its latest state. Each device’s shadow is uniquely identified by the name of the corresponding “thing”, a representation of a specific device or logical entity on AWS IoT. More details about AWS IoT Device Shadow can be found in [AWS IoT documentation](https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html).
@@ -27,9 +31,6 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 ### Updates
 
-- New MQTT client, JSON parser, PKCS 11, and AWS IoT Device Shadow client libraries have been added as submodules. These submodules refer to the [coreMQTT](https://github.com/FreeRTOS/coreMQTT), [coreJSON](https://github.com/FreeRTOS/coreJSON) and [Device Shadow](https://github.com/aws/device-shadow-for-aws-iot-embedded-sdk) repositories respectively. We encourage utilizing the new MQTT and Shadow library APIs for new development.
-- This release supports backward compatibility with the old MQTT and Shadow library APIs (i.e. present in 202007.00 and earlier releases). Thus, all libraries that depend on the old MQTT library API, including Shadow, Defender, GreenGrass Discovery (present under libraries/c_sdk folder), are backward compatible with the previous 202007.00 release.
-
 #### Bluetooth Low Energy (BLE) Hardware Abstraction Library (HAL) V5.1.0
 
 - Added ACL connection state change callback for BLE HAL
@@ -50,16 +51,16 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 - Added FreeRTOS Console API to interact with CLI over common IO or UDP interface.
 - Added sample which demonstrates executing commands using FreeRTOS+CLI and UART interface.
 
-#### FreeRTOS+TCP V2.4.0
+#### FreeRTOS+TCP V2.3.1
 
-- Sub-moduled to the [FreeRTOS/FreeRTOS-Plus-TCP](https://github.com/FreeRTOS/FreeRTOS-Plus-TCP) repository
-- Updated use of ipconfigUSE_TCP to make it compilable when UDP is chosen.
+- Sub-moduled to the [FreeRTOS/FreeRTOS-Plus-TCP](https://github.com/FreeRTOS/FreeRTOS-Plus-TCP) repository. This is a breaking change for users using `202007` release of amazon-freertos due to change in folder structure. The version bump for this change was done in the FreeRTOS-Plus-TCP repository (V2.2.2 -> V2.3.0). Since the version number in the amazon-freertos repository is already at 2.3.0 (this discrepancy is caused by the presence of multiple FreeRTOS+TCP sources, which has since been corrected with the FreeRTOS-Plus-TCP repository as the single source of truth), only a minor version bump to 2.3.1 is being done.
+- Bug Fix for UDP only (`ipconfigUSE_TCP == 0`) compilation of FreeRTOS+TCP. Conditional compilation on the value of `ipconfigUSE_TCP` updated to exclude TCP only components.
 - Added descriptions for functions and variables in Doxygen compatible format.
 - Updated prvParseDNSReply function signature.
 
 #### FreeRTOS+UTILS V1.2.0
 
-- Renamed iot_pki_utils to core_pki_utils. It is now a part of the corePKCS11 repository.
+- Renamed `iot_pki_utils` to `core_pki_utils`. It is now a part of the corePKCS11 repository.
 
 #### Greengrass Discovery V2.0.2
 
@@ -80,8 +81,8 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 #### Secure Sockets LwIP V1.3.0
 
-- Added new optional API "SOCKETS_Bind".
-- Extended SOCKETS_SetSockOpt to support TCP keepalive settings.
+- Added new optional API `SOCKETS_Bind`.
+- Extended `SOCKETS_SetSockOpt` to support TCP keepalive settings.
 
 #### Shadow V2.2.3
 
