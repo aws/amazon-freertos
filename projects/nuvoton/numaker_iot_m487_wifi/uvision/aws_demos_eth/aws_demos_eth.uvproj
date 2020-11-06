@@ -1688,12 +1688,12 @@
 					<Files>
 						<File>
 							<FileName>defender.h</FileName>
-							<FileType>1</FileType>
+							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/device_defender_for_aws/include/defender.h</FilePath>
 						</File>
 						<File>
 							<FileName>defender_config_defaults.h</FileName>
-							<FileType>1</FileType>
+							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/device_defender_for_aws/include/defender_config_defaults.h</FilePath>
 						</File>
 					</Files>
@@ -1713,7 +1713,7 @@
 					<Files>
 						<File>
 							<FileName>jobs.h</FileName>
-							<FileType>1</FileType>
+							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/jobs_for_aws/include/jobs.h</FilePath>
 						</File>
 					</Files>
