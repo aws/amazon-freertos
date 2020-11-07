@@ -101,76 +101,95 @@
 /**
  * @brief The length of #democonfigTHING_NAME.
  */
-#define THING_NAME_LENGTH                    ( ( uint16_t ) ( sizeof( democonfigTHING_NAME ) - 1 ) )
+#define THING_NAME_LENGTH                           ( ( uint16_t ) ( sizeof( democonfigTHING_NAME ) - 1 ) )
 
 /**
- * @brief The JSON key of the Job ID.
+ * @brief The JSON key of the execution object.
  *
- * Job documents are in JSON documents received from the AWS IoT Jobs service.
+ * Job documents received from the AWS IoT Jobs service are in JSON format.
  * All such JSON documents will contain this key, whose value represents the unique
  * identifier of a Job.
  */
-#define jobsexampleID_KEY                    "jobId"
+#define jobsexampleEXECUTION_KEY                    "execution"
 
 /**
- * @brief The length of #jobsexampleID_KEY.
+ * @brief The length of #jobsexampleEXECUTION_KEY.
  */
-#define jobsexampleID_KEY_LENGTH             ( sizeof( jobsexampleID_KEY ) - 1 )
+#define jobsexampleEXECUTION_KEY_LENGTH             ( sizeof( jobsexampleEXECUTION_KEY ) - 1 )
 
 /**
- * @brief The JSON key of the Job document.
+ * @brief The query key to use for searching the Job ID key in message payload
+ * from AWS IoT Jobs service.
  *
- * Job documents are in JSON documents received from the AWS IoT Jobs service.
- * All such JSON documents will contain this key, whose value is an application-specific
- * Job document.
+ * Job documents received from the AWS IoT Jobs service are in JSON format.
+ * All such JSON documents will contain this key, whose value represents the unique
+ * identifier of a Job.
  */
-#define jobsexampleDOC_KEY                   "jobDocument"
+#define jobsexampleQUERY_KEY_FOR_JOB_ID             jobsexampleEXECUTION_KEY  ".jobId"
 
 /**
- * @brief The length of #jobsexampleDOC_KEY.
+ * @brief The length of #jobsexampleQUERY_KEY_FOR_JOB_ID.
  */
-#define jobsexampleDOC_KEY_LENGTH            ( sizeof( jobsexampleDOC_KEY ) - 1 )
+#define jobsexampleQUERY_KEY_FOR_JOB_ID_LENGTH      ( sizeof( jobsexampleQUERY_KEY_FOR_JOB_ID ) - 1 )
 
 /**
- * @brief The JSON key whose value represents the action this demo should take.
+ * @brief The query key to use for searching the Jobs document ID key in message payload
+ * from AWS IoT Jobs service.
+ *
+ * Job documents received from the AWS IoT Jobs service are in JSON format.
+ * All such JSON documents will contain this key, whose value represents the unique
+ * identifier of a Job.
+ */
+#define jobsexampleQUERY_KEY_FOR_JOBS_DOC           jobsexampleEXECUTION_KEY  ".jobDocument"
+
+/**
+ * @brief The length of #jobsexampleQUERY_KEY_FOR_JOBS_DOC.
+ */
+#define jobsexampleQUERY_KEY_FOR_JOBS_DOC_LENGTH    ( sizeof( jobsexampleQUERY_KEY_FOR_JOBS_DOC ) - 1 )
+
+/**
+ * @brief The query key to use for searching the Action key in Jobs document
+ * from AWS IoT Jobs service.
  *
  * This demo program expects this key to be in the Job document. It is a key
  * specific to this demo.
  */
-#define jobsexampleACTION_KEY                "action"
+#define jobsexampleQUERY_KEY_FOR_ACTION             jobsexampleEXECUTION_KEY ".action"
 
 /**
- * @brief The length of #jobsexampleACTION_KEY.
+ * @brief The length of #jobsexampleQUERY_KEY_FOR_ACTION.
  */
-#define jobsexampleACTION_KEY_LENGTH         ( sizeof( jobsexampleACTION_KEY ) - 1 )
+#define jobsexampleQUERY_KEY_FOR_ACTION_LENGTH      ( sizeof( jobsexampleQUERY_KEY_FOR_ACTION ) - 1 )
 
 /**
- * @brief A message associated with the Job action.
+ * @brief The query key to use for searching the Message key in Jobs document
+ * from AWS IoT Jobs service.
  *
  * This demo program expects this key to be in the Job document if the "action"
  * is either "publish" or "print". It represents the message that should be
  * published or printed, respectively.
  */
-#define jobsexampleMESSAGE_KEY               "message"
+#define jobsexampleQUERY_KEY_FOR_MESSAGE            jobsexampleEXECUTION_KEY ".message"
 
 /**
- * @brief The length of #jobsexampleMESSAGE_KEY.
+ * @brief The length of #jobsexampleQUERY_KEY_FOR_MESSAGE.
  */
-#define jobsexampleMESSAGE_KEY_LENGTH        ( sizeof( jobsexampleMESSAGE_KEY ) - 1 )
+#define jobsexampleQUERY_KEY_FOR_MESSAGE_LENGTH     ( sizeof( jobsexampleQUERY_KEY_FOR_MESSAGE ) - 1 )
 
 /**
- * @brief An MQTT topic associated with the Job "publish" action.
+ * @brief The query key to use for searching the topic key in Jobs document
+ * from AWS IoT Jobs service.
  *
  * This demo program expects this key to be in the Job document if the "action"
  * is "publish". It represents the MQTT topic on which the message should be
  * published.
  */
-#define jobsexampleTOPIC_KEY                 "topic"
+#define jobsexampleQUERY_KEY_FOR_TOPIC              jobsexampleEXECUTION_KEY ".topic"
 
 /**
- * @brief The length of #jobsexampleTOPIC_KEY.
+ * @brief The length of #jobsexampleQUERY_KEY_FOR_TOPIC.
  */
-#define jobsexampleTOPIC_KEY_LENGTH          ( sizeof( jobsexampleTOPIC_KEY ) - 1 )
+#define jobsexampleQUERY_KEY_FOR_TOPIC_LENGTH       ( sizeof( jobsexampleQUERY_KEY_FOR_TOPIC ) - 1 )
 
 /**
  * @brief The minimum length of a string in a JSON Job document.
@@ -178,7 +197,7 @@
  * At the very least the Job ID must have the quotes that identify it as a JSON
  * string and 1 character for the string itself (the string must not be empty).
  */
-#define jobsexampleJSON_STRING_MIN_LENGTH    ( ( size_t ) 3 )
+#define jobsexampleJSON_STRING_MIN_LENGTH           ( ( size_t ) 3 )
 
 /**
  * @brief Time to wait before exiting demo.
@@ -186,7 +205,7 @@
  * The milliseconds to wait before exiting. This is because the MQTT Broker
  * will disconnect us if we are idle too long, and we have disabled keep alive.
  */
-#define jobsexampleMS_BEFORE_EXIT            ( 10 * 60 * 1000 )
+#define jobsexampleMS_BEFORE_EXIT                   ( 10 * 60 * 1000 )
 
 /**
  * @brief Utility macro to generate the PUBLISH topic string to the
@@ -196,10 +215,10 @@
  * @param[in] thingName The name of the Thing resource to query for the
  * next pending job.
  */
-#define DESCRIBE_NEXT_JOB_TOPIC( thingName ) \
-    ( JOBS_API_PREFIX ""                     \
-      thingName "" JOBS_API_BRIDGE           \
-      "$next/"JOBS_API_DESCRIBE )
+#define START_NEXT_JOB_TOPIC( thingName ) \
+    ( JOBS_API_PREFIX ""                  \
+      thingName "" JOBS_API_BRIDGE        \
+      "$next/"JOBS_API_STARTNEXT )
 
 /**
  * @brief Utility macro to generate the subscription topic string for the
@@ -299,7 +318,17 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
  * @param[in] pPublishInfo Deserialized publish info pointer for the incoming
  * packet.
  */
-static void prvDescribeNextJobHandler( MQTTPublishInfo_t * pxPublishInfo );
+static void prvStartNextJobHandler( MQTTPublishInfo_t * pxPublishInfo );
+
+/*exitActionHandler */
+/*publishActionHandler */
+/*printActionHandler */
+
+/**
+ * @brief A global flag which represents whether a job for the "Exit" action
+ * has been received from AWS IoT Jobs service.
+ */
+static BaseType_t xExitActionJobReceived = pdFALSE;
 
 /**
  * @brief Processes success response from the UpdateJobExecution API for a job update
@@ -341,9 +370,135 @@ static JobActionType prvGetAction( const char * pcAction,
 }
 
 
-static void prvDescribeNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
+static void prvStartNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
 {
-    LogInfo( ( "Received messages from the DescribeJobExecution API" ) );
+    JSONStatus_t xJsonStatus = JSONSuccess;
+
+    configASSERT( pxPublishInfo != NULL );
+    configASSERT( ( pxPublishInfo->pPayload != NULL ) && ( pxPublishInfo->payloadLength > 0 ) );
+
+    /* Check*/
+    xJsonStatus = JSON_Validate( pxPublishInfo->pPayload, pxPublishInfo->payloadLength );
+
+    if( xJsonStatus != JSONSuccess )
+    {
+        LogError( ( "Received invalid JSON payload from AWS IoT Jobs service" ) );
+    }
+    else
+    {
+        char * pcJobId = NULL;
+        size_t ulJobIdLength = 0U;
+
+        xJsonStatus = JSON_Search( ( char * ) pxPublishInfo->pPayload,
+                                   pxPublishInfo->payloadLength,
+                                   jobsexampleQUERY_KEY_FOR_JOB_ID,
+                                   jobsexampleQUERY_KEY_FOR_JOB_ID_LENGTH,
+                                   &pcJobId,
+                                   &ulJobIdLength );
+
+        if( xJsonStatus == JSONSuccess )
+        {
+            LogInfo( ( "Received a Job from AWS IoT Jobs service: JobId=%.*s",
+                       ulJobIdLength, pcJobId ) );
+        }
+
+        else
+        {
+            char * pcAction = NULL;
+            size_t uActionLength = 0U;
+            JobActionType xActionType = JOB_ACTION_UNKNOWN;
+
+            xJsonStatus = JSON_Search( ( char * ) pxPublishInfo->pPayload,
+                                       pxPublishInfo->payloadLength,
+                                       jobsexampleQUERY_KEY_FOR_ACTION,
+                                       jobsexampleQUERY_KEY_FOR_ACTION_LENGTH,
+                                       &pcAction,
+                                       &uActionLength );
+
+            xActionType = prvGetAction( pcAction, uActionLength );
+
+            switch( xActionType )
+            {
+                case JOB_ACTION_EXIT:
+                    LogInfo( ( "Received job contains \"Exit\" action. Updating state of demo." ) );
+                    xExitActionJobReceived = pdTRUE;
+                    break;
+
+                case JOB_ACTION_PRINT:
+                    LogInfo( ( "Received job contains \"Print\" action." ) );
+                    char * pcMessage = NULL;
+                    size_t ulMessageLength = 0U;
+
+                    xJsonStatus = JSON_Search( ( char * ) pxPublishInfo->pPayload,
+                                               pxPublishInfo->payloadLength,
+                                               jobsexampleQUERY_KEY_FOR_MESSAGE,
+                                               jobsexampleQUERY_KEY_FOR_MESSAGE_LENGTH,
+                                               &pcMessage,
+                                               &ulMessageLength );
+
+                    if( xJsonStatus == JSONSuccess )
+                    {
+                        /* Print the given message if the action is "print". */
+                        LogInfo( (
+                                     "\r\n"
+                                     "/*-----------------------------------------------------------*/\r\n"
+                                     "\r\n"
+                                     "%.*s\r\n"
+                                     "\r\n"
+                                     "/*-----------------------------------------------------------*/\r\n"
+                                     "\r\n", ulMessageLength, pcMessage ) );
+                    }
+
+                    break;
+
+                case JOB_ACTION_PUBLISH:
+                    LogInfo( ( "Received job contains \"Publish\" action." ) );
+                    char * pcTopic = NULL;
+                    size_t ulTopicLength = 0U;
+
+                    xJsonStatus = JSON_Search( ( char * ) pxPublishInfo->pPayload,
+                                               pxPublishInfo->payloadLength,
+                                               jobsexampleQUERY_KEY_FOR_TOPIC,
+                                               jobsexampleQUERY_KEY_FOR_TOPIC_LENGTH,
+                                               &pcTopic,
+                                               &ulTopicLength );
+
+                    /* Search for "topic" key in the Jobs document.*/
+                    if( xJsonStatus == JSONSuccess )
+                    {
+                        const char * pcMessage = NULL;
+                        size_t ulMessageLength = 0U;
+
+                        xJsonStatus = JSON_Search( ( char * ) pxPublishInfo->pPayload,
+                                                   pxPublishInfo->payloadLength,
+                                                   jobsexampleQUERY_KEY_FOR_MESSAGE,
+                                                   jobsexampleQUERY_KEY_FOR_MESSAGE_LENGTH,
+                                                   &pcMessage,
+                                                   &ulMessageLength );
+
+                        /* Search for "message" key in Jobs document.*/
+                        if( xJsonStatus == JSONSuccess )
+                        {
+                            /* Publish to the parsed MQTT topic with the message obtained from
+                             * the Jobs document.*/
+                            PublishToTopic( &xMqttContext,
+                                            pcTopic,
+                                            ulTopicLength,
+                                            pcMessage,
+                                            ulMessageLength );
+                        }
+                    }
+
+                    break;
+
+                default:
+                    configPRINTF( ( "Received Job document with unknown action %.*s.",
+                                    uActionLength,
+                                    pcAction ) );
+                    break;
+            }
+        }
+    }
 }
 
 static void prvUpdateJobAcceptedResponeHandler( MQTTPublishInfo_t * pxPublishInfo )
@@ -405,17 +560,17 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
             configASSERT( 0 == strncmp( pcThingName, democonfigTHING_NAME, usThingNameLength ) );
 
             /* Upon successful return, the messageType has been filled in. */
-            if( topicType == JobsDescribeSuccess )
+            if( topicType == JobsStartNextSuccess )
             {
                 /* Handler function to process payload. */
-                prvDescribeNextJobHandler( pxDeserializedInfo->pPublishInfo );
+                prvStartNextJobHandler( pxDeserializedInfo->pPublishInfo );
             }
             else if( topicType == JobsUpdateSuccess )
             {
                 /* Handler function to process payload. */
                 prvUpdateJobAcceptedResponeHandler( pxDeserializedInfo->pPublishInfo );
             }
-            else if( topicType == JobsDescribeFailed )
+            else if( topicType == JobsStartNextFailed )
             {
                 LogWarn( ( "Request for next job description rejected: RejectedResponse=%.*s.",
                            pxDeserializedInfo->pPublishInfo->payloadLength,
@@ -533,8 +688,8 @@ int RunJobsDemo( bool awsIotMqttMode,
     {
         /* Publish to AWS IoT Jobs on the DescribeJobExecution API to request the next pending job. */
         returnStatus = PublishToTopic( &xMqttContext,
-                                       DESCRIBE_NEXT_JOB_TOPIC( democonfigTHING_NAME ),
-                                       sizeof( DESCRIBE_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) - 1,
+                                       START_NEXT_JOB_TOPIC( democonfigTHING_NAME ),
+                                       sizeof( START_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) - 1,
                                        JSON_EMPTY_REQUEST,
                                        sizeof( JSON_EMPTY_REQUEST ) - 1 );
     }
