@@ -53,14 +53,14 @@ This release supports backward compatibility with the old MQTT and Shadow librar
 
 #### FreeRTOS+TCP V2.3.1
 
-- Sub-moduled to the [FreeRTOS/FreeRTOS-Plus-TCP](https://github.com/FreeRTOS/FreeRTOS-Plus-TCP) repository. This is a breaking change for users using 202007.00 release of amazon-freertos due to change in folder structure. The version bump for this change was done in the FreeRTOS-Plus-TCP repository (V2.2.2 -> V2.3.0). Since the version number in the amazon-freertos repository is already at 2.3.0 (this discrepancy is caused by the presence of multiple FreeRTOS+TCP sources, which has since been corrected with the FreeRTOS-Plus-TCP repository as the single source of truth), only a minor version bump to 2.3.1 is being done.
+- Sub-moduled to the [FreeRTOS/FreeRTOS-Plus-TCP](https://github.com/FreeRTOS/FreeRTOS-Plus-TCP) repository. This is a breaking change for users using 202007.00 release of amazon-freertos due to change in folder structure.
 - Bug Fix for UDP only (`ipconfigUSE_TCP == 0`) compilation of FreeRTOS+TCP. Conditional compilation on the value of `ipconfigUSE_TCP` updated to exclude TCP only components.
 - Added descriptions for functions and variables in Doxygen compatible format.
 - Updated `prvParseDNSReply` function signature.
 
 #### FreeRTOS+UTILS V1.2.0
 
-- Renamed `iot_pki_utils` to `core_pki_utils`. It is now a part of the corePKCS11 repository.
+- The `iot_pki_utils.h` and `iot_pki_utils.c` are renamed to `core_pki_utils.h` and `core_pki_utils.c` respectively. They are also now a part of the corePKCS11 repository.
 
 #### Greengrass Discovery V2.0.2
 
