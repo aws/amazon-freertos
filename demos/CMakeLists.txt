@@ -52,6 +52,8 @@ if(TARGET AFR::wifi::mcu_port AND TARGET AFR::ble_hal::mcu_port)
     )
 endif()
 
+#afr_add_subdirectory( "${AFR_DEMOS_DIR}/common/mqtt_demo_helpers" )
+
 # Add other modules.
 file(GLOB_RECURSE afr_demos LIST_DIRECTORIES true "${AFR_DEMOS_DIR}/*")
 foreach(demo IN LISTS afr_demos)

@@ -74,23 +74,34 @@
 #include "core_json.h"
 
 /* Include common MQTT demo helpers. */
-#include "core_mqtt_helpers.h"
+#include "mqtt_demo_helpers.h"
 #include "core_json.h"
 
-#ifndef THING_NAME
+/*------------- Demo configurations -------------------------*/
+
+/** Note: The device client certificate and private key credentials are
+ * obtained by the transport layer library (transport_interface_secure_sockets)
+ * from the demos/include/aws_clientcredential_keys.h file for connection to broker.
+ *
+ * The following macros SHOULD be defined for this demo which uses both server
+ * and client authentications for TLS session:
+ *   - keyCLIENT_CERTIFICATE_PEM for client certificate.
+ *   - keyCLIENT_PRIVATE_KEY_PEM for client private key.
+ */
+#ifndef democonfigTHING_NAME
 
 /**
  * @brief Predefined thing name.
  *
  * This is the example predefine thing name and could be compiled in ROM code.
  */
-    #define THING_NAME    democonfigCLIENT_IDENTIFIER
+    #define democonfigTHING_NAME    clientcredentialIOT_THING_NAME
 #endif
 
 /**
- * @brief The length of #THING_NAME.
+ * @brief The length of #democonfigTHING_NAME.
  */
-#define THING_NAME_LENGTH                    ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
+#define THING_NAME_LENGTH                    ( ( uint16_t ) ( sizeof( democonfigTHING_NAME ) - 1 ) )
 
 /**
  * @brief The JSON key of the Job ID.
@@ -181,20 +192,26 @@
  * @brief Utility macro to generate the PUBLISH topic string to the
  * DescribePendingJobExecution API of AWS IoT Jobs service for requesting
  * the next pending job information.
+ *
+ * @param[in] thingName The name of the Thing resource to query for the
+ * next pending job.
  */
 #define DESCRIBE_NEXT_JOB_TOPIC( thingName ) \
     ( JOBS_API_PREFIX ""                     \
-      THING_NAME "" JOBS_API_BRIDGE          \
+      thingName "" JOBS_API_BRIDGE           \
       "$next/"JOBS_API_DESCRIBE )
 
 /**
  * @brief Utility macro to generate the subscription topic string for the
  * NextJobExecutionChanged API of AWS IoT Jobs service that is required
  * for getting notification about changes in the next pending job in the queue.
+ *
+ * @param[in] thingName The name of the Thing resource to query for the
+ * next pending job.
  */
 #define NEXT_JOB_EXECUTION_CHANGED_TOPIC( thingName ) \
     ( JOBS_API_PREFIX ""                              \
-      THING_NAME "" JOBS_API_BRIDGE                   \
+      thingName "" JOBS_API_BRIDGE                    \
       ""JOBS_API_NEXTJOBCHANGED )
 
 /**
@@ -202,7 +219,13 @@
  *
  * @param[in] x one of "IN_PROGRESS", "SUCCEEDED", or "FAILED"
  */
-#define makeReport_( x )    "{\"status\":\"" x "\"}"
+#define MAKE_STATUS_REPORT( x )    "{\"status\":\"" x "\"}"
+
+/**
+ * @brief Empty JSON message to send as PUBLISH message payload to
+ * AWS IoT Jobs service APIs.
+ */
+#define JSON_EMPTY_REQUEST    "{}"
 
 
 /*-----------------------------------------------------------*/
@@ -235,6 +258,11 @@ static NetworkContext_t xNetworkContext;
  * @brief The flag to indicate the mqtt session changed.
  */
 static BaseType_t mqttSessionEstablished = pdTRUE;
+
+/**
+ * @brief Static buffer used to hold MQTT messages being sent and received.
+ */
+static uint8_t ucSharedBuffer[ democonfigNETWORK_BUFFER_SIZE ];
 
 /**
  * @brief Static buffer used to hold MQTT messages being sent and received.
@@ -353,26 +381,28 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
         JobsTopic_t topicType = JobsMaxTopic;
         const char * pcThingName = NULL;
         uint16_t usThingNameLength = 0U;
-        char pcJobId[ JOBS_JOBID_MAX_LENGTH ] = { 0 };
+        char * pcJobId = NULL;
         int16_t usJobIdLength = 0;
         JobsStatus_t xStatus = JobsError;
 
         LogDebug( ( "Received an incoming publish message: TopicName=%.*s",
                     pxDeserializedInfo->pPublishInfo->topicNameLength,
-                    ( const char * ) pxDeserializedInfo->pPublishInfo->pTopicName ) ) );
+                    ( const char * ) pxDeserializedInfo->pPublishInfo->pTopicName ) );
 
         /* Let the Device Shadow library tell us whether this is a device shadow message. */
-        xStatus == Jobs_MatchTopic( pxDeserializedInfo->pPublishInfo->pTopicName,
+        xStatus == Jobs_MatchTopic( ( char * ) pxDeserializedInfo->pPublishInfo->pTopicName,
                                     pxDeserializedInfo->pPublishInfo->topicNameLength,
-                                    &messageType,
-                                    &pcThingName,
-                                    &usThingNameLength );
+                                    democonfigTHING_NAME,
+                                    THING_NAME_LENGTH,
+                                    &topicType,
+                                    &pcJobId,
+                                    &usJobIdLength );
 
         if( xStatus == JobsSuccess )
         {
             /* Make sure that we have received messages from the AWS IoT Jobs services for the same
              * thing name that we requested. */
-            configASSERT( 0 == strncmp( pcThingName, usThingNameLength ) )
+            configASSERT( 0 == strncmp( pcThingName, democonfigTHING_NAME, usThingNameLength ) );
 
             /* Upon successful return, the messageType has been filled in. */
             if( topicType == JobsDescribeSuccess )
@@ -441,10 +471,6 @@ int RunJobsDemo( bool awsIotMqttMode,
 {
     BaseType_t returnStatus = pdPASS;
 
-    /* A buffer containing the update document. It has static duration to prevent
-     * it from being placed on the call stack. */
-    static char pcUpdateDocument[ SHADOW_REPORTED_JSON_LENGTH + 1 ] = { 0 };
-
     /* Remove compiler warnings about unused parameters. */
     ( void ) awsIotMqttMode;
     ( void ) pIdentifier;
@@ -453,10 +479,10 @@ int RunJobsDemo( bool awsIotMqttMode,
     ( void ) pNetworkInterface;
 
     /* Establish an MQTT connection with AWS IoT over a mutually authenticated TLS session */
-    demoStatus = EstablishMqttSession( &xMqttContext,
-                                       &xNetworkContext,
-                                       &xBuffer,
-                                       prvEventCallback );
+    returnStatus = EstablishMqttSession( &xMqttContext,
+                                         &xNetworkContext,
+                                         &xBuffer,
+                                         prvEventCallback );
 
     if( returnStatus == pdFAIL )
     {
@@ -499,160 +525,21 @@ int RunJobsDemo( bool awsIotMqttMode,
 
         /* Subscribe to the NextJobExecutionChanged API topic to receive notifications about the next pending job in the queue. */
         returnStatus = SubscribeToTopic( &xMqttContext,
-                                         NEXT_JOB_EXECUTION_CHANGED_TOPIC( THING_NAME ),
-                                         sizeof( NEXT_JOB_EXECUTION_CHANGED_TOPIC( THING_NAME ) - 1 ) );
+                                         NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ),
+                                         sizeof( NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ) - 1 ) );
     }
 
     if( returnStatus == pdPASS )
     {
         /* Publish to AWS IoT Jobs on the DescribeJobExecution API to request the next pending job. */
         returnStatus = PublishToTopic( &xMqttContext,
-                                       DESCRIBE_NEXT_JOB_TOPIC( THING_NAME ),
-                                       sizeof( DESCRIBE_NEXT_JOB_TOPIC( THING_NAME ) ) - 1,
-                                       pcUpdateDocument,
-                                       0U );
-
-        /* This demo uses a constant #THING_NAME known at compile time therefore we can use macros to
-         * assemble shadow topic strings.
-         * If the thing name is known at run time, then we could use the API #Shadow_GetTopicString to
-         * assemble shadow topic strings, here is the example for /update/delta:
-         *
-         * For /update/delta:
-         *
-         * #define SHADOW_TOPIC_MAX_LENGTH  (256U)
-         *
-         * ShadowStatus_t shadowStatus = SHADOW_STATUS_SUCCESS;
-         * char cTopicBuffer[ SHADOW_TOPIC_MAX_LENGTH ] = { 0 };
-         * uint16_t usBufferSize = SHADOW_TOPIC_MAX_LENGTH;
-         * uint16_t usOutLength = 0;
-         * const char * pcThingName = "TestThingName";
-         * uint16_t usThingNameLength  = ( sizeof( pcThingName ) - 1U );
-         *
-         * shadowStatus = Shadow_GetTopicString( SHADOW_TOPIC_STRING_TYPE_UPDATE_DELTA,
-         *                                       pcThingName,
-         *                                       usThingNameLength,
-         *                                       & ( cTopicBuffer[ 0 ] ),
-         *                                       usBufferSize,
-         *                                       & usOutLength );
-         */
-
-        /* Then we publish a desired state to the /update topic. Since we've deleted
-         * the device shadow at the beginning of the demo, this will cause a delta message
-         * to be published, which we have subscribed to.
-         * In many real applications, the desired state is not published by
-         * the device itself. But for the purpose of making this demo self-contained,
-         * we publish one here so that we can receive a delta message later.
-         */
-        if( returnStatus == EXIT_SUCCESS )
-        {
-            /* Desired power on state . */
-            LogInfo( ( "Send desired power state with 1." ) );
-
-            ( void ) memset( pcUpdateDocument,
-                             0x00,
-                             sizeof( pcUpdateDocument ) );
-
-            snprintf( pcUpdateDocument,
-                      SHADOW_DESIRED_JSON_LENGTH + 1,
-                      SHADOW_DESIRED_JSON,
-                      ( int ) 1,
-                      ( long unsigned ) ( xTaskGetTickCount() % 1000000 ) );
-
-            returnStatus = PublishToTopic( SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
-                                           SHADOW_TOPIC_LENGTH_UPDATE( THING_NAME_LENGTH ),
-                                           pcUpdateDocument,
-                                           ( SHADOW_DESIRED_JSON_LENGTH + 1 ) );
-        }
-
-        if( returnStatus == EXIT_SUCCESS )
-        {
-            /* Note that PublishToTopic already called MQTT_ProcessLoop,
-             * therefore responses may have been received and the prvEventCallback
-             * may have been called, which may have changed the stateChanged flag.
-             * Check if the state change flag has been modified or not. If it's modified,
-             * then we publish reported state to update topic.
-             */
-            if( stateChanged == true )
-            {
-                /* Report the latest power state back to device shadow. */
-                LogInfo( ( "Report to the state change: %d", ulCurrentPowerOnState ) );
-                ( void ) memset( pcUpdateDocument,
-                                 0x00,
-                                 sizeof( pcUpdateDocument ) );
-
-                /* Keep the client token in global variable used to compare if
-                 * the same token in /update/accepted. */
-                ulClientToken = ( xTaskGetTickCount() % 1000000 );
-
-                snprintf( pcUpdateDocument,
-                          SHADOW_REPORTED_JSON_LENGTH + 1,
-                          SHADOW_REPORTED_JSON,
-                          ( int ) ulCurrentPowerOnState,
-                          ( long unsigned ) ulClientToken );
-
-                returnStatus = PublishToTopic( SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
-                                               SHADOW_TOPIC_LENGTH_UPDATE( THING_NAME_LENGTH ),
-                                               pcUpdateDocument,
-                                               ( SHADOW_DESIRED_JSON_LENGTH + 1 ) );
-            }
-            else
-            {
-                LogInfo( ( "No change from /update/delta, unsubscribe all shadow topics and disconnect from MQTT.\r\n" ) );
-            }
-        }
-
-        if( returnStatus == EXIT_SUCCESS )
-        {
-            LogInfo( ( "Start to unsubscribe shadow topics and disconnect from MQTT. \r\n" ) );
-
-            returnStatus = UnsubscribeFromTopic( SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
-                                                 SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
-
-            if( returnStatus != EXIT_SUCCESS )
-            {
-                LogError( ( "Failed to unsubscribe the topic %s",
-                            SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ) ) );
-            }
-        }
-
-        if( returnStatus == EXIT_SUCCESS )
-        {
-            returnStatus = UnsubscribeFromTopic( SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
-                                                 SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
-
-            if( returnStatus != EXIT_SUCCESS )
-            {
-                LogError( ( "Failed to unsubscribe the topic %s",
-                            SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ) ) );
-            }
-        }
-
-        if( returnStatus == EXIT_SUCCESS )
-        {
-            returnStatus = UnsubscribeFromTopic( SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
-                                                 SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
-
-            if( returnStatus != EXIT_SUCCESS )
-            {
-                LogError( ( "Failed to unsubscribe the topic %s",
-                            SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ) ) );
-            }
-        }
-
-        /* The MQTT session is always disconnected, even there were prior failures. */
-        returnStatus = DisconnectMqttSession();
-
-        /* This demo performs only Device Shadow operations. If matching the Shadow
-         * MQTT topic fails or there are failure in parsing the received JSON document,
-         * then this demo was not successful. */
-        if( ( lUpdateAcceptedReturn != EXIT_SUCCESS ) || ( lUpdateDeltaReturn != EXIT_SUCCESS ) )
-        {
-            LogError( ( "Callback function failed." ) );
-            returnStatus = pdFAIL;
-        }
+                                       DESCRIBE_NEXT_JOB_TOPIC( democonfigTHING_NAME ),
+                                       sizeof( DESCRIBE_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) - 1,
+                                       JSON_EMPTY_REQUEST,
+                                       sizeof( JSON_EMPTY_REQUEST ) - 1 );
     }
 
-    return( ( demoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
+    return( ( returnStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }
 
 /*-----------------------------------------------------------*/
