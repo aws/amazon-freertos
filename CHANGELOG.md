@@ -1,9 +1,13 @@
 # Change Log
-This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT.  The repository contains projects for many different microcontroller evaluation boards.
+This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT. The repository contains projects for many different microcontroller evaluation boards.
 
 ## 202011.00 November 2020
 
 ### New Features
+
+This release includes refactored MQTT, JSON Parser, and AWS IoT Device Shadow libraries for optimized memory usage and modularity, and includes dependent libraries via GitHub submoduling. These libraries have gone through code quality checks including verification that no function has a [GNU Complexity](https://www.gnu.org/software/complexity/manual/complexity.html) score over 8, and checks against deviations from mandatory rules in the [MISRA coding standard](https://www.misra.org.uk/MISRAHome/MISRAC2012/tabid/196/Default.aspx). Deviations from the MISRA C:2012 guidelines are documented under [MISRA Deviations](https://github.com/aws/aws-iot-device-sdk-embedded-C/blob/202009.00/MISRA.md). This library has also undergone both static code analysis from [Coverity static analysis](https://github.com/aws/aws-iot-device-sdk-embedded-C/blob/202009.00/MISRA.md), and validation of memory safety and proof of functional correctness through the CBMC automated reasoning tool.
+
+This release supports backward compatibility with the old MQTT and Shadow library APIs (i.e. present in 202007.00 and earlier releases). Thus, all libraries that depend on the old MQTT library API, including Shadow, Defender, GreenGrass Discovery (present under libraries/c_sdk folder), are backward compatible with the previous 202007.00 release
 
 #### AWS IoT Device Shadow V1.0.1
 
@@ -21,10 +25,11 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 - The [coreMQTT](https://github.com/FreeRTOS/coreMQTT) library provides the ability to establish an MQTT connection with a broker over a customer-implemented transport layer, which can either be a secure channel like a TLS session (mutually authenticated or server-only authentication) or a non-secure channel like a plaintext TCP connection. This MQTT connection can be used for performing publish operations to MQTT topics and subscribing to MQTT topics. The library provides a mechanism to register customer-defined callbacks for receiving incoming PUBLISH, acknowledgement and keep-alive response events from the broker. The library has been refactored for memory optimization and is compliant with the [MQTT 3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/mqtt-v3.1.1.html) standard. It has no dependencies on any additional libraries other than the standard C library, a customer-implemented network transport interface, and optionally a customer-implemented platform time function. The refactored design embraces different use-cases, ranging from resource-constrained platforms using only QoS 0 MQTT PUBLISH messages to resource-rich platforms using QoS 2 MQTT PUBLISH over TLS connections.
 - See memory requirements for the latest release [here](https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/standard/coreMQTT/docs/doxygen/output/html/index.html#mqtt_memory_requirements).
 
-### Updates
+#### OTA PAL for Renesas Starter Kit + RX65N-2MB
 
-- New MQTT client, JSON parser, PKCS 11, and AWS IoT Device Shadow client libraries have been added as submodules. These submodules refer to the [coreMQTT](https://github.com/FreeRTOS/coreMQTT), [coreJSON](https://github.com/FreeRTOS/coreJSON) and [Device Shadow](https://github.com/aws/device-shadow-for-aws-iot-embedded-sdk) repositories respectively. We encourage utilizing the new MQTT and Shadow library APIs for new development.
-- This release supports backward compatibility with the old MQTT and Shadow library APIs (i.e. present in 202007.00 and earlier releases). Thus, all libraries that depend on the old MQTT library API, including Shadow, Defender, GreenGrass Discovery (present under libraries/c_sdk folder), are backward compatible with the previous 202007.00 release.
+- Added OTA PAL Port for Renesas RX65N-2MB board
+
+### Updates
 
 #### Bluetooth Low Energy (BLE) Hardware Abstraction Library (HAL) V5.1.0
 
@@ -34,9 +39,9 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 - Added transport interface for BLE library to send data to AWS IoT using the new MQTT and Shadow client libraries. The transport interface utilizes a companion device mobile application implemented using FreeRTOS BLE android and IOS SDKs to send data to AWS IoT.
 - Added new MQTT and shadow demos for BLE. The demo uses the new MQTT and Shadow client libraries and the BLE transport interface to send and receive data with AWS IoT.
-- Added the SHIM network interface for backwards compatiblity of existing MQTT, Shadow and OTA demos with Bluetooth Low Energy.
+- Provides backwards compatibility for applications using existing MQTT, Shadow and OTA libraries with Bluetooth Low Energy.
 
-#### Common_IO V0.1.2
+#### Common I/O Library V0.1.2
 
 - Added more peripherals to CMake.
 
@@ -48,18 +53,14 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 #### FreeRTOS+TCP V2.3.1
 
-- Sub-moduled to the [FreeRTOS/FreeRTOS-Plus-TCP](https://github.com/FreeRTOS/FreeRTOS-Plus-TCP) repository
-- Updated use of ipconfigUSE_TCP to make it compilable when UDP is chosen
-- Added descriptions for functions and variables in Doxygen compatible format
-- Updated prvParseDNSReply function signature
-
-#### FreeRTOS+TLS V1.3.0
-
-- Added missing Max Fragment Length runtime configuration if MFL macro is enabled
+- Sub-moduled to the [FreeRTOS/FreeRTOS-Plus-TCP](https://github.com/FreeRTOS/FreeRTOS-Plus-TCP) repository. This is a breaking change for users using 202007.00 release of amazon-freertos due to change in folder structure. The version bump for this change was done in the FreeRTOS-Plus-TCP repository (V2.2.2 -> V2.3.0). Since the version number in the amazon-freertos repository is already at 2.3.0 (this discrepancy is caused by the presence of multiple FreeRTOS+TCP sources, which has since been corrected with the FreeRTOS-Plus-TCP repository as the single source of truth), only a minor version bump to 2.3.1 is being done.
+- Bug Fix for UDP only (`ipconfigUSE_TCP == 0`) compilation of FreeRTOS+TCP. Conditional compilation on the value of `ipconfigUSE_TCP` updated to exclude TCP only components.
+- Added descriptions for functions and variables in Doxygen compatible format.
+- Updated `prvParseDNSReply` function signature.
 
 #### FreeRTOS+UTILS V1.2.0
 
-- Renamed iot_pki_utils to core_pki_utils.
+- Renamed `iot_pki_utils` to `core_pki_utils`. It is now a part of the corePKCS11 repository.
 
 #### Greengrass Discovery V2.0.2
 
@@ -69,6 +70,32 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 - Refactored as shim layer for V2.x.x MQTT APIs using CoreMQTT library.
 
+#### Over the Air Update V1.2.1
+
+- Added check to abort the update if updating job status as self-test in service fails, this helps in early detection of mismatch in device and jobs states before activating new image.
+
+#### PKCS11 V2.1.1
+
+- Sub-moduled to the [FreeRTOS/corePKCS11](https://github.com/FreeRTOS/corePKCS11) repository.
+- Updated ECC608A and PSA library dependencies to corePKCS naming scheme. Refactored AFQP tests to support HSMs that have locked down credentials.
+
+#### Secure Sockets LwIP V1.3.0
+
+- Added new optional API `SOCKETS_Bind`.
+- Extended `SOCKETS_SetSockOpt` to support TCP keepalive settings.
+
+#### Shadow V2.2.3
+
+- Updated unit tests to work with the MQTT shim.
+
+#### TLS V1.3.0
+
+- Added missing Max Fragment Length (MFL) runtime configuration if MFL macro is enabled.
+
+#### Wi-Fi V2.0.0
+
+- Updated WiFi APIs to support more granular error codes, WEP encryption, SoftAP provisioning, optional asynchronous APIs, event handling and set country code.
+
 #### OTA PAL for Espressif ESP32-DevKitC
 
 - Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
@@ -76,10 +103,6 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 #### OTA PAL for Espressif ESP-WROVER-KIT
 
 - Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
-
-#### OTA PAL for Renesas Starter Kit + RX65N-2MB
-
-- Added OTA PAL Port for Renesas RX65N-2MB board
 
 #### OTA PAL for Microsoft Windows Simulator
 
@@ -92,28 +115,6 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 #### OTA PAL for Microchip Curiosity PIC32MZEF
 
 - Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
-
-#### Over the Air Update V1.2.1
-
-- Added check to abort the update if updating job status as self-test in service fails, this helps in early detection of mismatch in device and jobs states before activating new image.
-
-#### PKCS11 V2.1.1
-
-- Sub-moduled to the [FreeRTOS/corePKCS11](https://github.com/FreeRTOS/corePKCS11) repository
-- Updated ECC608A and PSA library dependencies to corePKCS naming scheme. Refactored AFQP tests to support HSMs that have locked down credentials.
-
-#### Secure Sockets LwIP V1.3.0
-
-- Added new optional API "SOCKETS_Bind".
-- Extended SOCKETS_SetSockOpt to support TCP keepalive settings.
-
-#### Shadow V2.2.3
-
-- Updated unit tests to work with the MQTT shim.
-
-#### Wi-Fi V2.0.0
-
-- Added new API to "iot_wifi.h".
 
 ## 202007.00 July 2020
 
@@ -151,7 +152,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 #### PKCS#11 V2.1.0
 
 - Added doxygen to various PKCS #11 files.
-- Added improved logging for mbed TLS  return codes in iot_pkcs11_mbedtls.c. 
+- Added improved logging for mbed TLS  return codes in iot_pkcs11_mbedtls.c.
 
 #### Bluetooth Low Energy (BLE) Hardware Abstraction Library (HAL) V5.0.0
 
