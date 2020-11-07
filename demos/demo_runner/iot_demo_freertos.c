@@ -281,9 +281,6 @@ static void _cleanup( void )
 
 void runDemoTask( void * pArgument )
 {
-    /* On FreeRTOS, credentials and server info are defined in a header
-     * and set by the initializers. */
-
     demoContext_t * pContext = ( demoContext_t * ) pArgument;
     const IotNetworkInterface_t * pNetworkInterface = NULL;
     void * pConnectionParams = NULL, * pCredentials = NULL;
