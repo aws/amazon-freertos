@@ -154,7 +154,7 @@
  * This demo program expects this key to be in the Job document. It is a key
  * specific to this demo.
  */
-#define jobsexampleQUERY_KEY_FOR_ACTION             jobsexampleEXECUTION_KEY ".action"
+#define jobsexampleQUERY_KEY_FOR_ACTION             jobsexampleQUERY_KEY_FOR_JOBS_DOC".action"
 
 /**
  * @brief The length of #jobsexampleQUERY_KEY_FOR_ACTION.
@@ -169,7 +169,7 @@
  * is either "publish" or "print". It represents the message that should be
  * published or printed, respectively.
  */
-#define jobsexampleQUERY_KEY_FOR_MESSAGE            jobsexampleEXECUTION_KEY ".message"
+#define jobsexampleQUERY_KEY_FOR_MESSAGE            jobsexampleQUERY_KEY_FOR_JOBS_DOC ".message"
 
 /**
  * @brief The length of #jobsexampleQUERY_KEY_FOR_MESSAGE.
@@ -184,7 +184,7 @@
  * is "publish". It represents the MQTT topic on which the message should be
  * published.
  */
-#define jobsexampleQUERY_KEY_FOR_TOPIC              jobsexampleEXECUTION_KEY ".topic"
+#define jobsexampleQUERY_KEY_FOR_TOPIC              jobsexampleQUERY_KEY_FOR_JOBS_DOC".topic"
 
 /**
  * @brief The length of #jobsexampleQUERY_KEY_FOR_TOPIC.
@@ -217,8 +217,8 @@
  */
 #define START_NEXT_JOB_TOPIC( thingName ) \
     ( JOBS_API_PREFIX ""                  \
-      thingName "" JOBS_API_BRIDGE        \
-      "$next/"JOBS_API_STARTNEXT )
+      thingName "" JOBS_API_BRIDGE \
+    ""JOBS_API_STARTNEXT )
 
 /**
  * @brief Utility macro to generate the subscription topic string for the
@@ -377,7 +377,7 @@ static void prvStartNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
     configASSERT( pxPublishInfo != NULL );
     configASSERT( ( pxPublishInfo->pPayload != NULL ) && ( pxPublishInfo->payloadLength > 0 ) );
 
-    /* Check*/
+    /* Check validaty of JSON message response from server.*/
     xJsonStatus = JSON_Validate( pxPublishInfo->pPayload, pxPublishInfo->payloadLength );
 
     if( xJsonStatus != JSONSuccess )
@@ -396,17 +396,14 @@ static void prvStartNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
                                    &pcJobId,
                                    &ulJobIdLength );
 
-        if( xJsonStatus == JSONSuccess )
+        if (xJsonStatus == JSONSuccess)
         {
-            LogInfo( ( "Received a Job from AWS IoT Jobs service: JobId=%.*s",
-                       ulJobIdLength, pcJobId ) );
-        }
-
-        else
-        {
-            char * pcAction = NULL;
+            char* pcAction = NULL;
             size_t uActionLength = 0U;
             JobActionType xActionType = JOB_ACTION_UNKNOWN;
+
+            LogInfo(("Received a Job from AWS IoT Jobs service: JobId=%.*s",
+                    ulJobIdLength, pcJobId));
 
             xJsonStatus = JSON_Search( ( char * ) pxPublishInfo->pPayload,
                                        pxPublishInfo->payloadLength,
@@ -534,8 +531,6 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
     {
         configASSERT( pxDeserializedInfo->pPublishInfo != NULL );
         JobsTopic_t topicType = JobsMaxTopic;
-        const char * pcThingName = NULL;
-        uint16_t usThingNameLength = 0U;
         char * pcJobId = NULL;
         int16_t usJobIdLength = 0;
         JobsStatus_t xStatus = JobsError;
@@ -545,20 +540,16 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
                     ( const char * ) pxDeserializedInfo->pPublishInfo->pTopicName ) );
 
         /* Let the Device Shadow library tell us whether this is a device shadow message. */
-        xStatus == Jobs_MatchTopic( ( char * ) pxDeserializedInfo->pPublishInfo->pTopicName,
-                                    pxDeserializedInfo->pPublishInfo->topicNameLength,
-                                    democonfigTHING_NAME,
-                                    THING_NAME_LENGTH,
-                                    &topicType,
-                                    &pcJobId,
-                                    &usJobIdLength );
+        xStatus = Jobs_MatchTopic((char*)pxDeserializedInfo->pPublishInfo->pTopicName,
+            pxDeserializedInfo->pPublishInfo->topicNameLength,
+            democonfigTHING_NAME,
+            THING_NAME_LENGTH,
+            &topicType,
+            &pcJobId,
+            &usJobIdLength);
 
         if( xStatus == JobsSuccess )
         {
-            /* Make sure that we have received messages from the AWS IoT Jobs services for the same
-             * thing name that we requested. */
-            configASSERT( 0 == strncmp( pcThingName, democonfigTHING_NAME, usThingNameLength ) );
-
             /* Upon successful return, the messageType has been filled in. */
             if( topicType == JobsStartNextSuccess )
             {
