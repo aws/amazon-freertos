@@ -441,7 +441,7 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
         }
         else
         {
-            LogError( ( "Failed to parse incoming publish job. Topic=%s!",
+            LogError( ( "Failed to parse incoming publish job. Topic=%.*s!",
                         pxDeserializedInfo->pPublishInfo->topicNameLength,
                         ( const char * ) pxDeserializedInfo->pPublishInfo->pTopicName ) );
         }
