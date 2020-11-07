@@ -21,7 +21,7 @@
  */
 
 /**
- * @file common_demo_helpers.c
+ * @file mqtt_demo_helpers.c
  *
  * @brief This file provides helper functions used by the Shadow demo application to
  * do MQTT operations over a mutually authenticated TLS connection.
@@ -42,7 +42,7 @@
 #include "core_mqtt.h"
 
 /* Shadow includes */
-#include "core_mqtt_helpers.h"
+#include "mqtt_demo_helpers.h"
 
 /* Retry utilities include. */
 #include "retry_utils.h"
@@ -490,7 +490,7 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
                                  &xTransport,
                                  prvGetTimeMs,
                                  eventCallback,
-                                 &xBuffer );
+                                 pxNetworkBuffer );
 
         if( eMqttStatus != MQTTSuccess )
         {

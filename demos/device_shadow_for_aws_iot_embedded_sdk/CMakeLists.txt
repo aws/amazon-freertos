@@ -9,16 +9,22 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_main.c"
-        "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_helpers.c"
+        "${AFR_DEMOS_DIR}/common/mqtt_demo_helpers/mqtt_demo_helpers.c"
         # Add the header file to generate their metadata so that 
         # they are present in code downloaded from FreeRTOS console.
-        "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_helpers.h"
+        "${AFR_DEMOS_DIR}/common/mqtt_demo_helpers/mqtt_demo_helpers.h"
         # As the containing directory name (i.e. device_shadow_for_aws_iot_embedded_sdk)
         # does not match the module name (i.e. device_shadow), 
         # we add the CMake file to the source list so that metadata is
         # generated for it, and it is present in code downloaded from
         # the FreeRTOS console.
         ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
+)
+
+afr_module_include_dirs(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        ${AFR_DEMOS_DIR}/common/mqtt_demo_helpers
 )
 
 afr_module_dependencies(

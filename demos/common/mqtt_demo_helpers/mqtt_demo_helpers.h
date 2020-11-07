@@ -29,6 +29,9 @@
 /* Transport interface implementation include header for TLS. */
 #include "transport_secure_sockets.h"
 
+/* Include header for connection configurations. */
+#include "aws_clientcredential.h"
+
 /*------------- Demo configurations -------------------------*/
 
 /** Note: The device client certificate and private key credentials are
