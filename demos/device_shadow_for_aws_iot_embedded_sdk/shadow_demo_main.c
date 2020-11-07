@@ -303,7 +303,6 @@ static void prvUpdateDeltaHandler( MQTTPublishInfo_t * pxPublishInfo )
                               pxPublishInfo->payloadLength,
                               "version",
                               sizeof( "version" ) - 1,
-                              '.',
                               &pcOutValue,
                               ( size_t * ) &ulOutValueLength );
     }
@@ -340,7 +339,6 @@ static void prvUpdateDeltaHandler( MQTTPublishInfo_t * pxPublishInfo )
                               pxPublishInfo->payloadLength,
                               "state.powerOn",
                               sizeof( "state.powerOn" ) - 1,
-                              '.',
                               &pcOutValue,
                               ( size_t * ) &ulOutValueLength );
     }
@@ -430,7 +428,6 @@ static void prvUpdateAcceptedHandler( MQTTPublishInfo_t * pxPublishInfo )
                               pxPublishInfo->payloadLength,
                               "clientToken",
                               sizeof( "clientToken" ) - 1,
-                              '.',
                               &pcOutValue,
                               ( size_t * ) &ulOutValueLength );
     }
