@@ -468,7 +468,7 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
     ( void ) memset( pxMqttContext, 0U, sizeof( MQTTContext_t ) );
     ( void ) memset( pxNetworkContext, 0U, sizeof( NetworkContext_t ) );
 
-    if( prvConnectToServerWithBackoffRetries(pxNetworkContext) != TRANSPORT_SOCKET_STATUS_SUCCESS )
+    if( prvConnectToServerWithBackoffRetries( pxNetworkContext ) != TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
         /* Log error to indicate connection failure after all
          * reconnect attempts are over. */

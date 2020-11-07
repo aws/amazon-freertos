@@ -408,7 +408,7 @@ static void prvSendUpdateForJob( char * pJobId,
                         pUpdateJobTopic,
                         ulTopicLength,
                         pNewJobState,
-                        strlen( pNewJobState ));
+                        strlen( pNewJobState ) );
     }
     else
     {
@@ -439,7 +439,7 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
     if( xJsonStatus != JSONSuccess )
     {
         LogError( ( "Job document schema is invalid. Missing expected \"Action\" key in document." ) );
-        prvSendUpdateForJob(pJobId, ulJobIdLength, MAKE_STATUS_REPORT("FAILED"));
+        prvSendUpdateForJob( pJobId, ulJobIdLength, MAKE_STATUS_REPORT( "FAILED" ) );
     }
     else
     {
@@ -454,7 +454,7 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
             case JOB_ACTION_EXIT:
                 LogInfo( ( "Received job contains \"Exit\" action. Updating state of demo." ) );
                 xExitActionJobReceived = pdTRUE;
-                prvSendUpdateForJob(pJobId, ulJobIdLength, MAKE_STATUS_REPORT("SUCCEEDED"));
+                prvSendUpdateForJob( pJobId, ulJobIdLength, MAKE_STATUS_REPORT( "SUCCEEDED" ) );
                 break;
 
             case JOB_ACTION_PRINT:
@@ -470,19 +470,19 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
                 if( xJsonStatus == JSONSuccess )
                 {
                     /* Print the given message if the action is "print". */
-                    LogInfo( (  "\r\n"
-                                 "/*-----------------------------------------------------------*/\r\n"
-                                 "\r\n"
-                                 "%.*s\r\n"
-                                 "\r\n"
-                                 "/*-----------------------------------------------------------*/\r\n"
-                                 "\r\n", ulMessageLength, pcMessage ) );
+                    LogInfo( ( "\r\n"
+                               "/*-----------------------------------------------------------*/\r\n"
+                               "\r\n"
+                               "%.*s\r\n"
+                               "\r\n"
+                               "/*-----------------------------------------------------------*/\r\n"
+                               "\r\n", ulMessageLength, pcMessage ) );
                     prvSendUpdateForJob( pJobId, ulJobIdLength, MAKE_STATUS_REPORT( "SUCCEEDED" ) );
                 }
                 else
                 {
                     LogError( ( "Job document schema is invalid. Missing \"Message\" for \"Print\" action type." ) );
-                    prvSendUpdateForJob(pJobId, ulJobIdLength, MAKE_STATUS_REPORT("FAILED"));
+                    prvSendUpdateForJob( pJobId, ulJobIdLength, MAKE_STATUS_REPORT( "FAILED" ) );
                 }
 
                 break;
@@ -503,7 +503,7 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
                 if( xJsonStatus != JSONSuccess )
                 {
                     LogError( ( "Job document schema is invalid. Missing \"Topic\" key for \"Publish\" action type." ) );
-                    prvSendUpdateForJob(pJobId, ulJobIdLength, MAKE_STATUS_REPORT("FAILED"));
+                    prvSendUpdateForJob( pJobId, ulJobIdLength, MAKE_STATUS_REPORT( "FAILED" ) );
                 }
                 else
                 {
@@ -529,7 +529,7 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
                     else
                     {
                         LogError( ( "Job document schema is invalid. Missing \"Message\" key for \"Publish\" action type." ) );
-                        prvSendUpdateForJob(pJobId, ulJobIdLength, MAKE_STATUS_REPORT("FAILED"));
+                        prvSendUpdateForJob( pJobId, ulJobIdLength, MAKE_STATUS_REPORT( "FAILED" ) );
                     }
                 }
 
@@ -634,7 +634,7 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
         if( xStatus == JobsSuccess )
         {
             /* Upon successful return, the messageType has been filled in. */
-            if( (topicType == JobsStartNextSuccess ) || (topicType == JobsNextJobChanged))
+            if( ( topicType == JobsStartNextSuccess ) || ( topicType == JobsNextJobChanged ) )
             {
                 /* Handler function to process payload. */
                 prvStartNextJobHandler( pxDeserializedInfo->pPublishInfo );
@@ -759,20 +759,20 @@ int RunJobsDemo( bool awsIotMqttMode,
     }
 
     /* Keep on running the demo until we receive a job for "Exit" action to exit the demo. */
-    while( (xExitActionJobReceived == pdFALSE) && ( returnStatus == pdPASS ) )
+    while( ( xExitActionJobReceived == pdFALSE ) && ( returnStatus == pdPASS ) )
     {
         /* Process incoming publish messages of jobs from AWS IoT Jobs service. */
-       // MQTT_ProcessLoop(&xMqttContext, 300);
+        /* MQTT_ProcessLoop(&xMqttContext, 300); */
 
         /* Publish to AWS IoT Jobs on the DescribeJobExecution API to request the next pending job. */
-        returnStatus = PublishToTopic(&xMqttContext,
-            START_NEXT_JOB_TOPIC(democonfigTHING_NAME),
-            sizeof(START_NEXT_JOB_TOPIC(democonfigTHING_NAME)) - 1,
-            JSON_EMPTY_REQUEST,
-            sizeof(JSON_EMPTY_REQUEST) - 1);
+        returnStatus = PublishToTopic( &xMqttContext,
+                                       START_NEXT_JOB_TOPIC( democonfigTHING_NAME ),
+                                       sizeof( START_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) - 1,
+                                       JSON_EMPTY_REQUEST,
+                                       sizeof( JSON_EMPTY_REQUEST ) - 1 );
 
         /* Delay before next iteration. */
-        vTaskDelay(pdMS_TO_TICKS(300));
+        vTaskDelay( pdMS_TO_TICKS( 300 ) );
     }
 
     return( ( returnStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
