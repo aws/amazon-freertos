@@ -618,7 +618,7 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
         configASSERT( pxDeserializedInfo->pPublishInfo != NULL );
         JobsTopic_t topicType = JobsMaxTopic;
         char * pcJobId = NULL;
-        int16_t usJobIdLength = 0;
+        uint16_t usJobIdLength = 0;
         JobsStatus_t xStatus = JobsError;
 
         LogDebug( ( "Received an incoming publish message: TopicName=%.*s",
