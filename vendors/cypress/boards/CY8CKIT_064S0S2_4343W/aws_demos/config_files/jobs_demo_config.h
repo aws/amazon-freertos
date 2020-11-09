@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202010.00
+ * FreeRTOS V202011.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,9 +25,8 @@
  * 1 tab == 4 spaces!
  */
 
-#ifndef SHADOW_DEMO_CONFIG_H
-#define SHADOW_DEMO_CONFIG_H
-
+#ifndef JOBS_DEMO_CONFIG_H
+#define JOBS_DEMO_CONFIG_H
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -136,4 +135,4 @@
  */
 #define democonfigNETWORK_BUFFER_SIZE    ( 1024U )
 
-#endif /* SHADOW_DEMO_CONFIG_H */
+#endif /* JOBS_DEMO_CONFIG_H */
