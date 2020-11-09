@@ -370,7 +370,7 @@ static void prvSendUpdateForJob( char * pJobId,
  */
 static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
                                    char * pJobId,
-                                   uint16_t usJobIdLength )
+                                   uint16_t usJobIdLength );
 
 /*-----------------------------------------------------------*/
 
@@ -672,8 +672,7 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
             }
             else if( topicType == JobsUpdateSuccess )
             {
-                /* Handler function to process payload. */
-                prvUpdateJobAcceptedResponeHandler( pxDeserializedInfo->pPublishInfo );
+                LogInfo( ( "Job update status request has been accepted by AWS Iot Jobs service." ) );
             }
             else if( topicType == JobsStartNextFailed )
             {
