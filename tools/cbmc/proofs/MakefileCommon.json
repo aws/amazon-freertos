@@ -61,7 +61,7 @@
         "$(FREERTOS)/libraries/3rdparty/mbedtls_utils",
         "$(FREERTOS)/libraries/3rdparty/mbedtls_config",
         "$(FREERTOS)/libraries/3rdparty/tinycbor",
-        "$(FREERTOS)/libraries/3rdparty/http_parser",
+        "$(FREERTOS)/libraries/coreHTTP/source/3rdparty/http_parser",
         "$(FREERTOS)/libraries/3rdparty/jsmn",
 
         "$(FREERTOS)/tools/cbmc/include",
