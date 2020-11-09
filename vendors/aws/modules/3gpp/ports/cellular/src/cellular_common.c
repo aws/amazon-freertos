@@ -401,7 +401,7 @@ static uint8_t _getSignalBars( int16_t compareValue,
     uint8_t i = 0, tableSize = 0, barsValue = CELLULAR_INVALID_SIGNAL_BAR_VALUE;
     const signalBarsTable_t * pSignalBarsTable = NULL;
 
-    if( rat == CELLULAR_RAT_GSM )
+    if( ( rat == CELLULAR_RAT_GSM ) || ( rat == CELLULAR_RAT_EDGE ) )
     {
         pSignalBarsTable = gsmSignalBarsTable;
         tableSize = ARRY_SIZE( gsmSignalBarsTable );
@@ -824,12 +824,12 @@ CellularError_t _Cellular_ComputeSignalBars( CellularRat_t rat,
     }
     else
     {
-        if( rat == CELLULAR_RAT_GSM )
+        if( ( rat == CELLULAR_RAT_GSM ) || ( rat == CELLULAR_RAT_EDGE ) )
         {
             pSignalInfo->bars = _getSignalBars( pSignalInfo->rssi, rat );
             IotLogDebug( "_computeSignalBars: RSSI %d Bars %d", pSignalInfo->rssi, pSignalInfo->bars );
         }
-        else if( ( rat == CELLULAR_RAT_CATM1 ) || ( rat == CELLULAR_RAT_NBIOT ) )
+        else if( ( rat == CELLULAR_RAT_LTE ) || ( rat == CELLULAR_RAT_CATM1 ) || ( rat == CELLULAR_RAT_NBIOT ) )
         {
             pSignalInfo->bars = _getSignalBars( pSignalInfo->rsrp, rat );
             IotLogDebug( "_computeSignalBars: RSRP %d Bars %d", pSignalInfo->rsrp, pSignalInfo->bars );

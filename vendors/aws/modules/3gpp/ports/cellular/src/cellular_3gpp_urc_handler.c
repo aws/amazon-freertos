@@ -255,7 +255,7 @@ static CellularPktStatus_t _parseRatInfoInRegStatus( const char * pToken,
             atCoreStatus = CELLULAR_AT_ERROR;
             IotLogError( "Error in processing RAT. Token %s", pToken );
         }
-        else if( ( var == ( int32_t ) CELLULAR_RAT_GSM ) ||
+        else if( ( var == ( int32_t ) CELLULAR_RAT_GSM ) || ( var == ( int32_t ) CELLULAR_RAT_EDGE ) ||
                  ( var == ( int32_t ) CELLULAR_RAT_CATM1 ) || ( var == ( int32_t ) CELLULAR_RAT_NBIOT ) )
         {
             /* Variable "var" is ensured that it is valid and within

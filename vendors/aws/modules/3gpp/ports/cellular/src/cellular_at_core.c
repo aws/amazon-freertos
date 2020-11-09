@@ -115,6 +115,8 @@ CellularATError_t Cellular_ATIsPrefixPresent( const char * pString,
 {
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     CellularATStringValidationResult_t stringValidationResult = CELLULAR_AT_STRING_UNKNOWN;
+    char * ptrPrefixChar = NULL;
+    char * ptrChar = NULL;
 
     if( result == NULL )
     {
@@ -139,9 +141,25 @@ CellularATError_t Cellular_ATIsPrefixPresent( const char * pString,
     {
         *result = true;
 
-        if( strchr( pString, ( int32_t ) ':' ) == NULL )
+        ptrPrefixChar = strchr( pString, ( int32_t ) ':' );
+
+        if( ptrPrefixChar == NULL )
         {
             *result = false;
+        }
+        else
+        {
+            /* There should be only '+', '_', characters or digit before seperator. */
+            for( ptrChar = ( char * ) pString; ptrChar < ptrPrefixChar; ptrChar++ )
+            {
+                if( ( ( isalpha( ( ( int ) ( *ptrChar ) ) ) ) == 0 ) &&
+                    ( ( isdigit( ( ( int ) ( *ptrChar ) ) ) ) == 0 ) &&
+                    ( *ptrChar != '+' ) && ( *ptrChar != '_' ) )
+                {
+                    *result = false;
+                    break;
+                }
+            }
         }
     }
 
@@ -488,7 +506,16 @@ CellularATError_t Cellular_ATGetSpecificNextTok( char ** ppString,
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         dataStrlen = ( uint16_t ) strlen( *ppString );
-        tok = strtok( *ppString, pDelimiter );
+
+        if( ( **ppString ) == ( *pDelimiter ) )
+        {
+            **ppString = '\0';
+            tok = *ppString;
+        }
+        else
+        {
+            tok = strtok( *ppString, pDelimiter );
+        }
 
         if( tok == NULL )
         {

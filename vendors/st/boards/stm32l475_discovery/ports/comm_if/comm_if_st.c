@@ -189,6 +189,8 @@ void HAL_UART_RxCpltCallback( UART_HandleTypeDef * hUart )
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdPASS;
     CellularCommInterfaceContext * pIotCommIntfCtx = & _iotCommIntfCtx;
+    CellularCommInterfaceError_t retComm = IOT_COMM_INTERFACE_SUCCESS;
+
     if( hUart != NULL )
     {
         if( IotFifo_Put( & pIotCommIntfCtx->rxFifo, & pIotCommIntfCtx->uartRxChar[ 0 ] ) == true )
@@ -199,8 +201,12 @@ void HAL_UART_RxCpltCallback( UART_HandleTypeDef * hUart )
             {
                 if( pIotCommIntfCtx->pRecvCB != NULL )
                 {
-                    pIotCommIntfCtx->pRecvCB( pIotCommIntfCtx->pUserData,
-                                              ( CellularCommInterfaceHandle_t ) pIotCommIntfCtx );
+                    retComm = pIotCommIntfCtx->pRecvCB( pIotCommIntfCtx->pUserData,
+                                                        ( CellularCommInterfaceHandle_t ) pIotCommIntfCtx );
+                    if( retComm == IOT_COMM_INTERFACE_SUCCESS )
+                    {
+                        portYIELD_FROM_ISR( pdTRUE );
+                    }
                 }
             }
             else
