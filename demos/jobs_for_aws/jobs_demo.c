@@ -58,7 +58,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Demo Specific configs. */
+/* Demo Specific config file. */
 #include "jobs_demo_config.h"
 
 #include "aws_demo.h"
@@ -79,15 +79,6 @@
 
 /*------------- Demo configurations -------------------------*/
 
-/** Note: The device client certificate and private key credentials are
- * obtained by the transport layer library (transport_interface_secure_sockets)
- * from the demos/include/aws_clientcredential_keys.h file for connection to broker.
- *
- * The following macros SHOULD be defined for this demo which uses both server
- * and client authentications for TLS session:
- *   - keyCLIENT_CERTIFICATE_PEM for client certificate.
- *   - keyCLIENT_PRIVATE_KEY_PEM for client private key.
- */
 #ifndef democonfigTHING_NAME
 
 /**
@@ -274,11 +265,6 @@ static MQTTContext_t xMqttContext;
 static NetworkContext_t xNetworkContext;
 
 /**
- * @brief The flag to indicate the mqtt session changed.
- */
-static BaseType_t mqttSessionEstablished = pdTRUE;
-
-/**
  * @brief Static buffer used to hold MQTT messages being sent and received.
  */
 static uint8_t ucSharedBuffer[ democonfigNETWORK_BUFFER_SIZE ];
@@ -417,7 +403,7 @@ static void prvSendUpdateForJob( char * pJobId,
                            usJobIdLength,
                            &ulTopicLength );
 
-    if( xStatus == JSONSuccess )
+    if( xStatus == JobsSuccess )
     {
         if( PublishToTopic( &xMqttContext,
                             pUpdateJobTopic,
