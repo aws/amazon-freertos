@@ -7,7 +7,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 This release includes refactored MQTT, JSON Parser, and AWS IoT Device Shadow libraries for optimized memory usage and modularity, and includes dependent libraries via GitHub submoduling. These libraries have gone through code quality checks including verification that no function has a [GNU Complexity](https://www.gnu.org/software/complexity/manual/complexity.html) score over 8, and checks against the [MISRA coding standard](https://www.misra.org.uk/MISRAHome/MISRAC2012/tabid/196/Default.aspx). Deviations from the MISRA C:2012 guidelines are documented under [MISRA Deviations](https://github.com/aws/aws-iot-device-sdk-embedded-C/blob/202009.00/MISRA.md). These libraries have also undergone both static code analysis from [Coverity static analysis](https://github.com/aws/aws-iot-device-sdk-embedded-C/blob/202009.00/MISRA.md), and validation of memory safety and functional correction proofs through the CBMC automated reasoning tool.
 
-This release supports backward compatibility with the MQTT and Shadow library APIs present in the previous release (i.e. present in 202007.00 and earlier releases). Thus, all libraries that depend on the old MQTT library API, including Shadow, Defender, GreenGrass Discovery (present under libraries/c_sdk folder), are backward compatible with the previous 202007.00 release.
+The MQTT library in this release, coreMQTT, supports backward compatibility with the MQTT library in FreeRTOS version 201906.00 or higher via a [compatibility layer](https://github.com/aws/amazon-freertos/tree/202011.00/libraries/c_sdk/standard/mqtt). Therefore, MQTT-dependent libraries in FreeRTOS version 201906.00 or higher, including AWS IoT Device Shadow, AWS IoT Device Defender, and Greengrass Discovery, can use the coreMQTT library via the compatibility layer.
 
 #### AWS IoT Device Shadow V1.0.1
 
@@ -37,9 +37,8 @@ This release supports backward compatibility with the MQTT and Shadow library AP
 
 #### Bluetooth Low Energy Management Library V2.2.0
 
-- Added transport interface for BLE library to send data to AWS IoT using the coreMQTT and Shadow client libraries. The transport interface utilizes a companion device mobile application implemented using FreeRTOS BLE android and IOS SDKs to send data to AWS IoT.
-- Added new MQTT and shadow demos for BLE. The demo uses the new MQTT and Shadow client libraries and the BLE transport interface to send and receive data with AWS IoT.
-- Provides backwards compatibility for applications using existing MQTT, Shadow and OTA libraries with Bluetooth Low Energy.
+- Added transport interface for BLE library to send data to AWS IoT using the coreMQTT and AWS IoT Device Shadow client libraries. The transport interface utilizes a companion device mobile application implemented using FreeRTOS BLE Android and iOS SDKs to send data to AWS IoT.
+- Added coreMQTT and AWS IoT Device Shadow demos for BLE. The respective demos "MQTT BLE Transport Demo" and "Shadow BLE Transport Demo" can be found under `demos/ble` folder. The demo uses the new MQTT and Shadow client libraries and the BLE transport interface to send and receive data with AWS IoT.
 
 #### Common I/O Library V0.1.2
 
@@ -68,7 +67,7 @@ This release supports backward compatibility with the MQTT and Shadow library AP
 
 #### MQTT Client Library V2.3.0
 
-- Refactored as shim layer for V2.x.x MQTT APIs using coreMQTT library. This is the library that supports backward compatibility with MQTT APIs present in 202007.00 and earlier releases.
+- Refactored as compatibility layer for V2.x.x MQTT APIs using coreMQTT library. This is the library that supports backward compatibility with MQTT APIs present in between 201906.00 and 202007.00.
 
 #### Over the Air Update V1.2.1
 
@@ -86,7 +85,7 @@ This release supports backward compatibility with the MQTT and Shadow library AP
 
 #### Shadow V2.2.3
 
-- Updated unit tests to work with the MQTT shim. This is the library that supports backward compatibility with Shadow APIs present in 202007.00 and earlier releases.
+- Updated unit tests to work with the MQTT compatibility layer. This is the library that supports backward compatibility with Shadow APIs present in between 201906.00 and 202007.00.
 
 #### TLS Shim Layer V1.3.0
 
