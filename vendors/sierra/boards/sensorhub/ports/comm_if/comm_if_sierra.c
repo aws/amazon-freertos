@@ -114,6 +114,7 @@ static void hw_lowlevel_init(void)
 
 static void uart_event_task(void *pvParameters)
 {
+    CellularCommInterfaceError_t retComm = IOT_COMM_INTERFACE_SUCCESS;
     uart_event_t event;
     for (;;)
     {
@@ -130,8 +131,12 @@ static void uart_event_task(void *pvParameters)
                 COMM_IF_LOGI(COMM_IF_TAG, "[UART DATA]: %d", event.size);
                 if (_CommIfContext.pRecvCB != NULL)
                 {
-                    _CommIfContext.pRecvCB(_CommIfContext.pUserData,
+                    retComm = _CommIfContext.pRecvCB(_CommIfContext.pUserData,
                                            (CellularCommInterfaceHandle_t)&_CommIfContext);
+                    if( retComm == IOT_COMM_INTERFACE_SUCCESS )
+                    {
+                        portYIELD_FROM_ISR();
+                    }
                 }
                 else
                 {
@@ -173,8 +178,12 @@ static void uart_event_task(void *pvParameters)
                 if (_CommIfContext.pRecvCB != NULL)
                 {
                     COMM_IF_LOGI(COMM_IF_TAG, "[UART_PATTERN_DET]: Invoke receive callback");
-                    _CommIfContext.pRecvCB(_CommIfContext.pUserData,
+                    retComm = _CommIfContext.pRecvCB(_CommIfContext.pUserData,
                                            (CellularCommInterfaceHandle_t)&_CommIfContext);
+                    if( retComm == IOT_COMM_INTERFACE_SUCCESS )
+                    {
+                        portYIELD_FROM_ISR();
+                    }
                 }
                 else
                 {
