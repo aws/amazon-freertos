@@ -66,10 +66,6 @@ This release supports backward compatability with the MQTT and Shadow library AP
 
 - Added more logging in library.
 
-#### Mbed TLS V1.3.0
-
-- Added missing Max Fragment Length (MFL) runtime configuration if MFL macro is enabled.
-
 #### MQTT Client Library V2.3.0
 
 - Refactored as shim layer for V2.x.x MQTT APIs using coreMQTT library. This is the library that supports backward compatibility with MQTT APIs present in 202007.00 and earlier releases.
@@ -91,6 +87,10 @@ This release supports backward compatability with the MQTT and Shadow library AP
 #### Shadow V2.2.3
 
 - Updated unit tests to work with the MQTT shim. This is the library that supports backward compatibility with Shadow APIs present in 202007.00 and earlier releases.
+
+#### TLS Shim Layer V1.3.0
+
+- Added missing Max Fragment Length (MFL) runtime configuration if MFL macro is enabled.
 
 #### Wi-Fi V2.0.0
 
