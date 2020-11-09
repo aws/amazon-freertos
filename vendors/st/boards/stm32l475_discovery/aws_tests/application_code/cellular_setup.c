@@ -99,7 +99,7 @@
                 }
                 else
                 {
-                    configPRINTF( ( ">>>  Cellular SIM card state %d, Lock State  <<<\r\n",
+                    configPRINTF( ( ">>>  Cellular SIM card state %d, Lock State %d <<<\r\n",
                                     simStatus.simCardState,
                                     simStatus.simCardLockState ) );
                 }
@@ -124,6 +124,7 @@
         {
             cellularStatus = Cellular_RfOff( CellularHandle );
         }
+
         if( cellularStatus == CELLULAR_SUCCESS )
         {
             cellularStatus = Cellular_RfOn( CellularHandle );
@@ -179,6 +180,13 @@
         if( cellularStatus == CELLULAR_SUCCESS )
         {
             cellularStatus = Cellular_SetDns( CellularHandle, CellularSocketPdnContextId, testCELLULAR_DNS_SERVER_ADDRESS );
+
+            /* Modem use dynamic DNS. */
+            if( cellularStatus == CELLULAR_UNSUPPORTED )
+            {
+                configPRINTF( ( ">>>  Set DNS upsupported. Cellular module use dynamic DNS.  <<<\r\n" ) );
+                cellularStatus = CELLULAR_SUCCESS;
+            }
         }
 
         if( ( cellularStatus == CELLULAR_SUCCESS ) && ( PdnStatusBuffers.state == 1 ) )

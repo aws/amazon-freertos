@@ -52,68 +52,6 @@
 
 /*-----------------------------------------------------------*/
 
-/**
- * @brief Information of hardware pin connections.
- *
- ***********************************************************************************************************
- *  Name                MCU     B-L475E-IOT01A  X-NUCLEO-STMODA1            P-L496G-CELL02  BG96 (Name)
- ***********************************************************************************************************
- *  CELLULAR_PWR_EN          PB4     CN3.6           CN9.6 - JP14                9               15 (PWRKEY)
- *  CELLULAR_RST             PA15    CN1.2           CN5.2 - JP7                 12              17 (RESET_N)
- *  CELLULAR_STATUS          PC3     CN4.3           CN8.3 - JP13                20              20 (STATUS)
- *  CELLULAR_DTR             PB1     CN3.7           CN9.7 - JP9                 14              30 (DTR)
- *  CELLULAR_RI              PC1     CN4.5           CN8.5 - JP6                 11              39 (RI)
- *  CELLULAR_SIM_SELECT_0    PA4     CN3.8           CN9.8 - JP11                18              N/A
- *  CELLULAR_SIM_SELECT_1    PA3     CN3.5           CN9.5 - JP15                8               N/A
- *  CELLULAR_SIM_RST         PA2     CN1.3           CN5.3 - JP10                17              44 (USIM_RST)
- *  CELLULAR_SIM_CLK         PC0     CN4.6           CN8.6 - JP8                 13              46 (USIM_CLK)
- *  CELLULAR_SIM_DATA        PB0     CN3.4           CN9.4 - JP12                19              45 (USIM_DATA)
- *  CELLULAR_UART_TX         PA0     CN3.2           CN9.2 - JP1(1-2),JP3(1-2)   2               34 (UART-RXD)
- *  CELLULAR_UART_RX         PA1     CN3.1           CN9.1 - JP2(1-2),JP4(1-2)   3               35 (UART-TXD)
- *  CELLULAR_UART_RTS        PC4     CN4.2           CN8.2 - JP5(1-2)            4               37 (UART_RTS)
- *  CELLULAR_UART_CTS        PC5     CN4.1           CN8.1                       1               36 (UART-RCS)
- ***********************************************************************************************************
- *
- * Refer the links below for details.
- *   https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html
- *   https://www.st.com/content/st_com/en/products/ecosystems/stm32-open-development-environment/stm32-nucleo-expansion-boards/stm32-ode-translate-hw/x-nucleo-stmoda1.html
- *   https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/p-l496g-cell02.html
- *   https://www.quectel.com/product/bg96.htm
- */
-
-#define CELLULAR_PWR_EN_GPIO_Port        GPIOB
-#define CELLULAR_PWR_EN_Pin              GPIO_PIN_4
-#define CELLULAR_RST_GPIO_Port           GPIOA
-#define CELLULAR_RST_Pin                 GPIO_PIN_15
-#define CELLULAR_STATUS_GPIO_Port        GPIOC
-#define CELLULAR_STATUS_Pin              GPIO_PIN_3
-
-#define CELLULAR_DTR_GPIO_Port           GPIOB
-#define CELLULAR_DTR_Pin                 GPIO_PIN_1
-#define CELLULAR_RI_GPIO_Port            GPIOC
-#define CELLULAR_RI_Pin                  GPIO_PIN_1
-
-#define CELLULAR_SIM_SELECT_0_GPIO_Port  GPIOA
-#define CELLULAR_SIM_SELECT_0_Pin        GPIO_PIN_4
-#define CELLULAR_SIM_SELECT_1_GPIO_Port  GPIOA
-#define CELLULAR_SIM_SELECT_1_Pin        GPIO_PIN_3
-
-#define CELLULAR_SIM_RST_GPIO_Port       GPIOA
-#define CELLULAR_SIM_RST_Pin             GPIO_PIN_2
-#define CELLULAR_SIM_CLK_GPIO_Port       GPIOC
-#define CELLULAR_SIM_CLK_Pin             GPIO_PIN_0
-#define CELLULAR_SIM_DATA_GPIO_Port      GPIOB
-#define CELLULAR_SIM_DATA_Pin            GPIO_PIN_0
-
-#define CELLULAR_UART_MAIN_TX_GPIO_Port  GPIOA
-#define CELLULAR_UART_MAIN_TX_Pin        GPIO_PIN_0
-#define CELLULAR_UART_MAIN_RX_GPIO_Port  GPIOA
-#define CELLULAR_UART_MAIN_RX_Pin        GPIO_PIN_1
-#define CELLULAR_UART_MAIN_RTS_GPIO_Port GPIOC
-#define CELLULAR_UART_MAIN_RTS_Pin       GPIO_PIN_4
-#define CELLULAR_UART_MAIN_CTS_GPIO_Port GPIOC
-#define CELLULAR_UART_MAIN_CTS_Pin       GPIO_PIN_5
-
 /* CELLULAR uses UART4 as main communication */
 #define CELLULAR_UART_MAIN               UART4
 #define CELLULAR_UART_MAIN_IRQn          UART4_IRQn
@@ -130,26 +68,9 @@
 #define COMM_EVT_MASK_RX_ERROR      ( 0x0010U )
 #define COMM_EVT_MASK_RX_ABORTED    ( 0x0020U )
 
-#define CELLULAR_UART_PINS_MAX           ( 4U )
-
 #define DEFAULT_WAIT_INTERVAL       ( 20UL )
 #define DEFAULT_RECV_WAIT_INTERVAL  ( 5UL )
 #define DEFAULT_RECV_TIMEOUT        ( 1000UL )
-
-
-/**
- * @brief Device GPIO timing parameters.
- */
-#define HAL_GPIO_DEVICE_OFF_TIME                ( 150 )
-#define HAL_GPIO_RESET_DEVICE_ON_TIME           ( 100 )
-#define HAL_GPIO_EN_DEVICE_ON_TIME              ( 200 )
-#define HAL_GPIO_DTR_DEVICE_ON_TIME             ( 100 )
-#define DEVICE_ON_WAIT_TIME_LOOP                ( 50 )
-#define DEVICE_ON_WAIT_TIME_LOOP_INTERVAL_MS    ( 100 )
-
-#define HAL_GPIO_EN_DEVICE_OFF_TIME             ( 1000 )
-#define DEVICE_OFF_WAIT_TIME_LOOP               ( 200 )
-#define DEVICE_OFF_WAIT_TIME_LOOP_INTERVAL_MS   ( 100 )
 
 #define COMM_IF_FIFO_BUFFER_SIZE                ( 1600 )
 
@@ -175,23 +96,11 @@ typedef struct CellularCommInterfaceContextStruct
     bool ifOpen;                                    /**< Communicate interface open status. */
 } CellularCommInterfaceContext;
 
-/**
- * @brief Number of supported communication interfaces
- */
-enum
-{
-    CELLULAR_INTERFACE_MAIN_UART = 0, /* UART4 */
-    CELLULAR_INTERFACE_MAX
-};
+/*-----------------------------------------------------------*/
 
-/**
- * @brief CELLULAR General Purpose I/O and GPIO Init structure definition.
- */
-typedef struct CellularGpioInitStruct
-{
-    GPIO_TypeDef * Port;
-    GPIO_InitTypeDef Init;
-} CellularGpioInitStruct_t;
+extern void CellularDevice_Init( void );
+extern CellularCommInterfaceError_t CellularDevice_PowerOn( void );
+extern void CellularDevice_PowerOff( void );
 
 /*-----------------------------------------------------------*/
 
@@ -209,8 +118,6 @@ static CellularCommInterfaceError_t prvCellularSend( CellularCommInterfaceHandle
                                            uint32_t dataLength,
                                            uint32_t timeoutMilliseconds,
                                            uint32_t * pDataSentLength );
-static CellularCommInterfaceError_t prvCellularPowerOn( void );
-static void prvCellularPowerOff( void );
 
 /*-----------------------------------------------------------*/
 
@@ -227,111 +134,18 @@ CellularCommInterface_t CellularCommInterface =
 
 /*-----------------------------------------------------------*/
 
-/* Control pin configuration */
-/* This structure is defined as configuration. Doesn't belong to specific function. */
-/* coverity[misra_c_2012_rule_8_9_violation].*/
-static const CellularGpioInitStruct_t _cellularGpioInitStruct[ ] =
-{
-    /* Port     Pin                   Mode                  Pull            Speed                   Alternate */
-    { .Port = CELLULAR_RST_GPIO_Port,
-      .Init = { CELLULAR_RST_Pin,          GPIO_MODE_OUTPUT_PP,  GPIO_NOPULL,    GPIO_SPEED_FREQ_LOW,    0 } },
-    { .Port = CELLULAR_DTR_GPIO_Port,
-      .Init = { CELLULAR_DTR_Pin,          GPIO_MODE_OUTPUT_PP,  GPIO_NOPULL,    GPIO_SPEED_FREQ_LOW,    0 } },
-    { .Port = CELLULAR_PWR_EN_GPIO_Port,
-      .Init = { CELLULAR_PWR_EN_Pin,       GPIO_MODE_OUTPUT_PP,  GPIO_NOPULL,    GPIO_SPEED_FREQ_LOW,    0 } },
-    { .Port = CELLULAR_STATUS_GPIO_Port,
-      .Init = { CELLULAR_STATUS_Pin,       GPIO_MODE_INPUT,      GPIO_PULLDOWN,  GPIO_SPEED_FREQ_HIGH,   0 } },
-    { .Port = CELLULAR_RI_GPIO_Port,
-      .Init = { CELLULAR_RI_Pin,           GPIO_MODE_INPUT,      GPIO_PULLDOWN,  GPIO_SPEED_FREQ_HIGH,   0 } },
-    { .Port = CELLULAR_SIM_SELECT_0_GPIO_Port,
-      .Init = { CELLULAR_SIM_SELECT_0_Pin, GPIO_MODE_OUTPUT_PP,  GPIO_NOPULL,    GPIO_SPEED_FREQ_LOW,    0 } },
-    { .Port = CELLULAR_SIM_SELECT_1_GPIO_Port,
-      .Init = { CELLULAR_SIM_SELECT_1_Pin, GPIO_MODE_OUTPUT_PP,  GPIO_NOPULL,    GPIO_SPEED_FREQ_LOW,    0 } },
-    { .Port = CELLULAR_SIM_RST_GPIO_Port,
-      .Init = { CELLULAR_SIM_RST_Pin,      GPIO_MODE_INPUT,      GPIO_NOPULL,    GPIO_SPEED_FREQ_LOW,    0 } },
-    { .Port = CELLULAR_SIM_CLK_GPIO_Port,
-      .Init = { CELLULAR_SIM_CLK_Pin,      GPIO_MODE_INPUT,      GPIO_NOPULL,    GPIO_SPEED_FREQ_LOW,    0 } },
-    { .Port = CELLULAR_SIM_DATA_GPIO_Port,
-      .Init = { CELLULAR_SIM_DATA_Pin,     GPIO_MODE_INPUT,      GPIO_NOPULL,    GPIO_SPEED_FREQ_LOW,    0 } },
-    { NULL }
-};
-
-/* UART pin configuration */
-static const CellularGpioInitStruct_t _cellularUartInitStruct[ CELLULAR_INTERFACE_MAX ][ CELLULAR_UART_PINS_MAX ] =
-{
-    /*   Port     Pin                   Mode                Pull            Speed                         Alternate */
-    { { .Port = CELLULAR_UART_MAIN_TX_GPIO_Port,
-        .Init = { CELLULAR_UART_MAIN_TX_Pin, GPIO_MODE_AF_PP,    GPIO_PULLUP,    GPIO_SPEED_FREQ_VERY_HIGH,    GPIO_AF8_UART4 } },
-      { .Port = CELLULAR_UART_MAIN_RX_GPIO_Port,
-        .Init = { CELLULAR_UART_MAIN_RX_Pin, GPIO_MODE_AF_PP,    GPIO_PULLUP,    GPIO_SPEED_FREQ_VERY_HIGH,    GPIO_AF8_UART4 } },
-      { .Port = CELLULAR_UART_MAIN_RTS_GPIO_Port,
-        .Init = { CELLULAR_UART_MAIN_RTS_Pin,GPIO_MODE_AF_PP,    GPIO_PULLUP,    GPIO_SPEED_FREQ_VERY_HIGH,    GPIO_AF8_UART4 } },
-      { .Port = CELLULAR_UART_MAIN_CTS_GPIO_Port,
-        .Init = { CELLULAR_UART_MAIN_CTS_Pin,GPIO_MODE_AF_PP,    GPIO_PULLUP,    GPIO_SPEED_FREQ_VERY_HIGH,    GPIO_AF8_UART4 } }
-    },
-};
-
 static CellularCommInterfaceContext _iotCommIntfCtx = { 0 };
 static UART_HandleTypeDef _iotCommIntfPhy = { 0 };
 
 /*-----------------------------------------------------------*/
 
-static void prvCellularGpioInit( void )
-{
-    const CellularGpioInitStruct_t * pCellularGpioInitStruct = _cellularGpioInitStruct;
-
-    /* Enable GPIO Ports Clock */
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-
-    /* Set RST and PWR_EN to high in order the modem stays reset state */
-    HAL_GPIO_WritePin( CELLULAR_RST_GPIO_Port, CELLULAR_RST_Pin, GPIO_PIN_SET );
-    HAL_GPIO_WritePin( CELLULAR_PWR_EN_GPIO_Port, CELLULAR_PWR_EN_Pin, GPIO_PIN_SET );
-
-    /* Reset DTR */
-    HAL_GPIO_WritePin( CELLULAR_DTR_GPIO_Port, CELLULAR_DTR_Pin, GPIO_PIN_RESET );
-
-    /**********************************************************************
-       SIM selection table
-     **********************************************************************
-       CELLULAR_SIM_SELECT_0_Pin     CELLULAR_SIM_SELECT_1_Pin    Which SIM
-     **********************************************************************
-       GPIO_PIN_RESET           GPIO_PIN_RESET          SOCKET SIM
-       GPIO_PIN_RESET           GPIO_PIN_SET            EMBEDDED SIM
-       GPIO_PIN_SET             GPIO_PIN_RESET          STM32 SIM
-     **********************************************************************/
-    /* Select socket SIM */
-    HAL_GPIO_WritePin( CELLULAR_SIM_SELECT_0_GPIO_Port, CELLULAR_SIM_SELECT_0_Pin, GPIO_PIN_RESET );
-    HAL_GPIO_WritePin( CELLULAR_SIM_SELECT_1_GPIO_Port, CELLULAR_SIM_SELECT_1_Pin, GPIO_PIN_RESET );
-
-    while( pCellularGpioInitStruct->Port != NULL )
-    {
-        HAL_GPIO_Init( ( GPIO_TypeDef * ) pCellularGpioInitStruct->Port,
-                       ( GPIO_InitTypeDef * ) & pCellularGpioInitStruct->Init );
-        pCellularGpioInitStruct++;
-    }
-}
-
 /* Override HAL_UART_MspInit() */
 void HAL_UART_MspInit( UART_HandleTypeDef * hUart )
 {
-    const CellularGpioInitStruct_t * pCellularGpioInitStruct = & _cellularUartInitStruct[ CELLULAR_INTERFACE_MAIN_UART ][ 0 ];
-    uint8_t count = 0;
-
     if( ( hUart != NULL ) && ( hUart->Instance == CELLULAR_UART_MAIN ) )
     {
         /* Enable UART Clock */
         CELLULAR_UART_MAIN_CLK_ENABLE();
-
-        /* UART pin init */
-        for( count = 0; count < CELLULAR_UART_PINS_MAX; count++ )
-        {
-            if( pCellularGpioInitStruct->Port != NULL )
-                HAL_GPIO_Init( ( GPIO_TypeDef * ) pCellularGpioInitStruct->Port,
-                               ( GPIO_InitTypeDef * ) & pCellularGpioInitStruct->Init );
-            pCellularGpioInitStruct++;
-        }
 
         /* UART interrupt init */
         HAL_NVIC_SetPriority (CELLULAR_UART_MAIN_IRQn, 5, 0 );
@@ -342,9 +156,6 @@ void HAL_UART_MspInit( UART_HandleTypeDef * hUart )
 /* Override HAL_UART_MspDeInit() */
 void HAL_UART_MspDeInit( UART_HandleTypeDef * hUart )
 {
-    const CellularGpioInitStruct_t * pCellularGpioInitStruct = & _cellularUartInitStruct[ CELLULAR_INTERFACE_MAIN_UART ][ 0 ];
-    uint8_t count = 0;
-
     if( ( hUart != NULL ) && ( hUart->Instance == CELLULAR_UART_MAIN ) )
     {
         /* UART interrupt deinit */
@@ -352,17 +163,6 @@ void HAL_UART_MspDeInit( UART_HandleTypeDef * hUart )
 
         /* Disable UART Clock */
         CELLULAR_UART_MAIN_CLK_DISABLE();
-
-        /* UART pin deinit */
-        for( count = 0; count < CELLULAR_UART_PINS_MAX; count++ )
-        {
-            if( pCellularGpioInitStruct->Port != NULL )
-            {
-                HAL_GPIO_DeInit( ( GPIO_TypeDef * ) pCellularGpioInitStruct->Port,
-                                 pCellularGpioInitStruct->Init.Pin );
-            }
-            pCellularGpioInitStruct++;
-        }
     }
 }
 
@@ -389,6 +189,8 @@ void HAL_UART_RxCpltCallback( UART_HandleTypeDef * hUart )
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdPASS;
     CellularCommInterfaceContext * pIotCommIntfCtx = & _iotCommIntfCtx;
+    CellularCommInterfaceError_t retComm = IOT_COMM_INTERFACE_SUCCESS;
+
     if( hUart != NULL )
     {
         if( IotFifo_Put( & pIotCommIntfCtx->rxFifo, & pIotCommIntfCtx->uartRxChar[ 0 ] ) == true )
@@ -399,8 +201,12 @@ void HAL_UART_RxCpltCallback( UART_HandleTypeDef * hUart )
             {
                 if( pIotCommIntfCtx->pRecvCB != NULL )
                 {
-                    pIotCommIntfCtx->pRecvCB( pIotCommIntfCtx->pUserData,
-                                              ( CellularCommInterfaceHandle_t ) pIotCommIntfCtx );
+                    retComm = pIotCommIntfCtx->pRecvCB( pIotCommIntfCtx->pUserData,
+                                                        ( CellularCommInterfaceHandle_t ) pIotCommIntfCtx );
+                    if( retComm == IOT_COMM_INTERFACE_SUCCESS )
+                    {
+                        portYIELD_FROM_ISR( pdTRUE );
+                    }
                 }
             }
             else
@@ -590,11 +396,8 @@ static CellularCommInterfaceError_t prvCellularOpen( CellularCommInterfaceReceiv
 
     if( ret == IOT_COMM_INTERFACE_SUCCESS )
     {
-        /* Init the GPIO. */
-        prvCellularGpioInit();
-
         /* Power on the device. */
-        ret = prvCellularPowerOn();
+        ret = CellularDevice_PowerOn();
     }
 
     /* Setup the read FIFO. */
@@ -607,7 +410,7 @@ static CellularCommInterfaceError_t prvCellularOpen( CellularCommInterfaceReceiv
         {
             IotLogError( "EventGroup create failed" );
             IotFifo_DeInit( & pIotCommIntfCtx->rxFifo );
-            prvCellularPowerOff();
+            CellularDevice_PowerOff();
             ret = IOT_COMM_INTERFACE_NO_MEMORY;
         }
     }
@@ -622,7 +425,7 @@ static CellularCommInterfaceError_t prvCellularOpen( CellularCommInterfaceReceiv
             IotLogError( "UART init failed" );
             vEventGroupDelete( pIotCommIntfCtx->pEventGroup );
             IotFifo_DeInit( & pIotCommIntfCtx->rxFifo );
-            prvCellularPowerOff();
+            CellularDevice_PowerOff();
             ret = IOT_COMM_INTERFACE_DRIVER_ERROR;
         }
     }
@@ -685,7 +488,7 @@ static CellularCommInterfaceError_t prvCellularClose( CellularCommInterfaceHandl
         IotFifo_DeInit( & pIotCommIntfCtx->rxFifo );
 
         /* Power off. */
-        prvCellularPowerOff();
+        CellularDevice_PowerOff();
 
         /* Set the device open status to false. */
         pIotCommIntfCtx->ifOpen = false;
@@ -898,100 +701,4 @@ static CellularCommInterfaceError_t prvCellularReceive( CellularCommInterfaceHan
     }
 
     return ret;
-}
-
-static CellularCommInterfaceError_t prvCellularPowerOn( void )
-{
-    CellularCommInterfaceError_t ret = IOT_COMM_INTERFACE_SUCCESS;
-    uint8_t count = 0, countLimit = 0;
-    GPIO_PinState pinStatus = GPIO_PIN_SET;
-
-    IotLogDebug( "CellularPowerOn +" );
-
-    /* Turn it off first when it already turned on */
-    HAL_GPIO_WritePin( CELLULAR_PWR_EN_GPIO_Port, CELLULAR_PWR_EN_Pin, GPIO_PIN_SET );
-    HAL_GPIO_WritePin( CELLULAR_RST_GPIO_Port, CELLULAR_RST_Pin, GPIO_PIN_SET );
-    HAL_Delay( HAL_GPIO_DEVICE_OFF_TIME );
-
-    /* Turn it on */
-    HAL_GPIO_WritePin( CELLULAR_PWR_EN_GPIO_Port, CELLULAR_PWR_EN_Pin, GPIO_PIN_RESET );
-    HAL_GPIO_WritePin( CELLULAR_RST_GPIO_Port, CELLULAR_RST_Pin, GPIO_PIN_RESET );
-    HAL_Delay( HAL_GPIO_RESET_DEVICE_ON_TIME );
-
-    HAL_GPIO_WritePin( CELLULAR_PWR_EN_GPIO_Port, CELLULAR_PWR_EN_Pin, GPIO_PIN_SET );
-    HAL_Delay( HAL_GPIO_EN_DEVICE_ON_TIME );
-    HAL_GPIO_WritePin( CELLULAR_PWR_EN_GPIO_Port, CELLULAR_PWR_EN_Pin, GPIO_PIN_RESET );
-
-    /* Wait up to 5 seconds */
-    countLimit = DEVICE_ON_WAIT_TIME_LOOP;
-    for( count = 0; count < countLimit; count++ )
-    {
-        pinStatus = HAL_GPIO_ReadPin( CELLULAR_STATUS_GPIO_Port, CELLULAR_STATUS_Pin );
-        if( pinStatus == GPIO_PIN_SET )
-        {
-            break;
-        }
-        vTaskDelay( pdMS_TO_TICKS( DEVICE_ON_WAIT_TIME_LOOP_INTERVAL_MS ) );
-    }
-
-    if( count < countLimit )
-    {
-        /* Set DTR to low in order to prevent the module enters sleep state */
-        HAL_GPIO_WritePin( CELLULAR_DTR_GPIO_Port, CELLULAR_DTR_Pin, GPIO_PIN_SET );
-        HAL_Delay( HAL_GPIO_DTR_DEVICE_ON_TIME );
-        HAL_GPIO_WritePin( CELLULAR_DTR_GPIO_Port, CELLULAR_DTR_Pin, GPIO_PIN_RESET );
-        ret = IOT_COMM_INTERFACE_SUCCESS;
-    }
-    else
-    {
-        IotLogError( "CellularPowerOn - turn on failed" );
-        ret = IOT_COMM_INTERFACE_FAILURE;
-    }
-
-    IotLogDebug( "CellularPowerOn -" );
-
-    return ret;
-}
-
-static void prvCellularPowerOff( void )
-{
-    uint8_t count = 0, countLimit = 0;
-    GPIO_PinState pinStatus = GPIO_PIN_SET;
-
-    IotLogDebug( "CellularPowerOff +" );
-
-    /* Turn it off */
-    pinStatus = HAL_GPIO_ReadPin( CELLULAR_STATUS_GPIO_Port, CELLULAR_STATUS_Pin );
-    if( pinStatus == GPIO_PIN_SET )
-    {
-        HAL_Delay( HAL_GPIO_EN_DEVICE_OFF_TIME );
-        HAL_GPIO_WritePin( CELLULAR_PWR_EN_GPIO_Port, CELLULAR_PWR_EN_Pin, GPIO_PIN_SET );
-        HAL_Delay( HAL_GPIO_EN_DEVICE_OFF_TIME );
-        HAL_GPIO_WritePin( CELLULAR_PWR_EN_GPIO_Port, CELLULAR_PWR_EN_Pin, GPIO_PIN_RESET );
-
-        /* Wait up to 20 seconds */
-        countLimit = DEVICE_OFF_WAIT_TIME_LOOP;
-        for( count = 0; count < countLimit; count++ )
-        {
-            pinStatus = HAL_GPIO_ReadPin( CELLULAR_STATUS_GPIO_Port, CELLULAR_STATUS_Pin );
-            if( pinStatus == GPIO_PIN_RESET )
-            {
-                break;
-            }
-            vTaskDelay( pdMS_TO_TICKS( DEVICE_OFF_WAIT_TIME_LOOP_INTERVAL_MS ) );
-        }
-
-        if( count >= countLimit )
-        {
-            IotLogDebug( "CellularPowerOff - timed out for normal power down" );
-        }
-    }
-
-    HAL_GPIO_WritePin( CELLULAR_RST_GPIO_Port, CELLULAR_RST_Pin, GPIO_PIN_SET );
-    HAL_GPIO_WritePin( CELLULAR_PWR_EN_GPIO_Port, CELLULAR_PWR_EN_Pin, GPIO_PIN_SET );
-
-    /* Reset DTR */
-    HAL_GPIO_WritePin( CELLULAR_DTR_GPIO_Port, CELLULAR_DTR_Pin, GPIO_PIN_RESET );
-
-    IotLogDebug( "CellularPowerOff -" );
 }

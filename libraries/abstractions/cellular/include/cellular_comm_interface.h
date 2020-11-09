@@ -60,9 +60,13 @@ typedef struct CellularCommInterfaceContext * CellularCommInterfaceHandle_t;
  *
  * @param[in] pUserData Userdata to be provided in the callback.
  * @param[in] commInterfaceHandle Handle corresponding to the comm interface.
+ *
+ * @return IOT_COMM_INTERFACE_SUCCESS if the operation is successful, and need to yield from ISR
+ * IOT_COMM_INTERFACE_BUSY if the operation is successful,
+ * otherwise an error code indicating the cause of the error.
  */
-typedef void ( * CellularCommInterfaceReceiveCallback_t )( void * pUserData,
-                                                           CellularCommInterfaceHandle_t commInterfaceHandle );
+typedef CellularCommInterfaceError_t ( * CellularCommInterfaceReceiveCallback_t )( void * pUserData,
+                                                                                   CellularCommInterfaceHandle_t commInterfaceHandle );
 
 /**
  * @brief Open a connection to the comm interface.

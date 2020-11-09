@@ -401,12 +401,12 @@ static uint8_t _getSignalBars( int16_t compareValue,
     uint8_t i = 0, tableSize = 0, barsValue = CELLULAR_INVALID_SIGNAL_BAR_VALUE;
     const signalBarsTable_t * pSignalBarsTable = NULL;
 
-    if( rat == CELLULAR_RAT_GSM )
+    if( ( rat == CELLULAR_RAT_GSM ) || ( rat == CELLULAR_RAT_EDGE ) )
     {
         pSignalBarsTable = gsmSignalBarsTable;
         tableSize = ARRY_SIZE( gsmSignalBarsTable );
     }
-    else if( rat == CELLULAR_RAT_CATM1 )
+    else if( ( rat == CELLULAR_RAT_CATM1 ) || ( rat == CELLULAR_RAT_LTE ) )
     {
         pSignalBarsTable = lteCATMSignalBarsTable;
         tableSize = ARRY_SIZE( lteCATMSignalBarsTable );
@@ -714,6 +714,9 @@ CellularError_t _Cellular_IsValidPdn( uint8_t contextId )
 
 /*-----------------------------------------------------------*/
 
+/* This function is provided as common code to cellular module porting.
+ * Vendor may choose to use this function or use their implementation. */
+/* coverity[misra_c_2012_rule_8_7_violation]. */
 CellularError_t _Cellular_ConvertCsqSignalRssi( int16_t csqRssi,
                                                 int16_t * pRssiValue )
 {
@@ -751,6 +754,9 @@ CellularError_t _Cellular_ConvertCsqSignalRssi( int16_t csqRssi,
 
 /*-----------------------------------------------------------*/
 
+/* This function is provided as common code to cellular module porting.
+ * Vendor may choose to use this function or use their implementation. */
+/* coverity[misra_c_2012_rule_8_7_violation]. */
 CellularError_t _Cellular_ConvertCsqSignalBer( int16_t csqBer,
                                                int16_t * pBerValue )
 {
@@ -818,12 +824,12 @@ CellularError_t _Cellular_ComputeSignalBars( CellularRat_t rat,
     }
     else
     {
-        if( rat == CELLULAR_RAT_GSM )
+        if( ( rat == CELLULAR_RAT_GSM ) || ( rat == CELLULAR_RAT_EDGE ) )
         {
             pSignalInfo->bars = _getSignalBars( pSignalInfo->rssi, rat );
             IotLogDebug( "_computeSignalBars: RSSI %d Bars %d", pSignalInfo->rssi, pSignalInfo->bars );
         }
-        else if( ( rat == CELLULAR_RAT_CATM1 ) || ( rat == CELLULAR_RAT_NBIOT ) )
+        else if( ( rat == CELLULAR_RAT_LTE ) || ( rat == CELLULAR_RAT_CATM1 ) || ( rat == CELLULAR_RAT_NBIOT ) )
         {
             pSignalInfo->bars = _getSignalBars( pSignalInfo->rsrp, rat );
             IotLogDebug( "_computeSignalBars: RSRP %d Bars %d", pSignalInfo->rsrp, pSignalInfo->bars );
