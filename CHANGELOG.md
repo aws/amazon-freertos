@@ -5,9 +5,9 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 ### New Features
 
-This release includes refactored MQTT, JSON Parser, and AWS IoT Device Shadow libraries for optimized memory usage and modularity, and includes dependent libraries via GitHub submoduling. These libraries have gone through code quality checks including verification that no function has a [GNU Complexity](https://www.gnu.org/software/complexity/manual/complexity.html) score over 8, and checks against deviations from mandatory rules in the [MISRA coding standard](https://www.misra.org.uk/MISRAHome/MISRAC2012/tabid/196/Default.aspx). Deviations from the MISRA C:2012 guidelines are documented under [MISRA Deviations](https://github.com/aws/aws-iot-device-sdk-embedded-C/blob/202009.00/MISRA.md). This library has also undergone both static code analysis from [Coverity static analysis](https://github.com/aws/aws-iot-device-sdk-embedded-C/blob/202009.00/MISRA.md), and validation of memory safety and proof of functional correctness through the CBMC automated reasoning tool.
+This release includes refactored MQTT, JSON Parser, and AWS IoT Device Shadow libraries for optimized memory usage and modularity, and includes dependent libraries via GitHub submoduling. These libraries have gone through code quality checks including verification that no function has a [GNU Complexity](https://www.gnu.org/software/complexity/manual/complexity.html) score over 8, and checks against the [MISRA coding standard](https://www.misra.org.uk/MISRAHome/MISRAC2012/tabid/196/Default.aspx). Deviations from the MISRA C:2012 guidelines are documented under [MISRA Deviations](https://github.com/aws/aws-iot-device-sdk-embedded-C/blob/202009.00/MISRA.md). These libraries have also undergone both static code analysis from [Coverity static analysis](https://github.com/aws/aws-iot-device-sdk-embedded-C/blob/202009.00/MISRA.md), and validation of memory safety and functional correction proofs through the CBMC automated reasoning tool.
 
-This release supports backward compatibility with the old MQTT and Shadow library APIs (i.e. present in 202007.00 and earlier releases). Thus, all libraries that depend on the old MQTT library API, including Shadow, Defender, GreenGrass Discovery (present under libraries/c_sdk folder), are backward compatible with the previous 202007.00 release
+This release supports backward compatibility with the MQTT and Shadow library APIs present in the previous release (i.e. present in 202007.00 and earlier releases). Thus, all libraries that depend on the old MQTT library API, including Shadow, Defender, GreenGrass Discovery (present under libraries/c_sdk folder), are backward compatible with the previous 202007.00 release.
 
 #### AWS IoT Device Shadow V1.0.1
 
@@ -37,7 +37,7 @@ This release supports backward compatibility with the old MQTT and Shadow librar
 
 #### Bluetooth Low Energy Management Library V2.2.0
 
-- Added transport interface for BLE library to send data to AWS IoT using the new MQTT and Shadow client libraries. The transport interface utilizes a companion device mobile application implemented using FreeRTOS BLE android and IOS SDKs to send data to AWS IoT.
+- Added transport interface for BLE library to send data to AWS IoT using the coreMQTT and Shadow client libraries. The transport interface utilizes a companion device mobile application implemented using FreeRTOS BLE android and IOS SDKs to send data to AWS IoT.
 - Added new MQTT and shadow demos for BLE. The demo uses the new MQTT and Shadow client libraries and the BLE transport interface to send and receive data with AWS IoT.
 - Provides backwards compatibility for applications using existing MQTT, Shadow and OTA libraries with Bluetooth Low Energy.
 
@@ -58,7 +58,7 @@ This release supports backward compatibility with the old MQTT and Shadow librar
 - Added descriptions for functions and variables in Doxygen compatible format.
 - Updated `prvParseDNSReply` function signature.
 
-#### FreeRTOS+UTILS V1.2.0
+#### FreeRTOS+POSIX Utils V1.2.0
 
 - The `iot_pki_utils.h` and `iot_pki_utils.c` are renamed to `core_pki_utils.h` and `core_pki_utils.c` respectively. They are also now a part of the corePKCS11 repository.
 
@@ -68,7 +68,7 @@ This release supports backward compatibility with the old MQTT and Shadow librar
 
 #### MQTT Client Library V2.3.0
 
-- Refactored as shim layer for V2.x.x MQTT APIs using CoreMQTT library.
+- Refactored as shim layer for V2.x.x MQTT APIs using coreMQTT library. This is the library that supports backward compatibility with MQTT APIs present in 202007.00 and earlier releases.
 
 #### Over the Air Update V1.2.1
 
@@ -86,9 +86,9 @@ This release supports backward compatibility with the old MQTT and Shadow librar
 
 #### Shadow V2.2.3
 
-- Updated unit tests to work with the MQTT shim.
+- Updated unit tests to work with the MQTT shim. This is the library that supports backward compatibility with Shadow APIs present in 202007.00 and earlier releases.
 
-#### TLS V1.3.0
+#### TLS Shim Layer V1.3.0
 
 - Added missing Max Fragment Length (MFL) runtime configuration if MFL macro is enabled.
 
