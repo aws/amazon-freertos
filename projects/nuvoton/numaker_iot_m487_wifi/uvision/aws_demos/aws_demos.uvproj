@@ -1708,6 +1708,11 @@
 							<FileType>5</FileType>
 							<FilePath>../../../../../demos/common/mqtt_demo_helpers/mqtt_demo_helpers.h</FilePath>
 						</File>
+						<File>
+							<FileName>shadow_demo_helpers.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</FilePath>
+						</File>
 					</Files>
 				</Group>
 				<Group>

@@ -2113,6 +2113,16 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</locationURI>
 		</link>
 		<link>
+			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</locationURI>
+		</link>
+		<link>
+			<name>demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</locationURI>
+		</link>
+		<link>
 			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>

@@ -331,7 +331,7 @@ void test_IotBleMqttTransportSend_ConnectBadParameters2( void )
         0x00, 0x00
     };
 
-    IotBleMqtt_SerializeConnect_IgnoreAndReturn( MQTTBLESuccess );
+    IotBleMqtt_SerializeConnect_IgnoreAndReturn( MQTTBLEBadParameter );
 
     packetSize = 12U;
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context,
@@ -443,7 +443,7 @@ void test_IotBleMqttTransportSend_PublishBadDeserialize( void )
     size_t packetSize = 38U;
 
     MQTT_DeserializePublish_IgnoreAndReturn( MQTTBadParameter );
-    IotBleMqtt_SerializePublish_IgnoreAndReturn( MQTTBLESuccess );
+    IotBleMqtt_SerializePublish_IgnoreAndReturn( MQTTBLEBadParameter );
     vPortFree_Ignore();
     pvPortMalloc_IgnoreAndReturn( buffer );
 
@@ -498,7 +498,7 @@ void test_IotBleMqttTransportSend_PubackBadDeserialize( void )
 
     MQTT_DeserializeAck_IgnoreAndReturn( MQTTBadParameter );
     /* IotBleMqtt_DeserializePuback_Stub( forgePacketIdentifierGood ); */
-    IotBleMqtt_SerializePuback_IgnoreAndReturn( MQTTBLESuccess );
+    IotBleMqtt_SerializePuback_IgnoreAndReturn( MQTTBLEBadParameter );
 
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context,
                                                     ( void * ) MQTTPacket,
@@ -877,10 +877,11 @@ void test_IotBleMqttTransportSend_ChannelFails_packetSizeZero( void )
     size_t bytesSent = 0;
     uint8_t MQTTPacket[] = { 0xc0, 0x00 }; /* IOT_BLE_MQTT_MSG_TYPE_PINGREQ */
     size_t packetSize = 2U;
-    size_t ret_packetSize = 0U;
+    size_t ret_packetSize = 2U;
 
     IotBleMqtt_SerializePingreq_ExpectAnyArgsAndReturn( MQTTBLESuccess );
     IotBleMqtt_SerializePingreq_ReturnThruPtr_pPacketSize( &ret_packetSize );
+    IotBleDataTransfer_Send_ExpectAnyArgsAndReturn( 0 );
     vPortFree_Ignore();
     context.publishInfo.pending = false;
 
