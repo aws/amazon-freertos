@@ -883,11 +883,17 @@ void testSetUp()
 /* Called after each test method. */
 void testTearDown()
 {
+    MQTTStatus_t status;
+
     /* Terminate MQTT connection. */
-    TEST_ASSERT_EQUAL( MQTTSuccess, MQTT_Disconnect( &context ) );
+    status = MQTT_Disconnect( &context );
 
     /* Terminate TLS session and TCP connection. */
     ( void ) SecureSocketsTransport_Disconnect( &networkContext );
+
+    /* Make any assertions at the end that may prevent #SecureSocketsTransport_Disconnect
+     * from being called and ultimately cause a memory leak. */
+    TEST_ASSERT_EQUAL( MQTTSuccess, status );
 }
 
 /*-----------------------------------------------------------*/
