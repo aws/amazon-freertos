@@ -230,6 +230,7 @@ static void prvWriteComplete( CellularCommInterfaceContext * pIotCommIntfCtx )
 static void prvReadComplete( CellularCommInterfaceContext * pIotCommIntfCtx )
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdPASS;
+    CellularCommInterfaceError_t retComm = IOT_COMM_INTERFACE_SUCCESS;
 
     if( IotFifo_Put( &pIotCommIntfCtx->rxFifo, &pIotCommIntfCtx->uartRxChar[ 0 ] ) == true )
     {
@@ -239,8 +240,13 @@ static void prvReadComplete( CellularCommInterfaceContext * pIotCommIntfCtx )
         {
             if( pIotCommIntfCtx->pRecvCB != NULL )
             {
-                pIotCommIntfCtx->pRecvCB( pIotCommIntfCtx->pUserData,
-                                          ( CellularCommInterfaceHandle_t ) pIotCommIntfCtx );
+                retComm = pIotCommIntfCtx->pRecvCB( pIotCommIntfCtx->pUserData,
+                                                    ( CellularCommInterfaceHandle_t ) pIotCommIntfCtx );
+
+                if( retComm == IOT_COMM_INTERFACE_SUCCESS )
+                {
+                    portYIELD_FROM_ISR( pdTRUE );
+                }
             }
         }
         else
