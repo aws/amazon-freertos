@@ -234,19 +234,6 @@
       ""JOBS_API_NEXTJOBCHANGED )
 
 /**
- * @brief Utility macro to generate the PUBLISH topic string for the
- * UpdateJobExecution API of AWS IoT Jobs service to update the state
- * of a job execution in queue.
- *
- * @param[in] thingName The name of the Thing resource to use in the topic.
- * @param[in] jobId The Job ID whose state will be updated.
- */
-#define UPDATE_JOB_EXECUTION_CHANGED_TOPIC( thingName, jobId ) \
-    ( JOBS_API_PREFIX ""                                       \
-      thingName "" JOBS_API_BRIDGE ""                          \
-      jobId ""JOBS_API_UPDATE )
-
-/**
  * @brief Format a JSON status message.
  *
  * @param[in] x one of "IN_PROGRESS", "SUCCEEDED", or "FAILED"
@@ -305,7 +292,33 @@ static MQTTFixedBuffer_t xBuffer =
     .size    = democonfigNETWORK_BUFFER_SIZE
 };
 
+/**
+ * @brief A global flag which represents whether a job for the "Exit" action
+ * has been received from AWS IoT Jobs service.
+ */
+static BaseType_t xExitActionJobReceived = pdFALSE;
+
+/**
+ * @brief A global flag which represents whether an error was encountered while
+ * executing the demo.
+ *
+ * @note When this flag is set, the demo terminates execution.
+ */
+static BaseType_t xDemoEncounteredError = pdFALSE;
+
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief Converts a string in a Job document to a #JobActionType
+ * value.
+ *
+ * @param[in] pcAction The Job action as a string.
+ * @param[in] xActionLength The length of @p pcAction.
+ *
+ * @return A #JobActionType equivalent to the given string.
+ */
+static JobActionType prvGetAction( const char * pcAction,
+                                   size_t xActionLength );
 
 /**
  * @brief This example uses the MQTT library of the AWS IoT Device SDK for
@@ -333,29 +346,31 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
  */
 static void prvStartNextJobHandler( MQTTPublishInfo_t * pxPublishInfo );
 
-/*exitActionHandler */
-/*publishActionHandler */
-/*printActionHandler */
+/**
+ * @brief Sends an update for a job to the UpdateJobExecution API of the AWS IoT Jobs service.
+ *
+ * @param[in] pJobId The job ID whose status has to be updated.
+ * @param[in] usJobIdLength The length of the job ID string.
+ * @param[in] pJobStatusReport The JSON formatted report to send to the AWS IoT Jobs service
+ * to update the status of @p pJobId.
+ */
+static void prvSendUpdateForJob( char * pJobId,
+                                 uint16_t usJobIdLength,
+                                 const char * pJobStatusReport );
 
 /**
- * @brief A global flag which represents whether a job for the "Exit" action
- * has been received from AWS IoT Jobs service.
- */
-static BaseType_t xExitActionJobReceived = pdFALSE;
-
-/**
- * @brief Processes success response from the UpdateJobExecution API for a job update
- * sent to the AWS IoT Jobs service.
- * The success response is received on the $aws/things/<thingName>/jobs/update/accepted
- * topic.
+ * @brief Executes a Job received from AWS IoT Jobs service and sends an update back to the service.
+ * It parses the received job document, executes the job depending on the job "Action" type, and
+ * sends an update to AWS for the Job.
  *
- * This handler examines that the accepted message that carries the same clientToken
- * as sent before.
- *
- * @param[in] pxPublishInfo Deserialized publish info pointer for the incoming
- * packet.
+ * @param[in] pxPublishInfo The PUBLISH packet containing the job document received from the
+ * AWS IoT Jobs service.
+ * @param[in] pJobId The ID of the job to execute.
+ * @param[in] usJobIdLength The length of the job ID string.
  */
-static void prvUpdateJobAcceptedResponeHandler( MQTTPublishInfo_t * pxPublishInfo );
+static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
+                                   char * pJobId,
+                                   uint16_t usJobIdLength )
 
 /*-----------------------------------------------------------*/
 
@@ -384,14 +399,14 @@ static JobActionType prvGetAction( const char * pcAction,
 
 static void prvSendUpdateForJob( char * pJobId,
                                  uint16_t usJobIdLength,
-                                 const char * pNewJobState )
+                                 const char * pJobStatusReport )
 {
     char pUpdateJobTopic[ JOBS_API_MAX_LENGTH( THING_NAME_LENGTH ) ];
     size_t ulTopicLength = 0;
     JobsStatus_t xStatus = JobsSuccess;
 
     configASSERT( ( pJobId != NULL ) && ( usJobIdLength > 0 ) );
-    configASSERT( pNewJobState != NULL );
+    configASSERT( pJobStatusReport != NULL );
 
     /* Generate the PUBLISH topic string for the UpdateJobExecution API of AWS IoT Jobs service. */
     xStatus = Jobs_Update( pUpdateJobTopic,
@@ -404,17 +419,27 @@ static void prvSendUpdateForJob( char * pJobId,
 
     if( xStatus == JSONSuccess )
     {
-        PublishToTopic( &xMqttContext,
-                        pUpdateJobTopic,
-                        ulTopicLength,
-                        pNewJobState,
-                        strlen( pNewJobState ) );
+        if( PublishToTopic( &xMqttContext,
+                            pUpdateJobTopic,
+                            ulTopicLength,
+                            pJobStatusReport,
+                            strlen( pJobStatusReport ) ) == pdFALSE )
+        {
+            /* Set global flag to terminate demo as PUBLISH operation to update Job status failed. */
+            xDemoEncounteredError = pdTRUE;
+
+            LogError( ( "Failed to update the status of job: JobID=%.*s, NewStatePayload=%s",
+                        usJobIdLength, pJobId, pJobStatusReport ) );
+        }
     }
     else
     {
+        /* Set global flag to terminate demo as topic generation for UpdateJobExecution API failed. */
+        xDemoEncounteredError = pdTRUE;
+
         LogError( ( "Failed to generate Publish topic string for sending job update: "
-                    "JobId=%.*s, NewState=%s",
-                    usJobIdLength, pJobId, pNewJobState ) );
+                    "JobID=%.*s, NewStatePayload=%s",
+                    usJobIdLength, pJobId, pJobStatusReport ) );
     }
 }
 
@@ -519,11 +544,20 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
                     {
                         /* Publish to the parsed MQTT topic with the message obtained from
                          * the Jobs document.*/
-                        PublishToTopic( &xMqttContext,
-                                        pcTopic,
-                                        ulTopicLength,
-                                        pcMessage,
-                                        ulMessageLength );
+                        if( PublishToTopic( &xMqttContext,
+                                            pcTopic,
+                                            ulTopicLength,
+                                            pcMessage,
+                                            ulMessageLength ) == pdFALSE )
+                        {
+                            /* Set global flag to terminate demo as PUBLISH operation to execute job failed. */
+                            xDemoEncounteredError = pdTRUE;
+
+                            LogError( ( "Failed to execute job with \"Publish\" action: Failed to publish to topic. "
+                                        "JobID=%.*s, Topic=%.*s",
+                                        usJobIdLength, pJobId, ulTopicLength, pcTopic ) );
+                        }
+
                         prvSendUpdateForJob( pJobId, usJobIdLength, MAKE_STATUS_REPORT( "SUCCEEDED" ) );
                     }
                     else
@@ -537,8 +571,7 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
 
             default:
                 configPRINTF( ( "Received Job document with unknown action %.*s.",
-                                uActionLength,
-                                pcAction ) );
+                                uActionLength, pcAction ) );
                 break;
         }
     }
@@ -582,11 +615,6 @@ static void prvStartNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
             prvProcessJobDocument( pxPublishInfo, pcJobId, ( uint16_t ) ulJobIdLength );
         }
     }
-}
-
-static void prvUpdateJobAcceptedResponeHandler( MQTTPublishInfo_t * pxPublishInfo )
-{
-    LogInfo( ( "Received message from the UpdateJobExecution API" ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -655,9 +683,16 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
             }
             else if( topicType == JobsUpdateFailed )
             {
+                /* Set global flag to terminate demo as request for updating executing the job status
+                 * has been rejected by AWS IoT Jobs service. */
+                xDemoEncounteredError = pdTRUE;
+
                 LogWarn( ( "Request for job update rejected: RejectedResponse=%.*s.",
                            pxDeserializedInfo->pPublishInfo->payloadLength,
                            ( const char * ) pxDeserializedInfo->pPublishInfo->pPayload ) );
+
+                LogError( ( "Terminating demo as request to update job status has been rejected by "
+                            "AWS IoT Jobs service..." ) );
             }
             else
             {
@@ -701,7 +736,7 @@ int RunJobsDemo( bool awsIotMqttMode,
                  void * pNetworkCredentialInfo,
                  const void * pNetworkInterface )
 {
-    BaseType_t returnStatus = pdPASS;
+    BaseType_t xDemoStatus = pdPASS;
 
     /* Remove compiler warnings about unused parameters. */
     ( void ) awsIotMqttMode;
@@ -711,12 +746,12 @@ int RunJobsDemo( bool awsIotMqttMode,
     ( void ) pNetworkInterface;
 
     /* Establish an MQTT connection with AWS IoT over a mutually authenticated TLS session */
-    returnStatus = EstablishMqttSession( &xMqttContext,
-                                         &xNetworkContext,
-                                         &xBuffer,
-                                         prvEventCallback );
+    xDemoStatus = EstablishMqttSession( &xMqttContext,
+                                        &xNetworkContext,
+                                        &xBuffer,
+                                        prvEventCallback );
 
-    if( returnStatus == pdFAIL )
+    if( xDemoStatus == pdFAIL )
     {
         /* Log error to indicate connection failure. */
         LogError( ( "Failed to connect to AWS IoT broker." ) );
@@ -756,29 +791,30 @@ int RunJobsDemo( bool awsIotMqttMode,
                    "/*-----------------------------------------------------------*/\r\n" ) );
 
         /* Subscribe to the NextJobExecutionChanged API topic to receive notifications about the next pending job in the queue. */
-        returnStatus = SubscribeToTopic( &xMqttContext,
-                                         NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ),
-                                         sizeof( NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ) - 1 ) );
+        xDemoStatus = SubscribeToTopic( &xMqttContext,
+                                        NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ),
+                                        sizeof( NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ) - 1 ) );
     }
 
     /* Keep on running the demo until we receive a job for "Exit" action to exit the demo. */
-    while( ( xExitActionJobReceived == pdFALSE ) && ( returnStatus == pdPASS ) )
+    while( ( xExitActionJobReceived == pdFALSE ) &&
+           ( xDemoEncounteredError == pdFALSE ) &&
+           ( xDemoStatus == pdPASS ) )
     {
-        /* Process incoming publish messages of jobs from AWS IoT Jobs service. */
-        /* MQTT_ProcessLoop(&xMqttContext, 300); */
-
         /* Publish to AWS IoT Jobs on the DescribeJobExecution API to request the next pending job. */
-        returnStatus = PublishToTopic( &xMqttContext,
-                                       START_NEXT_JOB_TOPIC( democonfigTHING_NAME ),
-                                       sizeof( START_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) - 1,
-                                       JSON_EMPTY_REQUEST,
-                                       sizeof( JSON_EMPTY_REQUEST ) - 1 );
+        xDemoStatus = PublishToTopic( &xMqttContext,
+                                      START_NEXT_JOB_TOPIC( democonfigTHING_NAME ),
+                                      sizeof( START_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) - 1,
+                                      JSON_EMPTY_REQUEST,
+                                      sizeof( JSON_EMPTY_REQUEST ) - 1 );
 
         /* Delay before next iteration. */
+        LogInfo( ( "Adding some delay before requesting the next pending job..." ) );
         vTaskDelay( pdMS_TO_TICKS( 300 ) );
     }
 
-    return( ( returnStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
+    return( ( ( xDemoStatus == pdPASS ) && ( xDemoEncounteredError == pdFALSE ) ) ?
+            EXIT_SUCCESS : EXIT_FAILURE );
 }
 
 /*-----------------------------------------------------------*/
