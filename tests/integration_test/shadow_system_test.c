@@ -817,17 +817,19 @@ TEST_SETUP( deviceShadow_Integration )
 
 TEST_TEAR_DOWN( deviceShadow_Integration )
 {
-    MQTTStatus_t status;
+    MQTTStatus_t mqttStatus;
+    TransportSocketStatus_t transportStatus;
 
     /* Terminate MQTT connection. */
-    status = MQTT_Disconnect( &context );
+    mqttStatus = MQTT_Disconnect( &context );
 
     /* Terminate TLS session and TCP connection. */
-    ( void ) SecureSocketsTransport_Disconnect( &networkContext );
+    transportStatus = SecureSocketsTransport_Disconnect( &networkContext );
 
-    /* Make any assertions at the end that may prevent #SecureSocketsTransport_Disconnect
-     * from being called and ultimately cause a memory leak. */
-    TEST_ASSERT_EQUAL( MQTTSuccess, status );
+    /* Make any assertions at the end so that all memory is deallocated before
+     * the end of this function. */
+    TEST_ASSERT_EQUAL( MQTTSuccess, mqttStatus );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, transportStatus );
 }
 
 /* ========================== Test Cases ============================ */
