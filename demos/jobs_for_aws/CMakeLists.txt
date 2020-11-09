@@ -9,7 +9,6 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/jobs_demo.c"
-        ${AFR_DEMOS_DIR}/common/mqtt_demo_helpers/mqtt_demo_helpers.c
         # As the containing directory name (i.e. jobs_for_aws)
         # does not match the module name (i.e. jobs), 
         # we add the CMake file to the source list so that metadata is
@@ -27,11 +26,9 @@ afr_module_include_dirs(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        #AFR::mqtt_demo_helpers
-        AFR::core_mqtt
+        AFR::mqtt_demo_helpers
         AFR::core_json
         AFR::jobs
-        AFR::retry_utils
         # Add dependency on the device_shadow_demo_dependencies 
         # metadata module so that this demo is only shown when the
         # Device Shadow library is selected on the FreeRTOS console.
