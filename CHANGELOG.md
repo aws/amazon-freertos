@@ -38,7 +38,7 @@ The MQTT library in this release, coreMQTT, supports backward compatibility with
 #### Bluetooth Low Energy Management Library V2.2.0
 
 - Added transport interface for BLE library to send data to AWS IoT using the coreMQTT and AWS IoT Device Shadow client libraries. The transport interface utilizes a companion device mobile application implemented using FreeRTOS BLE Android and iOS SDKs to send data to AWS IoT.
-- Added new MQTT and shadow demos for BLE. The demo uses the new MQTT and Shadow client libraries and the BLE transport interface to send and receive data with AWS IoT.
+- Added coreMQTT and AWS IoT Device Shadow demos for BLE. The respective demos "MQTT BLE Transport Demo" and "Shadow BLE Transport Demo" can be found under `demos/ble` folder. The demo uses the new MQTT and Shadow client libraries and the BLE transport interface to send and receive data with AWS IoT.
 
 #### Common I/O Library V0.1.2
 
