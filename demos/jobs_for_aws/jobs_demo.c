@@ -697,6 +697,14 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
  * The helper functions this demo uses for MQTT operations have internal
  * loops to process incoming messages. Those are not the focus of this demo
  * and therefore, are placed in a separate file mqtt_demo_utils.c.
+ *
+ * This function also shows that the communication with the AWS IoT Jobs services does
+ * not require explicit subscriptions to the response MQTT topics for request commands that
+ * sent to the MQTT APIs (like DescribeJobExecution API) of the service. The service
+ * will send messages on the response topics for the request commands on the same
+ * MQTT connection irrespective of whether the client subscribes to the response topics.
+ * Therefore, this demo processes incoming messages from response topics of DescribeJobExecution
+ * and UpdateJobExecution APIs without explicitly subscribing to the topics.
  */
 int RunJobsDemo( bool awsIotMqttMode,
                  const char * pIdentifier,
@@ -757,7 +765,8 @@ int RunJobsDemo( bool awsIotMqttMode,
                    "\r\n"
                    "/*-----------------------------------------------------------*/\r\n" ) );
 
-        /* Subscribe to the NextJobExecutionChanged API topic to receive notifications about the next pending job in the queue. */
+        /* Subscribe to the NextJobExecutionChanged API topic to receive notifications about the next pending
+         * job in the queue for the Thing resource used by this demo. */
         xDemoStatus = SubscribeToTopic( &xMqttContext,
                                         NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ),
                                         sizeof( NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ) - 1 ) );
@@ -768,7 +777,14 @@ int RunJobsDemo( bool awsIotMqttMode,
            ( xDemoEncounteredError == pdFALSE ) &&
            ( xDemoStatus == pdPASS ) )
     {
-        /* Publish to AWS IoT Jobs on the DescribeJobExecution API to request the next pending job. */
+        /* Publish to AWS IoT Jobs on the DescribeJobExecution API to request the next pending job.
+         *
+         * Note: It is not required to make MQTT subscriptions to the response topics of the
+         * DescribeJobExecution API because the AWS IoT Jobs service sends responses for the PUBLISH
+         * commands on the same MQTT connection irrespective of whether the client has subscribed to the
+         * response topics or not.
+         * This demo processes incoming messages from the response topics of the API in the prvEventCallback()
+         * handler that is supplied to the coreMQTT library. */
         xDemoStatus = PublishToTopic( &xMqttContext,
                                       START_NEXT_JOB_TOPIC( democonfigTHING_NAME ),
                                       sizeof( START_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) - 1,
