@@ -545,7 +545,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 
     /* Ensure that only supported values are supplied. */
     configASSERT( lDomain == SOCKETS_AF_INET );
-    configASSERT( ( lType == SOCKETS_SOCK_STREAM && lProtocol == SOCKETS_IPPROTO_TCP ) );
+    configASSERT( ( lType == SOCKETS_SOCK_STREAM && lProtocol == SOCKETS_IPPROTO_TCP ) || ( lType == SOCKETS_SOCK_DGRAM && lProtocol == SOCKETS_IPPROTO_UDP ) );
 
     /* Try to get a free socket. */
     ulSocketNumber = prvGetFreeSocket();
@@ -553,9 +553,14 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
     /* If we get a free socket, set its attributes. */
     if( ulSocketNumber != ( uint32_t ) SOCKETS_INVALID_SOCKET )
     {
-        /* Store the socket type. */
-        xSockets[ ulSocketNumber ].xSocketType = ES_WIFI_TCP_CONNECTION;
-
+    /* Store the socket type. (with UDP support) */
+    	if (lProtocol == SOCKETS_IPPROTO_TCP)
+    	{
+    	 xSockets[ ulSocketNumber ].xSocketType = ES_WIFI_TCP_CONNECTION;
+    	}
+    	else {
+    		xSockets[ ulSocketNumber ].xSocketType = ES_WIFI_UDP_CONNECTION;
+    	}
         /* Initialize all the members to sane values. */
         xSockets[ ulSocketNumber ].ulFlags = 0;
         xSockets[ ulSocketNumber ].ulSendTimeout = socketsconfigDEFAULT_SEND_TIMEOUT;
