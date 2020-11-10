@@ -92,7 +92,9 @@
 /**
  * @brief The length of #democonfigTHING_NAME.
  */
-#define THING_NAME_LENGTH                           ( ( uint16_t ) ( sizeof( democonfigTHING_NAME ) - 1 ) )
+#define THING_NAME_LENGTH    ( ( uint16_t ) ( sizeof( democonfigTHING_NAME ) - 1 ) )
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief The JSON key of the execution object.
@@ -183,22 +185,6 @@
 #define jobsexampleQUERY_KEY_FOR_TOPIC_LENGTH       ( sizeof( jobsexampleQUERY_KEY_FOR_TOPIC ) - 1 )
 
 /**
- * @brief The minimum length of a string in a JSON Job document.
- *
- * At the very least the Job ID must have the quotes that identify it as a JSON
- * string and 1 character for the string itself (the string must not be empty).
- */
-#define jobsexampleJSON_STRING_MIN_LENGTH           ( ( size_t ) 3 )
-
-/**
- * @brief Time to wait before exiting demo.
- *
- * The milliseconds to wait before exiting. This is because the MQTT Broker
- * will disconnect us if we are idle too long, and we have disabled keep alive.
- */
-#define jobsexampleMS_BEFORE_EXIT                   ( 10 * 60 * 1000 )
-
-/**
  * @brief Utility macro to generate the PUBLISH topic string to the
  * DescribePendingJobExecution API of AWS IoT Jobs service for requesting
  * the next pending job information.
@@ -237,7 +223,6 @@
  */
 #define JSON_EMPTY_REQUEST    "{}"
 
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -250,7 +235,6 @@ typedef enum JobActionType
     JOB_ACTION_EXIT,    /**< Exit the demo. */
     JOB_ACTION_UNKNOWN  /**< Unknown action. */
 } JobActionType;
-
 
 /*-----------------------------------------------------------*/
 
@@ -335,14 +319,14 @@ static void prvStartNextJobHandler( MQTTPublishInfo_t * pxPublishInfo );
 /**
  * @brief Sends an update for a job to the UpdateJobExecution API of the AWS IoT Jobs service.
  *
- * @param[in] pJobId The job ID whose status has to be updated.
+ * @param[in] pcJobId The job ID whose status has to be updated.
  * @param[in] usJobIdLength The length of the job ID string.
- * @param[in] pJobStatusReport The JSON formatted report to send to the AWS IoT Jobs service
- * to update the status of @p pJobId.
+ * @param[in] pcJobStatusReport The JSON formatted report to send to the AWS IoT Jobs service
+ * to update the status of @p pcJobId.
  */
-static void prvSendUpdateForJob( char * pJobId,
+static void prvSendUpdateForJob( char * pcJobId,
                                  uint16_t usJobIdLength,
-                                 const char * pJobStatusReport );
+                                 const char * pcJobStatusReport );
 
 /**
  * @brief Executes a Job received from AWS IoT Jobs service and sends an update back to the service.
@@ -351,11 +335,11 @@ static void prvSendUpdateForJob( char * pJobId,
  *
  * @param[in] pxPublishInfo The PUBLISH packet containing the job document received from the
  * AWS IoT Jobs service.
- * @param[in] pJobId The ID of the job to execute.
+ * @param[in] pcJobId The ID of the job to execute.
  * @param[in] usJobIdLength The length of the job ID string.
  */
 static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
-                                   char * pJobId,
+                                   char * pcJobId,
                                    uint16_t usJobIdLength );
 
 /*-----------------------------------------------------------*/
@@ -383,23 +367,23 @@ static JobActionType prvGetAction( const char * pcAction,
     return xAction;
 }
 
-static void prvSendUpdateForJob( char * pJobId,
+static void prvSendUpdateForJob( char * pcJobId,
                                  uint16_t usJobIdLength,
-                                 const char * pJobStatusReport )
+                                 const char * pcJobStatusReport )
 {
     char pUpdateJobTopic[ JOBS_API_MAX_LENGTH( THING_NAME_LENGTH ) ];
     size_t ulTopicLength = 0;
     JobsStatus_t xStatus = JobsSuccess;
 
-    configASSERT( ( pJobId != NULL ) && ( usJobIdLength > 0 ) );
-    configASSERT( pJobStatusReport != NULL );
+    configASSERT( ( pcJobId != NULL ) && ( usJobIdLength > 0 ) );
+    configASSERT( pcJobStatusReport != NULL );
 
     /* Generate the PUBLISH topic string for the UpdateJobExecution API of AWS IoT Jobs service. */
     xStatus = Jobs_Update( pUpdateJobTopic,
                            sizeof( pUpdateJobTopic ),
                            democonfigTHING_NAME,
                            THING_NAME_LENGTH,
-                           pJobId,
+                           pcJobId,
                            usJobIdLength,
                            &ulTopicLength );
 
@@ -408,14 +392,14 @@ static void prvSendUpdateForJob( char * pJobId,
         if( PublishToTopic( &xMqttContext,
                             pUpdateJobTopic,
                             ulTopicLength,
-                            pJobStatusReport,
-                            strlen( pJobStatusReport ) ) == pdFALSE )
+                            pcJobStatusReport,
+                            strlen( pcJobStatusReport ) ) == pdFALSE )
         {
             /* Set global flag to terminate demo as PUBLISH operation to update Job status failed. */
             xDemoEncounteredError = pdTRUE;
 
             LogError( ( "Failed to update the status of job: JobID=%.*s, NewStatePayload=%s",
-                        usJobIdLength, pJobId, pJobStatusReport ) );
+                        usJobIdLength, pcJobId, pcJobStatusReport ) );
         }
     }
     else
@@ -425,12 +409,12 @@ static void prvSendUpdateForJob( char * pJobId,
 
         LogError( ( "Failed to generate Publish topic string for sending job update: "
                     "JobID=%.*s, NewStatePayload=%s",
-                    usJobIdLength, pJobId, pJobStatusReport ) );
+                    usJobIdLength, pcJobId, pcJobStatusReport ) );
     }
 }
 
 static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
-                                   char * pJobId,
+                                   char * pcJobId,
                                    uint16_t usJobIdLength )
 {
     char * pcAction = NULL;
@@ -450,7 +434,7 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
     if( xJsonStatus != JSONSuccess )
     {
         LogError( ( "Job document schema is invalid. Missing expected \"Action\" key in document." ) );
-        prvSendUpdateForJob( pJobId, usJobIdLength, MAKE_STATUS_REPORT( "FAILED" ) );
+        prvSendUpdateForJob( pcJobId, usJobIdLength, MAKE_STATUS_REPORT( "FAILED" ) );
     }
     else
     {
@@ -465,7 +449,7 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
             case JOB_ACTION_EXIT:
                 LogInfo( ( "Received job contains \"Exit\" action. Updating state of demo." ) );
                 xExitActionJobReceived = pdTRUE;
-                prvSendUpdateForJob( pJobId, usJobIdLength, MAKE_STATUS_REPORT( "SUCCEEDED" ) );
+                prvSendUpdateForJob( pcJobId, usJobIdLength, MAKE_STATUS_REPORT( "SUCCEEDED" ) );
                 break;
 
             case JOB_ACTION_PRINT:
@@ -488,12 +472,12 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
                                "\r\n"
                                "/*-----------------------------------------------------------*/\r\n"
                                "\r\n", ulMessageLength, pcMessage ) );
-                    prvSendUpdateForJob( pJobId, usJobIdLength, MAKE_STATUS_REPORT( "SUCCEEDED" ) );
+                    prvSendUpdateForJob( pcJobId, usJobIdLength, MAKE_STATUS_REPORT( "SUCCEEDED" ) );
                 }
                 else
                 {
                     LogError( ( "Job document schema is invalid. Missing \"Message\" for \"Print\" action type." ) );
-                    prvSendUpdateForJob( pJobId, usJobIdLength, MAKE_STATUS_REPORT( "FAILED" ) );
+                    prvSendUpdateForJob( pcJobId, usJobIdLength, MAKE_STATUS_REPORT( "FAILED" ) );
                 }
 
                 break;
@@ -514,7 +498,7 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
                 if( xJsonStatus != JSONSuccess )
                 {
                     LogError( ( "Job document schema is invalid. Missing \"Topic\" key for \"Publish\" action type." ) );
-                    prvSendUpdateForJob( pJobId, usJobIdLength, MAKE_STATUS_REPORT( "FAILED" ) );
+                    prvSendUpdateForJob( pcJobId, usJobIdLength, MAKE_STATUS_REPORT( "FAILED" ) );
                 }
                 else
                 {
@@ -541,15 +525,15 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
 
                             LogError( ( "Failed to execute job with \"Publish\" action: Failed to publish to topic. "
                                         "JobID=%.*s, Topic=%.*s",
-                                        usJobIdLength, pJobId, ulTopicLength, pcTopic ) );
+                                        usJobIdLength, pcJobId, ulTopicLength, pcTopic ) );
                         }
 
-                        prvSendUpdateForJob( pJobId, usJobIdLength, MAKE_STATUS_REPORT( "SUCCEEDED" ) );
+                        prvSendUpdateForJob( pcJobId, usJobIdLength, MAKE_STATUS_REPORT( "SUCCEEDED" ) );
                     }
                     else
                     {
                         LogError( ( "Job document schema is invalid. Missing \"Message\" key for \"Publish\" action type." ) );
-                        prvSendUpdateForJob( pJobId, usJobIdLength, MAKE_STATUS_REPORT( "FAILED" ) );
+                        prvSendUpdateForJob( pcJobId, usJobIdLength, MAKE_STATUS_REPORT( "FAILED" ) );
                     }
                 }
 
