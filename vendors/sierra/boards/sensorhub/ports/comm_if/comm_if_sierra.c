@@ -304,6 +304,9 @@ static CellularCommInterfaceError_t _prvCommIntfClose(CellularCommInterfaceHandl
         COMM_IF_LOGE(COMM_IF_TAG, "[CommIntfClose]: Failed to uninstall UART driver");
         return IOT_COMM_INTERFACE_DRIVER_ERROR;
     }
+
+    _CommIfContext.isOpen = false;
+
     return IOT_COMM_INTERFACE_SUCCESS;
 }
 
