@@ -692,7 +692,7 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
 /**
  * @brief Entry point of the Jobs demo.
  *
- * This main function demonstrates how to use the Jobs library API Device Shadow library.
+ * This main function demonstrates how to use the Jobs library API library.
  *
  * The helper functions this demo uses for MQTT operations have internal
  * loops to process incoming messages. Those are not the focus of this demo
