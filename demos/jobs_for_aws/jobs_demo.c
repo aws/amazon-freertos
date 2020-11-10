@@ -694,9 +694,9 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
  *
  * This main function demonstrates how to use the Jobs library API library.
  *
- * The helper functions this demo uses for MQTT operations have internal
+ * This demo uses helper functions for MQTT operations that have internal
  * loops to process incoming messages. Those are not the focus of this demo
- * and therefore, are placed in a separate file mqtt_demo_utils.c.
+ * and therefore, are placed in a separate file mqtt_demo_helpers.c.
  *
  * This function also shows that the communication with the AWS IoT Jobs services does
  * not require explicit subscriptions to the response MQTT topics for request commands that
