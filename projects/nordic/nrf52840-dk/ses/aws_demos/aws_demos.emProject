@@ -81,6 +81,12 @@
         <folder Name="ota">
           <file file_name="../../../../../demos/ota/aws_iot_ota_update_demo.c" />
         </folder>
+        <folder Name="mqtt">
+          <file file_name="../../../../../demos/mqtt/iot_demo_mqtt.c" />
+        </folder>
+        <folder Name="shadow">
+          <file file_name="../../../../../demos/shadow/aws_iot_demo_shadow.c" />
+        </folder>
         <folder Name="posix">
           <file file_name="../../../../../demos/posix/aws_posix_demo.c" />
           <file file_name="../../../../../demos/posix/CMakeLists.txt" />
@@ -418,10 +424,10 @@
       <folder Name="device_shadow">
         <folder Name="source">
           <folder Name="include">
-            <file file_name="../../../../../libraries/device_shadow_for_aws/source/include/shadow.h" />
-            <file file_name="../../../../../libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h" />
+            <file file_name="../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h" />
+            <file file_name="../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h" />
           </folder>
-          <file file_name="../../../../../libraries/device_shadow_for_aws/source/shadow.c" />
+          <file file_name="../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c" />
         </folder>
       </folder>
       <folder Name="coreJSON">
@@ -705,7 +711,7 @@
     Name="Debug"
     arm_fp_abi="None"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/device_shadow_for_aws/source/include;$(SolutionDir)/../../../../../libraries/coreJSON/source/include"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;$(SolutionDir)/../../../../../libraries/coreJSON/source/include"
     gcc_debugging_level="Level 3"
     gcc_optimization_level="None"
     link_include_standard_libraries="Yes" />

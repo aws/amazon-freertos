@@ -374,7 +374,7 @@
 							<MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
 							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot; CONFIG_MEDTLS_USE_AFR_MEMORY RVDS_ARMCM4_NUC4xx __little_endian__=1 NDEBUG</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/retry_utils;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws/source/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/retry_utils;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/coreHTTP/source/3rdparty/http_parser;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/3rdparty/http_parser;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/jsmn</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -807,6 +807,11 @@
 							<FileName>iot_threads.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/abstractions/platform/include/platform/iot_threads.h</FilePath>
+						</File>
+						<File>
+							<FileName>transport_interface.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/abstractions/platform/include/platform/transport_interface.h</FilePath>
 						</File>
 						<File>
 							<FileName>iot_metrics.h</FileName>
@@ -1491,6 +1496,61 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/coreHTTP/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_http_client.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/core_http_client.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/source/3rdparty/http_parser/</GroupName>
+					<Files>
+						<File>
+							<FileName>http_parser.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</FilePath>
+						</File>
+						<File>
+							<FileName>http_parser.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_http_client.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/include/core_http_client.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_http_client_private.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/include/core_http_client_private.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_http_config_defaults.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/include/core_http_config_defaults.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/source/interface/</GroupName>
+					<Files>
+						<File>
+							<FileName>transport_interface.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/interface/transport_interface.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/coreJSON/source/</GroupName>
 					<Files>
 						<File>
@@ -1511,27 +1571,72 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/device_shadow_for_aws/source/</GroupName>
+					<GroupName>libraries/device_shadow_for_aws_iot_embedded_sdk/source/</GroupName>
 					<Files>
 						<File>
 							<FileName>shadow.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/device_shadow_for_aws/source/shadow.c</FilePath>
+							<FilePath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</FilePath>
 						</File>
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/device_shadow_for_aws/source/include/</GroupName>
+					<GroupName>libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/</GroupName>
 					<Files>
 						<File>
 							<FileName>shadow.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/device_shadow_for_aws/source/include/shadow.h</FilePath>
+							<FilePath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h</FilePath>
 						</File>
 						<File>
 							<FileName>shadow_config_defaults.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</FilePath>
+							<FilePath>../../../../../libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/device_defender_for_aws/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>defender.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/device_defender_for_aws/source/defender.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/device_defender_for_aws/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>defender.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/device_defender_for_aws/source/include/defender.h</FilePath>
+						</File>
+						<File>
+							<FileName>defender_config_defaults.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/device_defender_for_aws/source/include/defender_config_defaults.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/jobs_for_aws/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>jobs.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/jobs_for_aws/source/jobs.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/jobs_for_aws/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>jobs.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/jobs_for_aws/source/include/jobs.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1539,9 +1644,29 @@
 					<GroupName>demos/coreMQTT/</GroupName>
 					<Files>
 						<File>
+							<FileName>mqtt_demo_basic_tls.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_basic_tls.c</FilePath>
+						</File>
+						<File>
 							<FileName>mqtt_demo_mutual_auth.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_plaintext.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_plaintext.c</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_serializer.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_serializer.c</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_keep_alive.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_keep_alive.c</FilePath>
 						</File>
 						<File>
 							<FileName>mqtt_demo_connection_sharing.c</FileName>
@@ -1561,22 +1686,22 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>demos/device_shadow_for_aws/</GroupName>
+					<GroupName>demos/device_shadow_for_aws_iot_embedded_sdk/</GroupName>
 					<Files>
 						<File>
 							<FileName>shadow_demo_main.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../demos/device_shadow_for_aws/shadow_demo_main.c</FilePath>
+							<FilePath>../../../../../demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_main.c</FilePath>
 						</File>
 						<File>
 							<FileName>shadow_demo_helpers.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../demos/device_shadow_for_aws/shadow_demo_helpers.c</FilePath>
+							<FilePath>../../../../../demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c</FilePath>
 						</File>
 						<File>
 							<FileName>shadow_demo_helpers.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../demos/device_shadow_for_aws/shadow_demo_helpers.h</FilePath>
+							<FilePath>../../../../../demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1617,6 +1742,26 @@
 							<FileName>iot_demo_https_common.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/https/iot_demo_https_common.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>demos/mqtt/</GroupName>
+					<Files>
+						<File>
+							<FileName>iot_demo_mqtt.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/mqtt/iot_demo_mqtt.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>demos/shadow/</GroupName>
+					<Files>
+						<File>
+							<FileName>aws_iot_demo_shadow.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/shadow/aws_iot_demo_shadow.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1689,6 +1834,11 @@
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/aws_wifi_config.h</FilePath>
 						</File>
 						<File>
+							<FileName>core_http_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/core_http_config.h</FilePath>
+						</File>
+						<File>
 							<FileName>core_mqtt_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/core_mqtt_config.h</FilePath>
@@ -1697,6 +1847,11 @@
 							<FileName>core_pkcs11_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/core_pkcs11_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>defender_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/defender_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>iot_config.h</FileName>
@@ -1709,9 +1864,19 @@
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/iot_mqtt_agent_config.h</FilePath>
 						</File>
 						<File>
+							<FileName>mqtt_demo_basic_tls_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_basic_tls_config.h</FilePath>
+						</File>
+						<File>
 							<FileName>mqtt_demo_connection_sharing_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_keep_alive_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_keep_alive_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>mqtt_demo_mutual_auth_config.h</FileName>
@@ -1722,6 +1887,11 @@
 							<FileName>mqtt_demo_plaintext_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_plaintext_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_serializer_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_serializer_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>shadow_config.h</FileName>
@@ -2637,21 +2807,6 @@
 							<FileName>cborparser_dup_string.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/3rdparty/http_parser/</GroupName>
-					<Files>
-						<File>
-							<FileName>http_parser.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/3rdparty/http_parser/http_parser.h</FilePath>
-						</File>
-						<File>
-							<FileName>http_parser.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/http_parser/http_parser.c</FilePath>
 						</File>
 					</Files>
 				</Group>

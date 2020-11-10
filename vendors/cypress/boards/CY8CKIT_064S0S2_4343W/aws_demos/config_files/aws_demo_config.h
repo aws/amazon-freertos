@@ -64,9 +64,6 @@
 /* Number of sub pub tasks that connect to a broker that is using TLS. */
 #define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS                      ( 1 )
 
-#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE                       ( configMINIMAL_STACK_SIZE * 5 )
-#define democonfigMQTT_SUB_PUB_TASK_PRIORITY                         ( tskIDLE_PRIORITY )
-
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */
 #define democonfigMQTT_TIMEOUT                                       pdMS_TO_TICKS( 4000 )

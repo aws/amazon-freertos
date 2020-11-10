@@ -11,7 +11,7 @@ set(DEVICE_SHADOW_HEADER_FILES "")
 foreach(shadow_public_include_dir ${SHADOW_INCLUDE_PUBLIC_DIRS})
     file(GLOB shadow_public_include_header_files
               LIST_DIRECTORIES false
-              ${shadow_public_include_dir}/* )
+              ${shadow_public_include_dir}/*.h )
     list(APPEND DEVICE_SHADOW_HEADER_FILES ${shadow_public_include_header_files})
 endforeach()
 

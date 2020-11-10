@@ -549,6 +549,11 @@
 			<locationURI>AFR_HOME/libraries/abstractions/platform/include/platform/iot_threads.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/platform/include/platform/transport_interface.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/platform/include/platform/transport_interface.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/platform/include/types/iot_platform_types.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/abstractions/platform/include/types/iot_platform_types.h</locationURI>
@@ -994,6 +999,11 @@
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/https/src/iot_https_utils.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
@@ -1164,6 +1174,46 @@
 			<locationURI>AFR_HOME/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/coreHTTP/source/core_http_client.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/core_http_client.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/core_http_demo_dependencies.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/core_http_demo_dependencies.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/httpFilePaths.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/httpFilePaths.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/include/core_http_client.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/include/core_http_client.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/include/core_http_client_private.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/include/core_http_client_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/include/core_http_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/include/core_http_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/interface/transport_interface.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/interface/transport_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/coreJSON/source/core_json.c</locationURI>
@@ -1184,24 +1234,24 @@
 			<locationURI>AFR_HOME/libraries/coreJSON/source/include/core_json.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws/source/shadow.c</name>
+			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/device_shadow_for_aws/source/shadow.c</locationURI>
+			<locationURI>AFR_HOME/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws/shadowFilePaths.cmake</name>
+			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/device_shadow_for_aws/shadowFilePaths.cmake</locationURI>
+			<locationURI>AFR_HOME/libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws/source/include/shadow.h</name>
+			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/device_shadow_for_aws/source/include/shadow.h</locationURI>
+			<locationURI>AFR_HOME/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</name>
+			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</locationURI>
+			<locationURI>AFR_HOME/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/device_shadow_demo_dependencies.cmake</name>
@@ -1209,9 +1259,74 @@
 			<locationURI>AFR_HOME/libraries/device_shadow_demo_dependencies.cmake</locationURI>
 		</link>
 		<link>
+			<name>libraries/device_defender_for_aws/source/defender.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/device_defender_for_aws/source/defender.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_defender_for_aws/defenderFilePaths.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/device_defender_for_aws/defenderFilePaths.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_defender_for_aws/source/include/defender.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/device_defender_for_aws/source/include/defender.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_defender_for_aws/source/include/defender_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/device_defender_for_aws/source/include/defender_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_defender_demo_dependencies.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/device_defender_demo_dependencies.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/jobs_for_aws/source/jobs.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/jobs_for_aws/source/jobs.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/jobs_for_aws/jobsFilePaths.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/jobs_for_aws/jobsFilePaths.cmake</locationURI>
+		</link>
+		<link>
+			<name>libraries/jobs_for_aws/source/include/jobs.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/jobs_for_aws/source/include/jobs.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/jobs_demo_dependencies.cmake</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/jobs_demo_dependencies.cmake</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT/mqtt_demo_basic_tls.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_basic_tls.c</locationURI>
+		</link>
+		<link>
 			<name>demos/coreMQTT/mqtt_demo_mutual_auth.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_mutual_auth.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT/mqtt_demo_plaintext.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_plaintext.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT/mqtt_demo_serializer.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_serializer.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT/mqtt_demo_keep_alive.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_keep_alive.c</locationURI>
 		</link>
 		<link>
 			<name>demos/coreMQTT/mqtt_demo_connection_sharing.c</name>
@@ -1229,24 +1344,24 @@
 			<locationURI>AFR_HOME/demos/defender/aws_iot_demo_defender.c</locationURI>
 		</link>
 		<link>
-			<name>demos/device_shadow_for_aws/shadow_demo_main.c</name>
+			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_main.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/demos/device_shadow_for_aws/shadow_demo_main.c</locationURI>
+			<locationURI>AFR_HOME/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_main.c</locationURI>
 		</link>
 		<link>
-			<name>demos/device_shadow_for_aws/shadow_demo_helpers.c</name>
+			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/demos/device_shadow_for_aws/shadow_demo_helpers.c</locationURI>
+			<locationURI>AFR_HOME/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c</locationURI>
 		</link>
 		<link>
-			<name>demos/device_shadow_for_aws/shadow_demo_helpers.h</name>
+			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/demos/device_shadow_for_aws/shadow_demo_helpers.h</locationURI>
+			<locationURI>AFR_HOME/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</locationURI>
 		</link>
 		<link>
-			<name>demos/device_shadow_for_aws/CMakeLists.txt</name>
+			<name>demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/demos/device_shadow_for_aws/CMakeLists.txt</locationURI>
+			<locationURI>AFR_HOME/demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</locationURI>
 		</link>
 		<link>
 			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>
@@ -1277,6 +1392,16 @@
 			<name>demos/https/iot_demo_https_common.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/https/iot_demo_https_common.c</locationURI>
+		</link>
+		<link>
+			<name>demos/mqtt/iot_demo_mqtt.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/mqtt/iot_demo_mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>demos/shadow/aws_iot_demo_shadow.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/shadow/aws_iot_demo_shadow.c</locationURI>
 		</link>
 		<link>
 			<name>demos/tcp/aws_tcp_echo_client_single_task.c</name>
@@ -1389,6 +1514,11 @@
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/aws_wifi_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/core_http_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/core_http_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/core_mqtt_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/core_mqtt_config.h</locationURI>
@@ -1397,6 +1527,11 @@
 			<name>config_files/core_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/core_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/defender_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/defender_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/iot_config.h</name>
@@ -1409,9 +1544,19 @@
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/iot_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/mqtt_demo_basic_tls_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/mqtt_demo_basic_tls_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/mqtt_demo_connection_sharing_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/mqtt_demo_keep_alive_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/mqtt_demo_keep_alive_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/mqtt_demo_mutual_auth_config.h</name>
@@ -1422,6 +1567,11 @@
 			<name>config_files/mqtt_demo_plaintext_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/mqtt_demo_plaintext_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/mqtt_demo_serializer_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/mqtt_demo_serializer_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/shadow_config.h</name>
@@ -2582,16 +2732,6 @@
 			<name>libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/http_parser/http_parser.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/http_parser/http_parser.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/http_parser/http_parser.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/http_parser/http_parser.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.h</name>

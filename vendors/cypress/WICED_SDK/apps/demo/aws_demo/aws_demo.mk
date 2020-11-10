@@ -145,7 +145,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_encoder.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_client.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_utils.c \
-                      $(AFR_THIRDPARTY_PATH)http_parser/http_parser.c \
 
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws

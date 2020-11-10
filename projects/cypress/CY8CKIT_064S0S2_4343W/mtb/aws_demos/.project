@@ -775,6 +775,11 @@
 			<locationURI>PARENT-5-PROJECT_LOC/demos/https/iot_demo_https_s3_download_async.c</locationURI>
 		</link>
  		<link>
+			<name>demos/mqtt/iot_demo_mqtt.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/demos/mqtt/iot_demo_mqtt.c</locationURI>
+		</link>
+ 		<link>
 			<name>demos/network_manager/aws_iot_network_manager.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/demos/network_manager/aws_iot_network_manager.c</locationURI>
@@ -788,6 +793,11 @@
 			<name>demos/tcp/aws_tcp_echo_client_single_task.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/demos/tcp/aws_tcp_echo_client_single_task.c</locationURI>
+		</link>
+ 		<link>
+			<name>demos/shadow/aws_iot_demo_shadow.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/demos/shadow/aws_iot_demo_shadow.c</locationURI>
 		</link>
  		<link>
 			<name>libraries/3rdparty/http_parser/http_parser.c</name>

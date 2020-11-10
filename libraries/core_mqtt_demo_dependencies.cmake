@@ -11,7 +11,7 @@ set(MQTT_HEADER_FILES "")
 foreach(mqtt_public_include_dir ${MQTT_INCLUDE_PUBLIC_DIRS})
     file(GLOB mqtt_public_include_header_files
               LIST_DIRECTORIES false
-              ${mqtt_public_include_dir}/* )
+              ${mqtt_public_include_dir}/*.h )
     list(APPEND MQTT_HEADER_FILES ${mqtt_public_include_header_files})
 endforeach()
 
