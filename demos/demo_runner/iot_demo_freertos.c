@@ -313,9 +313,9 @@ void runDemoTask( void * pArgument )
         pConnectionParams = AwsIotNetworkManager_GetConnectionParams( demoConnectedNetwork );
         pCredentials = AwsIotNetworkManager_GetCredentials( demoConnectedNetwork );
 
-        /* Run the demo. */
-        status = pContext->demoFunction( true,
-                                         clientcredentialIOT_THING_NAME,
+        /* Run the CoAP demo. */
+        status = pContext->demoFunction( false,
+                                         NULL,
                                          pConnectionParams,
                                          pCredentials,
                                          pNetworkInterface );

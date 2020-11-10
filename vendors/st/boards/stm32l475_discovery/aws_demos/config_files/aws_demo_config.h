@@ -48,10 +48,11 @@
  *          CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED
  *          CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED
  *          CONFIG_CLI_UART_DEMO_ENABLED
+ *          CONFIG_COAP_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 
-#define CONFIG_MQTT_DEMO_ENABLED
+#define CONFIG_COAP_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE                                     ( configMINIMAL_STACK_SIZE * 8 )
