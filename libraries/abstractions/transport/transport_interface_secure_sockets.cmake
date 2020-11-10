@@ -11,15 +11,17 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/secure_sockets")
 # Include filepaths for source and include.
 include( ${CMAKE_CURRENT_LIST_DIR}/transport_interface.cmake )
 
+# Add cmake files of module to metadata.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/transport_interface.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/transport_interface_secure_sockets.cmake
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         "${src_dir}/transport_secure_sockets.h"
         "${src_dir}/transport_secure_sockets.c"
-        # Following files are added to the source list to generate their
-        # metadata so that are part of code downloaded from FreeRTOS console.
-        "${CMAKE_CURRENT_LIST_DIR}/transport_interface.cmake"
-        "${CMAKE_CURRENT_LIST_DIR}/transport_interface_secure_sockets.cmake"
 )
 
 afr_module_dependencies(
