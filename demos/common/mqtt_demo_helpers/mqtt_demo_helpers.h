@@ -93,8 +93,8 @@ void vHandleOtherIncomingPacket( MQTTPacketInfo_t * pxPacketInfo,
 /**
  * @brief Close the MQTT connection.
  *
- * @return EXIT_SUCCESS if DISCONNECT was successfully sent;
- * EXIT_FAILURE otherwise.
+ * @return pdPASS if DISCONNECT was successfully sent;
+ * pdFAIL otherwise.
  */
 BaseType_t DisconnectMqttSession( MQTTContext_t * pxContext,
                                   NetworkContext_t * pxNetContext );
@@ -106,8 +106,8 @@ BaseType_t DisconnectMqttSession( MQTTContext_t * pxContext,
  * @param[in] usTopicFilterLength Indicates the length of the shadow
  * topic buffer.
  *
- * @return EXIT_SUCCESS if SUBSCRIBE was successfully sent;
- * EXIT_FAILURE otherwise.
+ * @return pdPASS if SUBSCRIBE was successfully sent;
+ * pdFAIL otherwise.
  */
 BaseType_t SubscribeToTopic( MQTTContext_t * pxContext,
                              const char * pcTopicFilter,
@@ -121,8 +121,8 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxContext,
  * @param[in] usTopicFilterLength Indicates the length of the shadow
  * topic buffer.
  *
- * @return EXIT_SUCCESS if UNSUBSCRIBE was successfully sent;
- * EXIT_FAILURE otherwise.
+ * @return pdPASS if UNSUBSCRIBE was successfully sent;
+ * pdFAIL otherwise.
  */
 BaseType_t UnsubscribeFromTopic( MQTTContext_t * pxContext,
                                  const char * pcTopicFilter,
@@ -136,8 +136,8 @@ BaseType_t UnsubscribeFromTopic( MQTTContext_t * pxContext,
  * @param[in] pcPayload Points to the payload.
  * @param[in] payloadLength The length of the payload.
  *
- * @return EXIT_SUCCESS if PUBLISH was successfully sent;
- * EXIT_FAILURE otherwise.
+ * @return pdPASS if PUBLISH was successfully sent;
+ * pdFAIL otherwise.
  */
 BaseType_t PublishToTopic( MQTTContext_t * pxContext,
                            const char * pcTopicFilter,

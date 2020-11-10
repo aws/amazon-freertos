@@ -36,17 +36,17 @@
  *
  * @note This demo requires setup of an AWS account, provisioning of a Thing resource on the AWS IoT account,
  * and the creation of Jobs for the Thing resource. Please refer to AWS CLI documentation for more information in creating a
- * Job document.
+ * job document.
  * https://docs.aws.amazon.com/cli/latest/reference/iot/create-job.html
  *
  * This demo connects to the AWS IoT broker and calls the MQTT APIs of the AWS IoT Jobs service to receive
  * jobs queued (as JSON documents) for the Thing resource (associated with this demo application) on the cloud,
  * then executes the jobs and updates the status of the jobs back to the cloud.
- * The demo expects Job documents to have an "action" JSON key. Actions can
+ * The demo expects job documents to have an "action" JSON key. Actions can
  * be one of "print", "publish", or "exit".
  * Print Jobs log a message to the local console, and must contain a "message",
  * e.g. { "action": "print", "message": "Hello World!" }.
- * Publish Jobs publish a message to an MQTT Topic. The Job document must
+ * Publish Jobs publish a message to an MQTT Topic. The job document must
  * contain a "message" and "topic" to publish to, e.g.
  * { "action": "publish", "topic": "demo/jobs", "message": "Hello World!" }.
  * An Exit Job exits the demo. Sending { "action": "exit" } will end the program.
@@ -202,7 +202,7 @@
  * for getting notification about changes in the next pending job in the queue.
  *
  * @param[in] thingName The name of the Thing resource to query for the
- * next pending job.
+ * next pending Job.
  */
 #define NEXT_JOB_EXECUTION_CHANGED_TOPIC( thingName ) \
     ( JOBS_API_PREFIX ""                              \
@@ -225,7 +225,7 @@
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Currently supported actions that a Job document can specify.
+ * @brief Currently supported actions that a job document can specify.
  */
 typedef enum JobActionType
 {
@@ -278,10 +278,10 @@ static BaseType_t xDemoEncounteredError = pdFALSE;
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Converts a string in a Job document to a #JobActionType
+ * @brief Converts a string in a job document to a #JobActionType
  * value.
  *
- * @param[in] pcAction The Job action as a string.
+ * @param[in] pcAction The job action as a string.
  * @param[in] xActionLength The length of @p pcAction.
  *
  * @return A #JobActionType equivalent to the given string.
@@ -328,7 +328,7 @@ static void prvSendUpdateForJob( char * pcJobId,
                                  const char * pcJobStatusReport );
 
 /**
- * @brief Executes a Job received from AWS IoT Jobs service and sends an update back to the service.
+ * @brief Executes a job received from AWS IoT Jobs service and sends an update back to the service.
  * It parses the received job document, executes the job depending on the job "Action" type, and
  * sends an update to AWS for the Job.
  *
@@ -394,7 +394,7 @@ static void prvSendUpdateForJob( char * pcJobId,
                             pcJobStatusReport,
                             strlen( pcJobStatusReport ) ) == pdFALSE )
         {
-            /* Set global flag to terminate demo as PUBLISH operation to update Job status failed. */
+            /* Set global flag to terminate demo as PUBLISH operation to update job status failed. */
             xDemoEncounteredError = pdTRUE;
 
             LogError( ( "Failed to update the status of job: JobID=%.*s, NewStatePayload=%s",
@@ -734,8 +734,7 @@ int RunJobsDemo( bool awsIotMqttMode,
                    "\r\n"
                    "The Jobs demo is now ready to accept Jobs.\r\n"
                    "Jobs may be created using the AWS IoT console or AWS CLI.\r\n"
-                   "See the following link for more information.\r\n"
-                   "\r\n" ) );
+                   "See the following link for more information.\r\n" ) );
         LogInfo( ( "\r"
                    "https://docs.aws.amazon.com/cli/latest/reference/iot/create-job.html\r\n"
                    "\r\n"
