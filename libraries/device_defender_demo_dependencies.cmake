@@ -15,13 +15,16 @@ foreach(defender_public_include_dir ${DEFENDER_INCLUDE_PUBLIC_DIRS})
     list(APPEND DEVICE_DEFENDER_HEADER_FILES ${defender_public_include_header_files})
 endforeach()
 
+afr_module_cmake_files(${AFR_CURRENT_MODULE}
+    ${CMAKE_CURRENT_LIST_DIR}/device_defender_for_aws/defenderFilePaths.cmake
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         ${DEFENDER_SOURCES}
-        # List of files added to the target so that these are available
+        # List of header files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/device_defender_for_aws/defenderFilePaths.cmake
         ${DEVICE_DEFENDER_HEADER_FILES}
 )
 
@@ -56,6 +59,10 @@ afr_set_lib_metadata(CATEGORY "Amazon Services")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
+afr_module_cmake_files(${AFR_CURRENT_MODULE}
+    ${CMAKE_CURRENT_LIST_DIR}/device_defender_demo_dependencies.cmake
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
@@ -63,9 +70,6 @@ afr_module_sources(
         # device_defender_demo_dependencies target; otherwise, it gives the 
         # "Cannot determine link language for target" error.
         ${DEFENDER_SOURCES}
-        # This file is added to the target so that it is available
-        # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/device_defender_demo_dependencies.cmake
 )
 
 # Add dependencies of the Device Defender demo in this target

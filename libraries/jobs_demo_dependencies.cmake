@@ -15,13 +15,17 @@ foreach(jobs_public_include_dir ${JOBS_INCLUDE_PUBLIC_DIRS})
     list(APPEND JOBS_HEADER_FILES ${jobs_public_include_header_files})
 endforeach()
 
+# Add cmake files of module to metadata.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/jobs_for_aws/jobsFilePaths.cmake
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         ${JOBS_SOURCES}
-        # List of files added to the target so that these are available
+        # Header files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/jobs_for_aws/jobsFilePaths.cmake
         ${JOBS_HEADER_FILES}
 )
 
@@ -49,6 +53,11 @@ afr_set_lib_metadata(CATEGORY "Amazon Services")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
+# Add cmake files of module to metadata.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/jobs_demo_dependencies.cmake
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
@@ -56,9 +65,6 @@ afr_module_sources(
         # jobs_demo_dependencies target; otherwise, it gives the 
         # "Cannot determine link language for target" error.
         ${JOBS_SOURCES}
-        # This file is added to the target so that it is available
-        # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/jobs_demo_dependencies.cmake
 )
 
 # Add dependencies of the Jobs demo in this target

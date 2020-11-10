@@ -5,16 +5,15 @@ afr_set_demo_metadata(ID "DEVICE_SHADOW_DEMO")
 afr_set_demo_metadata(DESCRIPTION "An example that demonstrates the use of the Device Shadow library.")
 afr_set_demo_metadata(DISPLAY_NAME "Device Shadow Demo")
 
+# Add the CMakeLists.txt file of module to metadata list.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_main.c"
-        # As the containing directory name (i.e. device_shadow_for_aws_iot_embedded_sdk)
-        # does not match the module name (i.e. device_shadow), 
-        # we add the CMake file to the source list so that metadata is
-        # generated for it, and it is present in code downloaded from
-        # the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
 )
 
 afr_module_include_dirs(
@@ -26,11 +25,9 @@ afr_module_include_dirs(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        AFR::core_mqtt
+        AFR::mqtt_demo_helpers
         AFR::core_json
         AFR::device_shadow
-        AFR::retry_utils
-        AFR::transport_interface_secure_sockets
         # Add dependency on the device_shadow_demo_dependencies 
         # metadata module so that this demo is only shown when the
         # Device Shadow library is selected on the FreeRTOS console.
