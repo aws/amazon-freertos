@@ -622,7 +622,7 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
                     pxDeserializedInfo->pPublishInfo->topicNameLength,
                     ( const char * ) pxDeserializedInfo->pPublishInfo->pTopicName ) );
 
-        /* Let the Device Shadow library tell us whether this is a device shadow message. */
+        /* Let the Jobs library tell us whether this is a Jobs message. */
         xStatus = Jobs_MatchTopic( ( char * ) pxDeserializedInfo->pPublishInfo->pTopicName,
                                    pxDeserializedInfo->pPublishInfo->topicNameLength,
                                    democonfigTHING_NAME,
