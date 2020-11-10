@@ -41,16 +41,15 @@
  *
  * This demo connects to the AWS IoT broker and calls the MQTT APIs of the AWS IoT Jobs service to receive
  * jobs queued (as JSON documents) for the Thing resource (associated with this demo application) on the cloud,
- * executes the jobs and updates the status of the jobs back to the cloud.
+ * then executes the jobs and updates the status of the jobs back to the cloud.
  * The demo expects Job documents to have an "action" JSON key. Actions can
- * be one "print", "publish", or "exit".
+ * be one of "print", "publish", or "exit".
  * Print Jobs log a message to the local console, and must contain a "message",
  * e.g. { "action": "print", "message": "Hello World!" }.
  * Publish Jobs publish a message to an MQTT Topic. The Job document must
  * contain a "message" and "topic" to publish to, e.g.
  * { "action": "publish", "topic": "demo/jobs", "message": "Hello World!" }.
- * The exit Job exits the demo. Sending { "action": "exit" } will end the program.
- *
+ * An Exit Job exits the demo. Sending { "action": "exit" } will end the program.
  */
 
 /* Standard includes. */
@@ -590,8 +589,8 @@ static void prvStartNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
 /*-----------------------------------------------------------*/
 
 /* This is the callback function invoked by the MQTT stack when it receives
- * incoming messages. This function demonstrates how to use the Shadow_MatchTopic
- * function to determine whether the incoming message is a device shadow message
+ * incoming messages. This function demonstrates how to use the Jobs_MatchTopic
+ * function to determine whether the incoming message is a Jobs message
  * or not. If it is, it handles the message depending on the message type.
  */
 static void prvEventCallback( MQTTContext_t * pxMqttContext,
@@ -652,8 +651,8 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
             }
             else if( topicType == JobsUpdateFailed )
             {
-                /* Set global flag to terminate demo as request for updating executing the job status
-                 * has been rejected by AWS IoT Jobs service. */
+                /* Set the global flag to terminate the demo, because the request for updating and executing the job status
+                 * has been rejected by the AWS IoT Jobs service. */
                 xDemoEncounteredError = pdTRUE;
 
                 LogWarn( ( "Request for job update rejected: RejectedResponse=%.*s.",
@@ -671,7 +670,7 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
         }
         else if( xStatus == JobsNoMatch )
         {
-            LogWarn( ( "Incoming message topic does not belong to IoT Jobs!: topic=%.*s",
+            LogWarn( ( "Incoming message topic does not belong to AWS IoT Jobs!: topic=%.*s",
                        pxDeserializedInfo->pPublishInfo->topicNameLength,
                        ( const char * ) pxDeserializedInfo->pPublishInfo->pTopicName ) );
         }
@@ -697,7 +696,7 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
  *
  * The helper functions this demo uses for MQTT operations have internal
  * loops to process incoming messages. Those are not the focus of this demo
- * and therefor, are placed in a separate file mqtt_demo_utils.c.
+ * and therefore, are placed in a separate file mqtt_demo_utils.c.
  */
 int RunJobsDemo( bool awsIotMqttMode,
                  const char * pIdentifier,
@@ -714,7 +713,7 @@ int RunJobsDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-    /* Establish an MQTT connection with AWS IoT over a mutually authenticated TLS session */
+    /* Establish an MQTT connection with AWS IoT over a mutually authenticated TLS session. */
     xDemoStatus = EstablishMqttSession( &xMqttContext,
                                         &xNetworkContext,
                                         &xBuffer,
@@ -765,7 +764,7 @@ int RunJobsDemo( bool awsIotMqttMode,
                                         sizeof( NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ) - 1 ) );
     }
 
-    /* Keep on running the demo until we receive a job for "Exit" action to exit the demo. */
+    /* Keep on running the demo until we receive a job for the "Exit" action to exit the demo. */
     while( ( xExitActionJobReceived == pdFALSE ) &&
            ( xDemoEncounteredError == pdFALSE ) &&
            ( xDemoStatus == pdPASS ) )
