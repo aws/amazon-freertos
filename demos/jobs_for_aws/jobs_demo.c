@@ -796,6 +796,13 @@ int RunJobsDemo( bool awsIotMqttMode,
         vTaskDelay( pdMS_TO_TICKS( 300 ) );
     }
 
+    /* Disconnect the MQTT and network connections with AWS IoT. */
+    if( DisconnectMqttSession( &xMqttContext, &xNetworkContext ) != pdPASS )
+    {
+        xDemoStatus = pdFAIL;
+        LogError( ( "Disconnection from AWS Iot failed..." ) );
+    }
+
     return( ( ( xDemoStatus == pdPASS ) && ( xDemoEncounteredError == pdFALSE ) ) ?
             EXIT_SUCCESS : EXIT_FAILURE );
 }
