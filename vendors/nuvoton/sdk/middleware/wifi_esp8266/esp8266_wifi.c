@@ -133,7 +133,12 @@ static void ParseApDetail( char * string, WIFIScanResult_t *xBuffer )
         case 2:
             pcSSID = strtok(pcPtr, "\"");
             if (pcSSID) {
-                strlcpy(&xBuffer->cSSID[0], pcSSID, wificonfigMAX_SSID_LEN + 1);
+								xBuffer->ucSSIDLength = strlen( pcSSID );
+								if( xBuffer->ucSSIDLength > wificonfigMAX_SSID_LEN )
+								{
+								    xBuffer->ucSSIDLength = wificonfigMAX_SSID_LEN;			
+								}
+								memcpy( xBuffer->ucSSID, pcSSID, xBuffer->ucSSIDLength );
             }
             break;
 
@@ -146,7 +151,7 @@ static void ParseApDetail( char * string, WIFIScanResult_t *xBuffer )
             break;
 
         case 5:
-            xBuffer->cChannel = (int8_t)atoi(pcPtr);
+            xBuffer->ucChannel = (int8_t)atoi(pcPtr);
             break;
 
         default:

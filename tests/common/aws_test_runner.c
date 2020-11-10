@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202011.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -68,6 +68,7 @@ static void RunTests( void )
      * first tests in this function. */
     #if ( testrunnerFULL_WIFI_ENABLED == 1 )
         RUN_TEST_GROUP( Full_WiFi );
+        RUN_TEST_GROUP( Quarantine_WiFi );
     #endif
 
     #if ( testrunnerFULL_TASKPOOL_ENABLED == 1 )
@@ -202,7 +203,8 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1 )
-        RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize );
+        RUN_TEST_GROUP( BLE_Unit_MQTT_Serialize );
+        RUN_TEST_GROUP( coreMQTT_Integration_BLE );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_CONNECTIVITY );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_MQTT );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_SHADOW );
@@ -228,6 +230,23 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_COMMON_IO_ENABLED == 1 )
         RUN_TEST_GROUP( Common_IO );
+    #endif
+
+    #if ( testrunnerFULL_CORE_MQTT_ENABLED == 1 )
+        RUN_TEST_GROUP( coreMQTT_Integration );
+    #endif
+
+    #if ( testrunnerFULL_CORE_MQTT_AWS_IOT_ENABLED == 1 )
+        RUN_TEST_GROUP( coreMQTT_Integration_AWS_IoT_Compatible );
+    #endif
+
+    #if ( testrunnerFULL_CLI_ENABLED == 1 )
+        RUN_TEST_GROUP( FreeRTOS_CLI )
+        RUN_TEST_GROUP( FreeRTOS_CLI_Console )
+    #endif
+
+    #if ( testrunnerFULL_DEVICE_SHADOW_ENABLED == 1 )
+        RUN_TEST_GROUP( deviceShadow_Integration )
     #endif
 }
 /*-----------------------------------------------------------*/

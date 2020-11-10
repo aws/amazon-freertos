@@ -66,7 +66,7 @@
 #define configUSE_PREEMPTION			1
 #define configUSE_IDLE_HOOK				( CONFIG_FREERTOS_LEGACY_IDLE_HOOK )
 #define configUSE_TICK_HOOK				( CONFIG_FREERTOS_LEGACY_TICK_HOOK )
-#define configTICK_RATE_HZ				( CONFIG_FREERTOS_HZ )
+#define configTICK_RATE_HZ				( ( unsigned int ) CONFIG_FREERTOS_HZ )
 #define configUSE_DAEMON_TASK_STARTUP_HOOK 1
 
 /* Use the default clock rate for simulator. */
@@ -74,16 +74,16 @@
 
 /* This has impact on speed of search for highest priority. */
 #ifdef SMALL_TEST
-    #define configMAX_PRIORITIES			( 7 )
+    #define configMAX_PRIORITIES			( 7U )
 #else
-    #define configMAX_PRIORITIES			( 25 )
+    #define configMAX_PRIORITIES			( 25U )
 #endif
 
 #ifndef CONFIG_ESP32_APPTRACE_ENABLE
-    #define configMINIMAL_STACK_SIZE		768
+    #define configMINIMAL_STACK_SIZE		768U
 #else
     /* The apptrace module requires at least 2KB of stack per task. */
-    #define configMINIMAL_STACK_SIZE		2048
+    #define configMINIMAL_STACK_SIZE		2048U
 #endif
 
 #define configUSE_MUTEXES				1
@@ -213,7 +213,6 @@
 #ifdef CONFIG_FREERTOS_GENERATE_RUN_TIME_STATS
     #define configGENERATE_RUN_TIME_STATS   1       /* Used by vTaskGetRunTimeStats() */
 #endif
-
 
 /* This demo creates a virtual network connection by accessing the raw Ethernet
  * or WiFi data to and from a real network connection.  Many computers have more
@@ -378,5 +377,12 @@
 #else
     #define UNTESTED_FUNCTION()
 #endif
+
+
+/* The size of the output buffer is set to maximum length required by the tests,
+ * which is the length enough to accomodate largest error string written to
+ * console from CLI.
+ */
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE    120
 
 #endif /* #define FREERTOS_CONFIG_H */

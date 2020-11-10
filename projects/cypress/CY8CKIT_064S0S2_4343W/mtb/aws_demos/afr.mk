@@ -99,6 +99,7 @@ CY_IGNORE+=\
 	$(CY_AFR_VENDOR_PATH)/WICED_SDK\
 	$(CY_AFR_VENDOR_PATH)/freertos_thirdparty_port
 
+
 CY_CONFIG_MODUS_FILE=./$(CY_AFR_BOARD_APP_PATH)/design.modus
 
 SOURCES+=\
@@ -129,11 +130,11 @@ INCLUDES+=\
 	$(CY_AFR_BOARD_PATH)/ports/pkcs11
 else
 SOURCES+=\
-	$(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa/*.c)\
 	$(CY_AFR_BOARD_PATH)/ports/pkcs11/hw_poll.c
 
 INCLUDES+=\
-	$(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa\
 	$(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
 endif
 
@@ -177,10 +178,10 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/defender/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)
+	$(wildcard $(CY_AFR_ROOT)/demos/device_shadow_for_aws/*.c)
 
 INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common\
@@ -189,7 +190,8 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/demos/https\
 	$(CY_AFR_ROOT)/demos/include\
 	$(CY_AFR_ROOT)/demos/network_manager\
-	$(CY_AFR_ROOT)/demos/tcp
+	$(CY_AFR_ROOT)/demos/tcp\
+	$(CY_AFR_ROOT)/demos/device_shadow_for_aws\
 
 ################################################################################
 # libraries (3rd party)
@@ -242,26 +244,30 @@ INCLUDES+=\
 
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/transport/secure_sockets/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/retry_utils/freertos/*.c)\
 
 INCLUDES+=\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/include\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/include\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/include/platform\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/include/platform\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/include/types\
+	$(CY_AFR_ROOT)/libraries/abstractions/retry_utils\
 	$(CY_AFR_ROOT)/libraries/abstractions/secure_sockets\
 	$(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/include\
+	$(CY_AFR_ROOT)/libraries/abstractions/transport/secure_sockets\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/*.c)
 
 endif
 
@@ -271,7 +277,7 @@ endif
 
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/common/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/common/logging/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/logging/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/common/taskpool/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/https/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/*c)\
@@ -286,16 +292,31 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c \
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c \
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c \
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c \
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c \
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c \
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c \
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_serializer.c\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c
+
+# Device Shadow and core JSON
+SOURCES+=\
+	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/shadow.c\
+	$(CY_AFR_ROOT)/libraries/coreJSON/source/core_json.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include/private\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include/types\
+	$(CY_AFR_ROOT)/libraries/logging/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/include/types\
@@ -306,11 +327,17 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/include/types\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/private\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/interface\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include/types\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/interface\
+	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/include\
+	$(CY_AFR_ROOT)/libraries/coreJSON/source/include\
 
 ################################################################################
 # libraries (freertos_plus)
@@ -318,7 +345,6 @@ INCLUDES+=\
 
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/src/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/pkcs11/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/aws/greengrass/src/*.c)
@@ -328,8 +354,6 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_posix\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_posix/include\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/pkcs11\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/pkcs11/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils\
@@ -345,21 +369,35 @@ INCLUDES+=\
 ifneq ($(BLE_SUPPORT),)
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/ble_hal/*c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/ble/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/ble/gatt_server/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/ble/mqtt_ble/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/ble/shadow_ble/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/ble/numeric_comparison/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/device_information/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/mqtt_ble/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/data_transfer/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/wifi_provisioning/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/*c)\
+	$(wildcard $(CY_AFR_BOARD_PATH)/ports/ble/*c)\
+	$(wildcard $(CY_EXTAPP_PATH)/bluetooth/psoc6/cyosal/src/*.c)\
+	$(wildcard $(CY_EXTAPP_PATH)/bluetooth/psoc6/cyhal/src/*.c)
 
 INCLUDES+=\
 	$(CY_AFR_BOARD_PATH)/ports/ble\
+	$(CY_EXTAPP_PATH)/bluetooth/include\
+	$(CY_EXTAPP_PATH)/bluetooth/include/stackHeaders\
+	$(CY_EXTAPP_PATH)/bluetooth/psoc6/cyhal/include\
+	$(CY_EXTAPP_PATH)/bluetooth/psoc6/cyosal/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/ble_hal\
 	$(CY_AFR_ROOT)/libraries/abstractions/ble_hal/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/include\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src
+	
 
+LDLIBS=\
+	$(CY_EXTAPP_PATH)/bluetooth/bluetooth.FreeRTOS.ARM_CM4.release.a\
+	$(CY_EXTAPP_PATH)/bluetooth/shim.FreeRTOS.ARM_CM4.release.a
 endif
 
 ################################################################################

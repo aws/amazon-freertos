@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Shadow V2.2.0
+ * FreeRTOS Shadow V2.2.3
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,9 +41,15 @@
 /* Shadow internal include. */
 #include "private/aws_iot_shadow_internal.h"
 
+/* Error handling include. */
+#include "private/iot_error.h"
+
 /* Undefine logging configuration set in Shadow internal header. */
 #undef LIBRARY_LOG_NAME
 #undef LIBRARY_LOG_LEVEL
+
+/* MQTT types include. */
+#include "types/iot_mqtt_types.h"
 
 /* MQTT internal include. */
 #include "private/iot_mqtt_internal.h"
@@ -91,24 +97,29 @@
 /**
  * @brief The Thing Name shared among all the tests.
  */
-#define TEST_THING_NAME                "TestThingName"
+#define TEST_THING_NAME                         "TestThingName"
 
 /**
  * @brief The length of #TEST_THING_NAME.
  */
-#define TEST_THING_NAME_LENGTH         ( sizeof( TEST_THING_NAME ) - 1 )
+#define TEST_THING_NAME_LENGTH                  ( sizeof( TEST_THING_NAME ) - 1 )
 
 /**
  * @brief A delay that simulates the time required for an MQTT packet to be sent
  * to the server and for the server to send a response.
  */
-#define NETWORK_ROUND_TRIP_TIME_MS     ( 25 )
+#define NETWORK_ROUND_TRIP_TIME_MS              ( 25 )
 
 /**
  * @brief The maximum size of any MQTT acknowledgement packet (e.g. SUBACK,
  * PUBACK, UNSUBACK) used in these tests.
  */
-#define ACKNOWLEDGEMENT_PACKET_SIZE    ( 5 )
+#define ACKNOWLEDGEMENT_PACKET_SIZE             ( 5 )
+
+/**
+ * @brief Test packet type for MQTT PUBLISH header.
+ */
+#define TEST_MQTT_PACKET_TYPE_PUBLISH_HEADER    ( MQTT_PACKET_TYPE_PUBLISH + 1 )
 
 /*-----------------------------------------------------------*/
 
@@ -155,6 +166,21 @@ static uint8_t _lastPacketType = 0;
  * @brief The packet identifier of the last packet send by the send thread.
  */
 static uint16_t _lastPacketIdentifier = 0;
+
+/**
+ * @brief Receive context for the MQTT PUBLISH packet.
+ *
+ * MQTT library sends MQTT PUBLISH packet using 2 different transport calls.
+ * First one is for sending the header and then the payload. This static
+ * context variable stores the header and adds payload to it to form the
+ * complete PUBLISH packet.
+ */
+static _receiveContext_t _publishContext = { 0 };
+
+/*-----------------------------------------------------------*/
+
+/* Using initialized connToContext variable. */
+extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
 /*-----------------------------------------------------------*/
 
@@ -241,56 +267,83 @@ static size_t _sendSuccess( void * pSendContext,
     /* Ignore the send context. */
     ( void ) pSendContext;
 
-    /* Read the packet type, which is the first byte in the message. */
-    mqttPacket.type = *pMessage;
-
-    /* Set the members of the receive context. */
-    receiveContext.pData = pMessage + 1;
-    receiveContext.dataLength = messageLength;
-
     /* Lock the mutex to modify the information on the last packet sent. */
     IotMutex_Lock( &_lastPacketMutex );
 
-    /* Read the remaining length. */
-    mqttPacket.remainingLength = _IotMqtt_GetRemainingLength( &receiveContext,
-                                                              &_networkInterface );
-    AwsIotShadow_Assert( mqttPacket.remainingLength != MQTT_REMAINING_LENGTH_INVALID );
-
-    /* Set the last packet type based on the outgoing message. */
-    switch( mqttPacket.type & 0xf0 )
+    if( _lastPacketType != TEST_MQTT_PACKET_TYPE_PUBLISH_HEADER )
     {
-        case MQTT_PACKET_TYPE_PUBLISH:
+        /* Read the packet type, which is the first byte in the message. */
+        mqttPacket.type = *pMessage;
 
-            /* Only set the last packet type to PUBLISH for QoS 1. */
-            if( ( ( *pMessage & 0x06 ) >> 1 ) == 1 )
-            {
-                _lastPacketType = MQTT_PACKET_TYPE_PUBLISH;
-            }
-            else
-            {
-                _lastPacketType = 0;
-                _lastPacketIdentifier = 0;
-            }
+        /* Set the members of the receive context. */
+        receiveContext.pData = pMessage + 1;
+        receiveContext.dataLength = messageLength;
 
-            break;
+        /* Read the remaining length. */
+        mqttPacket.remainingLength = _IotMqtt_GetRemainingLength( &receiveContext,
+                                                                  &_networkInterface );
+        AwsIotShadow_Assert( mqttPacket.remainingLength != MQTT_REMAINING_LENGTH_INVALID );
 
-        case ( MQTT_PACKET_TYPE_SUBSCRIBE & 0xf0 ):
-            _lastPacketType = MQTT_PACKET_TYPE_SUBSCRIBE;
-            break;
+        /* Set the last packet type based on the outgoing message. */
+        switch( mqttPacket.type & 0xf0 )
+        {
+            case MQTT_PACKET_TYPE_PUBLISH:
 
-        case ( MQTT_PACKET_TYPE_UNSUBSCRIBE & 0xf0 ):
-            _lastPacketType = MQTT_PACKET_TYPE_UNSUBSCRIBE;
-            break;
+                /* Only set the last packet type to PUBLISH for QoS 1. */
+                if( ( ( *pMessage & 0x06 ) >> 1 ) == 1 )
+                {
+                    /* Check if only MQTT PUBLISH header is received. */
+                    if( messageLength < mqttPacket.remainingLength )
+                    {
+                        /* PUBLISH header is received. */
+                        _lastPacketType = TEST_MQTT_PACKET_TYPE_PUBLISH_HEADER;
 
-        default:
+                        /* Save the received data. */
+                        memset( &_publishContext, 0x00, sizeof( _receiveContext_t ) );
+                        /* Allocate a size of remaining length + first 2 bytes. */
+                        _publishContext.pData = IotTest_Malloc( mqttPacket.remainingLength + sizeof( uint16_t ) );
+                        AwsIotShadow_Assert( _publishContext.pData != NULL );
 
-            /* The only valid outgoing packets are PUBLISH, SUBSCRIBE, and
-             * UNSUBSCRIBE. Abort if any other packet is found. */
-            AwsIotShadow_Assert( 0 );
+                        /* Copy the data received. */
+                        memcpy( ( void * ) _publishContext.pData, pMessage, messageLength );
+                        _publishContext.dataLength = messageLength;
+                    }
+                    else
+                    {
+                        _lastPacketType = MQTT_PACKET_TYPE_PUBLISH;
+                    }
+                }
+                else
+                {
+                    _lastPacketType = 0;
+                    _lastPacketIdentifier = 0;
+                }
+
+                break;
+
+            case ( MQTT_PACKET_TYPE_SUBSCRIBE & 0xf0 ):
+                _lastPacketType = MQTT_PACKET_TYPE_SUBSCRIBE;
+                break;
+
+            case ( MQTT_PACKET_TYPE_UNSUBSCRIBE & 0xf0 ):
+                _lastPacketType = MQTT_PACKET_TYPE_UNSUBSCRIBE;
+                break;
+
+            default:
+
+                /* The only valid outgoing packets are PUBLISH, SUBSCRIBE, and
+                 * UNSUBSCRIBE. Abort if any other packet is found. */
+                AwsIotShadow_Assert( 0 );
+        }
+    }
+    else
+    {
+        /* MQTT PUBLISH payload is received. Mark the completion of PUBLISH. */
+        _lastPacketType = MQTT_PACKET_TYPE_PUBLISH;
     }
 
     /* Check if a network response is needed. */
-    if( _lastPacketType != 0 )
+    if( ( _lastPacketType != 0 ) && ( _lastPacketType != TEST_MQTT_PACKET_TYPE_PUBLISH_HEADER ) )
     {
         /* Save the packet identifier as the last packet identifier. */
         if( _lastPacketType != MQTT_PACKET_TYPE_PUBLISH )
@@ -301,10 +354,43 @@ static size_t _sendSuccess( void * pSendContext,
         else
         {
             mqttPacket.u.pIncomingPublish = &deserializedPublish;
-            mqttPacket.pRemainingData = ( uint8_t * ) pMessage + ( messageLength - mqttPacket.remainingLength );
 
-            status = _IotMqtt_DeserializePublish( &mqttPacket );
+            /* Check if MQTT PUBLISH packet is fully received. */
+            if( _publishContext.dataLength == 0 )
+            {
+                mqttPacket.pRemainingData = ( uint8_t * ) pMessage + ( messageLength - mqttPacket.remainingLength );
+            }
+            else
+            {
+                AwsIotShadow_Assert( _publishContext.pData != NULL );
+                /* Copy the remaining part of the MQTT PUBLISH. */
+                memcpy( ( void * ) ( _publishContext.pData + _publishContext.dataLength ), pMessage, messageLength );
+                _publishContext.dataLength += messageLength;
+
+                /* Read the packet type, which is the first byte in the message. */
+                mqttPacket.type = _publishContext.pData[ 0 ];
+
+                /* Set the members of the receive context. */
+                receiveContext.pData = _publishContext.pData + 1;
+                receiveContext.dataLength = _publishContext.dataLength;
+
+                /* Read the remaining length. */
+                mqttPacket.remainingLength = _IotMqtt_GetRemainingLength( &receiveContext,
+                                                                          &_networkInterface );
+
+                mqttPacket.pRemainingData = ( uint8_t * ) _publishContext.pData +
+                                            ( _publishContext.dataLength - mqttPacket.remainingLength );
+            }
+
+            status = _IotMqtt_deserializePublishWrapper( &mqttPacket );
             _lastPacketIdentifier = mqttPacket.packetIdentifier;
+
+            /* Clear the publish data stored. */
+            if( _publishContext.dataLength != 0 )
+            {
+                IotTest_Free( ( void * ) _publishContext.pData );
+                memset( &_publishContext, 0x00, sizeof( _receiveContext_t ) );
+            }
         }
 
         AwsIotShadow_Assert( status == IOT_MQTT_SUCCESS );
@@ -365,6 +451,185 @@ static size_t _receive( void * pConnection,
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief The time interface provided to the MQTT context used in calling MQTT LTS APIs.
+ */
+static uint32_t getTimeMs( void )
+{
+    return 0U;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief The dummy application callback function.
+ *
+ * This function doesn't need to have any implementation as
+ * the receive from network is not handled by the coreMQTT library,
+ * but the MQTT shim itself. This function is just a dummy function
+ * to be passed as a parameter to `MQTT_Init()`.
+ *
+ * @param[in] pMqttContext MQTT context pointer.
+ * @param[in] pPacketInfo Packet Info pointer for the incoming packet.
+ * @param[in] pDeserializedInfo Deserialized information from incoming packet.
+ */
+static void eventCallback( MQTTContext_t * pContext,
+                           MQTTPacketInfo_t * pPacketInfo,
+                           MQTTDeserializedInfo_t * pDeserializedInfo )
+{
+    /* This function doesn't need to have any implementation as
+     * the receive from network is not handled by the coreMQTT library,
+     * but the MQTT shim itself. This function is just a dummy function
+     * to be passed as a parameter to `MQTT_Init()`. */
+    ( void ) pContext;
+    ( void ) pPacketInfo;
+    ( void ) pDeserializedInfo;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Transport send interface provided to the MQTT context used in calling MQTT LTS APIs.
+ */
+static int32_t transportSend( NetworkContext_t * pNetworkContext,
+                              const void * pMessage,
+                              size_t bytesToSend )
+{
+    int32_t bytesSent = 0;
+
+    IotMqtt_Assert( pNetworkContext != NULL );
+    IotMqtt_Assert( pMessage != NULL );
+
+    /* Sending the bytes on the network using Network Interface. */
+    bytesSent = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
+
+    if( bytesSent < 0 )
+    {
+        /* Network Send Interface return negative value in case of any socket error,
+         * unifying the error codes here for socket error and timeout to comply with the MQTT LTS Library.
+         */
+        bytesSent = -1;
+    }
+
+    return bytesSent;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief A dummy function for transport interface receive.
+ *
+ * MQTT shim handles the receive from the network and hence transport
+ * implementation for receive is not used by the coreMQTT library. This
+ * dummy implementation is used for passing a non-NULL parameter to
+ * `MQTT_Init()`.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pBuffer Buffer to receive the data into.
+ * @param[in] bytesToRecv Number of bytes requested from the network.
+ *
+ * @return The number of bytes received or a negative error code.
+ */
+static int32_t transportRecv( NetworkContext_t * pNetworkContext,
+                              void * pBuffer,
+                              size_t bytesToRecv )
+{
+    /* MQTT shim handles the receive from the network and hence transport
+     * implementation for receive is not used by the coreMQTT library. This
+     * dummy implementation is used for passing a non-NULL parameter to
+     * `MQTT_Init()`. */
+    ( void ) pNetworkContext;
+    ( void ) pBuffer;
+    ( void ) bytesToRecv;
+
+    /* Always return an error. */
+    return -1;
+}
+
+/*-----------------------------------------------------------*/
+
+static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection )
+{
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
+    int8_t contextIndex = -1;
+    bool subscriptionMutexCreated = false;
+    bool contextMutex = false;
+    TransportInterface_t transport;
+    MQTTFixedBuffer_t networkBuffer;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
+
+    /* Clear the MQTT connection to context array. */
+    memset( connToContext, 0x00, sizeof( connToContext ) );
+
+    /* Getting the free index from the MQTT connection to MQTT context mapping array. */
+    contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
+    TEST_ASSERT_NOT_EQUAL( -1, contextIndex );
+
+    /* Clear the array at the index obtained. */
+    memset( &( connToContext[ contextIndex ] ), 0x00, sizeof( _connContext_t ) );
+
+    /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
+     * on the network using MQTT LTS API. */
+    contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ),
+                                                  &( connToContext[ contextIndex ].contextMutexStorage ) );
+
+    /* Create the subscription mutex for a new connection. */
+    if( contextMutex == true )
+    {
+        /* Assigning the MQTT Connection. */
+        connToContext[ contextIndex ].mqttConnection = pMqttConnection;
+
+        /* Assigning the Network Context to be used by this MQTT Context. */
+        connToContext[ contextIndex ].networkContext.pNetworkConnection = pMqttConnection->pNetworkConnection;
+        connToContext[ contextIndex ].networkContext.pNetworkInterface = pMqttConnection->pNetworkInterface;
+
+        /* Fill in TransportInterface send function pointer. We will not be implementing the
+         * TransportInterface receive function pointer as receiving of packets is handled in shim by network
+         * receive task. Only using MQTT LTS APIs for transmit path.*/
+        transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
+        transport.send = transportSend;
+        transport.recv = transportRecv;
+
+        /* Fill the values for network buffer. */
+        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer[ 0 ] );
+        networkBuffer.size = NETWORK_BUFFER_SIZE;
+        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ),
+                                                                     &( connToContext[ contextIndex ].subscriptionMutexStorage ) );
+
+        if( subscriptionMutexCreated == false )
+        {
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+        }
+        else
+        {
+            /* Initializing the MQTT context used in calling MQTT LTS API. */
+            managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, getTimeMs, eventCallback, &networkBuffer );
+            status = convertReturnCode( managedMqttStatus );
+        }
+
+        if( status != IOT_MQTT_SUCCESS )
+        {
+            IOT_GOTO_CLEANUP();
+        }
+    }
+    else
+    {
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+    }
+
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    /* Clean up the context on error. */
+    if( status != IOT_MQTT_SUCCESS )
+    {
+        _IotMqtt_removeContext( pMqttConnection );
+    }
+
+    IOT_FUNCTION_CLEANUP_END();
+}
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Test group for Shadow API tests.
  */
 TEST_GROUP( Shadow_Unit_API );
@@ -409,6 +674,12 @@ TEST_SETUP( Shadow_Unit_API )
     _pMqttConnection = IotTestMqtt_createMqttConnection( false,
                                                          &networkInfo,
                                                          0 );
+
+    TEST_ASSERT_NOT_NULL( _pMqttConnection );
+
+    /* Set the MQTT Context for the new MQTT Connection*/
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, _setContext( _pMqttConnection ) );
+
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 }
 

@@ -335,7 +335,7 @@
 							<MiscControls>--C99</MiscControls>
 							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot; CONFIG_MEDTLS_USE_AFR_MEMORY PCFG_OS=2 _REENT_SMALL PRODUCT_VERSION=7687 MTK_BLE_SMTCN_ENABLE MTK_BT_LWIP_ENABLE MTK_BLE_BQB_TEST_ENABLE MTK_BLE_CLI_ENABLE MTK_BLE_BQB_CLI_ENABLE MTK_HCI_CONSOLE_MIX_ENABLE MTK_MINISUPP_ENABLE MTK_BSPEXT_ENABLE MTK_HAL_LOWPOWER_ENABLE MTK_LWIP_CLI_ENABLE MTK_HTTPCLIENT_SSL_ENABLE MTK_IPERF_ENABLE MTK_SMTCN_ENABLE MTK_CLI_TEST_MODE_ENABLE MTK_WIFI_REPEATER_ENABLE  CONFIG_REPEATER MTK_DEBUG_LEVEL_NONE MTK_WIFI_PRIVILEGE_ENABLE SUPPORT_MBEDTLS __MTK_BLE_ONLY_ENABLE__ MTK_SINGLE_SKU_SUPPORT HAL_DFS_MODULE_ENABLED LWIP_NO_STDINT_H=1 LWIP_TIMEVAL_PRIVATE=1 __little_endian__=1</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/application_code/mediatek_code;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/application_code/mediatek_code/include;../../../../../demos/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../demos/network_manager;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/wifi/include;../../../../../vendors/mediatek/lwip/include;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip_osal/include;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/application_code/mediatek_code;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/application_code/mediatek_code/include;../../../../../demos/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../demos/network_manager;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/wifi/include;../../../../../vendors/mediatek/lwip/include;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/retry_utils;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws/source/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip_osal/include;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -1055,49 +1055,9 @@
 							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_linear_containers.h</FilePath>
 						</File>
 						<File>
-							<FileName>iot_logging_task.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_logging_task.h</FilePath>
-						</File>
-						<File>
-							<FileName>iot_logging_setup.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_logging_setup.h</FilePath>
-						</File>
-						<File>
 							<FileName>iot_taskpool.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_taskpool.h</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/c_sdk/standard/common/logging/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_logging_task_dynamic_buffers.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_logging.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/c_sdk/standard/common/include/private/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_logging.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/private/iot_logging.h</FilePath>
-						</File>
-						<File>
-							<FileName>iot_taskpool_internal.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/private/iot_taskpool_internal.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1128,6 +1088,16 @@
 							<FileName>iot_taskpool_static_memory.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/c_sdk/standard/common/include/private/</GroupName>
+					<Files>
+						<File>
+							<FileName>iot_taskpool_internal.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/common/include/private/iot_taskpool_internal.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1277,22 +1247,32 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/freertos_plus/standard/pkcs11/include/</GroupName>
+					<GroupName>libraries/abstractions/pkcs11/corePKCS11/source/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_pkcs11.h</FileName>
+							<FileName>core_pkcs11.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_pki_utils.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</FilePath>
 						</File>
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/freertos_plus/standard/pkcs11/src/</GroupName>
+					<GroupName>libraries/abstractions/pkcs11/corePKCS11/source/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_pkcs11.c</FileName>
+							<FileName>core_pkcs11.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</FilePath>
+						</File>
+						<File>
+							<FileName>core_pki_utils.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1300,24 +1280,19 @@
 					<GroupName>vendors/mediatek/boards/mt7697hx-dev-kit/ports/pkcs11/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_pkcs11_pal.c</FileName>
+							<FileName>core_pkcs11_pal.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/ports/pkcs11/iot_pkcs11_pal.c</FilePath>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/ports/pkcs11/core_pkcs11_pal.c</FilePath>
 						</File>
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/abstractions/pkcs11/mbedtls/</GroupName>
+					<GroupName>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_pkcs11_mbedtls.c</FileName>
+							<FileName>core_pkcs11_mbedtls.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</FilePath>
-						</File>
-						<File>
-							<FileName>threading_alt.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1329,11 +1304,6 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c</FilePath>
 						</File>
-						<File>
-							<FileName>iot_pki_utils.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</FilePath>
-						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -1343,11 +1313,6 @@
 							<FileName>iot_system_init.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/freertos_plus/standard/utils/include/iot_system_init.h</FilePath>
-						</File>
-						<File>
-							<FileName>iot_pki_utils.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1482,6 +1447,41 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/logging/</GroupName>
+					<Files>
+						<File>
+							<FileName>iot_logging_task_dynamic_buffers.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/logging/iot_logging_task_dynamic_buffers.c</FilePath>
+						</File>
+						<File>
+							<FileName>iot_logging.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/logging/iot_logging.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/logging/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>iot_logging_task.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/logging/include/iot_logging_task.h</FilePath>
+						</File>
+						<File>
+							<FileName>logging_levels.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/logging/include/logging_levels.h</FilePath>
+						</File>
+						<File>
+							<FileName>logging_stack.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/logging/include/logging_stack.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>demos/dev_mode_key_provisioning/src/</GroupName>
 					<Files>
 						<File>
@@ -1565,9 +1565,9 @@
 							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</FilePath>
 						</File>
 						<File>
-							<FileName>iot_mqtt_serialize.c</FileName>
+							<FileName>iot_mqtt_publish_duplicates.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c</FilePath>
 						</File>
 						<File>
 							<FileName>iot_mqtt_static_memory.c</FileName>
@@ -1585,9 +1585,124 @@
 							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</FilePath>
 						</File>
 						<File>
+							<FileName>iot_mqtt_context_connection.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c</FilePath>
+						</File>
+						<File>
+							<FileName>iot_mqtt_serializer_deserializer_wrapper.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c</FilePath>
+						</File>
+						<File>
+							<FileName>iot_mqtt_managed_function_wrapper.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c</FilePath>
+						</File>
+						<File>
+							<FileName>iot_mqtt_subscription_container.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c</FilePath>
+						</File>
+						<File>
+							<FileName>iot_mqtt_mutex_wrapper.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c</FilePath>
+						</File>
+						<File>
 							<FileName>iot_mqtt_agent.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreMQTT/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_mqtt.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/core_mqtt.c</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_state.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/core_mqtt_state.c</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_serializer.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/core_mqtt_serializer.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreMQTT/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_mqtt.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/include/core_mqtt.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_config_defaults.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/include/core_mqtt_config_defaults.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_serializer.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/include/core_mqtt_serializer.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_state.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/include/core_mqtt_state.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreMQTT/source/interface/</GroupName>
+					<Files>
+						<File>
+							<FileName>transport_interface.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT/source/interface/transport_interface.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/abstractions/retry_utils/freertos/</GroupName>
+					<Files>
+						<File>
+							<FileName>retry_utils_freertos.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/abstractions/retry_utils/</GroupName>
+					<Files>
+						<File>
+							<FileName>retry_utils.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/abstractions/retry_utils/retry_utils.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/abstractions/transport/secure_sockets/</GroupName>
+					<Files>
+						<File>
+							<FileName>transport_secure_sockets.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</FilePath>
+						</File>
+						<File>
+							<FileName>transport_secure_sockets.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1757,12 +1872,107 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/freertos_plus/standard/freertos_plus_cli/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>FreeRTOS_CLI.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</FilePath>
+						</File>
+						<File>
+							<FileName>FreeRTOS_CLI_Console.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreJSON/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_json.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreJSON/source/core_json.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreJSON/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_json.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreJSON/source/include/core_json.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/device_shadow_for_aws/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>shadow.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/device_shadow_for_aws/source/shadow.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/device_shadow_for_aws/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>shadow.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/device_shadow_for_aws/source/include/shadow.h</FilePath>
+						</File>
+						<File>
+							<FileName>shadow_config_defaults.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>demos/coreMQTT/</GroupName>
+					<Files>
+						<File>
+							<FileName>mqtt_demo_mutual_auth.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_connection_sharing.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_connection_sharing.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>demos/defender/</GroupName>
 					<Files>
 						<File>
 							<FileName>aws_iot_demo_defender.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/defender/aws_iot_demo_defender.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>demos/device_shadow_for_aws/</GroupName>
+					<Files>
+						<File>
+							<FileName>shadow_demo_main.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/device_shadow_for_aws/shadow_demo_main.c</FilePath>
+						</File>
+						<File>
+							<FileName>shadow_demo_helpers.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/device_shadow_for_aws/shadow_demo_helpers.c</FilePath>
+						</File>
+						<File>
+							<FileName>shadow_demo_helpers.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../demos/device_shadow_for_aws/shadow_demo_helpers.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1803,26 +2013,6 @@
 							<FileName>iot_demo_https_common.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/https/iot_demo_https_common.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>demos/mqtt/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_demo_mqtt.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/mqtt/iot_demo_mqtt.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>demos/shadow/</GroupName>
-					<Files>
-						<File>
-							<FileName>aws_iot_demo_shadow.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/shadow/aws_iot_demo_shadow.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1895,6 +2085,16 @@
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/aws_wifi_config.h</FilePath>
 						</File>
 						<File>
+							<FileName>core_mqtt_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/core_mqtt_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_pkcs11_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/core_pkcs11_config.h</FilePath>
+						</File>
+						<File>
 							<FileName>iot_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/iot_config.h</FilePath>
@@ -1905,14 +2105,34 @@
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/iot_mqtt_agent_config.h</FilePath>
 						</File>
 						<File>
-							<FileName>iot_pkcs11_config.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/iot_pkcs11_config.h</FilePath>
-						</File>
-						<File>
 							<FileName>lwipopts.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/lwipopts.h</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_connection_sharing_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_mutual_auth_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/mqtt_demo_mutual_auth_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>mqtt_demo_plaintext_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/mqtt_demo_plaintext_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>shadow_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/shadow_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>shadow_demo_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/shadow_demo_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>trcConfig.h</FileName>
@@ -2813,6 +3033,16 @@
 							<FileName>mbedtls_error.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_error.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>threading_alt.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</FilePath>
 						</File>
 					</Files>
 				</Group>

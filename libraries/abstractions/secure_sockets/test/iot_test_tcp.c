@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Secure Sockets V1.2.0
+ * FreeRTOS Secure Sockets V1.3.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -640,6 +640,19 @@ static BaseType_t prvAwsIotBrokerConnectHelper( Socket_t xSocket,
         if( xResult != SOCKETS_ERROR_NONE )
         {
             tcptestFAILUREPRINTF( ( "%s: Failed to setSockOpt SOCKETS_SO_REQUIRE_TLS \r\n", __FUNCTION__ ) );
+        }
+        else
+        {
+            /* Try to set SNI option. It does not matter if this passes or fails,
+             * in relation to the tests. The purpose of this is to allow devices
+             * that rely on SNI to authenticate, eg. AWS IoT Core's multi account
+             * registration.
+             */
+            ( void ) SOCKETS_SetSockOpt( xSocket,
+                                         0, /* Level - Unused. */
+                                         SOCKETS_SO_SERVER_NAME_INDICATION,
+                                         clientcredentialMQTT_BROKER_ENDPOINT,
+                                         sizeof( clientcredentialMQTT_BROKER_ENDPOINT ) );
         }
     }
 
@@ -2489,16 +2502,16 @@ static void prvServerDomainName( void )
     xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
 
+    /* Get the address struct for AWS Broker and SetSockOpt REQUIRE_TLS. */
+    xResult = prvAwsIotBrokerConnectHelper( xSocket, &xAwsBrokerAddress );
+    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed setup AWS Broker address struct." );
+
     /* Give the client an INVALID subject name to check against. */
     xResult = SOCKETS_SetSockOpt( xSocket,
                                   0,
                                   SOCKETS_SO_SERVER_NAME_INDICATION,
                                   cFakeAddress,
                                   sizeof( cFakeAddress ) );
-
-    /* Get the address struct for AWS Broker and SetSockOpt REQUIRE_TLS. */
-    xResult = prvAwsIotBrokerConnectHelper( xSocket, &xAwsBrokerAddress );
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed setup AWS Broker address struct." );
 
     xResult = SOCKETS_Connect( xSocket, &xAwsBrokerAddress, sizeof( SocketsSockaddr_t ) );
     TEST_ASSERT_LESS_THAN_INT32_MESSAGE( 0, xResult, "Connect worked when subject name check should have failed it." );
@@ -3264,7 +3277,6 @@ TEST( Full_TCP, AFQP_SOCKETS_htons_HappyCase )
 
 TEST( Full_TCP_Extended, SOCKETS_dns_multiple_addresses )
 {
-    BaseType_t xResult = pdFAIL;
     uint32_t i;
     uint32_t j;
     uint32_t ulIPAddress;
@@ -3282,9 +3294,9 @@ TEST( Full_TCP_Extended, SOCKETS_dns_multiple_addresses )
      * call will return one of the addresses which the name resolves to.
      *
      * NOTE: Resolving addresses can take some time, so allow up to
-     *   60 seconds to collect all of them.
+     *   120 seconds to collect all of them.
      */
-    for( i = 0; ( i < 60 ) && ( ulNumUniqueIPAddresses < dnstestNUM_UNIQUE_IP_ADDRESSES ); i++ )
+    for( i = 0; ( i < 120 ) && ( ulNumUniqueIPAddresses < dnstestNUM_UNIQUE_IP_ADDRESSES ); i++ )
     {
         ulIPAddress = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
 
@@ -3310,12 +3322,8 @@ TEST( Full_TCP_Extended, SOCKETS_dns_multiple_addresses )
                     clientcredentialMQTT_BROKER_ENDPOINT ) );
 
     /* Require a minimum number of IP addresses for AWS IoT Core endpoints */
-    if( ulNumUniqueIPAddresses >= dnstestNUM_UNIQUE_IP_ADDRESSES )
-    {
-        xResult = pdPASS;
-    }
+    TEST_ASSERT_GREATER_OR_EQUAL_UINT32_MESSAGE( dnstestNUM_UNIQUE_IP_ADDRESSES, ulNumUniqueIPAddresses, "Incorrect number of IP addresses per entry" );
 
-    TEST_ASSERT_EQUAL_UINT32_MESSAGE( pdPASS, xResult, "Incorrect number of IP addresses per entry" );
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }
 

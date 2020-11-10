@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202011.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -75,13 +75,18 @@
 static void _defenderCallback( void * pCallbackContext,
                                AwsIotDefenderCallbackInfo_t * const pCallbackInfo )
 {
-    ( void ) pCallbackContext;
+    bool * pMetricsAccepted = ( bool * ) ( pCallbackContext );
 
     IotLogInfo( "User's callback is invoked on event: %s.", AwsIotDefender_EventType( pCallbackInfo->eventType ) );
 
     if( pCallbackInfo != NULL )
     {
-        /*  Callback info processing example . */
+        /*  Callback info processing example. */
+        if( pCallbackInfo->eventType == AWS_IOT_DEFENDER_METRICS_ACCEPTED )
+        {
+            *pMetricsAccepted = true;
+        }
+
         if( pCallbackInfo->pMetricsReport != NULL )
         {
             IotLogInfo( "Published metrics report." );
@@ -200,10 +205,11 @@ int RunDefenderDemo( bool awsIotMqttMode,
 {
     int status = EXIT_SUCCESS;
     bool metricsInitStatus = false;
+    bool metricsAccepted = false;
     IotMqttError_t mqttStatus = IOT_MQTT_INIT_FAILED;
     AwsIotDefenderError_t defenderResult = AWS_IOT_DEFENDER_INTERNAL_FAILURE;
     AwsIotDefenderStartInfo_t startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
-    const AwsIotDefenderCallback_t callback = { .function = _defenderCallback, .pCallbackContext = NULL };
+    const AwsIotDefenderCallback_t callback = { .function = _defenderCallback, .pCallbackContext = &metricsAccepted };
     IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
     /* Unused parameters. */
@@ -268,36 +274,61 @@ int RunDefenderDemo( bool awsIotMqttMode,
     if( status == EXIT_SUCCESS )
     {
         /* Create MQTT Connection */
-        mqttStatus = _establishMqttConnection( pIdentifier,
-                                               pNetworkServerInfo,
-                                               pNetworkCredentialInfo,
-                                               pNetworkInterface,
-                                               &mqttConnection );
+        status = _establishMqttConnection( pIdentifier,
+                                           pNetworkServerInfo,
+                                           pNetworkCredentialInfo,
+                                           pNetworkInterface,
+                                           &mqttConnection );
 
-        if( mqttStatus != IOT_MQTT_SUCCESS )
+        if( status != EXIT_SUCCESS )
         {
-            IotLogError( "Failed to Create MQTT Connection, error: %s", IotMqtt_strerror( mqttStatus ) );
+            IotLogError( "Failed to create the MQTT Connection." );
             IotMqtt_Cleanup();
             defenderResult = AWS_IOT_DEFENDER_INTERNAL_FAILURE;
         }
-        else
-        {
-            /* Initialize start info and call defender Start API */
-            startInfo.pClientIdentifier = pIdentifier;
-            startInfo.clientIdentifierLength = ( uint16_t ) strlen( pIdentifier );
-            startInfo.callback = callback;
-            startInfo.mqttConnection = mqttConnection;
-            defenderResult = AwsIotDefender_Start( &startInfo );
-        }
+    }
+
+    if( status == EXIT_SUCCESS )
+    {
+        /* Initialize start info and call defender Start API */
+        startInfo.pClientIdentifier = pIdentifier;
+        startInfo.clientIdentifierLength = ( uint16_t ) strlen( pIdentifier );
+        startInfo.callback = callback;
+        startInfo.mqttConnection = mqttConnection;
+        defenderResult = AwsIotDefender_Start( &startInfo );
 
         if( defenderResult == AWS_IOT_DEFENDER_SUCCESS )
         {
-            /* Let it run for 3 seconds */
+            /* Let the Device Defender Library run for 3 seconds before stopping.
+             * This is to allow enough time for the AWS IoT Device Defender
+             * Service to accept the metrics report.
+             *
+             * The following happens when the metrics report is accepted by the AWS IoT
+             * Device Defender Service:
+             *
+             * 1. The application is notified in _defenderCallback() with an event
+             *    type of AWS_IOT_DEFENDER_METRICS_ACCEPTED. In this demo, the
+             *    callback sets the variable metricsAccepted to true which is passed
+             *    as the callback context.
+             * 2. The Defender library prints "Metrics report was accepted by
+             *     defender service."
+             *
+             * It is okay to pass the local variable metricsAccepted in the callback
+             * context because the Device Defender Library is stopped in this function
+             * itself. Therefore, the callback can never execute after this function
+             * has exited.
+             */
             IotClock_SleepMs( 3000 );
             /* Stop the defender agent. */
             AwsIotDefender_Stop();
             /* Disconnect MQTT */
             IotMqtt_Disconnect( mqttConnection, false );
+        }
+        else
+        {
+            status = EXIT_FAILURE;
+            IotLogError( "AwsIotDefender_Start() returned with error status %s.",
+                         AwsIotDefender_strerror( defenderResult ) );
         }
     }
 
@@ -310,6 +341,13 @@ int RunDefenderDemo( bool awsIotMqttMode,
     if( mqttStatus == IOT_MQTT_SUCCESS )
     {
         IotMqtt_Cleanup();
+    }
+
+    /* The demo is successful only if the metrics were accepted by
+     * the AWS IoT Device Defender Service. */
+    if( metricsAccepted == false )
+    {
+        status = EXIT_FAILURE;
     }
 
     IotLogInfo( "----Device Defender Demo End. Status: %s----.", AwsIotDefender_strerror( defenderResult ) );

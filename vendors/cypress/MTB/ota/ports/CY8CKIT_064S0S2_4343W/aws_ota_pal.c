@@ -49,7 +49,6 @@
 #include "sysflash/sysflash.h"
 #include "flash_map_backend/flash_map_backend.h"
 #include "cy_pdl.h"
-#include "aws_application_version.h"
 #include "aws_ota_codesigner_certificate.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/sha256.h"
@@ -64,6 +63,17 @@
 #include "cy_smif_psoc6.h"
 
 #include "untar.h"
+
+/* define CY_TEST_APP_VERSION_IN_TAR to test application version in TAR archive at start of OTA image download
+ * NOTE: This requires that the user set the version numbers in the header file and
+ *          in the Makefile and that they match.
+ *          APP_VERSION_MAJOR
+ *          APP_VERSION_MINOR
+ *          APP_VERSION_BUILD
+ */
+#ifdef CY_TEST_APP_VERSION_IN_TAR
+#include "aws_application_version.h"
+#endif
 
 /* For tarball support */
 /**
@@ -832,6 +842,7 @@ int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C,
         }
 
         /* with the tarball we get a version - check if it is > current so we can bail early */
+#ifdef CY_TEST_APP_VERSION_IN_TAR
         if (ota_untar_context.version[0] != 0)
         {
             /* example version string "<major>.<minor>.<build>" */
@@ -867,6 +878,7 @@ int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C,
                 }
             }
         }
+#endif  /* CY_TEST_APP_VERSION_IN_TAR */
     }
     else
     {
@@ -1105,6 +1117,6 @@ OTA_PAL_ImageState_t prvPAL_GetPlatformImageState( void )
 /*-----------------------------------------------------------*/
 
 /* Provide access to private members for testing. */
-#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
     #include "aws_ota_pal_test_access_define.h"
 #endif

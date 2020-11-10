@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE V2.1.0
+ * FreeRTOS BLE V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -431,8 +431,8 @@ typedef union
 
 /**
  * @cond DOXYGEN_IGNORE
- * @brief that implementation of this function need to be given when IOT_BLE_ADD_CUSTOM_SERVICES is true
- * and when the user needs to add his own services
+ * @brief The implementation of this function needs to be given when IOT_BLE_ADD_CUSTOM_SERVICES is set to
+ * 1 and when the user needs to add their own services.
  */
     void IotBle_AddCustomServicesCb( void );
 /** @endcond */
@@ -442,8 +442,8 @@ typedef union
 
 /**
  * @cond DOXYGEN_IGNORE
- * @brief the implementation of this function need to be given when IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG is true
- * and when the user needs to set his own advertisement/scan response message
+ * @brief The implementation of this function needs to be given when IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG is
+ * set to 1 and when the user needs to set their own advertisement/scan response message.
  *
  * @param[out] pAdvParams: Advertisment structure. Needs to be filled by the user.
  *  @param[out] pScanParams: Scan response structure. Needs to be filled by the user.

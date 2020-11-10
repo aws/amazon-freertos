@@ -11,11 +11,6 @@
 
 void harness() {
   IotHttpsResponseHandle_t respHandle = allocate_IotResponseHandle();
-  size_t nameLen;
-  size_t valueLen;
-  char *pName = safeMalloc(nameLen);
-  char  *pValue = safeMalloc(valueLen);
-  initialize_IotResponseHandle(respHandle);
   if (respHandle) {
     __CPROVER_assume(is_valid_IotResponseHandle(respHandle));
     // Until a CBMC issue is addressed
@@ -23,6 +18,14 @@ void harness() {
     // copy an assumption from is_valid above as a simple assignment below.
     respHandle->httpParserInfo.readHeaderParser.data = respHandle;
   }
-  __CPROVER_assume(0 < valueLen && valueLen < UINT32_MAX);
+  initialize_IotResponseHandle(respHandle);
+
+  uint32_t nameLen;
+  uint32_t valueLen;
+  __CPROVER_assume(nameLen < CBMC_MAX_OBJECT_SIZE);
+  __CPROVER_assume(valueLen < CBMC_MAX_OBJECT_SIZE);
+  char *pName = safeMalloc(nameLen);
+  char *pValue = safeMalloc(valueLen);
+
   IotHttpsClient_ReadHeader(respHandle, pName, nameLen, pValue, valueLen);
 }

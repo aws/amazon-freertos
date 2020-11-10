@@ -105,6 +105,23 @@ nrf_ble_gatt_t * prvGetGattHandle()
     return &xGattHandler;
 }
 
+
+static void prvBLEGattEventCallback (nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const * p_evt)
+{
+    switch( p_evt->evt_id )
+    {
+        case NRF_BLE_GATT_EVT_ATT_MTU_UPDATED:
+            if( xGattServerCb.pxMtuChangedCb != NULL )
+            {
+                xGattServerCb.pxMtuChangedCb( p_evt->conn_handle, p_evt->params.att_mtu_effective );
+            }
+            break;
+        case NRF_BLE_GATT_EVT_DATA_LENGTH_UPDATED:
+            NRF_LOG_INFO( "Data length updated for connection %d, length = %d.\r\n", p_evt->conn_handle, p_evt->params.data_length );
+            break;
+    }
+}
+
 /**
  * @brief Returns the softdevice handle for a given inner GATT handle
  * @param handle inner GATT handle
@@ -298,7 +315,7 @@ BTStatus_t prvBTUnregisterServer( uint8_t ucServerIf )
 BTStatus_t prvBTGattServerInit( const BTGattServerCallbacks_t * pxCallbacks )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
-    ret_code_t xErrCode = nrf_ble_gatt_init( &xGattHandler, NULL );
+    ret_code_t xErrCode = nrf_ble_gatt_init( &xGattHandler, prvBLEGattEventCallback );
 
     if( xErrCode == NRF_SUCCESS )
     {

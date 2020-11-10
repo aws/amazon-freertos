@@ -1,0 +1,58 @@
+diff --git a/freertos_kernel/queue.c b/freertos_kernel/queue.c
+index edd08b26e..8b40a46a8 100644
+--- a/freertos_kernel/queue.c
++++ b/freertos_kernel/queue.c
+@@ -171,7 +171,7 @@ typedef xQUEUE Queue_t;
+  * to indicate that a task may require unblocking.  When the queue in unlocked
+  * these lock counts are inspected, and the appropriate action taken.
+  */
+-static void prvUnlockQueue( Queue_t * const pxQueue ) PRIVILEGED_FUNCTION;
++void prvUnlockQueue( Queue_t * const pxQueue ) PRIVILEGED_FUNCTION;
+ 
+ /*
+  * Uses a critical section to determine if there is any data in a queue.
+@@ -191,7 +191,7 @@ static BaseType_t prvIsQueueFull( const Queue_t * pxQueue ) PRIVILEGED_FUNCTION;
+  * Copies an item into the queue, either at the front of the queue or the
+  * back of the queue.
+  */
+-static BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue,
++BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue,
+                                       const void * pvItemToQueue,
+                                       const BaseType_t xPosition ) PRIVILEGED_FUNCTION;
+ 
+@@ -207,7 +207,7 @@ static void prvCopyDataFromQueue( Queue_t * const pxQueue,
+  * Checks to see if a queue is a member of a queue set, and if so, notifies
+  * the queue set that the queue contains data.
+  */
+-    static BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue ) PRIVILEGED_FUNCTION;
++	BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue ) PRIVILEGED_FUNCTION;
+ #endif
+ 
+ /*
+@@ -2120,7 +2120,7 @@ void vQueueDelete( QueueHandle_t xQueue )
+ #endif /* configUSE_MUTEXES */
+ /*-----------------------------------------------------------*/
+ 
+-static BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue,
++BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue,
+                                       const void * pvItemToQueue,
+                                       const BaseType_t xPosition )
+ {
+@@ -2224,7 +2224,7 @@ static void prvCopyDataFromQueue( Queue_t * const pxQueue,
+ }
+ /*-----------------------------------------------------------*/
+ 
+-static void prvUnlockQueue( Queue_t * const pxQueue )
++void prvUnlockQueue( Queue_t * const pxQueue )
+ {
+     /* THIS FUNCTION MUST BE CALLED WITH THE SCHEDULER SUSPENDED. */
+ 
+@@ -2957,7 +2957,7 @@ BaseType_t xQueueIsQueueFullFromISR( const QueueHandle_t xQueue )
+ 
+ #if ( configUSE_QUEUE_SETS == 1 )
+ 
+-    static BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue )
++    BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue )
+     {
+         Queue_t * pxQueueSetContainer = pxQueue->pxQueueSetContainer;
+         BaseType_t xReturn = pdFALSE;

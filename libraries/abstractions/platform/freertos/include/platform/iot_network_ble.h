@@ -43,56 +43,8 @@
 #define IOT_NETWORK_INTERFACE_BLE    ( &( IotNetworkBle ) )
 
 /**
- * @brief An implementation of #IotNetworkInterface_t::create for FreeRTOS
- * Secure Sockets.
- */
-IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
-                                        void * pCredentialInfo,
-                                        void ** pConnection );
-
-/**
- * @brief An implementation of #IotNetworkInterface_t::setReceiveCallback for
- * FreeRTOS Secure Sockets.
- */
-IotNetworkError_t IotNetworkBle_SetReceiveCallback( void * pConnection,
-                                                    IotNetworkReceiveCallback_t receiveCallback,
-                                                    void * pContext );
-
-/**
- * @brief An implementation of #IotNetworkInterface_t::send for FreeRTOS
- * Secure Sockets.
- */
-size_t IotNetworkBle_Send( void * pConnection,
-                           const uint8_t * pMessage,
-                           size_t messageLength );
-
-/**
- * @brief An implementation of #IotNetworkInterface_t::receive for FreeRTOS
- * Secure Sockets.
- */
-size_t IotNetworkBle_Receive( void * pConnection,
-                              uint8_t * pBuffer,
-                              size_t bytesRequested );
-
-/**
- * @brief An implementation of #IotNetworkInterface_t::close for FreeRTOS
- * Secure Sockets.
- */
-IotNetworkError_t IotNetworkBle_Close( void * pConnection );
-
-/**
- * @brief An implementation of #IotNetworkInterface_t::destroy for FreeRTOS
- * Secure Sockets.
- */
-IotNetworkError_t IotNetworkBle_Destroy( void * pConnection );
-
-/**
- * @cond DOXYGEN_IGNORE
- * Doxygen should ignore this section.
- *
- * Declaration of a network interface struct using the functions in this file.
+ * @brief Declaration of network interface for BLE.
  */
 extern const IotNetworkInterface_t IotNetworkBle;
-/** @endcond */
 
 #endif /* ifndef _IOT_NETWORK_BLE_H_ */

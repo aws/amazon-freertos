@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE HAL V5.0.0
+ * FreeRTOS BLE HAL V5.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,6 +45,13 @@
 #include "bt_hal_gatt_types.h"
 #include "bt_hal_manager_types.h"
 #include "bt_hal_manager.h"
+
+/* Ble Advertisement Power Levels Index. This index would translate into platform specific values power (bBm) values */
+#define BT_HAL_BLE_ADV_TX_PWR_ULTRA_LOW     0              /* Ultra Low Adv Tx Power   */
+#define BT_HAL_BLE_ADV_TX_PWR_LOW           1              /* Low Adv Tx Power           */
+#define BT_HAL_BLE_ADV_TX_PWR_MEDIUM        2              /* Medium Adv Tx Power     */
+#define BT_HAL_BLE_ADV_TX_PWR_HIGH          3              /* High Adv Tx Power          */
+#define BT_HAL_BLE_ADV_TX_PWR_ULTRA_HIGH    4              /* Ultra High Adv Tx Power  */
 
 /**
  * @brief Scan Filter Parameters
@@ -952,6 +959,19 @@ typedef struct
                                                bool bSetScanRsp,
                                                uint8_t * pucData,
                                                size_t xDataLen );
+
+    /**
+     *
+     * @brief Sets the LE background scan interval and window in units of N*0.625 msec.
+     *
+     * @param[in] ucAdapterIf Adapter interface ID. Returned from BTRegisterBleAdapterCallback_t after calling pxRegisterBleApp.
+     * @param[in] ulScanIntervalTime scan interval time in units of 0.625Ms
+     * @param[in] ulScanWindowTime scan window time in units of 0.625Ms
+     * @return Returns eBTStatusSuccess on successful call.
+     */
+    BTStatus_t ( * pxSetBgScanParameters )( uint8_t ucAdapterIf,
+                                            uint32_t ulScanIntervalTime,
+                                            uint32_t ulScanWindowTime );
 } BTBleAdapter_t;
 
 #endif /* #ifndef _BT_HAL_MANAGER_ADAPTER_BLE_H_ */

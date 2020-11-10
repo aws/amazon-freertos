@@ -437,6 +437,9 @@ uint32_t WDRV_EXT_DataSend(uint16_t segSize, uint8_t *p_segData)
 {
     int8_t ret;
 
+    if (!s_isInitComplete)
+        return WDRV_ERROR;
+
     if (gp_wdrv_cfg->networkType == WDRV_NETWORK_TYPE_SOFT_AP) 
     {
         ret = wilc1000_eth_data_send(p_segData, segSize, AP_INTERFACE);

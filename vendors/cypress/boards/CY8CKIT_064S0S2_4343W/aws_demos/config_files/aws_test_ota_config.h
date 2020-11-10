@@ -80,6 +80,6 @@
  * @brief Allow OTA Testing to access the static functions in aws_ota_pal.c
  * In order to carry out unit testing.
  */
-#define AMAZON_FREERTOS_ENABLE_UNIT_TESTS                   1
+#define FREERTOS_ENABLE_UNIT_TESTS                   1
 
 #endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */

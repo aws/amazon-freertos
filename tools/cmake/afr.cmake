@@ -75,7 +75,7 @@ endif()
 # Provide an option to enable unit tests with mocking
 option(AFR_ENABLE_UNIT_TESTS "Build tests for FreeRTOS. Requires recompiling whole library." OFF)
 if (AFR_ENABLE_UNIT_TESTS)
-     add_compile_definitions(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
+     add_compile_definitions(FREERTOS_ENABLE_UNIT_TESTS)
      add_compile_definitions(IOT_BUILD_TESTS=1)
      add_compile_definitions(AMAZON_FREERTOS_ENABLE_MOCKING)
 endif()
@@ -85,7 +85,7 @@ option(AFR_ENABLE_TESTS "Build tests for FreeRTOS. Requires recompiling whole li
 if(AFR_ENABLE_TESTS)
     # Turning off demo when tests are enabled.
     set(AFR_ENABLE_DEMOS 0 CACHE BOOL "Build demos for FreeRTOS." FORCE)
-    add_compile_definitions(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
+    add_compile_definitions(FREERTOS_ENABLE_UNIT_TESTS)
     add_compile_definitions(IOT_BUILD_TESTS=1)
     set(AFR_IS_TESTING 1 CACHE INTERNAL "")
 else()

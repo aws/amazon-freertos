@@ -35,8 +35,8 @@ NAME := aws_test
 
 GLOBAL_DEFINES := WICED_AMAZON_FREERTOS_SDK
 
-ifeq ($(AMAZON_FREERTOS_ENABLE_UNIT_TESTS), 1)
-GLOBAL_DEFINES += AMAZON_FREERTOS_ENABLE_UNIT_TESTS \
+ifeq ($(FREERTOS_ENABLE_UNIT_TESTS), 1)
+GLOBAL_DEFINES += FREERTOS_ENABLE_UNIT_TESTS \
                   IOT_BUILD_TESTS \
                   UNITY_EXCLUDE_MATH_H \
                   UNITY_INCLUDE_CONFIG_H
@@ -45,6 +45,7 @@ endif
 #GLOBAL_DEFINES += WLAN_FIRMWARE_PRNG_SEED
 
 export AMAZON_FREERTOS_PATH := ../../../../../../
+export AFR_LIBRARIES_PATH := ../../../../../../libraries/
 export AFR_THIRDPARTY_PATH := ../../../../../../libraries/3rdparty/
 export AFR_C_SDK_STANDARD_PATH := ../../../../../../libraries/c_sdk/standard/
 export AFR_C_SDK_AWS_PATH := ../../../../../../libraries/c_sdk/aws/
@@ -54,8 +55,11 @@ export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../../libraries/freertos_plus/aw
 
 GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)common/include \
+                    $(AFR_LIBRARIES_PATH)logging/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include  \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include \
+                    $(AFR_ABSTRACTIONS_PATH)retry_utils \
+                    $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets \
                     $(AFR_C_SDK_STANDARD_PATH)common/taskpool/private \
                     $(AFR_C_SDK_STANDARD_PATH)common/include/private \
                     $(AFR_C_SDK_STANDARD_PATH)common/include/types \
@@ -72,10 +76,9 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_THIRDPARTY_PATH)tinycbor/src \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)tls/test \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/include \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/include \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/mbedtls  \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/include \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/portable/mbedtls/include  \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/include \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)pkcs11/include \
                     $(AFR_PORTS_MODULES_PATH)mbedtls/include \
                     $(AFR_ABSTRACTIONS_PATH)wifi/include \
                     $(AFR_ABSTRACTIONS_PATH)wifi/test \
@@ -87,6 +90,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/src/private \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/test/access \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/test/mock \
+                    $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
+                    $(AFR_LIBRARIES_PATH)coreMQTT/source/interface \
                     $(AFR_C_SDK_STANDARD_PATH)serializer/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include/types \
@@ -100,8 +105,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_AWS_PATH)defender/src/private \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_posix/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/include \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/portable/Compiler/GCC/ \
+                    $(AMAZON_FREERTOS_PATH)tests/integration_test \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/portable/Compiler/GCC/ \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_posix/include/portable/cypress/$(PLATFORM) \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_tests/config_files \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM) \
@@ -113,11 +118,12 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)https/test/access \
                     $(AFR_C_SDK_STANDARD_PATH)https/test/unit \
                     $(AFR_THIRDPARTY_PATH)http_parser \
+                    $(AFR_LIBRARIES_PATH)device-shadow-for-aws-iot-embedded-sdk/source/include \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_tests/application_code/main.c \
-                      $(AFR_C_SDK_STANDARD_PATH)common/logging/iot_logging_task_dynamic_buffers.c \
-                      $(AFR_C_SDK_STANDARD_PATH)common/logging/iot_logging.c \
+                      $(AFR_LIBRARIES_PATH)logging/iot_logging_task_dynamic_buffers.c \
+                      $(AFR_LIBRARIES_PATH)logging/iot_logging.c \
                       $(AMAZON_FREERTOS_PATH)tests/common/aws_test_runner.c \
                       $(AMAZON_FREERTOS_PATH)tests/common/aws_test_framework.c \
                       $(AMAZON_FREERTOS_PATH)tests/common/aws_test.c \
@@ -145,6 +151,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_subscription.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_validate.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_metrics.c \
+                      $(AMAZON_FREERTOS_PATH)tests/integration_test/core_mqtt_system_test.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/aws_test_shadow.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_api.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_parser.c \
@@ -164,6 +171,8 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c \
+                      $(AFR_ABSTRACTIONS_PATH)retry_utils/freertos/retry_utils_freertos.c \
+                      $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets/transport_secure_sockets.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/test/iot_test_platform_clock.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/test/iot_test_platform_threads.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/test/iot_memory_leak.c \
@@ -179,18 +188,18 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)serializer/test/iot_tests_serializer_cbor.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/test/iot_tests_serializer_json.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_metrics.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/iot_test_freertos_tcp.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/iot_freertos_tcp_test_access_dns_define.h \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/iot_freertos_tcp_test_access_tcp_define.h \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_UDP_IP.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_Sockets.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_ARP.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_DHCP.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_DNS.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_Stream_Buffer.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_IP.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_TCP_IP.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c \
+                      $(AMAZON_FREERTOS_PATH)tests/integration_test/test_freertos_tcp.c \
+                      $(AMAZON_FREERTOS_PATH)tests/integration_test/freertos_tcp_test_access_dns_define.h \
+                      $(AMAZON_FREERTOS_PATH)tests/integration_test/freertos_tcp_test_access_tcp_define.h \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_UDP_IP.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_Sockets.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_ARP.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_DHCP.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_DNS.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_Stream_Buffer.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_IP.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_TCP_IP.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_TCP_WIN.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/test/unit/iot_tests_https_async.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/test/unit/iot_tests_https_client.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/test/unit/iot_tests_https_common.c \
@@ -200,6 +209,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_client.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_utils.c \
                       $(AFR_THIRDPARTY_PATH)http_parser/http_parser.c \
+                      $(AMAZON_FREERTOS_PATH)tests/integration_test/shadow_system_test.c \
 
 
 $(NAME)_COMPONENTS += utilities/wifi

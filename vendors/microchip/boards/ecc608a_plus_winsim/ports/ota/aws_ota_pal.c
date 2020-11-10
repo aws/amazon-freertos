@@ -31,6 +31,7 @@
 #include "iot_crypto.h"
 #include "aws_iot_ota_pal.h"
 #include "aws_iot_ota_agent_internal.h"
+#include "aws_ota_codesigner_certificate.h"
 
 /* Specify the OTA signature algorithm we support on this platform. */
 const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
@@ -351,6 +352,7 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 
     FILE * pxFile;
     uint8_t * pucSignerCert = NULL;
+    uint8_t * pucCertData = NULL;
     int32_t lSize = 0; /* For MISRA mandatory. */
     int32_t lWindowsError;
 
@@ -415,8 +417,23 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
     }
     else
     {
-        OTA_LOG_L1( "[%s] ERROR - Failed to open signer certificate file.\r\n", OTA_METHOD_NAME );
-        /* Do nothing- pucSignerCert is already initialized to NULL. */
+        OTA_LOG_L1( "[%s] No such certificate file: %s. Using aws_ota_codesigner_certificate.h.\r\n", OTA_METHOD_NAME,
+                    ( const char * ) pucCertName );
+
+        /* Allocate memory for the signer certificate plus a terminating zero so we can copy it and return to the caller. */
+        lSize = sizeof( signingcredentialSIGNING_CERTIFICATE_PEM );
+        pucSignerCert = pvPortMalloc( lSize );                           /*lint !e9029 !e9079 !e838 malloc proto requires void*. */
+        pucCertData = ( uint8_t * ) signingcredentialSIGNING_CERTIFICATE_PEM; /*lint !e9005 we don't modify the cert but it could be set by PKCS11 so it's not const. */
+
+        if( pucSignerCert != NULL )
+        {
+            memcpy( pucSignerCert, pucCertData, lSize );
+            *ulSignerCertSize = lSize;
+        }
+        else
+        {
+            OTA_LOG_L1( "[%s] Error: No memory for certificate of size %d!\r\n", OTA_METHOD_NAME, lSize );
+        }
     }
 
     return pucSignerCert; /*lint !e480 !e481 fopen and fclose are being used by-design. */
@@ -566,6 +583,6 @@ OTA_PAL_ImageState_t prvPAL_GetPlatformImageState( void )
 /*-----------------------------------------------------------*/
 
 /* Provide access to private members for testing. */
-#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
 #include "aws_ota_pal_test_access_define.h"
 #endif

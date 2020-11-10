@@ -1,11 +1,6 @@
 {
   "ENTRY": "IotHttpsClient_SendSync",
 
-  # A CBMC pointer is an object id followed by an offset into the object.
-  # The size of the offset is limited by the size of the object id.
-  "CBMC_OBJECTID_BITS": "7",
-  "CBMC_MAX_OBJECT_SIZE": "\"(UINT32_MAX>>CBMC_OBJECTID_BITS)\"",
-
   "CBMCFLAGS":
   [
     "--unwind 1",
@@ -43,10 +38,5 @@
     "$(FREERTOS)/libraries/abstractions/platform/include/",
     "$(FREERTOS)/libraries/abstractions/platform/freertos/include/",
     "../../include"
-  ],
-  "DEF":
-  [
-    "CBMC_OBJECTID_BITS={CBMC_OBJECTID_BITS}",
-    "CBMC_MAX_OBJECT_SIZE={CBMC_MAX_OBJECT_SIZE}"
   ]
 }

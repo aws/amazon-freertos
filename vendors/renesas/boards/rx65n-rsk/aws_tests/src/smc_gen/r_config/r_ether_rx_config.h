@@ -19,7 +19,7 @@
  ***********************************************************************************************************************/
 /***********************************************************************************************************************
  * File Name    : r_ether_rx_config.h
- * Version      : 1.04
+ * Version      : 1.20
  * Description  : Ethernet module device driver
  ***********************************************************************************************************************/
 /**********************************************************************************************************************
@@ -29,6 +29,8 @@
  *         : 01.10.2016 1.02     Added changes for RX65N.
  *         : 01.10.2017 1.03     Added changes for RX65N-2MB.
  *         : 08.01.2018 1.04     Changed comment.
+ *         : 30.07.2019 1.17     Added changes for RX72M.
+ *         : 22.11.2019 1.20     Added changes for RX72N.
  ***********************************************************************************************************************/
 
 /* Guards against multiple inclusion */
@@ -49,15 +51,17 @@
  Please set the value 31 ETHER_CFG_CH0_PHY_ADDRESS when use default setting of the RSK+RX63N.
  Please set the value 30 ETHER_CFG_CH0_PHY_ADDRESS when use default setting of the RSK+RX65N/RSK+RX65N_2MB.
  Please set the value 0 ETHER_CFG_CH0_PHY_ADDRESS and value 1 ETHER_CFG_CH1_PHY_ADDRESS when use default setting of the RSK+RX64M/RSK+RX71M.
+ Please set the value 1 ETHER_CFG_CH0_PHY_ADDRESS and value 2 ETHER_CFG_CH1_PHY_ADDRESS when use default setting of the RSK+RX72M.
+ Please set the value 1 ETHER_CFG_CH1_PHY_ADDRESS when use default setting of the RSK+RX72N.
  */
     #define ETHER_CFG_CH0_PHY_ADDRESS                   (30)     /* Please define the PHY-LSI address in the range of 0-31. */
     #define ETHER_CFG_CH1_PHY_ADDRESS                   (1)     /* Please define the PHY-LSI address in the range of 0-31. */
 
 /* The number of Rx descriptors. */
-    #define ETHER_CFG_EMAC_RX_DESCRIPTORS               (12)
+    #define ETHER_CFG_EMAC_RX_DESCRIPTORS               (6)
 
 /* The number of Tx descriptors. */
-    #define ETHER_CFG_EMAC_TX_DESCRIPTORS               (4)
+    #define ETHER_CFG_EMAC_TX_DESCRIPTORS               (3)
 
 /* Please define the size of the sending and receiving buffer in the value where one frame can surely be stored 
  because the driver is single-frame/single-buffer processing.  */
@@ -77,6 +81,8 @@
  Please set the value 0 ETHER_CFG_CH0_PHY_ACCESS when use default setting of the RSK+RX63N.
  Please set the value 0 ETHER_CFG_CH0_PHY_ACCESS when use default setting of the RSK+RX65N/RSK+RX65N_2MB.
  Please set the value 1 ETHER_CFG_CH0_PHY_ACCESS and ETHER_CFG_CH1_PHY_ACCESS when use default setting of the RSK+RX64M/RSK+RX71M.
+ Please set the value 0 ETHER_CFG_CH0_PHY_ACCESS and ETHER_CFG_CH1_PHY_ACCESS when use default setting of the RSK+RX72M.
+ Please set the value 1 ETHER_CFG_CH1_PHY_ACCESS when use default setting of the RSK+RX72N.
  */
     #define ETHER_CFG_CH0_PHY_ACCESS                    (0)
     #define ETHER_CFG_CH1_PHY_ACCESS                    (1)
@@ -96,7 +102,7 @@
  0 = unused  (use PHY-LSI status register)
  1 = use     (use LINKSTA signal)
  */
-    #define ETHER_CFG_USE_LINKSTA                       (0)     /* This setting is reflected in all channels */
+    #define ETHER_CFG_USE_LINKSTA                       (1)     /* This setting is reflected in all channels */
 
 /* Definition of whether or not to use KSZ8041NL of the Micrel Inc.
  0 = unused
@@ -104,6 +110,30 @@
  */
     #define ETHER_CFG_USE_PHY_KSZ8041NL                 (0)
 
+/* Definition of whether or not to use non blocking of PHY Management Station Operation
+ 0 = unused
+ 1 = use
+*/
+    #define ETHER_CFG_NON_BLOCKING                      (0)
+
+/* Define the clock of the PHY Management Station */
+    #define ETHER_CFG_PMGI_CLOCK                        (2500000)
+
+/* PHY Management Station Preamble Control
+ 0 = Disable
+ 1 = Enable
+ */
+    #define ETHER_CFG_PMGI_ENABLE_PREAMBLE              (0)
+
+/* Define the Hold Time Adjustment of the PHY Management Station */
+    #define ETHER_CFG_PMGI_HOLD_TIME                    (0)
+
+/* Define the Capture Time Adjustment of the PHY Management Station */
+    #define ETHER_CFG_PMGI_CAPTURE_TIME                 (0)
+
+/* PMGI interrupt priority level. This definition is not used when PMGI interrupt is assigned to Peripheral
+ interrupt. */
+    #define ETHER_CFG_PMGI_INT_PRIORTY                  (2)
 /***********************************************************************************************************************
  Typedef definitions
  ***********************************************************************************************************************/

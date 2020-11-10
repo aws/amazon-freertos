@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Secure Sockets V1.2.0
+ * FreeRTOS Secure Sockets V1.3.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -168,6 +168,10 @@ typedef struct xSOCKET * Socket_t; /**< @brief Socket handle data type. */
 #define SOCKETS_SO_NONBLOCK                      ( 9 )  /**< Socket is nonblocking. */
 #define SOCKETS_SO_ALPN_PROTOCOLS                ( 10 ) /**< Application protocol list to be included in TLS ClientHello. */
 #define SOCKETS_SO_WAKEUP_CALLBACK               ( 17 ) /**< Set the callback to be called whenever there is data available on the socket for reading. */
+#define SOCKETS_SO_TCPKEEPALIVE                  ( 18 ) /**< Enable or Disable TCP keep-alive functionality. */
+#define SOCKETS_SO_TCPKEEPALIVE_INTERVAL         ( 19 ) /**< Set the time in seconds between individual TCP keep-alive probes. */
+#define SOCKETS_SO_TCPKEEPALIVE_COUNT            ( 20 ) /**< Set the maximum number of keep-alive probes TCP should send before dropping the connection. */
+#define SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME        ( 21 ) /**< Set the time in seconds for which the connection needs to remain idle before TCP starts sending keep-alive probes. */
 
 /**@} */
 
@@ -217,7 +221,7 @@ typedef struct SocketsSockaddr
  * * `pdPASS` if everything succeeds
  * * `pdFAIL` otherwise.
  */
-lib_initDECLARE_LIB_INIT( SOCKETS_Init );
+extern BaseType_t SOCKETS_Init( void );
 
 /**
  * @brief Creates a TCP socket.
@@ -253,6 +257,45 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
                          int32_t lProtocol );
 /* @[declare_secure_sockets_socket] */
 
+/**
+ * @brief Bind a TCP socket.
+ *
+ * See the [FreeRTOS+TCP networking tutorial]
+ * (https://freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_Networking_Tutorial.html)
+ * for more information on TCP sockets.
+ *
+ * See the [Berkeley Sockets API]
+ * (https://en.wikipedia.org/wiki/Berkeley_sockets#Socket_API_functions)
+ * in wikipedia
+ *
+ * @sa SOCKETS_Bind()
+ * A pre-configured source port allows customers to bind to the specified local port instead of ephemeral port
+ * for security and packet filter reasons.
+ *
+ * Limitations:
+ *
+ *   i.  The caller of SOCKETS_Bind() API should make sure the socket address has the correct local IP address for the interface.
+ *   ii. Some source ports may be unavailable depending on the TCP/IP stack implementation.
+ *
+ *       NOTE: If the SOCKETS_Bind() API binds to a source port in ephemeral port range, and the caller calls SOCKETS_Bind() API
+ *             before SOCKETS_Connect() API, then a conflict of source port arises as another TCP connection
+ *             may pick the the same chosen port via tcp_new_port() API ( by scanning its internal TCP connection list )
+ *
+ *
+ * @param[in] xSocket The handle of the socket to which specified address to be bound.
+ * @param[in] pxAddress A pointer to a SocketsSockaddr_t structure that contains
+ * the address and port to be bound to the socket.
+ * @param[in] xAddressLength Should be set to sizeof( @ref SocketsSockaddr_t ).
+ *
+ * @return
+ * * If the bind was successful then SOCKETS_ERROR_NONE is returned.
+ * * If an error occurred, a negative value is returned. @ref SocketsErrors
+ */
+/* @[declare_secure_sockets_bind] */
+int32_t SOCKETS_Bind( Socket_t xSocket,
+                      SocketsSockaddr_t * pxAddress,
+                      Socklen_t xAddressLength );
+/* @[declare_secure_sockets_bind] */
 
 /**
  * @brief Connects the socket to the specified IP address and port.
@@ -472,6 +515,20 @@ int32_t SOCKETS_Close( Socket_t xSocket );
  *      - The ALPN list is expressed as an array of NULL-terminated ANSI
  *        strings.
  *      - xOptionLength is the number of items in the array.
+ *    - @ref SOCKETS_SO_TCPKEEPALIVE
+ *      - Enable or disable the TCP keep-alive functionality.
+ *      - pvOptionValue is the value to enable or disable Keepalive.
+ *    - @ref SOCKETS_SO_TCPKEEPALIVE_INTERVAL
+ *      - Set the time in seconds between individual TCP keep-alive probes.
+ *      - pvOptionValue is the time in seconds.
+ *    - @ref SOCKETS_SO_TCPKEEPALIVE_COUNT
+ *      - Set the maximum number of keep-alive probes TCP should send before
+ *        dropping the connection.
+ *      - pvOptionValue is the maximum number of keep-alive probes.
+ *    - @ref SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME
+ *      - Set the time in seconds for which the connection needs to remain idle
+ *        before TCP starts sending keep-alive probes.
+ *      - pvOptionValue is the time in seconds.
  *
  * @return
  * * On success, 0 is returned.

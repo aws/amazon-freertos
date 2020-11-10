@@ -1,5 +1,5 @@
 /*
- * FreeRTOS OTA V1.2.0
+ * FreeRTOS OTA V1.2.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1131,7 +1131,23 @@ static OTA_Err_t prvProcessDataHandler( OTA_EventData_t * pxEventData )
 
             if( xErr != kOTA_Err_None )
             {
-                OTA_LOG_L2( "[%s] Failed to update job status %d\r\n", OTA_METHOD_NAME, xErr );
+                OTA_LOG_L1( "[%s] Failed to update job status %d\r\n", OTA_METHOD_NAME, xErr );
+
+                /* Job status update failed, call the platform specific code to abort the image. */
+                xErr = xOTA_Agent.xPALCallbacks.xSetPlatformImageState( xOTA_Agent.ulServerFileID, eOTA_ImageState_Aborted );
+
+                if( xErr != kOTA_Err_None )
+                {
+                    OTA_LOG_L1( "[%s] Error trying to set platform image state (0x%08x)\r\n", OTA_METHOD_NAME, ( int32_t ) xErr );
+                }
+
+                /* Let application know of the fail event. */
+                xOTA_Agent.xPALCallbacks.xCompleteCallback( eOTA_JobEvent_Fail );
+            }
+            else
+            {
+                /* Let application know of the activate state. */
+                xOTA_Agent.xPALCallbacks.xCompleteCallback( eOTA_JobEvent_Activate );
             }
         }
         else
@@ -1143,7 +1159,7 @@ static OTA_Err_t prvProcessDataHandler( OTA_EventData_t * pxEventData )
 
             if( xErr != kOTA_Err_None )
             {
-                OTA_LOG_L2( "[%s] Error trying to set platform image state (0x%08x)\r\n", OTA_METHOD_NAME, ( int32_t ) xErr );
+                OTA_LOG_L1( "[%s] Error trying to set platform image state (0x%08x)\r\n", OTA_METHOD_NAME, ( int32_t ) xErr );
             }
 
             /* Update the job status with the with failure code. */
@@ -1151,8 +1167,11 @@ static OTA_Err_t prvProcessDataHandler( OTA_EventData_t * pxEventData )
 
             if( xErr != kOTA_Err_None )
             {
-                OTA_LOG_L2( "[%s] Failed to update job status %d\r\n", OTA_METHOD_NAME, xErr );
+                OTA_LOG_L1( "[%s] Failed to update job status %d\r\n", OTA_METHOD_NAME, xErr );
             }
+
+            /* Let application know of the fail event. */
+            xOTA_Agent.xPALCallbacks.xCompleteCallback( eOTA_JobEvent_Fail );
         }
 
         /* Send event to close file. */
@@ -1160,11 +1179,8 @@ static OTA_Err_t prvProcessDataHandler( OTA_EventData_t * pxEventData )
 
         if( !OTA_SignalEvent( &xEventMsg ) )
         {
-            OTA_LOG_L2( "[%s] Failed to singal OTA agent to close file.", OTA_METHOD_NAME );
+            OTA_LOG_L1( "[%s] Failed to singal OTA agent to close file.", OTA_METHOD_NAME );
         }
-
-        /* Let main application know of our result. */
-        xOTA_Agent.xPALCallbacks.xCompleteCallback( ( xResult == eIngest_Result_FileComplete ) ? eOTA_JobEvent_Activate : eOTA_JobEvent_Fail );
 
         /* Free any remaining string memory holding the job name since this job is done. */
         if( xOTA_Agent.pcOTA_Singleton_ActiveJobName != NULL )
@@ -1304,7 +1320,6 @@ static OTA_Err_t prvResumeHandler( OTA_EventData_t * pxEventData )
 static OTA_Err_t prvJobNotificationHandler( OTA_EventData_t * pxEventData )
 {
     ( void ) pxEventData;
-    OTA_Err_t xErr = kOTA_Err_Uninitialized;
     OTA_EventMsg_t xEventMsg = { 0 };
 
     /*  We receieved job notification so stop the data request timer. */
@@ -2651,7 +2666,13 @@ static void prvAgentShutdownCleanup( void )
         xOTA_Agent.xRequestTimer = NULL;
     }
 
-    /* Cleanup related to selected protocol. */
+    /* Control plane cleanup related to selected protocol. */
+    if( xOTA_ControlInterface.prvCleanup != NULL )
+    {
+        ( void ) xOTA_ControlInterface.prvCleanup( &xOTA_Agent );
+    }
+
+    /* Data plane cleanup related to selected protocol. */
     if( xOTA_DataInterface.prvCleanup != NULL )
     {
         ( void ) xOTA_DataInterface.prvCleanup( &xOTA_Agent );
@@ -3328,6 +3349,6 @@ OTA_Err_t OTA_Resume( void * pxConnection )
 /*-----------------------------------------------------------*/
 
 /* Provide access to private members for testing. */
-#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
     #include "aws_ota_agent_test_access_define.h"
 #endif

@@ -21,6 +21,7 @@ afr_module_include_dirs(
     PUBLIC
         "${inc_dir}"
         "${src_dir}/include"
+        "${inc_dir}/platform"
 )
 
 afr_module_dependencies(

@@ -243,6 +243,11 @@ target_sources(
     INTERFACE
         "${AFR_VENDORS_DIR}/infineon/secure_elements/pkcs11/iot_pkcs11_trustx.c"
 )
+target_link_libraries(
+    AFR::pkcs11_implementation::mcu_port
+    INTERFACE
+        AFR::crypto
+)
 
 # Secure sockets
 afr_mcu_port(secure_sockets)

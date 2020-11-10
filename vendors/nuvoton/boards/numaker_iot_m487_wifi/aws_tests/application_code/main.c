@@ -25,6 +25,7 @@
 
 /* Standard includes. */
 #include <time.h>
+#include <string.h>
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -56,7 +57,17 @@
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 
-#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 20 )
+#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 40 )
+
+#ifdef IOT_NETWORK_RECEIVE_TASK_PRIORITY
+
+/* Keeping the test runner task priority higher than that of the Network receive task
+ * priority so as to make sure that the receive of the incoming packets are only happening
+ * after successfully updating the internal data structures in test runner task for a send. */
+    #define mainTEST_RUNNER_TASK_PRIORITY    ( IOT_NETWORK_RECEIVE_TASK_PRIORITY + 1 )
+#else
+    #define mainTEST_RUNNER_TASK_PRIORITY    ( tskIDLE_PRIORITY )
+#endif
 
 /* The default IP and MAC address used by the demo.  The address configuration
  * defined here will be used if ipconfigUSE_DHCP is 0, or if ipconfigUSE_DHCP is
@@ -123,6 +134,7 @@ static void prvWifiConnect( void );
 static void prvMiscInitialization( void );
 
 /*-----------------------------------------------------------*/
+
 /**
  * @Set up the hardware ready to run this demo.
  */
@@ -188,7 +200,7 @@ static void prvSetupHardware( void )
     /* Select IP clock source */
     CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_HXT, CLK_CLKDIV0_UART0(1));
 
-    // Configure MDC clock rate to HCLK / (127 + 1) = 1.5 MHz if system is running at 192 MHz
+    /* Configure MDC clock rate to HCLK / (127 + 1) = 1.5 MHz if system is running at 192 MHz */
     CLK_SetModuleClock(EMAC_MODULE, 0, CLK_CLKDIV3_EMAC(127));
 
     /* Update System Core Clock */
@@ -200,7 +212,7 @@ static void prvSetupHardware( void )
     /* Set GPB multi-function pins for UART0 RXD and TXD */
     SYS->GPB_MFPH &= ~(SYS_GPB_MFPH_PB12MFP_Msk | SYS_GPB_MFPH_PB13MFP_Msk);
     SYS->GPB_MFPH |= (SYS_GPB_MFPH_PB12MFP_UART0_RXD | SYS_GPB_MFPH_PB13MFP_UART0_TXD);
-    // Configure RMII pins
+    /* Configure RMII pins */
     SYS->GPA_MFPL |= SYS_GPA_MFPL_PA6MFP_EMAC_RMII_RXERR | SYS_GPA_MFPL_PA7MFP_EMAC_RMII_CRSDV;
     SYS->GPC_MFPL |= SYS_GPC_MFPL_PC6MFP_EMAC_RMII_RXD1 | SYS_GPC_MFPL_PC7MFP_EMAC_RMII_RXD0;
     SYS->GPC_MFPH |= SYS_GPC_MFPH_PC8MFP_EMAC_RMII_REFCLK;
@@ -210,7 +222,7 @@ static void prvSetupHardware( void )
                      SYS_GPE_MFPH_PE11MFP_EMAC_RMII_TXD1 |
                      SYS_GPE_MFPH_PE12MFP_EMAC_RMII_TXEN;
 
-    // Enable high slew rate on all RMII TX output pins
+    /* Enable high slew rate on all RMII TX output pins */
     PE->SLEWCTL = (GPIO_SLEWCTL_HIGH << GPIO_SLEWCTL_HSREN10_Pos) |
                   (GPIO_SLEWCTL_HIGH << GPIO_SLEWCTL_HSREN11_Pos) |
                   (GPIO_SLEWCTL_HIGH << GPIO_SLEWCTL_HSREN12_Pos);
@@ -240,7 +252,11 @@ void vApplicationDaemonTaskStartupHook( void )
     {
         /* Connect to the Wi-Fi before running the tests. */
         prvWifiConnect();
-        
+
+        /* Assert to check if the priority of the test runner task is lesser than
+         * #configMAX_PRIORITIES. */
+        configASSERT( mainTEST_RUNNER_TASK_PRIORITY < configMAX_PRIORITIES );
+
         /* Create the task to run tests. */
         xTaskCreate( TEST_RUNNER_RunTests_task,
                      "TestRunner",
@@ -256,7 +272,8 @@ void prvWifiConnect( void )
 {
     WIFINetworkParams_t  xNetworkParams;
     WIFIReturnCode_t xWifiStatus;
-    uint8_t ucIpAddr[4] = { 0 };
+    WIFIIPConfiguration_t xIPConfig;
+    uint8_t * pucIP4 = NULL;
 
     xWifiStatus = WIFI_On();
 
@@ -278,12 +295,20 @@ void prvWifiConnect( void )
     }
 
     /* Setup parameters. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
+		xNetworkParams.ucSSIDLength = strlen( clientcredentialWIFI_SSID );
+		if( xNetworkParams.ucSSIDLength > wificonfigMAX_SSID_LEN )
+		{
+				xNetworkParams.ucSSIDLength = wificonfigMAX_SSID_LEN;
+		}
+    memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xNetworkParams.ucSSIDLength );
+		xNetworkParams.xPassword.xWPA.ucLength = strlen( clientcredentialWIFI_PASSWORD );
+		if( xNetworkParams.xPassword.xWPA.ucLength > wificonfigMAX_PASSPHRASE_LEN )
+		{
+				xNetworkParams.xPassword.xWPA.ucLength = wificonfigMAX_PASSPHRASE_LEN;
+		}
+    memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xNetworkParams.xPassword.xWPA.ucLength );
     xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    xNetworkParams.cChannel = 0;
+    xNetworkParams.ucChannel = 0;
 
     xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
 
@@ -291,11 +316,16 @@ void prvWifiConnect( void )
     {
         configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
 
-        xWifiStatus = WIFI_GetIP( ucIpAddr );
+        xWifiStatus = WIFI_GetIPInfo( &xIPConfig );
+
         if ( eWiFiSuccess == xWifiStatus ) 
         {
+            pucIP4 = ( uint8_t * )&xIPConfig.xIPAddress.ulAddress[ 0 ];
             configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                            ucIpAddr[ 0 ], ucIpAddr[ 1 ], ucIpAddr[ 2 ], ucIpAddr[ 3 ] ) );
+                          pucIP4[ 0 ],
+                          pucIP4[ 1 ],
+                          pucIP4[ 2 ],
+                          pucIP4[ 3 ] ) );
         }
     }
     else
@@ -317,9 +347,8 @@ void prvWifiConnect( void )
             configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
                             xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
         }
-
         configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
-#endif
+        #endif /* if 0 */
     }
 }
 /*-----------------------------------------------------------*/
@@ -419,14 +448,14 @@ void vApplicationIdleHook( void )
      * cycle of the idle task if configUSE_IDLE_HOOK is set to 1 in
      * FreeRTOSConfig.h.  It must *NOT* attempt to block.  In this case the
      * idle task just sleeps to lower the CPU usage. */
-//    Sleep( ulMSToSleep ); /* Call vTaskDelay in IdleHook will cause vTaskSwitchContext failure*/
-
+/*    Sleep( ulMSToSleep ); / * Call vTaskDelay in IdleHook will cause vTaskSwitchContext failure* / */
 }
 /*-----------------------------------------------------------*/
 
 void vApplicationTickHook( void )
 {
 	static uint32_t tickHookCnt=0; 
+
 	tickHookCnt++;
 }
 /*-----------------------------------------------------------*/

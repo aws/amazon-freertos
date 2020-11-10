@@ -1,5 +1,5 @@
 /*
- * FreeRTOS OTA V1.2.0
+ * FreeRTOS OTA V1.2.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -224,12 +224,14 @@ static bool prvUnSubscribeFromDataStream( const OTA_AgentContext_t * pxAgentCtx 
 
     IotMqttSubscription_t xUnSub;
 
+    xUnSub.qos = IOT_MQTT_QOS_0;
+
     bool bResult = false;
     char pcOTA_RxStreamTopic[ OTA_MAX_TOPIC_LEN ];
 
-    xUnSub.qos = IOT_MQTT_QOS_0;
+    const OTA_FileContext_t * pFileContext = &( pxAgentCtx->pxOTA_Files[ pxAgentCtx->ulFileIndex ] );
 
-    if( pxAgentCtx != NULL )
+    if( ( pFileContext != NULL ) && ( pFileContext->pucStreamName != NULL ) )
     {
         /* Try to build the dynamic data stream topic and un-subscribe from it. */
 
@@ -237,7 +239,7 @@ static bool prvUnSubscribeFromDataStream( const OTA_AgentContext_t * pxAgentCtx 
                                                           sizeof( pcOTA_RxStreamTopic ),
                                                           pcOTA_StreamData_TopicTemplate,
                                                           pxAgentCtx->pcThingName,
-                                                          ( const char * ) pxAgentCtx->pxOTA_Files[ 0 ].pucStreamName );
+                                                          ( const char * ) pFileContext->pucStreamName );
 
         if( ( xUnSub.topicFilterLength > 0U ) && ( xUnSub.topicFilterLength < sizeof( pcOTA_RxStreamTopic ) ) )
         {
@@ -375,13 +377,15 @@ static IotMqttError_t prvPublishMessage( const OTA_AgentContext_t * pxAgentCtx,
 /*
  * Publish a message to the job status topic.
  */
-static void prvPublishStatusMessage( OTA_AgentContext_t * pxAgentCtx,
-                                     OTA_JobStatus_t eStatus,
-                                     const char * pcMsg,
-                                     uint32_t ulMsgSize,
-                                     IotMqttQos_t eQOS )
+static OTA_Err_t prvPublishStatusMessage( OTA_AgentContext_t * pxAgentCtx,
+                                          OTA_JobStatus_t eStatus,
+                                          const char * pcMsg,
+                                          uint32_t ulMsgSize,
+                                          IotMqttQos_t eQOS )
 {
     DEFINE_OTA_METHOD_NAME( "prvPublishStatusMessage" );
+
+    OTA_Err_t xRet = kOTA_Err_Uninitialized;
 
     uint32_t ulTopicLen = 0;
     IotMqttError_t eResult;
@@ -409,16 +413,24 @@ static void prvPublishStatusMessage( OTA_AgentContext_t * pxAgentCtx,
         if( eResult != IOT_MQTT_SUCCESS )
         {
             OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
+
+            xRet = kOTA_Err_PublishFailed;
         }
         else
         {
             OTA_LOG_L1( "[%s] '%s' to %s\r\n", OTA_METHOD_NAME, pcOTA_JobStatus_Strings[ eStatus ], pcTopicBuffer );
+
+            xRet = kOTA_Err_None;
         }
     }
     else
     {
         OTA_LOG_L1( "[%s] Failed to build job status topic!\r\n", OTA_METHOD_NAME );
+
+        xRet = kOTA_Err_PublishFailed;
     }
+
+    return xRet;
 }
 
 static uint32_t prvBuildStatusMessageReceiving( char * pcMsgBuffer,
@@ -701,6 +713,8 @@ OTA_Err_t prvUpdateJobStatus_Mqtt( OTA_AgentContext_t * pxAgentCtx,
 {
     DEFINE_OTA_METHOD_NAME( "prvUpdateJobStatus_Mqtt" );
 
+    OTA_Err_t xRet = kOTA_Err_Uninitialized;
+
     /* A message size of zero means don't publish anything. */
     uint32_t ulMsgSize = 0;
     /* All job state transitions except streaming progress use QOS 1 since it is required to have status in the job document. */
@@ -743,10 +757,10 @@ OTA_Err_t prvUpdateJobStatus_Mqtt( OTA_AgentContext_t * pxAgentCtx,
 
     if( ulMsgSize > 0UL )
     {
-        prvPublishStatusMessage( pxAgentCtx, eStatus, pcMsg, ulMsgSize, eQOS );
+        xRet = prvPublishStatusMessage( pxAgentCtx, eStatus, pcMsg, ulMsgSize, eQOS );
     }
 
-    return kOTA_Err_None;
+    return xRet;
 }
 
 /*
@@ -759,6 +773,7 @@ OTA_Err_t prvInitFileTransfer_Mqtt( OTA_AgentContext_t * pxAgentCtx )
     OTA_Err_t xResult = kOTA_Err_PublishFailed;
     char pcOTA_RxStreamTopic[ OTA_MAX_TOPIC_LEN ];
     IotMqttSubscription_t xOTAUpdateDataSubscription;
+    const OTA_FileContext_t * pFileContext = &( pxAgentCtx->pxOTA_Files[ pxAgentCtx->ulFileIndex ] );
 
     memset( &xOTAUpdateDataSubscription, 0, sizeof( xOTAUpdateDataSubscription ) );
     xOTAUpdateDataSubscription.qos = IOT_MQTT_QOS_0;
@@ -769,7 +784,7 @@ OTA_Err_t prvInitFileTransfer_Mqtt( OTA_AgentContext_t * pxAgentCtx )
                                                                           sizeof( pcOTA_RxStreamTopic ),
                                                                           pcOTA_StreamData_TopicTemplate,
                                                                           pxAgentCtx->pcThingName,
-                                                                          ( const char * ) pxAgentCtx->pxOTA_Files->pucStreamName );
+                                                                          ( const char * ) pFileContext->pucStreamName );
 
     if( ( xOTAUpdateDataSubscription.topicFilterLength > 0U ) && ( xOTAUpdateDataSubscription.topicFilterLength < sizeof( pcOTA_RxStreamTopic ) ) )
     {
@@ -935,15 +950,24 @@ OTA_Err_t prvDecodeFileBlock_Mqtt( uint8_t * pucMessageBuffer,
 }
 
 /*
- * Perform any cleanup operations required like unsubscribing from
- * job topics.
+ * Perform any cleanup operations required for control plane.
  */
-OTA_Err_t prvCleanup_Mqtt( OTA_AgentContext_t * pxAgentCtx )
+OTA_Err_t prvCleanupControl_Mqtt( OTA_AgentContext_t * pxAgentCtx )
 {
-    DEFINE_OTA_METHOD_NAME( "prvCleanup_Mqtt" );
+    DEFINE_OTA_METHOD_NAME( "prvCleanupControl_Mqtt" );
 
     /* Unsubscribe from job notification topics. */
     prvUnSubscribeFromJobNotificationTopic( pxAgentCtx );
+
+    return kOTA_Err_None;
+}
+
+/*
+ * Perform any cleanup operations required for data plane.
+ */
+OTA_Err_t prvCleanupData_Mqtt( OTA_AgentContext_t * pxAgentCtx )
+{
+    DEFINE_OTA_METHOD_NAME( "prvCleanupData_Mqtt" );
 
     /* Unsubscribe from data stream topics. */
     prvUnSubscribeFromDataStream( pxAgentCtx );

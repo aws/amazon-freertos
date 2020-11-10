@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <RfpProject>
   <FileVersion>V1.04.00</FileVersion>
-  <ProductVersion>V3.05.00</ProductVersion>
+  <ProductVersion>V3.05.01</ProductVersion>
   <ParameterFile>RX Group.fcf</ParameterFile>
   <Device>RX650</Device>
   <OperationTab>

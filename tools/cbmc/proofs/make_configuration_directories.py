@@ -53,7 +53,7 @@ def prolog():
           "OBJS":
           [
             "$(ENTRY)_harness.goto",
-            "$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_ARP.goto"
+            "$(FREERTOS)/lib/FreeRTOS-Plus-TCP/FreeRTOS_ARP.goto"
           ],
           "DEF":
           [
@@ -85,7 +85,7 @@ def prolog():
           ],
           "OBJS": [
             "$(ENTRY)_harness.goto",
-            "$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_ARP.goto"
+            "$(FREERTOS)/lib/FreeRTOS-Plus-TCP/FreeRTOS_ARP.goto"
           ],
           "DEF": [
             "ipconfigARP_USE_CLASH_DETECTION=0"
@@ -125,13 +125,18 @@ def process(folder, files):
                 """))
             LOGGER.error("The offending entry is %s", config)
             return
-        new_config_folder = os.path.join(folder, "config_" + configname)
+
+        new_entry = "%s__config_%s" % (json_content["ENTRY"], configname)
+
+        new_config_folder = os.path.join(folder, new_entry)
         pathlib.Path(new_config_folder).mkdir(exist_ok=True, parents=True)
         harness_copied = False
         for file in files:
             if file.endswith("harness.c"):
-                shutil.copy(os.path.join(folder, file),
-                            os.path.join(new_config_folder, file))
+                shutil.copy(
+                    os.path.join(folder, file),
+                    os.path.join(
+                        new_config_folder, "%s_harness.c" % new_entry))
                 harness_copied = True
 
         if not harness_copied:
@@ -146,6 +151,9 @@ def process(folder, files):
             current_config["EXPECTED"] = config["EXPECTED"]
         else:
             current_config["EXPECTED"] = True
+
+        current_config["ENTRY"] = new_entry
+
         with open(os.path.join(new_config_folder, "Makefile.json"),
                   "w") as output_file:
             json.dump(current_config, output_file, indent=2)

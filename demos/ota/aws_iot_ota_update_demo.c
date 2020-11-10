@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202011.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -265,10 +265,6 @@ static int _establishMqttConnection( bool awsIotMqttMode,
     networkInfo.u.setup.pNetworkCredentialInfo = pNetworkCredentialInfo;
     networkInfo.pNetworkInterface = pNetworkInterface;
     networkInfo.disconnectCallback.function = prvNetworkDisconnectCallback;
-
-    #if ( IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 ) && defined( IOT_DEMO_MQTT_SERIALIZER )
-        networkInfo.pMqttSerializer = IOT_DEMO_MQTT_SERIALIZER;
-    #endif
 
     /* Set the members of the connection info not set by the initializer. */
     connectInfo.awsIotMqttMode = awsIotMqttMode;

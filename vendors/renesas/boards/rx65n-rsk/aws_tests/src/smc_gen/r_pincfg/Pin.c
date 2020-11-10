@@ -14,7 +14,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) . All rights reserved.
+* Copyright (C) 2018 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -22,7 +22,7 @@
 * Version      : 1.0.2
 * Device(s)    : R5F565NEDxFC
 * Description  : This file implements SMC pin code generation.
-* Creation Date: 2018-11-17
+* Creation Date: 2020-04-10
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -36,6 +36,7 @@ Includes
 ***********************************************************************************************************************/
 #include "r_cg_macrodriver.h"
 /* Start user code for include. Do not edit comment generated here */
+#include "Pin.h"
 /* End user code. Do not edit comment generated here */
 #include "r_cg_userdefine.h"
 
@@ -132,23 +133,15 @@ void R_Pins_Create(void)
     MPC.PC3PFS.BYTE = 0x11U;
     PORTC.PMR.BYTE |= 0x08U;
 
-    /* Set RXD2 pin */
-    MPC.P52PFS.BYTE = 0x0AU;
-    PORT5.PMR.BYTE |= 0x04U;
-
     /* Set RXD8 pin */
     MPC.PJ1PFS.BYTE = 0x0AU;
     PORTJ.PMR.BYTE |= 0x02U;
-
-    /* Set TXD2 pin */
-    PORT5.PODR.BYTE |= 0x01U;
-    MPC.P50PFS.BYTE = 0x0AU;
-    PORT5.PDR.BYTE |= 0x01U;
 
     /* Set TXD8 pin */
     PORTJ.PODR.BYTE |= 0x04U;
     MPC.PJ2PFS.BYTE = 0x0AU;
     PORTJ.PDR.BYTE |= 0x04U;
+    // PORTJ.PMR.BIT.B2 = 1U; // Please set the PMR bit after TE bit is set to 1.
 
     R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_MPC);
 }   

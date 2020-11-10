@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE V2.1.0
+ * FreeRTOS BLE V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -490,9 +490,8 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                strncpy( pAddNetworkRequest->network.cSSID, ( const char * ) value.u.value.u.string.pString, value.u.value.u.string.length );
-                pAddNetworkRequest->network.cSSID[ value.u.value.u.string.length ] = '\0';
-                pAddNetworkRequest->network.ucSSIDLength = ( value.u.value.u.string.length + 1 );
+                memcpy( pAddNetworkRequest->network.ucSSID, value.u.value.u.string.pString, value.u.value.u.string.length );
+                pAddNetworkRequest->network.ucSSIDLength = ( value.u.value.u.string.length );
             }
         }
     }
@@ -566,9 +565,8 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                strncpy( pAddNetworkRequest->network.cPassword, ( const char * ) value.u.value.u.string.pString, value.u.value.u.string.length );
-                pAddNetworkRequest->network.cPassword[ value.u.value.u.string.length ] = '\0';
-                pAddNetworkRequest->network.ucPasswordLength = ( uint16_t ) ( value.u.value.u.string.length + 1 );
+                memcpy( pAddNetworkRequest->network.cPassword, value.u.value.u.string.pString, value.u.value.u.string.length );
+                pAddNetworkRequest->network.ucPasswordLength = ( uint8_t ) ( value.u.value.u.string.length );
             }
         }
     }
@@ -642,7 +640,7 @@ static bool _handleSaveNetworkRequest( const uint8_t * pData,
         {
             IotLogDebug( "Add network request parameters, SSID: %.*s, index: %d, connect: %d",
                          wifiProvisioning.addNetworkRequest.network.ucSSIDLength,
-                         wifiProvisioning.addNetworkRequest.network.cSSID,
+                         ( char * ) wifiProvisioning.addNetworkRequest.network.ucSSID,
                          wifiProvisioning.addNetworkRequest.savedIdx,
                          wifiProvisioning.addNetworkRequest.connect );
 
@@ -1213,11 +1211,16 @@ WIFIReturnCode_t _connectNetwork( WIFINetworkProfile_t * pProfile )
     WIFIReturnCode_t ret = eWiFiFailure;
     WIFINetworkParams_t networkParams = { 0 };
 
-    networkParams.pcSSID = pProfile->cSSID;
+    memcpy( networkParams.ucSSID, pProfile->ucSSID, pProfile->ucSSIDLength );
     networkParams.ucSSIDLength = pProfile->ucSSIDLength;
-    networkParams.pcPassword = pProfile->cPassword;
-    networkParams.ucPasswordLength = pProfile->ucPasswordLength;
     networkParams.xSecurity = pProfile->xSecurity;
+
+    if( ( networkParams.xSecurity == eWiFiSecurityWPA2 ) || ( networkParams.xSecurity == eWiFiSecurityWPA ) )
+    {
+        memcpy( networkParams.xPassword.xWPA.cPassphrase, pProfile->cPassword, pProfile->ucPasswordLength );
+        networkParams.xPassword.xWPA.ucLength = pProfile->ucPasswordLength;
+    }
+
     ret = WIFI_ConnectAP( &networkParams );
     return ret;
 }
@@ -1311,8 +1314,8 @@ static void _sendSavedNetwork( int32_t responseType,
     size_t messageLen = 0;
     IotSerializerError_t serializerRet;
 
-    networkInfo.pSSID = pSavedNetwork->cSSID;
-    networkInfo.SSIDLength = pSavedNetwork->ucSSIDLength - 1;
+    networkInfo.pSSID = pSavedNetwork->ucSSID;
+    networkInfo.SSIDLength = pSavedNetwork->ucSSIDLength;
     networkInfo.pBSSID = pSavedNetwork->ucBSSID;
     networkInfo.BSSIDLength = wificonfigMAX_BSSID_LEN;
     networkInfo.connected = ( wifiProvisioning.connectedIdx == idx );
@@ -1339,12 +1342,12 @@ static void _sendSavedNetwork( int32_t responseType,
     {
         if( IotBleDataTransfer_Send( wifiProvisioning.pChannel, message, messageLen ) != messageLen )
         {
-            IotLogError( "Failed to send saved network ( SSID:%.*s )", pSavedNetwork->ucSSIDLength, pSavedNetwork->cSSID );
+            IotLogError( "Failed to send saved network ( SSID:%.*s )", pSavedNetwork->ucSSIDLength, ( char * ) pSavedNetwork->ucSSID );
         }
     }
     else
     {
-        IotLogError( "Failed to serialize saved network ( SSID:%.*s )", pSavedNetwork->ucSSIDLength, pSavedNetwork->cSSID );
+        IotLogError( "Failed to serialize saved network ( SSID:%.*s )", pSavedNetwork->ucSSIDLength, ( char * ) pSavedNetwork->ucSSID );
     }
 
     if( message != NULL )
@@ -1361,12 +1364,16 @@ static void _sendScanNetwork( int32_t responseType,
     size_t messageLen = 0;
     IotSerializerError_t serializerRet;
 
-    networkInfo.pSSID = pScanNetwork->cSSID;
-    networkInfo.SSIDLength = strlen( pScanNetwork->cSSID );
+    networkInfo.pSSID = pScanNetwork->ucSSID;
+    networkInfo.SSIDLength = pScanNetwork->ucSSIDLength;
     networkInfo.pBSSID = pScanNetwork->ucBSSID;
     networkInfo.BSSIDLength = wificonfigMAX_BSSID_LEN;
     networkInfo.RSSI = pScanNetwork->cRSSI;
-    networkInfo.hidden = ( bool ) pScanNetwork->ucHidden;
+
+    /**
+     * Scan hidden network is currently not supported for WiFi provisioning over BLE.
+     */
+    networkInfo.hidden = false;
     networkInfo.security = pScanNetwork->xSecurity;
 
     serializerRet = _serializeNetwork( responseType, &networkInfo, NULL, &messageLen );
@@ -1389,12 +1396,12 @@ static void _sendScanNetwork( int32_t responseType,
     {
         if( IotBleDataTransfer_Send( wifiProvisioning.pChannel, message, messageLen ) != messageLen )
         {
-            IotLogError( "Failed to send scanned network network ( SSID:%s )", pScanNetwork->cSSID );
+            IotLogError( "Failed to send scanned network network ( SSID:%.*s )", pScanNetwork->ucSSIDLength, ( const char * ) pScanNetwork->ucSSID );
         }
     }
     else
     {
-        IotLogError( "Failed to serialize scanned network network ( SSID:%s )", pScanNetwork->cSSID );
+        IotLogError( "Failed to serialize scanned network network ( SSID:%.*s )", pScanNetwork->ucSSIDLength, ( const char * ) pScanNetwork->ucSSID );
     }
 
     if( message != NULL )
@@ -1431,7 +1438,7 @@ void _listNetworkTask( IotTaskPool_t taskPool,
     {
         for( idx = 0; idx < wifiProvisioning.listNetworkRequest.maxNetworks; idx++ )
         {
-            if( strlen( scanNetworks[ idx ].cSSID ) > 0 )
+            if( scanNetworks[ idx ].ucSSIDLength > 0 )
             {
                 networks_found++;
                 _sendScanNetwork( IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP, &scanNetworks[ idx ] );
@@ -1638,6 +1645,6 @@ void IotBleWifiProv_Deinit( void )
 }
 
 /* Provide access to private members for testing. */
-#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
     #include "iot_ble_wifi_prov_test_access_define.h"
 #endif

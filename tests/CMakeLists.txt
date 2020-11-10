@@ -6,6 +6,10 @@ afr_test_module(base)
 
 set(src_dir "${AFR_TESTS_DIR}/common")
 set(inc_dir "${AFR_TESTS_DIR}/include")
+ 
+if(AFR_ENABLE_TESTS OR FREERTOS_ENABLE_UNIT_TESTS)
+    add_subdirectory(integration_test)
+endif()
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}

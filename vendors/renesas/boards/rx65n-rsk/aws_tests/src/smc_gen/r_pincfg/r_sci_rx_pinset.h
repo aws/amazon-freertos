@@ -14,7 +14,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2018 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2020 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : r_sci_rx_pinset.h
@@ -22,7 +22,7 @@
 * Device(s)    : R5F565NEDxFC
 * Tool-Chain   : RXC toolchain
 * Description  : Setting of port and mpc registers
-* Creation Date: 2018-11-17
+* Creation Date: 2020-04-10
 ***********************************************************************************************************************/
 
 #ifndef R_SCI_RX_H
@@ -36,7 +36,6 @@ Includes
 Global variables and functions
 ***********************************************************************************************************************/
 
-void R_SCI_PinSet_SCI2();
 void R_SCI_PinSet_SCI8();
 
 #endif

@@ -6,11 +6,6 @@
   "MAX_ACCEPTED_SIZE": 20,
   "STRNCPY_UNWIND": "__eval {MAX_ACCEPTED_SIZE} + 1",
 
-  # A CBMC pointer is an object id followed by an offset into the object.
-  # The size of the offset is limited by the size of the object id.
-  "CBMC_OBJECTID_BITS": "7",
-  "CBMC_MAX_OBJECT_SIZE": "\"(UINT32_MAX>>CBMC_OBJECTID_BITS)\"",
-
   "CBMCFLAGS":
   [
     "--unwind 1",
@@ -45,9 +40,7 @@
   ],
   "DEF":
   [
-    "MAX_ACCEPTED_SIZE={MAX_ACCEPTED_SIZE}",
-    "CBMC_OBJECTID_BITS={CBMC_OBJECTID_BITS}",
-    "CBMC_MAX_OBJECT_SIZE={CBMC_MAX_OBJECT_SIZE}"
+    "MAX_ACCEPTED_SIZE={MAX_ACCEPTED_SIZE}"
   ]
 }
 

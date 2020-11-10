@@ -63,7 +63,7 @@
 #define configUSE_PREEMPTION			1
 #define configUSE_IDLE_HOOK				( CONFIG_FREERTOS_LEGACY_IDLE_HOOK )
 #define configUSE_TICK_HOOK				( CONFIG_FREERTOS_LEGACY_TICK_HOOK )
-#define configTICK_RATE_HZ				( CONFIG_FREERTOS_HZ )
+#define configTICK_RATE_HZ				( ( unsigned int ) CONFIG_FREERTOS_HZ )
 #define configUSE_DAEMON_TASK_STARTUP_HOOK 1
 
 /* Use the default clock rate for simulator. */
@@ -71,16 +71,16 @@
 
 /* This has impact on speed of search for highest priority. */
 #ifdef SMALL_TEST
-    #define configMAX_PRIORITIES			( 7 )
+    #define configMAX_PRIORITIES			( 7U )
 #else
-    #define configMAX_PRIORITIES			( 25 )
+    #define configMAX_PRIORITIES			( 25U )
 #endif
 
 #ifndef CONFIG_ESP32_APPTRACE_ENABLE
-    #define configMINIMAL_STACK_SIZE		768
+    #define configMINIMAL_STACK_SIZE		768U
 #else
     /* The apptrace module requires at least 2KB of stack per task. */
-    #define configMINIMAL_STACK_SIZE		2048
+    #define configMINIMAL_STACK_SIZE		2048U
 #endif
 
 #define configUSE_MUTEXES				1
@@ -177,6 +177,8 @@
 #define configENABLE_TASK_SNAPSHOT			1
 
 #define configINCLUDE_FREERTOS_TASK_C_ADDITIONS_H 1
+
+
 
 /* Set the following definitions to 1 to include the API function, or zero
    to exclude the API function. */
@@ -294,6 +296,16 @@
 
 /* The platform FreeRTOS is running on. */
 #define configPLATFORM_NAME    "EspressifESP32"
+
+/* The size of the global output buffer that is available for use when there
+   *  are multiple command interpreters running at once (for example, one on a UART
+   *  and one on TCP/IP).  This is done to prevent an output buffer being defined by
+   *  each implementation - which would waste RAM.  In this case, there is only one
+   *  command interpreter running, and it has its own local output buffer, so the
+   *  global buffer is just set to be one byte long as it is not used and should not
+   *  take up unnecessary RAM. */
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE   1
+
 
 #ifndef __ASSEMBLER__
 /*-----------------------------------------------------------

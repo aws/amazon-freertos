@@ -396,7 +396,7 @@ function(afr_resolve_dependencies)
     # Disable all other modules that are not required.
     set(__dg_disabled "" CACHE INTERNAL "")
     foreach(module IN LISTS AFR_MODULES)
-        string(REGEX MATCH "(demo_|test_)" match "${module}")
+        string(REGEX MATCH "^(demo_|test_)" match "${module}")
         if("${match}" STREQUAL "" AND NOT ${module} IN_LIST AFR_MODULES_ENABLED)
             afr_cache_append(__dg_disabled ${module})
         endif()
@@ -404,7 +404,7 @@ function(afr_resolve_dependencies)
 
     # Enable available demos/tests.
     foreach(module IN LISTS AFR_MODULES)
-        string(REGEX MATCH "(demo_|test_)" match "${module}")
+        string(REGEX MATCH "^(demo_|test_)" match "${module}")
         if(NOT "${match}" STREQUAL "")
             __resolve_dependencies(${module} QUIET)
             if(NOT ${module} IN_LIST __dg_disabled)

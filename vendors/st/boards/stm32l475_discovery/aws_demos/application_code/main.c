@@ -48,6 +48,7 @@
 #include "iot_wifi.h"
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
+#include "iot_uart.h"
 
 /* WiFi driver includes. */
 #include "es_wifi.h"
@@ -95,8 +96,7 @@ extern SPI_HandleTypeDef hspi;
 RTC_HandleTypeDef xHrtc;
 RNG_HandleTypeDef xHrng;
 
-/* Private variables ---------------------------------------------------------*/
-static UART_HandleTypeDef xConsoleUart;
+IotUARTHandle_t xConsoleUart;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config( void );
@@ -200,52 +200,149 @@ void vApplicationDaemonTaskStartupHook( void )
 
 static void prvWifiConnect( void )
 {
-    WIFINetworkParams_t xNetworkParams;
-    WIFIReturnCode_t xWifiStatus;
-    uint8_t ucIPAddr[ 4 ];
+    WIFINetworkParams_t xNetworkParams = { 0 };
+    WIFIReturnCode_t xWifiStatus = eWiFiSuccess;
+    WIFIIPConfiguration_t xIpConfig;
+    uint8_t *pucIPV4Byte;
+    size_t xSSIDLength, xPasswordLength;
 
     /* Setup WiFi parameters to connect to access point. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    xNetworkParams.cChannel = 0;
-
-    /* Try connecting using provided wifi credentials. */
-    xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
-
-    if( xWifiStatus == eWiFiSuccess )
+    if( clientcredentialWIFI_SSID != NULL )
     {
-        configPRINTF( ( "WiFi connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-        /* Get IP address of the device. */
-        WIFI_GetIP( &ucIPAddr[ 0 ] );
-
-        configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                        ucIPAddr[ 0 ], ucIPAddr[ 1 ], ucIPAddr[ 2 ], ucIPAddr[ 3 ] ) );
+        xSSIDLength = strlen( clientcredentialWIFI_SSID );
+        if( ( xSSIDLength > 0 ) && ( xSSIDLength <= wificonfigMAX_SSID_LEN ) )
+        {
+            xNetworkParams.ucSSIDLength = xSSIDLength;
+            memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
+        }
+        else
+        {
+            configPRINTF(( "Invalid WiFi SSID configured, empty or exceeds allowable length %d.\n", wificonfigMAX_SSID_LEN ));
+            xWifiStatus = eWiFiFailure;
+        }
     }
     else
     {
-        /* Connection failed configure softAP to allow user to set wifi credentials. */
-        configPRINTF( ( "WiFi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
+        configPRINTF(( "WiFi SSID is not configured.\n" ));
+        xWifiStatus = eWiFiFailure;
+    }
 
-        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
-        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
-        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
-        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
-
-        configPRINTF( ( "Connect to softAP %s using password %s. \r\n",
-                        xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-
-        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
+    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
+    if( clientcredentialWIFI_SECURITY == eWiFiSecurityWPA2 )
+    {
+        if( clientcredentialWIFI_PASSWORD != NULL )
         {
-            configPRINTF( ( "Connect to softAP %s using password %s and configure WiFi. \r\n",
-                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+            xPasswordLength = strlen( clientcredentialWIFI_PASSWORD );
+            if( ( xPasswordLength > 0 ) && ( xSSIDLength <= wificonfigMAX_PASSPHRASE_LEN ) )
+            {
+                xNetworkParams.xPassword.xWPA.ucLength = xPasswordLength;
+                memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xPasswordLength );
+            }
+            else
+            {
+                configPRINTF(( "Invalid WiFi password configured, empty password or exceeds allowable password length %d.\n", wificonfigMAX_PASSPHRASE_LEN ));
+                xWifiStatus = eWiFiFailure;
+            }
+        }
+        else
+        {
+            configPRINTF(( "WiFi password is not configured.\n" ));
+            xWifiStatus = eWiFiFailure;
+        }
+    }
+    xNetworkParams.ucChannel = 0;
+
+    if( xWifiStatus == eWiFiSuccess )
+    {
+        /* Try connecting using provided wifi credentials. */
+        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
+
+        if( xWifiStatus == eWiFiSuccess )
+        {
+            configPRINTF( ( "WiFi connected to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID ) );
+
+            /* Get IP address of the device. */
+            xWifiStatus = WIFI_GetIPInfo( &xIpConfig );
+            if( xWifiStatus == eWiFiSuccess )
+            {
+                pucIPV4Byte = ( uint8_t * ) ( &xIpConfig.xIPAddress.ulAddress[0] );
+                configPRINTF( ( "IP Address acquired %d.%d.%d.%d.\r\n",
+                        pucIPV4Byte[ 0 ], pucIPV4Byte[ 1 ], pucIPV4Byte[ 2 ], pucIPV4Byte[ 3 ] ) );
+            }
+        }
+        else
+        {
+            /* Connection failed configure softAP to allow user to set wifi credentials. */
+            configPRINTF( ( "WiFi failed to connect to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID  ) );
+        }
+    }
+
+    if( xWifiStatus != eWiFiSuccess )
+    {
+        /* Enter SOFT AP mode to provision access point credentials. */
+        configPRINTF(( "Entering soft access point WiFi provisioning mode.\n" ));
+        xWifiStatus = eWiFiSuccess;
+        if( wificonfigACCESS_POINT_SSID_PREFIX != NULL )
+        {
+            xSSIDLength = strlen( wificonfigACCESS_POINT_SSID_PREFIX );
+            if( ( xSSIDLength > 0 ) && ( xSSIDLength <= wificonfigMAX_SSID_LEN ) )
+            {
+                xNetworkParams.ucSSIDLength = xSSIDLength;
+                memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
+            }
+            else
+            {
+                configPRINTF(( "Invalid AP SSID configured, empty or exceeds allowable length %d.\n", wificonfigMAX_SSID_LEN ));
+                xWifiStatus = eWiFiFailure;
+            }
+        }
+        else
+        {
+            configPRINTF(( "WiFi AP SSID is not configured.\n" ));
+            xWifiStatus = eWiFiFailure;
         }
 
-        configPRINTF( ( "WiFi configuration successful. \r\n", xNetworkParams.pcSSID ) );
+        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
+        if( wificonfigACCESS_POINT_SECURITY == eWiFiSecurityWPA2 )
+        {
+            if( wificonfigACCESS_POINT_PASSKEY != NULL )
+            {
+                xPasswordLength = strlen( wificonfigACCESS_POINT_PASSKEY );
+                if( ( xPasswordLength > 0 ) && ( xSSIDLength <= wificonfigMAX_PASSPHRASE_LEN ) )
+                {
+                    xNetworkParams.xPassword.xWPA.ucLength = xPasswordLength;
+                    memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, wificonfigACCESS_POINT_PASSKEY, xPasswordLength );
+                }
+                else
+                {
+                    configPRINTF(( "Invalid WiFi AP password, empty or exceeds allowable password length %d.\n", wificonfigMAX_PASSPHRASE_LEN ));
+                    xWifiStatus = eWiFiFailure;
+                }
+            }
+            else
+            {
+                configPRINTF(( "WiFi AP password is not configured.\n" ));
+                xWifiStatus = eWiFiFailure;
+            }
+        }
+        xNetworkParams.ucChannel = wificonfigACCESS_POINT_CHANNEL;
+
+        if( xWifiStatus == eWiFiSuccess )
+        {
+            configPRINTF( ( "Connect to softAP %.*s using password %.*s. \r\n",
+                    xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID,
+                    xNetworkParams.xPassword.xWPA.ucLength, xNetworkParams.xPassword.xWPA.cPassphrase ) );
+            do
+            {
+                xWifiStatus = WIFI_ConfigureAP( &xNetworkParams );
+                configPRINTF( ( "Connect to softAP and configure wiFi returned %d\r\n", xWifiStatus ) );
+                vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+
+            } while( ( xWifiStatus != eWiFiSuccess ) && ( xWifiStatus != eWiFiNotSupported ) );
+        }
     }
+
+    configASSERT( xWifiStatus == eWiFiSuccess );
 }
 /*-----------------------------------------------------------*/
 
@@ -315,9 +412,11 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 void vSTM32L475putc( void * pv,
                      char ch )
 {
-    while( HAL_OK != HAL_UART_Transmit( &xConsoleUart, ( uint8_t * ) &ch, 1, 30000 ) )
-    {
-    }
+    int32_t status;
+
+    do {
+        status = iot_uart_write_sync( xConsoleUart, ( uint8_t * ) &ch, 1 );
+    } while( status == IOT_UART_BUSY );
 }
 /*-----------------------------------------------------------*/
 
@@ -427,17 +526,27 @@ static void SystemClock_Config( void )
  */
 static void Console_UART_Init( void )
 {
-    xConsoleUart.Instance = USART1;
-    xConsoleUart.Init.BaudRate = 115200;
-    xConsoleUart.Init.WordLength = UART_WORDLENGTH_8B;
-    xConsoleUart.Init.StopBits = UART_STOPBITS_1;
-    xConsoleUart.Init.Parity = UART_PARITY_NONE;
-    xConsoleUart.Init.Mode = UART_MODE_TX_RX;
-    xConsoleUart.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    xConsoleUart.Init.OverSampling = UART_OVERSAMPLING_16;
-    xConsoleUart.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-    xConsoleUart.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    BSP_COM_Init( COM1, &xConsoleUart );
+    int32_t status = IOT_UART_SUCCESS;
+
+     /* Default setting:
+      * Mode: UART_MODE_TX_RX;
+      * OverSampling: UART_OVERSAMPLING_16;
+      * OneBitSampling: UART_ONE_BIT_SAMPLE_DISABLE;
+      * AdvancedInit.AdvFeatureInit: UART_ADVFEATURE_NO_INIT; */
+     xConsoleUart = iot_uart_open( 0 );
+     configASSERT( xConsoleUart != NULL );
+
+     IotUARTConfig_t xConfig =
+     {
+         .ulBaudrate    = 115200,
+         .xParity      = UART_PARITY_NONE,
+         .ucWordlength  = UART_WORDLENGTH_8B,
+         .xStopbits    = UART_STOPBITS_1,
+         .ucFlowControl = UART_HWCONTROL_NONE
+     };
+
+     status = iot_uart_ioctl( xConsoleUart, eUartSetConfig, &xConfig );
+     configASSERT( status == IOT_UART_SUCCESS );
 }
 /*-----------------------------------------------------------*/
 
@@ -568,12 +677,9 @@ void vOutputChar( const char cChar,
 
 void vMainUARTPrintString( char * pcString )
 {
-    const uint32_t ulTimeout = 3000UL;
 
-    HAL_UART_Transmit( &xConsoleUart,
-                       ( uint8_t * ) pcString,
-                       strlen( pcString ),
-                       ulTimeout );
+    /* Ignore returned status. */
+    iot_uart_write_sync( xConsoleUart, ( uint8_t * ) pcString, strlen( pcString ) );
 }
 /*-----------------------------------------------------------*/
 

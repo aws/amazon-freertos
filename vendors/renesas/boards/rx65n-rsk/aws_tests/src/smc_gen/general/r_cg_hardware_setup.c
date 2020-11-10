@@ -14,15 +14,15 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2016, 2017 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
 * File Name    : r_cg_hardware_setup.c
-* Version      : 1.2.0
+* Version      : 1.2.7
 * Device(s)    : R5F565NEDxFC
 * Description  : Initialization file for code generation configurations.
-* Creation Date: 2018-11-17
+* Creation Date: 2020-04-10
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -45,6 +45,7 @@ Includes
 Global variables and functions
 ***********************************************************************************************************************/
 /* Start user code for global. Do not edit comment generated here */
+void r_undefined_exception(void);
 /* End user code. Do not edit comment generated here */
 
 /***********************************************************************************************************************
@@ -75,6 +76,9 @@ void R_Systeminit(void)
     /* Enable writing to MPC pin function control registers */
     MPC.PWPR.BIT.B0WI = 0U;
     MPC.PWPR.BIT.PFSWE = 1U;
+
+    /* Write 0 to the target bits in the POECR2 registers */
+    POE3.POECR2.WORD = 0x0000U;
 
     /* Initialize clocks settings */
     R_CGC_Create();

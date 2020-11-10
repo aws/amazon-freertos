@@ -1,5 +1,5 @@
 /*
- * FreeRTOS OTA V1.2.0
+ * FreeRTOS OTA V1.2.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,8 +40,8 @@
 
 
 #if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 )
-    #include "iot_pkcs11_config.h"
-    #include "iot_pkcs11.h"
+    #include "core_pkcs11_config.h"
+    #include "core_pkcs11.h"
     #include "aws_dev_mode_key_provisioning.h"
 #endif
 

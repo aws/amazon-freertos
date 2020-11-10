@@ -28,8 +28,9 @@
 
 /* To run a particular demo you need to define one of these.
  * Only one demo can be configured at a time
- *          CONFIG_MQTT_DEMO_ENABLED
- *          CONFIG_SHADOW_DEMO_ENABLED
+ *          CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
+ *          CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED
+ *          CONFIG_DEVICE_SHADOW_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
  *          CONFIG_DEFENDER_DEMO_ENABLED
@@ -42,26 +43,34 @@
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 
-#define CONFIG_MQTT_DEMO_ENABLED
+#define CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
-#define democonfigDEMO_STACKSIZE                       ( configMINIMAL_STACK_SIZE * 20 )
-#define democonfigDEMO_PRIORITY                        ( tskIDLE_PRIORITY + 5 )
+#define democonfigDEMO_STACKSIZE       ( configMINIMAL_STACK_SIZE * 20 )
+#define democonfigDEMO_PRIORITY        ( tskIDLE_PRIORITY + 5 )
 
 #ifndef M487_ETH_DEMO
-#define democonfigNETWORK_TYPES                        ( AWSIOT_NETWORK_TYPE_WIFI )
+    #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_WIFI )
 #else
-#define democonfigNETWORK_TYPES                         (AWSIOT_NETWORK_TYPE_ETH)
+    #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_ETH )
 #endif
 
 
-#define democonfigSHADOW_DEMO_NUM_TASKS                ( 2 )
-#define democonfigSHADOW_DEMO_TASK_STACK_SIZE          ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigSHADOW_DEMO_TASK_PRIORITY            ( tskIDLE_PRIORITY + 1 )
-#define shadowDemoUPDATE_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 5 )
+#define democonfigSHADOW_DEMO_NUM_TASKS                              ( 2 )
+#define democonfigSHADOW_DEMO_TASK_STACK_SIZE                        ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigSHADOW_DEMO_TASK_PRIORITY                          ( tskIDLE_PRIORITY + 1 )
+#define shadowDemoUPDATE_TASK_STACK_SIZE                             ( configMINIMAL_STACK_SIZE * 5 )
 
-#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT    pdMS_TO_TICKS( 12000 )
-#define democonfigMQTT_ECHO_TASK_PRIORITY              ( tskIDLE_PRIORITY )
+#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT                  pdMS_TO_TICKS( 12000 )
+
+/* Keeping the MQTT demo task priority higher than that of the network receive task
+ * priority( #IOT_NETWORK_RECEIVE_TASK_PRIORITY ) so as to make sure that the
+ * receive of the incoming packets are only happening after successfully updating
+ * the internal data structures in MQTT demo task for a send. */
+#define democonfigMQTT_ECHO_TASK_PRIORITY                            ( tskIDLE_PRIORITY + 2 )
+
+/* MQTT Connection sharing demo task priority. */
+#define democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
 
 
 /* Number of sub pub tasks that connect to a broker that is not using TLS. */

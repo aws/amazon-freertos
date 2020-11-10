@@ -458,21 +458,16 @@ function(cy_kit_generate)
 
     if(CY_TFM_PSA)
         # Link to AFR::pkcs11_psa use implementation based on TF-M PSA.
-        target_sources(
+
+        target_link_libraries(
             AFR::pkcs11_implementation::mcu_port
             INTERFACE
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa.c"
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_input_format.c"
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_input_format.h"
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_jitp_status.c"
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_jitp_status.h"
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.c"
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.h"
+            AFR::pkcs11_psa
         )
+
         target_include_directories(AFR::pkcs11_implementation::mcu_port INTERFACE
             "${iot_common_include}"
         )
-
     else()
         # Link to AFR::pkcs11_mbedtls if you want to use default implemenƒtation based on mbedtls.
         target_link_libraries(
@@ -484,7 +479,7 @@ function(cy_kit_generate)
         target_sources(
             AFR::pkcs11_implementation::mcu_port
             INTERFACE
-            "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+            "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
         )
     endif()
 
@@ -644,7 +639,6 @@ function(cy_kit_generate)
         # common ota sources
         target_sources(AFR::ota::mcu_port INTERFACE
             "${cy_ota_dir}/ports/${AFR_BOARD_NAME}/aws_ota_pal.c"
-            "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_map.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_psoc6.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/flash_qspi/flash_qspi.c"
@@ -685,6 +679,7 @@ function(cy_kit_generate)
                 "${AFR_DEMOS_DIR}/demo_runner/iot_demo_runner.c"
                 "${AFR_DEMOS_DIR}/network_manager/aws_iot_demo_network.c"
                 "${AFR_DEMOS_DIR}/network_manager/aws_iot_network_manager.c"
+                "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
             )
 
             # add extra includes
@@ -712,7 +707,7 @@ function(cy_kit_generate)
                 "${AFR_3RDPARTY_DIR}/unity/extras/fixture/src"
                 "${AFR_ROOT_DIR}/demos/include"
                 "${AFR_ROOT_DIR}/demos/dev_mode_key_provisioning/include"
-                "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/pkcs11/include"
+                "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/corePKCS11/source/include"
                 "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src/mqtt"
                 "${AFR_3RDPARTY_DIR}/pkcs11"
             )
@@ -723,6 +718,9 @@ function(cy_kit_generate)
             set(APP_VERSION_MAJOR 0)
             set(APP_VERSION_MINOR 9)
             set(APP_VERSION_BUILD 0)
+            target_include_directories( AFR::ota::mcu_port INTERFACE
+                "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
+            )
             # add extra includes
             target_include_directories(AFR::ota::mcu_port INTERFACE
                 "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/test"

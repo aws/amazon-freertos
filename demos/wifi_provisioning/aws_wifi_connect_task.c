@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202011.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -100,7 +100,7 @@ void prvWiFiConnectTask( void * pvParams )
                 {
                     for( ulNetworkIndex = 0; ulNetworkIndex < ulNumNetworks; ulNetworkIndex++ )
                     {
-                        if( WIFI_IsConnected() == pdFALSE )
+                        if( WIFI_IsConnected( NULL ) == pdFALSE )
                         {
                             xWiFiConnected = IotBleWifiProv_Connect( ulNetworkIndex );
                         }

@@ -57,7 +57,7 @@
 #define configCPU_CLOCK_HZ                           ( SystemCoreClock )
 #define configTICK_RATE_HZ                           ( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES                         ( 7 )
-#define configMINIMAL_STACK_SIZE                     ( ( uint16_t ) 90 )
+#define configMINIMAL_STACK_SIZE                     ( ( uint16_t ) 256 )
 #define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 100 * 1024 ) )
 #define configMAX_TASK_NAME_LEN                      ( 16 )
 #define configUSE_TRACE_FACILITY                     1
@@ -83,7 +83,7 @@
 #define configUSE_TIMERS                             1
 #define configTIMER_TASK_PRIORITY                    ( configMAX_PRIORITIES - 3 )
 #define configTIMER_QUEUE_LENGTH                     10
-#define configTIMER_TASK_STACK_DEPTH                 ( configMINIMAL_STACK_SIZE * 6 )
+#define configTIMER_TASK_STACK_DEPTH                 ( configMINIMAL_STACK_SIZE * 2 )
 
 /* Set the following definitions to 1 to include the API function, or zero
  * to exclude the API function. */
@@ -203,5 +203,14 @@
 
 /* The platform FreeRTOS is running on. */
 #define configPLATFORM_NAME    "NXPLPC54018"
+
+/* The size of the global output buffer that is available for use when there
+ * are multiple command interpreters running at once (for example, one on a UART
+ * and one on TCP/IP).  This is done to prevent an output buffer being defined by
+ * each implementation - which would waste RAM.  In this case, there is only one
+ * command interpreter running, and it has its own local output buffer, so the
+ * global buffer is just set to be one byte long as it is not used and should not
+ * take up unnecessary RAM. */
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE    1
 
 #endif /* FREERTOS_CONFIG_H */

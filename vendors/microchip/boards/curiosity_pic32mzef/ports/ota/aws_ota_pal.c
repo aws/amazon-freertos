@@ -29,10 +29,10 @@
 /*lint -e9045 Ignore advisories about non-hidden definitions in header files. */
 
 #include "aws_iot_ota_pal.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11.h"
 #include "aws_nvm.h"
 #include "iot_crypto.h"
-#include "iot_pkcs11_config.h"
+#include "core_pkcs11_config.h"
 #include "aws_ota_codesigner_certificate.h"
 
 #include "system/reset/sys_reset.h"
@@ -892,6 +892,6 @@ OTA_PAL_ImageState_t prvPAL_GetPlatformImageState( void )
 }
 
 /* Provide access to private members for testing. */
-#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
     #include "aws_ota_pal_test_access_define.h"
 #endif

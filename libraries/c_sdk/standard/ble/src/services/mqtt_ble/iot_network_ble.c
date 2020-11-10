@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE V2.1.0
+ * FreeRTOS BLE V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,56 +24,112 @@
  */
 
 /**
- * @file iot_ble_network.c
- * @brief Implementation of Network Interface for BLE using Data transfer service.
+ * @file iot_network_ble.c
+ * @brief Implementation of network interface for BLE. This implementation is provided as a SHIM
+ * layer of backwards compatibility for the V4 MQTT library.
  */
 
-#include  <stdbool.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+
+/* Config files needs to be defined first. */
 #include "iot_config.h"
 #include "iot_ble_config.h"
-#include "platform/iot_network_ble.h"
+
+#include "FreeRTOS.h"
+
 #include "platform/iot_threads.h"
+#include "platform/iot_network_ble.h"
 #include "iot_ble_data_transfer.h"
+#include "iot_ble_mqtt_transport.h"
 
-/* Configure logs for the functions in this file. */
-#ifdef IOT_LOG_LEVEL_GLOBAL
-    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
-#else
-    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
-#endif
 
-#define LIBRARY_LOG_NAME         ( "NET_BLE" )
-#include "iot_logging_setup.h"
-
-#define _CONTAINER( type, pConnection, channelName )    ( ( type * ) ( void * ) ( ( ( uint8_t * ) ( pConnection ) ) - offsetof( type, channelName ) ) )
-
+#define IOT_BLE_MAX_NETWORK_CONNECTIONS    ( 1 )
 
 /**
  * @brief Structure holds the context associated with a ble connection.
  */
-typedef struct _bleNetworkConnection
+typedef struct IotBleNetworkConnection
 {
-    IotBleDataTransferChannel_t * pChannel;
-    IotSemaphore_t ready;
-    IotNetworkReceiveCallback_t pCallback;
-    void * pContext;
-} _bleNetworkConnection_t;
+    BaseType_t xIsUsed;                                      /* Boolean flag to indicate if the context is being used. */
+    NetworkContext_t xContext;                               /* Network Context structure to hold the ble transport channel */
+    IotSemaphore_t xChannelSem;                              /* Semaphore used to block on the channel. */
+    IotNetworkReceiveCallback_t pCallback;                   /* Callback registered by user to get notified of receipt of new data. */
+    void * pUserContext;                                     /* User context associated with the callback registered. */
+    uint8_t buffer[ IOT_BLE_NETWORK_INTERFACE_BUFFER_SIZE ]; /* Buffer used internally by BLE transport to queue the data. */
+} IotBleNetworkConnection_t;
 
+/**
+ * @brief An implementation of #IotNetworkInterface_t::create using
+ * transport interface for BLE.
+ */
+static IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
+                                               void * pCredentialInfo,
+                                               void ** pConnection );
+
+/**
+ * @brief An implementation of #IotNetworkInterface_t::setReceiveCallback using
+ * transport interface for BLE.
+ */
+static IotNetworkError_t IotNetworkBle_SetReceiveCallback( void * pConnection,
+                                                           IotNetworkReceiveCallback_t receiveCallback,
+                                                           void * pContext );
+
+/**
+ * @brief An implementation of #IotNetworkInterface_t::send using
+ * transport interface for BLE.
+ */
+static size_t IotNetworkBle_Send( void * pConnection,
+                                  const uint8_t * pMessage,
+                                  size_t messageLength );
+
+/**
+ * @brief An implementation of #IotNetworkInterface_t::receive using
+ * transport interface for BLE.
+ */
+static size_t IotNetworkBle_Receive( void * pConnection,
+                                     uint8_t * pBuffer,
+                                     size_t bytesRequested );
+
+/**
+ * @brief An implementation of #IotNetworkInterface_t::close fusing
+ * transport interface for BLE.
+ */
+static IotNetworkError_t IotNetworkBle_Close( void * pConnection );
+
+/**
+ * @brief An implementation of #IotNetworkInterface_t::destroy using
+ * transport interface for BLE.
+ */
+static IotNetworkError_t IotNetworkBle_Destroy( void * pConnection );
+
+
+/**
+ * @brief Static array of all network connections over BLE.
+ */
+static IotBleNetworkConnection_t xNetworkConnections[ IOT_BLE_MAX_NETWORK_CONNECTIONS ] = { 0 };
 
 static void _callback( IotBleDataTransferChannelEvent_t event,
                        IotBleDataTransferChannel_t * pChannel,
                        void * pContext )
 {
-    _bleNetworkConnection_t * pBleConnection = ( _bleNetworkConnection_t * ) pContext;
+    IotBleNetworkConnection_t * pBleConnection = ( IotBleNetworkConnection_t * ) pContext;
 
     switch( event )
     {
         case IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED:
-            IotSemaphore_Post( &pBleConnection->ready );
+            IotSemaphore_Post( &pBleConnection->xChannelSem );
             break;
 
         case IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED:
-            pBleConnection->pCallback( pBleConnection, pBleConnection->pContext );
+            ( void ) IotBleMqttTransportAcceptData( &pBleConnection->xContext );
+
+            if( pBleConnection->pCallback != NULL )
+            {
+                pBleConnection->pCallback( pBleConnection, pBleConnection->pUserContext );
+            }
+
             break;
 
         default:
@@ -98,47 +154,97 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
                                         void * pCredentialInfo,
                                         void ** pConnection )
 {
-    IotNetworkError_t status = IOT_NETWORK_FAILURE;
-    IotBleDataTransferChannel_t * pChannel = NULL;
-    _bleNetworkConnection_t * pBleConnection = IotNetwork_Malloc( sizeof( _bleNetworkConnection_t ) );
+    IotNetworkError_t status = IOT_NETWORK_SUCCESS;
+    IotBleNetworkConnection_t * pBleConnection = NULL;
+    NetworkContext_t * pContext = NULL;
+    size_t xIndex = 0;
+    bool semCreated = false;
 
     /* Unused parameters */
     ( void ) pConnectionInfo;
     ( void ) pCredentialInfo;
 
-    if( pBleConnection != NULL )
+    for( ; xIndex < IOT_BLE_MAX_NETWORK_CONNECTIONS; xIndex++ )
     {
-        pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
-
-        if( pChannel != NULL )
+        if( xNetworkConnections[ xIndex ].xIsUsed == pdFALSE )
         {
-            pBleConnection->pChannel = pChannel;
+            pBleConnection = &xNetworkConnections[ xIndex ];
+            pBleConnection->xIsUsed = pdTRUE;
+        }
+    }
 
-            if( IotSemaphore_Create( &pBleConnection->ready, 0, 1 ) == true )
-            {
-                IotBleDataTransfer_SetCallback( pChannel, _callback, pBleConnection );
+    if( !pBleConnection )
+    {
+        configPRINTF( ( "No free BLE connection descriptors available.\r\n" ) );
+        status = IOT_NETWORK_NO_MEMORY;
+    }
 
-                if( IotSemaphore_TimedWait( &pBleConnection->ready, IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) == true )
-                {
-                    ( *pConnection ) = &pBleConnection->pChannel;
-                    status = IOT_NETWORK_SUCCESS;
-                }
-                else
-                {
-                    IotLogError( "Failed to create BLE network connection after %d milliseconds.", IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS );
-                    IotBleDataTransfer_Reset( pChannel );
-                    IotSemaphore_Destroy( &pBleConnection->ready );
-                }
-            }
-            else
-            {
-                IotLogError( "Failed to create BLE network connection, cannot create network connection semaphore." );
-            }
+    if( status == IOT_NETWORK_SUCCESS )
+    {
+        pContext = &pBleConnection->xContext;
+
+        pContext->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
+
+        if( !pContext->pChannel )
+        {
+            configPRINTF( ( "Failed to open BLE data transfer channel.\r\n" ) );
+            status = IOT_NETWORK_SYSTEM_ERROR;
+        }
+    }
+
+    if( status == IOT_NETWORK_SUCCESS )
+    {
+        /* Must initialize the channel, context must contain the buffer and buf size at this point. */
+        if( IotBleMqttTransportInit( pBleConnection->buffer, IOT_BLE_NETWORK_INTERFACE_BUFFER_SIZE, pContext ) != true )
+        {
+            configPRINTF( ( "Failed to initialize transport interface for BLE.\r\n" ) );
+            status = IOT_NETWORK_FAILURE;
+        }
+    }
+
+    if( status == IOT_NETWORK_SUCCESS )
+    {
+        semCreated = IotSemaphore_Create( &pBleConnection->xChannelSem, 0, 1 );
+
+        if( !semCreated )
+        {
+            configPRINTF( ( "Failed to create BLE data transfer channel semaphore.\r\n" ) );
+            status = IOT_NETWORK_NO_MEMORY;
+        }
+    }
+
+    if( status == IOT_NETWORK_SUCCESS )
+    {
+        IotBleDataTransfer_SetCallback( pContext->pChannel, _callback, pBleConnection );
+
+        if( IotSemaphore_TimedWait( &pBleConnection->xChannelSem,
+                                    IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) != true )
+        {
+            configPRINTF( ( "Failed to create BLE network connection after %d milliseconds.", IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) );
+            status = IOT_NETWORK_FAILURE;
+        }
+        else
+        {
+            ( *pConnection ) = pBleConnection;
+        }
+    }
+
+    if( status != IOT_NETWORK_SUCCESS )
+    {
+        if( ( pContext != NULL ) && ( pContext->pChannel != NULL ) )
+        {
+            IotBleMqttTransportCleanup( pContext );
+            IotBleDataTransfer_Reset( pContext->pChannel );
         }
 
-        if( status != IOT_NETWORK_SUCCESS )
+        if( semCreated )
         {
-            IotNetwork_Free( pBleConnection );
+            IotSemaphore_Destroy( &pBleConnection->xChannelSem );
+        }
+
+        if( pBleConnection )
+        {
+            memset( pBleConnection, 0x00, sizeof( IotBleNetworkConnection_t ) );
         }
     }
 
@@ -149,14 +255,18 @@ IotNetworkError_t IotNetworkBle_SetReceiveCallback( void * pConnection,
                                                     IotNetworkReceiveCallback_t receiveCallback,
                                                     void * pContext )
 {
-    _bleNetworkConnection_t * pBleConnection = _CONTAINER( _bleNetworkConnection_t, pConnection, pChannel );
-    IotNetworkError_t status = IOT_NETWORK_FAILURE;
+    IotBleNetworkConnection_t * pBleConnection = ( IotBleNetworkConnection_t * ) pConnection;
+    IotNetworkError_t status;
 
-    if( pBleConnection != NULL )
+    if( pBleConnection )
     {
         pBleConnection->pCallback = receiveCallback;
-        pBleConnection->pContext = pContext;
+        pBleConnection->pUserContext = pContext;
         status = IOT_NETWORK_SUCCESS;
+    }
+    else
+    {
+        status = IOT_NETWORK_FAILURE;
     }
 
     return status;
@@ -166,36 +276,34 @@ size_t IotNetworkBle_Send( void * pConnection,
                            const uint8_t * pMessage,
                            size_t messageLength )
 {
-    _bleNetworkConnection_t * pBleConnection = _CONTAINER( _bleNetworkConnection_t, pConnection, pChannel );
+    IotBleNetworkConnection_t * pBleConnection = ( IotBleNetworkConnection_t * ) pConnection;
 
-    return IotBleDataTransfer_Send( pBleConnection->pChannel, pMessage, messageLength );
+    return ( size_t ) IotBleMqttTransportSend( &pBleConnection->xContext, ( uint8_t * ) pMessage, messageLength );
 }
 
 size_t IotNetworkBle_Receive( void * pConnection,
                               uint8_t * pBuffer,
                               size_t bytesRequested )
 {
-    _bleNetworkConnection_t * pBleConnection = _CONTAINER( _bleNetworkConnection_t, pConnection, pChannel );
+    IotBleNetworkConnection_t * pBleConnection = ( IotBleNetworkConnection_t * ) pConnection;
 
-    return IotBleDataTransfer_Receive( pBleConnection->pChannel, pBuffer, bytesRequested );
+    return ( size_t ) IotBleMqttTransportReceive( &pBleConnection->xContext, pBuffer, bytesRequested );
 }
 
 IotNetworkError_t IotNetworkBle_Close( void * pConnection )
 {
-    _bleNetworkConnection_t * pBleConnection = _CONTAINER( _bleNetworkConnection_t, pConnection, pChannel );
+    IotBleNetworkConnection_t * pBleConnection = ( IotBleNetworkConnection_t * ) pConnection;
 
-    IotBleDataTransfer_Close( pBleConnection->pChannel );
+    IotBleDataTransfer_Close( pBleConnection->xContext.pChannel );
+    IotBleMqttTransportCleanup( &( pBleConnection->xContext ) );
+    IotBleDataTransfer_Reset( pBleConnection->xContext.pChannel );
+    IotSemaphore_Destroy( &pBleConnection->xChannelSem );
+    memset( pBleConnection, 0x00, sizeof( IotBleNetworkConnection_t ) );
     return IOT_NETWORK_SUCCESS;
 }
 
 
 IotNetworkError_t IotNetworkBle_Destroy( void * pConnection )
 {
-    _bleNetworkConnection_t * pBleConnection = _CONTAINER( _bleNetworkConnection_t, pConnection, pChannel );
-
-    IotBleDataTransfer_Reset( pBleConnection->pChannel );
-    IotSemaphore_Destroy( &pBleConnection->ready );
-    IotNetwork_Free( pBleConnection );
-
     return IOT_NETWORK_SUCCESS;
 }

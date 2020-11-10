@@ -43,6 +43,8 @@
 #define APP_ID          0
 #define MAX_SERVICES    20
 
+#define BLE_GATT_DSC_CLT_CFG_UUID128 0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x02, 0x29, 0x00, 0x00
+
 static struct ble_gatt_svc_def espServices[ MAX_SERVICES + 1 ];
 static BTService_t * afrServices[ MAX_SERVICES ];
 static uint16_t serviceCnt = 0;
@@ -598,7 +600,27 @@ BTStatus_t prvBTStartService( uint8_t ucServerIf,
                               uint16_t usServiceHandle,
                               BTTransport_t xTransport )
 {
-    return eBTStatusUnsupported;
+    BTStatus_t xStatus = eBTStatusFail;
+    uint16_t index;
+
+    /* GATT Service is supposed to start in prvAddServiceBlob, we just
+     * check if handle is matching with the one populated in
+     * prvAddServiceBlob for each service */
+    for( index = 0; index < serviceCnt; index++ )
+    {
+        if ( usServiceHandle == afrServices[ index ]->pusHandlesBuffer[ 0 ] )
+        {
+            xStatus = eBTStatusSuccess;
+            break;
+        }
+    }
+
+    if( xGattServerCb.pxServiceStartedCb != NULL )
+    {
+        xGattServerCb.pxServiceStartedCb( xStatus, ucServerIf, usServiceHandle );
+    }
+
+    return xStatus;
 }
 
 /*-----------------------------------------------------------*/
@@ -952,8 +974,10 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                     }
 
                     /* Characteristic descriptors are automatically added, so no need to add them here, otherwise they will be declared twice. */
-                    if( ble_uuid_cmp( uuid, BLE_UUID16_DECLARE( BLE_GATT_DSC_CLT_CFG_UUID16 ) ) == 0 )
-                    {
+                    if (((uuid->type == BLE_UUID_TYPE_16) &&
+                         (ble_uuid_cmp( uuid, BLE_UUID16_DECLARE( BLE_GATT_DSC_CLT_CFG_UUID16 ) ) == 0 )) ||
+                        ((uuid->type == BLE_UUID_TYPE_128) &&
+                         (ble_uuid_cmp( uuid, BLE_UUID128_DECLARE( BLE_GATT_DSC_CLT_CFG_UUID128) ) == 0))) {
                         continue;
                     }
 

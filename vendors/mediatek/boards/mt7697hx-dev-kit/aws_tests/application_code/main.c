@@ -36,6 +36,7 @@
 #include "iot_wifi.h"
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
+#include <string.h>
  
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
@@ -217,12 +218,20 @@ void prvWifiConnect( void )
     }
 
     /* Setup parameters. */
-    xJoinAPParams.pcSSID           = clientcredentialWIFI_SSID;
-    xJoinAPParams.ucSSIDLength     = sizeof( clientcredentialWIFI_SSID );
-    xJoinAPParams.pcPassword       = clientcredentialWIFI_PASSWORD;
-    xJoinAPParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
+		xJoinAPParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID ) - 1;
+		if( xJoinAPParams.ucSSIDLength > wificonfigMAX_SSID_LEN )
+		{
+				xJoinAPParams.ucSSIDLength = wificonfigMAX_SSID_LEN;
+		}
+    memcpy( xJoinAPParams.ucSSID, clientcredentialWIFI_SSID, xJoinAPParams.ucSSIDLength );
+		xJoinAPParams.xPassword.xWPA.ucLength = sizeof( clientcredentialWIFI_PASSWORD )- 1;
+		if( xJoinAPParams.xPassword.xWPA.ucLength > wificonfigMAX_PASSPHRASE_LEN )
+		{
+				xJoinAPParams.xPassword.xWPA.ucLength = wificonfigMAX_PASSPHRASE_LEN;
+		}
+    memcpy( xJoinAPParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xJoinAPParams.xPassword.xWPA.ucLength );
     xJoinAPParams.xSecurity        = clientcredentialWIFI_SECURITY;
-
+		
     xWifiStatus = WIFI_ConnectAP( &( xJoinAPParams ) );
 
     if( xWifiStatus == eWiFiSuccess )

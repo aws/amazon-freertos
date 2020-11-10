@@ -40,7 +40,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #ifndef _WDRV_WILC1000_STUB_H
 #define _WDRV_WILC1000_STUB_H
 
-#define WDRV_STUB_Print(x) SYS_CONSOLE_PRINT x
+#define WDRV_STUB_Print(x) configPRINTF(x)
 
 //*******************************************************************************
 /*

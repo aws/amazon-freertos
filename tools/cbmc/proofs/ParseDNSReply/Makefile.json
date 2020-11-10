@@ -20,7 +20,7 @@
 
 ################################################################
 # Loop prvParseDNSReply.0:
-# file lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c line 915
+# file lib/FreeRTOS-Plus-TCP/FreeRTOS_DNS.c line 915
   "PARSELOOP0": "prvParseDNSReply.0",
 
 # M = sizeof( DNSMessage_t ) = 12
@@ -32,7 +32,7 @@
 
 ################################################################
 # Loop prvParseDNSReply.1:
-# file lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c line 989
+# file lib/FreeRTOS-Plus-TCP/FreeRTOS_DNS.c line 989
   "PARSELOOP1": "prvParseDNSReply.1",
 
 # A = sizeof( DNSAnswerRecord_t ) = 10
@@ -56,7 +56,7 @@
   "OBJS":
   [
     "$(ENTRY)_harness.goto",
-    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_DNS.goto",
     "$(FREERTOS)/freertos_kernel/tasks.goto"
   ],
 

@@ -182,7 +182,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
                      "TestRunner",
                      TEST_RUNNER_TASK_STACK_SIZE,
                      NULL,
-                     tskIDLE_PRIORITY, NULL );
+                     tskIDLE_PRIORITY + 2, NULL );
 
         xTasksAlreadyCreated = pdTRUE;
     }

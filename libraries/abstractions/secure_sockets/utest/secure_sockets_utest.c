@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Secure Sockets V1.2.0
+ * FreeRTOS Secure Sockets V1.3.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,7 +37,7 @@
 #include "mock_task.h"
 #include "mock_iot_tls.h"
 #include "mock_iot_logging_task.h"
-#include "mock_iot_wifi.h"
+#include "mock_dns.h"
 
 #include "wait_for_event.h"
 #include "task_control.h"
@@ -898,24 +898,80 @@ void test_SecureSockets_Connect_TLS_SNI_connect_error( void )
 /*!
  * @brief GetHostByName  successful case
  *
- * The purpose of this testase is to make sure sockets_gethostbyname is behaving
+ * The purpose of this test case is to make sure sockets_gethostbyname is behaving
  * properly under normal conditions and returning the expected data to the
  * caller
  */
-void test_SecureSockets_GetHostByName_suceessful( void )
+void test_SecureSockets_GetHostByName_successful( void )
 {
     int32_t ret;
     uint8_t addr = 0;
-    uint8_t ret_addr = 5;
+    uint32_t ret_addr = 5;
     int32_t hostnameMaxLen = securesocketsMAX_DNS_NAME_LENGTH;
     char hostname[ hostnameMaxLen ];
 
     strncpy( hostname, "this is a hostname", hostnameMaxLen );
 
-    WIFI_GetHostIP_ExpectAndReturn( hostname, &addr, 0 );
-    WIFI_GetHostIP_ReturnThruPtr_pucIPAddr( &ret_addr );
+    dns_gethostbyname_addrtype_ExpectAnyArgsAndReturn( ERR_OK );
+    dns_gethostbyname_addrtype_ReturnThruPtr_addr( &ret_addr );
     ret = SOCKETS_GetHostByName( hostname );
     TEST_ASSERT_EQUAL_INT( ret_addr, ret );
+}
+
+/*!
+ * @brief GetHostByName wait success case
+ *
+ * The purpose of this test case is to make sure sockets_gethostbyname
+ * handles the case where lwip dns must wait for completion.
+ */
+#define STUB_RETURNED_ADDRESS    5
+static err_t dns_gethostbyname_addrtype_success_CALLBACK( const char * hostname,
+                                                          ip_addr_t * addr,
+                                                          dns_found_callback found,
+                                                          void * callback_arg,
+                                                          u8_t dns_addrtype,
+                                                          int cmock_num_calls )
+{
+    uint32_t * ipv4_addr_p = ( uint32_t * ) callback_arg;
+
+    *ipv4_addr_p = STUB_RETURNED_ADDRESS;
+    return ERR_INPROGRESS;
+}
+
+void test_SecureSockets_GetHostByName_wait_success( void )
+{
+    int32_t ret;
+    uint32_t ret_addr = STUB_RETURNED_ADDRESS; /* must match value in stub */
+    int32_t hostnameMaxLen = securesocketsMAX_DNS_NAME_LENGTH;
+    char hostname[ hostnameMaxLen ];
+
+    strncpy( hostname, "this is a hostname", hostnameMaxLen );
+
+    vTaskDelay_CMockIgnore();
+    dns_gethostbyname_addrtype_Stub( dns_gethostbyname_addrtype_success_CALLBACK );
+    ret = SOCKETS_GetHostByName( hostname );
+    TEST_ASSERT_EQUAL_INT( ret_addr, ret );
+}
+
+/*!
+ * @brief GetHostByName  failure case
+ *
+ * The purpose of this test case is to make sure sockets_gethostbyname
+ * handles error codes returned by the lwip DNS functions.
+ */
+void test_SecureSockets_GetHostByName_failure( void )
+{
+    int32_t ret;
+    uint8_t addr = 0;
+    uint32_t ret_addr = 5;
+    int32_t hostnameMaxLen = securesocketsMAX_DNS_NAME_LENGTH;
+    char hostname[ hostnameMaxLen ];
+
+    strncpy( hostname, "this is a hostname", hostnameMaxLen );
+
+    dns_gethostbyname_addrtype_ExpectAnyArgsAndReturn( ERR_CLSD );
+    ret = SOCKETS_GetHostByName( hostname );
+    TEST_ASSERT_EQUAL_INT( 0, ret );
 }
 
 /*!
@@ -951,6 +1007,7 @@ void test_SecureSockets_Init( void )
 {
     BaseType_t ret;
 
+    dns_init_Expect();
     ret = SOCKETS_Init();
     TEST_ASSERT_EQUAL( ret, pdPASS );
 }

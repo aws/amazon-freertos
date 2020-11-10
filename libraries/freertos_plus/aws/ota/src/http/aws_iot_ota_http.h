@@ -1,5 +1,5 @@
 /*
- * FreeRTOS OTA V1.2.0
+ * FreeRTOS OTA V1.2.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,6 +43,6 @@ OTA_Err_t _AwsIotOTA_DecodeFileBlock_HTTP( uint8_t * pMessageBuffer,
                                            uint8_t ** pPayload,
                                            size_t * pPayloadSize );
 
-OTA_Err_t _AwsIotOTA_Cleanup_HTTP( OTA_AgentContext_t * pxAgentCtx );
+OTA_Err_t _AwsIotOTA_CleanupData_HTTP( OTA_AgentContext_t * pxAgentCtx );
 
 #endif /* ifndef __AWS_OTA_HTTP__H__ */

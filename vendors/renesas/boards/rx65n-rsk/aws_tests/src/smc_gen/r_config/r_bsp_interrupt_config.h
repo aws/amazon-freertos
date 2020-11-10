@@ -144,7 +144,7 @@ Macro definitions
 #define BSP_MAPPED_INT_CFG_B_VECT_S12ADC1_S12ADI1                         189
 #define BSP_MAPPED_INT_CFG_B_VECT_S12ADC1_S12GBADI1                       190
 #define BSP_MAPPED_INT_CFG_B_VECT_S12ADC1_S12GCADI1                       191
-#define BSP_MAPPED_INT_CFG_B_VECT_RNG_RNGEND                              
+#define BSP_MAPPED_INT_CFG_B_VECT_RNG_RNGEND                              192
 #define BSP_MAPPED_INT_CFG_B_VECT_ELC_ELSR18I                             193
 #define BSP_MAPPED_INT_CFG_B_VECT_ELC_ELSR19I                             194
 #define BSP_MAPPED_INT_CFG_B_VECT_TSIP_PROC_BUSY                          195
@@ -207,8 +207,8 @@ Macro definitions
 #define BSP_MAPPED_INT_CFG_A_VECT_MTU8_TGIC8                              248
 #define BSP_MAPPED_INT_CFG_A_VECT_MTU8_TGID8                              249
 #define BSP_MAPPED_INT_CFG_A_VECT_MTU8_TCIV8                              250
-#define BSP_MAPPED_INT_CFG_A_VECT_AES_AESRDY                              
-#define BSP_MAPPED_INT_CFG_A_VECT_AES_AESEND                              
+#define BSP_MAPPED_INT_CFG_A_VECT_AES_AESRDY                              251
+#define BSP_MAPPED_INT_CFG_A_VECT_AES_AESEND                              252
 
 #endif /* R_BSP_INTERRUPT_CONFIG_REF_HEADER_FILE */
 

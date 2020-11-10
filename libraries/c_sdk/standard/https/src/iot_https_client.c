@@ -2908,28 +2908,32 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
 
     /* Check for auto-generated header "Content-Length". This header is created and send automatically when right before
      * request body is sent on the network. */
-    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( strncmp( pName, HTTPS_CONTENT_LENGTH_HEADER, FAST_MACRO_STRLEN( HTTPS_CONTENT_LENGTH_HEADER ) ) != 0,
+    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( ( ( nameLen != FAST_MACRO_STRLEN( HTTPS_CONTENT_LENGTH_HEADER ) ) ||
+                                           ( strncmp( pName, HTTPS_CONTENT_LENGTH_HEADER, FAST_MACRO_STRLEN( HTTPS_CONTENT_LENGTH_HEADER ) ) != 0 ) ),
                                          IOT_HTTPS_INVALID_PARAMETER,
                                          "Attempting to add auto-generated header %s. This is not allowed.",
                                          HTTPS_CONTENT_LENGTH_HEADER );
 
     /* Check for auto-generated header "Connection". This header is created and send automatically when right before
      * request body is sent on the network. */
-    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( strncmp( pName, HTTPS_CONNECTION_HEADER, FAST_MACRO_STRLEN( HTTPS_CONNECTION_HEADER ) ) != 0,
+    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( ( ( nameLen != FAST_MACRO_STRLEN( HTTPS_CONNECTION_HEADER ) ) ||
+                                           ( strncmp( pName, HTTPS_CONNECTION_HEADER, FAST_MACRO_STRLEN( HTTPS_CONNECTION_HEADER ) ) != 0 ) ),
                                          IOT_HTTPS_INVALID_PARAMETER,
                                          "Attempting to add auto-generated header %s. This is not allowed.",
                                          HTTPS_CONNECTION_HEADER );
 
     /* Check for auto-generated header "Host". This header is created and placed into the header buffer space
      * in IotHttpsClient_InitializeRequest(). */
-    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( strncmp( pName, HTTPS_HOST_HEADER, FAST_MACRO_STRLEN( HTTPS_HOST_HEADER ) ) != 0,
+    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( ( ( nameLen != FAST_MACRO_STRLEN( HTTPS_HOST_HEADER ) ) ||
+                                           ( strncmp( pName, HTTPS_HOST_HEADER, FAST_MACRO_STRLEN( HTTPS_HOST_HEADER ) ) != 0 ) ),
                                          IOT_HTTPS_INVALID_PARAMETER,
                                          "Attempting to add auto-generated header %s. This is not allowed.",
                                          HTTPS_HOST_HEADER );
 
     /* Check for auto-generated header "User-Agent". This header is created and placed into the header buffer space
      * in IotHttpsClient_InitializeRequest(). */
-    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( strncmp( pName, HTTPS_USER_AGENT_HEADER, FAST_MACRO_STRLEN( HTTPS_USER_AGENT_HEADER ) ) != 0,
+    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( ( ( nameLen != FAST_MACRO_STRLEN( HTTPS_USER_AGENT_HEADER ) ) ||
+                                           ( strncmp( pName, HTTPS_USER_AGENT_HEADER, FAST_MACRO_STRLEN( HTTPS_USER_AGENT_HEADER ) ) != 0 ) ),
                                          IOT_HTTPS_INVALID_PARAMETER,
                                          "Attempting to add auto-generated header %s. This is not allowed.",
                                          HTTPS_USER_AGENT_HEADER );
