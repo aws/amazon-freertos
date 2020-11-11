@@ -14,11 +14,7 @@ afr_module_cmake_files(${AFR_CURRENT_MODULE}
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_basic_tls.c"
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_mutual_auth.c"
-        "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_plaintext.c"
-        "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_serializer.c"
-        "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_keep_alive.c"
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_connection_sharing.c"
 )
 

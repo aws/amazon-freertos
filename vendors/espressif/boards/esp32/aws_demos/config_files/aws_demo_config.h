@@ -29,15 +29,8 @@
 /* To run a particular demo you need to define one of these.
  * Only one demo can be configured at a time
  *
- *          CONFIG_MQTT_DEMO_ENABLED
- *          CONFIG_MQTT_TRANSPORT_DEMO_ENABLED
- *          CONFIG_CORE_MQTT_BASIC_TLS_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
- *          CONFIG_CORE_MQTT_KEEP_ALIVE_DEMO_ENABLED
- *          CONFIG_CORE_MQTT_PLAINTEXT_DEMO_ENABLED
- *          CONFIG_CORE_MQTT_SERIALIZER_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED
- *          CONFIG_SHADOW_DEMO_ENABLED
  *          CONFIG_DEVICE_SHADOW_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
@@ -60,9 +53,14 @@
 #define democonfigDEMO_PRIORITY     ( tskIDLE_PRIORITY + 5 )
 #define democonfigNETWORK_TYPES     ( AWSIOT_NETWORK_TYPE_WIFI )
 
-#if defined( CONFIG_MQTT_DEMO_ENABLED )
+#if defined( CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED )
     #undef democonfigNETWORK_TYPES
-    #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
+    #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_WIFI )
+#endif
+
+#if defined( CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED )
+    #undef democonfigNETWORK_TYPES
+    #define democonfigNETWORK_TYPES                                  ( AWSIOT_NETWORK_TYPE_WIFI )
 #endif
 
 #define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 12 )

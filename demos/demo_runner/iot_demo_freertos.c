@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202011.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -281,9 +281,6 @@ static void _cleanup( void )
 
 void runDemoTask( void * pArgument )
 {
-    /* On FreeRTOS, credentials and server info are defined in a header
-     * and set by the initializers. */
-
     demoContext_t * pContext = ( demoContext_t * ) pArgument;
     const IotNetworkInterface_t * pNetworkInterface = NULL;
     void * pConnectionParams = NULL, * pCredentials = NULL;

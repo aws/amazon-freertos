@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.2.0
+ * FreeRTOS MQTT V2.3.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -69,6 +69,12 @@
  * used in calling MQTT LTS API from shim to send packets on the network.
  */
 _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
+
+/* Static storage for mutex used for synchronized access to #_connContext_t array. */
+static StaticSemaphore_t connContextMutexStorage;
+
+/* Handle for mutex used for synchronized access to #_connContext_t array. */
+static SemaphoreHandle_t connContextMutex;
 
 /*-----------------------------------------------------------*/
 
@@ -520,6 +526,7 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
     int8_t contextIndex = -1;
     bool mutexStatus = true;
+    bool connContextMutexStatus = false;
 
     IotMqtt_Assert( pMqttConnection != NULL );
 
@@ -606,8 +613,19 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     {
         IotMutex_Delete( &( connToContext[ contextIndex ].contextMutex ) );
         IotMutex_Delete( &( connToContext[ contextIndex ].subscriptionMutex ) );
-        /* Free the MQTT Context for the MQTT connection to be destroyed. */
-        _IotMqtt_removeContext( pMqttConnection );
+        /* Lock mutex before updating the #connToContext array. */
+        connContextMutexStatus = IotMutex_TakeRecursive( &connContextMutex );
+
+        if( connContextMutexStatus == true )
+        {
+            /* Free the MQTT Context for the MQTT connection to be destroyed. */
+            _IotMqtt_removeContext( pMqttConnection );
+
+            /* Release mutex. */
+            connContextMutexStatus = IotMutex_GiveRecursive( &connContextMutex );
+        }
+
+        IotMqtt_Assert( connContextMutexStatus == true );
     }
 
     IotLogDebug( "(MQTT connection %p) Connection destroyed.", pMqttConnection );
@@ -944,6 +962,16 @@ static int32_t transportRecv( NetworkContext_t * pNetworkContext,
 IotMqttError_t IotMqtt_Init( void )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
+    bool mutexCreated = false;
+
+    /* Create a recursive mutex for synchronized access to #_connContext_t array. */
+    mutexCreated = IotMutex_CreateRecursiveMutex( &connContextMutex, &connContextMutexStorage );
+
+    /* Check mutex creation failed. */
+    if( mutexCreated == false )
+    {
+        status = IOT_MQTT_INIT_FAILED;
+    }
 
     /* Log initialization status. */
     if( status != IOT_MQTT_SUCCESS )
@@ -962,6 +990,9 @@ IotMqttError_t IotMqtt_Init( void )
 
 void IotMqtt_Cleanup( void )
 {
+    /* Delete the recursive mutex for synchronized access to #_connContext_t array. */
+    IotMutex_Delete( &connContextMutex );
+
     IotLogInfo( "MQTT library cleanup done." );
 }
 
@@ -985,6 +1016,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     bool subscriptionMutexCreated = false;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     bool contextMutexCreated = false;
+    bool connContextMutexStatus = false;
 
     /* Default CONNECT serializer function. */
     IotMqttError_t ( * serializeConnect )( const IotMqttConnectInfo_t *,
@@ -1130,6 +1162,15 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         EMPTY_ELSE_MARKER;
     }
 
+    /* Lock mutex before updating the #connToContext array. */
+    connContextMutexStatus = IotMutex_TakeRecursive( &connContextMutex );
+
+    if( connContextMutexStatus == false )
+    {
+        IotLogError( "Failed to lock connContextMutex." );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+    }
+
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
 
@@ -1193,6 +1234,15 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     }
     else
     {
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+    }
+
+    /* Release the connContextMutex mutex. */
+    connContextMutexStatus = IotMutex_GiveRecursive( &connContextMutex );
+
+    if( connContextMutexStatus == false )
+    {
+        IotLogError( "Failed to release connContextMutex." );
         IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
 

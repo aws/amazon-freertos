@@ -123,8 +123,9 @@ cd $CY_OUTPUT_PATH
 #==============================================================================
 # "Normal" OTA tarballs (binaries DO NOT include cybootloader magic, etc)
 # get size of binary file for components.json
-BIN_CM0_SIZE=$(ls -l $CY_OUTPUT_FILE_CM0_NAME_BIN | awk '{printf $6}')
-BIN_CM4_SIZE=$(ls -l $CY_OUTPUT_FILE_CM4_NAME_BIN | awk '{printf $6}')
+# the size entry in the "ls -g -o" list is in the 3rd position
+BIN_CM0_SIZE=$(ls -g -o $CY_OUTPUT_FILE_CM0_NAME_BIN | awk '{printf $3}')
+BIN_CM4_SIZE=$(ls -g -o $CY_OUTPUT_FILE_CM4_NAME_BIN | awk '{printf $3}')
 
 #---------------------------------------
 # CM4-only "normal" OTA Image tarball
@@ -153,8 +154,9 @@ tar -cf $CY_CM4_CM0_TAR $CY_COMPONENTS_JSON_NAME $CY_OUTPUT_FILE_CM0_NAME_BIN $C
 #==============================================================================
 # "upgrade" OTA tarballs (includes cybootloader magic, etc)
 # get size of binary file for components.json for "upgrade" files
-BIN_CM0_UPGRADE_SIZE=$(ls -l "$CY_OUTPUT_FILE_CM0_UPGRADE_BIN" | awk '{printf $6}')
-BIN_CM4_UPGRADE_SIZE=$(ls -l "$CY_OUTPUT_FILE_CM4_UPGRADE_BIN" | awk '{printf $6}')
+# the size entry in the "ls -g -o" list may is in the 3rd position
+BIN_CM0_UPGRADE_SIZE=$(ls -g -o $CY_OUTPUT_FILE_CM0_UPGRADE_BIN | awk '{printf $3}')
+BIN_CM4_UPGRADE_SIZE=$(ls -g -o $CY_OUTPUT_FILE_CM4_UPGRADE_BIN | awk '{printf $3}')
 
 #---------------------------------------
 # CM4-only "upgrade" OTA Image tarball

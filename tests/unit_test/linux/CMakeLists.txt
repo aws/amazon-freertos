@@ -12,6 +12,7 @@
             "${AFR_ROOT_DIR}/libraries/3rdparty/tracealyzer_recorder/Include"
             "${AFR_ROOT_DIR}/libraries/3rdparty/CMock/vendor/unity/src/"
             "${AFR_ROOT_DIR}/libraries/3rdparty/CMock/src"
+            "${AFR_ROOT_DIR}/libraries/coreMQTT/source/interface"
             )
     link_directories("${CMAKE_BINARY_DIR}/lib"
             )

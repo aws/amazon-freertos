@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202011.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,58 +38,8 @@
  */
 
 /* Individual demo task entry definitions */
-#if defined( CONFIG_MQTT_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              RunMqttDemo
-    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
-        #undef democonfigDEMO_STACKSIZE
-        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
-    #endif
-    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
-        #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
-    #endif
-#elif defined( CONFIG_CORE_MQTT_BASIC_TLS_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              RunCoreMqttBasicTLSDemo
-    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
-        #undef democonfigDEMO_STACKSIZE
-        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
-    #endif
-    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
-        #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
-    #endif
-#elif defined( CONFIG_CORE_MQTT_PLAINTEXT_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              RunCoreMqttPlaintextDemo
-    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
-        #undef democonfigDEMO_STACKSIZE
-        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
-    #endif
-    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
-        #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
-    #endif
-#elif defined( CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED )
+#if defined( CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunCoreMqttMutualAuthDemo
-    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
-        #undef democonfigDEMO_STACKSIZE
-        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
-    #endif
-    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
-        #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
-    #endif
-#elif defined( CONFIG_CORE_MQTT_SERIALIZER_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              RunCoreMqttSerializerDemo
-    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
-        #undef democonfigDEMO_STACKSIZE
-        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
-    #endif
-    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
-        #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
-    #endif
-#elif defined( CONFIG_CORE_MQTT_KEEP_ALIVE_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              RunCoreMqttKeepAliveDemo
     #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
         #undef democonfigDEMO_STACKSIZE
         #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
@@ -107,16 +57,6 @@
     #if defined( democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY )
         #undef democonfigDEMO_PRIORITY
         #define democonfigDEMO_PRIORITY     democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY
-    #endif
-#elif defined( CONFIG_SHADOW_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              RunShadowDemo
-    #if defined( democonfigSHADOW_DEMO_TASK_STACK_SIZE )
-        #undef democonfigDEMO_STACKSIZE
-        #define democonfigDEMO_STACKSIZE    democonfigSHADOW_DEMO_TASK_STACK_SIZE
-    #endif
-    #if defined( democonfigSHADOW_DEMO_TASK_PRIORITY )
-        #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigSHADOW_DEMO_TASK_PRIORITY
     #endif
 #elif defined( CONFIG_DEVICE_SHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunDeviceShadowDemo
@@ -191,10 +131,10 @@
 
 #elif defined( CONFIG_CLI_UART_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vRunCLIUartDemo
-#else /* if defined( CONFIG_MQTT_DEMO_ENABLED ) */
+#else /* if defined( CONFIG_CORE_MQTT_BASIC_TLS_DEMO_ENABLED ) */
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "No demo to run. One demo should be enabled"
-#endif /* if defined( CONFIG_MQTT_DEMO_ENABLED ) */
+#endif /* if defined( CONFIG_CORE_MQTT_BASIC_TLS_DEMO_ENABLED ) */
 
 
 #endif /* ifndef _IOT_DEMO_RUNNER_H_ */

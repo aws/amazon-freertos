@@ -2,7 +2,7 @@
 afr_module(NAME device_shadow )
 
 # Include Shadow library's source and header path variables.
-include("${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws/shadowFilePaths.cmake")
 
 # Create a list of all header files in the Device Shadow library.
 # The list of header files will be added to metadata required
@@ -62,7 +62,7 @@ afr_set_lib_metadata(ID "device_shadow_demo_dependencies")
 afr_set_lib_metadata(DESCRIPTION "This library enables you to store and retrieve the \
 current state (the \"shadow\") of every registered device on AWS IoT.")
 afr_set_lib_metadata(DISPLAY_NAME "Device Shadow")
-afr_set_lib_metadata(CATEGORY "Connectivity")
+afr_set_lib_metadata(CATEGORY "Amazon Services")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
