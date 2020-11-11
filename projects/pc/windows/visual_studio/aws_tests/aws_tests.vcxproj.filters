@@ -123,9 +123,9 @@
 		<Filter Include="libraries\coreJSON\source"/>
 		<Filter Include="libraries\coreJSON"/>
 		<Filter Include="libraries\coreJSON\source\include"/>
-		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk\source"/>
-		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk"/>
-		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk\source\include"/>
+		<Filter Include="libraries\device_shadow_for_aws\source"/>
+		<Filter Include="libraries\device_shadow_for_aws"/>
+		<Filter Include="libraries\device_shadow_for_aws\source\include"/>
 		<Filter Include="libraries\device_defender_for_aws\source"/>
 		<Filter Include="libraries\device_defender_for_aws"/>
 		<Filter Include="libraries\device_defender_for_aws\source\include"/>
@@ -287,9 +287,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h">
 			<Filter>libraries\abstractions\platform\include\platform</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\transport_interface.h">
-			<Filter>libraries\abstractions\platform\include\platform</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\types\iot_platform_types.h">
 			<Filter>libraries\abstractions\platform\include\types</Filter>
 		</ClInclude>
@@ -356,9 +353,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\NetworkInterface.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp.cmake">
-			<Filter>libraries\freertos_plus\standard</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC\pack_struct_end.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC</Filter>
 		</ClInclude>
@@ -404,9 +398,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\include\aws_iot_defender.h">
 			<Filter>libraries\c_sdk\aws\defender\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\mqttFilePaths.cmake">
-			<Filter>libraries\coreMQTT</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt.h">
 			<Filter>libraries\coreMQTT\source\include</Filter>
 		</ClInclude>
@@ -422,20 +413,11 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h">
 			<Filter>libraries\coreMQTT\source\interface</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\core_mqtt_demo_dependencies.cmake">
-			<Filter>libraries</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h">
 			<Filter>libraries\abstractions\retry_utils</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\transport_interface.cmake">
-			<Filter>libraries\abstractions\transport</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\transport_interface_secure_sockets.cmake">
-			<Filter>libraries\abstractions\transport</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_serializer.h">
 			<Filter>libraries\c_sdk\standard\serializer\include</Filter>
@@ -536,12 +518,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\core_http_demo_dependencies.cmake">
-			<Filter>libraries</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\httpFilePaths.cmake">
-			<Filter>libraries\coreHTTP</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client.h">
 			<Filter>libraries\coreHTTP\source\include</Filter>
 		</ClInclude>
@@ -557,29 +533,14 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.h">
 			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\jsonFilePaths.cmake">
-			<Filter>libraries\coreJSON</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\core_json.cmake">
-			<Filter>libraries</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h">
 			<Filter>libraries\coreJSON\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\shadowFilePaths.cmake">
-			<Filter>libraries\device_shadow_for_aws_iot_embedded_sdk</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow.h">
+			<Filter>libraries\device_shadow_for_aws\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include\shadow.h">
-			<Filter>libraries\device_shadow_for_aws_iot_embedded_sdk\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include\shadow_config_defaults.h">
-			<Filter>libraries\device_shadow_for_aws_iot_embedded_sdk\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_demo_dependencies.cmake">
-			<Filter>libraries</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\device_defender_for_aws\defenderFilePaths.cmake">
-			<Filter>libraries\device_defender_for_aws</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow_config_defaults.h">
+			<Filter>libraries\device_shadow_for_aws\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\device_defender_for_aws\source\include\defender.h">
 			<Filter>libraries\device_defender_for_aws\source\include</Filter>
@@ -587,17 +548,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\device_defender_for_aws\source\include\defender_config_defaults.h">
 			<Filter>libraries\device_defender_for_aws\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\device_defender_demo_dependencies.cmake">
-			<Filter>libraries</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\jobs_for_aws\jobsFilePaths.cmake">
-			<Filter>libraries\jobs_for_aws</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\jobs_for_aws\source\include\jobs.h">
 			<Filter>libraries\jobs_for_aws\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\jobs_demo_dependencies.cmake">
-			<Filter>libraries</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.h">
 			<Filter>libraries\abstractions\pkcs11\test</Filter>
@@ -1183,8 +1135,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
 			<Filter>libraries\coreJSON\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c">
-			<Filter>libraries\device_shadow_for_aws_iot_embedded_sdk\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\shadow.c">
+			<Filter>libraries\device_shadow_for_aws\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\device_defender_for_aws\source\defender.c">
 			<Filter>libraries\device_defender_for_aws\source</Filter>

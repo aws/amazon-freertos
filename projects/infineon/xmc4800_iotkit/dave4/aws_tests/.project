@@ -539,11 +539,6 @@
 			<locationURI>AFR_HOME/libraries/abstractions/platform/include/platform/iot_threads.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/include/platform/transport_interface.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/platform/include/platform/transport_interface.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/platform/include/types/iot_platform_types.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/abstractions/platform/include/types/iot_platform_types.h</locationURI>
@@ -829,11 +824,6 @@
 			<locationURI>AFR_HOME/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreMQTT/mqttFilePaths.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreMQTT/mqttFilePaths.cmake</locationURI>
-		</link>
-		<link>
 			<name>libraries/coreMQTT/source/include/core_mqtt.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/coreMQTT/source/include/core_mqtt.h</locationURI>
@@ -859,11 +849,6 @@
 			<locationURI>AFR_HOME/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/core_mqtt_demo_dependencies.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/core_mqtt_demo_dependencies.cmake</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
@@ -882,16 +867,6 @@
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/transport/transport_interface.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/transport/transport_interface.cmake</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/transport/transport_interface_secure_sockets.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/transport/transport_interface_secure_sockets.cmake</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
@@ -1169,16 +1144,6 @@
 			<locationURI>AFR_HOME/libraries/coreHTTP/source/core_http_client.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/core_http_demo_dependencies.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/core_http_demo_dependencies.cmake</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/httpFilePaths.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/httpFilePaths.cmake</locationURI>
-		</link>
-		<link>
 			<name>libraries/coreHTTP/source/include/core_http_client.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/coreHTTP/source/include/core_http_client.h</locationURI>
@@ -1209,54 +1174,29 @@
 			<locationURI>AFR_HOME/libraries/coreJSON/source/core_json.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreJSON/jsonFilePaths.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreJSON/jsonFilePaths.cmake</locationURI>
-		</link>
-		<link>
-			<name>libraries/core_json.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/core_json.cmake</locationURI>
-		</link>
-		<link>
 			<name>libraries/coreJSON/source/include/core_json.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/coreJSON/source/include/core_json.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</name>
+			<name>libraries/device_shadow_for_aws/source/shadow.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c</locationURI>
+			<locationURI>AFR_HOME/libraries/device_shadow_for_aws/source/shadow.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</name>
+			<name>libraries/device_shadow_for_aws/source/include/shadow.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake</locationURI>
+			<locationURI>AFR_HOME/libraries/device_shadow_for_aws/source/include/shadow.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h</name>
+			<name>libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include/shadow_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/device_shadow_demo_dependencies.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/device_shadow_demo_dependencies.cmake</locationURI>
+			<locationURI>AFR_HOME/libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/device_defender_for_aws/source/defender.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/device_defender_for_aws/source/defender.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/device_defender_for_aws/defenderFilePaths.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/device_defender_for_aws/defenderFilePaths.cmake</locationURI>
 		</link>
 		<link>
 			<name>libraries/device_defender_for_aws/source/include/defender.h</name>
@@ -1269,29 +1209,14 @@
 			<locationURI>AFR_HOME/libraries/device_defender_for_aws/source/include/defender_config_defaults.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/device_defender_demo_dependencies.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/device_defender_demo_dependencies.cmake</locationURI>
-		</link>
-		<link>
 			<name>libraries/jobs_for_aws/source/jobs.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/jobs_for_aws/source/jobs.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/jobs_for_aws/jobsFilePaths.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/jobs_for_aws/jobsFilePaths.cmake</locationURI>
-		</link>
-		<link>
 			<name>libraries/jobs_for_aws/source/include/jobs.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/jobs_for_aws/source/include/jobs.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/jobs_demo_dependencies.cmake</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/jobs_demo_dependencies.cmake</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
