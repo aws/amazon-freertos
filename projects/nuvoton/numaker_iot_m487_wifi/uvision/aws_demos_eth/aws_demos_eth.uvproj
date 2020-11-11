@@ -1732,34 +1732,9 @@
 					<GroupName>demos/coreMQTT/</GroupName>
 					<Files>
 						<File>
-							<FileName>mqtt_demo_basic_tls.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_basic_tls.c</FilePath>
-						</File>
-						<File>
 							<FileName>mqtt_demo_mutual_auth.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_plaintext.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_plaintext.c</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_serializer.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_serializer.c</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_keep_alive.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_keep_alive.c</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_connection_sharing.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_connection_sharing.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1840,26 +1815,6 @@
 							<FileName>iot_demo_https_common.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/https/iot_demo_https_common.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>demos/mqtt/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_demo_mqtt.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/mqtt/iot_demo_mqtt.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>demos/shadow/</GroupName>
-					<Files>
-						<File>
-							<FileName>aws_iot_demo_shadow.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/shadow/aws_iot_demo_shadow.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1952,34 +1907,14 @@
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/core_pkcs11_config.h</FilePath>
 						</File>
 						<File>
-							<FileName>mqtt_demo_basic_tls_config.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_basic_tls_config.h</FilePath>
-						</File>
-						<File>
 							<FileName>mqtt_demo_connection_sharing_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</FilePath>
 						</File>
 						<File>
-							<FileName>mqtt_demo_keep_alive_config.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_keep_alive_config.h</FilePath>
-						</File>
-						<File>
 							<FileName>mqtt_demo_mutual_auth_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_mutual_auth_config.h</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_plaintext_config.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_plaintext_config.h</FilePath>
-						</File>
-						<File>
-							<FileName>mqtt_demo_serializer_config.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_serializer_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>shadow_config.h</FileName>
