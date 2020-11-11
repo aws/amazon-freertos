@@ -313,7 +313,7 @@ SOURCES+=\
 
 # Device Shadow, Device Defender, Jobs, coreJSON, coreMQTT and coreHTTP
 SOURCES+=\
-	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/shadow.c\
+	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/shadow.c\
 	$(CY_AFR_ROOT)/libraries/coreJSON/source/core_json.c \
 	$(CY_AFR_ROOT)/libraries/device_defender_for_aws/source/defender.c\
 	$(CY_AFR_ROOT)/libraries/jobs_for_aws/source/jobs.c\
@@ -367,7 +367,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/coreHTTP/source/include\
 	$(CY_AFR_ROOT)/libraries/coreHTTP/source/interface\
 	$(CY_AFR_ROOT)/libraries/coreHTTP/source/3rdparty/http_parser\
-	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws_iot_embedded_sdk/source/include\
+	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/include\
 	$(CY_AFR_ROOT)/libraries/coreJSON/source/include\
 	$(CY_AFR_ROOT)/libraries/device_defender_for_aws/source/include\
 	$(CY_AFR_ROOT)/libraries/jobs_for_aws/source/include
