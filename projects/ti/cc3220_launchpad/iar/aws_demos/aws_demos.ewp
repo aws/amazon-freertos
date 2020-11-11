@@ -384,7 +384,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
@@ -396,7 +395,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers</state>
@@ -1331,28 +1330,19 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\defender_config.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_mqtt_agent_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\jobs_demo_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\mqtt_demo_basic_tls_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\mqtt_demo_connection_sharing_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\mqtt_demo_keep_alive_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\mqtt_demo_mutual_auth_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\mqtt_demo_plaintext_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\mqtt_demo_serializer_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\shadow_config.h</name>
@@ -1471,9 +1461,6 @@
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\transport_interface.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h</name>
@@ -1603,12 +1590,6 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c</name>
 					</file>
 				</group>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\transport_interface.cmake</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\transport_interface_secure_sockets.cmake</name>
-				</file>
 			</group>
 		</group>
 		<group>
@@ -2075,13 +2056,7 @@
 					</file>
 				</group>
 			</group>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\mqttFilePaths.cmake</name>
-			</file>
 		</group>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\core_mqtt_demo_dependencies.cmake</name>
-		</file>
 		<group>
 			<name>coreHTTP</name>
 			<group>
@@ -2120,9 +2095,6 @@
 					</file>
 				</group>
 			</group>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\httpFilePaths.cmake</name>
-			</file>
 		</group>
 		<group>
 			<name>3rdparty</name>
@@ -2670,9 +2642,6 @@
 				</file>
 			</group>
 		</group>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\core_http_demo_dependencies.cmake</name>
-		</file>
 		<group>
 			<name>coreJSON</name>
 			<group>
@@ -2687,37 +2656,25 @@
 					</file>
 				</group>
 			</group>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\jsonFilePaths.cmake</name>
-			</file>
 		</group>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\core_json.cmake</name>
-		</file>
 		<group>
-			<name>device_shadow_for_aws_iot_embedded_sdk</name>
+			<name>device_shadow_for_aws</name>
 			<group>
 				<name>source</name>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\shadow.c</name>
 				</file>
 				<group>
 					<name>include</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include\shadow.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow.h</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\include\shadow_config_defaults.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow_config_defaults.h</name>
 					</file>
 				</group>
 			</group>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\shadowFilePaths.cmake</name>
-			</file>
 		</group>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_demo_dependencies.cmake</name>
-		</file>
 		<group>
 			<name>device_defender_for_aws</name>
 			<group>
@@ -2735,13 +2692,7 @@
 					</file>
 				</group>
 			</group>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\defenderFilePaths.cmake</name>
-			</file>
 		</group>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_demo_dependencies.cmake</name>
-		</file>
 		<group>
 			<name>jobs_for_aws</name>
 			<group>
@@ -2756,13 +2707,7 @@
 					</file>
 				</group>
 			</group>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\jobsFilePaths.cmake</name>
-			</file>
 		</group>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_demo_dependencies.cmake</name>
-		</file>
 	</group>
 	<group>
 		<name>demos</name>
@@ -2839,27 +2784,21 @@
 			</group>
 		</group>
 		<group>
+			<name>common</name>
+			<group>
+				<name>mqtt_demo_helpers</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c</name>
+				</file>
+			</group>
+		</group>
+		<group>
 			<name>coreMQTT</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_basic_tls.c</name>
-			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_mutual_auth.c</name>
 			</file>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_plaintext.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_serializer.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_keep_alive.c</name>
-			</file>
-			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_connection_sharing.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\CMakeLists.txt</name>
 			</file>
 		</group>
 		<group>
@@ -2869,31 +2808,10 @@
 			</file>
 		</group>
 		<group>
-			<name>device_shadow_for_aws_iot_embedded_sdk</name>
+			<name>device_shadow_for_aws</name>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\shadow_demo_main.c</name>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws\shadow_demo_main.c</name>
 			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\CMakeLists.txt</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\shadow_demo_helpers.h</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\CMakeLists.txt</name>
-			</file>
-		</group>
-		<group>
-			<name>common</name>
-			<group>
-				<name>mqtt_demo_helpers</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.h</name>
-				</file>
-			</group>
 		</group>
 		<group>
 			<name>greengrass_connectivity</name>
@@ -2929,21 +2847,9 @@
 			</file>
 		</group>
 		<group>
-			<name>mqtt</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\mqtt\iot_demo_mqtt.c</name>
-			</file>
-		</group>
-		<group>
 			<name>ota</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\ota\aws_iot_ota_update_demo.c</name>
-			</file>
-		</group>
-		<group>
-			<name>shadow</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\shadow\aws_iot_demo_shadow.c</name>
 			</file>
 		</group>
 		<group>
