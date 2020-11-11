@@ -35,6 +35,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/* coreHTTP includes. */
+#include "core_http_client.h"
+
 /* Third party http-parser include. */
 #include "http_parser.h"
 
@@ -133,16 +136,23 @@
 
 /* Configure logs for HTTPS Client functions. */
 #ifdef IOT_LOG_LEVEL_HTTPS
-    #define LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_HTTPS
-#else
-    #ifdef IOT_LOG_LEVEL_GLOBAL
-        #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
-    #else
-        #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+    #ifndef LIBRARY_LOG_LEVEL
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_HTTPS
     #endif
+#else
+    #ifndef LIBRARY_LOG_LEVEL
+        #ifdef IOT_LOG_LEVEL_GLOBAL
+            #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+        #else
+            #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+        #endif
+    #endif
+#endif /* ifdef IOT_LOG_LEVEL_HTTPS */
+
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME    ( "HTTPS Client" )
 #endif
 
-#define LIBRARY_LOG_NAME    ( "HTTPS Client" )
 #include "iot_logging_setup.h"
 
 /*
@@ -162,9 +172,6 @@
 #ifndef AWS_IOT_HTTPS_ENABLE_METRICS
     #define AWS_IOT_HTTPS_ENABLE_METRICS           ( 1 )
 #endif
-#ifndef IOT_HTTPS_USER_AGENT
-    #define IOT_HTTPS_USER_AGENT                   "amazon-freertos"
-#endif
 #ifndef IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE
     #define IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE        ( 1024 )
 #endif
@@ -176,6 +183,10 @@
 #endif
 #ifndef IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH
     #define IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH    ( 255 ) /* The maximum alpn protocols length is chosen arbitrarily. */
+#endif
+/* Provide the User-Agent Value definition from coreHTTP. */
+#ifdef HTTP_USER_AGENT_VALUE
+    #define IOT_HTTPS_USER_AGENT    HTTP_USER_AGENT_VALUE
 #endif
 
 /** @endcond */

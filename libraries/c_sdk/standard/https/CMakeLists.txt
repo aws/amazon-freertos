@@ -38,6 +38,13 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::common
+        AFR::core_http
+        # This dependency is required for auto-including
+        # coreHTTP library on FreeRTOS console when a library
+        # depends on AFR::https.
+        # AFR::core_http_demo_dependencies is the visible library
+        # target on FreeRTOS console.
+        AFR::core_http_demo_dependencies
 )
 
 # HTTPS Client test

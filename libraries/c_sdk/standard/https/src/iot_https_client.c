@@ -2579,6 +2579,44 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t * pRes
 
 /*-----------------------------------------------------------*/
 
+static IotHttpsReturnCode_t _shimConvertStatus( HTTPStatus_t coreHttpStatus )
+{
+    IotHttpsReturnCode_t returnStatus = IOT_HTTPS_OK;
+
+    /* Note that coreHTTP will not receive any data so status codes relating
+     * to receiving a response are not mapped. */
+    switch( coreHttpStatus )
+    {
+        case HTTPSuccess:
+            returnStatus = IOT_HTTPS_OK;
+            break;
+
+        case HTTPInvalidParameter:
+            returnStatus = IOT_HTTPS_INVALID_PARAMETER;
+            break;
+
+        case HTTPNetworkError:
+            returnStatus = IOT_HTTPS_NETWORK_ERROR;
+            break;
+
+        case HTTPInsufficientMemory:
+            returnStatus = IOT_HTTPS_INSUFFICIENT_MEMORY;
+            break;
+
+        case HTTPHeaderNotFound:
+            returnStatus = IOT_HTTPS_NOT_FOUND;
+            break;
+
+        default:
+            returnStatus = IOT_HTTPS_FATAL;
+            break;
+    }
+
+    return returnStatus;
+}
+
+/* --------------------------------------------------------- */
+
 void IotHttpsClient_Cleanup( void )
 {
     /* There is nothing to clean up here as of now. */
@@ -2733,6 +2771,10 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest( IotHttpsRequestHandle_t *
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
+    HTTPStatus_t coreHttpStatus = HTTPSuccess;
+    HTTPRequestHeaders_t coreHttpRequestHeaders;
+    HTTPRequestInfo_t coreHttpRequestInfo;
+
     _httpsRequest_t * pHttpsRequest = NULL;
     size_t additionalLength = 0;
     size_t spaceLen = 1;
@@ -2762,77 +2804,39 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest( IotHttpsRequestHandle_t *
                                          pReqInfo->userBuffer.bufferLen,
                                          requestUserBufferMinimumSize );
 
-    /* Set the request contet to the start of the userbuffer. */
+    /* Set the request context to the start of the user buffer. */
     pHttpsRequest = ( _httpsRequest_t * ) ( pReqInfo->userBuffer.pBuffer );
-    /* Clear out the user buffer. */
-    memset( pReqInfo->userBuffer.pBuffer, 0, pReqInfo->userBuffer.bufferLen );
 
     /* Set the start of the headers to the end of the request context in the user buffer. */
     pHttpsRequest->pHeaders = ( uint8_t * ) pHttpsRequest + sizeof( _httpsRequest_t );
     pHttpsRequest->pHeadersEnd = ( uint8_t * ) pHttpsRequest + pReqInfo->userBuffer.bufferLen;
     pHttpsRequest->pHeadersCur = pHttpsRequest->pHeaders;
 
-    /* Get the length of the HTTP method. */
-    httpsMethodLen = strlen( _pHttpsMethodStrings[ pReqInfo->method ] );
+    /* Map coreHTTP objects to be used by #HTTPClient_InitializeRequestHeaders. */
+    coreHttpRequestHeaders.pBuffer = pHttpsRequest->pHeaders;
+    coreHttpRequestHeaders.bufferLen = ( size_t ) pReqInfo->userBuffer.bufferLen;
 
-    /* Add the request line to the header buffer. */
-    additionalLength = httpsMethodLen +          \
-                       spaceLen +                \
-                       pReqInfo->pathLen +       \
-                       spaceLen +                \
-                       httpsProtocolVersionLen + \
-                       HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
+    coreHttpRequestInfo.pMethod = _pHttpsMethodStrings[ pReqInfo->method ];
+    coreHttpRequestInfo.methodLen = ( size_t ) strlen( _pHttpsMethodStrings[ pReqInfo->method ] );
+    coreHttpRequestInfo.pPath = pReqInfo->pPath;
+    coreHttpRequestInfo.pathLen = ( size_t ) pReqInfo->pathLen;
+    coreHttpRequestInfo.pHost = pReqInfo->pHost;
+    coreHttpRequestInfo.hostLen = ( size_t ) pReqInfo->hostLen;
 
-    if( ( additionalLength + pHttpsRequest->pHeadersCur ) > ( pHttpsRequest->pHeadersEnd ) )
+    if( pHttpsRequest->isNonPersistent == false )
     {
-        IotLogError( "Request line does not fit into the request user buffer: \"%s %.*s HTTP/1.1\\r\\n\" . ",
-                     _pHttpsMethodStrings[ pReqInfo->method ],
-                     pReqInfo->pathLen,
-                     pReqInfo->pPath );
-        IotLogError( "The length needed is %d and the space available is %d.", additionalLength, pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur );
-        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INSUFFICIENT_MEMORY );
+        coreHttpRequestInfo.reqFlags = HTTP_REQUEST_KEEP_ALIVE_FLAG;
     }
 
-    /* Write "<METHOD> <PATH> HTTP/1.1\r\n" to the start of the header space. */
-    memcpy( pHttpsRequest->pHeadersCur, _pHttpsMethodStrings[ pReqInfo->method ], httpsMethodLen );
-    pHttpsRequest->pHeadersCur += httpsMethodLen;
-    memcpy( pHttpsRequest->pHeadersCur, pSpace, spaceLen );
-    pHttpsRequest->pHeadersCur += spaceLen;
+    coreHttpStatus = HTTPClient_InitializeRequestHeaders( &coreHttpRequestHeaders,
+                                                          &coreHttpRequestInfo );
 
-    if( pReqInfo->pPath == NULL )
-    {
-        pReqInfo->pPath = HTTPS_EMPTY_PATH;
-        pReqInfo->pathLen = FAST_MACRO_STRLEN( HTTPS_EMPTY_PATH );
-    }
+    pHttpsRequest->pHeadersCur = pHttpsRequest->pHeaders + coreHttpRequestHeaders.headersLen;
 
-    memcpy( pHttpsRequest->pHeadersCur, pReqInfo->pPath, pReqInfo->pathLen );
-    pHttpsRequest->pHeadersCur += pReqInfo->pathLen;
-    memcpy( pHttpsRequest->pHeadersCur, pSpace, spaceLen );
-    pHttpsRequest->pHeadersCur += spaceLen;
-    memcpy( pHttpsRequest->pHeadersCur, HTTPS_PROTOCOL_VERSION, httpsProtocolVersionLen );
-    pHttpsRequest->pHeadersCur += httpsProtocolVersionLen;
-    memcpy( pHttpsRequest->pHeadersCur, HTTPS_END_OF_HEADER_LINES_INDICATOR, HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH );
-    pHttpsRequest->pHeadersCur += HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
-
-    /* Add the User-Agent header. */
-    status = _addHeader( pHttpsRequest, HTTPS_USER_AGENT_HEADER, FAST_MACRO_STRLEN( HTTPS_USER_AGENT_HEADER ), IOT_HTTPS_USER_AGENT, FAST_MACRO_STRLEN( IOT_HTTPS_USER_AGENT ) );
+    status = _shimConvertStatus( coreHttpStatus );
 
     if( HTTPS_FAILED( status ) )
     {
-        IotLogError( "Failed to write header to the request user buffer: \"User-Agent: %s\\r\\n\" . Error code: %d",
-                     IOT_HTTPS_USER_AGENT,
-                     status );
-        HTTPS_GOTO_CLEANUP();
-    }
-
-    status = _addHeader( pHttpsRequest, HTTPS_HOST_HEADER, FAST_MACRO_STRLEN( HTTPS_HOST_HEADER ), pReqInfo->pHost, pReqInfo->hostLen );
-
-    if( HTTPS_FAILED( status ) )
-    {
-        IotLogError( "Failed to write \"Host: %.*s\\r\\n\" to the request user buffer. Error code: %d",
-                     pReqInfo->hostLen,
-                     pReqInfo->pHost,
-                     status );
         HTTPS_GOTO_CLEANUP();
     }
 
