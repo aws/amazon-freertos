@@ -534,9 +534,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\jobs_for_aws\source\include\jobs.h">
 			<Filter>libraries\jobs_for_aws\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\demos\jobs_for_aws\CMakeLists.txt">
-			<Filter>demos\jobs_for_aws</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_tasks.h">
 			<Filter>demos\tcp</Filter>
 		</ClInclude>

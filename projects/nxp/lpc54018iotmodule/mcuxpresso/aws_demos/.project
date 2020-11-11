@@ -1763,11 +1763,6 @@
 			<locationURI>BASE_DIR/demos/jobs_for_aws/jobs_demo.c</locationURI>
 		</link>
 		<link>
-			<name>demos/jobs_for_aws/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/jobs_for_aws/CMakeLists.txt</locationURI>
-		</link>
-		<link>
 			<name>demos/tcp/aws_tcp_echo_client_single_task.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/tcp/aws_tcp_echo_client_single_task.c</locationURI>

@@ -2842,9 +2842,6 @@
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\jobs_for_aws\jobs_demo.c</name>
 			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\jobs_for_aws\CMakeLists.txt</name>
-			</file>
 		</group>
 		<group>
 			<name>ota</name>

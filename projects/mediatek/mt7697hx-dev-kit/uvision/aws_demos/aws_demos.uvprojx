@@ -2124,11 +2124,6 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/jobs_for_aws/jobs_demo.c</FilePath>
 						</File>
-						<File>
-							<FileName>CMakeLists.txt</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/jobs_for_aws/CMakeLists.txt</FilePath>
-						</File>
 					</Files>
 				</Group>
 				<Group>

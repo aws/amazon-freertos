@@ -1173,11 +1173,6 @@
 			<locationURI>BASE_DIR_ROOT/demos/jobs_for_aws/jobs_demo.c</locationURI>
 		</link>
 		<link>
-			<name>demos/jobs_for_aws/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/jobs_for_aws/CMakeLists.txt</locationURI>
-		</link>
-		<link>
 			<name>demos/ota/aws_iot_ota_update_demo.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/ota/aws_iot_ota_update_demo.c</locationURI>

@@ -100,7 +100,6 @@
 			</logicalFolder>
 			<logicalFolder name="jobs_for_aws" displayName="jobs_for_aws" projectFiles="true">
 				<itemPath>../../../../../demos/jobs_for_aws/jobs_demo.c</itemPath>
-				<itemPath>../../../../../demos/jobs_for_aws/CMakeLists.txt</itemPath>
 			</logicalFolder>
 			<logicalFolder name="ota" displayName="ota" projectFiles="true">
 				<itemPath>../../../../../demos/ota/aws_iot_ota_update_demo.c</itemPath>
