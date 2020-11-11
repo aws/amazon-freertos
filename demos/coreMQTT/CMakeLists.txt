@@ -6,16 +6,16 @@ afr_set_demo_metadata(ID "CORE_MQTT_MUTUAL_AUTH_DEMO")
 afr_set_demo_metadata(DESCRIPTION "Examples that demonstrate the MQTT library")
 afr_set_demo_metadata(DISPLAY_NAME "coreMQTT Demos")
 
+# Add the CMakeLists.txt file of module to metadata list.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_mutual_auth.c"
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_connection_sharing.c"
-        # As the containing directory name (coreMQTT) does not match the
-        # module name (core_mqtt), we add dependency on the CMake file so
-        # that metadata is generated for it, and it is present in code 
-        # downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
 )
 
 afr_module_dependencies(

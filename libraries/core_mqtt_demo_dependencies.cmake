@@ -15,14 +15,16 @@ foreach(mqtt_public_include_dir ${MQTT_INCLUDE_PUBLIC_DIRS})
     list(APPEND MQTT_HEADER_FILES ${mqtt_public_include_header_files})
 endforeach()
 
+# Add cmake files of module to metadata.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/coreMQTT/mqttFilePaths.cmake
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         ${MQTT_SOURCES}
         ${MQTT_SERIALIZER_SOURCES}
-        # List of files added to the target so that these are available
-        # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/coreMQTT/mqttFilePaths.cmake
         ${MQTT_HEADER_FILES}
 )
 
@@ -57,6 +59,11 @@ afr_set_lib_metadata(CATEGORY "Connectivity")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
+# Add cmake files of module to metadata.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/core_mqtt_demo_dependencies.cmake
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
@@ -64,9 +71,6 @@ afr_module_sources(
         # core_mqtt_demo_dependencies target; otherwise, it gives the 
         # "Cannot determine link language for target" error.
         ${MQTT_SOURCES}
-        # This file is added to the target so that it is available
-        # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/core_mqtt_demo_dependencies.cmake
 )
 
 # Add dependencies of the coreMQTT demos in this target

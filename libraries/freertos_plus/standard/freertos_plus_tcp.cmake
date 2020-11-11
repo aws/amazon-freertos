@@ -9,6 +9,11 @@ set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp/include")
 # for the FreeRTOS console.
 file(GLOB FREERTOS_PLUS_TCP_HEADER_FILES "${inc_dir}/*.h")
 
+# Add cmake files of module to metadata.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp.cmake
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
@@ -21,10 +26,9 @@ afr_module_sources(
         "${src_dir}/FreeRTOS_TCP_IP.c"
         "${src_dir}/FreeRTOS_TCP_WIN.c"
         "${src_dir}/FreeRTOS_UDP_IP.c"
-        # List of files added to the target so that these are available
+        # Header files are added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
         ${FREERTOS_PLUS_TCP_HEADER_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp.cmake
 )
 
 afr_module_include_dirs(

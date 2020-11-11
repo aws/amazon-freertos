@@ -14,14 +14,18 @@ foreach(json_public_include_dir ${JSON_INCLUDE_PUBLIC_DIRS})
     list(APPEND JSON_HEADER_FILES ${json_public_include_header_files})
 endforeach()
 
+# Add cmake files of module to metadata.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/coreJSON/jsonFilePaths.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/core_json.cmake
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         ${JSON_SOURCES}
-        # List of files added to the target so that these are available
+        # List of header files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/coreJSON/jsonFilePaths.cmake
-        ${CMAKE_CURRENT_LIST_DIR}/core_json.cmake
         ${JSON_HEADER_FILES}
 )
 

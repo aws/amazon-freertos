@@ -5,6 +5,11 @@ afr_set_demo_metadata(ID "DEVICE_SHADOW_DEMO")
 afr_set_demo_metadata(DESCRIPTION "An example that demonstrates the use of the Device Shadow library.")
 afr_set_demo_metadata(DISPLAY_NAME "Device Shadow Demo")
 
+# Add the CMakeLists.txt file of module to metadata list.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
@@ -13,12 +18,6 @@ afr_module_sources(
         # Add the header file to generate their metadata so that 
         # they are present in code downloaded from FreeRTOS console.
         "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_helpers.h"
-        # As the containing directory name (i.e. device_shadow_for_aws)
-        # does not match the module name (i.e. device_shadow), 
-        # we add the CMake file to the source list so that metadata is
-        # generated for it, and it is present in code downloaded from
-        # the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
 )
 
 afr_module_dependencies(
