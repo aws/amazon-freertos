@@ -412,6 +412,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src</state>
@@ -2810,7 +2811,7 @@
 					</file>
 				</group>
 				<group>
-					<name>portable</name>
+					<name>interface</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h</name>
 					</file>

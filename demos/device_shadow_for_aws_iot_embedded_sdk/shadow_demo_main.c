@@ -66,7 +66,7 @@
 #include "core_json.h"
 
 /* shadow demo helpers header. */
-#include "shadow_demo_helpers.h"
+#include "mqtt_demo_helpers.h"
 
 
 /**
@@ -164,6 +164,36 @@
 #define THING_NAME_LENGTH    ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
 
 /*-----------------------------------------------------------*/
+
+
+/**
+ * @brief The MQTT context used for MQTT operation.
+ */
+static MQTTContext_t xMqttContext;
+
+/**
+ * @brief The network context used for Openssl operation.
+ */
+static NetworkContext_t xNetworkContext;
+
+/**
+ * @brief The flag to indicate the mqtt session changed.
+ */
+static BaseType_t mqttSessionEstablished = pdTRUE;
+
+/**
+ * @brief Static buffer used to hold MQTT messages being sent and received.
+ */
+static uint8_t ucSharedBuffer[ democonfigNETWORK_BUFFER_SIZE ];
+
+/**
+ * @brief Static buffer used to hold MQTT messages being sent and received.
+ */
+static MQTTFixedBuffer_t xBuffer =
+{
+    .pBuffer = ucSharedBuffer,
+    .size    = democonfigNETWORK_BUFFER_SIZE
+};
 
 /**
  * @brief The simulated device current power on state.
@@ -273,7 +303,6 @@ static void prvUpdateDeltaHandler( MQTTPublishInfo_t * pxPublishInfo )
                               pxPublishInfo->payloadLength,
                               "version",
                               sizeof( "version" ) - 1,
-                              '.',
                               &pcOutValue,
                               ( size_t * ) &ulOutValueLength );
     }
@@ -310,7 +339,6 @@ static void prvUpdateDeltaHandler( MQTTPublishInfo_t * pxPublishInfo )
                               pxPublishInfo->payloadLength,
                               "state.powerOn",
                               sizeof( "state.powerOn" ) - 1,
-                              '.',
                               &pcOutValue,
                               ( size_t * ) &ulOutValueLength );
     }
@@ -400,7 +428,6 @@ static void prvUpdateAcceptedHandler( MQTTPublishInfo_t * pxPublishInfo )
                               pxPublishInfo->payloadLength,
                               "clientToken",
                               sizeof( "clientToken" ) - 1,
-                              '.',
                               &pcOutValue,
                               ( size_t * ) &ulOutValueLength );
     }
@@ -554,7 +581,10 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-    returnStatus = EstablishMqttSession( prvEventCallback );
+    returnStatus = EstablishMqttSession( &xMqttContext,
+                                         &xNetworkContext,
+                                         &xBuffer,
+                                         prvEventCallback );
 
     if( returnStatus == EXIT_FAILURE )
     {
@@ -564,7 +594,8 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     else
     {
         /* First of all, try to delete any Shadow document in the cloud. */
-        returnStatus = PublishToTopic( SHADOW_TOPIC_STRING_DELETE( THING_NAME ),
+        returnStatus = PublishToTopic( &xMqttContext,
+                                       SHADOW_TOPIC_STRING_DELETE( THING_NAME ),
                                        SHADOW_TOPIC_LENGTH_DELETE( THING_NAME_LENGTH ),
                                        pcUpdateDocument,
                                        0U );
@@ -572,19 +603,22 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
         /* Then try to subscribe shadow topics. */
         if( returnStatus == EXIT_SUCCESS )
         {
-            returnStatus = SubscribeToTopic( SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
+            returnStatus = SubscribeToTopic( &xMqttContext,
+                                             SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
                                              SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
         }
 
         if( returnStatus == EXIT_SUCCESS )
         {
-            returnStatus = SubscribeToTopic( SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
+            returnStatus = SubscribeToTopic( &xMqttContext,
+                                             SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
                                              SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
         }
 
         if( returnStatus == EXIT_SUCCESS )
         {
-            returnStatus = SubscribeToTopic( SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
+            returnStatus = SubscribeToTopic( &xMqttContext,
+                                             SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
                                              SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
         }
 
@@ -634,7 +668,8 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                       ( int ) 1,
                       ( long unsigned ) ( xTaskGetTickCount() % 1000000 ) );
 
-            returnStatus = PublishToTopic( SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
+            returnStatus = PublishToTopic( &xMqttContext,
+                                           SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
                                            SHADOW_TOPIC_LENGTH_UPDATE( THING_NAME_LENGTH ),
                                            pcUpdateDocument,
                                            ( SHADOW_DESIRED_JSON_LENGTH + 1 ) );
@@ -666,7 +701,8 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                           ( int ) ulCurrentPowerOnState,
                           ( long unsigned ) ulClientToken );
 
-                returnStatus = PublishToTopic( SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
+                returnStatus = PublishToTopic( &xMqttContext,
+                                               SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
                                                SHADOW_TOPIC_LENGTH_UPDATE( THING_NAME_LENGTH ),
                                                pcUpdateDocument,
                                                ( SHADOW_DESIRED_JSON_LENGTH + 1 ) );
@@ -681,7 +717,8 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
         {
             LogInfo( ( "Start to unsubscribe shadow topics and disconnect from MQTT. \r\n" ) );
 
-            returnStatus = UnsubscribeFromTopic( SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
+            returnStatus = UnsubscribeFromTopic( &xMqttContext,
+                                                 SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
                                                  SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
 
             if( returnStatus != EXIT_SUCCESS )
@@ -693,7 +730,8 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
 
         if( returnStatus == EXIT_SUCCESS )
         {
-            returnStatus = UnsubscribeFromTopic( SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
+            returnStatus = UnsubscribeFromTopic( &xMqttContext,
+                                                 SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
                                                  SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
 
             if( returnStatus != EXIT_SUCCESS )
@@ -705,7 +743,8 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
 
         if( returnStatus == EXIT_SUCCESS )
         {
-            returnStatus = UnsubscribeFromTopic( SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
+            returnStatus = UnsubscribeFromTopic( &xMqttContext,
+                                                 SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
                                                  SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
 
             if( returnStatus != EXIT_SUCCESS )
@@ -716,7 +755,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
         }
 
         /* The MQTT session is always disconnected, even there were prior failures. */
-        returnStatus = DisconnectMqttSession();
+        returnStatus = DisconnectMqttSession( &xMqttContext, &xNetworkContext );
 
         /* This demo performs only Device Shadow operations. If matching the Shadow
          * MQTT topic fails or there are failure in parsing the received JSON document,

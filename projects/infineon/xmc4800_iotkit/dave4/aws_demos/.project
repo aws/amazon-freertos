@@ -1349,9 +1349,19 @@
 			<locationURI>AFR_HOME/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_main.c</locationURI>
 		</link>
 		<link>
-			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c</name>
+			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.c</locationURI>
+			<locationURI>AFR_HOME/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
+		</link>
+		<link>
+			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.h</locationURI>
+		</link>
+		<link>
+			<name>demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/device_shadow_for_aws_iot_embedded_sdk/CMakeLists.txt</locationURI>
 		</link>
 		<link>
 			<name>demos/device_shadow_for_aws_iot_embedded_sdk/shadow_demo_helpers.h</name>
@@ -1392,6 +1402,16 @@
 			<name>demos/https/iot_demo_https_common.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/https/iot_demo_https_common.c</locationURI>
+		</link>
+		<link>
+			<name>demos/jobs_for_aws/jobs_demo.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/jobs_for_aws/jobs_demo.c</locationURI>
+		</link>
+		<link>
+			<name>demos/jobs_for_aws/CMakeLists.txt</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/jobs_for_aws/CMakeLists.txt</locationURI>
 		</link>
 		<link>
 			<name>demos/mqtt/iot_demo_mqtt.c</name>
@@ -1542,6 +1562,11 @@
 			<name>config_files/iot_mqtt_agent_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/iot_mqtt_agent_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/jobs_demo_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/jobs_demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/mqtt_demo_basic_tls_config.h</name>

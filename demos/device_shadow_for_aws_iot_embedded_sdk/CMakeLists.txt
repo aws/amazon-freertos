@@ -14,20 +14,20 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_main.c"
-        "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_helpers.c"
-        # Add the header file to generate their metadata so that 
-        # they are present in code downloaded from FreeRTOS console.
-        "${CMAKE_CURRENT_LIST_DIR}/shadow_demo_helpers.h"
+)
+
+afr_module_include_dirs(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        ${AFR_DEMOS_DIR}/common/mqtt_demo_helpers
 )
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        AFR::core_mqtt
+        AFR::mqtt_demo_helpers
         AFR::core_json
         AFR::device_shadow
-        AFR::retry_utils
-        AFR::transport_interface_secure_sockets
         # Add dependency on the device_shadow_demo_dependencies 
         # metadata module so that this demo is only shown when the
         # Device Shadow library is selected on the FreeRTOS console.

@@ -144,8 +144,11 @@
 		<Filter Include="demos\coreMQTT"/>
 		<Filter Include="demos\defender"/>
 		<Filter Include="demos\device_shadow_for_aws_iot_embedded_sdk"/>
+		<Filter Include="demos\common\mqtt_demo_helpers"/>
+		<Filter Include="demos\common"/>
 		<Filter Include="demos\greengrass_connectivity"/>
 		<Filter Include="demos\https"/>
+		<Filter Include="demos\jobs_for_aws"/>
 		<Filter Include="demos\mqtt"/>
 		<Filter Include="demos\ota"/>
 		<Filter Include="demos\shadow"/>
@@ -752,11 +755,14 @@
 		<ClInclude Include="..\..\..\..\..\demos\coreMQTT\CMakeLists.txt">
 			<Filter>demos\coreMQTT</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\shadow_demo_helpers.h">
-			<Filter>demos\device_shadow_for_aws_iot_embedded_sdk</Filter>
+		<ClInclude Include="..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.h">
+			<Filter>demos\common\mqtt_demo_helpers</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\CMakeLists.txt">
 			<Filter>demos\device_shadow_for_aws_iot_embedded_sdk</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\demos\jobs_for_aws\CMakeLists.txt">
+			<Filter>demos\jobs_for_aws</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_tasks.h">
 			<Filter>demos\tcp</Filter>
@@ -1579,8 +1585,8 @@
 		<ClCompile Include="..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\shadow_demo_main.c">
 			<Filter>demos\device_shadow_for_aws_iot_embedded_sdk</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\device_shadow_for_aws_iot_embedded_sdk\shadow_demo_helpers.c">
-			<Filter>demos\device_shadow_for_aws_iot_embedded_sdk</Filter>
+		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c">
+			<Filter>demos\common\mqtt_demo_helpers</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c">
 			<Filter>demos\greengrass_connectivity</Filter>
@@ -1599,6 +1605,9 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_common.c">
 			<Filter>demos\https</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\jobs_for_aws\jobs_demo.c">
+			<Filter>demos\jobs_for_aws</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\mqtt\iot_demo_mqtt.c">
 			<Filter>demos\mqtt</Filter>
