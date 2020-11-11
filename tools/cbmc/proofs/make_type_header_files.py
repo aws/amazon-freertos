@@ -93,7 +93,7 @@ def make_header_file(goto_binary, fyle, target_folder):
         drop_header_cmd = ["goto-instrument",
                            "--dump-c-type-header",
                            module,
-                           goto_binary,
+                           os.path.abspath(goto_binary),
                            header_file]
         res = subprocess.run(drop_header_cmd,
                              stdout=subprocess.PIPE,
