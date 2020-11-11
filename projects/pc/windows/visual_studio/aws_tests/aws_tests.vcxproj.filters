@@ -132,6 +132,8 @@
 		<Filter Include="libraries\jobs_for_aws\source"/>
 		<Filter Include="libraries\jobs_for_aws"/>
 		<Filter Include="libraries\jobs_for_aws\source\include"/>
+		<Filter Include="demos\common\mqtt_demo_helpers"/>
+		<Filter Include="demos\common"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\unit"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\system"/>
@@ -1143,6 +1145,9 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\jobs_for_aws\source\jobs.c">
 			<Filter>libraries\jobs_for_aws\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c">
+			<Filter>demos\common\mqtt_demo_helpers</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">
 			<Filter>libraries\c_sdk\aws\defender\test\unit</Filter>
