@@ -42,17 +42,13 @@
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
-/* Include paths for public enums, structures, and macros. */
-#include "core_mqtt.h"
-#include "core_mqtt_state.h"
-
 /* Include OpenSSL implementation of transport interface. */
 #include "transport_secure_sockets.h"
 
 /* Include task.h for delay function. */
 #include "task.h"
 
-
+/* Retry with exponential backoff and jitter utilities. */
 #include "retry_utils.h"
 
 /**************************************************/
@@ -62,21 +58,42 @@
 /* Include logging header files and define logging macros in the following order:
  * 1. Include the header file "logging_levels.h".
  * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros depending on
- * the logging configuration for DEMO.
- * 3. Include the header file "logging_stack.h", if logging is enabled for DEMO.
+ * the logging configuration for the integration tests.
+ * 3. Include the header file "logging_stack.h", if logging is enabled for the
+ * integration tests.
  */
 
 #include "logging_levels.h"
 
-/* Logging configuration for the Demo. */
+/* Logging configuration for the integration tests. */
 #ifndef LIBRARY_LOG_NAME
     #define LIBRARY_LOG_NAME    "TEST"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
-    #define LIBRARY_LOG_LEVEL    LOG_INFO
+    #define LIBRARY_LOG_LEVEL    LOG_DEBUG
 #endif
+
+/* Logging configuration for the MQTT library. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME    "MQTT"
+#endif
+
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_ERROR
+#endif
+
 #include "logging_stack.h"
+
+/* Include paths for public enums, structures, and macros. The library API headers
+ * come after the above logging configuration, so that any logging configurations
+ * in core_mqtt_config.h are superceded. The integration tests do not force error
+ * cases like the unit tests do, as functionality is tested against a third-party
+ * MQTT broker. Because error inducing cases are not part of the integration
+ * tests, errors logs in the library are less likely to clobber Unity PASS and
+ * FAIL prints. */
+#include "core_mqtt.h"
+#include "core_mqtt_state.h"
 
 /**************Default Configurations values***********************/
 
@@ -226,7 +243,7 @@
  * PUBLISH message and ack responses for QoS 1 and QoS 2 communications
  * with the broker.
  */
-#define MQTT_PROCESS_LOOP_TIMEOUT_MS          ( 700U )
+#define MQTT_PROCESS_LOOP_TIMEOUT_MS          ( 1000U )
 
 /**
  * @brief The MQTT message published in this example.
