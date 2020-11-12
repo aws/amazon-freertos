@@ -230,10 +230,7 @@ static void prvWriteComplete( CellularCommInterfaceContext * pIotCommIntfCtx )
 static void prvReadComplete( CellularCommInterfaceContext * pIotCommIntfCtx )
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdPASS;
-<<<<<<< HEAD
-=======
     CellularCommInterfaceError_t retComm = IOT_COMM_INTERFACE_SUCCESS;
->>>>>>> aws/feature/cellular
 
     if( IotFifo_Put( &pIotCommIntfCtx->rxFifo, &pIotCommIntfCtx->uartRxChar[ 0 ] ) == true )
     {
