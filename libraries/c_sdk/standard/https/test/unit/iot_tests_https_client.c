@@ -850,7 +850,7 @@ TEST( HTTPS_Client_Unit_API, AddHeaderMultipleHeaders )
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
 
-    /* Intead of iterating in a loop, all the dummy headers are declared immediately because in the unit testing
+    /* Instead of iterating in a loop, all the dummy headers are declared immediately because in the unit testing
      * infrastructure and workflow the number of repetitions is typically not changed from the original.  */
     char * pHeader0 = "header0";
     char * pHeader1 = "header1";

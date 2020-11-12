@@ -2814,7 +2814,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest( IotHttpsRequestHandle_t *
 
     /* Map coreHTTP objects to be used by #HTTPClient_InitializeRequestHeaders. */
     coreHttpRequestHeaders.pBuffer = pHttpsRequest->pHeaders;
-    coreHttpRequestHeaders.bufferLen = ( size_t ) pReqInfo->userBuffer.bufferLen;
+    coreHttpRequestHeaders.bufferLen = ( size_t ) ( pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeaders );
 
     coreHttpRequestInfo.pMethod = _pHttpsMethodStrings[ pReqInfo->method ];
     coreHttpRequestInfo.methodLen = ( size_t ) strlen( _pHttpsMethodStrings[ pReqInfo->method ] );
@@ -2893,6 +2893,10 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
+    _httpsRequest_t * pHttpsRequest = NULL;
+    HTTPStatus_t coreHttpStatus = HTTPSuccess;
+    HTTPRequestHeaders_t coreHttpRequestHeaders;
+
     /* Check for NULL pointer paramters. */
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pName );
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pValue );
@@ -2942,8 +2946,14 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
                                          "Attempting to add auto-generated header %s. This is not allowed.",
                                          HTTPS_USER_AGENT_HEADER );
 
+    coreHttpRequestHeaders.pBuffer = reqHandle->pHeaders;
+    coreHttpRequestHeaders.bufferLen = ( size_t ) ( reqHandle->pHeadersEnd - reqHandle->pHeaders );
+    coreHttpRequestHeaders.headersLen = ( size_t ) ( reqHandle->pHeadersCur - reqHandle->pHeaders );
+    coreHttpStatus = HTTPClient_AddHeader( &coreHttpRequestHeaders, pName, nameLen, pValue, valueLen );
 
-    status = _addHeader( reqHandle, pName, nameLen, pValue, valueLen );
+    reqHandle->pHeadersCur = reqHandle->pHeaders + coreHttpRequestHeaders.headersLen;
+
+    status = _shimConvertStatus( coreHttpStatus );
 
     if( HTTPS_FAILED( status ) )
     {
