@@ -334,15 +334,6 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
                                    char * pcJobId,
                                    uint16_t usJobIdLength );
 
-/**
- * @brief The task used to demonstrate the Jobs library API.
- *
- * @param[in] pvParameters Parameters as passed at the time of task creation.
- * Not used in this example.
- */
-static void prvJobsDemoTask( void * pvParameters );
-
-
 /*-----------------------------------------------------------*/
 
 static JobActionType prvGetAction( const char * pcAction,
@@ -390,11 +381,11 @@ static void prvSendUpdateForJob( char * pcJobId,
 
     if( xStatus == JobsSuccess )
     {
-        if( xPublishToTopic( &xMqttContext,
-                             pUpdateJobTopic,
-                             ulTopicLength,
-                             pcJobStatusReport,
-                             strlen( pcJobStatusReport ) ) == pdFALSE )
+        if( PublishToTopic( &xMqttContext,
+                            pUpdateJobTopic,
+                            ulTopicLength,
+                            pcJobStatusReport,
+                            strlen( pcJobStatusReport ) ) == pdFALSE )
         {
             /* Set global flag to terminate demo as PUBLISH operation to update job status failed. */
             xDemoEncounteredError = pdTRUE;
@@ -515,11 +506,11 @@ static void prvProcessJobDocument( MQTTPublishInfo_t * pxPublishInfo,
                     {
                         /* Publish to the parsed MQTT topic with the message obtained from
                          * the Jobs document.*/
-                        if( xPublishToTopic( &xMqttContext,
-                                             pcTopic,
-                                             ulTopicLength,
-                                             pcMessage,
-                                             ulMessageLength ) == pdFALSE )
+                        if( PublishToTopic( &xMqttContext,
+                                            pcTopic,
+                                            ulTopicLength,
+                                            pcMessage,
+                                            ulMessageLength ) == pdFALSE )
                         {
                             /* Set global flag to terminate demo as PUBLISH operation to execute job failed. */
                             xDemoEncounteredError = pdTRUE;
@@ -722,10 +713,10 @@ int RunJobsDemo( bool awsIotMqttMode,
     ( void ) pNetworkInterface;
 
     /* Establish an MQTT connection with AWS IoT over a mutually authenticated TLS session. */
-    xDemoStatus = xEstablishMqttSession( &xMqttContext,
-                                         &xNetworkContext,
-                                         &xBuffer,
-                                         prvEventCallback );
+    xDemoStatus = EstablishMqttSession( &xMqttContext,
+                                        &xNetworkContext,
+                                        &xBuffer,
+                                        prvEventCallback );
 
     if( xDemoStatus == pdFAIL )
     {
@@ -767,9 +758,9 @@ int RunJobsDemo( bool awsIotMqttMode,
 
         /* Subscribe to the NextJobExecutionChanged API topic to receive notifications about the next pending
          * job in the queue for the Thing resource used by this demo. */
-        if( xSubscribeToTopic( &xMqttContext,
-                               NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ),
-                               sizeof( NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ) ) - 1 ) != pdPASS )
+        if( SubscribeToTopic( &xMqttContext,
+                              NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ),
+                              sizeof( NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ) ) - 1 ) != pdPASS )
         {
             xDemoStatus = pdFAIL;
             LogError( ( "Failed to subscribe to NextJobExecutionChanged API of AWS IoT Jobs service: Topic=%s",
@@ -787,11 +778,11 @@ int RunJobsDemo( bool awsIotMqttMode,
          * to the response topics or not.
          * This demo processes incoming messages from the response topics of the API in the prvEventCallback()
          * handler that is supplied to the coreMQTT library. */
-        if( xPublishToTopic( &xMqttContext,
-                             START_NEXT_JOB_TOPIC( democonfigTHING_NAME ),
-                             sizeof( START_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) - 1,
-                             NULL,
-                             0 ) != pdPASS )
+        if( PublishToTopic( &xMqttContext,
+                            START_NEXT_JOB_TOPIC( democonfigTHING_NAME ),
+                            sizeof( START_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) - 1,
+                            NULL,
+                            0 ) != pdPASS )
         {
             xDemoStatus = pdFAIL;
             LogError( ( "Failed to publish to StartNextPendingJobExecution API of AWS IoT Jobs service: "
@@ -819,9 +810,9 @@ int RunJobsDemo( bool awsIotMqttMode,
     }
 
     /* Unsubscribe from the NextJobExecutionChanged API topic. */
-    if( xUnsubscribeFromTopic( &xMqttContext,
-                               NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ),
-                               sizeof( NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ) ) - 1 ) != pdPASS )
+    if( UnsubscribeFromTopic( &xMqttContext,
+                              NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ),
+                              sizeof( NEXT_JOB_EXECUTION_CHANGED_TOPIC( democonfigTHING_NAME ) ) - 1 ) != pdPASS )
     {
         xDemoStatus = pdFAIL;
         LogError( ( "Failed to subscribe unsubscribe from the NextJobExecutionChanged API of AWS IoT Jobs service: "
@@ -829,7 +820,7 @@ int RunJobsDemo( bool awsIotMqttMode,
     }
 
     /* Disconnect the MQTT and network connections with AWS IoT. */
-    if( xDisconnectMqttSession( &xMqttContext, &xNetworkContext ) != pdPASS )
+    if( DisconnectMqttSession( &xMqttContext, &xNetworkContext ) != pdPASS )
     {
         xDemoStatus = pdFAIL;
         LogError( ( "Disconnection from AWS Iot failed..." ) );
