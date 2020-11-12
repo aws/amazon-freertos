@@ -71,15 +71,6 @@
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
-    #define LIBRARY_LOG_LEVEL    LOG_DEBUG
-#endif
-
-/* Logging configuration for the MQTT library. */
-#ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "MQTT"
-#endif
-
-#ifndef LIBRARY_LOG_LEVEL
     #define LIBRARY_LOG_LEVEL    LOG_INFO
 #endif
 
