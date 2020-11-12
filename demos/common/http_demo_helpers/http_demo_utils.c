@@ -1,0 +1,195 @@
+/*
+ * FreeRTOS V202011.00
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/* Standard includes. */
+#include <assert.h>
+
+#include "http_demo_utils.h"
+
+/* Retry utilities. */
+#include "retry_utils.h"
+
+/* Parser utilities. */
+#include "http_parser.h"
+
+/*-----------------------------------------------------------*/
+
+BaseType_t connectToServerWithBackoffRetries( TransportConnect_t connectFunction,
+                                              NetworkContext_t * pxNetworkContext )
+{
+    BaseType_t xReturn = pdFAIL;
+    /* Status returned by the retry utilities. */
+    RetryUtilsStatus_t xRetryUtilsStatus = RetryUtilsSuccess;
+    /* Struct containing the next backoff time. */
+    RetryUtilsParams_t xReconnectParams;
+
+    assert( connectFunction != NULL );
+
+    /* Initialize reconnect attempts and interval */
+    RetryUtils_ParamsReset( &xReconnectParams );
+    xReconnectParams.maxRetryAttempts = MAX_RETRY_ATTEMPTS;
+
+    /* Attempt to connect to HTTP server. If connection fails, retry after
+     * a timeout. Timeout value will exponentially increase until maximum
+     * attempts are reached. */
+    do
+    {
+        xReturn = connectFunction( pxNetworkContext );
+
+        if( xReturn != pdPASS )
+        {
+            LogWarn( ( "Connection to the HTTP server failed. "
+                       "Retrying connection with backoff and jitter." ) );
+            LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
+                       ( xReconnectParams.attemptsDone + 1 ),
+                       MAX_RETRY_ATTEMPTS ) );
+            xRetryUtilsStatus = RetryUtils_BackoffAndSleep( &xReconnectParams );
+        }
+    } while( ( xReturn == pdFAIL ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
+
+    if( xReturn == pdFAIL )
+    {
+        LogError( ( "Connection to the server failed, all attempts exhausted." ) );
+    }
+
+    return xReturn;
+}
+
+/*-----------------------------------------------------------*/
+
+HTTPStatus_t getUrlPath( const char * pUrl,
+                         size_t urlLen,
+                         const char ** pPath,
+                         size_t * pPathLen )
+{
+    /* http-parser status. Initialized to 1 to signify failure. */
+    int parserStatus = 1;
+    struct http_parser_url urlParser;
+    HTTPStatus_t xHTTPStatus = HTTPSuccess;
+
+    /* Sets all members in urlParser to 0. */
+    http_parser_url_init( &urlParser );
+
+    if( ( pUrl == NULL ) || ( pPath == NULL ) || ( pPathLen == NULL ) )
+    {
+        LogError( ( "NULL parameter passed to getUrlPath()." ) );
+        xHTTPStatus = HTTPInvalidParameter;
+    }
+
+    if( xHTTPStatus == HTTPSuccess )
+    {
+        parserStatus = http_parser_parse_url( pUrl, urlLen, 0, &urlParser );
+
+        if( parserStatus != 0 )
+        {
+            LogError( ( "Error parsing the input URL %.*s. Error code: %d.",
+                        ( int32_t ) urlLen,
+                        pUrl,
+                        parserStatus ) );
+            xHTTPStatus = HTTPParserInternalError;
+        }
+    }
+
+    if( xHTTPStatus == HTTPSuccess )
+    {
+        *pPathLen = ( size_t ) ( urlParser.field_data[ UF_PATH ].len );
+
+        if( *pPathLen == 0 )
+        {
+            xHTTPStatus = HTTPNoResponse;
+            *pPath = NULL;
+        }
+        else
+        {
+            *pPath = &pUrl[ urlParser.field_data[ UF_PATH ].off ];
+        }
+    }
+
+    if( xHTTPStatus != HTTPSuccess )
+    {
+        LogError( ( "Error parsing the path from URL %s. Error code: %d",
+                    pUrl,
+                    xHTTPStatus ) );
+    }
+
+    return xHTTPStatus;
+}
+
+/*-----------------------------------------------------------*/
+
+HTTPStatus_t getUrlAddress( const char * pUrl,
+                            size_t urlLen,
+                            const char ** pAddress,
+                            size_t * pAddressLen )
+{
+    /* http-parser status. Initialized to 1 to signify failure. */
+    int parserStatus = 1;
+    struct http_parser_url urlParser;
+    HTTPStatus_t xHTTPStatus = HTTPSuccess;
+
+    /* Sets all members in urlParser to 0. */
+    http_parser_url_init( &urlParser );
+
+    if( ( pUrl == NULL ) || ( pAddress == NULL ) || ( pAddressLen == NULL ) )
+    {
+        LogError( ( "NULL parameter passed to getUrlAddress()." ) );
+        xHTTPStatus = HTTPInvalidParameter;
+    }
+
+    if( xHTTPStatus == HTTPSuccess )
+    {
+        parserStatus = http_parser_parse_url( pUrl, urlLen, 0, &urlParser );
+
+        if( parserStatus != 0 )
+        {
+            LogError( ( "Error parsing the input URL %.*s. Error code: %d.",
+                        ( int32_t ) urlLen,
+                        pUrl,
+                        parserStatus ) );
+            xHTTPStatus = HTTPParserInternalError;
+        }
+    }
+
+    if( xHTTPStatus == HTTPSuccess )
+    {
+        *pAddressLen = ( size_t ) ( urlParser.field_data[ UF_HOST ].len );
+
+        if( *pAddressLen == 0 )
+        {
+            xHTTPStatus = HTTPNoResponse;
+            *pAddress = NULL;
+        }
+        else
+        {
+            *pAddress = &pUrl[ urlParser.field_data[ UF_HOST ].off ];
+        }
+    }
+
+    if( xHTTPStatus != HTTPSuccess )
+    {
+        LogError( ( "Error parsing the address from URL %s. Error code %d",
+                    pUrl,
+                    xHTTPStatus ) );
+    }
+
+    return xHTTPStatus;
+}
