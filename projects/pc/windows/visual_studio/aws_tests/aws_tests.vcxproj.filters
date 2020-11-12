@@ -535,21 +535,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client.h">
-			<Filter>libraries\coreHTTP\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client_private.h">
-			<Filter>libraries\coreHTTP\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_config_defaults.h">
-			<Filter>libraries\coreHTTP\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h">
-			<Filter>libraries\coreHTTP\source\interface</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.h">
-			<Filter>libraries\coreHTTP\source\3rdparty\http_parser</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h">
 			<Filter>libraries\coreJSON\source\include</Filter>
 		</ClInclude>

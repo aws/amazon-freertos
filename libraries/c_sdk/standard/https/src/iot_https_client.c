@@ -541,9 +541,9 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
  *
  * @param[in] pHttpsResponse - HTTP response context.
  *
- * @return  #IOT_HTTPS_OK - If the the response body was received with no issues.
- *          #IOT_HTTPS_RECEIVE_ABORT - If the request was cancelled by the Application
- *          #IOT_HTTPS_PARSING_ERROR - If there was an issue parsing the HTTP response body.
+ * @return  #IOT_HTTPS_OK if the the response body was received with no issues.
+ *          #IOT_HTTPS_RECEIVE_ABORT if the request was cancelled by the Application
+ *          #IOT_HTTPS_PARSING_ERROR if there was an issue parsing the HTTP response body.
  *          #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
  */
 static IotHttpsReturnCode_t _receiveHttpsBodyAsync( _httpsResponse_t * pHttpsResponse );
@@ -553,9 +553,9 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync( _httpsResponse_t * pHttpsRes
  *
  * @param[in] pHttpsResponse - HTTP response context.
  *
- * @return  #IOT_HTTPS_OK - If the the response body was received with no issues.
- *          #IOT_HTTPS_MESSAGE_TOO_LARGE - If the body from the network is too large to fit into the configured body buffer.
- *          #IOT_HTTPS_PARSING_ERROR - If there was an issue parsing the HTTP response body.
+ * @return  #IOT_HTTPS_OK if the the response body was received with no issues.
+ *          #IOT_HTTPS_MESSAGE_TOO_LARGE if the body from the network is too large to fit into the configured body buffer.
+ *          #IOT_HTTPS_PARSING_ERROR if there was an issue parsing the HTTP response body.
  *          #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
  */
 static IotHttpsReturnCode_t _receiveHttpsBodySync( _httpsResponse_t * pHttpsResponse );
@@ -565,9 +565,9 @@ static IotHttpsReturnCode_t _receiveHttpsBodySync( _httpsResponse_t * pHttpsResp
  *
  * @param[in] pHttpsRequest - HTTP request context.
  *
- * @return  #IOT_HTTPS_OK - If the task to send the HTTP request was successfully scheduled.
- *          #IOT_HTTPS_INTERNAL_ERROR - If a taskpool job could not be created.
- *          #IOT_HTTPS_ASYNC_SCHEDULING_ERROR - If there was an error scheduling the job.
+ * @return  #IOT_HTTPS_OK if the task to send the HTTP request was successfully scheduled.
+ *          #IOT_HTTPS_INTERNAL_ERROR if a taskpool job could not be created.
+ *          #IOT_HTTPS_ASYNC_SCHEDULING_ERROR if there was an error scheduling the job.
  */
 IotHttpsReturnCode_t _scheduleHttpsRequestSend( _httpsRequest_t * pHttpsRequest );
 
@@ -578,9 +578,9 @@ IotHttpsReturnCode_t _scheduleHttpsRequestSend( _httpsRequest_t * pHttpsRequest 
  *
  * @param[in] pHttpsRequest - HTTP request context.
  *
- * @return  #IOT_HTTPS_OK - If the request was successfully added to the connection's request queue.
- *          #IOT_HTTPS_INTERNAL_ERROR - If a taskpool job could not be created.
- *          #IOT_HTTPS_ASYNC_SCHEDULING_ERROR - If there was an error scheduling the job.
+ * @return  #IOT_HTTPS_OK if the request was successfully added to the connection's request queue.
+ *          #IOT_HTTPS_INTERNAL_ERROR if a taskpool job could not be created.
+ *          #IOT_HTTPS_ASYNC_SCHEDULING_ERROR if there was an error scheduling the job.
  */
 IotHttpsReturnCode_t _addRequestToConnectionReqQ( _httpsRequest_t * pHttpsRequest );
 
@@ -605,6 +605,7 @@ static void _cancelRequest( _httpsRequest_t * pHttpsRequest );
  *  - After Receiving the HTTPS body.
  *
  * @param[in] pHttpsResponse - HTTP response context.
+ *
  */
 static void _cancelResponse( _httpsResponse_t * pHttpsResponse );
 
@@ -614,10 +615,27 @@ static void _cancelResponse( _httpsResponse_t * pHttpsResponse );
  * @param[in] pRespHandle - Non-null HTTP response context.
  * @param[in] pRespInfo - Response configuration information.
  * @param[in] pHttpsRequest - HTTP request to grab async information, persistence, and method from.
+ *
+ * @return  #IOT_HTTPS_OK if the request was successfully added to the connection's request queue.
+ *          #IOT_HTTPS_INSUFFICIENT_MEMORY if the user-provided buffer was on insufficient size.
+ *          #IOT_HTTPS_INVALID_PARAMETER if a parameter was NULL.
  */
 static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t * pRespHandle,
                                                  IotHttpsResponseInfo_t * pRespInfo,
                                                  _httpsRequest_t * pHttpsRequest );
+
+/**
+ * @brief Convert a status code from coreHTTP to an equivalent status code in the HTTP V1 Library.
+ *
+ * @param[in] coreHttpStatus - The status code from coreHTTP.
+ *
+ * @return  #IOT_HTTPS_OK if the coreHTTP status was #HTTPSuccess.
+ *          #IOT_HTTPS_INVALID_PARAMETER if the coreHTTP status was #HTTPInvalidParameter.
+ *          #IOT_HTTPS_NETWORK_ERROR if the coreHTTP status was #HTTPNetworkError.
+ *          #IOT_HTTPS_INSUFFICIENT_MEMORY if the coreHTTP status was #HTTPInsufficientMemory.
+ *          #IOT_HTTPS_NOT_FOUND if the coreHTTP status was #HTTPHeaderNotFound.
+ */
+static IotHttpsReturnCode_t _shimConvertStatus( HTTPStatus_t coreHttpStatus );
 
 /**
  * @brief Increment the pointer stored in pBufCur depending on the character found in there.
@@ -637,6 +655,9 @@ static void _incrementNextLocationToWriteBeyondParsed( uint8_t ** pBufCur,
  *
  * @param[in] pHttpsConnection - HTTPS connection context.
  * @param[in] pHttpsRequest - HTTPS request context.
+ *
+ * @return #IOT_HTTPS_OK if the headers were fully sent successfully.
+ *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
  */
 static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttpsConnection,
                                                       _httpsRequest_t * pHttpsRequest );
@@ -2831,6 +2852,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest( IotHttpsRequestHandle_t *
     coreHttpStatus = HTTPClient_InitializeRequestHeaders( &coreHttpRequestHeaders,
                                                           &coreHttpRequestInfo );
 
+    /* Update the original library based on coreHTTP's output. */
     pHttpsRequest->pHeadersCur = pHttpsRequest->pHeaders + coreHttpRequestHeaders.headersLen;
 
     status = _shimConvertStatus( coreHttpStatus );
@@ -2946,11 +2968,13 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
                                          "Attempting to add auto-generated header %s. This is not allowed.",
                                          HTTPS_USER_AGENT_HEADER );
 
+    /* Map coreHTTP objects to be used by #HTTPClient_AddHeader. */
     coreHttpRequestHeaders.pBuffer = reqHandle->pHeaders;
     coreHttpRequestHeaders.bufferLen = ( size_t ) ( reqHandle->pHeadersEnd - reqHandle->pHeaders );
     coreHttpRequestHeaders.headersLen = ( size_t ) ( reqHandle->pHeadersCur - reqHandle->pHeaders );
     coreHttpStatus = HTTPClient_AddHeader( &coreHttpRequestHeaders, pName, nameLen, pValue, valueLen );
 
+    /* Update the original library based on coreHTTP's output. */
     reqHandle->pHeadersCur = reqHandle->pHeaders + coreHttpRequestHeaders.headersLen;
 
     status = _shimConvertStatus( coreHttpStatus );

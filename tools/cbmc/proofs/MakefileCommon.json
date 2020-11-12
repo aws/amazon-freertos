@@ -45,7 +45,6 @@
         "$(FREERTOS)/libraries/c_sdk/standard/mqtt/include",
         "$(FREERTOS)/libraries/c_sdk/standard/serializer/include",
         "$(FREERTOS)/libraries/c_sdk/aws/shadow/include",
-        "$(FREERTOS)/libraries/c_sdk/standard/https/include",
         "$(FREERTOS)/libraries/freertos_plus/aws/greengrass/include",
         "$(FREERTOS)/libraries/freertos_plus/aws/ota/src",
         "$(FREERTOS)/libraries/freertos_plus/aws/ota/include",
@@ -61,9 +60,7 @@
         "$(FREERTOS)/libraries/3rdparty/mbedtls_utils",
         "$(FREERTOS)/libraries/3rdparty/mbedtls_config",
         "$(FREERTOS)/libraries/3rdparty/tinycbor",
-        "$(FREERTOS)/libraries/coreHTTP/source/3rdparty/http_parser",
         "$(FREERTOS)/libraries/3rdparty/jsmn",
-
         "$(FREERTOS)/tools/cbmc/include",
         "$(FREERTOS)/tools/cbmc/windows",
         "$(FREERTOS)/tools/cbmc/windows2"
