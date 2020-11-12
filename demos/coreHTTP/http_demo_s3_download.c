@@ -81,7 +81,7 @@
 
 /* Check that the pre-signed GET URL is defined. */
 #ifndef democonfigS3_PRESIGNED_GET_URL
-    #error "Please define a democonfigS3_PRESIGNED_GET_URL."
+    #define democonfigS3_PRESIGNED_GET_URL    ""
 #endif
 
 /* Check that transport timeout for transport send and receive is defined. */
