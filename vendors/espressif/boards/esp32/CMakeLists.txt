@@ -179,7 +179,10 @@ endif()
 
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
+    INTERFACE 
+        "${afr_ports_dir}/wifi/iot_wifi.c"
+        "${afr_ports_dir}/wifi/iot_softap_wifi_provisioning.c"
+        "${esp_idf_dir}/components/nghttp/port/http_parser.c"
 )
 
 # BLE
