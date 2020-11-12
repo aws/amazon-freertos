@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202010.00
+ * FreeRTOS V202011.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -87,11 +87,6 @@
  *   - keyCLIENT_PRIVATE_KEY_PEM for client private key.
  */
 
-/* Check that the AWS IoT Core endpoint is defined. */
-#ifndef democonfigAWS_IOT_ENDPOINT
-    #error "Please define democonfigAWS_IOT_ENDPOINT."
-#endif
-
 /* Check that a TLS port for AWS IoT Core is defined. */
 #ifndef democonfigAWS_HTTP_PORT
     #error "Please define democonfigAWS_HTTP_PORT."
@@ -105,6 +100,11 @@
 /* Check that a request body to send for the POST request is defined. */
 #ifndef democonfigREQUEST_BODY
     #error "Please define a democonfigREQUEST_BODY."
+#endif
+
+/* Check that the AWS IoT Core endpoint is defined. */
+#ifndef democonfigAWS_IOT_ENDPOINT
+    #define democonfigAWS_IOT_ENDPOINT    ""
 #endif
 
 /* Check that the Root CA certificate is defined. */
@@ -159,7 +159,7 @@ static uint8_t userBuffer[ democonfigUSER_BUFFER_LENGTH ];
  *
  * @param[out] pxNetworkContext The output parameter to return the created network context.
  *
- * @return EXIT_FAILURE on failure; EXIT_SUCCESS on successful connection.
+ * @return pdPASS on successful connection, pdFAIL otherwise.
  */
 static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext );
 
@@ -173,7 +173,7 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext );
  * @param[in] pPath The Request-URI to the objects of interest.
  * @param[in] pathLen The length of the Request-URI.
  *
- * @return EXIT_FAILURE on failure; EXIT_SUCCESS on success.
+ * @return pdFAIL on failure; pdPASS on success.
  */
 static BaseType_t prvSendHttpRequest( const TransportInterface_t * pTransportInterface,
                                       const char * pMethod,
@@ -417,12 +417,12 @@ static BaseType_t prvSendHttpRequest( const TransportInterface_t * pTransportInt
         LogInfo( ( "Received HTTP response from %.*s%.*s...\n",
                    ( int32_t ) AWS_IOT_ENDPOINT_LENGTH, democonfigAWS_IOT_ENDPOINT,
                    ( int32_t ) requestInfo.pathLen, requestInfo.pPath ) );
-        LogInfo( ( "Response Headers:\n%.*s\n",
-                   ( int32_t ) response.headersLen, response.pHeaders ) );
-        LogInfo( ( "Status Code:\n%u\n",
-                   response.statusCode ) );
-        LogInfo( ( "Response Body:\n%.*s\n",
-                   ( int32_t ) response.bodyLen, response.pBody ) );
+        LogDebug( ( "Response Headers:\n%.*s\n",
+                    ( int32_t ) response.headersLen, response.pHeaders ) );
+        LogDebug( ( "Status Code:\n%u\n",
+                    response.statusCode ) );
+        LogDebug( ( "Response Body:\n%.*s\n",
+                    ( int32_t ) response.bodyLen, response.pBody ) );
     }
     else
     {
