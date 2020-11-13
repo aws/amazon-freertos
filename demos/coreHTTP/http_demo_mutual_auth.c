@@ -69,8 +69,8 @@
 /* HTTP API header. */
 #include "core_http_client.h"
 
-/* Include header for client credentials. */
-#include "aws_clientcredential_keys.h"
+/* Include header for connection configurations. */
+#include "aws_clientcredential.h"
 
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
@@ -87,11 +87,6 @@
  *   - keyCLIENT_PRIVATE_KEY_PEM for client private key.
  */
 
-/* Check that a TLS port for AWS IoT Core is defined. */
-#ifndef democonfigAWS_HTTP_PORT
-    #error "Please define democonfigAWS_HTTP_PORT."
-#endif
-
 /* Check that a path for HTTP Method POST is defined. */
 #ifndef democonfigPOST_PATH
     #error "Please define democonfigPOST_PATH."
@@ -104,10 +99,15 @@
 
 /* Check that the AWS IoT Core endpoint is defined. */
 #ifndef democonfigAWS_IOT_ENDPOINT
-    #define democonfigAWS_IOT_ENDPOINT    ""
+    #define democonfigAWS_IOT_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
 #endif
 
-/* Check that the Root CA certificate is defined. */
+/* Check that a TLS port for AWS IoT Core is defined. */
+#ifndef democonfigAWS_HTTP_PORT
+    #define democonfigAWS_HTTP_PORT    clientcredentialMQTT_BROKER_PORT
+#endif
+
+/* Check that the root CA certificate is defined. */
 #ifndef democonfigROOT_CA_PEM
     #define democonfigROOT_CA_PEM    tlsATS1_ROOT_CERTIFICATE_PEM
 #endif
@@ -125,22 +125,22 @@
 /**
  * @brief The length of the AWS IoT Endpoint.
  */
-#define AWS_IOT_ENDPOINT_LENGTH    ( sizeof( democonfigAWS_IOT_ENDPOINT ) - 1 )
+#define httpexampleAWS_IOT_ENDPOINT_LENGTH    ( sizeof( democonfigAWS_IOT_ENDPOINT ) - 1 )
 
 /**
  * @brief The length of the HTTP POST method.
  */
-#define HTTP_METHOD_POST_LENGTH    ( sizeof( HTTP_METHOD_POST ) - 1 )
+#define httpexampleHTTP_METHOD_POST_LENGTH    ( sizeof( HTTP_METHOD_POST ) - 1 )
 
 /**
  * @brief The length of the HTTP POST path.
  */
-#define POST_PATH_LENGTH           ( sizeof( democonfigPOST_PATH ) - 1 )
+#define httpexamplePOST_PATH_LENGTH           ( sizeof( democonfigPOST_PATH ) - 1 )
 
 /**
  * @brief Length of the request body.
  */
-#define REQUEST_BODY_LENGTH        ( sizeof( democonfigREQUEST_BODY ) - 1 )
+#define httpexampleREQUEST_BODY_LENGTH        ( sizeof( democonfigREQUEST_BODY ) - 1 )
 
 /**
  * @brief A buffer used in the demo for storing HTTP request headers and
@@ -150,7 +150,7 @@
  * response after the HTTP request is sent out. However, the user can also
  * decide to use separate buffers for storing the HTTP request and response.
  */
-static uint8_t userBuffer[ democonfigUSER_BUFFER_LENGTH ];
+static uint8_t ucUserBuffer[ democonfigUSER_BUFFER_LENGTH ];
 
 /*-----------------------------------------------------------*/
 
@@ -167,24 +167,24 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext );
  * @brief Send an HTTP request based on a specified method and path, then
  * print the response received from the server.
  *
- * @param[in] pTransportInterface The transport interface for making network calls.
- * @param[in] pMethod The HTTP request method.
- * @param[in] methodLen The length of the HTTP request method.
- * @param[in] pPath The Request-URI to the objects of interest.
- * @param[in] pathLen The length of the Request-URI.
+ * @param[in] pxTransportInterface The transport interface for making network calls.
+ * @param[in] pcMethod The HTTP request method.
+ * @param[in] xMethodLen The length of the HTTP request method.
+ * @param[in] pcPath The Request-URI to the objects of interest.
+ * @param[in] xPathLen The length of the Request-URI.
  *
  * @return pdFAIL on failure; pdPASS on success.
  */
-static BaseType_t prvSendHttpRequest( const TransportInterface_t * pTransportInterface,
-                                      const char * pMethod,
-                                      size_t methodLen,
-                                      const char * pPath,
-                                      size_t pathLen );
+static BaseType_t prvSendHttpRequest( const TransportInterface_t * pxTransportInterface,
+                                      const char * pcMethod,
+                                      size_t xMethodLen,
+                                      const char * pcPath,
+                                      size_t xPathLen );
 
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Entry point of demo.
+ * @brief Entry point of the demo.
  *
  * This example resolves the AWS IoT Core endpoint, establishes a TCP
  * connection, and performs a mutually authenticated TLS handshake such that all
@@ -223,18 +223,17 @@ int RunCoreHttpMutualAuthDemo( bool awsIotMqttMode,
 
     /**************************** Connect. ******************************/
 
-    /* Attempt to connect to the HTTP server. If connection fails, retry after
-     * a timeout. Timeout value will be exponentially increased till the maximum
-     * attempts are reached or maximum timeout value is reached. The function
-     * returns EXIT_FAILURE if the TCP connection cannot be established to
-     * broker after configured number of attempts. */
+    /* Attempt to connect to the HTTP server. If connection fails, retry after a
+     * timeout. The timeout value will be exponentially increased until either the
+     * maximum number of attempts or the maximum timeout value is reached. The
+     * function returns pdFAIL if the TCP connection cannot be established with
+     * the broker after configured number of attempts. */
     xDemoStatus = connectToServerWithBackoffRetries( prvConnectToServer,
                                                      &xNetworkContext );
 
     if( xDemoStatus == pdPASS )
     {
-        /* Set a flag indicating a TLS connection exists. This is done to
-         * disconnect if the loop exits before disconnection happens. */
+        /* Set a flag indicating that a TLS connection exists. */
         xIsConnectionEstablished = pdTRUE;
 
         /* Define the transport interface. */
@@ -247,7 +246,7 @@ int RunCoreHttpMutualAuthDemo( bool awsIotMqttMode,
         /* Log error to indicate connection failure after all
          * reconnect attempts are over. */
         LogError( ( "Failed to connect to HTTP server %.*s.",
-                    ( int32_t ) AWS_IOT_ENDPOINT_LENGTH,
+                    ( int32_t ) httpexampleAWS_IOT_ENDPOINT_LENGTH,
                     democonfigAWS_IOT_ENDPOINT ) );
     }
 
@@ -257,9 +256,9 @@ int RunCoreHttpMutualAuthDemo( bool awsIotMqttMode,
     {
         xDemoStatus = prvSendHttpRequest( &xTransportInterface,
                                           HTTP_METHOD_POST,
-                                          HTTP_METHOD_POST_LENGTH,
+                                          httpexampleHTTP_METHOD_POST_LENGTH,
                                           democonfigPOST_PATH,
-                                          POST_PATH_LENGTH );
+                                          httpexamplePOST_PATH_LENGTH );
     }
 
     /**************************** Disconnect. ******************************/
@@ -298,7 +297,7 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext )
 
     /* Initializer server information. */
     xServerInfo.pHostName = democonfigAWS_IOT_ENDPOINT;
-    xServerInfo.hostNameLength = AWS_IOT_ENDPOINT_LENGTH;
+    xServerInfo.hostNameLength = httpexampleAWS_IOT_ENDPOINT_LENGTH;
     xServerInfo.port = democonfigAWS_HTTP_PORT;
 
     /* Configure credentials for TLS mutual authenticated session. */
@@ -313,9 +312,9 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext )
 
     /* Establish a TLS session with the HTTP server. This example connects to
      * the HTTP server as specified in democonfigAWS_IOT_ENDPOINT and
-     * democonfigAWS_HTTP_PORT in demo_config.h. */
+     * democonfigAWS_HTTP_PORT in http_demo_mutual_auth_config.h. */
     LogInfo( ( "Establishing a TLS session to %.*s:%d.",
-               ( int32_t ) AWS_IOT_ENDPOINT_LENGTH,
+               ( int32_t ) httpexampleAWS_IOT_ENDPOINT_LENGTH,
                democonfigAWS_IOT_ENDPOINT,
                democonfigAWS_HTTP_PORT ) );
 
@@ -334,106 +333,106 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext )
 
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvSendHttpRequest( const TransportInterface_t * pTransportInterface,
-                                      const char * pMethod,
-                                      size_t methodLen,
-                                      const char * pPath,
-                                      size_t pathLen )
+static BaseType_t prvSendHttpRequest( const TransportInterface_t * pxTransportInterface,
+                                      const char * pcMethod,
+                                      size_t xMethodLen,
+                                      const char * pcPath,
+                                      size_t xPathLen )
 {
     /* Return value of this method. */
     BaseType_t xStatus = pdPASS;
 
     /* Configurations of the initial request headers that are passed to
      * #HTTPClient_InitializeRequestHeaders. */
-    HTTPRequestInfo_t requestInfo;
+    HTTPRequestInfo_t xRequestInfo;
     /* Represents a response returned from an HTTP server. */
-    HTTPResponse_t response;
+    HTTPResponse_t xResponse;
     /* Represents header data that will be sent in an HTTP request. */
-    HTTPRequestHeaders_t requestHeaders;
+    HTTPRequestHeaders_t xRequestHeaders;
 
     /* Return value of all methods from the HTTP Client library API. */
-    HTTPStatus_t httpStatus = HTTPSuccess;
+    HTTPStatus_t xHTTPStatus = HTTPSuccess;
 
-    configASSERT( pMethod != NULL );
-    configASSERT( pPath != NULL );
+    configASSERT( pcMethod != NULL );
+    configASSERT( pcPath != NULL );
 
     /* Initialize all HTTP Client library API structs to 0. */
-    ( void ) memset( &requestInfo, 0, sizeof( requestInfo ) );
-    ( void ) memset( &response, 0, sizeof( response ) );
-    ( void ) memset( &requestHeaders, 0, sizeof( requestHeaders ) );
+    ( void ) memset( &xRequestInfo, 0, sizeof( xRequestInfo ) );
+    ( void ) memset( &xResponse, 0, sizeof( xResponse ) );
+    ( void ) memset( &xRequestHeaders, 0, sizeof( xRequestHeaders ) );
 
     /* Initialize the request object. */
-    requestInfo.pHost = democonfigAWS_IOT_ENDPOINT;
-    requestInfo.hostLen = AWS_IOT_ENDPOINT_LENGTH;
-    requestInfo.pMethod = pMethod;
-    requestInfo.methodLen = methodLen;
-    requestInfo.pPath = pPath;
-    requestInfo.pathLen = pathLen;
+    xRequestInfo.pHost = democonfigAWS_IOT_ENDPOINT;
+    xRequestInfo.hostLen = httpexampleAWS_IOT_ENDPOINT_LENGTH;
+    xRequestInfo.pMethod = pcMethod;
+    xRequestInfo.methodLen = xMethodLen;
+    xRequestInfo.pPath = pcPath;
+    xRequestInfo.pathLen = xPathLen;
 
     /* Set "Connection" HTTP header to "keep-alive" so that multiple requests
      * can be sent over the same established TCP connection. */
-    requestInfo.reqFlags = HTTP_REQUEST_KEEP_ALIVE_FLAG;
+    xRequestInfo.reqFlags = HTTP_REQUEST_KEEP_ALIVE_FLAG;
 
     /* Set the buffer used for storing request headers. */
-    requestHeaders.pBuffer = userBuffer;
-    requestHeaders.bufferLen = democonfigUSER_BUFFER_LENGTH;
+    xRequestHeaders.pBuffer = ucUserBuffer;
+    xRequestHeaders.bufferLen = democonfigUSER_BUFFER_LENGTH;
 
-    httpStatus = HTTPClient_InitializeRequestHeaders( &requestHeaders,
-                                                      &requestInfo );
+    xHTTPStatus = HTTPClient_InitializeRequestHeaders( &xRequestHeaders,
+                                                       &xRequestInfo );
 
-    if( httpStatus == HTTPSuccess )
+    if( xHTTPStatus == HTTPSuccess )
     {
         /* Initialize the response object. The same buffer used for storing
          * request headers is reused here. */
-        response.pBuffer = userBuffer;
-        response.bufferLen = democonfigUSER_BUFFER_LENGTH;
+        xResponse.pBuffer = ucUserBuffer;
+        xResponse.bufferLen = democonfigUSER_BUFFER_LENGTH;
 
         LogInfo( ( "Sending HTTP %.*s request to %.*s%.*s...",
-                   ( int32_t ) requestInfo.methodLen, requestInfo.pMethod,
-                   ( int32_t ) AWS_IOT_ENDPOINT_LENGTH, democonfigAWS_IOT_ENDPOINT,
-                   ( int32_t ) requestInfo.pathLen, requestInfo.pPath ) );
+                   ( int32_t ) xRequestInfo.methodLen, xRequestInfo.pMethod,
+                   ( int32_t ) httpexampleAWS_IOT_ENDPOINT_LENGTH, democonfigAWS_IOT_ENDPOINT,
+                   ( int32_t ) xRequestInfo.pathLen, xRequestInfo.pPath ) );
         LogDebug( ( "Request Headers:\n%.*s\n"
                     "Request Body:\n%.*s\n",
-                    ( int32_t ) requestHeaders.headersLen,
-                    ( char * ) requestHeaders.pBuffer,
-                    ( int32_t ) REQUEST_BODY_LENGTH, democonfigREQUEST_BODY ) );
+                    ( int32_t ) xRequestHeaders.headersLen,
+                    ( char * ) xRequestHeaders.pBuffer,
+                    ( int32_t ) httpexampleREQUEST_BODY_LENGTH, democonfigREQUEST_BODY ) );
 
         /* Send the request and receive the response. */
-        httpStatus = HTTPClient_Send( pTransportInterface,
-                                      &requestHeaders,
-                                      ( uint8_t * ) democonfigREQUEST_BODY,
-                                      REQUEST_BODY_LENGTH,
-                                      &response,
-                                      0 );
+        xHTTPStatus = HTTPClient_Send( pxTransportInterface,
+                                       &xRequestHeaders,
+                                       ( uint8_t * ) democonfigREQUEST_BODY,
+                                       httpexampleREQUEST_BODY_LENGTH,
+                                       &xResponse,
+                                       0 );
     }
     else
     {
         LogError( ( "Failed to initialize HTTP request headers: Error=%s.",
-                    HTTPClient_strerror( httpStatus ) ) );
+                    HTTPClient_strerror( xHTTPStatus ) ) );
     }
 
-    if( httpStatus == HTTPSuccess )
+    if( xHTTPStatus == HTTPSuccess )
     {
         LogInfo( ( "Received HTTP response from %.*s%.*s...\n",
-                   ( int32_t ) AWS_IOT_ENDPOINT_LENGTH, democonfigAWS_IOT_ENDPOINT,
-                   ( int32_t ) requestInfo.pathLen, requestInfo.pPath ) );
+                   ( int32_t ) httpexampleAWS_IOT_ENDPOINT_LENGTH, democonfigAWS_IOT_ENDPOINT,
+                   ( int32_t ) xRequestInfo.pathLen, xRequestInfo.pPath ) );
         LogDebug( ( "Response Headers:\n%.*s\n",
-                    ( int32_t ) response.headersLen, response.pHeaders ) );
+                    ( int32_t ) xResponse.headersLen, xResponse.pHeaders ) );
         LogDebug( ( "Status Code:\n%u\n",
-                    response.statusCode ) );
+                    xResponse.statusCode ) );
         LogDebug( ( "Response Body:\n%.*s\n",
-                    ( int32_t ) response.bodyLen, response.pBody ) );
+                    ( int32_t ) xResponse.bodyLen, xResponse.pBody ) );
     }
     else
     {
         LogError( ( "Failed to send HTTP %.*s request to %.*s%.*s: Error=%s.",
-                    ( int32_t ) requestInfo.methodLen, requestInfo.pMethod,
-                    ( int32_t ) AWS_IOT_ENDPOINT_LENGTH, democonfigAWS_IOT_ENDPOINT,
-                    ( int32_t ) requestInfo.pathLen, requestInfo.pPath,
-                    HTTPClient_strerror( httpStatus ) ) );
+                    ( int32_t ) xRequestInfo.methodLen, xRequestInfo.pMethod,
+                    ( int32_t ) httpexampleAWS_IOT_ENDPOINT_LENGTH, democonfigAWS_IOT_ENDPOINT,
+                    ( int32_t ) xRequestInfo.pathLen, xRequestInfo.pPath,
+                    HTTPClient_strerror( xHTTPStatus ) ) );
     }
 
-    if( httpStatus != HTTPSuccess )
+    if( xHTTPStatus != HTTPSuccess )
     {
         xStatus = pdFAIL;
     }
