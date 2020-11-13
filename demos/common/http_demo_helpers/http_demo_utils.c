@@ -76,10 +76,10 @@ BaseType_t connectToServerWithBackoffRetries( TransportConnect_t connectFunction
 
 /*-----------------------------------------------------------*/
 
-HTTPStatus_t getUrlPath( const char * pUrl,
-                         size_t urlLen,
-                         const char ** pPath,
-                         size_t * pPathLen )
+HTTPStatus_t getUrlPath( const char * pcUrl,
+                         size_t xUrlLen,
+                         const char ** pcPath,
+                         size_t * pxPathLen )
 {
     /* http-parser status. Initialized to 1 to signify failure. */
     int parserStatus = 1;
@@ -89,7 +89,7 @@ HTTPStatus_t getUrlPath( const char * pUrl,
     /* Sets all members in urlParser to 0. */
     http_parser_url_init( &urlParser );
 
-    if( ( pUrl == NULL ) || ( pPath == NULL ) || ( pPathLen == NULL ) )
+    if( ( pcUrl == NULL ) || ( pcPath == NULL ) || ( pxPathLen == NULL ) )
     {
         LogError( ( "NULL parameter passed to getUrlPath()." ) );
         xHTTPStatus = HTTPInvalidParameter;
@@ -97,13 +97,13 @@ HTTPStatus_t getUrlPath( const char * pUrl,
 
     if( xHTTPStatus == HTTPSuccess )
     {
-        parserStatus = http_parser_parse_url( pUrl, urlLen, 0, &urlParser );
+        parserStatus = http_parser_parse_url( pcUrl, xUrlLen, 0, &urlParser );
 
         if( parserStatus != 0 )
         {
             LogError( ( "Error parsing the input URL %.*s. Error code: %d.",
-                        ( int32_t ) urlLen,
-                        pUrl,
+                        ( int32_t ) xUrlLen,
+                        pcUrl,
                         parserStatus ) );
             xHTTPStatus = HTTPParserInternalError;
         }
@@ -111,23 +111,23 @@ HTTPStatus_t getUrlPath( const char * pUrl,
 
     if( xHTTPStatus == HTTPSuccess )
     {
-        *pPathLen = ( size_t ) ( urlParser.field_data[ UF_PATH ].len );
+        *pxPathLen = ( size_t ) ( urlParser.field_data[ UF_PATH ].len );
 
-        if( *pPathLen == 0 )
+        if( *pxPathLen == 0 )
         {
             xHTTPStatus = HTTPNoResponse;
-            *pPath = NULL;
+            *pcPath = NULL;
         }
         else
         {
-            *pPath = &pUrl[ urlParser.field_data[ UF_PATH ].off ];
+            *pcPath = &pcUrl[ urlParser.field_data[ UF_PATH ].off ];
         }
     }
 
     if( xHTTPStatus != HTTPSuccess )
     {
         LogError( ( "Error parsing the path from URL %s. Error code: %d",
-                    pUrl,
+                    pcUrl,
                     xHTTPStatus ) );
     }
 
@@ -136,8 +136,8 @@ HTTPStatus_t getUrlPath( const char * pUrl,
 
 /*-----------------------------------------------------------*/
 
-HTTPStatus_t getUrlAddress( const char * pUrl,
-                            size_t urlLen,
+HTTPStatus_t getUrlAddress( const char * pcUrl,
+                            size_t xUrlLen,
                             const char ** pAddress,
                             size_t * pAddressLen )
 {
@@ -149,7 +149,7 @@ HTTPStatus_t getUrlAddress( const char * pUrl,
     /* Sets all members in urlParser to 0. */
     http_parser_url_init( &urlParser );
 
-    if( ( pUrl == NULL ) || ( pAddress == NULL ) || ( pAddressLen == NULL ) )
+    if( ( pcUrl == NULL ) || ( pAddress == NULL ) || ( pAddressLen == NULL ) )
     {
         LogError( ( "NULL parameter passed to getUrlAddress()." ) );
         xHTTPStatus = HTTPInvalidParameter;
@@ -157,13 +157,13 @@ HTTPStatus_t getUrlAddress( const char * pUrl,
 
     if( xHTTPStatus == HTTPSuccess )
     {
-        parserStatus = http_parser_parse_url( pUrl, urlLen, 0, &urlParser );
+        parserStatus = http_parser_parse_url( pcUrl, xUrlLen, 0, &urlParser );
 
         if( parserStatus != 0 )
         {
             LogError( ( "Error parsing the input URL %.*s. Error code: %d.",
-                        ( int32_t ) urlLen,
-                        pUrl,
+                        ( int32_t ) xUrlLen,
+                        pcUrl,
                         parserStatus ) );
             xHTTPStatus = HTTPParserInternalError;
         }
@@ -180,14 +180,14 @@ HTTPStatus_t getUrlAddress( const char * pUrl,
         }
         else
         {
-            *pAddress = &pUrl[ urlParser.field_data[ UF_HOST ].off ];
+            *pAddress = &pcUrl[ urlParser.field_data[ UF_HOST ].off ];
         }
     }
 
     if( xHTTPStatus != HTTPSuccess )
     {
         LogError( ( "Error parsing the address from URL %s. Error code %d",
-                    pUrl,
+                    pcUrl,
                     xHTTPStatus ) );
     }
 

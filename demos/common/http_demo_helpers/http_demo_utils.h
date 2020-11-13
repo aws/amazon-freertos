@@ -69,27 +69,27 @@ BaseType_t connectToServerWithBackoffRetries( TransportConnect_t connectFunction
  *
  * The URL MUST start with "http://" or "https://" to find the path.
  *
- * For example, if pUrl is:
+ * For example, if pcUrl is:
  * "https://www.somewebsite.com/path/to/item.txt?optionalquery=stuff"
  *
- * Then pPath and pPathLen will be the following:
- * *pPath = "/path/to/item.txt?optionalquery=stuff"
- * *pPathLen = 17
+ * Then pcPath and pxPathLen will be the following:
+ * *pcPath = "/path/to/item.txt?optionalquery=stuff"
+ * *pxPathLen = 17
  *
- * @param[in] pUrl URL string to parse.
- * @param[in] urlLen The length of the URL string input.
- * @param[out] pPath pointer within input url that the path starts at.
- * @param[out] pPathLen Length of the path.
+ * @param[in] pcUrl URL string to parse.
+ * @param[in] xUrlLen The length of the URL string input.
+ * @param[out] pcPath pointer within input url that the path starts at.
+ * @param[out] pxPathLen Length of the path.
  *
  * @return The status of the parsing attempt:
  * HTTPSuccess if the path was successfully parsed,
  * HTTPParserInternalError if there was an error parsing the URL,
  * or HTTPNoResponse if the path was not found.
  */
-HTTPStatus_t getUrlPath( const char * pUrl,
-                         size_t urlLen,
-                         const char ** pPath,
-                         size_t * pPathLen );
+HTTPStatus_t getUrlPath( const char * pcUrl,
+                         size_t xUrlLen,
+                         const char ** pcPath,
+                         size_t * pxPathLen );
 
 /**
  * @brief Retrieve the Address from the input URL.
@@ -99,26 +99,26 @@ HTTPStatus_t getUrlPath( const char * pUrl,
  *
  * The URL MUST start with "http://" or "https://" to find the address.
  *
- * For example, if pUrl is:
+ * For example, if pcUrl is:
  * "https://www.somewebsite.com/path/to/item.txt?optionalquery=stuff"
  *
- * Then pAddress and pAddressLen will be the following:
- * *pAddress = "www.somewebsite.com/path/to/item.txt?optionalquery=stuff"
- * *pAddressLen = 19
+ * Then pcAddress and pxAddressLen will be the following:
+ * *pcAddress = "www.somewebsite.com/path/to/item.txt?optionalquery=stuff"
+ * *pxAddressLen = 19
  *
- * @param[in] pUrl URL string to parse.
- * @param[in] urlLen The length of the URL string input.
- * @param[out] pAddress pointer within input url that the address starts at.
- * @param[out] pAddressLen Length of the address.
+ * @param[in] pcUrl URL string to parse.
+ * @param[in] xUrlLen The length of the URL string input.
+ * @param[out] pcAddress pointer within input url that the address starts at.
+ * @param[out] pxAddressLen Length of the address.
  *
  * @return The status of the parsing attempt:
  * HTTPSuccess if the path was successfully parsed,
  * HTTPParserInternalError if there was an error parsing the URL,
  * or HTTPNoResponse if the path was not found.
  */
-HTTPStatus_t getUrlAddress( const char * pUrl,
-                            size_t urlLen,
-                            const char ** pAddress,
-                            size_t * pAddressLen );
+HTTPStatus_t getUrlAddress( const char * pcUrl,
+                            size_t xUrlLen,
+                            const char ** pcAddress,
+                            size_t * pxAddressLen );
 
 #endif /* ifndef HTTP_DEMO_UTILS_H */
