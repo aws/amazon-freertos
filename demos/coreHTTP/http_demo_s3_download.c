@@ -27,13 +27,13 @@
  * Demo for showing use of the HTTP API using a server-authenticated network
  * connection.
  *
- * This example, using a pre-signed URL, resolves a S3 domain, establishes a
- * TCP connection, validates the server's certificate using the root CA
- * certificate defined in the config header, then finally performs a TLS
- * handshake with the HTTP server so that all communication is encrypted. After
- * which, the HTTP lient library API is used to download the S3 file (by
- * sending multiple GET requests, filling up the response buffer each time until
- * all parts are downloaded). If any request fails, an error code is returned.
+ * This example, using a pre-signed URL, resolves a S3 domain, establishes a TCP
+ * connection, validates the server's certificate using the root CA certificate
+ * defined in the config header, then finally performs a TLS handshake with the
+ * HTTP server so that all communication is encrypted. After which, the HTTP
+ * client library API is used to download the S3 file (by sending multiple GET
+ * requests, filling up the response buffer each time until all parts are
+ * downloaded). If any request fails, an error code is returned.
  */
 
 /**
@@ -81,7 +81,7 @@
 
 /* Check that the pre-signed GET URL is defined. */
 #ifndef democonfigS3_PRESIGNED_GET_URL
-    #define democonfigS3_PRESIGNED_GET_URL    ""
+    #define democonfigS3_PRESIGNED_GET_URL    "GET-URL"
 #endif
 
 /* Check that transport timeout for transport send and receive is defined. */
