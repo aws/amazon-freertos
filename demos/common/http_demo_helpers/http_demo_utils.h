@@ -49,11 +49,12 @@ typedef BaseType_t ( * TransportConnect_t )( NetworkContext_t * pxNetworkContext
 /**
  * @brief Connect to a server with reconnection retries.
  *
- * If connection fails, retry is attempted after a timeout.
- * Timeout value will exponentially increase until maximum
- * timeout value is reached or the number of attempts are exhausted.
+ * If connection fails, retry is attempted after a timeout. The timeout value
+ * will exponentially increase until either the maximum timeout value is reached
+ * or the set number of attempts are exhausted.
  *
- * @param[in] connectFunction Function pointer for establishing connection to a server.
+ * @param[in] connectFunction Function pointer for establishing connection to a
+ * server.
  * @param[out] pxNetworkContext Implementation-defined network context.
  *
  * @return pdFAIL on failure; pdPASS on successful connection.

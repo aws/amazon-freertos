@@ -48,9 +48,10 @@ BaseType_t connectToServerWithBackoffRetries( TransportConnect_t connectFunction
     RetryUtils_ParamsReset( &xReconnectParams );
     xReconnectParams.maxRetryAttempts = MAX_RETRY_ATTEMPTS;
 
-    /* Attempt to connect to HTTP server. If connection fails, retry after
-     * a timeout. Timeout value will exponentially increase until maximum
-     * attempts are reached. */
+    /* Attempt to connect to the HTTP server. If connection fails, retry after a
+     * timeout. The timeout value will exponentially increase until either the
+     * maximum timeout value is reached or the set number of attempts are
+     * exhausted.*/
     do
     {
         xReturn = connectFunction( pxNetworkContext );
