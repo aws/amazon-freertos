@@ -237,7 +237,7 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pxFileSize,
  * be null-terminated.
  *
  * @return The status of the file upload using a PUT request to the server: pdPASS
- * on success, pdFAIl on failure.
+ * on success, pdFAIL on failure.
  */
 static BaseType_t prvUploadS3ObjectFile( const TransportInterface_t * pxTransportInterface,
                                          const char * pcPath );
