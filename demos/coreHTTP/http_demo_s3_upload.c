@@ -69,7 +69,7 @@
 
 /*------------- Demo configurations -------------------------*/
 
-/* Check that TLS port of the server is defined. */
+/* Check that the TLS port of the server is defined. */
 #ifndef democonfigHTTPS_PORT
     #error "Please define a democonfigHTTPS_PORT."
 #endif
@@ -89,12 +89,13 @@
     #define democonfigS3_PRESIGNED_PUT_URL    "PUT-URL"
 #endif
 
-/* Check that transport timeout for transport send and receive is defined. */
+/* Check that a transport timeout for transport send and receive functions is
+ * defined. */
 #ifndef democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS
     #define democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 1000 )
 #endif
 
-/* Check that size of the user buffer is defined. */
+/* Check that the size of the user buffer is defined. */
 #ifndef democonfigUSER_BUFFER_LENGTH
     #define democonfigUSER_BUFFER_LENGTH    ( 4096 )
 #endif
@@ -107,42 +108,47 @@
 /**
  * @brief Length of the pre-signed GET URL defined in http_demo_s3_upload_config.h.
  */
-#define S3_PRESIGNED_GET_URL_LENGTH               ( sizeof( democonfigS3_PRESIGNED_GET_URL ) - 1 )
+#define httpexampleS3_PRESIGNED_GET_URL_LENGTH               ( sizeof( democonfigS3_PRESIGNED_GET_URL ) - 1 )
 
 /**
  * @brief Length of the pre-signed PUT URL defined in http_demo_s3_upload_config.h.
  */
-#define S3_PRESIGNED_PUT_URL_LENGTH               ( sizeof( democonfigS3_PRESIGNED_PUT_URL ) - 1 )
+#define httpexampleS3_PRESIGNED_PUT_URL_LENGTH               ( sizeof( democonfigS3_PRESIGNED_PUT_URL ) - 1 )
 
 /**
  * @brief The length of the HTTP GET method.
  */
-#define HTTP_METHOD_GET_LENGTH                    ( sizeof( HTTP_METHOD_GET ) - 1 )
+#define httpexampleHTTP_METHOD_GET_LENGTH                    ( sizeof( HTTP_METHOD_GET ) - 1 )
 
 /**
  * @brief The length of the HTTP PUT method.
  */
-#define HTTP_METHOD_PUT_LENGTH                    ( sizeof( HTTP_METHOD_PUT ) - 1 )
+#define httpexampleHTTP_METHOD_PUT_LENGTH                    ( sizeof( HTTP_METHOD_PUT ) - 1 )
 
 /**
  * @brief Field name of the HTTP range header to read from server response.
  */
-#define HTTP_CONTENT_RANGE_HEADER_FIELD           "Content-Range"
+#define httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD           "Content-Range"
 
 /**
  * @brief Length of the HTTP range header field.
  */
-#define HTTP_CONTENT_RANGE_HEADER_FIELD_LENGTH    ( sizeof( HTTP_CONTENT_RANGE_HEADER_FIELD ) - 1 )
+#define httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD_LENGTH    ( sizeof( httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD ) - 1 )
 
 /**
  * @brief The length of the data in bytes to upload.
  */
-#define DEMO_HTTP_UPLOAD_DATA_LENGTH              ( sizeof( democonfigDEMO_HTTP_UPLOAD_DATA ) - 1 )
+#define httpexampleDEMO_HTTP_UPLOAD_DATA_LENGTH              ( sizeof( democonfigDEMO_HTTP_UPLOAD_DATA ) - 1 )
 
 /**
  * @brief The HTTP status code returned for partial content.
  */
-#define HTTP_STATUS_CODE_PARTIAL_CONTENT          206
+#define httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT          206
+
+/**
+ * @brief The HTTP status code returned for a successful request.
+ */
+#define httpexampleHTTP_STATUS_CODE_SUCCESSFUL_REQUEST       200
 
 /**
  * @brief A buffer used in the demo for storing HTTP request headers, and HTTP
@@ -152,7 +158,7 @@
  * response after the HTTP request is sent out. However, the user can decide how
  * to use buffers to store HTTP requests and responses.
  */
-static uint8_t xUserBuffer[ democonfigUSER_BUFFER_LENGTH ];
+static uint8_t ucUserBuffer[ democonfigUSER_BUFFER_LENGTH ];
 
 /**
  * @brief Represents header data that will be sent in an HTTP request.
@@ -173,20 +179,20 @@ static HTTPResponse_t xResponse;
 /**
  * @brief The host address string extracted from the pre-signed URL.
  *
- * @note S3_PRESIGNED_PUT_URL_LENGTH is set as the array length here as the
- * length of the host name string cannot exceed this value.
+ * @note httpexampleS3_PRESIGNED_PUT_URL_LENGTH is set as the array length here
+ * as the length of the host name string cannot exceed this value.
  */
-static char pxServerHost[ S3_PRESIGNED_PUT_URL_LENGTH ];
+static char cServerHost[ httpexampleS3_PRESIGNED_PUT_URL_LENGTH ];
 
 /**
  * @brief The length of the host address found in the pre-signed URL.
  */
-static size_t serverHostLength;
+static size_t xServerHostLength;
 
 /**
  * @brief The location of the path within the pre-signed URL.
  */
-static const char * pPath;
+static const char * pcPath;
 
 /*-----------------------------------------------------------*/
 
@@ -201,55 +207,55 @@ static const char * pPath;
 static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext );
 
 /**
- * @brief Retrieve the size of the S3 object that is specified in pPath.
+ * @brief Retrieve the size of the S3 object that is specified in pcPath.
  *
- * @param[out] pFileSize The size of the S3 object.
- * @param[in] pTransportInterface The transport interface for making network
+ * @param[out] pxFileSize The size of the S3 object.
+ * @param[in] pxTransportInterface The transport interface for making network
  * calls.
- * @param[in] pHost The server host address. This string must be
+ * @param[in] pcHost The server host address. This string must be
  * null-terminated.
- * @param[in] hostLen The length of the server host address.
- * @param[in] pPath The Request-URI to the objects of interest. This string
+ * @param[in] xHostLen The length of the server host address.
+ * @param[in] pcPath The Request-URI to the objects of interest. This string
  * should be null-terminated.
  *
  * @return The status of the file size acquisition using a GET request to the
  * server: pdPASS on success, pdFAIL on failure.
  */
-static BaseType_t prvGetS3ObjectFileSize( size_t * pFileSize,
-                                          const TransportInterface_t * pTransportInterface,
-                                          const char * pHost,
-                                          size_t hostLen,
-                                          const char * pPath );
+static BaseType_t prvGetS3ObjectFileSize( size_t * pxFileSize,
+                                          const TransportInterface_t * pxTransportInterface,
+                                          const char * pcHost,
+                                          size_t xHostLen,
+                                          const char * pcPath );
 
 /**
  * @brief Send an HTTP PUT request based on a specified path to upload a file,
  * then print the response received from the server.
  *
- * @param[in] pTransportInterface The transport interface for making network
+ * @param[in] pxTransportInterface The transport interface for making network
  * calls.
- * @param[in] pPath The Request-URI to the objects of interest. This string must
+ * @param[in] pcPath The Request-URI to the objects of interest. This string must
  * be null-terminated.
  *
  * @return The status of the file upload using a PUT request to the server: pdPASS
  * on success, pdFAIl on failure.
  */
-static BaseType_t prvUploadS3ObjectFile( const TransportInterface_t * pTransportInterface,
-                                         const char * pPath );
+static BaseType_t prvUploadS3ObjectFile( const TransportInterface_t * pxTransportInterface,
+                                         const char * pcPath );
 
 /**
  * @brief Retrieve and verify the size of the S3 object that is specified in
- * pPath.
+ * pcPath.
  *
- * @param[in] pTransportInterface The transport interface for making network
+ * @param[in] pxTransportInterface The transport interface for making network
  * calls.
- * @param[in] pPath The Request-URI to the objects of interest. This string must
+ * @param[in] pcPath The Request-URI to the objects of interest. This string must
  * be null-terminated.
  *
  * @return The status of the file size acquisition and verification using a GET
- * request to the server: pdPASS on success, -pdFAIL on failure.
+ * request to the server: pdPASS on success, pdFAIL on failure.
  */
-static BaseType_t prvVerifyS3ObjectFileSize( const TransportInterface_t * pTransportInterface,
-                                             const char * pPath );
+static BaseType_t prvVerifyS3ObjectFileSize( const TransportInterface_t * pxTransportInterface,
+                                             const char * pcPath );
 
 /*-----------------------------------------------------------*/
 
@@ -262,26 +268,26 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext )
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
 
     /* The location of the host address within the pre-signed URL. */
-    const char * pAddress = NULL;
+    const char * pcAddress = NULL;
 
     /* Retrieve the address location and length from democonfigS3_PRESIGNED_PUT_URL. */
     xHTTPStatus = getUrlAddress( democonfigS3_PRESIGNED_PUT_URL,
-                                 S3_PRESIGNED_GET_URL_LENGTH,
-                                 &pAddress,
-                                 &serverHostLength );
+                                 httpexampleS3_PRESIGNED_GET_URL_LENGTH,
+                                 &pcAddress,
+                                 &xServerHostLength );
 
     xStatus = ( xHTTPStatus == HTTPSuccess ) ? pdPASS : pdFAIL;
 
     if( xStatus == pdPASS )
     {
-        /* pxServerHost should consist only of the host address located in
+        /* cServerHost should consist only of the host address located in
          * democonfigS3_PRESIGNED_PUT_URL. */
-        memcpy( pxServerHost, pAddress, serverHostLength );
-        pxServerHost[ serverHostLength ] = '\0';
+        memcpy( cServerHost, pcAddress, xServerHostLength );
+        cServerHost[ xServerHostLength ] = '\0';
 
         /* Initializer server information. */
-        xServerInfo.pHostName = pxServerHost;
-        xServerInfo.hostNameLength = serverHostLength;
+        xServerInfo.pHostName = cServerHost;
+        xServerInfo.hostNameLength = xServerHostLength;
         xServerInfo.port = democonfigHTTPS_PORT;
 
         /* Configure credentials for TLS server-authenticated session. */
@@ -296,9 +302,9 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext )
 
         /* Establish a TLS session with the HTTP server. This example connects
          * to the server host located in democonfigPRESIGNED_GET_URL and
-         * democonfigHTTPS_PORT in demo_config.h. */
+         * democonfigHTTPS_PORT in http_demo_s3_upload_config.h. */
         LogInfo( ( "Establishing a TLS session with %s:%d.",
-                   pxServerHost,
+                   cServerHost,
                    democonfigHTTPS_PORT ) );
 
         /* Attempt to create a server-authenticated TLS connection. */
@@ -317,24 +323,24 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext )
 
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvGetS3ObjectFileSize( size_t * pFileSize,
-                                          const TransportInterface_t * pTransportInterface,
-                                          const char * pHost,
-                                          size_t hostLen,
-                                          const char * pPath )
+static BaseType_t prvGetS3ObjectFileSize( size_t * pxFileSize,
+                                          const TransportInterface_t * pxTransportInterface,
+                                          const char * pcHost,
+                                          size_t xHostLen,
+                                          const char * pcPath )
 {
     BaseType_t xStatus = pdPASS;
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
 
-    /* The location of the file size in pContentRangeValStr. */
-    char * pFileSizeStr = NULL;
+    /* The location of the file size in pcContentRangeValStr. */
+    char * pcFileSizeStr = NULL;
 
     /* String to store the Content-Range header value. */
-    char * pContentRangeValStr = NULL;
-    size_t contentRangeValStrLength = 0;
+    char * pcContentRangeValStr = NULL;
+    size_t xContentRangeValStrLength = 0;
 
-    configASSERT( pHost != NULL );
-    configASSERT( pPath != NULL );
+    configASSERT( pcHost != NULL );
+    configASSERT( pcPath != NULL );
 
     /* Initialize all HTTP Client library API structs to 0. */
     ( void ) memset( &xRequestHeaders, 0, sizeof( xRequestHeaders ) );
@@ -342,12 +348,12 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pFileSize,
     ( void ) memset( &xResponse, 0, sizeof( xResponse ) );
 
     /* Initialize the request object. */
-    xRequestInfo.pHost = pHost;
-    xRequestInfo.hostLen = hostLen;
+    xRequestInfo.pHost = pcHost;
+    xRequestInfo.hostLen = xHostLen;
     xRequestInfo.pMethod = HTTP_METHOD_GET;
     xRequestInfo.methodLen = sizeof( HTTP_METHOD_GET ) - 1;
-    xRequestInfo.pPath = pPath;
-    xRequestInfo.pathLen = strlen( pPath );
+    xRequestInfo.pPath = pcPath;
+    xRequestInfo.pathLen = strlen( pcPath );
 
     /* Set "Connection" HTTP header to "keep-alive" so that multiple requests
      * can be sent over the same established TCP connection. This is done in
@@ -355,12 +361,12 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pFileSize,
     xRequestInfo.reqFlags = HTTP_REQUEST_KEEP_ALIVE_FLAG;
 
     /* Set the buffer used for storing request headers. */
-    xRequestHeaders.pBuffer = xUserBuffer;
+    xRequestHeaders.pBuffer = ucUserBuffer;
     xRequestHeaders.bufferLen = democonfigUSER_BUFFER_LENGTH;
 
     /* Initialize the response object. The same buffer used for storing request
      * headers is reused here. */
-    xResponse.pBuffer = xUserBuffer;
+    xResponse.pBuffer = ucUserBuffer;
     xResponse.bufferLen = democonfigUSER_BUFFER_LENGTH;
 
     LogInfo( ( "Getting file object size from host..." ) );
@@ -394,7 +400,7 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pFileSize,
     if( xStatus == pdPASS )
     {
         /* Send the request and receive the response. */
-        xHTTPStatus = HTTPClient_Send( pTransportInterface,
+        xHTTPStatus = HTTPClient_Send( pxTransportInterface,
                                        &xRequestHeaders,
                                        NULL,
                                        0,
@@ -404,7 +410,7 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pFileSize,
         if( xHTTPStatus != HTTPSuccess )
         {
             LogError( ( "Failed to send HTTP GET request to %s%s: Error=%s.",
-                        pHost, pPath, HTTPClient_strerror( xHTTPStatus ) ) );
+                        pcHost, pcPath, HTTPClient_strerror( xHTTPStatus ) ) );
             xStatus = pdFAIL;
         }
     }
@@ -412,7 +418,7 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pFileSize,
     if( xStatus == pdPASS )
     {
         LogDebug( ( "Received HTTP response from %s%s...",
-                    pHost, pPath ) );
+                    pcHost, pcPath ) );
         LogDebug( ( "Response Headers:\n%.*s",
                     ( int32_t ) xResponse.headersLen,
                     xResponse.pHeaders ) );
@@ -420,7 +426,7 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pFileSize,
                     ( int32_t ) xResponse.bodyLen,
                     xResponse.pBody ) );
 
-        if( xResponse.statusCode != HTTP_STATUS_CODE_PARTIAL_CONTENT )
+        if( xResponse.statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
         {
             LogError( ( "Received an invalid response from the server "
                         "(Status Code: %u).",
@@ -436,10 +442,10 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pFileSize,
                    xResponse.statusCode ) );
 
         xHTTPStatus = HTTPClient_ReadHeader( &xResponse,
-                                             ( char * ) HTTP_CONTENT_RANGE_HEADER_FIELD,
-                                             ( size_t ) HTTP_CONTENT_RANGE_HEADER_FIELD_LENGTH,
-                                             ( const char ** ) &pContentRangeValStr,
-                                             &contentRangeValStrLength );
+                                             ( char * ) httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD,
+                                             ( size_t ) httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD_LENGTH,
+                                             ( const char ** ) &pcContentRangeValStr,
+                                             &xContentRangeValStrLength );
 
         if( xHTTPStatus != HTTPSuccess )
         {
@@ -452,32 +458,32 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pFileSize,
     /* Parse the Content-Range header value to get the file size. */
     if( xStatus == pdPASS )
     {
-        pFileSizeStr = strstr( pContentRangeValStr, "/" );
+        pcFileSizeStr = strstr( pcContentRangeValStr, "/" );
 
-        if( pFileSizeStr == NULL )
+        if( pcFileSizeStr == NULL )
         {
             LogError( ( "'/' not present in Content-Range header value: %s.",
-                        pContentRangeValStr ) );
+                        pcContentRangeValStr ) );
             xStatus = pdFAIL;
         }
     }
 
     if( xStatus == pdPASS )
     {
-        pFileSizeStr += sizeof( char );
-        *pFileSize = ( size_t ) strtoul( pFileSizeStr, NULL, 10 );
+        pcFileSizeStr += sizeof( char );
+        *pxFileSize = ( size_t ) strtoul( pcFileSizeStr, NULL, 10 );
 
-        if( ( *pFileSize == 0 ) || ( *pFileSize == UINT32_MAX ) )
+        if( ( *pxFileSize == 0 ) || ( *pxFileSize == UINT32_MAX ) )
         {
-            LogError( ( "Error using strtoul to get the file size from %s: fileSize=%d.",
-                        pFileSizeStr, ( int32_t ) *pFileSize ) );
+            LogError( ( "Error using strtoul to get the file size from %s: xFileSize=%d.",
+                        pcFileSizeStr, ( int32_t ) *pxFileSize ) );
             xStatus = pdFAIL;
         }
     }
 
     if( xStatus == pdPASS )
     {
-        LogInfo( ( "The file is %d bytes long.", ( int32_t ) *pFileSize ) );
+        LogInfo( ( "The file is %d bytes long.", ( int32_t ) *pxFileSize ) );
     }
 
     return xStatus;
@@ -485,13 +491,13 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pFileSize,
 
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvUploadS3ObjectFile( const TransportInterface_t * pTransportInterface,
-                                         const char * pPath )
+static BaseType_t prvUploadS3ObjectFile( const TransportInterface_t * pxTransportInterface,
+                                         const char * pcPath )
 {
     BaseType_t xStatus = pdFAIL;
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
 
-    configASSERT( pPath != NULL );
+    configASSERT( pcPath != NULL );
 
     /* Initialize all HTTP Client library API structs to 0. */
     ( void ) memset( &xRequestHeaders, 0, sizeof( xRequestHeaders ) );
@@ -499,24 +505,24 @@ static BaseType_t prvUploadS3ObjectFile( const TransportInterface_t * pTransport
     ( void ) memset( &xResponse, 0, sizeof( xResponse ) );
 
     /* Initialize the request object. */
-    xRequestInfo.pHost = pxServerHost;
-    xRequestInfo.hostLen = serverHostLength;
+    xRequestInfo.pHost = cServerHost;
+    xRequestInfo.hostLen = xServerHostLength;
     xRequestInfo.pMethod = HTTP_METHOD_PUT;
-    xRequestInfo.methodLen = HTTP_METHOD_PUT_LENGTH;
-    xRequestInfo.pPath = pPath;
-    xRequestInfo.pathLen = strlen( pPath );
+    xRequestInfo.methodLen = httpexampleHTTP_METHOD_PUT_LENGTH;
+    xRequestInfo.pPath = pcPath;
+    xRequestInfo.pathLen = strlen( pcPath );
 
     /* Set "Connection" HTTP header to "keep-alive" so that multiple requests
      * can be sent over the same established TCP connection. */
     xRequestInfo.reqFlags = HTTP_REQUEST_KEEP_ALIVE_FLAG;
 
     /* Set the buffer used for storing request headers. */
-    xRequestHeaders.pBuffer = xUserBuffer;
+    xRequestHeaders.pBuffer = ucUserBuffer;
     xRequestHeaders.bufferLen = democonfigUSER_BUFFER_LENGTH;
 
     /* Initialize the response object. The same buffer used for storing request
      * headers is reused here. */
-    xResponse.pBuffer = xUserBuffer;
+    xResponse.pBuffer = ucUserBuffer;
     xResponse.bufferLen = democonfigUSER_BUFFER_LENGTH;
 
     if( xHTTPStatus == HTTPSuccess )
@@ -531,10 +537,10 @@ static BaseType_t prvUploadS3ObjectFile( const TransportInterface_t * pTransport
         LogDebug( ( "Request Headers:\n%.*s",
                     ( int32_t ) xRequestHeaders.headersLen,
                     ( char * ) xRequestHeaders.pBuffer ) );
-        xHTTPStatus = HTTPClient_Send( pTransportInterface,
+        xHTTPStatus = HTTPClient_Send( pxTransportInterface,
                                        &xRequestHeaders,
                                        ( const uint8_t * ) democonfigDEMO_HTTP_UPLOAD_DATA,
-                                       DEMO_HTTP_UPLOAD_DATA_LENGTH,
+                                       httpexampleDEMO_HTTP_UPLOAD_DATA_LENGTH,
                                        &xResponse,
                                        0 );
     }
@@ -547,7 +553,7 @@ static BaseType_t prvUploadS3ObjectFile( const TransportInterface_t * pTransport
     if( xHTTPStatus == HTTPSuccess )
     {
         LogDebug( ( "Received HTTP response from %s%s...",
-                    pxServerHost, pPath ) );
+                    cServerHost, pcPath ) );
         LogDebug( ( "Response Headers:\n%.*s",
                     ( int32_t ) xResponse.headersLen,
                     xResponse.pHeaders ) );
@@ -555,13 +561,13 @@ static BaseType_t prvUploadS3ObjectFile( const TransportInterface_t * pTransport
                     ( int32_t ) xResponse.bodyLen,
                     xResponse.pBody ) );
 
-        xStatus = ( xResponse.statusCode == 200 ) ? pdPASS : pdFAIL;
+        xStatus = ( xResponse.statusCode == httpexampleHTTP_STATUS_CODE_SUCCESSFUL_REQUEST ) ? pdPASS : pdFAIL;
     }
     else
     {
         LogError( ( "An error occurred in uploading the file."
                     "Failed to send HTTP PUT request to %s%s: Error=%s.",
-                    pxServerHost, pPath, HTTPClient_strerror( xHTTPStatus ) ) );
+                    cServerHost, pcPath, HTTPClient_strerror( xHTTPStatus ) ) );
     }
 
     if( xStatus == pdPASS )
@@ -582,34 +588,34 @@ static BaseType_t prvUploadS3ObjectFile( const TransportInterface_t * pTransport
 
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvVerifyS3ObjectFileSize( const TransportInterface_t * pTransportInterface,
-                                             const char * pPath )
+static BaseType_t prvVerifyS3ObjectFileSize( const TransportInterface_t * pxTransportInterface,
+                                             const char * pcPath )
 {
     BaseType_t xStatus = pdFAIL;
     /* The size of the file uploaded to S3. */
-    size_t fileSize = 0;
+    size_t xFileSize = 0;
 
     /* Retrieve the file size. */
-    xStatus = prvGetS3ObjectFileSize( &fileSize,
-                                      pTransportInterface,
-                                      pxServerHost,
-                                      serverHostLength,
-                                      pPath );
+    xStatus = prvGetS3ObjectFileSize( &xFileSize,
+                                      pxTransportInterface,
+                                      cServerHost,
+                                      xServerHostLength,
+                                      pcPath );
 
     if( xStatus == pdPASS )
     {
-        if( fileSize != DEMO_HTTP_UPLOAD_DATA_LENGTH )
+        if( xFileSize != httpexampleDEMO_HTTP_UPLOAD_DATA_LENGTH )
         {
             LogError( ( "Failed to upload the data to S3. The file size found is %d, but it should be %d.",
-                        ( int32_t ) fileSize,
-                        ( int32_t ) DEMO_HTTP_UPLOAD_DATA_LENGTH ) );
+                        ( int32_t ) xFileSize,
+                        ( int32_t ) httpexampleDEMO_HTTP_UPLOAD_DATA_LENGTH ) );
         }
         else
         {
             LogInfo( ( "Successfuly verified that the size of the file found on S3 matches the file size uploaded "
                        "(Uploaded: %d bytes, Found: %d bytes).",
-                       ( int32_t ) DEMO_HTTP_UPLOAD_DATA_LENGTH,
-                       ( int32_t ) fileSize ) );
+                       ( int32_t ) httpexampleDEMO_HTTP_UPLOAD_DATA_LENGTH,
+                       ( int32_t ) xFileSize ) );
         }
     }
 
@@ -619,7 +625,7 @@ static BaseType_t prvVerifyS3ObjectFileSize( const TransportInterface_t * pTrans
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Entry point of demo.
+ * @brief Entry point of the demo.
  *
  * This example, using a pre-signed URL, resolves a S3 domain, establishes a TCP
  * connection, validates the server's certificate using the root CA certificate
@@ -665,7 +671,7 @@ int RunCoreHttpS3UploadDemo( bool awsIotMqttMode,
      * it is unused. The path used for the requests in this demo needs all the
      * query information following the location of the object, to the end of the
      * S3 presigned URL. */
-    size_t pathLen = 0;
+    size_t xPathLen = 0;
 
     LogInfo( ( "HTTP Client Synchronous S3 upload demo using pre-signed URL:\n%s",
                democonfigS3_PRESIGNED_PUT_URL ) );
@@ -678,8 +684,8 @@ int RunCoreHttpS3UploadDemo( bool awsIotMqttMode,
         /* Attempt to connect to S3. If connection fails, retry after a timeout.
          * The timeout value will be exponentially increased until either the
          * maximum number of attempts or the maximum timeout value is reached.
-         * The function returns EXIT_FAILURE if the TCP connection cannot be
-         * established to the broker after the configured number of attempts. */
+         * The function returns pdFAIL if a TCP connection with the broker
+         * cannot be established after the configured number of attempts. */
         xDemoStatus = connectToServerWithBackoffRetries( prvConnectToServer,
                                                          &xNetworkContext );
 
@@ -688,15 +694,14 @@ int RunCoreHttpS3UploadDemo( bool awsIotMqttMode,
             /* Log an error to indicate connection failure after all
              * reconnect attempts are over. */
             LogError( ( "Failed to connect to HTTP server %s.",
-                        pxServerHost ) );
+                        cServerHost ) );
         }
     }
 
     /* Define the transport interface. */
     if( xDemoStatus == pdPASS )
     {
-        /* Set a flag indicating a TLS connection exists. This is done to
-         * disconnect if the loop exits before disconnection happens. */
+        /* Set a flag indicating that a TLS connection exists. */
         xIsConnectionEstablished = pdTRUE;
 
         /* Define the transport interface. */
@@ -711,11 +716,11 @@ int RunCoreHttpS3UploadDemo( bool awsIotMqttMode,
     {
         /* Retrieve the path location from democonfigS3_PRESIGNED_PUT_URL. This
          * function returns the length of the path without the query into
-         * pathLen, which is left unused in this demo. */
+         * xPathLen, which is left unused in this demo. */
         xHTTPStatus = getUrlPath( democonfigS3_PRESIGNED_PUT_URL,
-                                  S3_PRESIGNED_PUT_URL_LENGTH,
-                                  &pPath,
-                                  &pathLen );
+                                  httpexampleS3_PRESIGNED_PUT_URL_LENGTH,
+                                  &pcPath,
+                                  &xPathLen );
 
         xDemoStatus = ( xHTTPStatus == HTTPSuccess ) ? pdPASS : pdFAIL;
     }
@@ -723,7 +728,7 @@ int RunCoreHttpS3UploadDemo( bool awsIotMqttMode,
     if( xDemoStatus == pdPASS )
     {
         xDemoStatus = prvUploadS3ObjectFile( &xTransportInterface,
-                                             pPath );
+                                             pcPath );
     }
 
     /******************* Verify S3 Object File Upload. ********************/
@@ -732,11 +737,11 @@ int RunCoreHttpS3UploadDemo( bool awsIotMqttMode,
     {
         /* Retrieve the path location from democonfigS3_PRESIGNED_GET_URL. This
          * function returns the length of the path without the query into
-         * pathLen. */
+         * xPathLen. */
         xHTTPStatus = getUrlPath( democonfigS3_PRESIGNED_GET_URL,
-                                  S3_PRESIGNED_GET_URL_LENGTH,
-                                  &pPath,
-                                  &pathLen );
+                                  httpexampleS3_PRESIGNED_GET_URL_LENGTH,
+                                  &pcPath,
+                                  &xPathLen );
 
         xDemoStatus = ( xHTTPStatus == HTTPSuccess ) ? pdPASS : pdFAIL;
     }
@@ -745,7 +750,7 @@ int RunCoreHttpS3UploadDemo( bool awsIotMqttMode,
     {
         /* Verify the file exists by retrieving the file size. */
         xDemoStatus = prvVerifyS3ObjectFileSize( &xTransportInterface,
-                                                 pPath );
+                                                 pcPath );
     }
 
     /************************** Disconnect. *****************************/
