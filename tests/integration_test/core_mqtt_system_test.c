@@ -463,8 +463,8 @@ static void resumePersistentSession();
  * @param[in] pFlag Packet flag to test for true.
  * @param[in] expectedStatus Status code expected to be returned from MQTT_Process
  */
-static inline void waitForPacket( bool * pFlag,
-                                  MQTTStatus_t expectedStatus );
+static void waitForPacket( bool * pFlag,
+                           MQTTStatus_t expectedStatus );
 
 /*-----------------------------------------------------------*/
 
@@ -883,8 +883,8 @@ static void resumePersistentSession()
     TEST_ASSERT_TRUE( persistentSession );
 }
 
-static inline void waitForPacket( bool * pFlag,
-                                  MQTTStatus_t expectedStatus )
+static void waitForPacket( bool * pFlag,
+                           MQTTStatus_t expectedStatus )
 {
     uint8_t count = 0;
     MQTTStatus_t currentStatus = MQTTSuccess;
@@ -1709,7 +1709,10 @@ TEST( coreMQTT_Integration, Publish_With_Retain_Flag )
 
     /* Make sure that the library invoked the event callback with the incoming PUBLISH from
      * the broker containing the "retained" flag set. */
-    waitForPacket( &receivedRetainedMessage, MQTTSuccess );
+    if( !receivedRetainedMessage )
+    {
+        waitForPacket( &receivedRetainedMessage, MQTTSuccess );
+    }
 
     /* Reset the global variables for the remainder of the test. */
     receivedPubAck = false;
