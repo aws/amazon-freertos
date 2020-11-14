@@ -127,7 +127,7 @@
  * demo.
  */
 #ifndef democonfigMQTT_MAX_DEMO_COUNT
-    #define democonfigMQTT_MAX_DEMO_COUNT    ( 3 )
+    #define democonfigMQTT_MAX_DEMO_COUNT    ( 5 )
 #endif
 /*-----------------------------------------------------------*/
 
@@ -393,7 +393,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
     NetworkContext_t xNetworkContext = { 0 };
     MQTTContext_t xMQTTContext = { 0 };
     MQTTStatus_t xMQTTStatus;
-    uint32_t ulDemoRunCount = 0;
+    uint32_t ulDemoRunCount = 0UL, ulDemoSuccessCount = 0UL;
     TransportSocketStatus_t xNetworkStatus;
     BaseType_t xIsConnectionEstablished = pdFALSE;
 
@@ -539,17 +539,36 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
              * bombard the broker. */
             LogInfo( ( "Demo completed an iteration successfully." ) );
             LogInfo( ( "Demo iteration %lu completed successfully.", ( ulDemoRunCount + 1UL ) ) );
+
+            /* Update success count. */
+            ulDemoSuccessCount++;
         }
         else
         {
-            /* Terminate the demo due to failure. */
+            /* Demo loop will be repeated for democonfigMQTT_MAX_DEMO_COUNT
+             * times even if current loop resulted in a failure. */
             LogInfo( ( "Demo failed at iteration %lu.", ( ulDemoRunCount + 1UL ) ) );
-            LogInfo( ( "Exiting demo." ) );
-            break;
         }
 
         LogInfo( ( "Short delay before starting the next iteration.... " ) );
         vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
+    }
+
+    /* Demo run is considered successful if more than half of
+     * #democonfigMQTT_MAX_DEMO_COUNT is successful. */
+    if( ulDemoSuccessCount > ( democonfigMQTT_MAX_DEMO_COUNT / 2 ) )
+    {
+        xDemoStatus = pdPASS;
+        LogInfo( ( "Demo run is successful with %lu successful loops out of total %lu loops.",
+                   ( ulDemoSuccessCount ),
+                   democonfigMQTT_MAX_DEMO_COUNT ) );
+    }
+    else
+    {
+        xDemoStatus = pdFAIL;
+        LogInfo( ( "Demo run is failure with %lu successful loops out of total %lu loops.",
+                   ( ulDemoSuccessCount ),
+                   democonfigMQTT_MAX_DEMO_COUNT ) );
     }
 
     return ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
