@@ -1709,10 +1709,7 @@ TEST( coreMQTT_Integration, Publish_With_Retain_Flag )
 
     /* Make sure that the library invoked the event callback with the incoming PUBLISH from
      * the broker containing the "retained" flag set. */
-    if( !receivedRetainedMessage )
-    {
-        waitForPacket( &receivedRetainedMessage, MQTTSuccess );
-    }
+    waitForPacket( &receivedRetainedMessage, MQTTSuccess );
 
     /* Reset the global variables for the remainder of the test. */
     receivedPubAck = false;
