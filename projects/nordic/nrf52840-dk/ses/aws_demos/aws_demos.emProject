@@ -410,8 +410,29 @@
             <file file_name="../../../../../libraries/coreMQTT/source/include/core_mqtt_config_defaults.h" />
             <file file_name="../../../../../libraries/coreMQTT/source/include/core_mqtt_state.h" />
           </folder>
-          <folder Name="portable">
+          <folder Name="interface">
             <file file_name="../../../../../libraries/coreMQTT/source/interface/transport_interface.h" />
+          </folder>
+        </folder>
+      </folder>
+      <folder Name="coreHTTP">
+        <folder Name="source">
+          <file file_name="../../../../../libraries/coreHTTP/source/core_http_client.c" />
+          <folder Name="include">
+            <file file_name="../../../../../libraries/coreHTTP/source/include/core_http_client.h" />
+            <file file_name="../../../../../libraries/coreHTTP/source/include/core_http_client_private.h" />
+            <file file_name="../../../../../libraries/coreHTTP/source/include/core_http_config_defaults.h" />
+          </folder>
+          <folder Name="dependency">
+            <folder Name="3rdparty">
+              <folder Name="http_parser">
+                <file file_name="../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c" />
+                <file file_name="../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h" />
+              </folder>
+            </folder>
+          </folder>
+          <folder Name="interface">
+            <file file_name="../../../../../libraries/coreHTTP/source/interface/transport_interface.h" />
           </folder>
         </folder>
       </folder>
@@ -705,7 +726,7 @@
     Name="Debug"
     arm_fp_abi="None"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/device_shadow_for_aws/source/include;$(SolutionDir)/../../../../../libraries/coreJSON/source/include"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/device_shadow_for_aws/source/include;$(SolutionDir)/../../../../../libraries/coreJSON/source/include;$(SolutionDir)/../../../../../libraries/coreHTTP/source/include;$(SolutionDir)/../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser"
     gcc_debugging_level="Level 3"
     gcc_optimization_level="None"
     link_include_standard_libraries="Yes" />

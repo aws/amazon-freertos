@@ -411,7 +411,9 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\access</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src</state>
@@ -419,9 +421,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include</state>
@@ -2813,21 +2812,21 @@
 			<name>coreHTTP</name>
 			<group>
 				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c</name>
+				</file>
 				<group>
 					<name>3rdparty</name>
 					<group>
 						<name>http_parser</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.c</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.h</name>
 						</file>
 					</group>
 				</group>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c</name>
-				</file>
 				<group>
 					<name>include</name>
 					<file>
