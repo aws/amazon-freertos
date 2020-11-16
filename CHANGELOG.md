@@ -3,9 +3,9 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 ## Changes since previous release
 
-## New Features
+### New Features
 
-## Updates
+### Updates
 
 ## 202011.00 November 2020
 
