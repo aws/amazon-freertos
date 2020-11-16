@@ -222,9 +222,6 @@
 
 /**
  * @brief Timeout for MQTT_ProcessLoop() function in milliseconds.
- * The timeout value is appropriately chosen for receiving an incoming
- * PUBLISH message and ack responses for QoS 1 and QoS 2 communications
- * with the broker.
  */
 #define MQTT_PROCESS_LOOP_TIMEOUT_MS               ( 700U )
 
