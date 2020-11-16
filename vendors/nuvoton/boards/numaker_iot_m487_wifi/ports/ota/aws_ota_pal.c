@@ -764,8 +764,9 @@ OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )
             /* Mark the image as valid */
             xDescCopy.xImgHeader.ucImgFlags = AWS_BOOT_FLAG_IMG_VALID;
 
-            if( prvFLASH_update(NVT_BOOT_IMG_HEAD_BASE, (uint8_t *)&xDescCopy, 
-                                sizeof( BootImageDescriptor_t) ) == ( bool_t ) pdTRUE )
+            if( (xCurOTAOpDesc.pxCurOTAFile == NULL) &&
+                (prvFLASH_update(NVT_BOOT_IMG_HEAD_BASE, (uint8_t *)&xDescCopy, 
+                                sizeof( BootImageDescriptor_t) ) == ( bool_t ) pdTRUE) )
             {
                 OTA_LOG_L1( "[%s] Accepted and committed final image.\r\n", OTA_METHOD_NAME );
                 eResult = kOTA_Err_None;
