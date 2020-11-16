@@ -127,7 +127,7 @@
  * demo.
  */
 #ifndef democonfigMQTT_MAX_DEMO_COUNT
-    #define democonfigMQTT_MAX_DEMO_COUNT    ( 5 )
+    #define democonfigMQTT_MAX_DEMO_COUNT    ( 3 )
 #endif
 /*-----------------------------------------------------------*/
 
@@ -337,6 +337,11 @@ static uint16_t usSubscribePacketIdentifier;
  * request.
  */
 static uint16_t usUnsubscribePacketIdentifier;
+
+/**
+ * @brief MQTT packet type expected to be received from the MQTT broker.
+ */
+static uint16_t usPacketTypeExpected = 0U;
 
 /**
  * @brief A pair containing a topic filter and its SUBACK status.
