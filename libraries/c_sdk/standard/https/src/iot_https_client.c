@@ -1068,6 +1068,49 @@ static IotHttpsReturnCode_t _receiveHttpsBodySync( _httpsResponse_t * pHttpsResp
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Defining the structure for network context used for sending the packets on the network.
+ * The declaration of the structure is mentioned in the transport_interface.h file.
+ */
+struct NetworkContext
+{
+    void * pNetworkConnection;                       /**< @brief The network connection used for sending packets on the network. */
+    const IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
+};
+
+/*-----------------------------------------------------------*/
+
+static int32_t transportRecv( NetworkContext_t * pNetworkContext,
+                              void * pBuffer,
+                              size_t bytesToRecv )
+{
+    /* This dummy implementation is used for passing a non-NULL parameter. */
+    ( void ) pNetworkContext;
+    ( void ) pBuffer;
+    ( void ) bytesToRecv;
+
+    /* Always return an error. */
+    return -1;
+}
+
+/*-----------------------------------------------------------*/
+
+static int32_t transportSend( NetworkContext_t * pNetworkContext,
+                              const void * pMessage,
+                              size_t bytesToSend )
+{
+    int32_t bytesSent = 0;
+
+    /* Sending the bytes on the network using Network Interface. */
+    bytesSent = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection,
+                                                          ( const uint8_t * ) pMessage,
+                                                          bytesToSend );
+
+    return bytesSent;
+}
+
+/*-----------------------------------------------------------*/
+
 static void _networkReceiveCallback( void * pNetworkConnection,
                                      void * pReceiveContext )
 {
@@ -2089,33 +2132,38 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
-    /* Send the HTTP headers. */
-    status = _sendHttpsHeaders( pHttpsConnection,
-                                pHttpsRequest->pHeaders,
-                                pHttpsRequest->pHeadersCur - pHttpsRequest->pHeaders,
-                                pHttpsRequest->isNonPersistent,
-                                pHttpsRequest->bodyLength );
+    HTTPStatus_t coreHttpStatus = HTTPSuccess;
+    HTTPRequestHeaders_t coreHttpRequestHeaders;
+    TransportInterface_t transportInterface;
+    NetworkContext_t networkContext;
+    uint32_t sendFlags = 0;
+
+    coreHttpRequestHeaders.pBuffer = pHttpsRequest->pHeaders;
+    coreHttpRequestHeaders.bufferLen = ( size_t ) ( pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeaders );
+    coreHttpRequestHeaders.headersLen = ( size_t ) ( pHttpsRequest->pHeadersCur - pHttpsRequest->pHeaders );
+
+    networkContext.pNetworkConnection = pHttpsConnection->pNetworkConnection;
+    networkContext.pNetworkInterface = pHttpsConnection->pNetworkInterface;
+
+    transportInterface.send = transportSend;
+    transportInterface.recv = transportRecv;
+    transportInterface.pNetworkContext = &networkContext;
+
+    coreHttpStatus = HTTPClient_Send( &transportInterface,
+                                      &coreHttpRequestHeaders,
+                                      pHttpsRequest->pBody,
+                                      ( size_t ) pHttpsRequest->bodyLength,
+                                      NULL,
+                                      sendFlags );
+    status = _shimConvertStatus( coreHttpStatus );
 
     if( HTTPS_FAILED( status ) )
     {
-        IotLogError( "Error sending the HTTPS headers with error code: %d", status );
+        IotLogError( "Error sending the HTTPS request with error code: %d", status );
         HTTPS_GOTO_CLEANUP();
     }
 
     IotLogDebug( "Sent HTTPS headers for request %p.", pHttpsRequest );
-
-    if( ( pHttpsRequest->pBody != NULL ) && ( pHttpsRequest->bodyLength > 0 ) )
-    {
-        status = _sendHttpsBody( pHttpsConnection, pHttpsRequest->pBody, pHttpsRequest->bodyLength );
-
-        if( HTTPS_FAILED( status ) )
-        {
-            IotLogError( "Error sending final HTTPS body. Return code: %d", status );
-            HTTPS_GOTO_CLEANUP();
-        }
-
-        IotLogDebug( "Sent HTTPS body for request %p.", pHttpsRequest );
-    }
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
 }
