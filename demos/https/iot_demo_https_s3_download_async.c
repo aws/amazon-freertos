@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202011.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1086,7 +1086,9 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
-    /* Set the connection configurations. */
+    /* Set the connection configurations.
+     * Note: TLS Connection to AWS S3 service does not need a client certificate.
+     * The client authentication is performed at the HTTP protocol layer with a pre-signed URL. */
     _connConfig.pAddress = pAddress;
     _connConfig.addressLen = addressLen;
     _connConfig.port = IOT_DEMO_HTTPS_PORT;
@@ -1094,10 +1096,6 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     _connConfig.caCertLen = sizeof( IOT_DEMO_HTTPS_TRUSTED_ROOT_CA );
     _connConfig.userBuffer.pBuffer = _pConnUserBuffer;
     _connConfig.userBuffer.bufferLen = sizeof( _pConnUserBuffer );
-    _connConfig.pClientCert = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->pClientCert;
-    _connConfig.clientCertLen = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->clientCertSize;
-    _connConfig.pPrivateKey = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->pPrivateKey;
-    _connConfig.privateKeyLen = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->privateKeySize;
     _connConfig.pNetworkInterface = pNetworkInterface;
 
     /* Initialize the request pool by setting up constant request information shared by all requests. */

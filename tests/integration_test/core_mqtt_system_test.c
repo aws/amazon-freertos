@@ -1,5 +1,5 @@
 /*
- * FreeRTOS
+ * FreeRTOS V202011.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -101,8 +101,11 @@
     #define BROKER_PORT    clientcredentialMQTT_BROKER_PORT
 #endif
 
+/* Use Starfield Root CA as the default Root CA because the TI C3220 Launchpad board
+ * requires that the Root CA certificate have its certificate self-signed. The Amazon Root CAs
+ * are cross-signed by Starfield Root CA.*/
 #ifndef SERVER_ROOT_CA_CERT
-    #define SERVER_ROOT_CA_CERT    tlsATS1_ROOT_CERTIFICATE_PEM
+    #define SERVER_ROOT_CA_CERT    tlsSTARFIELD_ROOT_CERTIFICATE_PEM
 #endif /* ifndef SERVER_ROOT_CA_CERT_NON_AWS */
 
 /**
@@ -209,7 +212,7 @@
  * @brief Time interval in seconds at which an MQTT PINGREQ need to be sent to
  * broker.
  */
-#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS      ( 5U )
+#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS      ( 60U )
 
 /**
  * @brief The number of milliseconds to wait for AWS IoT Core Message Broker

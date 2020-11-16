@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202010.00
+ * FreeRTOS V202011.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -90,10 +90,16 @@
  *   - keyCLIENT_PRIVATE_KEY_PEM for client private key.
  */
 
+/**
+ * @brief The MQTT broker endpoint used for this demo.
+ */
 #ifndef democonfigMQTT_BROKER_ENDPOINT
     #define democonfigMQTT_BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
 #endif
 
+/**
+ * @brief The root CA certificate belonging to the broker.
+ */
 #ifndef democonfigROOT_CA_PEM
     #define democonfigROOT_CA_PEM    tlsATS1_ROOT_CERTIFICATE_PEM
 #endif
@@ -182,7 +188,7 @@
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS         ( 200U )
+#define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS         ( 500U )
 
 /**
  * @brief Milliseconds per second.

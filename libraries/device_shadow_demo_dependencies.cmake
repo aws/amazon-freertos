@@ -2,7 +2,7 @@
 afr_module(NAME device_shadow )
 
 # Include Shadow library's source and header path variables.
-include("${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws/shadowFilePaths.cmake")
 
 # Create a list of all header files in the Device Shadow library.
 # The list of header files will be added to metadata required
@@ -15,13 +15,17 @@ foreach(shadow_public_include_dir ${SHADOW_INCLUDE_PUBLIC_DIRS})
     list(APPEND DEVICE_SHADOW_HEADER_FILES ${shadow_public_include_header_files})
 endforeach()
 
+# Add cmake files of module to metadata.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake
+)
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         ${SHADOW_SOURCES}
-        # List of files added to the target so that these are available
+        # Header files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws_iot_embedded_sdk/shadowFilePaths.cmake
         ${DEVICE_SHADOW_HEADER_FILES}
 )
 
@@ -49,11 +53,16 @@ afr_module_dependencies(
 # Device Shadow demo can be downloaded.
 afr_module(NAME device_shadow_demo_dependencies )
 
+# Add cmake files of module to metadata.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/device_shadow_demo_dependencies.cmake
+)
+
 afr_set_lib_metadata(ID "device_shadow_demo_dependencies")
 afr_set_lib_metadata(DESCRIPTION "This library enables you to store and retrieve the \
 current state (the \"shadow\") of every registered device on AWS IoT.")
 afr_set_lib_metadata(DISPLAY_NAME "Device Shadow")
-afr_set_lib_metadata(CATEGORY "Connectivity")
+afr_set_lib_metadata(CATEGORY "Amazon Services")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
@@ -64,9 +73,6 @@ afr_module_sources(
         # device_shadow_demo_dependencies target; otherwise, it gives the 
         # "Cannot determine link language for target" error.
         ${SHADOW_SOURCES}
-        # This file is added to the target so that it is available
-        # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/device_shadow_demo_dependencies.cmake
 )
 
 # Add dependencies of the Device Shadow demo in this target
