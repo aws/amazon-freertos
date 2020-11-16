@@ -527,14 +527,13 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t * pHttpsC
 /**
  * @brief Task pool job routine to send the HTTP request within the pUserContext.
  *
- * @param[in] pTaskPool Pointer to the system task pool.
- * @param[in] pJob Pointer the to the HTTP request sending job.
- * @param[in] pUserContext Pointer to an HTTP request, passed as an opaque context.
+ * @param[in] pTaskPool - Pointer to the system task pool.
+ * @param[in] pJob - Pointer the to the HTTP request sending job.
+ * @param[in] pUserContext - Pointer to an HTTP request, passed as an opaque context.
  */
 static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
                                IotTaskPoolJob_t pJob,
                                void * pUserContext );
-
 
 /**
  * @brief Receive the HTTPS body specific to an asynchronous type of response.
@@ -605,7 +604,6 @@ static void _cancelRequest( _httpsRequest_t * pHttpsRequest );
  *  - After Receiving the HTTPS body.
  *
  * @param[in] pHttpsResponse - HTTP response context.
- *
  */
 static void _cancelResponse( _httpsResponse_t * pHttpsResponse );
 
@@ -1719,15 +1717,13 @@ static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t * pHttpsConnec
     /* The Content-Length header of the form "Content-Length: N\r\n" with a NULL terminator for snprintf. */
     char contentLengthHeaderStr[ HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH + 1 ];
 
-    /* The HTTP headers to send after the headers in pHeadersBuf are the Content-Length and the Connection type and
-     * the final "\r\n" to indicate the end of the the header lines. Note that we are using
-     * HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE_LENGTH because length of "Connection: keep-alive\r\n" is
-     * more than "Connection: close\r\n". Creating a buffer of bigger size ensures that
-     * both the connection type strings will fit in the buffer. */
-    char finalHeaders[ HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH + HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE_LENGTH + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH ] = { 0 };
+    /* The HTTP headers to send after the headers in pHeadersBuf are the Content-Length and
+     * the final "\r\n" to indicate the end of the header lines. */
+    char trailingHeaders[ HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH ] = { 0 };
 
-    /* Send the headers passed into this function first. These headers are not terminated with a second set of "\r\n". */
-    status = _networkSend( pHttpsConnection, pHeadersBuf, headersLength );
+    /* Send the headers passed into this function first. Although the headers in this buffer are terminated
+     * with a second set of "\r\n", they will not be sent until the trailing headers are written. */
+    status = _networkSend( pHttpsConnection, pHeadersBuf, headersLength - HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH );
 
     if( HTTPS_FAILED( status ) )
     {
@@ -1735,7 +1731,7 @@ static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t * pHttpsConnec
         HTTPS_GOTO_CLEANUP();
     }
 
-    /* If there is a Content-Length, then write that to the finalHeaders to send. */
+    /* If there is a Content-Length, then write that to the trailingHeaders to send. */
     if( contentLength > 0 )
     {
         numWritten = snprintf( contentLengthHeaderStr,
@@ -1751,31 +1747,17 @@ static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t * pHttpsConnec
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
     }
 
-    /* snprintf() succeeded so copy that to the finalHeaders. */
-    memcpy( finalHeaders, contentLengthHeaderStr, numWritten );
+    /* snprintf() succeeded so copy that to the trailingHeaders. */
+    memcpy( trailingHeaders, contentLengthHeaderStr, numWritten );
 
-    /* Write the connection persistence type to the final headers. */
-    if( isNonPersistent )
-    {
-        connectionHeader = HTTPS_CONNECTION_CLOSE_HEADER_LINE;
-        connectionHeaderLen = FAST_MACRO_STRLEN( HTTPS_CONNECTION_CLOSE_HEADER_LINE );
-    }
-    else
-    {
-        connectionHeader = HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE;
-        connectionHeaderLen = FAST_MACRO_STRLEN( HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE );
-    }
-
-    memcpy( &finalHeaders[ numWritten ], connectionHeader, connectionHeaderLen );
-    numWritten += connectionHeaderLen;
-    memcpy( &finalHeaders[ numWritten ], HTTPS_END_OF_HEADER_LINES_INDICATOR, HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH );
+    memcpy( &trailingHeaders[ numWritten ], HTTPS_END_OF_HEADER_LINES_INDICATOR, HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH );
     numWritten += HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
 
-    status = _networkSend( pHttpsConnection, ( uint8_t * ) finalHeaders, numWritten );
+    status = _networkSend( pHttpsConnection, ( uint8_t * ) trailingHeaders, numWritten );
 
     if( HTTPS_FAILED( status ) )
     {
-        IotLogError( "Error sending final HTTPS Headers \r\n%s. Error code: %d", finalHeaders, status );
+        IotLogError( "Error sending final HTTPS Headers \r\n%s. Error code: %d", trailingHeaders, status );
         HTTPS_GOTO_CLEANUP();
     }
 
@@ -2851,16 +2833,15 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest( IotHttpsRequestHandle_t *
 
     coreHttpStatus = HTTPClient_InitializeRequestHeaders( &coreHttpRequestHeaders,
                                                           &coreHttpRequestInfo );
-
-    /* Update the original library based on coreHTTP's output. */
-    pHttpsRequest->pHeadersCur = pHttpsRequest->pHeaders + coreHttpRequestHeaders.headersLen;
-
     status = _shimConvertStatus( coreHttpStatus );
 
     if( HTTPS_FAILED( status ) )
     {
         HTTPS_GOTO_CLEANUP();
     }
+
+    /* Update the original library based on coreHTTP's output. */
+    pHttpsRequest->pHeadersCur = pHttpsRequest->pHeaders + coreHttpRequestHeaders.headersLen;
 
     if( pReqInfo->isAsync )
     {
@@ -2972,11 +2953,8 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
     coreHttpRequestHeaders.pBuffer = reqHandle->pHeaders;
     coreHttpRequestHeaders.bufferLen = ( size_t ) ( reqHandle->pHeadersEnd - reqHandle->pHeaders );
     coreHttpRequestHeaders.headersLen = ( size_t ) ( reqHandle->pHeadersCur - reqHandle->pHeaders );
+
     coreHttpStatus = HTTPClient_AddHeader( &coreHttpRequestHeaders, pName, nameLen, pValue, valueLen );
-
-    /* Update the original library based on coreHTTP's output. */
-    reqHandle->pHeadersCur = reqHandle->pHeaders + coreHttpRequestHeaders.headersLen;
-
     status = _shimConvertStatus( coreHttpStatus );
 
     if( HTTPS_FAILED( status ) )
@@ -2984,6 +2962,9 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
         IotLogError( "Error in IotHttpsClient_AddHeader(), error code %d.", status );
         HTTPS_GOTO_CLEANUP();
     }
+
+    /* Update the original library based on coreHTTP's output. */
+    reqHandle->pHeadersCur = reqHandle->pHeaders + coreHttpRequestHeaders.headersLen;
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
 }
