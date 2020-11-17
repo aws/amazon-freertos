@@ -105,7 +105,7 @@ const char * _pHttpsMethodStrings[] =
     "HEAD",
     "PUT",
     "POST"
-}; 
+};
 
 /**
  * @brief Minimum size of the request user buffer.
