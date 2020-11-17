@@ -77,7 +77,7 @@
 /* The logging configuration macros are defined above to ensure they are not
  * superceded by definitions in the following header files. */
 
-/* Include OpenSSL implementation of transport interface. */
+/* Include the secure sockets implementation of the transport interface. */
 #include "transport_secure_sockets.h"
 
 /* Include paths for public enums, structures, and macros. These are included */
@@ -301,8 +301,8 @@ static uint16_t globalUnsubscribePacketIdentifier = 0U;
 static uint16_t globalPublishPacketIdentifier = 0U;
 
 /**
- * @brief Represents the OpenSSL context used for TLS session with the broker
- * for tests.
+ * @brief Represents the secure sockets network context used for the TLS session
+ * with the broker for tests.
  */
 static NetworkContext_t networkContext;
 
@@ -426,7 +426,7 @@ static uint32_t getTimeMs();
  * @brief Sends an MQTT CONNECT packet over the already connected TCP socket.
  *
  * @param[in] pContext MQTT context pointer.
- * @param[in] pNetworkContext Network context for OpenSSL transport implementation.
+ * @param[in] pNetworkContext Network context for secure sockets transport implementation.
  * @param[in] createCleanSession Creates a new MQTT session if true.
  * If false, tries to establish the existing session if there was session
  * already present in broker.
