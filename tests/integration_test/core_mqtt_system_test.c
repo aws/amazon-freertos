@@ -820,6 +820,7 @@ static MQTTStatus_t subscribeToTopic( MQTTContext_t * pContext,
     MQTTSubscribeInfo_t pSubscriptionList[ 1 ];
 
     assert( pContext != NULL );
+    assert( pTopic != NULL );
 
     /* Start with everything at 0. */
     ( void ) memset( ( void * ) pSubscriptionList, 0x00, sizeof( pSubscriptionList ) );
@@ -844,6 +845,7 @@ static MQTTStatus_t unsubscribeFromTopic( MQTTContext_t * pContext,
     MQTTSubscribeInfo_t pSubscriptionList[ 1 ];
 
     assert( pContext != NULL );
+    assert( pTopic != NULL );
 
     /* Start with everything at 0. */
     ( void ) memset( ( void * ) pSubscriptionList, 0x00, sizeof( pSubscriptionList ) );
@@ -869,8 +871,10 @@ static MQTTStatus_t publishToTopic( MQTTContext_t * pContext,
                                     MQTTQoS_t qos,
                                     uint16_t packetId )
 {
-    assert( pContext != NULL );
     MQTTPublishInfo_t publishInfo;
+
+    assert( pContext != NULL );
+    assert( pTopic != NULL );
 
     publishInfo.retain = setRetainFlag;
 
@@ -902,6 +906,7 @@ static void clearRetainedMessage( MQTTContext_t * pContext,
                                   const char * pTopic )
 {
     assert( pContext != NULL );
+    assert( pTopic != NULL );
 
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
                            pContext,
