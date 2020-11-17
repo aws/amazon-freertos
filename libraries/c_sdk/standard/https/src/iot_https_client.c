@@ -531,9 +531,7 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t * pHttpsC
  * @param[in] pJob - Pointer to the HTTP request sending job.
  * @param[in] pUserContext - Pointer to an HTTP request, passed as an opaque context.
  */
-static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
-                               IotTaskPoolJob_t pJob,
-                               void * pUserContext );
+static void _sendHttpsRequest( _httpsRequest_t * pUserContext );
 
 /**
  * @brief Receive the HTTPS body specific to an asynchronous type of response.
@@ -1101,10 +1099,18 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
 {
     int32_t bytesSent = 0;
 
-    /* Sending the bytes on the network using Network Interface. */
+    /* Sending the bytes on the network using the network interface. */
     bytesSent = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection,
                                                           ( const uint8_t * ) pMessage,
                                                           bytesToSend );
+
+    /* 0 bytes returned for the old HTTP library implied a network error. However,
+     * #HTTPClient_Send from coreHTTP will block while the return value is 0, so
+     * the return value must be manually set to -1 to also denote a network error. */
+    if( bytesSent == 0 )
+    {
+        bytesSent = -1;
+    }
 
     return bytesSent;
 }
@@ -2170,22 +2176,16 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
 
 /*-----------------------------------------------------------*/
 
-static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
-                               IotTaskPoolJob_t pJob,
-                               void * pUserContext )
+static void _sendHttpsRequest( _httpsRequest_t * pHttpsRequest )
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
-    _httpsRequest_t * pHttpsRequest = ( _httpsRequest_t * ) ( pUserContext );
     _httpsConnection_t * pHttpsConnection = pHttpsRequest->pHttpsConnection;
     _httpsResponse_t * pHttpsResponse = pHttpsRequest->pHttpsResponse;
     IotHttpsReturnCode_t disconnectStatus = IOT_HTTPS_OK;
     IotHttpsReturnCode_t scheduleStatus = IOT_HTTPS_OK;
     IotLink_t * pQItem = NULL;
     _httpsRequest_t * pNextHttpsRequest = NULL;
-
-    ( void ) pTaskPool;
-    ( void ) pJob;
 
     IotLogDebug( "Task with request ID: %p started.", pHttpsRequest );
 
@@ -2381,26 +2381,7 @@ IotHttpsReturnCode_t _scheduleHttpsRequestSend( _httpsRequest_t * pHttpsRequest 
 
     /* Set the request to scheduled even if scheduling fails. */
     pHttpsRequest->scheduled = true;
-
-    taskPoolStatus = IotTaskPool_CreateJob( _sendHttpsRequest,
-                                            ( void * ) ( pHttpsRequest ),
-                                            &( pHttpsConnection->taskPoolJobStorage ),
-                                            &( pHttpsConnection->taskPoolJob ) );
-
-    /* Creating a task pool job should never fail when parameters are valid. */
-    if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
-    {
-        IotLogError( "Error creating a taskpool job for request servicing. Error code: %d", taskPoolStatus );
-        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
-    }
-
-    taskPoolStatus = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, pHttpsConnection->taskPoolJob, 0 );
-
-    if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
-    {
-        IotLogError( "Failed to schedule taskpool job. Error code: %d", taskPoolStatus );
-        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_ASYNC_SCHEDULING_ERROR );
-    }
+    _sendHttpsRequest( pHttpsRequest );
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
 }
