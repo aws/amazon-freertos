@@ -36,6 +36,36 @@ Code size for MQTT library for backward compatibility for MQTT V2.x.x APIs is ca
 | iot_mqtt_validate.c | 0.5K | 0.4K |
 | **Total estimate** | **15K** | **13.5K** |
 
-**Note:** MQTT library for backward compatibility for MQTT V2.x.x APIs is implemented using [coreMQTT library](../../../coreMQTT/README.md). Memory estimates for [coreMQTT library](../../../coreMQTT/README.md) can be found in the documentation [here](https://freertos.org/mqtt/index.html). In addition to that, this library for backward compatibility for MQTT V2.x.x APIs also maintains all the [dependencies of MQTT V2.x.x library](https://docs.aws.amazon.com/freertos/latest/lib-ref/embedded-csdk/v4.0_beta_deprecated/lib-ref/c-sdk/mqtt/index.html#mqtt_dependencies). In order to account for the total memory requirement of this library, shared cost of memory of these dependencies also need to considered.
+MQTT library for backward compatibility for MQTT V2.x.x APIs is implemented using [coreMQTT library](../../../coreMQTT/README.md). In addition to that, this library for backward compatibility for MQTT V2.x.x APIs also maintains all the dependencies of MQTT V2.x.x library. In order to account for the total code size cost of this library, the code sizes for the dependencies also need to be considered. Please find the code sizes for dependencies below.
 
-For applications requiring low memory footprint, we recommend using [coreMQTT library](../../../coreMQTT/README.md), which doesn't have any dependency other than the standard C library, a customer-implemented network transport interface, and *optionally* a user-implemented platform time function.
+1. **coreMQTT library** : MQTT library for backward compatibility for MQTT V2.x.x APIs is implemented using [coreMQTT library](../../../coreMQTT/README.md). Memory estimates for [coreMQTT library](../../../coreMQTT/README.md) can be found in the documentation [here](https://freertos.org/mqtt/index.html).
+
+2. **Task Pool** : MQTT library for backward compatibility for MQTT V2.x.x APIs depends on [Task Pool](../common/taskpool/). Refer to the table below for calculated code size of Task Pool.
+
+| File | With -O1 Optimization | With -Os Optimization |
+| :-: | :-: | :-: |
+| iot_taskpool.c | 3.8K | 3.0K |
+| **Total estimate** | **3.8K** | **3.0K** |
+
+Please note that the Task Pool may not be exclusively used by this MQTT library for backward compatibility, but may be shared by other libraries. However, the Task Pool is not used by any of the [redesigned libraries for LTS](https://www.freertos.org/ltsroadmap.html).
+
+3. **Platform Abstraction** :  MQTT library for backward compatibility for MQTT V2.x.x APIs depends on the implementation of Platform Abstraction for Network, Clock and Threads. The code size is calculated for the [FreeRTOS implementation of Abstraction Layer](../../../abstractions/platform/freertos) and is added in the table below.
+
+| File | With -O1 Optimization | With -Os Optimization |
+| :-: | :-: | :-: |
+| iot_clock_freertos.c | 0.5K | 0.5K |
+| iot_network_freertos.c | 1.2K | 1.1K |
+| iot_threads_freertos.c | 0.7K | 0.7K |
+| **Total estimate** | **2.4K** | **2.3K** |
+
+Please note that the Abstraction Layer may not be exclusively used by this MQTT library for backward compatibility, but may be shared by other libraries. However, the Abstraction Layer is not used by any of the [redesigned libraries for LTS](https://www.freertos.org/ltsroadmap.html).
+
+4. **Linear Containers** : MQTT library for backward compatibility for MQTT V2.x.x APIs depends on Linear Containers. However, this implementation is in [c header file](../common/include/iot_linear_containers.h) and the code sizes are already accounted for in the calculated sizes of this library for backward compatibility.
+
+## Tasks created by dependencies of MQTT library for backward compatibility for MQTT V2.x.x APIs
+
+MQTT library for backward compatibility for MQTT V2.x.x APIs depends on Task Pool and Network Interface implementation(Part of Platform Abstraction). Both Task Pool and Network Interface implementation for FreeRTOS creates additional tasks. Task Pool creates `IotTaskPoolInfo.minThreads` number of tasks. Network Interface implementation for FreeRTOS creates a task to receive from the network. Please note these tasks are required in addition to the main application task needed for the application using MQTT library for backward compatibility.
+
+
+**Note** For applications requiring low memory footprint, we recommend using [coreMQTT library](../../../coreMQTT/README.md), which doesn't have any dependency other than the standard C library, a customer-implemented network transport interface, and *optionally* a user-implemented platform time function. In addition to that, there are no tasks created by these dependencies of coreMQTT library.
+The code size for coreMQTT library can be found in the documentation [here](https://freertos.org/mqtt/index.html).
