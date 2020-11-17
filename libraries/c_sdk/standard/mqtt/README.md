@@ -36,7 +36,7 @@ Code size for MQTT library for backward compatibility for MQTT V2.x.x APIs is ca
 | iot_mqtt_validate.c | 0.5K | 0.4K |
 | **Total estimate** | **15K** | **13.5K** |
 
-MQTT library for backward compatibility for MQTT V2.x.x APIs is implemented using [coreMQTT library](../../../coreMQTT/README.md). In addition to that, this library for backward compatibility for MQTT V2.x.x APIs also maintains all the dependencies of MQTT V2.x.x library. In order to account for the total code size cost of this library, the code sizes for the dependencies also need to be considered. Please find the code sizes for dependencies below.
+MQTT library for backward compatibility for MQTT V2.x.x APIs is implemented using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md). In addition to that, this library for backward compatibility for MQTT V2.x.x APIs also maintains all the dependencies of MQTT V2.x.x library. In order to account for the total code size cost of this library, the code sizes for the dependencies also need to be considered. Please find the code sizes for dependencies below.
 
 1. **coreMQTT library** : MQTT library for backward compatibility for MQTT V2.x.x APIs is implemented using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md). Memory estimates for [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md) can be found in the documentation [here](https://freertos.org/mqtt/index.html).
 
