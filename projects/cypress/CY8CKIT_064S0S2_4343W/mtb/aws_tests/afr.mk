@@ -321,7 +321,7 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c\
 	$(CY_AFR_ROOT)/libraries/coreHTTP/source/core_http_client.c\
-	$(CY_AFR_ROOT)/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c
 
 # Test code
 SOURCES+=\
@@ -366,7 +366,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/interface\
 	$(CY_AFR_ROOT)/libraries/coreHTTP/source/include\
 	$(CY_AFR_ROOT)/libraries/coreHTTP/source/interface\
-	$(CY_AFR_ROOT)/libraries/coreHTTP/source/3rdparty/http_parser\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/dependency/3rdparty/http_parser\
 	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/include\
 	$(CY_AFR_ROOT)/libraries/coreJSON/source/include\
 	$(CY_AFR_ROOT)/libraries/device_defender_for_aws/source/include\

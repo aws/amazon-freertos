@@ -21,7 +21,6 @@ afr_module_sources(
     PRIVATE
         "${src_dir}/iot_https_client.c"
         "${src_dir}/iot_https_utils.c"
-        "${AFR_MODULES_DIR}/coreHTTP/source/3rdparty/http_parser/http_parser.c"
 )
 
 afr_module_include_dirs(
@@ -29,7 +28,6 @@ afr_module_include_dirs(
     PUBLIC 
         "${inc_dir}"
         "$<${AFR_IS_TESTING}:${src_dir}>"
-        "${AFR_MODULES_DIR}/coreHTTP/source/3rdparty/http_parser/"
     PRIVATE
         ${extra_https_test_includes}
 )
@@ -38,6 +36,13 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::common
+        AFR::core_http
+        # This dependency is required for auto-including
+        # coreHTTP library on FreeRTOS console when a library
+        # depends on AFR::https.
+        # AFR::core_http_demo_dependencies is the visible library
+        # target on FreeRTOS console.
+        AFR::core_http_demo_dependencies
 )
 
 # HTTPS Client test

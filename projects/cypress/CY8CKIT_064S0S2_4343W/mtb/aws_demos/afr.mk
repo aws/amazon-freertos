@@ -181,6 +181,7 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/coreHTTP/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)\
@@ -315,7 +316,7 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c\
 	$(CY_AFR_ROOT)/libraries/coreHTTP/source/core_http_client.c\
-	$(CY_AFR_ROOT)/libraries/coreHTTP/source/3rdparty/http_parser/http_parser.c
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common\
@@ -342,7 +343,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/interface\
 	$(CY_AFR_ROOT)/libraries/coreHTTP/source/include\
 	$(CY_AFR_ROOT)/libraries/coreHTTP/source/interface\
-	$(CY_AFR_ROOT)/libraries/coreHTTP/source/3rdparty/http_parser\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/dependency/3rdparty/http_parser\
 	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/include\
 	$(CY_AFR_ROOT)/libraries/coreJSON/source/include\
 	$(CY_AFR_ROOT)/libraries/device_defender_for_aws/source/include\
