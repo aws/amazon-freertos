@@ -218,7 +218,7 @@
  * @brief Time interval in seconds at which an MQTT PINGREQ need to be sent to
  * broker.
  */
-#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS           ( 60U )
+#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS           ( 30U )
 
 /**
  * @brief The number of milliseconds to wait for AWS IoT Core Message Broker
