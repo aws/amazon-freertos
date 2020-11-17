@@ -261,7 +261,7 @@
  * By using a macro instead of a function, the line number in the test case will
  * be printed in a failure.
  *
- * @param[in] pFlag Packet flag to test for true.
+ * @param[in] flag Packet flag to test for true.
  * @param[in] expectedStatus Status code expected to be returned from MQTT_Process
  */
 #define WAIT_FOR_PACKET( flag, expectedStatus )                                         \
