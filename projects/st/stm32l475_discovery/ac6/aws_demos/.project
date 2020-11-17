@@ -1973,6 +1973,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/jobs_for_aws/source/include/jobs.h</locationURI>
 		</link>
 		<link>
+			<name>demos/common/http_demo_helpers/http_demo_utils.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/common/http_demo_helpers/http_demo_utils.c</locationURI>
+		</link>
+		<link>
 			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
@@ -1981,6 +1986,11 @@
 			<name>demos/cli/cli_uart_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/cli/cli_uart_demo.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreHTTP/http_demo_s3_download.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/coreHTTP/http_demo_s3_download.c</locationURI>
 		</link>
 		<link>
 			<name>demos/coreMQTT/mqtt_demo_mutual_auth.c</name>
@@ -2216,6 +2226,11 @@
 			<name>config_files/defender_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/defender_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/http_demo_s3_download_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/http_demo_s3_download_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/iot_config.h</name>
