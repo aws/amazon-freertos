@@ -980,7 +980,7 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
         case MQTT_PACKET_TYPE_PINGRESP:
             LogInfo( ( "Ping Response successfully received." ) );
 
-            /* Update the packet type received to UNSUBACK. */
+            /* Update the packet type received to PINGRESP. */
             usPacketTypeReceived = MQTT_PACKET_TYPE_PINGRESP;
 
             break;

@@ -2198,7 +2198,7 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
     else
     {
         ret = EXIT_FAILURE;
-        LogInfo( ( "Demo run is failure with %lu successful loops out of total %lu loops.",
+        LogInfo( ( "Demo run failed with %lu successful loops out of total %lu loops.",
                    ( ulDemoSuccessCount ),
                    democonfigMQTT_MAX_DEMO_COUNT ) );
     }
