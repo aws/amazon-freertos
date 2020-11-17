@@ -107,6 +107,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_version.c \
                       $(AMAZON_FREERTOS_PATH)demos/common/http_demo_helpers/http_demo_utils.c \
                       $(AMAZON_FREERTOS_PATH)demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c \
+                      $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_mutual_auth.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_s3_download.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_s3_upload.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_mutual_auth.c \
