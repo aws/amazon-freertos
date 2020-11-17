@@ -59,7 +59,6 @@
 #include "FreeRTOS_POSIX/time.h"
 #include "FreeRTOS_POSIX/fcntl.h"
 #include "FreeRTOS_POSIX/errno.h"
-#include "FreeRTOS_POSIX/sys/types.h"
 
 /* Include demo config as the first non-system header. */
 #include "http_demo_s3_download_multithreaded_config.h"
