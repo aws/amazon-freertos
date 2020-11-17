@@ -798,14 +798,14 @@
 			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
+			<name>libraries/abstractions/retry_utils/source/retry_utils.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/retry_utils/source/retry_utils.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/retry_utils/retry_utils.h</name>
+			<name>libraries/abstractions/retry_utils/source/include/retry_utils.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/retry_utils/retry_utils.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/retry_utils/source/include/retry_utils.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>

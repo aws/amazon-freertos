@@ -396,7 +396,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h">
 			<Filter>libraries\coreMQTT\source\interface</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h">
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\retry_utils\source\include\retry_utils.h">
 			<Filter>libraries\abstractions\retry_utils</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
@@ -986,7 +986,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c">
 			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c">
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\retry_utils\source\retry_utils.c">
 			<Filter>libraries\abstractions\retry_utils\freertos</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">

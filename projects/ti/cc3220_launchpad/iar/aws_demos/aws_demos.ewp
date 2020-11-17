@@ -1571,11 +1571,11 @@
 				<group>
 					<name>freertos</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\source\retry_utils.c</name>
 					</file>
 				</group>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\source\include\retry_utils.h</name>
 				</file>
 			</group>
 			<group>
