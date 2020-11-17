@@ -218,7 +218,7 @@
  * @brief Time interval in seconds at which an MQTT PINGREQ need to be sent to
  * broker.
  */
-#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS           ( 30U )
+#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS           ( 60U )
 
 /**
  * @brief The number of milliseconds to wait for AWS IoT Core Message Broker
@@ -235,7 +235,7 @@
  * @brief The maximum number of times to call MQTT_ProcessLoop() when polling
  * for a specific packet from the broker.
  */
-#define MQTT_PROCESS_LOOP_PACKET_WAIT_COUNT_MAX    ( 60U )
+#define MQTT_PROCESS_LOOP_PACKET_WAIT_COUNT_MAX    ( 30U )
 
 /**
  * @brief The MQTT message published in this example.
