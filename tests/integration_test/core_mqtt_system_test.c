@@ -1353,9 +1353,7 @@ void Connect_LWT()
 
     /* Establish a second TCP connection with the server endpoint, then
      * a TLS session. The server info and credentials can be reused. */
-    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &secondNetworkContext,
-                                                                                        &serverInfo,
-                                                                                        &socketsConfig ) );
+    TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &secondNetworkContext ) );
 
     /* Establish MQTT session on top of the TCP+TLS connection. */
     useLWTClientIdentifier = true;
