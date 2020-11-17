@@ -105,7 +105,7 @@ const char * _pHttpsMethodStrings[] =
     "HEAD",
     "PUT",
     "POST"
-};
+}; 
 
 /**
  * @brief Minimum size of the request user buffer.
@@ -528,7 +528,7 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t * pHttpsC
  * @brief Task pool job routine to send the HTTP request within the pUserContext.
  *
  * @param[in] pTaskPool - Pointer to the system task pool.
- * @param[in] pJob - Pointer the to the HTTP request sending job.
+ * @param[in] pJob - Pointer to the HTTP request sending job.
  * @param[in] pUserContext - Pointer to an HTTP request, passed as an opaque context.
  */
 static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
