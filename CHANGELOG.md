@@ -1,6 +1,12 @@
 # Change Log
 This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT. The repository contains projects for many different microcontroller evaluation boards.
 
+## Changes since previous release
+
+### New Features
+
+### Updates
+
 ## 202011.00 November 2020
 
 ### New Features
