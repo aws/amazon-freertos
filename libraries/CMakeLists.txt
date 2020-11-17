@@ -97,3 +97,8 @@ endif()
 if(EXISTS ${AFR_MODULES_DIR}/abstractions/transport/transport_interface_secure_sockets.cmake)
   include(${AFR_MODULES_DIR}/abstractions/transport/transport_interface_secure_sockets.cmake)
 endif()
+
+# Add retry utils module ONLY if present in FreeRTOS console download.
+if(EXISTS ${AFR_MODULES_DIR}/retry_utils.cmake)
+  include(${AFR_MODULES_DIR}/retry_utils.cmake)
+endif()
