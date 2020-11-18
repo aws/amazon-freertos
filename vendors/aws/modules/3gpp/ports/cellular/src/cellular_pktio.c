@@ -377,8 +377,11 @@ static CellularPktStatus_t _Cellular_ProcessLine( const CellularContext_t * pCon
         {
             pResp->status = false;
             pkStatus = CELLULAR_PKT_STATUS_OK;
-            IotLogError( "Modem return ERROR: %s %s respPrefix: %s status: %d",
-                         pContext->pCurrentCmd, pLine, pRespPrefix, pkStatus );
+            IotLogError( "Modem return ERROR: cmd: %s line: %s respPrefix: %s status: %d",
+                         ( ( pContext->pCurrentCmd == NULL ) ? "NULL" : pContext->pCurrentCmd ),
+                         pLine,
+                         ( ( pRespPrefix == NULL ) ? "NULL" : pRespPrefix ),
+                         pkStatus );
         }
         else
         {
@@ -719,13 +722,15 @@ static CellularPktStatus_t _handleMsgType( CellularContext_t * pContext,
                 ( void ) memset( pContext->pktioReadBuf, 0, PKTIO_READ_BUFFER_SIZE + 1U );
                 pContext->pPktioReadPtr = NULL;
                 FREE_AT_RESPONSE_AND_SET_NULL( *ppAtResp );
-                IotLogError( "processLine ERROR, cleaning up! Current command %s", pContext->pCurrentCmd );
+                IotLogError( "processLine ERROR, cleaning up! Current command %s",
+                             ( ( pContext->pCurrentCmd == NULL ) ? "NULL" : pContext->pCurrentCmd ) );
             }
         }
     }
     else
     {
-        IotLogError( "recvdMsgType is AT_UNDEFINED for Message: %s %s", pLine, pContext->pCurrentCmd );
+        IotLogError( "recvdMsgType is AT_UNDEFINED for Message: line %s, cmd %s",
+                     pLine, ( ( pContext->pCurrentCmd == NULL ) ? "NULL" : pContext->pCurrentCmd ) );
         ( void ) memset( pContext->pktioReadBuf, 0, PKTIO_READ_BUFFER_SIZE + 1U );
         pContext->pPktioReadPtr = NULL;
         pContext->partialDataRcvdLen = 0;
