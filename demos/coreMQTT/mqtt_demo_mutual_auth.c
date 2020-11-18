@@ -1085,7 +1085,7 @@ static MQTTStatus_t prvWaitForPacket( MQTTContext_t * pxMQTTContext,
 
     if( ( xMQTTStatus != MQTTSuccess ) || ( usPacketTypeReceived != usPacketType ) )
     {
-        LogError( ( "MQTT_ProcessLoop failed to receive packet: Packet type=%02X LoopDuration=%u, Status=%s",
+        LogError( ( "MQTT_ProcessLoop failed to receive packet: Packet type=%02X, LoopDuration=%u, Status=%s",
                     usPacketType,
                     ( mqttexamplePROCESS_LOOP_TIMEOUT_MS * ucCount ),
                     MQTT_Status_strerror( xMQTTStatus ) ) );
