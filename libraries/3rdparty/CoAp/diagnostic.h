@@ -13,8 +13,8 @@
  */
 
 
-void PrintInteractions(CoAP_Interaction_t *pInteractions);
-void PrintEndpoint(const NetEp_t* ep);
-char* ResultToString(CoAP_Result_t res);
+void PrintInteractions( CoAP_Interaction_t * pInteractions );
+void PrintEndpoint( const NetEp_t * ep );
+char * ResultToString( CoAP_Result_t res );
 
 #endif /* LOBARO_COAP_SRC_DIAGNOSTIC_H_ */
