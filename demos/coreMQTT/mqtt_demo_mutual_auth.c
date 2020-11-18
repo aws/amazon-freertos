@@ -163,7 +163,13 @@
 /**
  * @brief Timeout for MQTT_ProcessLoop in milliseconds.
  */
-#define mqttexamplePROCESS_LOOP_TIMEOUT_MS                ( 500U )
+#define mqttexamplePROCESS_LOOP_TIMEOUT_MS                ( 700U )
+
+/**
+ * @brief The maximum number of times to call MQTT_ProcessLoop() when polling
+ * for a specific packet from the broker.
+ */
+#define MQTT_PROCESS_LOOP_PACKET_WAIT_COUNT_MAX           ( 30U )
 
 /**
  * @brief Keep alive time reported to the broker while establishing
@@ -304,6 +310,18 @@ static void prvEventCallback( MQTTContext_t * pxMQTTContext,
                               MQTTPacketInfo_t * pxPacketInfo,
                               MQTTDeserializedInfo_t * pxDeserializedInfo );
 
+/**
+ * @brief Helper function to wait for a specific incoming packet from the
+ * broker.
+ *
+ * @param[in] pxMQTTContext MQTT context pointer.
+ * @param[in] usPacketType Packet type to wait for.
+ *
+ * @return The return status from call to #MQTT_ProcessLoop API.
+ */
+static MQTTStatus_t prvWaitForPacket( MQTTContext_t * pxMQTTContext,
+                                      uint16_t usPacketType );
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -337,6 +355,20 @@ static uint16_t usSubscribePacketIdentifier;
  * request.
  */
 static uint16_t usUnsubscribePacketIdentifier;
+
+/**
+ * @brief MQTT packet type received from the MQTT broker.
+ *
+ * @note Only on receiving incoming PUBLISH, SUBACK, and UNSUBACK, this
+ * variable is updated. For MQTT packets PUBACK and PINGRESP, the variable is
+ * not updated since there is no need to specifically wait for it in this demo.
+ * A single variable suffices as this demo uses single task and requests one operation
+ * (of PUBLISH, SUBSCRIBE, UNSUBSCRIBE) at a time before expecting response from
+ * the broker. Hence it is not possible to receive multiple packets of type PUBLISH,
+ * SUBACK, and UNSUBACK in a single call of #prvWaitForPacket.
+ * For a multi task application, consider a different method to wait for the packet, if needed.
+ */
+static uint16_t usPacketTypeReceived = 0U;
 
 /**
  * @brief A pair containing a topic filter and its SUBACK status.
@@ -393,7 +425,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
     NetworkContext_t xNetworkContext = { 0 };
     MQTTContext_t xMQTTContext = { 0 };
     MQTTStatus_t xMQTTStatus;
-    uint32_t ulDemoRunCount = 0;
+    uint32_t ulDemoRunCount = 0UL, ulDemoSuccessCount = 0UL;
     TransportSocketStatus_t xNetworkStatus;
     BaseType_t xIsConnectionEstablished = pdFALSE;
 
@@ -461,16 +493,16 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
             if( xDemoStatus == pdPASS )
             {
                 /* Process incoming publish echo, since application subscribed to the same
-                 * topic, the broker will send publish message back to the application. */
+                 * topic, the broker will send publish message back to the application.
+                 * #prvWaitForPacket will try to receive an incoming PUBLISH packet from broker.
+                 * Please note that PUBACK for the outgoing PUBLISH may also be received before
+                 * receiving an incoming PUBLISH. */
                 LogInfo( ( "Attempt to receive publish message from broker." ) );
-                xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
+                xMQTTStatus = prvWaitForPacket( &xMQTTContext, MQTT_PACKET_TYPE_PUBLISH );
 
                 if( xMQTTStatus != MQTTSuccess )
                 {
                     xDemoStatus = pdFAIL;
-                    LogError( ( "MQTT_ProcessLoop failed: LoopDuration=%u, Error=%s",
-                                mqttexamplePROCESS_LOOP_TIMEOUT_MS,
-                                MQTT_Status_strerror( xMQTTStatus ) ) );
                 }
             }
 
@@ -490,14 +522,11 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
         if( xDemoStatus == pdPASS )
         {
             /* Process incoming UNSUBACK packet from the broker. */
-            xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
+            xMQTTStatus = prvWaitForPacket( &xMQTTContext, MQTT_PACKET_TYPE_UNSUBACK );
 
             if( xMQTTStatus != MQTTSuccess )
             {
                 xDemoStatus = pdFAIL;
-                LogError( ( "Failed to receive UNSUBACK packet from broker: ProcessLoopDuration=%u, Error=%s",
-                            mqttexamplePROCESS_LOOP_TIMEOUT_MS,
-                            MQTT_Status_strerror( xMQTTStatus ) ) );
             }
         }
 
@@ -539,17 +568,38 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
              * bombard the broker. */
             LogInfo( ( "Demo completed an iteration successfully." ) );
             LogInfo( ( "Demo iteration %lu completed successfully.", ( ulDemoRunCount + 1UL ) ) );
+
+            /* Update success count. */
+            ulDemoSuccessCount++;
         }
         else
         {
-            /* Terminate the demo due to failure. */
+            /* Demo loop will be repeated for democonfigMQTT_MAX_DEMO_COUNT
+             * times even if current loop resulted in a failure. */
             LogInfo( ( "Demo failed at iteration %lu.", ( ulDemoRunCount + 1UL ) ) );
-            LogInfo( ( "Exiting demo." ) );
-            break;
         }
 
         LogInfo( ( "Short delay before starting the next iteration.... " ) );
         vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
+    }
+
+    /* Demo run is considered successful if more than half of
+     * #democonfigMQTT_MAX_DEMO_COUNT is successful. */
+    if( ulDemoSuccessCount > ( democonfigMQTT_MAX_DEMO_COUNT / 2 ) )
+    {
+        xDemoStatus = pdPASS;
+        LogInfo( ( "Demo run is successful with %lu successful loops out of total %lu loops.",
+                   ( ulDemoSuccessCount ),
+                   democonfigMQTT_MAX_DEMO_COUNT ) );
+    }
+    else
+    {
+        xDemoStatus = pdFAIL;
+        LogInfo( ( "Demo run failed with %lu failed loops out of total %lu loops."
+                   " RequiredSuccessCounts=%lu.",
+                   ( democonfigMQTT_MAX_DEMO_COUNT - ulDemoSuccessCount ),
+                   democonfigMQTT_MAX_DEMO_COUNT,
+                   ( ( democonfigMQTT_MAX_DEMO_COUNT / 2 ) + 1 ) ) );
     }
 
     return ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -764,12 +814,11 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
              * receiving Publish message before subscribe ack is zero; but application
              * must be ready to receive any packet.  This demo uses the generic packet
              * processing function everywhere to highlight this fact. */
-            xResult = MQTT_ProcessLoop( pxMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
+            xResult = prvWaitForPacket( pxMQTTContext, MQTT_PACKET_TYPE_SUBACK );
 
             if( xResult != MQTTSuccess )
             {
-                LogError( ( "Failed to receive SUBACK response for SUBSCRIBE request: ProcessLoopDuration=%u, Error=%s",
-                            mqttexamplePROCESS_LOOP_TIMEOUT_MS, MQTT_Status_strerror( xResult ) ) );
+                xStatus = pdFAIL;
             }
         }
 
@@ -894,6 +943,9 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
 
         case MQTT_PACKET_TYPE_SUBACK:
 
+            /* Update the packet type received to SUBACK. */
+            usPacketTypeReceived = MQTT_PACKET_TYPE_SUBACK;
+
             /* A SUBACK from the broker, containing the server response to our subscription request, has been received.
              * It contains the status code indicating server approval/rejection for the subscription to the single topic
              * requested. The SUBACK will be parsed to obtain the status code, and this status code will be stored in global
@@ -916,12 +968,17 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
 
         case MQTT_PACKET_TYPE_UNSUBACK:
             LogInfo( ( "Unsubscribed from the topic %s.", mqttexampleTOPIC ) );
+
+            /* Update the packet type received to UNSUBACK. */
+            usPacketTypeReceived = MQTT_PACKET_TYPE_UNSUBACK;
+
             /* Make sure ACK packet identifier matches with Request packet identifier. */
             configASSERT( usUnsubscribePacketIdentifier == usPacketId );
             break;
 
         case MQTT_PACKET_TYPE_PINGRESP:
             LogInfo( ( "Ping Response successfully received." ) );
+
             break;
 
         /* Any other packet type is invalid. */
@@ -936,6 +993,9 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
 static void prvMQTTProcessIncomingPublish( MQTTPublishInfo_t * pxPublishInfo )
 {
     configASSERT( pxPublishInfo != NULL );
+
+    /* Set the global for indicating that an incoming publish is received. */
+    usPacketTypeReceived = MQTT_PACKET_TYPE_PUBLISH;
 
     /* Process incoming Publish. */
     LogInfo( ( "Incoming QoS : %d\n", pxPublishInfo->qos ) );
@@ -996,6 +1056,37 @@ static uint32_t prvGetTimeMs( void )
     ulTimeMs = ( uint32_t ) ( ulTimeMs - ulGlobalEntryTimeMs );
 
     return ulTimeMs;
+}
+
+/*-----------------------------------------------------------*/
+
+static MQTTStatus_t prvWaitForPacket( MQTTContext_t * pxMQTTContext,
+                                      uint16_t usPacketType )
+{
+    uint8_t ucCount = 0U;
+    MQTTStatus_t xMQTTStatus = MQTTSuccess;
+
+    /* Reset the packet type received. */
+    usPacketTypeReceived = 0U;
+
+    while( ( usPacketTypeReceived != usPacketType ) &&
+           ( ucCount++ < MQTT_PROCESS_LOOP_PACKET_WAIT_COUNT_MAX ) &&
+           ( xMQTTStatus == MQTTSuccess ) )
+    {
+        /* Event callback will set #usPacketTypeReceived when receiving appropriate packet. This
+         * will wait for at most mqttexamplePROCESS_LOOP_TIMEOUT_MS. */
+        xMQTTStatus = MQTT_ProcessLoop( pxMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
+    }
+
+    if( ( xMQTTStatus != MQTTSuccess ) || ( usPacketTypeReceived != usPacketType ) )
+    {
+        LogError( ( "MQTT_ProcessLoop failed to receive packet: Packet type=%02X, LoopDuration=%u, Status=%s",
+                    usPacketType,
+                    ( mqttexamplePROCESS_LOOP_TIMEOUT_MS * ucCount ),
+                    MQTT_Status_strerror( xMQTTStatus ) ) );
+    }
+
+    return xMQTTStatus;
 }
 
 /*-----------------------------------------------------------*/

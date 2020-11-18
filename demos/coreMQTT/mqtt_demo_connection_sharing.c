@@ -2018,12 +2018,13 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
     BaseType_t xNetworkStatus = pdFAIL;
     BaseType_t xResult = pdFALSE;
     BaseType_t xNetworkConnectionCreated = pdFALSE;
-    uint32_t ulNotification = 0;
+    uint32_t ulNotification = 0UL;
     MQTTStatus_t xMQTTStatus;
     uint32_t ulExpectedNotifications = mqttexamplePUBLISHER_SYNC_COMPLETE_BIT |
                                        mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT |
                                        mqttexamplePUBLISHER_ASYNC_COMPLETE_BIT;
-    uint32_t ulDemoCount = 0;
+    uint32_t ulDemoCount = 0UL;
+    uint32_t ulDemoSuccessCount = 0UL;
     int ret = EXIT_SUCCESS;
 
     ( void ) awsIotMqttMode;
@@ -2078,7 +2079,7 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
         }
     }
 
-    for( ulDemoCount = 0; ( ulDemoCount < democonfigMQTT_MAX_DEMO_COUNT ) && ( ret == EXIT_SUCCESS ); ulDemoCount++ )
+    for( ulDemoCount = 0UL; ( ulDemoCount < democonfigMQTT_MAX_DEMO_COUNT ); ulDemoCount++ )
     {
         /* Clear the lists of subscriptions and pending acknowledgments. */
         memset( pxPendingAcks, 0x00, mqttexamplePENDING_ACKS_MAX_SIZE * sizeof( AckInfo_t ) );
@@ -2156,13 +2157,17 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
         if( ret == EXIT_SUCCESS )
         {
             LogInfo( ( "Demo iteration %lu completed successfully.", ( ulDemoCount + 1UL ) ) );
-            LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
-            vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS );
+            ulDemoSuccessCount++;
         }
         else
         {
+            /* Demo loop will be repeated for democonfigMQTT_MAX_DEMO_COUNT
+             * times even if current loop resulted in a failure. */
             LogError( ( "Demo failed at iteration %lu.", ( ulDemoCount + 1UL ) ) );
         }
+
+        LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
+        vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS );
     }
 
     /* Delete queues. */
@@ -2179,6 +2184,25 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
     if( xSubscriberResponseQueue != NULL )
     {
         vQueueDelete( xSubscriberResponseQueue );
+    }
+
+    /* Demo run is considered successful if more than half of
+     * #democonfigMQTT_MAX_DEMO_COUNT is successful. */
+    if( ulDemoSuccessCount > ( democonfigMQTT_MAX_DEMO_COUNT / 2 ) )
+    {
+        ret = EXIT_SUCCESS;
+        LogInfo( ( "Demo run is successful with %lu successful loops out of total %lu loops.",
+                   ( ulDemoSuccessCount ),
+                   democonfigMQTT_MAX_DEMO_COUNT ) );
+    }
+    else
+    {
+        ret = EXIT_FAILURE;
+        LogInfo( ( "Demo run failed with %lu failed loops out of total %lu loops."
+                   " RequiredSuccessCounts=%lu.",
+                   ( democonfigMQTT_MAX_DEMO_COUNT - ulDemoSuccessCount ),
+                   democonfigMQTT_MAX_DEMO_COUNT,
+                   ( ( democonfigMQTT_MAX_DEMO_COUNT / 2 ) + 1 ) ) );
     }
 
     return ret;
