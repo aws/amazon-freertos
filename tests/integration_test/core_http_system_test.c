@@ -40,9 +40,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-/* Include header for connection configurations. */
-#include "aws_clientcredential.h"
-
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
@@ -82,12 +79,12 @@
 
 /* Ensure that config macros, required for TLS connection, have been defined. */
 #ifndef SERVER_HOST
-    #define SERVER_HOST    clientcredentialMQTT_BROKER_ENDPOINT
+    #define SERVER_HOST    "localhost"
 #endif
 
 /* Check that TLS port of the server is defined. */
 #ifndef HTTPS_PORT
-    #define HTTPS_PORT    clientcredentialMQTT_BROKER_PORT
+    #define HTTPS_PORT    443
 #endif
 
 /* Use Starfield Root CA as the default Root CA because the TI C3220 Launchpad board
