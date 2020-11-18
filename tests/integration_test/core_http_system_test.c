@@ -286,6 +286,7 @@ static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
 
     /* Initialize reconnect attempts and interval */
     RetryUtils_ParamsReset( &reconnectParams );
+    reconnectParams.maxRetryAttempts = MAX_RETRY_ATTEMPTS;
 
     /* Attempt to connect to HTTP server. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase until maximum
@@ -391,8 +392,8 @@ static void sendHttpRequest( const TransportInterface_t * pTransportInterface,
         if( httpStatus == HTTPNetworkError )
         {
             LogDebug( ( "A network error has occured, retrying request." ) );
-            /* TEST_TEAR_DOWN( coreHTTP_Integration ); */
-            /* TEST_SETUP( coreHTTP_Integration ); */
+            TEST_TEAR_DOWN( coreHTTP_Integration );
+            TEST_SETUP( coreHTTP_Integration );
         }
 
         retryCount++;
