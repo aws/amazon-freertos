@@ -317,7 +317,7 @@ static void prvEventCallback( MQTTContext_t * pxMQTTContext,
  * @param[in] pxMQTTContext MQTT context pointer.
  * @param[in] usPacketType Packet type to wait for.
  *
- * @return The return status from call to #MQTT_ProcessLoop API. 
+ * @return The return status from call to #MQTT_ProcessLoop API.
  */
 static MQTTStatus_t prvWaitForPacket( MQTTContext_t * pxMQTTContext,
                                       uint16_t usPacketType );
@@ -362,10 +362,10 @@ static uint16_t usUnsubscribePacketIdentifier;
  * @note Only on receiving incoming PUBLISH, SUBACK, and UNSUBACK, this
  * variable is updated. For MQTT packets PUBACK and PINGRESP, the variable is
  * not updated since there is no need to specifically wait for it in this demo.
- * A single variable suffices as this demo uses single task and requests one operation 
- * (of PUBLISH, SUBSCRIBE, UNSUBSCRIBE) at a time before expecting response from 
- * the broker. Hence it is not possible to receive multiple packets of type PUBLISH, 
- * SUBACK, and UNSUBACK in a single call of #prvWaitForPacket. 
+ * A single variable suffices as this demo uses single task and requests one operation
+ * (of PUBLISH, SUBSCRIBE, UNSUBSCRIBE) at a time before expecting response from
+ * the broker. Hence it is not possible to receive multiple packets of type PUBLISH,
+ * SUBACK, and UNSUBACK in a single call of #prvWaitForPacket.
  * For a multi task application, consider a different method to wait for the packet, if needed.
  */
 static uint16_t usPacketTypeReceived = 0U;
@@ -595,9 +595,11 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
     else
     {
         xDemoStatus = pdFAIL;
-        LogInfo( ( "Demo run is failure with %lu successful loops out of total %lu loops.",
-                   ( ulDemoSuccessCount ),
-                   democonfigMQTT_MAX_DEMO_COUNT ) );
+        LogInfo( ( "Demo run failed with %lu failed loops out of total %lu loops."
+                   " RequiredSuccessCounts=%lu.",
+                   ( democonfigMQTT_MAX_DEMO_COUNT - ulDemoSuccessCount ),
+                   democonfigMQTT_MAX_DEMO_COUNT,
+                   ( ( democonfigMQTT_MAX_DEMO_COUNT / 2 ) + 1 ) ) );
     }
 
     return ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
