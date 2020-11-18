@@ -19,4 +19,5 @@ afr_module_dependencies(
         AFR::core_mqtt
         AFR::transport_interface_secure_sockets
         AFR::retry_utils
+        AFR::pkcs11_implementation
 )
