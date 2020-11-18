@@ -70,6 +70,10 @@
 /* Retry utilities include. */
 #include "retry_utils.h"
 
+/* Include PKCS11 headers. */
+#include "core_pkcs11.h"
+#include "pkcs11.h"
+
 /* Transport interface implementation include header for TLS. */
 #include "transport_secure_sockets.h"
 
@@ -122,12 +126,30 @@
 /**
  * @brief Length of client identifier.
  */
-#define democonfigCLIENT_IDENTIFIER_LENGTH           ( ( uint16_t ) ( sizeof( democonfigCLIENT_IDENTIFIER ) - 1 ) )
+#define democonfigCLIENT_IDENTIFIER_LENGTH    ( ( uint16_t ) ( sizeof( democonfigCLIENT_IDENTIFIER ) - 1 ) )
 
 /**
  * @brief Length of MQTT server host name.
  */
-#define democonfigBROKER_ENDPOINT_LENGTH             ( ( uint16_t ) ( sizeof( democonfigMQTT_BROKER_ENDPOINT ) - 1 ) )
+#define democonfigBROKER_ENDPOINT_LENGTH      ( ( uint16_t ) ( sizeof( democonfigMQTT_BROKER_ENDPOINT ) - 1 ) )
+
+/**
+ * @brief The maximum number of retries for network operation with server.
+ */
+#define RETRY_MAX_ATTEMPTS                    ( 5U )
+
+/**
+ * @brief The maximum back-off delay (in milliseconds) for retrying failed operation
+ *  with server.
+ */
+#define RETRY_MAX_BACKOFF_DELAY_MS            ( 5000U )
+
+/**
+ * @brief The base back-off delay (in milliseconds) to use for network operation retry
+ * attempts.
+ */
+#define RETRY_BACKOFF_BASE_MS                 ( 500U )
+
 
 /**
  * @brief Timeout for receiving CONNACK packet in milliseconds.
@@ -381,6 +403,33 @@ typedef struct publishElement
 } PublishElement_t;
 
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief The random number generator to use for exponential backoff with
+ * jitter retry logic.
+ * This function is an implementation the #RetryUtils_RNG_t interface type
+ * of the retry utils library API.
+ *
+ * @return The generated random number. This function ALWAYS succeeds
+ * in generating a random number.
+ */
+static int32_t prvGenerateRandomNumber();
+
+/**
+ * @brief Seed the random number generator used for exponential backoff
+ * used in connection retry attempts.
+ *
+ * The PKCS11 module is used to seed the random number generator
+ * as it allows access to a True Random Number Generator (TRNG) if the
+ * vendor platform supports it.
+ * It is recommended to use a device-specific unique entropy source
+ * to seed the random number generator so that probability of collisions
+ * from devices in connection retries is mitigated.
+ *
+ * @return pdPASS if seeding the randon number generator was successful;
+ * otherwise pdFAIL for failure.
+ */
+static BaseType_t prvSeedRandomNumberGenerator();
 
 /**
  * @brief Initializes an MQTT context, including transport interface and
@@ -663,6 +712,13 @@ static uint32_t prvGetTimeMs( void );
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief A global storage variable that is used by the pseudo random number generator.
+ * The random number generator is used for calculating exponential back-off
+ * with jitter for retry attempts of failed network operations with the broker.
+ */
+static uint32_t ulNextRand;
+
+/**
  * @brief Global MQTT context.
  */
 static MQTTContext_t globalMqttContext;
@@ -917,14 +973,78 @@ static MQTTStatus_t prvResumeSession( bool xSessionPresent )
 
 /*-----------------------------------------------------------*/
 
+static int32_t prvGenerateRandomNumber()
+{
+    const uint32_t ulMultiplier = 0x015a4e35UL, ulIncrement = 1UL;
+
+    ulNextRand = ( ulMultiplier * ulNextRand ) + ulIncrement;
+    return( ( int32_t ) ( ulNextRand >> 16UL ) & 0x7fffUL );
+}
+
+/*-----------------------------------------------------------*/
+
+static BaseType_t prvSeedRandomNumberGenerator()
+{
+    BaseType_t xStatus = pdFAIL;
+
+    CK_RV xResult = CKR_OK;
+    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
+    CK_SESSION_HANDLE xSession = CK_INVALID_HANDLE;
+
+    /* Get list of functions supported by the PKCS11 port. */
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+    if( ( xResult != CKR_OK ) || ( pxFunctionList != NULL ) )
+    {
+        LogError( ( "Failed to seed random number generator. "
+                    "PCKS11 API, C_GetFunctionList, failed." ) );
+        xStatus = pdFAIL;
+    }
+
+    if( xStatus == pdPASS )
+    {
+        /* Initialize PKCS11 module and create a new session. */
+        xResult = xInitializePkcs11Session( &xSession );
+
+        if( ( xResult != CKR_OK ) || ( xSession == CK_INVALID_HANDLE ) )
+        {
+            LogError( ( "Failed to seed random number generator. "
+                        "Failed to initialize PKCS11 session." ) );
+            xStatus = pdFAIL;
+        }
+    }
+
+    if( xStatus == pdPASS )
+    {
+        /*
+         * Seed random number generator with PKCS11.
+         * Use of PKCS11 can allow use of True Random Number Generator (TRNG)
+         * if the platform supports it.
+         */
+        if( pxFunctionList->C_GenerateRandom( xSession,
+                                              ( unsigned char * ) &ulNextRand,
+                                              sizeof( ulNextRand ) ) != CKR_OK )
+        {
+            xStatus = pdFAIL;
+            LogError( ( "Failed to seed random number generator. "
+                        "PKCS11 API, C_GenerateRandom, failed to generate random number." ) );
+        }
+    }
+
+    return xStatus;
+}
+
+/*-----------------------------------------------------------*/
+
 static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
 {
     BaseType_t xConnected = pdFAIL;
     RetryUtilsStatus_t xRetryUtilsStatus = RetryUtilsSuccess;
-    RetryUtilsParams_t xReconnectParams;
+    RetryUtilsContext_t xReconnectParams;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     ServerInfo_t xServerInfo = { 0 };
     SocketsConfig_t xSocketConfig = { 0 };
+    uint16_t usNextRetryBackOff = 0U;
 
     /* Initialize the MQTT broker information. */
     xServerInfo.pHostName = democonfigMQTT_BROKER_ENDPOINT;
@@ -939,10 +1059,12 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
     xSocketConfig.pRootCa = democonfigROOT_CA_PEM;
     xSocketConfig.rootCaSize = sizeof( democonfigROOT_CA_PEM );
 
-    /* We will use a retry mechanism with an exponential backoff mechanism and
-     * jitter. We initialize reconnect attempts and interval here. */
-    xReconnectParams.maxRetryAttempts = MAX_RETRY_ATTEMPTS;
-    RetryUtils_ParamsReset( &xReconnectParams );
+    /* Initialize reconnect attempts and interval. */
+    RetryUtils_InitializeParams( &xReconnectParams,
+                                 RETRY_BACKOFF_BASE_MS,
+                                 RETRY_MAX_BACKOFF_DELAY_MS,
+                                 RETRY_MAX_ATTEMPTS,
+                                 prvGenerateRandomNumber );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after a
      * timeout. Timeout value will exponentially increase until the maximum
@@ -963,13 +1085,23 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
 
         if( !xConnected )
         {
-            LogWarn( ( "Connection to the broker failed. Retrying connection with backoff and jitter." ) );
-            xRetryUtilsStatus = RetryUtils_BackoffAndSleep( &xReconnectParams );
-        }
+            /* Get back-off value (in milliseconds) for the next connection retry. */
+            xRetryUtilsStatus = RetryUtils_GetNextBackOff( &xReconnectParams, &usNextRetryBackOff );
+            configASSERT( xRetryUtilsStatus != RetryUtilsRngFailure );
 
-        if( xRetryUtilsStatus == RetryUtilsRetriesExhausted )
-        {
-            LogError( ( "Connection to the broker failed. All attempts exhausted." ) );
+            if( xRetryUtilsStatus == RetryUtilsRetriesExhausted )
+            {
+                LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
+            }
+            else if( xRetryUtilsStatus == RetryUtilsSuccess )
+            {
+                LogWarn( ( "Connection to the broker failed. Retrying connection after backoff delay." ) );
+                vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
+
+                LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
+                           ( xReconnectParams.attemptsDone + 1 ),
+                           xReconnectParams.maxRetryAttempts ) );
+            }
         }
     } while( ( xConnected != pdPASS ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
 
@@ -2048,11 +2180,16 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
      * synchronization primitives. */
     xDefaultResponseQueue = xQueueCreate( 1, sizeof( PublishElement_t ) );
 
-    /* Connect to the broker. We connect here with the "clean session" flag set
-     * to true in order to clear any prior state in the broker. We will disconnect
-     * and later form a persistent session, so that it may be resumed if the
-     * network suddenly disconnects. */
-    xNetworkStatus = prvSocketConnect( &xNetworkContext );
+    /* Seed randon number generator for use with retry utils library for
+     * backoff calculation during failed connection retry attempts. */
+    if( prvSeedRandomNumberGenerator() == pdPASS )
+    {
+        /* Connect to the broker. We connect here with the "clean session" flag set
+         * to true in order to clear any prior state in the broker. We will disconnect
+         * and later form a persistent session, so that it may be resumed if the
+         * network suddenly disconnects. */
+        xNetworkStatus = prvSocketConnect( &xNetworkContext );
+    }
 
     ret = EXIT_FAILURE;
 

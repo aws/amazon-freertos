@@ -372,7 +372,11 @@ static MQTTStatus_t prvWaitForPacket( MQTTContext_t * pxMQTTContext,
 
 /*-----------------------------------------------------------*/
 
-/* @brief This is used by the pseudo random number generator. */
+/**
+ * @brief A global storage variable that is used by the pseudo random number generator.
+ * The random number generator is used for calculating exponential back-off
+ * with jitter for retry attempts of failed network operations with the broker.
+ */
 static uint32_t ulNextRand;
 
 /**
