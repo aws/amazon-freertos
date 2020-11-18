@@ -15,7 +15,7 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_mutual_auth.c"
-        #"${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_connection_sharing.c"
+        "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_connection_sharing.c"
 )
 
 afr_module_dependencies(
