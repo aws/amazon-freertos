@@ -46,6 +46,7 @@
 #define testrunnerFULL_GGD_HELPER_ENABLED          0
 #define testrunnerFULL_SHADOW_ENABLED              0
 #define testrunnerFULL_SHADOWv4_ENABLED            0
+#define testrunnerFULL_CORE_HTTP_ENABLED           0
 #define testrunnerFULL_MQTTv4_ENABLED              0
 #define testrunnerFULL_PKCS11_ENABLED              0
 #define testrunnerFULL_CRYPTO_ENABLED              0
