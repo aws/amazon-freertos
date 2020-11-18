@@ -78,8 +78,8 @@
 /******************* Default Configurations values ***********************/
 
 /* Ensure that config macros, required for TLS connection, have been defined. */
-#ifndef SERVER_HOST
-    #define SERVER_HOST    "localhost"
+#ifndef SERVER_HOST_NAME
+    #define SERVER_HOST_NAME    "localhost"
 #endif
 
 /* Check that TLS port of the server is defined. */
@@ -104,7 +104,7 @@
 /**
  * @brief Length of HTTP server host name.
  */
-#define SERVER_HOST_LENGTH                ( ( sizeof( SERVER_HOST ) - 1 ) )
+#define SERVER_HOST_LENGTH                ( ( sizeof( SERVER_HOST_NAME ) - 1 ) )
 
 /**
  * @brief The maximum number of retries to attempt on network error.
@@ -267,7 +267,7 @@ static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     TransportSocketStatus_t transportStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
 
     /* Initializer server information. */
-    serverInfo.pHostName = SERVER_HOST;
+    serverInfo.pHostName = SERVER_HOST_NAME;
     serverInfo.hostNameLength = SERVER_HOST_LENGTH;
     serverInfo.port = HTTPS_PORT;
 
@@ -337,7 +337,7 @@ static void sendHttpRequest( const TransportInterface_t * pTransportInterface,
     ( void ) memset( &requestHeaders, 0, sizeof( requestHeaders ) );
 
     /* Initialize the request object. */
-    requestInfo.pHost = SERVER_HOST;
+    requestInfo.pHost = SERVER_HOST_NAME;
     requestInfo.hostLen = SERVER_HOST_LENGTH;
     requestInfo.pMethod = pMethod;
     requestInfo.methodLen = strlen( pMethod );
@@ -359,7 +359,7 @@ static void sendHttpRequest( const TransportInterface_t * pTransportInterface,
 
     LogDebug( ( "Sending HTTP %.*s request to %.*s%.*s...",
                 ( int32_t ) requestInfo.methodLen, requestInfo.pMethod,
-                ( int32_t ) SERVER_HOST_LENGTH, SERVER_HOST,
+                ( int32_t ) SERVER_HOST_LENGTH, SERVER_HOST_NAME,
                 ( int32_t ) requestInfo.pathLen, requestInfo.pPath ) );
 
     /* Send request to HTTP server. If a network error is found, retry request for a
@@ -402,7 +402,7 @@ static void sendHttpRequest( const TransportInterface_t * pTransportInterface,
                 "Response Headers:\n%.*s\n"
                 "Response Status:\n%u\n"
                 "Response Body:\n%.*s\n",
-                ( int32_t ) SERVER_HOST_LENGTH, SERVER_HOST,
+                ( int32_t ) SERVER_HOST_LENGTH, SERVER_HOST_NAME,
                 ( int32_t ) requestInfo.pathLen, requestInfo.pPath,
                 ( int32_t ) response.headersLen, response.pHeaders,
                 response.statusCode,
