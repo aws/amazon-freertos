@@ -365,7 +365,15 @@ static uint16_t usSubscribePacketIdentifier;
 static uint16_t usUnsubscribePacketIdentifier;
 
 /**
- * @brief MQTT packet type expected to be received from the MQTT broker.
+ * @brief MQTT packet type received from the MQTT broker.
+ *
+ * @note Only on receiving incoming PUBLISH, SUBACK, and UNSUBACK, this
+ * variable is updated. For MQTT packets PUBACK and PINGRESP, the variable is
+ * not updated since there is no need to specifically wait for it in this demo.
+ * This demo uses single task and hence it is not possible to receive multiple
+ * packets of type PUBLISH, SUBACK, and UNSUBACK in a single call of
+ * #prvWaitForPacket. For a multi task application, consider a different method
+ * to wait for the packet, if needed.
  */
 static uint16_t usPacketTypeReceived = 0U;
 
@@ -934,10 +942,6 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
     {
         case MQTT_PACKET_TYPE_PUBACK:
             LogInfo( ( "PUBACK received for packet Id %u.", usPacketId ) );
-
-            /* Update the packet type received to PUBACK. */
-            usPacketTypeReceived = MQTT_PACKET_TYPE_PUBACK;
-
             /* Make sure ACK packet identifier matches with Request packet identifier. */
             configASSERT( usPublishPacketIdentifier == usPacketId );
             break;
@@ -979,9 +983,6 @@ static void prvMQTTProcessResponse( MQTTPacketInfo_t * pxIncomingPacket,
 
         case MQTT_PACKET_TYPE_PINGRESP:
             LogInfo( ( "Ping Response successfully received." ) );
-
-            /* Update the packet type received to PINGRESP. */
-            usPacketTypeReceived = MQTT_PACKET_TYPE_PINGRESP;
 
             break;
 
