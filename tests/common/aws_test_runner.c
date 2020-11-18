@@ -278,6 +278,7 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
     RunTests();
 
     #if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 )
+
         /* Measure the heap size after tests are done running.
          * This test must run last. */
 
