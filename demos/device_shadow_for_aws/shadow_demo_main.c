@@ -215,12 +215,12 @@ static uint32_t ulClientToken = 0U;
 /**
  * @brief The return status of prvUpdateDeltaHandler callback function.
  */
-static int32_t lUpdateDeltaReturn = pdPASS;
+static BaseType_t xUpdateDeltaReturn = pdPASS;
 
 /**
  * @brief The return status of prvUpdateAcceptedHandler callback function.
  */
-static int32_t lUpdateAcceptedReturn = pdPASS;
+static BaseType_t xUpdateAcceptedReturn = pdPASS;
 
 /*-----------------------------------------------------------*/
 
@@ -568,7 +568,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                          void * pNetworkCredentialInfo,
                          const void * pNetworkInterface )
 {
-    int returnStatus = pdPASS;
+    BaseType_t xDemoStatus = pdPASS;
 
     /* A buffer containing the update document. It has static duration to prevent
      * it from being placed on the call stack. */
