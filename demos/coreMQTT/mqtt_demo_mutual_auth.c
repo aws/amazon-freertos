@@ -317,15 +317,7 @@ static void prvEventCallback( MQTTContext_t * pxMQTTContext,
  * @param[in] pxMQTTContext MQTT context pointer.
  * @param[in] usPacketType Packet type to wait for.
  *
- * @return #MQTTBadParameter if context is NULL;
- * #MQTTRecvFailed if a network error occurs during reception;
- * #MQTTSendFailed if a network error occurs while sending an ACK or PINGREQ;
- * #MQTTBadResponse if an invalid packet is received;
- * #MQTTKeepAliveTimeout if the server has not sent a PINGRESP before
- * #MQTT_PINGRESP_TIMEOUT_MS milliseconds;
- * #MQTTIllegalState if an incoming QoS 1/2 publish or ack causes an
- * invalid transition for the internal state machine;
- * #MQTTSuccess on success.
+ * @return The return status from call to #MQTT_ProcessLoop API. 
  */
 static MQTTStatus_t prvWaitForPacket( MQTTContext_t * pxMQTTContext,
                                       uint16_t usPacketType );
@@ -370,10 +362,11 @@ static uint16_t usUnsubscribePacketIdentifier;
  * @note Only on receiving incoming PUBLISH, SUBACK, and UNSUBACK, this
  * variable is updated. For MQTT packets PUBACK and PINGRESP, the variable is
  * not updated since there is no need to specifically wait for it in this demo.
- * This demo uses single task and hence it is not possible to receive multiple
- * packets of type PUBLISH, SUBACK, and UNSUBACK in a single call of
- * #prvWaitForPacket. For a multi task application, consider a different method
- * to wait for the packet, if needed.
+ * A single variable suffices as this demo uses single task and requests one operation 
+ * (of PUBLISH, SUBSCRIBE, UNSUBSCRIBE) at a time before expecting response from 
+ * the broker. Hence it is not possible to receive multiple packets of type PUBLISH, 
+ * SUBACK, and UNSUBACK in a single call of #prvWaitForPacket. 
+ * For a multi task application, consider a different method to wait for the packet, if needed.
  */
 static uint16_t usPacketTypeReceived = 0U;
 
