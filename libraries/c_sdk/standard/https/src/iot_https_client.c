@@ -560,6 +560,37 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync( _httpsResponse_t * pHttpsRes
 static IotHttpsReturnCode_t _receiveHttpsBodySync( _httpsResponse_t * pHttpsResponse );
 
 /**
+ * @brief A dummy function for transport interface receive.
+ *
+ * HTTP V1 library handles receiving from the network and hence transport
+ * implementation for receive is not used by the coreHTTP library. This
+ * dummy implementation is used for passing a non-NULL parameter to
+ * `HTTPClient_Send()`.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pBuffer Buffer to receive the data into.
+ * @param[in] bytesToRecv Number of bytes requested from the network.
+ *
+ * @return -1 to always return an error.
+ */
+static int32_t transportRecv( NetworkContext_t * pNetworkContext,
+                              void * pBuffer,
+                              size_t bytesToRecv );
+
+/**
+ * @brief Function for sending data over the network.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pBuffer Buffer containing the bytes to send over the network stack.
+ * @param[in] bytesToSend Number of bytes to send over the network.
+ *
+ * @return The number of bytes sent or a negative error code.
+ */
+static int32_t transportSend( NetworkContext_t * pNetworkContext,
+                              const void * pMessage,
+                              size_t bytesToSend );
+
+/**
  * @brief Schedule the task to send the the HTTP request.
  *
  * @param[in] pHttpsRequest - HTTP request context.
@@ -1069,7 +1100,7 @@ static IotHttpsReturnCode_t _receiveHttpsBodySync( _httpsResponse_t * pHttpsResp
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Defining the structure for network context used for sending the packets on the network.
+ * @brief Defining a network context for sending packets through the network interface.
  * The declaration of the structure is mentioned in the transport_interface.h file.
  */
 struct NetworkContext
