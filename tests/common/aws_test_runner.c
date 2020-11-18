@@ -245,12 +245,12 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_CLI_ENABLED == 1 )
-        RUN_TEST_GROUP( FreeRTOS_CLI )
-        RUN_TEST_GROUP( FreeRTOS_CLI_Console )
+        RUN_TEST_GROUP( FreeRTOS_CLI );
+        RUN_TEST_GROUP( FreeRTOS_CLI_Console );
     #endif
 
     #if ( testrunnerFULL_DEVICE_SHADOW_ENABLED == 1 )
-        RUN_TEST_GROUP( deviceShadow_Integration )
+        RUN_TEST_GROUP( deviceShadow_Integration );
     #endif
 }
 /*-----------------------------------------------------------*/
