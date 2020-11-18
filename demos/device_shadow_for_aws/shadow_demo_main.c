@@ -582,9 +582,9 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     ( void ) pNetworkInterface;
 
     xDemoStatus = EstablishMqttSession( &xMqttContext,
-                                         &xNetworkContext,
-                                         &xBuffer,
-                                         prvEventCallback );
+                                        &xNetworkContext,
+                                        &xBuffer,
+                                        prvEventCallback );
 
     if( xDemoStatus == pdFAIL )
     {
@@ -595,31 +595,31 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     {
         /* First of all, try to delete any Shadow document in the cloud. */
         xDemoStatus = PublishToTopic( &xMqttContext,
-                                       SHADOW_TOPIC_STRING_DELETE( THING_NAME ),
-                                       SHADOW_TOPIC_LENGTH_DELETE( THING_NAME_LENGTH ),
-                                       pcUpdateDocument,
-                                       0U );
+                                      SHADOW_TOPIC_STRING_DELETE( THING_NAME ),
+                                      SHADOW_TOPIC_LENGTH_DELETE( THING_NAME_LENGTH ),
+                                      pcUpdateDocument,
+                                      0U );
 
         /* Then try to subscribe shadow topics. */
         if( xDemoStatus == pdPASS )
         {
             xDemoStatus = SubscribeToTopic( &xMqttContext,
-                                             SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
-                                             SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
+                                            SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
+                                            SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
         }
 
         if( xDemoStatus == pdPASS )
         {
             xDemoStatus = SubscribeToTopic( &xMqttContext,
-                                             SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
-                                             SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
+                                            SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
+                                            SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
         }
 
         if( xDemoStatus == pdPASS )
         {
             xDemoStatus = SubscribeToTopic( &xMqttContext,
-                                             SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
-                                             SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
+                                            SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
+                                            SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
         }
 
         /* This demo uses a constant #THING_NAME known at compile time therefore we can use macros to
@@ -669,10 +669,10 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                       ( long unsigned ) ( xTaskGetTickCount() % 1000000 ) );
 
             xDemoStatus = PublishToTopic( &xMqttContext,
-                                           SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
-                                           SHADOW_TOPIC_LENGTH_UPDATE( THING_NAME_LENGTH ),
-                                           pcUpdateDocument,
-                                           ( SHADOW_DESIRED_JSON_LENGTH + 1 ) );
+                                          SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
+                                          SHADOW_TOPIC_LENGTH_UPDATE( THING_NAME_LENGTH ),
+                                          pcUpdateDocument,
+                                          ( SHADOW_DESIRED_JSON_LENGTH + 1 ) );
         }
 
         if( xDemoStatus == pdPASS )
@@ -702,10 +702,10 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                           ( long unsigned ) ulClientToken );
 
                 xDemoStatus = PublishToTopic( &xMqttContext,
-                                               SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
-                                               SHADOW_TOPIC_LENGTH_UPDATE( THING_NAME_LENGTH ),
-                                               pcUpdateDocument,
-                                               ( SHADOW_DESIRED_JSON_LENGTH + 1 ) );
+                                              SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
+                                              SHADOW_TOPIC_LENGTH_UPDATE( THING_NAME_LENGTH ),
+                                              pcUpdateDocument,
+                                              ( SHADOW_DESIRED_JSON_LENGTH + 1 ) );
             }
             else
             {
@@ -718,8 +718,8 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
             LogInfo( ( "Start to unsubscribe shadow topics and disconnect from MQTT. \r\n" ) );
 
             xDemoStatus = UnsubscribeFromTopic( &xMqttContext,
-                                                 SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
-                                                 SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
+                                                SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
+                                                SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
 
             if( xDemoStatus != pdPASS )
             {
@@ -731,8 +731,8 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
         if( xDemoStatus == pdPASS )
         {
             xDemoStatus = UnsubscribeFromTopic( &xMqttContext,
-                                                 SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
-                                                 SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
+                                                SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
+                                                SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
 
             if( xDemoStatus != pdPASS )
             {
@@ -744,8 +744,8 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
         if( xDemoStatus == pdPASS )
         {
             xDemoStatus = UnsubscribeFromTopic( &xMqttContext,
-                                                 SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
-                                                 SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
+                                                SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
+                                                SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
 
             if( xDemoStatus != pdPASS )
             {
@@ -767,7 +767,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
         }
     }
 
-    return ( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
+    return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }
 
 /*-----------------------------------------------------------*/
