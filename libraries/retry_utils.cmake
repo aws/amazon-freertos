@@ -2,11 +2,11 @@
 afr_module( NAME retry_utils INTERNAL )
 
 # Include file path configuration for retry utils library.
-include(retryUtilsFilePaths.cmake)
+include(${AFR_MODULES_DIR}/abstractions/retry_utils/retryUtilsFilePaths.cmake)
 
 # Add cmake files of module to metadata.
 afr_module_cmake_files(${AFR_CURRENT_MODULE} 
-    ${CMAKE_CURRENT_LIST_DIR}/retryUtilsFilePaths.cmake
+    ${AFR_MODULES_DIR}/abstractions/retry_utils/retryUtilsFilePaths.cmake
     ${CMAKE_CURRENT_LIST_DIR}/retry_utils.cmake
 )
 

@@ -62,17 +62,17 @@
 /**
  * @brief The maximum number of retries for connecting to server.
  */
-#define RETRY_MAX_ATTEMPTS                           ( 5U )
+#define CONNECTION_RETRY_MAX_ATTEMPTS                ( 5U )
 
 /**
  * @brief The maximum back-off delay (in milliseconds) for retrying connection to server.
  */
-#define RETRY_MAX_BACKOFF_DELAY_MS                   ( 5000U )
+#define CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS        ( 5000U )
 
 /**
  * @brief The base back-off delay (in milliseconds) to use for connection retry attempts.
  */
-#define RETRY_BACKOFF_BASE_MS                        ( 500U )
+#define CONNECTION_RETRY_BACKOFF_BASE_MS             ( 500U )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milliseconds.
@@ -369,9 +369,9 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
 
     /* Initialize reconnect attempts and interval. */
     RetryUtils_InitializeParams( &xReconnectParams,
-                                 RETRY_BACKOFF_BASE_MS,
-                                 RETRY_MAX_BACKOFF_DELAY_MS,
-                                 RETRY_MAX_ATTEMPTS,
+                                 CONNECTION_RETRY_BACKOFF_BASE_MS,
+                                 CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS,
+                                 CONNECTION_RETRY_MAX_ATTEMPTS,
                                  prvGenerateRandomNumber );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after
