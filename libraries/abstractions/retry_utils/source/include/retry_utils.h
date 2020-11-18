@@ -70,7 +70,7 @@
 
 /**
  * @brief Interface for a random number generator.
- * The user should supply the platform-specific random number number to the
+ * The user should supply the platform-specific random number generator to the
  * library through the @ref RetryUtils_InitializeParams API function.
  *
  * @note It is recommended that a true random number generator is supplied
