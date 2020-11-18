@@ -465,10 +465,12 @@
 			<logicalFolder name="coreHTTP" displayName="coreHTTP" projectFiles="true">
 				<logicalFolder name="source" displayName="source" projectFiles="true">
 					<itemPath>../../../../../libraries/coreHTTP/source/core_http_client.c</itemPath>
-					<logicalFolder name="3rdparty" displayName="3rdparty" projectFiles="true">
-						<logicalFolder name="http_parser" displayName="http_parser" projectFiles="true">
-							<itemPath>../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c</itemPath>
-							<itemPath>../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</itemPath>
+					<logicalFolder name="dependency" displayName="dependency" projectFiles="true">
+						<logicalFolder name="3rdparty" displayName="3rdparty" projectFiles="true">
+							<logicalFolder name="http_parser" displayName="http_parser" projectFiles="true">
+								<itemPath>../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c</itemPath>
+								<itemPath>../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</itemPath>
+							</logicalFolder>
 						</logicalFolder>
 					</logicalFolder>
 					<logicalFolder name="include" displayName="include" projectFiles="true">

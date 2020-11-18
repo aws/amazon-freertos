@@ -1353,6 +1353,11 @@
 			<locationURI>BASE_DIR_ROOT/tests/integration_test/shadow_system_test.c</locationURI>
 		</link>
 		<link>
+			<name>tests/integration_test/core_http_system_test.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/integration_test/core_http_system_test.c</locationURI>
+		</link>
+		<link>
 			<name>application_code/ti_code/CC3220SF_LAUNCHXL.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/application_code/ti_code/CC3220SF_LAUNCHXL.c</locationURI>
