@@ -376,7 +376,7 @@ static void prvUpdateDeltaHandler( MQTTPublishInfo_t * pxPublishInfo )
     else
     {
         LogError( ( "No powerOn in json document!!" ) );
-        lUpdateDeltaReturn = pdFAIL;
+        xUpdateDeltaReturn = pdFAIL;
     }
 }
 
@@ -463,7 +463,7 @@ static void prvUpdateAcceptedHandler( MQTTPublishInfo_t * pxPublishInfo )
     else
     {
         LogError( ( "No clientToken in json document!!" ) );
-        lUpdateAcceptedReturn = pdFAIL;
+        xUpdateAcceptedReturn = pdFAIL;
     }
 }
 
@@ -581,12 +581,12 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-    returnStatus = EstablishMqttSession( &xMqttContext,
+    xDemoStatus = EstablishMqttSession( &xMqttContext,
                                          &xNetworkContext,
                                          &xBuffer,
                                          prvEventCallback );
 
-    if( returnStatus == pdFAIL )
+    if( xDemoStatus == pdFAIL )
     {
         /* Log error to indicate connection failure. */
         LogError( ( "Failed to connect to MQTT broker." ) );
@@ -594,30 +594,30 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     else
     {
         /* First of all, try to delete any Shadow document in the cloud. */
-        returnStatus = PublishToTopic( &xMqttContext,
+        xDemoStatus = PublishToTopic( &xMqttContext,
                                        SHADOW_TOPIC_STRING_DELETE( THING_NAME ),
                                        SHADOW_TOPIC_LENGTH_DELETE( THING_NAME_LENGTH ),
                                        pcUpdateDocument,
                                        0U );
 
         /* Then try to subscribe shadow topics. */
-        if( returnStatus == pdPASS )
+        if( xDemoStatus == pdPASS )
         {
-            returnStatus = SubscribeToTopic( &xMqttContext,
+            xDemoStatus = SubscribeToTopic( &xMqttContext,
                                              SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
                                              SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
         }
 
-        if( returnStatus == pdPASS )
+        if( xDemoStatus == pdPASS )
         {
-            returnStatus = SubscribeToTopic( &xMqttContext,
+            xDemoStatus = SubscribeToTopic( &xMqttContext,
                                              SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
                                              SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
         }
 
-        if( returnStatus == pdPASS )
+        if( xDemoStatus == pdPASS )
         {
-            returnStatus = SubscribeToTopic( &xMqttContext,
+            xDemoStatus = SubscribeToTopic( &xMqttContext,
                                              SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
                                              SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
         }
@@ -653,7 +653,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
          * the device itself. But for the purpose of making this demo self-contained,
          * we publish one here so that we can receive a delta message later.
          */
-        if( returnStatus == pdPASS )
+        if( xDemoStatus == pdPASS )
         {
             /* Desired power on state . */
             LogInfo( ( "Send desired power state with 1." ) );
@@ -668,14 +668,14 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                       ( int ) 1,
                       ( long unsigned ) ( xTaskGetTickCount() % 1000000 ) );
 
-            returnStatus = PublishToTopic( &xMqttContext,
+            xDemoStatus = PublishToTopic( &xMqttContext,
                                            SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
                                            SHADOW_TOPIC_LENGTH_UPDATE( THING_NAME_LENGTH ),
                                            pcUpdateDocument,
                                            ( SHADOW_DESIRED_JSON_LENGTH + 1 ) );
         }
 
-        if( returnStatus == pdPASS )
+        if( xDemoStatus == pdPASS )
         {
             /* Note that PublishToTopic already called MQTT_ProcessLoop,
              * therefore responses may have been received and the prvEventCallback
@@ -701,7 +701,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                           ( int ) ulCurrentPowerOnState,
                           ( long unsigned ) ulClientToken );
 
-                returnStatus = PublishToTopic( &xMqttContext,
+                xDemoStatus = PublishToTopic( &xMqttContext,
                                                SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
                                                SHADOW_TOPIC_LENGTH_UPDATE( THING_NAME_LENGTH ),
                                                pcUpdateDocument,
@@ -713,41 +713,41 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
             }
         }
 
-        if( returnStatus == pdPASS )
+        if( xDemoStatus == pdPASS )
         {
             LogInfo( ( "Start to unsubscribe shadow topics and disconnect from MQTT. \r\n" ) );
 
-            returnStatus = UnsubscribeFromTopic( &xMqttContext,
+            xDemoStatus = UnsubscribeFromTopic( &xMqttContext,
                                                  SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
                                                  SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
 
-            if( returnStatus != pdPASS )
+            if( xDemoStatus != pdPASS )
             {
                 LogError( ( "Failed to unsubscribe the topic %s",
                             SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ) ) );
             }
         }
 
-        if( returnStatus == pdPASS )
+        if( xDemoStatus == pdPASS )
         {
-            returnStatus = UnsubscribeFromTopic( &xMqttContext,
+            xDemoStatus = UnsubscribeFromTopic( &xMqttContext,
                                                  SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
                                                  SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
 
-            if( returnStatus != pdPASS )
+            if( xDemoStatus != pdPASS )
             {
                 LogError( ( "Failed to unsubscribe the topic %s",
                             SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ) ) );
             }
         }
 
-        if( returnStatus == pdPASS )
+        if( xDemoStatus == pdPASS )
         {
-            returnStatus = UnsubscribeFromTopic( &xMqttContext,
+            xDemoStatus = UnsubscribeFromTopic( &xMqttContext,
                                                  SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
                                                  SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
 
-            if( returnStatus != pdPASS )
+            if( xDemoStatus != pdPASS )
             {
                 LogError( ( "Failed to unsubscribe the topic %s",
                             SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ) ) );
@@ -755,19 +755,19 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
         }
 
         /* The MQTT session is always disconnected, even there were prior failures. */
-        returnStatus = DisconnectMqttSession( &xMqttContext, &xNetworkContext );
+        xDemoStatus = DisconnectMqttSession( &xMqttContext, &xNetworkContext );
 
         /* This demo performs only Device Shadow operations. If matching the Shadow
          * MQTT topic fails or there are failure in parsing the received JSON document,
          * then this demo was not successful. */
-        if( ( lUpdateAcceptedReturn != pdPASS ) || ( lUpdateDeltaReturn != pdPASS ) )
+        if( ( xUpdateAcceptedReturn != pdPASS ) || ( xUpdateDeltaReturn != pdPASS ) )
         {
             LogError( ( "Callback function failed." ) );
-            returnStatus = pdFAIL;
+            xDemoStatus = pdFAIL;
         }
     }
 
-    return ( ( returnStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
+    return ( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }
 
 /*-----------------------------------------------------------*/
