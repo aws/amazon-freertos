@@ -240,6 +240,10 @@ static void RunTests( void )
         RUN_TEST_GROUP( coreMQTT_Integration_AWS_IoT_Compatible );
     #endif
 
+    #if ( testrunnerFULL_CORE_HTTP_ENABLED == 1 )
+        RUN_TEST_GROUP( coreHTTP_Integration );
+    #endif
+
     #if ( testrunnerFULL_CLI_ENABLED == 1 )
         RUN_TEST_GROUP( FreeRTOS_CLI )
         RUN_TEST_GROUP( FreeRTOS_CLI_Console )
@@ -274,7 +278,6 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
     RunTests();
 
     #if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 )
-
         /* Measure the heap size after tests are done running.
          * This test must run last. */
 
