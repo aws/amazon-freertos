@@ -215,12 +215,12 @@ static uint32_t ulClientToken = 0U;
 /**
  * @brief The return status of prvUpdateDeltaHandler callback function.
  */
-static int32_t lUpdateDeltaReturn = EXIT_SUCCESS;
+static int32_t lUpdateDeltaReturn = pdPASS;
 
 /**
  * @brief The return status of prvUpdateAcceptedHandler callback function.
  */
-static int32_t lUpdateAcceptedReturn = EXIT_SUCCESS;
+static int32_t lUpdateAcceptedReturn = pdPASS;
 
 /*-----------------------------------------------------------*/
 
@@ -376,7 +376,7 @@ static void prvUpdateDeltaHandler( MQTTPublishInfo_t * pxPublishInfo )
     else
     {
         LogError( ( "No powerOn in json document!!" ) );
-        lUpdateDeltaReturn = EXIT_FAILURE;
+        lUpdateDeltaReturn = pdFAIL;
     }
 }
 
@@ -463,7 +463,7 @@ static void prvUpdateAcceptedHandler( MQTTPublishInfo_t * pxPublishInfo )
     else
     {
         LogError( ( "No clientToken in json document!!" ) );
-        lUpdateAcceptedReturn = EXIT_FAILURE;
+        lUpdateAcceptedReturn = pdFAIL;
     }
 }
 
@@ -568,7 +568,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                          void * pNetworkCredentialInfo,
                          const void * pNetworkInterface )
 {
-    int returnStatus = EXIT_SUCCESS;
+    int returnStatus = pdPASS;
 
     /* A buffer containing the update document. It has static duration to prevent
      * it from being placed on the call stack. */
@@ -586,7 +586,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                                          &xBuffer,
                                          prvEventCallback );
 
-    if( returnStatus == EXIT_FAILURE )
+    if( returnStatus == pdFAIL )
     {
         /* Log error to indicate connection failure. */
         LogError( ( "Failed to connect to MQTT broker." ) );
@@ -601,21 +601,21 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                                        0U );
 
         /* Then try to subscribe shadow topics. */
-        if( returnStatus == EXIT_SUCCESS )
+        if( returnStatus == pdPASS )
         {
             returnStatus = SubscribeToTopic( &xMqttContext,
                                              SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
                                              SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
         }
 
-        if( returnStatus == EXIT_SUCCESS )
+        if( returnStatus == pdPASS )
         {
             returnStatus = SubscribeToTopic( &xMqttContext,
                                              SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
                                              SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
         }
 
-        if( returnStatus == EXIT_SUCCESS )
+        if( returnStatus == pdPASS )
         {
             returnStatus = SubscribeToTopic( &xMqttContext,
                                              SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
@@ -653,7 +653,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
          * the device itself. But for the purpose of making this demo self-contained,
          * we publish one here so that we can receive a delta message later.
          */
-        if( returnStatus == EXIT_SUCCESS )
+        if( returnStatus == pdPASS )
         {
             /* Desired power on state . */
             LogInfo( ( "Send desired power state with 1." ) );
@@ -675,7 +675,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                                            ( SHADOW_DESIRED_JSON_LENGTH + 1 ) );
         }
 
-        if( returnStatus == EXIT_SUCCESS )
+        if( returnStatus == pdPASS )
         {
             /* Note that PublishToTopic already called MQTT_ProcessLoop,
              * therefore responses may have been received and the prvEventCallback
@@ -713,7 +713,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
             }
         }
 
-        if( returnStatus == EXIT_SUCCESS )
+        if( returnStatus == pdPASS )
         {
             LogInfo( ( "Start to unsubscribe shadow topics and disconnect from MQTT. \r\n" ) );
 
@@ -721,33 +721,33 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                                                  SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
                                                  SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
 
-            if( returnStatus != EXIT_SUCCESS )
+            if( returnStatus != pdPASS )
             {
                 LogError( ( "Failed to unsubscribe the topic %s",
                             SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ) ) );
             }
         }
 
-        if( returnStatus == EXIT_SUCCESS )
+        if( returnStatus == pdPASS )
         {
             returnStatus = UnsubscribeFromTopic( &xMqttContext,
                                                  SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
                                                  SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
 
-            if( returnStatus != EXIT_SUCCESS )
+            if( returnStatus != pdPASS )
             {
                 LogError( ( "Failed to unsubscribe the topic %s",
                             SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ) ) );
             }
         }
 
-        if( returnStatus == EXIT_SUCCESS )
+        if( returnStatus == pdPASS )
         {
             returnStatus = UnsubscribeFromTopic( &xMqttContext,
                                                  SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
                                                  SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
 
-            if( returnStatus != EXIT_SUCCESS )
+            if( returnStatus != pdPASS )
             {
                 LogError( ( "Failed to unsubscribe the topic %s",
                             SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ) ) );
@@ -760,10 +760,10 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
         /* This demo performs only Device Shadow operations. If matching the Shadow
          * MQTT topic fails or there are failure in parsing the received JSON document,
          * then this demo was not successful. */
-        if( ( lUpdateAcceptedReturn != EXIT_SUCCESS ) || ( lUpdateDeltaReturn != EXIT_SUCCESS ) )
+        if( ( lUpdateAcceptedReturn != pdPASS ) || ( lUpdateDeltaReturn != pdPASS ) )
         {
             LogError( ( "Callback function failed." ) );
-            returnStatus = EXIT_FAILURE;
+            returnStatus = pdFAIL;
         }
     }
 
