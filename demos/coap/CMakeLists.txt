@@ -13,7 +13,7 @@ afr_module_sources(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-    3rdparty::coap
+   	3rdparty::coap
 	AFR::secure_sockets
 )
 
