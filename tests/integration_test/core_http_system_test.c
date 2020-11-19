@@ -43,6 +43,9 @@
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
+/* Retry parameters. */
+#include "retry_utils.h"
+
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
 /**************************************************/
@@ -74,9 +77,6 @@
 
 /* Include Secure Sockets implementation of transport interface. */
 #include "transport_secure_sockets.h"
-
-/* Retry parameters. */
-#include "retry_utils.h"
 
 /******************* Default Configurations values ***********************/
 
