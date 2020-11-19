@@ -43,15 +43,6 @@
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
-/* Include paths for public enums, structures, and macros. */
-#include "core_http_client.h"
-
-/* Include Secure Sockets implementation of transport interface. */
-#include "transport_secure_sockets.h"
-
-/* Retry parameters. */
-#include "retry_utils.h"
-
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
 /**************************************************/
@@ -74,6 +65,18 @@
     #define LIBRARY_LOG_LEVEL    LOG_INFO
 #endif
 #include "logging_stack.h"
+
+/* The logging configuration macros are defined above to ensure they are not
+ * superceded by definitions in the following header files. */
+
+/* Include paths for public enums, structures, and macros. */
+#include "core_http_client.h"
+
+/* Include Secure Sockets implementation of transport interface. */
+#include "transport_secure_sockets.h"
+
+/* Retry parameters. */
+#include "retry_utils.h"
 
 /******************* Default Configurations values ***********************/
 
