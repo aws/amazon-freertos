@@ -40,6 +40,7 @@
 #define testrunnerFULL_OTA_PAL_ENABLED                 0
 #define testrunnerFULL_MQTT_ALPN_ENABLED               0
 #define testrunnerFULL_CORE_MQTT_ENABLED               0
+#define testrunnerFULL_CORE_HTTP_ENABLED               0
 #define testrunnerFULL_CORE_MQTT_AWS_IOT_ENABLED       0
 #define testrunnerFULL_DEVICE_SHADOW_ENABLED           0
 #define testrunnerFULL_PKCS11_ENABLED                  0

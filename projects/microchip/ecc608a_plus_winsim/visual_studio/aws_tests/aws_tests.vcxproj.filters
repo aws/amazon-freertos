@@ -101,6 +101,7 @@
 		<Filter Include="libraries\coreHTTP"/>
 		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty\http_parser"/>
 		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty"/>
+		<Filter Include="libraries\coreHTTP\source\dependency"/>
 		<Filter Include="libraries\coreHTTP\source\include"/>
 		<Filter Include="libraries\coreHTTP\source\interface"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass\src"/>
@@ -1672,6 +1673,9 @@
 			<Filter>tests\integration_test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\tests\integration_test\shadow_system_test.c">
+			<Filter>tests\integration_test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\tests\integration_test\core_http_system_test.c">
 			<Filter>tests\integration_test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\tests\integration_test\test_freertos_tcp.c">
