@@ -46,6 +46,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+/* Include PKCS11 headers. */
+#include "core_pkcs11.h"
+#include "pkcs11.h"
+
 /* Include header for retrying network operations, like connection, with
  * exponential backoff and jitter.*/
 #include "retry_utils.h"
@@ -205,6 +209,23 @@
 #define TEST_CLIENT_IDENTIFIER_LWT_LENGTH          ( sizeof( TEST_CLIENT_IDENTIFIER_LWT ) - 1u )
 
 /**
+ * @brief The maximum number of retries for network operation with server.
+ */
+#define RETRY_MAX_ATTEMPTS                         ( 5U )
+
+/**
+ * @brief The maximum back-off delay (in milliseconds) for retrying failed network
+ * operations with server.
+ */
+#define RETRY_MAX_BACKOFF_DELAY_MS                 ( 5000U )
+
+/**
+ * @brief The base back-off delay (in milliseconds) to use for network operation retry
+ * attempts.
+ */
+#define RETRY_BACKOFF_BASE_MS                      ( 500U )
+
+/**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
 #define TRANSPORT_SEND_RECV_TIMEOUT_MS             ( 200U )
@@ -279,6 +300,16 @@
         TEST_ASSERT_EQUAL( expectedStatus, currentStatus );                             \
         TEST_ASSERT_TRUE( flag );                                                       \
     } while( 0 )
+
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Global variable used by the pseudo random number generator.
+ * The random number generator is used for calculating exponential back-off
+ * with jitter for retry attempts of failed network operations with the broker.
+ */
+static uint32_t nextRand;
 
 /**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
@@ -531,6 +562,27 @@ static void clearRetainedMessage( MQTTContext_t * pContext,
 static int32_t failedRecv( NetworkContext_t * pNetworkContext,
                            void * pBuffer,
                            size_t bytesToRecv );
+
+/**
+ * @brief The pseudo random number generator to use for exponential backoff with
+ * jitter calculation for connection retries.
+ * This function is an implementation the #RetryUtils_RNG_t interface type
+ * of the retry utils library API.
+ *
+ * @return The generated random number. This function ALWAYS succeeds
+ * in generating a random number.
+ */
+static int32_t generateRandomNumber();
+
+/**
+ * @brief Seed the random number generator used for exponential backoff
+ * used in connection retry attempts.
+ *
+ * The PKCS11 module is used to seed the random number generator
+ * as it allows access to a True Random Number Generator (TRNG) if the
+ * vendor platform supports it.
+ */
+static void seedRandomNumberGenerator();
 
 /**
  * @brief Connect to the MQTT broker with reconnection retries.
@@ -936,11 +988,51 @@ static int32_t failedRecv( NetworkContext_t * pNetworkContext,
     return -1;
 }
 
+static int32_t generateRandomNumber()
+{
+    const uint32_t multiplier = 0x015a4e35UL, increment = 1UL;
+
+    nextRand = ( multiplier * nextRand ) + increment;
+    return( ( int32_t ) ( nextRand >> 16UL ) & 0x7fffUL );
+}
+
+static void seedRandomNumberGenerator()
+{
+    /* Seed the global variable ONLY if it wasn't already seeded. */
+    if( nextRand == 0 )
+    {
+        CK_RV result = CKR_OK;
+        CK_FUNCTION_LIST_PTR pFunctionList = NULL;
+        CK_SESSION_HANDLE session = CK_INVALID_HANDLE;
+
+        /* Get list of functions supported by the PKCS11 port. */
+        result = C_GetFunctionList( &pFunctionList );
+        TEST_ASSERT_TRUE( result == CKR_OK );
+        TEST_ASSERT_TRUE( pFunctionList != NULL );
+
+        /* Initialize PKCS11 module and create a new session. */
+        result = xInitializePkcs11Session( &session );
+        TEST_ASSERT_TRUE( result == CKR_OK );
+        TEST_ASSERT_TRUE( session == CK_INVALID_HANDLE );
+
+
+        /*
+         * Seed random number generator with PKCS11.
+         * Use of PKCS11 can allow use of True Random Number Generator (TRNG)
+         * if the platform supports it.
+         */
+        TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_GenerateRandom( session,
+                                                                    ( unsigned char * ) &nextRand,
+                                                                    sizeof( nextRand ) ) );
+    }
+}
+
 static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
 {
     bool isSuccessful = false;
     RetryUtilsStatus_t retryUtilsStatus = RetryUtilsSuccess;
-    RetryUtilsParams_t reconnectParams;
+    RetryUtilsContext_t reconnectParams;
+    uint16_t nextRetryBackOff = 0U;
     TransportSocketStatus_t transportStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
 
     /* Initializer server information. */
@@ -958,8 +1050,12 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
     socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
 
-    /* Initialize reconnect attempts and interval */
-    RetryUtils_ParamsReset( &reconnectParams );
+    /* Initialize reconnect attempts and interval. */
+    RetryUtils_InitializeParams( &reconnectParams,
+                                 RETRY_BACKOFF_BASE_MS,
+                                 RETRY_MAX_BACKOFF_DELAY_MS,
+                                 RETRY_MAX_ATTEMPTS,
+                                 generateRandomNumber );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase till maximum
@@ -975,17 +1071,24 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
 
         if( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            LogWarn( ( "Connection to the broker failed. Retrying connection with backoff and jitter." ) );
-            retryUtilsStatus = RetryUtils_BackoffAndSleep( &reconnectParams );
+            /* Get back-off value for the next connection retry. */
+            retryUtilsStatus = RetryUtils_GetNextBackOff( &reconnectParams, &nextRetryBackOff );
+            configASSERT( retryUtilsStatus != RetryUtilsRngFailure );
+
+            if( retryUtilsStatus == RetryUtilsRetriesExhausted )
+            {
+                LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
+            }
+
+            else if( retryUtilsStatus == RetryUtilsSuccess )
+            {
+                LogWarn( ( "Connection to the broker failed. Retrying connection after backoff delay." ) );
+                vTaskDelay( pdMS_TO_TICKS( nextRetryBackOff ) );
+            }
         }
         else
         {
             isSuccessful = true;
-        }
-
-        if( retryUtilsStatus == RetryUtilsRetriesExhausted )
-        {
-            LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
         }
     } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( retryUtilsStatus == RetryUtilsSuccess ) );
 
@@ -1027,6 +1130,9 @@ static void resumePersistentSession()
 /* Called before each test method. */
 void testSetUp()
 {
+    /* Seed the pseudo random number generator. */
+    seedRandomNumberGenerator();
+
     /* Reset file-scoped global variables. */
     receivedSubAck = false;
     receivedUnsubAck = false;
