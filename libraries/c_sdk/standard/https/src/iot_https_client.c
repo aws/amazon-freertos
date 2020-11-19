@@ -2197,7 +2197,7 @@ static void _dispatchTaskRoutine( void * pParameters )
 
     for( ; ; )
     {
-        /* If there is no command in the queue, try again. */
+        /* If there are no requests in the dispatch queue, try again. */
         if( xQueueReceive( dispatchQueue,
                            &pHttpsRequest,
                            IOT_HTTPS_QUEUE_RECV_TICKS ) == pdFALSE )
