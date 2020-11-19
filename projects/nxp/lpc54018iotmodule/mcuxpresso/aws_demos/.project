@@ -1718,6 +1718,11 @@
 			<locationURI>BASE_DIR/demos/coreHTTP/http_demo_s3_download.c</locationURI>
 		</link>
 		<link>
+			<name>demos/coreHTTP/http_demo_s3_upload.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/coreHTTP/http_demo_s3_upload.c</locationURI>
+		</link>
+		<link>
 			<name>demos/coreMQTT/mqtt_demo_mutual_auth.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/coreMQTT/mqtt_demo_mutual_auth.c</locationURI>
@@ -1906,6 +1911,11 @@
 			<name>config_files/http_demo_s3_download_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/http_demo_s3_download_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/http_demo_s3_upload_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/http_demo_s3_upload_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/iot_config.h</name>

@@ -2059,6 +2059,11 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreHTTP/http_demo_s3_download.c</FilePath>
 						</File>
+						<File>
+							<FileName>http_demo_s3_upload.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreHTTP/http_demo_s3_upload.c</FilePath>
+						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -2238,6 +2243,11 @@
 							<FileName>http_demo_s3_download_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/http_demo_s3_download_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>http_demo_s3_upload_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/http_demo_s3_upload_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>iot_config.h</FileName>
