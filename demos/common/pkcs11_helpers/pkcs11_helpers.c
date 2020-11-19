@@ -27,8 +27,6 @@
 
 /* Standard includes. */
 #include <assert.h>
-#include <stdlib.h>
-#include <string.h>
 
 /* Include corePKCS11 config file. */
 #include "core_pkcs11_config.h"

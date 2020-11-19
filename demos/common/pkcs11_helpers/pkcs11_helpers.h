@@ -23,6 +23,11 @@
 #ifndef PKCS11_HELPERS_H_
 #define PKCS11_HELPERS_H_
 
+/**
+ * @file pkcs11_helpers.h
+ * @brief Helper functions for accessing PKCS11 module functionality.
+ */
+
 /* FreeRTOS include. */
 #include "FreeRTOS.h"
 

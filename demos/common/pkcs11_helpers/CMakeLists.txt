@@ -1,4 +1,4 @@
-# Module for demo helper utilities based on coreMQTT library. 
+# Module for corePKCS11 library based helper utilities. 
 afr_module(NAME pkcs11_helpers)
 
 afr_module_sources(
