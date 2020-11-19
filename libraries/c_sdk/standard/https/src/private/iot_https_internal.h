@@ -158,6 +158,7 @@
  */
 #if IOT_STATIC_MEMORY_ONLY == 1
     #include "private/iot_static_memory.h"
+    #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    ( 1 ) /* Whether the dispatch queue and tasks should use statically allocated memory. */
 #endif
 
 /**
@@ -196,8 +197,11 @@
 #ifndef IOT_HTTPS_DISPATCH_TASK_STACK_SIZE
     #define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE ) /* The stack size of each dispatch task. */
 #endif
+#ifndef IOT_HTTPS_DISPATCH_TASK_PRIORITY
+    #define IOT_HTTPS_DISPATCH_TASK_PRIORITY       ( tskIDLE_PRIORITY ) /* The priority of each dispatch task. */
+#endif
 
-/* Provide the User-Agent Value definition from coreHTTP. */
+/* Provide the User-Agent Value definition fom coreHTTP. */
 #ifdef HTTP_USER_AGENT_VALUE
     #define IOT_HTTPS_USER_AGENT    HTTP_USER_AGENT_VALUE
 #endif
@@ -205,11 +209,14 @@
 /** @endcond */
 
 /* Error checking of macro configurations. */
+#if IOT_HTTPS_DISPATCH_TASK_COUNT < 1
+    #error "IOT_HTTPS_DISPATCH_TASK_COUNT must be at least 1."
+#endif
 #if IOT_HTTPS_DISPATCH_QUEUE_SIZE < 1
     #error "IOT_HTTPS_DISPATCH_QUEUE_SIZE must be at least 1."
 #endif
-#if IOT_HTTPS_DISPATCH_TASK_COUNT < 1
-    #error "IOT_HTTPS_DISPATCH_TASK_COUNT must be at least 1."
+#if defined( IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY ) && configSUPPORT_STATIC_ALLOCATION != 1
+    #error "IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY is defined but configSUPPORT_STATIC_ALLOCATION is not set to 1."
 #endif
 
 /**
