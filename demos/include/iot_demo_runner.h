@@ -60,6 +60,8 @@
     #endif
 #elif defined( CONFIG_CORE_HTTP_S3_DOWNLOAD_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunCoreHttpS3DownloadDemo
+#elif defined( CONFIG_CORE_HTTP_S3_UPLOAD_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreHttpS3UploadDemo
 #elif defined( CONFIG_DEVICE_SHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunDeviceShadowDemo
     #if defined( democonfigSHADOW_DEMO_TASK_STACK_SIZE )

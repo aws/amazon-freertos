@@ -83,6 +83,7 @@
 			</logicalFolder>
 			<logicalFolder name="coreHTTP" displayName="coreHTTP" projectFiles="true">
 				<itemPath>../../../../../demos/coreHTTP/http_demo_s3_download.c</itemPath>
+				<itemPath>../../../../../demos/coreHTTP/http_demo_s3_upload.c</itemPath>
 			</logicalFolder>
 			<logicalFolder name="coreMQTT" displayName="coreMQTT" projectFiles="true">
 				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</itemPath>
@@ -801,6 +802,7 @@
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/core_pkcs11_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/defender_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/http_demo_s3_download_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/http_demo_s3_upload_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_mqtt_agent_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/jobs_demo_config.h</itemPath>
