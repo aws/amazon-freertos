@@ -1001,20 +1001,16 @@ static void seedRandomNumberGenerator()
     /* Seed the global variable ONLY if it wasn't already seeded. */
     if( nextRand == 0 )
     {
-        CK_RV result = CKR_OK;
         CK_FUNCTION_LIST_PTR pFunctionList = NULL;
         CK_SESSION_HANDLE session = CK_INVALID_HANDLE;
 
         /* Get list of functions supported by the PKCS11 port. */
-        result = C_GetFunctionList( &pFunctionList );
-        TEST_ASSERT_TRUE( result == CKR_OK );
+        TEST_ASSERT_EQUAL( CKR_OK, C_GetFunctionList( &pFunctionList ) );
         TEST_ASSERT_TRUE( pFunctionList != NULL );
 
         /* Initialize PKCS11 module and create a new session. */
-        result = xInitializePkcs11Session( &session );
-        TEST_ASSERT_TRUE( result == CKR_OK );
-        TEST_ASSERT_TRUE( session == CK_INVALID_HANDLE );
-
+        TEST_ASSERT_EQUAL( CKR_OK, xInitializePkcs11Session( &session ) );
+        TEST_ASSERT_TRUE( session != CK_INVALID_HANDLE );
 
         /*
          * Seed random number generator with PKCS11.
@@ -1024,6 +1020,10 @@ static void seedRandomNumberGenerator()
         TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_GenerateRandom( session,
                                                                     ( unsigned char * ) &nextRand,
                                                                     sizeof( nextRand ) ) );
+
+
+        /* Close PKCS11 session. */
+        TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_CloseSession( session ) );
     }
 }
 

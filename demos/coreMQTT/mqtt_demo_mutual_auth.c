@@ -686,7 +686,7 @@ static BaseType_t prvSeedRandomNumberGenerator()
     /* Get list of functions supported by the PKCS11 port. */
     xResult = C_GetFunctionList( &pxFunctionList );
 
-    if( ( xResult != CKR_OK ) || ( pxFunctionList != NULL ) )
+    if( ( xResult != CKR_OK ) || ( pxFunctionList == NULL ) )
     {
         LogError( ( "Failed to seed random number generator. "
                     "PCKS11 API, C_GetFunctionList, failed." ) );
@@ -720,6 +720,15 @@ static BaseType_t prvSeedRandomNumberGenerator()
             xStatus = pdFAIL;
             LogError( ( "Failed to seed random number generator. "
                         "PKCS11 API, C_GenerateRandom, failed to generate random number." ) );
+        }
+    }
+
+    if( xStatus == pdPASS )
+    {
+        if( pxFunctionList->C_CloseSession( xSession ) != CKR_OK )
+        {
+            xStatus = pdFAIL;
+            LogError( ( " Failed to close PKCS11 session after generating random number." ) );
         }
     }
 
