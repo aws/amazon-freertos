@@ -1243,11 +1243,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/option-types/coap_option_uri.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/CoAp/interface/mem/coap_mem.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/interface/mem/coap_mem.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/CoAp/interface/network/net_Endpoint.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/interface/network/net_Endpoint.c</locationURI>

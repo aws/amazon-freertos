@@ -68,11 +68,6 @@
     #define _ram
 #endif /* ifdef LOBARO_HAL_ESP8266 */
 
-/*Memory Allocator */
-/*if "DONT_USE_LOBARO_COAP_MEMORY_ALLOCATOR" is not defined via global "-D" compiler option */
-/*then the following included functions must be supplied externally... */
-#include "mem/coap_mem.h"
-
 /*Debug/Uart/Terminal Output */
 /*#include "debug/coap_debug.h" */
 

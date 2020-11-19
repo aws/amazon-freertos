@@ -288,8 +288,6 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/CoAp")
         "${AFR_3RDPARTY_DIR}/CoAp/diagnostic.c"
         "${AFR_3RDPARTY_DIR}/CoAp/diagnostic.h"
         "${AFR_3RDPARTY_DIR}/CoAp/interface/coap_interface.h"
-        "${AFR_3RDPARTY_DIR}/CoAp/interface/mem/coap_mem.c"
-        "${AFR_3RDPARTY_DIR}/CoAp/interface/mem/coap_mem.h"
         "${AFR_3RDPARTY_DIR}/CoAp/interface/network/net_Endpoint.c"
         "${AFR_3RDPARTY_DIR}/CoAp/interface/network/net_Endpoint.h"
         "${AFR_3RDPARTY_DIR}/CoAp/interface/network/net_Packet.c"
@@ -313,7 +311,6 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/CoAp")
         afr_3rdparty_coap INTERFACE
         "${AFR_3RDPARTY_DIR}/CoAp"
         "${AFR_3RDPARTY_DIR}/CoAp/interface"
-        "${AFR_3RDPARTY_DIR}/CoAp/interface/mem"
         "${AFR_3RDPARTY_DIR}/CoAp/interface/network"
         "${AFR_3RDPARTY_DIR}/CoAp/option-types"
     )
