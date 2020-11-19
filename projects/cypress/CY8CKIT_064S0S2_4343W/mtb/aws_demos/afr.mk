@@ -174,6 +174,7 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/demo_runner/aws_demo_version.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
+	$(CY_AFR_ROOT)/demos/common/http_demo_helpers/http_demo_utils.c\
 	$(CY_AFR_ROOT)/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c\
 	$(wildcard $(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
@@ -196,6 +197,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/demos/include\
 	$(CY_AFR_ROOT)/demos/network_manager\
 	$(CY_AFR_ROOT)/demos/tcp\
+	$(CY_AFR_ROOT)/demos/common/http_demo_helpers\
 	$(CY_AFR_ROOT)/demos/common/mqtt_demo_helpers\
 
 ################################################################################

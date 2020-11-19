@@ -29,6 +29,7 @@
 /* To run a particular demo you need to define one of these.
  * Only one demo can be configured at a time
  *
+ *          CONFIG_CORE_HTTP_S3_DOWNLOAD_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED
  *          CONFIG_DEVICE_SHADOW_DEMO_ENABLED
