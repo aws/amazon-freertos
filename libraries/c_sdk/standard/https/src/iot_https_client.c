@@ -43,7 +43,7 @@
  * The minimum path is "/" because we cannot know how long the application requested path is is going to be.
  * CONNECT is the longest string length HTTP method according to RFC 2616.
  */
-#define HTTPS_PARTIAL_REQUEST_LINE                        HTTPS_CONNECT_METHOD " " HTTPS_EMPTY_PATH " " HTTPS_PROTOCOL_VERSION
+#define HTTPS_PARTIAL_REQUEST_LINE        HTTPS_CONNECT_METHOD " " HTTPS_EMPTY_PATH " " HTTPS_PROTOCOL_VERSION
 
 /**
  * @brief The User-Agent header line string.
@@ -52,7 +52,7 @@
  * "User-Agent: <configured-user-agent>\r\n"
  * This is used for the calculation of the requestUserBufferMinimumSize.
  */
-#define HTTPS_USER_AGENT_HEADER_LINE                      HTTPS_USER_AGENT_HEADER HTTPS_HEADER_FIELD_SEPARATOR IOT_HTTPS_USER_AGENT HTTPS_END_OF_HEADER_LINES_INDICATOR
+#define HTTPS_USER_AGENT_HEADER_LINE      HTTPS_USER_AGENT_HEADER HTTPS_HEADER_FIELD_SEPARATOR IOT_HTTPS_USER_AGENT HTTPS_END_OF_HEADER_LINES_INDICATOR
 
 /**
  * @brief The Host header line with the field only and not the value.
@@ -62,27 +62,7 @@
  * This is used for the calculation of the requestUserBufferMinimumSize. The Host value is not specified because we
  * cannot anticipate what server the client is making requests to.
  */
-#define HTTPS_PARTIAL_HOST_HEADER_LINE                    HTTPS_HOST_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_END_OF_HEADER_LINES_INDICATOR
-
-/**
- * String constants for the Connection header and possible values.
- *
- * This is used for writing headers automatically during the sending of the HTTP request.
- * "Connection: keep-alive\r\n" is written automatically for a persistent connection.
- * "Connection: close\r\n" is written automatically for a non-persistent connection.
- */
-#define HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE           HTTPS_CONNECTION_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_CONNECTION_KEEP_ALIVE_HEADER_VALUE HTTPS_END_OF_HEADER_LINES_INDICATOR /**< @brief String literal for "Connection: keep-alive\r\n". */
-#define HTTPS_CONNECTION_CLOSE_HEADER_LINE                HTTPS_CONNECTION_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_CONNECTION_CLOSE_HEADER_VALUE HTTPS_END_OF_HEADER_LINES_INDICATOR      /**< @brief String literal for "Connection: close\r\n". */
-
-/**
- * @brief The length of the "Connection: keep-alive\r\n" header.
- *
- * This is used for sizing a local buffer for the final headers to send that include the "Connection: keep-alive\r\n"
- * header line.
- *
- * This is used to initialize a local array for the final headers to send.
- */
-#define HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE_LENGTH    ( 24 )
+#define HTTPS_PARTIAL_HOST_HEADER_LINE    HTTPS_HOST_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_END_OF_HEADER_LINES_INDICATOR
 
 /**
  * Indicates for the http-parser parsing execution function to tell it to keep parsing or to stop parsing.
@@ -90,8 +70,8 @@
  * A value of 0 means the parser should keep parsing if there is more unparsed length.
  * A value greater than 0 tells the parser to stop parsing.
  */
-#define KEEP_PARSING                                      ( ( int ) 0 ) /**< @brief Indicator in the http-parser callback to keep parsing when the function returns. */
-#define STOP_PARSING                                      ( ( int ) 1 ) /**< @brief Indicator in the http-parser callback to stop parsing when the function returns. */
+#define KEEP_PARSING                      ( ( int ) 0 )                 /**< @brief Indicator in the http-parser callback to keep parsing when the function returns. */
+#define STOP_PARSING                      ( ( int ) 1 )                 /**< @brief Indicator in the http-parser callback to stop parsing when the function returns. */
 
 /*-----------------------------------------------------------*/
 
@@ -337,40 +317,6 @@ static void _networkDisconnect( _httpsConnection_t * pHttpsConnection );
 static void _networkDestroy( _httpsConnection_t * pHttpsConnection );
 
 /**
- * @brief Add a header to the current HTTP request.
- *
- * The headers are stored in reqHandle->pHeaders.
- *
- * @param[in] pHttpsRequest - HTTP request context.
- * @param[in] pName - The name of the header to add.
- * @param[in] nameLen - The length of the header name string.
- * @param[in] pValue - The buffer containing the value string.
- * @param[in] valueLen - The length of the header value string.
- *
- * @return #IOT_HTTPS_OK if the header was added to the request successfully.
- *         #IOT_HTTPS_INSUFFICIENT_MEMORY if there was not enough room in the IotHttpsRequestHandle_t->pHeaders.
- */
-static IotHttpsReturnCode_t _addHeader( _httpsRequest_t * pHttpsRequest,
-                                        const char * pName,
-                                        uint32_t nameLen,
-                                        const char * pValue,
-                                        uint32_t valueLen );
-
-/**
- * @brief Send data on the network.
- *
- * @param[in] pHttpsConnection - HTTP connection context.
- * @param[in] pBuf - The buffer containing the data to send.
- * @param[in] len - The length of the data to send.
- *
- * @return #IOT_HTTPS_OK if the data sent successfully.
- *         #IOT_HTTPS_NETWORK_ERROR if there was an error sending the data on the network.
- */
-static IotHttpsReturnCode_t _networkSend( _httpsConnection_t * pHttpsConnection,
-                                          uint8_t * pBuf,
-                                          size_t len );
-
-/**
  * @brief Receive data on the network.
  *
  * @param[in] pHttpsConnection - HTTP connection context.
@@ -560,19 +506,19 @@ static TaskHandle_t httpsDispatchTask[ IOT_HTTPS_DISPATCH_TASK_COUNT ];
  */
 static QueueHandle_t dispatchQueue;
 
-#ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
+#if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
 
 /**
  * @brief Structure that will hold the TCB of a dispatch task.
  */
-    StaticTask_t dispatchTaskBuffer;
+    static StaticTask_t dispatchTaskBuffer;
 
 /**
  * @brief Buffer that the dispatch task will use as its stack. Note this is
  * an array of StackType_t variables. The size of StackType_t is dependent on
  * the RTOS port.
  */
-    StackType_t dispatchTaskStack[ IOT_HTTPS_DISPATCH_TASK_STACK_SIZE ];
+    static StackType_t dispatchTaskStack[ IOT_HTTPS_DISPATCH_TASK_STACK_SIZE ];
 
 /**
  * @brief A data structure to contain a statically allocated queue.
@@ -582,7 +528,7 @@ static QueueHandle_t dispatchQueue;
 /**
  * @brief A buffer to hold static memory for the dispatch queue.
  */
-    uint8_t dispatchQueueStorageBuffer[ IOT_HTTPS_DISPATCH_QUEUE_SIZE * sizeof( _httpsRequest_t * ) ];
+    static uint8_t dispatchQueueStorageBuffer[ IOT_HTTPS_DISPATCH_QUEUE_SIZE * sizeof( _httpsRequest_t * ) ];
 #endif /* ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY */
 
 /**
@@ -1670,86 +1616,6 @@ static void _networkDestroy( _httpsConnection_t * pHttpsConnection )
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _addHeader( _httpsRequest_t * pHttpsRequest,
-                                        const char * pName,
-                                        uint32_t nameLen,
-                                        const char * pValue,
-                                        uint32_t valueLen )
-{
-    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
-
-    int headerFieldSeparatorLen = HTTPS_HEADER_FIELD_SEPARATOR_LENGTH;
-    uint32_t additionalLength = nameLen + headerFieldSeparatorLen + valueLen + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
-    uint32_t possibleLastHeaderAdditionalLength = HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
-
-    /* Check if there is enough space to add the header field and value
-     * (name:value\r\n). We need to add a "\r\n" at the end of headers. The use of
-     * possibleLastHeaderAdditionalLength is to make sure that there is always
-     * space for the last "\r\n". */
-    if( ( additionalLength + possibleLastHeaderAdditionalLength ) > ( ( uint32_t ) ( pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur ) ) )
-    {
-        IotLogError( "There is %d space left in the header buffer, but we want to add %d more of header.",
-                     pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur,
-                     additionalLength + possibleLastHeaderAdditionalLength );
-        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INSUFFICIENT_MEMORY );
-    }
-
-    memcpy( pHttpsRequest->pHeadersCur, pName, nameLen );
-    pHttpsRequest->pHeadersCur += nameLen;
-    memcpy( pHttpsRequest->pHeadersCur, HTTPS_HEADER_FIELD_SEPARATOR, headerFieldSeparatorLen );
-    pHttpsRequest->pHeadersCur += headerFieldSeparatorLen;
-    memcpy( pHttpsRequest->pHeadersCur, pValue, valueLen );
-    pHttpsRequest->pHeadersCur += valueLen;
-    memcpy( pHttpsRequest->pHeadersCur, HTTPS_END_OF_HEADER_LINES_INDICATOR, HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH );
-    pHttpsRequest->pHeadersCur += HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
-    IotLogDebug( "Wrote header: \"%s: %.*s\r\n\". Space left in request user buffer: %d",
-                 pName,
-                 valueLen,
-                 pValue,
-                 pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur );
-
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
-}
-
-/*-----------------------------------------------------------*/
-
-static IotHttpsReturnCode_t _networkSend( _httpsConnection_t * pHttpsConnection,
-                                          uint8_t * pBuf,
-                                          size_t len )
-{
-    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
-
-    size_t numBytesSent = 0;
-    size_t numBytesSentTotal = 0;
-    size_t sendLength = len;
-
-    while( numBytesSentTotal < sendLength )
-    {
-        numBytesSent = pHttpsConnection->pNetworkInterface->send( pHttpsConnection->pNetworkConnection,
-                                                                  &( pBuf[ numBytesSentTotal ] ),
-                                                                  sendLength - numBytesSentTotal );
-
-        /* pNetworkInterface->send returns 0 on error. */
-        if( numBytesSent == 0 )
-        {
-            IotLogError( "Error in sending the HTTPS headers. Error code: %d", numBytesSent );
-            break;
-        }
-
-        numBytesSentTotal += numBytesSent;
-    }
-
-    if( numBytesSentTotal != sendLength )
-    {
-        IotLogError( "Error sending data on the network. We sent %d but there were total %d.", numBytesSentTotal, sendLength );
-        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_NETWORK_ERROR );
-    }
-
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
-}
-
-/*-----------------------------------------------------------*/
-
 static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t * pHttpsConnection,
                                           uint8_t * pBuf,
                                           size_t bufLen,
@@ -2122,8 +1988,6 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
         HTTPS_GOTO_CLEANUP();
     }
 
-    IotLogDebug( "Sent HTTPS headers for request %p.", pHttpsRequest );
-
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
 }
 
@@ -2481,11 +2345,11 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
     _httpParserSettings.on_message_complete = _httpParserOnMessageCompleteCallback;
 
     /* Allocate the dispatch queue. */
-    #ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
+    #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
         dispatchQueue = xQueueCreateStatic( IOT_HTTPS_DISPATCH_QUEUE_SIZE,
                                             sizeof( _httpsRequest_t * ),
                                             dispatchQueueStorageBuffer,
-                                            dispatchQueueBuffer );
+                                            &dispatchQueueBuffer );
     #else
         dispatchQueue = xQueueCreate( IOT_HTTPS_DISPATCH_QUEUE_SIZE, sizeof( _httpsRequest_t * ) );
     #endif
@@ -2500,7 +2364,7 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
     /* Start tasks that send requests from the dispatch queue. */
     for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
     {
-        #ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
+        #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
             httpsDispatchTask[ dispatchTaskIndex ] = xTaskCreateStatic( _dispatchTaskRoutine,
                                                                         "iot_thread",
                                                                         IOT_HTTPS_DISPATCH_TASK_STACK_SIZE,
@@ -2693,7 +2557,10 @@ void IotHttpsClient_Cleanup( void )
     /* Delete the tasks that send requests from the dispatch queue. */
     for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
     {
-        vTaskDelete( httpsDispatchTask[ dispatchTaskIndex ] );
+        if( httpsDispatchTask[ dispatchTaskIndex ] != NULL )
+        {
+            vTaskDelete( httpsDispatchTask[ dispatchTaskIndex ] );
+        }
     }
 }
 

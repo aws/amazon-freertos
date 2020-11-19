@@ -158,7 +158,9 @@
  */
 #if IOT_STATIC_MEMORY_ONLY == 1
     #include "private/iot_static_memory.h"
-    #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    ( 1 ) /* Whether the dispatch queue and tasks should use statically allocated memory. */
+    #ifndef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
+        #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    ( 1 ) /* Whether the dispatch queue and tasks should use statically allocated memory. */
+    #endif
 #endif
 
 /**
