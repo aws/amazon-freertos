@@ -29,11 +29,14 @@
 /* The config header is always included first. */
 #include "iot_config.h"
 
-/* Standard Includes. */
+/* Standard includes. */
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+/* Kernel includes. */
+#include "queue.h"
 
 /* coreHTTP includes. */
 #include "core_http_client.h"
@@ -44,14 +47,8 @@
 /* HTTPS Client library includes. */
 #include "iot_https_client.h"
 
-/* Task pool include. */
-#include "iot_taskpool.h"
-
 /* Linear containers (lists and queues) include. */
 #include "iot_linear_containers.h"
-
-/* Types include. */
-#include "types/iot_taskpool_types.h"
 
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
@@ -399,8 +396,6 @@ typedef struct _httpsConnection
     IotMutex_t connectionMutex;                 /**< @brief Mutex protecting operations on this entire connection context. */
     IotDeQueue_t reqQ;                          /**< @brief The queue for the requests that are not finished yet. */
     IotDeQueue_t respQ;                         /**< @brief The queue for the responses that are waiting to be processed. */
-    IotTaskPoolJobStorage_t taskPoolJobStorage; /**< @brief An asynchronous operation requires storage for the task pool job. */
-    IotTaskPoolJob_t taskPoolJob;               /**< @brief The task pool job identifier for an asynchronous request. */
 } _httpsConnection_t;
 
 /**
