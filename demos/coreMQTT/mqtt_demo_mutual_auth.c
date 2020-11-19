@@ -671,6 +671,22 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
         }
     } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
 
+    if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
+    {
+        LogError( ( "Failed to create a TLS connection to %s:%u. xNetworkStatus =%u,"
+                    " Retry attempts done=%lu.",
+                    democonfigMQTT_BROKER_ENDPOINT,
+                    democonfigMQTT_BROKER_PORT,
+                    xNetworkStatus,
+                    xReconnectParams.attemptsDone ) );
+    }
+    else
+    {
+        LogInfo( ( "Established TLS connection to %s:%u.",
+                   democonfigMQTT_BROKER_ENDPOINT,
+                   democonfigMQTT_BROKER_PORT ) );
+    }
+
     return xStatus;
 }
 /*-----------------------------------------------------------*/
