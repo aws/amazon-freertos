@@ -560,6 +560,31 @@ static TaskHandle_t httpsDispatchTask[ IOT_HTTPS_DISPATCH_TASK_COUNT ];
  */
 static QueueHandle_t dispatchQueue;
 
+#ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
+
+/**
+ * @brief Structure that will hold the TCB of a dispatch task.
+ */
+    StaticTask_t dispatchTaskBuffer;
+
+/**
+ * @brief Buffer that the dispatch task will use as its stack. Note this is
+ * an array of StackType_t variables. The size of StackType_t is dependent on
+ * the RTOS port.
+ */
+    StackType_t dispatchTaskStack[ IOT_HTTPS_DISPATCH_TASK_STACK_SIZE ];
+
+/**
+ * @brief A data structure to contain a statically allocated queue.
+ */
+    static StaticQueue_t dispatchQueueBuffer;
+
+/**
+ * @brief A buffer to hold static memory for the dispatch queue.
+ */
+    uint8_t dispatchQueueStorageBuffer[ IOT_HTTPS_DISPATCH_QUEUE_SIZE * sizeof( _httpsRequest_t * ) ];
+#endif /* ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY */
+
 /**
  * @brief Sends requests from the dispatch queue.
  *
@@ -2456,7 +2481,14 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
     _httpParserSettings.on_message_complete = _httpParserOnMessageCompleteCallback;
 
     /* Allocate the dispatch queue. */
-    dispatchQueue = xQueueCreate( IOT_HTTPS_DISPATCH_QUEUE_SIZE, sizeof( _httpsRequest_t * ) );
+    #ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
+        dispatchQueue = xQueueCreateStatic( IOT_HTTPS_DISPATCH_QUEUE_SIZE,
+                                            sizeof( _httpsRequest_t * ),
+                                            dispatchQueueStorageBuffer,
+                                            dispatchQueueBuffer );
+    #else
+        dispatchQueue = xQueueCreate( IOT_HTTPS_DISPATCH_QUEUE_SIZE, sizeof( _httpsRequest_t * ) );
+    #endif
 
     if( dispatchQueue == NULL )
     {
@@ -2468,18 +2500,34 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
     /* Start tasks that send requests from the dispatch queue. */
     for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
     {
-        taskCreationResult = xTaskCreate( _dispatchTaskRoutine,
-                                          "iot_thread",
-                                          IOT_HTTPS_DISPATCH_TASK_STACK_SIZE,
-                                          NULL,
-                                          tskIDLE_PRIORITY,
-                                          &httpsDispatchTask[ dispatchTaskIndex ] );
+        #ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
+            httpsDispatchTask[ dispatchTaskIndex ] = xTaskCreateStatic( _dispatchTaskRoutine,
+                                                                        "iot_thread",
+                                                                        IOT_HTTPS_DISPATCH_TASK_STACK_SIZE,
+                                                                        NULL,
+                                                                        IOT_HTTPS_DISPATCH_TASK_PRIORITY,
+                                                                        dispatchTaskStack,
+                                                                        &dispatchTaskBuffer );
 
-        if( taskCreationResult != pdPASS )
-        {
-            IotLogError( "Failed to allocate resources for request task.", status );
-            HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
-        }
+            if( httpsDispatchTask[ dispatchTaskIndex ] == NULL )
+            {
+                IotLogError( "Failed to allocate static memory for request task.", status );
+                HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
+            }
+        #else /* ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY */
+            taskCreationResult = xTaskCreate( _dispatchTaskRoutine,
+                                              "iot_thread",
+                                              IOT_HTTPS_DISPATCH_TASK_STACK_SIZE,
+                                              NULL,
+                                              IOT_HTTPS_DISPATCH_TASK_PRIORITY,
+                                              &httpsDispatchTask[ dispatchTaskIndex ] );
+
+            if( taskCreationResult != pdPASS )
+            {
+                IotLogError( "Failed to allocate dynamic memory for request task.", status );
+                HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
+            }
+        #endif /* ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY */
     }
 
 /* This code prints debugging information and is, therefore, compiled only when
