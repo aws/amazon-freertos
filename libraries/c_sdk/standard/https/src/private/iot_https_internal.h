@@ -181,12 +181,36 @@
 #ifndef IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH
     #define IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH    ( 255 ) /* The maximum alpn protocols length is chosen arbitrarily. */
 #endif
+#ifndef IOT_HTTPS_QUEUE_RECV_TICKS
+    #define IOT_HTTPS_QUEUE_RECV_TICKS             pdMS_TO_TICKS( 200U ) /* The ticks to wait for a #xQueueReceive to complete. */
+#endif
+#ifndef IOT_HTTPS_QUEUE_SEND_TICKS
+    #define IOT_HTTPS_QUEUE_SEND_TICKS             portMAX_DELAY /* The ticks to wait for a #xQueueSendToBack to complete. */
+#endif
+#ifndef IOT_HTTPS_DISPATCH_QUEUE_SIZE
+    #define IOT_HTTPS_DISPATCH_QUEUE_SIZE          ( 6U ) /* The size of the queue containing requests ready to send to the server. */
+#endif
+#ifndef IOT_HTTPS_DISPATCH_TASK_COUNT
+    #define IOT_HTTPS_DISPATCH_TASK_COUNT          ( 3U ) /* The number of tasks that send requests from the queue. */
+#endif
+#ifndef IOT_HTTPS_DISPATCH_TASK_STACK_SIZE
+    #define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE ) /* The stack size of each dispatch task. */
+#endif
+
 /* Provide the User-Agent Value definition from coreHTTP. */
 #ifdef HTTP_USER_AGENT_VALUE
     #define IOT_HTTPS_USER_AGENT    HTTP_USER_AGENT_VALUE
 #endif
 
 /** @endcond */
+
+/* Error checking of macro configurations. */
+#if IOT_HTTPS_DISPATCH_QUEUE_SIZE < 1
+    #error "IOT_HTTPS_DISPATCH_QUEUE_SIZE must be at least 1."
+#endif
+#if IOT_HTTPS_DISPATCH_TASK_COUNT < 1
+    #error "IOT_HTTPS_DISPATCH_TASK_COUNT must be at least 1."
+#endif
 
 /**
  * @brief The HTTP protocol version of this library is HTTP/1.1.
@@ -392,10 +416,10 @@ typedef struct _httpsConnection
      * disconnect with a network error, or an explicit disconnect with a call to @ref https_client_function_disconnect.
      */
     bool isConnected;
-    bool isDestroyed;                           /**< @brief true if the connection is already destroyed and we should call anymore  */
-    IotMutex_t connectionMutex;                 /**< @brief Mutex protecting operations on this entire connection context. */
-    IotDeQueue_t reqQ;                          /**< @brief The queue for the requests that are not finished yet. */
-    IotDeQueue_t respQ;                         /**< @brief The queue for the responses that are waiting to be processed. */
+    bool isDestroyed;           /**< @brief true if the connection is already destroyed and we should call anymore  */
+    IotMutex_t connectionMutex; /**< @brief Mutex protecting operations on this entire connection context. */
+    IotDeQueue_t reqQ;          /**< @brief The queue for the requests that are not finished yet. */
+    IotDeQueue_t respQ;         /**< @brief The queue for the responses that are waiting to be processed. */
 } _httpsConnection_t;
 
 /**
