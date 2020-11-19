@@ -93,6 +93,14 @@
 #define KEEP_PARSING                                      ( ( int ) 0 ) /**< @brief Indicator in the http-parser callback to keep parsing when the function returns. */
 #define STOP_PARSING                                      ( ( int ) 1 ) /**< @brief Indicator in the http-parser callback to stop parsing when the function returns. */
 
+#ifndef HTTP_QUEUE_TICKS_TO_WAIT
+    #define HTTP_QUEUE_TICKS_TO_WAIT                      ( 0U )
+#endif
+
+#ifndef HTTP_DISPATCH_QUEUE_LENGTH
+    #define HTTP_DISPATCH_QUEUE_LENGTH    ( 3U )
+#endif
+
 /*-----------------------------------------------------------*/
 
 
@@ -491,13 +499,9 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t * pHttpsC
 /**
  * @brief Task pool job routine to send the HTTP request within the pUserContext.
  *
- * @param[in] pTaskPool - Pointer to the system task pool.
- * @param[in] pJob - Pointer to the HTTP request sending job.
- * @param[in] pUserContext - Pointer to an HTTP request, passed as an opaque context.
+ * @param[in] pHttpsRequest - Pointer to an HTTP request.
  */
-static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
-                               IotTaskPoolJob_t pJob,
-                               void * pUserContext );
+static void _sendHttpsRequest( _httpsRequest_t * pHttpsRequest );
 
 /**
  * @brief Receive the HTTPS body specific to an asynchronous type of response.
@@ -561,7 +565,12 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
  */
 static TaskHandle_t httpsRequestTask[ HTTPS_SEND_REQUEST_TASK_COUNT ];
 
-static void _requestTask( void * pvParameters );
+/**
+ * @brief A queue that holds requests that are ready to be sent over a network.
+ */
+static QueueHandle_t dispatchQ;
+
+static void _sendHttpsRequestTask( void * pvParameters );
 
 /**
  * @brief Schedule the task to send the the HTTP request.
@@ -1262,7 +1271,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
         }
         else /* Any other error. */
         {
-            IotLogError( "Failed to retrive the HTTPS body for response %p. Error code: %d", pCurrentHttpsResponse, status );
+            IotLogError( "Failed to retrieve the HTTPS body for response %p. Error code: %d", pCurrentHttpsResponse, status );
         }
 
         HTTPS_GOTO_CLEANUP();
@@ -2100,22 +2109,16 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
 
 /*-----------------------------------------------------------*/
 
-static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
-                               IotTaskPoolJob_t pJob,
-                               void * pUserContext )
+static void _sendHttpsRequest( _httpsRequest_t * pHttpsRequest )
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
-    _httpsRequest_t * pHttpsRequest = ( _httpsRequest_t * ) ( pUserContext );
     _httpsConnection_t * pHttpsConnection = pHttpsRequest->pHttpsConnection;
     _httpsResponse_t * pHttpsResponse = pHttpsRequest->pHttpsResponse;
     IotHttpsReturnCode_t disconnectStatus = IOT_HTTPS_OK;
     IotHttpsReturnCode_t scheduleStatus = IOT_HTTPS_OK;
     IotLink_t * pQItem = NULL;
     _httpsRequest_t * pNextHttpsRequest = NULL;
-
-    ( void ) pTaskPool;
-    ( void ) pJob;
 
     IotLogDebug( "Task with request ID: %p started.", pHttpsRequest );
 
@@ -2302,12 +2305,22 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
 
 /*-----------------------------------------------------------*/
 
-static void _requestTask( void * pvParameters )
+static void _sendHttpsRequestTask( void * pvParameters )
 {
     ( void ) pvParameters;
 
+    _httpsRequest_t * pHttpsRequest = NULL;
+
     for( ; ; )
     {
+        /* If there is no command in the queue, try again. */
+        if( xQueueReceive( dispatchQ, &pHttpsRequest, HTTP_QUEUE_TICKS_TO_WAIT ) == pdFALSE )
+        {
+            IotLogDebug( ( "No requests to send. Trying again." ) );
+            continue;
+        }
+
+        _sendHttpsRequest( pHttpsRequest );
     }
 }
 
@@ -2317,30 +2330,19 @@ IotHttpsReturnCode_t _scheduleHttpsRequestSend( _httpsRequest_t * pHttpsRequest 
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
-    IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
+    BaseType_t queueStatus = pdTRUE;
     _httpsConnection_t * pHttpsConnection = pHttpsRequest->pHttpsConnection;
 
     /* Set the request to scheduled even if scheduling fails. */
     pHttpsRequest->scheduled = true;
 
-    taskPoolStatus = IotTaskPool_CreateJob( _sendHttpsRequest,
-                                            ( void * ) ( pHttpsRequest ),
-                                            &( pHttpsConnection->taskPoolJobStorage ),
-                                            &( pHttpsConnection->taskPoolJob ) );
+    queueStatus = xQueueSendToBack( dispatchQ, &pHttpsRequest, HTTP_QUEUE_TICKS_TO_WAIT );
 
     /* Creating a task pool job should never fail when parameters are valid. */
-    if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
+    if( queueStatus != pdTRUE )
     {
-        IotLogError( "Error creating a taskpool job for request servicing. Error code: %d", taskPoolStatus );
+        IotLogError( "Failed to add request to dispatch queue. Error code: %d", ( int ) queueStatus );
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
-    }
-
-    taskPoolStatus = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, pHttpsConnection->taskPoolJob, 0 );
-
-    if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
-    {
-        IotLogError( "Failed to schedule taskpool job. Error code: %d", taskPoolStatus );
-        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_ASYNC_SCHEDULING_ERROR );
     }
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
@@ -2456,23 +2458,31 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
     _httpParserSettings.on_body = _httpParserOnBodyCallback;
     _httpParserSettings.on_message_complete = _httpParserOnMessageCompleteCallback;
 
-    /* Start the tasks that send requests from the dispatch queue. */
+    /* Allocate the dispatch queue. */
+    dispatchQ = xQueueCreate( HTTP_DISPATCH_QUEUE_LENGTH, sizeof( _httpsRequest_t * ) );
+
+    if( dispatchQ == NULL )
+    {
+        /* Queue was not created and must not be used. */
+        IotLogError( "Failed to allocate resources for dispatch queue.", status );
+        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
+    }
+
+    /* Start tasks that send requests from the dispatch queue. */
     for( requestTaskIndex = 0; requestTaskIndex < HTTPS_SEND_REQUEST_TASK_COUNT; ++requestTaskIndex )
     {
-        taskCreationResult = xTaskCreate( _requestTask,
-                                          "HttpsRequestTask",
+        taskCreationResult = xTaskCreate( _sendHttpsRequestTask,
+                                          "iot_thread",
                                           configMINIMAL_STACK_SIZE,
                                           NULL,
                                           /* Chosen deliberately so as to not contend with the task pool. */
                                           tskIDLE_PRIORITY,
                                           &httpsRequestTask[ requestTaskIndex ] );
 
-        status = ( taskCreationResult == pdPASS ) ? IOT_HTTPS_OK : IOT_HTTPS_INTERNAL_ERROR;
-
-        if( HTTPS_FAILED( status ) )
+        if( taskCreationResult != pdPASS )
         {
-            IotLogError( "Error allocating resources for request task. Error code %d", status );
-            HTTPS_GOTO_CLEANUP();
+            IotLogError( "Failed to allocate resources for request task.", status );
+            HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
         }
     }
 
