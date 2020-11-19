@@ -217,7 +217,6 @@ function(afr_write_metadata)
         # Check if module contains module-specifc cmake files.
         set(prop_var AFR_MODULE_${module}_CMAKE_FILES)
         if(DEFINED ${prop_var})
-            set(cmake_files "")
             # Add cmake files associated with this module to the metadata file 
             # containing list of all cmake files.
             file(APPEND "${cmake_files_file}" ";${${prop_var}}")
