@@ -266,3 +266,57 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/unity")
     )
     target_compile_definitions(3rdparty::unity INTERFACE UNITY_INCLUDE_CONFIG_H)
 endif()
+
+# lobarocoap library
+if(EXISTS "${AFR_3RDPARTY_DIR}/CoAp")
+    add_library(afr_3rdparty_coap INTERFACE)
+    target_sources(
+        afr_3rdparty_coap INTERFACE
+        "${AFR_3RDPARTY_DIR}/CoAp/coap.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/coap_interaction.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/coap_interaction.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/coap_main.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/coap_main.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/coap_message.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/coap_message.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/coap_options.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/coap_options.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/coap_resource.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/coap_resource.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/coap_socket.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/coap_socket.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/diagnostic.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/diagnostic.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/interface/coap_interface.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/interface/mem/coap_mem.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/interface/mem/coap_mem.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/interface/network/net_Endpoint.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/interface/network/net_Endpoint.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/interface/network/net_Packet.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/interface/network/net_Packet.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/interface/network/net_Socket.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/interface/network/net_Socket.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/liblobaro_coap.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/liblobaro_coap.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_ETag.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_ETag.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_blockwise.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_blockwise.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_cf.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_cf.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_observe.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_observe.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_uri.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_uri.h"
+    )
+    target_include_directories(
+        afr_3rdparty_coap INTERFACE
+        "${AFR_3RDPARTY_DIR}/CoAp"
+        "${AFR_3RDPARTY_DIR}/CoAp/interface"
+        "${AFR_3RDPARTY_DIR}/CoAp/interface/mem"
+        "${AFR_3RDPARTY_DIR}/CoAp/interface/network"
+        "${AFR_3RDPARTY_DIR}/CoAp/option-types"
+    )
+    add_library(3rdparty::coap ALIAS afr_3rdparty_coap)
+endif()
+
