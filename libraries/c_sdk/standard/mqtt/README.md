@@ -1,24 +1,24 @@
-# MQTT library for backward compatibility for MQTT V2.x.x APIs
+# MQTT compatibility layer for MQTT V2.x.x APIs
 
-This MQTT library is for the backward compatibility of the MQTT V2.x.x APIs using the [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md). All the [APIs in MQTT v2.x.x](include/iot_mqtt.h) are supported in this implementation. This library will be supported only as a short term solution to provide backward compatibility. We recommend using the redesigned [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md) for applications requiring long term support.
+This MQTT compatibility layer for MQTT V2.x.x APIs, is using the [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md). All the [APIs in MQTT v2.x.x](include/iot_mqtt.h) are supported in this implementation. This compatibility layer will be supported only as a short term solution to provide backward compatibility. We recommend using the redesigned [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md) for applications requiring long term support.
 
 
-## Configs for MQTT library for backward compatibility for MQTT V2.x.x APIs
+## Configs for MQTT compatibility layer for MQTT V2.x.x APIs
 
-Configuration settings of the MQTT library for backward compatibility for MQTT V2.x.x APIs. These configurations are available in addition to the [configurations of MQTT V2.x.x library](https://docs.aws.amazon.com/freertos/latest/lib-ref/embedded-csdk/v4.0_beta_deprecated/lib-ref/c-sdk/mqtt/mqtt_config.html).
+Configuration settings for the MQTT compatibility layer for MQTT V2.x.x APIs are available in addition to the [configurations of MQTT V2.x.x library](https://docs.aws.amazon.com/freertos/latest/lib-ref/embedded-csdk/v4.0_beta_deprecated/lib-ref/c-sdk/mqtt/mqtt_config.html).
 
-Configuration settings are C pre-processor constants. They can be set with a #define in the config file (iot_config.h) or by using a compiler option such as -D in gcc. If a configuration setting is not defined, the library will use a "sensible" default value (unless otherwise noted). Because they are compile-time constants, a library must be rebuilt if a configuration setting is changed.
+Configuration settings are C pre-processor constants. They can be set with a #define in the config file (iot_config.h) or by using a compiler option such as -D in gcc. If a configuration setting is not defined, the compatibility layer will use a "sensible" default value (unless otherwise noted). Because they are compile-time constants, this compatibility layer must be rebuilt if a configuration setting is changed.
 
-1. `MAX_NO_OF_MQTT_CONNECTIONS` - Maximum number of MQTT connections that can be handled by the MQTT library for backward compatibility for MQTT V2.x.x APIs at a time. Default value is 2.
+1. `MAX_NO_OF_MQTT_CONNECTIONS` - Maximum number of MQTT connections that can be handled by the MQTT compatibility layer for MQTT V2.x.x APIs at a time. Default value is 2.
 2. `MAX_NO_OF_MQTT_SUBSCRIPTIONS` - Maximum number of active MQTT subscriptions per MQTT connection. Default value is 10.
-3. `NETWORK_BUFFER_SIZE` - Static network buffer size for the MQTT packets to be sent using the MQTT library for backward compatibility for MQTT V2.x.x APIs. Please note that a different buffer is used for receiving MQTT packets and is dynamically allocated. Default value is 1024.
+3. `NETWORK_BUFFER_SIZE` - Static network buffer size for the MQTT packets to be sent using the MQTT compatibility layer for MQTT V2.x.x APIs. Please note that a different buffer is used for receiving MQTT packets. Default value is 1024.
 
 
-**Note:** The config `IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES` to override serializer APIs is not supported in this MQTT library for backward compatibility for MQTT V2.x.x APIs. [MQTT over BLE](https://docs.aws.amazon.com/freertos/latest/userguide/ble-demo.html#ble-demo-mqtt) is redesigned to avoid the dependency on this config by using a [BLE transport implementation](../ble/src/services/mqtt_ble/iot_ble_mqtt_transport.c).
+**Note:** The config `IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES` to override serializer APIs is not supported in this MQTT compatibility layer for MQTT V2.x.x APIs. [MQTT over BLE](https://docs.aws.amazon.com/freertos/latest/userguide/ble-demo.html#ble-demo-mqtt) is redesigned to avoid the dependency on this config by using a [BLE transport implementation](../ble/src/services/mqtt_ble/iot_ble_mqtt_transport.c).
 
-## Code size of MQTT library for backward compatibility for MQTT V2.x.x APIs
+## Code size of MQTT compatibility layer for MQTT V2.x.x APIs
 
-Code size for MQTT library for backward compatibility for MQTT V2.x.x APIs is calculated using GCC for ARM cortex-M4. Build for calculating code size is done using build configuration for [cypress CY8CKIT-064S0S2-4343W](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_psoc64.html) by using the `Release` configuration. All the logs were disabled in this build. Refer to the table below for calculated code sizes.
+Code size for MQTT compatibility layer for MQTT V2.x.x APIs is calculated using GCC for ARM cortex-M4. Build for calculating code size is done using build configuration for [cypress CY8CKIT-064S0S2-4343W](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_psoc64.html) by using the `Release` configuration. All the logs were disabled in this build. Refer to the table below for calculated code sizes.
 
 | File | With -O1 Optimization | With -Os Optimization |
 | :-: | :-: | :-: |
@@ -36,20 +36,20 @@ Code size for MQTT library for backward compatibility for MQTT V2.x.x APIs is ca
 | iot_mqtt_validate.c | 0.5K | 0.4K |
 | **Total estimate** | **15K** | **13.5K** |
 
-MQTT library for backward compatibility for MQTT V2.x.x APIs is implemented using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md). In addition to that, this library for backward compatibility for MQTT V2.x.x APIs also maintains all the dependencies of MQTT V2.x.x library. In order to account for the total code size cost of this library, the code sizes for the dependencies also need to be considered. Please find the code sizes for dependencies below.
+MQTT compatibility layer for MQTT V2.x.x APIs is implemented using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md). In addition to that, this compatibility layer for MQTT V2.x.x APIs also maintains all the dependencies of MQTT V2.x.x library. In order to account for the total code size cost of this compatibility layer, the code sizes for the dependencies also need to be considered. Please find the code sizes for dependencies below.
 
-1. **coreMQTT library** : MQTT library for backward compatibility for MQTT V2.x.x APIs is implemented using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md). Memory estimates for [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md) can be found in the documentation [here](https://freertos.org/mqtt/index.html).
+1. **coreMQTT library** : MQTT compatibility layer for MQTT V2.x.x APIs is implemented using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md). Memory estimates for [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md) can be found in the documentation [here](https://freertos.org/mqtt/index.html).
 
-2. **Task Pool** : MQTT library for backward compatibility for MQTT V2.x.x APIs depends on [Task Pool](../common/taskpool/). Refer to the table below for calculated code size of Task Pool.
+2. **Task Pool** : MQTT compatibility layer for MQTT V2.x.x APIs depends on [Task Pool](../common/taskpool/). Refer to the table below for calculated code size of Task Pool.
 
 | File | With -O1 Optimization | With -Os Optimization |
 | :-: | :-: | :-: |
 | iot_taskpool.c | 3.8K | 3.0K |
 | **Total estimate** | **3.8K** | **3.0K** |
 
-Please note that the Task Pool may not be exclusively used by this MQTT library for backward compatibility, but may be shared by other libraries. However, the Task Pool is not used by any of the [redesigned libraries for LTS](https://www.freertos.org/ltsroadmap.html).
+Please note that the Task Pool may not be exclusively used by this MQTT compatibility layer, but may be shared by other libraries. However, the Task Pool is not used by any of the [redesigned libraries for LTS](https://www.freertos.org/ltsroadmap.html).
 
-3. **Platform Abstraction** :  MQTT library for backward compatibility for MQTT V2.x.x APIs depends on the implementation of Platform Abstraction for Network, Clock and Threads. The code size is calculated for the [FreeRTOS implementation of Abstraction Layer](../../../abstractions/platform/freertos) and is added in the table below.
+3. **Platform Abstraction** :  MQTT compatibility layer for MQTT V2.x.x APIs depends on the implementation of Platform Abstraction for Network, Clock and Threads. The code size is calculated for the [FreeRTOS implementation of Abstraction Layer](../../../abstractions/platform/freertos) and is added in the table below.
 
 | File | With -O1 Optimization | With -Os Optimization |
 | :-: | :-: | :-: |
@@ -58,13 +58,13 @@ Please note that the Task Pool may not be exclusively used by this MQTT library 
 | iot_threads_freertos.c | 0.7K | 0.7K |
 | **Total estimate** | **2.4K** | **2.3K** |
 
-Please note that the implementation for Platform Abstraction may not be exclusively used by this MQTT library for backward compatibility, but may be shared by other libraries. However, this Platform Abstraction is not used by any of the [redesigned libraries for LTS](https://www.freertos.org/ltsroadmap.html).
+Please note that the implementation for Platform Abstraction may not be exclusively used by this MQTT compatibility layer, but may be shared by other libraries. However, this Platform Abstraction is not used by any of the [redesigned libraries for LTS](https://www.freertos.org/ltsroadmap.html).
 
-4. **Linear Containers** : MQTT library for backward compatibility for MQTT V2.x.x APIs depends on Linear Containers. However, this implementation is in [c header file](../common/include/iot_linear_containers.h) and the code sizes are already accounted for in the calculated sizes of this library for backward compatibility.
+4. **Linear Containers** : MQTT compatibility layer for MQTT V2.x.x APIs depends on Linear Containers. However, this implementation is in [c header file](../common/include/iot_linear_containers.h) and the code sizes are already accounted for in the calculated sizes of this compatibility layer.
 
-## Tasks created by dependencies of MQTT library for backward compatibility for MQTT V2.x.x APIs
+## Tasks created by dependencies of MQTT compatibility layer for MQTT V2.x.x APIs
 
-MQTT library for backward compatibility for MQTT V2.x.x APIs depends on Task Pool and Network Interface implementation(Part of Platform Abstraction). Both Task Pool and Network Interface implementation for FreeRTOS creates additional tasks. Task Pool creates `IotTaskPoolInfo.minThreads` number of tasks. Network Interface implementation for FreeRTOS creates a task to receive from the network. Please note these tasks are required in addition to the main application task needed for the application using MQTT library for backward compatibility.
+MQTT compatibility layer for MQTT V2.x.x APIs depends on Task Pool and Network Interface implementation(Part of Platform Abstraction). Both Task Pool and Network Interface implementation for FreeRTOS creates additional tasks. Task Pool creates `IotTaskPoolInfo.minThreads` number of tasks. Network Interface implementation for FreeRTOS creates a task to receive from the network. Please note these tasks are required in addition to the main application task needed for the application using MQTT compatibility layer.
 
 
 **Note** For applications requiring low memory footprint, we recommend using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md), which doesn't have any dependency other than the standard C library, a customer-implemented network transport interface, and *optionally* a user-implemented platform time function. In addition to that, there are no tasks created by these dependencies of coreMQTT library.
