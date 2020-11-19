@@ -101,6 +101,7 @@
 		<Filter Include="libraries\coreHTTP"/>
 		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty\http_parser"/>
 		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty"/>
+		<Filter Include="libraries\coreHTTP\source\dependency"/>
 		<Filter Include="libraries\coreHTTP\source\include"/>
 		<Filter Include="libraries\coreHTTP\source\interface"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass\src"/>
@@ -141,8 +142,10 @@
 		<Filter Include="libraries\jobs_for_aws\source"/>
 		<Filter Include="libraries\jobs_for_aws"/>
 		<Filter Include="libraries\jobs_for_aws\source\include"/>
-		<Filter Include="demos\common\mqtt_demo_helpers"/>
+		<Filter Include="demos\common\http_demo_helpers"/>
 		<Filter Include="demos\common"/>
+		<Filter Include="demos\common\mqtt_demo_helpers"/>
+		<Filter Include="demos\coreHTTP"/>
 		<Filter Include="demos\coreMQTT"/>
 		<Filter Include="demos\defender"/>
 		<Filter Include="demos\device_shadow_for_aws"/>
@@ -1499,8 +1502,14 @@
 		<ClCompile Include="..\..\..\..\..\libraries\jobs_for_aws\source\jobs.c">
 			<Filter>libraries\jobs_for_aws\source</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\http_demo_helpers\http_demo_utils.c">
+			<Filter>demos\common\http_demo_helpers</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c">
 			<Filter>demos\common\mqtt_demo_helpers</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_download.c">
+			<Filter>demos\coreHTTP</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_mutual_auth.c">
 			<Filter>demos\coreMQTT</Filter>

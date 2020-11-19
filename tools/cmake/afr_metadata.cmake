@@ -153,17 +153,15 @@ function(afr_add_subdirectory module_name)
 endfunction()
 
 # Function to add module-specific CMake files to metadata.
-# This function should be to add cmake files to metadata when:
-# 1. When the module name does not match its parent folder name
+# This function should be used to add cmake files when:
+# 1. The module name does not match its parent folder name
 #                 OR/AND
-# 2. A non-CMakeLists.txt file needs to be added to metadata.
+# 2. A non-CMakeLists.txt (like "core_json.cmake") file needs to be added to metadata.
 # Thif function sets the AFR_MODULE_${module_name}_CMAKE_FILES cache
 # variable.
 function(afr_module_cmake_files module_name)
     set(prop_var AFR_MODULE_${module_name}_CMAKE_FILES)
-    if(NOT DEFINED ${prop_var})
-        set(${prop_var} "" CACHE INTERNAL "")
-    endif()
+    set(${prop_var} "" CACHE INTERNAL "")
     afr_cache_append(${prop_var} ${ARGN})
 endfunction()
 
@@ -219,14 +217,9 @@ function(afr_write_metadata)
         # Check if module contains module-specifc cmake files.
         set(prop_var AFR_MODULE_${module}_CMAKE_FILES)
         if(DEFINED ${prop_var})
-            set(cmake_files "")
             # Add cmake files associated with this module to the metadata file 
             # containing list of all cmake files.
-            foreach(cmake_file IN LISTS ${prop_var})
-                list(APPEND cmake_files "${cmake_file}")
-            endforeach()
-            
-            file(APPEND "${cmake_files_file}" "${cmake_files}")
+            file(APPEND "${cmake_files_file}" ";${${prop_var}}")
         endif()
         string(FIND ${module} ::mcu_port __idx)
         if(__idx EQUAL -1)

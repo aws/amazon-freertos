@@ -53,6 +53,7 @@
 #define testrunnerFULL_DEVICE_SHADOW_ENABLED          0
 #define testrunnerFULL_CORE_MQTT_ENABLED              0
 #define testrunnerFULL_CORE_MQTT_AWS_IOT_ENABLED      0
+#define testrunnerFULL_CORE_HTTP_ENABLED              0
 #define testrunnerFULL_MQTT_STRESS_TEST_ENABLED       0
 #define testrunnerFULL_MQTTv4_ENABLED                 0
 #define testrunnerFULL_WIFI_ENABLED                   0

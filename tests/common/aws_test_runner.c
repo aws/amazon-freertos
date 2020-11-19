@@ -240,13 +240,17 @@ static void RunTests( void )
         RUN_TEST_GROUP( coreMQTT_Integration_AWS_IoT_Compatible );
     #endif
 
+    #if ( testrunnerFULL_CORE_HTTP_ENABLED == 1 )
+        RUN_TEST_GROUP( coreHTTP_Integration );
+    #endif
+
     #if ( testrunnerFULL_CLI_ENABLED == 1 )
-        RUN_TEST_GROUP( FreeRTOS_CLI )
-        RUN_TEST_GROUP( FreeRTOS_CLI_Console )
+        RUN_TEST_GROUP( FreeRTOS_CLI );
+        RUN_TEST_GROUP( FreeRTOS_CLI_Console );
     #endif
 
     #if ( testrunnerFULL_DEVICE_SHADOW_ENABLED == 1 )
-        RUN_TEST_GROUP( deviceShadow_Integration )
+        RUN_TEST_GROUP( deviceShadow_Integration );
     #endif
 }
 /*-----------------------------------------------------------*/

@@ -92,6 +92,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/test/mock \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/interface \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/include \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/interface \
                     $(AFR_C_SDK_STANDARD_PATH)serializer/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include/types \
@@ -117,7 +119,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)https/src \
                     $(AFR_C_SDK_STANDARD_PATH)https/test/access \
                     $(AFR_C_SDK_STANDARD_PATH)https/test/unit \
-                    $(AFR_THIRDPARTY_PATH)http_parser \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/dependency/3rdparty/http_parser \
                     $(AFR_LIBRARIES_PATH)device-shadow-for-aws-iot-embedded-sdk/source/include \
 
 #$(info $(AMAZON_FREERTOS_PATH))

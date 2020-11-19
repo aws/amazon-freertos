@@ -1933,6 +1933,11 @@
 			<locationURI>BASE_DIR/tests/integration_test/shadow_system_test.c</locationURI>
 		</link>
 		<link>
+			<name>tests/integration_test/core_http_system_test.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/tests/integration_test/core_http_system_test.c</locationURI>
+		</link>
+		<link>
 			<name>application_code/nxp_code/board.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/application_code/nxp_code/board.c</locationURI>

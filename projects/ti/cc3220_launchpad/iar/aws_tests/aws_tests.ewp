@@ -2296,15 +2296,18 @@
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c</name>
 				</file>
 				<group>
-					<name>3rdparty</name>
+					<name>dependency</name>
 					<group>
-						<name>http_parser</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.h</name>
-						</file>
+						<name>3rdparty</name>
+						<group>
+							<name>http_parser</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.h</name>
+							</file>
+						</group>
 					</group>
 				</group>
 				<group>
@@ -3033,6 +3036,9 @@
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\shadow_system_test.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\core_http_system_test.c</name>
 			</file>
 		</group>
 	</group>

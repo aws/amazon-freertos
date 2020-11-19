@@ -46,6 +46,7 @@ export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../../libraries/freertos_plus/aw
 export AFR_ABSTRACTIONS_PATH := ../../../../../../libraries/abstractions/
 
 GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
+                    $(AMAZON_FREERTOS_PATH)demos/common/http_demo_helpers \
                     $(AMAZON_FREERTOS_PATH)demos/common/mqtt_demo_helpers \
                     $(AFR_C_SDK_STANDARD_PATH)common/include \
                     $(AFR_LIBRARIES_PATH)logging/include \
@@ -104,7 +105,9 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_network_addr.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_version.c \
+                      $(AMAZON_FREERTOS_PATH)demos/common/http_demo_helpers/http_demo_utils.c \
                       $(AMAZON_FREERTOS_PATH)demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c \
+                      $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_s3_download.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_mutual_auth.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_connection_sharing.c \
                       $(AMAZON_FREERTOS_PATH)demos/device_shadow_for_aws/shadow_demo_main.c \
