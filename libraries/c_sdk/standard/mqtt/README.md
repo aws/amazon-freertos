@@ -18,7 +18,7 @@ Configuration settings are C pre-processor constants. They can be set with a #de
 
 ## Code size of MQTT compatibility layer for MQTT V2.x.x APIs
 
-Code size for MQTT compatibility layer for MQTT V2.x.x APIs is calculated using GCC for ARM cortex-M4. Build for calculating code size is done using build configuration for [cypress CY8CKIT-064S0S2-4343W](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_psoc64.html) by using the `Release` configuration. All the logs were disabled in this build. Refer to the table below for calculated code sizes.
+Code size for MQTT compatibility layer for MQTT V2.x.x APIs is calculated using GCC for ARM cortex-M4 on [202011.00 release](https://github.com/aws/amazon-freertos/releases/tag/202011.00). Build for calculating code size is done using build configuration for [cypress CY8CKIT-064S0S2-4343W](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_psoc64.html) by using the `Release` configuration. All the logs were disabled in this build. Refer to the table below for calculated code sizes.
 
 | File | With -O1 Optimization | With -Os Optimization |
 | :-: | :-: | :-: |
@@ -68,4 +68,20 @@ MQTT compatibility layer for MQTT V2.x.x APIs depends on Task Pool and Network I
 
 
 **Note** For applications requiring low memory footprint, we recommend using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md), which doesn't have any dependency other than the standard C library, a customer-implemented network transport interface, and *optionally* a user-implemented platform time function. In addition to that, there are no tasks created by these dependencies of coreMQTT library.
-The code size for coreMQTT library can be found in the documentation [here](https://freertos.org/mqtt/index.html).
+Please find the table below for the comparison of code sizes of the **MQTT compatibility layer for MQTT V2.x.x APIs**, **coreMQTT library** and their dependencies. Please note that the *[Platform Abstraction implementation](../../../abstractions/platform/freertos)* and *[Transport implementation](../../../abstractions/transport/secure_sockets)* used in this comparison, are the implementations present in this repository. However, these implementations can be different for different platforms or applications.
+
+**Code sizes for MQTT compatibility layer for MQTT V2.x.x APIs and dependencies**
+| Modules | With -O1 Optimization | With -Os Optimization |
+| :-: | :-: | :-: |
+| MQTT compatibility layer for MQTT V2.x.x APIs | 15K | 13.5K |
+| coreMQTT | 6.9K | 5.7K |
+| Task Pool | 3.8K | 3.0K |
+| Platform Abstraction | 2.4K | 2.3K |
+| **Total estimate** | **28.1K** | **24.5K** |
+
+**Code sizes for coreMQTT library and dependencies**
+| Modules | With -O1 Optimization | With -Os Optimization |
+| :-: | :-: | :-: |
+| coreMQTT | 6.9K | 5.7K |
+| Transport implementation | 3.1K | 2.9K |
+| **Total estimate** | **10K** | **8.6K** |
