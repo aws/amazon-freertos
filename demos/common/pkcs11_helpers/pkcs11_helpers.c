@@ -25,9 +25,6 @@
  * @brief Implementation of the helper functions for accessing PKCS11 module functionality.
  */
 
-/* Standard includes. */
-#include <assert.h>
-
 /* Include corePKCS11 config file. */
 #include "core_pkcs11_config.h"
 
