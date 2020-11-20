@@ -2412,6 +2412,7 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
         }
     #endif /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1 */
     dispatchQueue = NULL;
+
     /* Delete the tasks that send requests from the dispatch queue. */
     for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
     {
@@ -2425,6 +2426,7 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
             httpsDispatchTask[ dispatchTaskIndex ] = NULL;
         }
     }
+
     HTTPS_FUNCTION_CLEANUP_END();
 }
 
@@ -2586,6 +2588,7 @@ void IotHttpsClient_Cleanup( void )
         }
     #endif /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1 */
     dispatchQueue = NULL;
+
     /* Delete the tasks that send requests from the dispatch queue. */
     for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
     {
