@@ -200,7 +200,7 @@
     #define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE ) /* The stack size of each dispatch task. */
 #endif
 #ifndef IOT_HTTPS_DISPATCH_TASK_PRIORITY
-    #define IOT_HTTPS_DISPATCH_TASK_PRIORITY        ( tskIDLE_PRIORITY ) /* The priority of each dispatch task. */
+    #define IOT_HTTPS_DISPATCH_TASK_PRIORITY        ( IOT_THREAD_DEFAULT_PRIORITY ) /* Priority is deliberately chosen to match the original taskpool's priority. */
 #endif
 #ifndef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
     #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    ( 0 ) /* The dispatch queue and tasks will not use static memory by default. */

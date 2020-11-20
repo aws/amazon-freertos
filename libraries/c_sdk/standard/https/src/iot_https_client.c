@@ -2316,7 +2316,7 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
 
         /* An array that holds the stack of each dispatch task.
          * The size of StackType_t is dependent on the RTOS port. */
-        static StackType_t dispatchTaskStack[ IOT_HTTPS_DISPATCH_TASK_STACK_SIZE ][ IOT_HTTPS_DISPATCH_TASK_COUNT ];
+        static StackType_t dispatchTaskStack[ IOT_HTTPS_DISPATCH_TASK_COUNT ][ IOT_HTTPS_DISPATCH_TASK_STACK_SIZE ];
 
         /* A data structure to contain a statically allocated queue. */
         static StaticQueue_t dispatchQueueBuffer;
