@@ -506,31 +506,6 @@ static TaskHandle_t httpsDispatchTask[ IOT_HTTPS_DISPATCH_TASK_COUNT ];
  */
 static QueueHandle_t dispatchQueue;
 
-#if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
-
-/**
- * @brief Structure that will hold the TCB of a dispatch task.
- */
-    static StaticTask_t dispatchTaskBuffer;
-
-/**
- * @brief Buffer that the dispatch task will use as its stack. Note this is
- * an array of StackType_t variables. The size of StackType_t is dependent on
- * the RTOS port.
- */
-    static StackType_t dispatchTaskStack[ IOT_HTTPS_DISPATCH_TASK_STACK_SIZE ];
-
-/**
- * @brief A data structure to contain a statically allocated queue.
- */
-    static StaticQueue_t dispatchQueueBuffer;
-
-/**
- * @brief A buffer to hold static memory for the dispatch queue.
- */
-    static uint8_t dispatchQueueStorageBuffer[ IOT_HTTPS_DISPATCH_QUEUE_SIZE * sizeof( _httpsRequest_t * ) ];
-#endif /* ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY */
-
 /**
  * @brief Sends requests from the dispatch queue.
  *
@@ -2334,27 +2309,28 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
     uint8_t dispatchTaskIndex = 0;
     BaseType_t taskCreationResult = pdFALSE;
 
-    /* This sets all member in the _httpParserSettings to zero. It does not return any errors. */
-    http_parser_settings_init( &_httpParserSettings );
-
-    /* Set the http-parser callbacks. */
-    _httpParserSettings.on_message_begin = _httpParserOnMessageBeginCallback;
-    _httpParserSettings.on_status = _httpParserOnStatusCallback;
-    _httpParserSettings.on_header_field = _httpParserOnHeaderFieldCallback;
-    _httpParserSettings.on_header_value = _httpParserOnHeaderValueCallback;
-    _httpParserSettings.on_headers_complete = _httpParserOnHeadersCompleteCallback;
-    _httpParserSettings.on_body = _httpParserOnBodyCallback;
-    _httpParserSettings.on_message_complete = _httpParserOnMessageCompleteCallback;
-
     /* Allocate the dispatch queue. */
     #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
+        /* An array that holds the TCB of each dispatch task. */
+        static StaticTask_t dispatchTaskBuffer[ IOT_HTTPS_DISPATCH_TASK_COUNT ];
+
+        /* An array that holds the stack of each dispatch task.
+         * The size of StackType_t is dependent on the RTOS port. */
+        static StackType_t dispatchTaskStack[ IOT_HTTPS_DISPATCH_TASK_STACK_SIZE ][ IOT_HTTPS_DISPATCH_TASK_COUNT ];
+
+        /* A data structure to contain a statically allocated queue. */
+        static StaticQueue_t dispatchQueueBuffer;
+
+        /* A buffer to hold static memory for the dispatch queue. */
+        static uint8_t dispatchQueueStorageBuffer[ IOT_HTTPS_DISPATCH_QUEUE_SIZE * sizeof( _httpsRequest_t * ) ];
+
         dispatchQueue = xQueueCreateStatic( IOT_HTTPS_DISPATCH_QUEUE_SIZE,
                                             sizeof( _httpsRequest_t * ),
                                             dispatchQueueStorageBuffer,
                                             &dispatchQueueBuffer );
-    #else
+    #else /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1 */
         dispatchQueue = xQueueCreate( IOT_HTTPS_DISPATCH_QUEUE_SIZE, sizeof( _httpsRequest_t * ) );
-    #endif
+    #endif /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1 */
 
     if( dispatchQueue == NULL )
     {
@@ -2372,8 +2348,8 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
                                                                         IOT_HTTPS_DISPATCH_TASK_STACK_SIZE,
                                                                         NULL,
                                                                         IOT_HTTPS_DISPATCH_TASK_PRIORITY,
-                                                                        dispatchTaskStack,
-                                                                        &dispatchTaskBuffer );
+                                                                        dispatchTaskStack[ dispatchTaskIndex ],
+                                                                        &dispatchTaskBuffer[ dispatchTaskIndex ] );
 
             if( httpsDispatchTask[ dispatchTaskIndex ] == NULL )
             {
@@ -2395,6 +2371,18 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
             }
         #endif /* ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY */
     }
+
+    /* This sets all member in the _httpParserSettings to zero. It does not return any errors. */
+    http_parser_settings_init( &_httpParserSettings );
+
+    /* Set the http-parser callbacks. */
+    _httpParserSettings.on_message_begin = _httpParserOnMessageBeginCallback;
+    _httpParserSettings.on_status = _httpParserOnStatusCallback;
+    _httpParserSettings.on_header_field = _httpParserOnHeaderFieldCallback;
+    _httpParserSettings.on_header_value = _httpParserOnHeaderValueCallback;
+    _httpParserSettings.on_headers_complete = _httpParserOnHeadersCompleteCallback;
+    _httpParserSettings.on_body = _httpParserOnBodyCallback;
+    _httpParserSettings.on_message_complete = _httpParserOnMessageCompleteCallback;
 
 /* This code prints debugging information and is, therefore, compiled only when
  * log level is set to IOT_LOG_DEBUG. */
