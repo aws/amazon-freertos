@@ -257,10 +257,10 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
                                       remainingBufferLength,
                                       JSON_CONNECTION_OBJECT_FORMAT,
                                       pConn->localPort,
-                                      ( pConn->remoteIp.addr >> 24 ) & 0xFF,
-                                      ( pConn->remoteIp.addr >> 16 ) & 0xFF,
-                                      ( pConn->remoteIp.addr >> 8 ) & 0xFF,
-                                      ( pConn->remoteIp.addr ) & 0xFF,
+                                      ( pConn->remoteIp >> 24 ) & 0xFF,
+                                      ( pConn->remoteIp >> 16 ) & 0xFF,
+                                      ( pConn->remoteIp >> 8 ) & 0xFF,
+                                      ( pConn->remoteIp ) & 0xFF,
                                       pConn->remotePort );
 
         if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )

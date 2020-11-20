@@ -6,6 +6,7 @@
 #include "lwip/tcpip.h"         /* #define LOCK_TCPIP_CORE()     sys_mutex_lock(&lock_tcpip_core) */
 #include "lwip/ip_addr.h"       /* ip_addr_t, ipaddr_ntoa, ip_addr_copy */
 #include "lwip/tcp.h"           /* struct tcp_pcb */
+#include "lwip/udp.h"           /* struct udp_pcb */
 #include "lwip/priv/tcp_priv.h" /* tcp_listen_pcbs_t */
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
@@ -191,10 +192,10 @@
                     /* The output array member to fill. */
                     pEstablishedConnection = &( pOutConnectionsArray[ pcbCnt ] );
 
-                    ip_addr_copy( pEstablishedConnection->remoteIp, pCurrPcb->remote_ip.ip4.addr ); /* network byte order */
-                    ip_addr_copy( pEstablishedConnection->localIp, pCurrPcb->local_ip.ip4.addr );   /* network byte order */
-                    pEstablishedConnection->localPort = pCurrPcb->local_port;                       /* host byte order */
-                    pEstablishedConnection->remotePort = pCurrPcb->remote_port;                     /* host byte order */
+                    pEstablishedConnection->remoteIp = pCurrPcb->remote_ip.addr; /* network byte order */
+                    pEstablishedConnection->localIp = pCurrPcb->local_ip.addr;   /* network byte order */
+                    pEstablishedConnection->localPort = pCurrPcb->local_port;    /* host byte order */
+                    pEstablishedConnection->remotePort = pCurrPcb->remote_port;  /* host byte order */
                 }
 
                 ++pcbCnt;
