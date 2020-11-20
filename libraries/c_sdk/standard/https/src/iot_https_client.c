@@ -435,7 +435,7 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t * pHttpsC
                                                     _httpsResponse_t * pHttpsResponse );
 
 /**
- * @brief Task pool job routine to send the HTTP request within the pUserContext.
+ * @brief Send an HTTP request from the dispatch queue.
  *
  * @param[in] pHttpsRequest - Pointer to an HTTP request.
  */
@@ -544,7 +544,7 @@ static void _dispatchTaskRoutine( void * pParameters );
  * @param[in] pHttpsRequest - HTTP request context.
  *
  * @return  #IOT_HTTPS_OK if the task to send the HTTP request was successfully scheduled.
- *          #IOT_HTTPS_INTERNAL_ERROR if a taskpool job could not be created.
+ *          #IOT_HTTPS_INTERNAL_ERROR if the dispatch queue was full.
  *          #IOT_HTTPS_ASYNC_SCHEDULING_ERROR if there was an error scheduling the job.
  */
 IotHttpsReturnCode_t _scheduleHttpsRequestSend( _httpsRequest_t * pHttpsRequest );
@@ -557,7 +557,7 @@ IotHttpsReturnCode_t _scheduleHttpsRequestSend( _httpsRequest_t * pHttpsRequest 
  * @param[in] pHttpsRequest - HTTP request context.
  *
  * @return  #IOT_HTTPS_OK if the request was successfully added to the connection's request queue.
- *          #IOT_HTTPS_INTERNAL_ERROR if a taskpool job could not be created.
+ *          #IOT_HTTPS_INTERNAL_ERROR if the dispatch queue was full.
  *          #IOT_HTTPS_ASYNC_SCHEDULING_ERROR if there was an error scheduling the job.
  */
 IotHttpsReturnCode_t _addRequestToConnectionReqQ( _httpsRequest_t * pHttpsRequest );
@@ -1324,7 +1324,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
         pQItem = IotDeQueue_PeekHead( &( pHttpsConnection->reqQ ) );
         IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
-        /* If there is a next request to process, then create a taskpool job to send the request. */
+        /* If there is a next request to process, then add a dispatch task to the queue. */
         if( pQItem != NULL )
         {
             /* Set this next request to send. */
@@ -2281,17 +2281,17 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ( _httpsRequest_t * pHttpsReques
     if( ( IotDeQueue_IsEmpty( &( pHttpsConnection->reqQ ) ) ) &&
         ( IotDeQueue_IsEmpty( &( pHttpsConnection->respQ ) ) ) )
     {
-        IotLogDebug( "Both the request and response queue are empty, so schedule the request to run in the taskpool." );
+        IotLogDebug( "Both the request and response queue are empty, so schedule the request to run in the dispatch queue." );
         scheduleRequest = true;
     }
 
-    /* Place into the connection's request to have a taskpool worker schedule to serve it later. */
+    /* Place into the connection's request to have a dispatch task serve it later. */
     IotDeQueue_EnqueueTail( &( pHttpsConnection->reqQ ), &( pHttpsRequest->link ) );
     IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
     if( scheduleRequest )
     {
-        /* This routine schedules a task pool worker to send the request. If a worker is available immediately, then
+        /* This routine schedules a dispatch task to send the request. If a task is available immediately, then
          * the request is sent right away. */
         status = _scheduleHttpsRequestSend( pHttpsRequest );
 
@@ -2657,7 +2657,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( connHandle );
 
-    /* If this routine is currently is progress by another thread, for instance the taskpool worker that received a
+    /* If this routine is currently is progress by another thread, for instance the dispatch task that received a
      * network error after sending, then return right away because connection resources are being used. */
     if( IotMutex_TryLock( &( connHandle->connectionMutex ) ) == false )
     {
