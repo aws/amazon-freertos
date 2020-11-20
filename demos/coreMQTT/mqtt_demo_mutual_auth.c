@@ -663,11 +663,18 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
                        MAX_RETRY_ATTEMPTS ) );
             xRetryUtilsStatus = RetryUtils_BackoffAndSleep( &xReconnectParams );
         }
+        else
+        {
+            LogInfo( ( "Established TLS connection to %s:%u.",
+                       democonfigMQTT_BROKER_ENDPOINT,
+                       democonfigMQTT_BROKER_PORT ) );
+            xStatus = pdPASS;
+        }
 
-        if( xRetryUtilsStatus == RetryUtilsRetriesExhausted )
+        if( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) &&
+            ( xRetryUtilsStatus == RetryUtilsRetriesExhausted ) )
         {
             LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
-            xNetworkStatus = TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE;
         }
     } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
 
