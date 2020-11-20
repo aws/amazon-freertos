@@ -77,7 +77,7 @@ typedef struct NetworkStats
 
 
 #define LWIP_GET_TCP_PACKET_IN()           ( lwip_stats.mib2.ipinreceives )
-#define LWIP_GET_TCP_PACKET_OUT()          ( lwip_stats.mib2.ipoutrequests + lwip_stats.mib2.ipforwdatagrams ) /*need review */
+#define LWIP_GET_TCP_PACKET_OUT()          ( lwip_stats.mib2.ipoutrequests )
 
 #define LWIP_GET_NETIF_PACKET_IN_sta()     ( LWIP_NET_IF.mib2_counters.ifinoctets )
 #define LWIP_GET_NETIF_PACKET_OUT_sta()    ( LWIP_NET_IF.mib2_counters.ifoutoctets )
