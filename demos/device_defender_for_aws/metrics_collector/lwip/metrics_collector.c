@@ -141,7 +141,7 @@
 
             while( pCurrPcb )
             {
-                /*  write the ports into pOutConnectionsArray if not NULL */
+                /*  Write the ports into pOutConnectionsArray, if not NULL. */
                 if( ( pOutConnectionsArray != NULL ) && ( pcbCnt < connectionsArrayLength ) )
                 {
                     /* The output array member to fill. */
