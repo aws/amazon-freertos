@@ -58,8 +58,8 @@ typedef enum
  */
 typedef struct Connection
 {
-    ip_addr_t localIp;
-    ip_addr_t remoteIp;
+    uint32_t localIp;
+    uint32_t remoteIp;
     uint16_t localPort;
     uint16_t remotePort;
 } Connection_t;
