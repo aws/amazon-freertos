@@ -356,8 +356,8 @@ static BaseType_t collectDeviceMetrics( void )
 
     if( metricsCollectorStatus != MetricsCollectorSuccess )
     {
-        LogError( ("GetNetworkStats failed. Status: %d.",
-                     metricsCollectorStatus) );
+        LogError( ( "GetNetworkStats failed. Status: %d.",
+                    metricsCollectorStatus ) );
     }
 
     /* Collect a list of open TCP ports. */
@@ -369,8 +369,8 @@ static BaseType_t collectDeviceMetrics( void )
 
         if( metricsCollectorStatus != MetricsCollectorSuccess )
         {
-            LogError( ("GetOpenTcpPorts failed. Status: %d.",
-                         metricsCollectorStatus) );
+            LogError( ( "GetOpenTcpPorts failed. Status: %d.",
+                        metricsCollectorStatus ) );
         }
     }
 
@@ -397,8 +397,8 @@ static BaseType_t collectDeviceMetrics( void )
 
         if( metricsCollectorStatus != MetricsCollectorSuccess )
         {
-            LogError( ("GetEstablishedConnections failed. Status: %d.",
-                         metricsCollectorStatus) );
+            LogError( ( "GetEstablishedConnections failed. Status: %d.",
+                        metricsCollectorStatus ) );
         }
     }
 
@@ -474,14 +474,14 @@ static BaseType_t generateDeviceMetricsReport( uint32_t * pOutReportLength )
 
     if( reportBuilderStatus != ReportBuilderSuccess )
     {
-        LogError( ("GenerateJsonReport failed. Status: %d.",
-                     reportBuilderStatus) );
+        LogError( ( "GenerateJsonReport failed. Status: %d.",
+                    reportBuilderStatus ) );
     }
     else
     {
-        LogDebug( ("Generated Report: %.*s.",
-                     *pOutReportLength,
-                     &( deviceMetricsJsonReport[ 0 ] ) ) );
+        LogDebug( ( "Generated Report: %.*s.",
+                    *pOutReportLength,
+                    &( deviceMetricsJsonReport[ 0 ] ) ) );
         status = pdPASS;
     }
 
@@ -519,7 +519,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
     /* Set a report Id to be used. */
     reportId = 1;
 
-    LogInfo( ("Establishing MQTT session..." ) );
+    LogInfo( ( "Establishing MQTT session..." ) );
     xDemoStatus = EstablishMqttSession( &xMqttContext,
                                         &xNetworkContext,
                                         &xBuffer,
@@ -527,7 +527,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
 
     if( xDemoStatus == pdFAIL )
     {
-        LogError( ("Failed to establish MQTT session.") );
+        LogError( ( "Failed to establish MQTT session." ) );
     }
     else
     {
@@ -536,40 +536,40 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
 
     if( xDemoStatus == pdPASS )
     {
-        LogInfo( ("Subscribing to defender topics...") );
+        LogInfo( ( "Subscribing to defender topics..." ) );
         xDemoStatus = subscribeToDefenderTopics( &xMqttContext );
 
         if( xDemoStatus == pdFAIL )
         {
-            LogError( ("Failed to subscribe to defender topics.") );
+            LogError( ( "Failed to subscribe to defender topics." ) );
         }
     }
 
     if( xDemoStatus == pdPASS )
     {
-        LogInfo( ("Collecting device metrics...") );
+        LogInfo( ( "Collecting device metrics..." ) );
         xDemoStatus = collectDeviceMetrics();
 
         if( xDemoStatus == pdFAIL )
         {
-            LogError( ("Failed to collect device metrics." ) );
+            LogError( ( "Failed to collect device metrics." ) );
         }
     }
 
     if( xDemoStatus == pdPASS )
     {
-        LogInfo( ("Generating device defender report..." ) );
+        LogInfo( ( "Generating device defender report..." ) );
         xDemoStatus = generateDeviceMetricsReport( &( reportLength ) );
 
         if( xDemoStatus == pdFAIL )
         {
-            LogError( ("Failed to generate device defender report.") );
+            LogError( ( "Failed to generate device defender report." ) );
         }
     }
 
     if( xDemoStatus == pdPASS )
     {
-        LogInfo( ("Publishing device defender report..." ) );
+        LogInfo( ( "Publishing device defender report..." ) );
         xDemoStatus = PublishToTopic( &xMqttContext,
                                       DEFENDER_API_JSON_PUBLISH( THING_NAME ),
                                       DEFENDER_API_LENGTH_JSON_PUBLISH( THING_NAME_LENGTH ),
@@ -609,26 +609,26 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
      * unsubscribe even if one more subscribe failed earlier. */
     if( mqttSessionEstablished == 1 )
     {
-        LogInfo( ("Unsubscribing from defender topics...") );
+        LogInfo( ( "Unsubscribing from defender topics..." ) );
         xDemoStatus = unsubscribeFromDefenderTopics( &xMqttContext );
 
         if( xDemoStatus == pdFAIL )
         {
-            LogError( ("Failed to unsubscribe from defender topics.") );
+            LogError( ( "Failed to unsubscribe from defender topics." ) );
         }
 
-        LogInfo( ("Closing MQTT session...") );
+        LogInfo( ( "Closing MQTT session..." ) );
         ( void ) DisconnectMqttSession( &xMqttContext, &xNetworkContext );
     }
 
     if( ( xDemoStatus == pdPASS ) && ( reportStatus == ReportStatusAccepted ) )
     {
-        LogInfo( ("Demo completed successfully.") );
+        LogInfo( ( "Demo completed successfully." ) );
     }
     else
     {
         xDemoStatus = pdFAIL;
-        LogError( ("Demo failed.") );
+        LogError( ( "Demo failed." ) );
     }
 
     return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
