@@ -1,5 +1,5 @@
 # Module for demo helper utilities based on coreHTTP library. 
-afr_module(NAME http_demo_helpers)
+afr_module(INTERNAL NAME http_demo_helpers)
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
