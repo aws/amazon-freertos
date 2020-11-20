@@ -58,7 +58,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_LIBRARIES_PATH)logging/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include  \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include \
-                    $(AFR_ABSTRACTIONS_PATH)retry_utils \
+                    $(AFR_ABSTRACTIONS_PATH)retry_utils/source/include \
                     $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets \
                     $(AFR_C_SDK_STANDARD_PATH)common/taskpool/private \
                     $(AFR_C_SDK_STANDARD_PATH)common/include/private \
