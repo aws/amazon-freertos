@@ -739,10 +739,6 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
 
         if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            LogWarn( ( "Connection to the broker failed. Status=%d ."
-                       "Retrying connection with backoff and jitter.", xNetworkStatus ) );
-            xStatus = pdFAIL;
-
             /* Get back-off value (in milliseconds) for the next connection retry. */
             xRetryUtilsStatus = RetryUtils_GetNextBackOff( &xReconnectParams, &usNextRetryBackOff );
             configASSERT( xRetryUtilsStatus != RetryUtilsRngFailure );
@@ -750,6 +746,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
             if( xRetryUtilsStatus == RetryUtilsRetriesExhausted )
             {
                 LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
+                xStatus = pdFAIL;
             }
             else if( xRetryUtilsStatus == RetryUtilsSuccess )
             {
