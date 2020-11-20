@@ -489,7 +489,7 @@ static int generateDeviceMetricsReport( uint32_t * pOutReportLength )
     }
     else
     {
-        IotLogInfo( "Generated Report: %.*s.",                    //MingL: Used to be Debug
+        IotLogDebug( "Generated Report: %.*s.",                    
                     *pOutReportLength,
                     &( deviceMetricsJsonReport[ 0 ] ) );
         status = EXIT_SUCCESS;
