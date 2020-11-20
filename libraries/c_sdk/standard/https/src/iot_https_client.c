@@ -466,9 +466,9 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync( _httpsResponse_t * pHttpsRes
 static IotHttpsReturnCode_t _receiveHttpsBodySync( _httpsResponse_t * pHttpsResponse );
 
 /**
- * @brief A dummy function for transport interface receive.
+ * @brief A dummy function for the transport interface receive.
  *
- * HTTP V1 library handles receiving from the network and hence transport
+ * HTTP V1 library handles receiving from the network and hence the transport
  * implementation for receive is not used by the coreHTTP library. This
  * dummy implementation is used for passing a non-NULL parameter to
  * `HTTPClient_Send()`.

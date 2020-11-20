@@ -428,7 +428,7 @@ typedef struct _httpsConnection
      * disconnect with a network error, or an explicit disconnect with a call to @ref https_client_function_disconnect.
      */
     bool isConnected;
-    bool isDestroyed;           /**< @brief true if the connection is already destroyed and we should call anymore  */
+    bool isDestroyed;           /**< @brief true if the connection is already destroyed and we should not make calls on it anymore.  */
     IotMutex_t connectionMutex; /**< @brief Mutex protecting operations on this entire connection context. */
     IotDeQueue_t reqQ;          /**< @brief The queue for the requests that are not finished yet. */
     IotDeQueue_t respQ;         /**< @brief The queue for the responses that are waiting to be processed. */
