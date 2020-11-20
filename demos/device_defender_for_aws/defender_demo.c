@@ -159,6 +159,7 @@ static uint32_t reportId = 0;
 /**
  * @brief Callback to receive the incoming publish messages from the MQTT broker.
  *
+ * @param[in] pxMqttContext MQTT context pointer.
  * @param[in] pPublishInfo Pointer to publish info of the incoming publish.
  * @param[in] packetIdentifier Packet identifier of the incoming publish.
  */
@@ -187,6 +188,7 @@ static BaseType_t generateDeviceMetricsReport( uint32_t * pOutReportLength );
 /**
  * @brief Subscribe to the device defender topics.
  *
+ * @param[in] pxMqttContext MQTT context pointer.
  * @return pdPASS if the subscribe is successful;
  * pdFAIL otherwise.
  */
@@ -195,6 +197,7 @@ static BaseType_t subscribeToDefenderTopics( MQTTContext_t * pxMqttContext );
 /**
  * @brief Unsubscribe from the device defender topics.
  *
+ * @param[in] pxMqttContext MQTT context pointer.
  * @return pdPASS if the unsubscribe is successful;
  * pdFAIL otherwise.
  */
@@ -213,12 +216,12 @@ static BaseType_t unsubscribeFromDefenderTopics( MQTTContext_t * pxMqttContext )
  * false otherwise.
  */
 static bool validateDefenderResponse( const char * defenderResponse,
-                                     uint32_t defenderResponseLength );
+                                      uint32_t defenderResponseLength );
 /*-----------------------------------------------------------*/
 
 
 static bool validateDefenderResponse( const char * defenderResponse,
-                                     uint32_t defenderResponseLength )
+                                      uint32_t defenderResponseLength )
 {
     bool status = false;
     JSONStatus_t jsonResult = JSONSuccess;
