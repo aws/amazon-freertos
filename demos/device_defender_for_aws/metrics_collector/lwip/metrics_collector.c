@@ -18,11 +18,12 @@
 
     extern struct tcp_pcb * tcp_active_pcbs;        /* List of all TCP PCBs that are in a state in which they accept or send data. */
     extern union tcp_listen_pcbs_t tcp_listen_pcbs; /* List of all TCP PCBs in LISTEN state */
+    extern struct udp_pcb * udp_pcbs;               /* List of UDP PCBs */
 
 /**
  * @brief Get a list of the listening TCP ports.
  *
- * This function finds the listening TCP ports by traversing LWIP TCP PCBs list 
+ * This function finds the listening TCP ports by traversing LWIP TCP PCBs list
  * for ports that are in listen state. The head of the list is "tcp_listen_pcbs.listen_pcbs struture".
  * This function can be called with @p pOutTcpPortsArray NULL to get the number of the open TCP ports.
  *
@@ -87,12 +88,55 @@
     }
 
 
-    MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutTcpPortsArray,
+    MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
                                               uint32_t portsArrayLength,
-                                              uint32_t * pOutNumTcpOpenPorts )
+                                              uint32_t * pOutNumUdpOpenPorts )
     {
-        /*TODO */
-        return MetricsCollectorSuccess;
+        MetricsCollectorStatus_t status = MetricsCollectorSuccess;
+        struct udp_pcb * pCurrPcb = udp_pcbs;
+        uint16_t pcbCnt = 0;
+
+        if( ( ( pOutUdpPortsArray != NULL ) && ( portsArrayLength == 0 ) ) ||
+            ( pOutNumUdpOpenPorts == NULL ) )
+        {
+            IotLogError( "Invalid parameters. pOutUdpPortsArray: 0x%08x,"
+                         "portsArrayLength: %u, pOutNumUdpOpenPorts: 0x%08x.",
+                         pOutUdpPortsArray,
+                         portsArrayLength,
+                         pOutNumUdpOpenPorts );
+            status = MetricsCollectorBadParameter;
+        }
+
+        if( status == MetricsCollectorSuccess )
+        {
+            LOCK_TCPIP_CORE();
+
+            while( pCurrPcb )
+            {
+                /*  Write the ports into pOutUdpPortsArray, if not NULL */
+                if( ( pOutUdpPortsArray != NULL ) && ( pcbCnt < portsArrayLength ) )
+                {
+                    pOutUdpPortsArray[ pcbCnt ] = pCurrPcb->local_port;
+                }
+
+                ++pcbCnt;
+                pCurrPcb = pCurrPcb->next;
+            }
+
+            UNLOCK_TCPIP_CORE();
+        }
+
+        if( ( pOutUdpPortsArray != NULL ) && ( pcbCnt > portsArrayLength ) )
+        {
+            IotLogWarn( "The portsArrayLength is not long engough to store all the listening ports" );
+        }
+
+        if( status == MetricsCollectorSuccess )
+        {
+            *pOutNumUdpOpenPorts = pcbCnt;
+        }
+
+        return status;
     }
 
 
