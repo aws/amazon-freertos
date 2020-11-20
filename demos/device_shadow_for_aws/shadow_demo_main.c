@@ -804,7 +804,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
         }
     } while( xDemoStatus != pdPASS );
 
-    return ( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
+    return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }
 
 /*-----------------------------------------------------------*/
