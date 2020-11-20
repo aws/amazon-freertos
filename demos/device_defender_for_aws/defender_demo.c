@@ -58,12 +58,22 @@
 #include "defender.h"
 
 
-/**
- * THING_NAME is required. Throw compilation error if it is not defined.
- */
 #ifndef THING_NAME
-    #error "Please define THING_NAME to the thing name registered with AWS IoT Core in demo_config.h."
+
+/**
+ * @brief Predefined thing name.
+ *
+ * This is the example predefine thing name and could be compiled in ROM code.
+ */
+    #define THING_NAME    clientcredentialIOT_THING_NAME
 #endif
+
+
+/**
+ * @brief The length of #THING_NAME.
+ */
+#define THING_NAME_LENGTH                      ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
+
 
 /**
  * @brief Number of seconds to wait for the response from AWS IoT Device
