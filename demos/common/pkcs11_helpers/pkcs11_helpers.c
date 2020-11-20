@@ -45,16 +45,24 @@ BaseType_t xPkcs11GenerateRandomNumber( uint8_t * pusRandomNumBuffer,
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
     CK_SESSION_HANDLE xSession = CK_INVALID_HANDLE;
 
-    configASSERT( ( pusRandomNumBuffer != NULL ) || ( xBufferLength > 0U ) );
-
-    /* Get list of functions supported by the PKCS11 port. */
-    xResult = C_GetFunctionList( &pxFunctionList );
-
-    if( ( xResult != CKR_OK ) || ( pxFunctionList == NULL ) )
+    if( ( pusRandomNumBuffer == NULL ) || ( xBufferLength == 0U ) )
     {
-        LogError( ( "Failed to generate random number. "
-                    "PCKS11 API, C_GetFunctionList, failed." ) );
+        LogError( ( "Cannot generate random number. Invalid parameters passed. "
+                    "buffer=%p,bufferLen=%lu", pusRandomNumBuffer, xBufferLength ) );
         xStatus = pdFAIL;
+    }
+
+    if( xStatus == pdPASS )
+    {
+        /* Get list of functions supported by the PKCS11 port. */
+        xResult = C_GetFunctionList( &pxFunctionList );
+
+        if( ( xResult != CKR_OK ) || ( pxFunctionList == NULL ) )
+        {
+            LogError( ( "Failed to generate random number. "
+                        "PCKS11 API, C_GetFunctionList, failed." ) );
+            xStatus = pdFAIL;
+        }
     }
 
     if( xStatus == pdPASS )
