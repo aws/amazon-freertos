@@ -19,4 +19,5 @@ afr_module_dependencies(
         AFR::core_http
         AFR::retry_utils
         AFR::transport_interface_secure_sockets
+        AFR::pkcs11_helpers
 )
