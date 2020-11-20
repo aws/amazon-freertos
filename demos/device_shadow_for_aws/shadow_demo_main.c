@@ -790,7 +790,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
         {
             LogInfo( ( "Demo iteration %lu is successful.", ulDemoRunCount ) );
         }
-        /* Attempt to retry a failed iteration of demo for upto #SHADOW_MAX_DEMO_COUNT times. */
+        /* Attempt to retry a failed iteration of demo for up to #SHADOW_MAX_DEMO_COUNT times. */
         else if( ulDemoRunCount < SHADOW_MAX_DEMO_COUNT )
         {
             LogWarn( ( "Demo iteration %lu failed. Retrying...", ulDemoRunCount ) );
@@ -802,9 +802,9 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
             LogError( ( "All %d demo iterations failed.", SHADOW_MAX_DEMO_COUNT ) );
             break;
         }
-    }while( xDemoStatus != pdPASS );
+    } while( xDemoStatus != pdPASS );
 
-    return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
+    return ( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }
 
 /*-----------------------------------------------------------*/
