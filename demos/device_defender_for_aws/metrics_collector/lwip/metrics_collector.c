@@ -102,7 +102,7 @@
  *
  * This function finds the established connections by traversing LWIP TCP active PCBs list.
  * The header of LWIP TCP active PCBs list is "tcp_active_pcbs".
- * It can be called with @p pOutConnectionsArray NULL to get the number of
+ * This function can be called with @p pOutConnectionsArray NULL to get the number of
  * established connections.
  *
  * @param[in] pOutConnectionsArray The array to write the established connections
