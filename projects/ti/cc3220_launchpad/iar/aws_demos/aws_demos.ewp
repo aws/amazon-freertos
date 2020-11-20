@@ -380,7 +380,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
@@ -399,6 +399,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\http_demo_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\pkcs11_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
@@ -1573,14 +1574,17 @@
 			<group>
 				<name>retry_utils</name>
 				<group>
-					<name>freertos</name>
+					<name>source</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\source\retry_utils.c</name>
 					</file>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\source\include\retry_utils.h</name>
+						</file>
+					</group>
 				</group>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\source\include\retry_utils.h</name>
-				</file>
 			</group>
 			<group>
 				<name>transport</name>
@@ -2801,6 +2805,12 @@
 				<name>mqtt_demo_helpers</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c</name>
+				</file>
+			</group>
+			<group>
+				<name>pkcs11_helpers</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\pkcs11_helpers\pkcs11_helpers.c</name>
 				</file>
 			</group>
 		</group>

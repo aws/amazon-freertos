@@ -77,7 +77,8 @@
 		<Filter Include="libraries\coreMQTT"/>
 		<Filter Include="libraries\coreMQTT\source\include"/>
 		<Filter Include="libraries\coreMQTT\source\interface"/>
-		<Filter Include="libraries\abstractions\retry_utils\freertos"/>
+		<Filter Include="libraries\abstractions\retry_utils\source"/>
+		<Filter Include="libraries\abstractions\retry_utils"/>
 		<Filter Include="libraries\abstractions\retry_utils\source\include"/>
 		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
 		<Filter Include="libraries\abstractions\transport"/>
@@ -136,6 +137,7 @@
 		<Filter Include="demos\common\http_demo_helpers"/>
 		<Filter Include="demos\common"/>
 		<Filter Include="demos\common\mqtt_demo_helpers"/>
+		<Filter Include="demos\common\pkcs11_helpers"/>
 		<Filter Include="demos\coreHTTP"/>
 		<Filter Include="demos\coreMQTT"/>
 		<Filter Include="demos\defender"/>
@@ -400,7 +402,7 @@
 			<Filter>libraries\coreMQTT\source\interface</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\retry_utils\source\include\retry_utils.h">
-			<Filter>libraries\abstractions\retry_utils</Filter>
+			<Filter>libraries\abstractions\retry_utils\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
@@ -990,7 +992,7 @@
 			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\retry_utils\source\retry_utils.c">
-			<Filter>libraries\abstractions\retry_utils\freertos</Filter>
+			<Filter>libraries\abstractions\retry_utils\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
@@ -1126,6 +1128,9 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c">
 			<Filter>demos\common\mqtt_demo_helpers</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\pkcs11_helpers\pkcs11_helpers.c">
+			<Filter>demos\common\pkcs11_helpers</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_download.c">
 			<Filter>demos\coreHTTP</Filter>
