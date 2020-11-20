@@ -2403,21 +2403,28 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
         _httpParserSettings.on_chunk_complete = _httpParserOnChunkCompleteCallback;
     #endif
     HTTPS_FUNCTION_CLEANUP_BEGIN();
+    /* Upon error, reset to original state, freeing up any dynamic memory. */
     #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1
-        /* Upon error, free any dynamic memory in order to prevent a memory leak upon the second invocation. */
+        /* Free memory used for the dispatch queue. */
         if( dispatchQueue != NULL )
         {
             vQueueDelete( dispatchQueue );
         }
-
-        for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
-        {
-            if( httpsDispatchTask[ dispatchTaskIndex ] != NULL )
-            {
-                vTaskDelete( httpsDispatchTask[ dispatchTaskIndex ] );
-            }
-        }
     #endif /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1 */
+    dispatchQueue = NULL;
+    /* Delete the tasks that send requests from the dispatch queue. */
+    for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
+    {
+        if( httpsDispatchTask[ dispatchTaskIndex ] != NULL )
+        {
+            #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
+                vTaskSuspend( httpsDispatchTask[ dispatchTaskIndex ] );
+            #else
+                vTaskDelete( httpsDispatchTask[ dispatchTaskIndex ] );
+            #endif
+            httpsDispatchTask[ dispatchTaskIndex ] = NULL;
+        }
+    }
     HTTPS_FUNCTION_CLEANUP_END();
 }
 
@@ -2571,19 +2578,27 @@ void IotHttpsClient_Cleanup( void )
 {
     uint8_t dispatchTaskIndex = 0;
 
+    #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1
+        /* Free memory used for the dispatch queue. */
+        if( dispatchQueue != NULL )
+        {
+            vQueueDelete( dispatchQueue );
+        }
+    #endif /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1 */
+    dispatchQueue = NULL;
     /* Delete the tasks that send requests from the dispatch queue. */
     for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
     {
         if( httpsDispatchTask[ dispatchTaskIndex ] != NULL )
         {
-            vTaskDelete( httpsDispatchTask[ dispatchTaskIndex ] );
+            #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
+                vTaskSuspend( httpsDispatchTask[ dispatchTaskIndex ] );
+            #else
+                vTaskDelete( httpsDispatchTask[ dispatchTaskIndex ] );
+            #endif
+            httpsDispatchTask[ dispatchTaskIndex ] = NULL;
         }
     }
-
-    /* Free memory used for the dispatch queue. */
-    #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1
-        vQueueDelete( dispatchQueue );
-    #endif
 }
 
 /* --------------------------------------------------------- */
