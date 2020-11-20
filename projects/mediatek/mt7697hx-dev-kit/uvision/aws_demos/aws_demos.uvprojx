@@ -2298,6 +2298,11 @@
               <FileType>5</FileType>
               <FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/trcSnapshotConfig.h</FilePath>
             </File>
+            <File>
+              <FileName>defender_demo_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\..\..\vendors\mediatek\boards\mt7697hx-dev-kit\aws_demos\config_files\defender_demo_config.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -3564,24 +3569,9 @@
           <GroupName>demos/device_defender_for_aws/</GroupName>
           <Files>
             <File>
-              <FileName>core_mqtt_config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\..\demos\device_defender_for_aws\core_mqtt_config.h</FilePath>
-            </File>
-            <File>
-              <FileName>defender_config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\..\demos\device_defender_for_aws\defender_config.h</FilePath>
-            </File>
-            <File>
               <FileName>defender_demo.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\demos\device_defender_for_aws\defender_demo.c</FilePath>
-            </File>
-            <File>
-              <FileName>demo_config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\..\demos\device_defender_for_aws\demo_config.h</FilePath>
             </File>
             <File>
               <FileName>report_builder.c</FileName>
