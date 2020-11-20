@@ -3454,7 +3454,7 @@
   </Group>
 
   <Group>
-    <GroupName>libraries/coreHTTP/source/dependency/3rdparty/http_parser/</GroupName>
+    <GroupName>libraries/coreHTTP/source/3rdparty/http_parser/</GroupName>
     <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
@@ -3466,7 +3466,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c</PathWithFileName>
+      <PathWithFileName>..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.c</PathWithFileName>
       <FilenameWithoutPath>http_parser.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -3478,7 +3478,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</PathWithFileName>
+      <PathWithFileName>..\..\..\..\..\libraries\coreHTTP\source\3rdparty\http_parser\http_parser.h</PathWithFileName>
       <FilenameWithoutPath>http_parser.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
