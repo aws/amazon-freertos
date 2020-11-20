@@ -159,7 +159,7 @@
 #if IOT_STATIC_MEMORY_ONLY == 1
     #include "private/iot_static_memory.h"
     #ifndef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
-        #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    ( 1 ) /* Whether the dispatch queue and tasks should use statically allocated memory. */
+        #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    ( 1 ) /* Use static memory for dispatch queue and tasks. */
     #endif
 #endif
 
@@ -185,10 +185,10 @@
     #define IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH    ( 255 ) /* The maximum alpn protocols length is chosen arbitrarily. */
 #endif
 #ifndef IOT_HTTPS_QUEUE_RECV_TICKS
-    #define IOT_HTTPS_QUEUE_RECV_TICKS             pdMS_TO_TICKS( 200U ) /* The ticks to wait for a #xQueueReceive to complete. */
+    #define IOT_HTTPS_QUEUE_RECV_TICKS             (portMAX_DELAY) /* The ticks to wait for a #xQueueReceive to complete. */
 #endif
 #ifndef IOT_HTTPS_QUEUE_SEND_TICKS
-    #define IOT_HTTPS_QUEUE_SEND_TICKS             portMAX_DELAY /* The ticks to wait for a #xQueueSendToBack to complete. */
+    #define IOT_HTTPS_QUEUE_SEND_TICKS             (0U) /* The ticks to wait for a #xQueueSendToBack to complete. */
 #endif
 #ifndef IOT_HTTPS_DISPATCH_QUEUE_SIZE
     #define IOT_HTTPS_DISPATCH_QUEUE_SIZE          ( 6U ) /* The size of the queue containing requests ready to send to the server. */
@@ -201,6 +201,9 @@
 #endif
 #ifndef IOT_HTTPS_DISPATCH_TASK_PRIORITY
     #define IOT_HTTPS_DISPATCH_TASK_PRIORITY       ( tskIDLE_PRIORITY ) /* The priority of each dispatch task. */
+#endif
+#ifndef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
+    #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    ( 0 ) /* The dispatch queue and tasks will not use static memory by default. */
 #endif
 
 /* Provide the User-Agent Value definition fom coreHTTP. */
@@ -217,8 +220,8 @@
 #if IOT_HTTPS_DISPATCH_QUEUE_SIZE < 1
     #error "IOT_HTTPS_DISPATCH_QUEUE_SIZE must be at least 1."
 #endif
-#if defined( IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY ) && configSUPPORT_STATIC_ALLOCATION != 1
-    #error "IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY is defined but configSUPPORT_STATIC_ALLOCATION is not set to 1."
+#if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1 && configSUPPORT_STATIC_ALLOCATION != 1
+    #error "IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY is 1, but configSUPPORT_STATIC_ALLOCATION is not set to 1."
 #endif
 
 /**
