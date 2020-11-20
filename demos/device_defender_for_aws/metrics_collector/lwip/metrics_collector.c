@@ -191,10 +191,10 @@
                     /* The output array member to fill. */
                     pEstablishedConnection = &( pOutConnectionsArray[ pcbCnt ] );
 
-                    ip_addr_copy( pEstablishedConnection->remoteIp, pCurrPcb->remote_ip ); /* network byte order */
-                    ip_addr_copy( pEstablishedConnection->localIp, pCurrPcb->local_ip );   /* network byte order */
-                    pEstablishedConnection->localPort = pCurrPcb->local_port;              /* host byte order */
-                    pEstablishedConnection->remotePort = pCurrPcb->remote_port;            /* host byte order */
+                    ip_addr_copy( pEstablishedConnection->remoteIp, pCurrPcb->remote_ip.ip4.addr ); /* network byte order */
+                    ip_addr_copy( pEstablishedConnection->localIp, pCurrPcb->local_ip.ip4.addr );   /* network byte order */
+                    pEstablishedConnection->localPort = pCurrPcb->local_port;                       /* host byte order */
+                    pEstablishedConnection->remotePort = pCurrPcb->remote_port;                     /* host byte order */
                 }
 
                 ++pcbCnt;
