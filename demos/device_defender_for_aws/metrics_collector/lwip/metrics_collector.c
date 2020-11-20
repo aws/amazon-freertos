@@ -60,7 +60,7 @@
 
             while( pCurrPcb )
             {
-                /*  write the ports into pOutTcpPortsArray if not NULL */
+                /*  Write the ports into pOutTcpPortsArray, if not NULL */
                 if( ( pOutTcpPortsArray != NULL ) && ( pcbCnt < portsArrayLength ) )
                 {
                     pOutTcpPortsArray[ pcbCnt ] = pCurrPcb->local_port;
