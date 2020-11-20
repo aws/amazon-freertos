@@ -58,6 +58,7 @@ if(AFR_ENABLE_TESTS)
             AFR::common
             AFR::platform
             AFR::retry_utils
+            AFR::pkcs11_implementation
     )
     
     # FreeRTOS+TCP Test
