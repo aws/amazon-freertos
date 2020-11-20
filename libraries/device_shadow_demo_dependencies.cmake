@@ -88,3 +88,15 @@ afr_module_dependencies(
         # Device Shadow library on the FreeRTOS console.
         AFR::core_mqtt_demo_dependencies
 )
+
+# Add dependency on "mqtt_demo_helpers" module for the
+# Device Shadow demo that uses Secure Sockets 
+# (present at demos/device_shadow_for_aws folder) ONLY if
+# the board supports the Secure Sockets library.
+if(TARGET AFR::secure_sockets::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::mqtt_demo_helpers
+    )
+endif()
