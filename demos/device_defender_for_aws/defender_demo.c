@@ -40,7 +40,7 @@
 #include "iot_demo_logging.h"
 
 /* Demo config. */
-#include "demo_config.h"
+#include "defender_demo_config.h"
 
 /* Metrics collector. */
 #include "metrics_collector.h"
