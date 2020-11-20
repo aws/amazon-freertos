@@ -4,9 +4,9 @@
 #include "lwip/arch.h"
 #include "lwip/stats.h"
 #include "lwip/tcpip.h"         /* #define LOCK_TCPIP_CORE()     sys_mutex_lock(&lock_tcpip_core) */
-#include "lwip/ip_addr.h"       /*ip_addr_t, ipaddr_ntoa, ip_addr_copy */
+#include "lwip/ip_addr.h"       /* ip_addr_t, ipaddr_ntoa, ip_addr_copy */
 #include "lwip/tcp.h"           /* struct tcp_pcb */
-#include "lwip/priv/tcp_priv.h" /*tcp_listen_pcbs_t */
+#include "lwip/priv/tcp_priv.h" /* tcp_listen_pcbs_t */
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
 /* Demo logging include. */
