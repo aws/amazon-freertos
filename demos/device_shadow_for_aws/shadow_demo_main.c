@@ -164,8 +164,7 @@
 #define THING_NAME_LENGTH    ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
 
 /**
- * @brief The maximum number of times to run the subscribe publish loop in this
- * demo.
+ * @brief The maximum number of times to run the loop in this demo.
  */
 #ifndef SHADOW_MAX_DEMO_COUNT
     #define SHADOW_MAX_DEMO_COUNT    ( 3 )
