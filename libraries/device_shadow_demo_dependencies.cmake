@@ -82,7 +82,6 @@ afr_module_dependencies(
     PUBLIC
         AFR::device_shadow
         AFR::core_json
-        AFR::mqtt_demo_helpers
         # Add dependency on core_mqtt_demo_dependencies module 
         # so that coreMQTT library is auto-included when selecting
         # Device Shadow library on the FreeRTOS console.
