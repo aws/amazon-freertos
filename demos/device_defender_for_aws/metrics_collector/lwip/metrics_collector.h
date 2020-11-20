@@ -28,7 +28,7 @@
 
 /* Standard includes. */
 #include <stdint.h>
-/* Lwip includes */
+/* Lwip includes. */
 #include "lwipopts.h"
 #include "lwip/ip_addr.h"
 #include "netif_port.h"
