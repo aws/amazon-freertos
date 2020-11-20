@@ -170,37 +170,37 @@
  * Provide default values for undefined configuration constants.
  */
 #ifndef AWS_IOT_HTTPS_ENABLE_METRICS
-    #define AWS_IOT_HTTPS_ENABLE_METRICS           ( 1 )
+    #define AWS_IOT_HTTPS_ENABLE_METRICS            ( 1 )
 #endif
 #ifndef IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE
-    #define IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE        ( 1024 )
+    #define IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE         ( 1024 )
 #endif
 #ifndef IOT_HTTPS_RESPONSE_WAIT_MS
-    #define IOT_HTTPS_RESPONSE_WAIT_MS             ( 1000 )
+    #define IOT_HTTPS_RESPONSE_WAIT_MS              ( 1000 )
 #endif
 #ifndef IOT_HTTPS_MAX_HOST_NAME_LENGTH
-    #define IOT_HTTPS_MAX_HOST_NAME_LENGTH         ( 255 ) /* Per FQDN, the maximum host name length is 255 bytes. */
+    #define IOT_HTTPS_MAX_HOST_NAME_LENGTH          ( 255 ) /* Per FQDN, the maximum host name length is 255 bytes. */
 #endif
 #ifndef IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH
-    #define IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH    ( 255 ) /* The maximum alpn protocols length is chosen arbitrarily. */
+    #define IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH     ( 255 ) /* The maximum alpn protocols length is chosen arbitrarily. */
 #endif
 #ifndef IOT_HTTPS_QUEUE_RECV_TICKS
-    #define IOT_HTTPS_QUEUE_RECV_TICKS             (portMAX_DELAY) /* The ticks to wait for a #xQueueReceive to complete. */
+    #define IOT_HTTPS_QUEUE_RECV_TICKS              ( portMAX_DELAY ) /* The ticks to wait for a #xQueueReceive to complete. */
 #endif
 #ifndef IOT_HTTPS_QUEUE_SEND_TICKS
-    #define IOT_HTTPS_QUEUE_SEND_TICKS             (0U) /* The ticks to wait for a #xQueueSendToBack to complete. */
+    #define IOT_HTTPS_QUEUE_SEND_TICKS              ( 0U ) /* The ticks to wait for a #xQueueSendToBack to complete. */
 #endif
 #ifndef IOT_HTTPS_DISPATCH_QUEUE_SIZE
-    #define IOT_HTTPS_DISPATCH_QUEUE_SIZE          ( 6U ) /* The size of the queue containing requests ready to send to the server. */
+    #define IOT_HTTPS_DISPATCH_QUEUE_SIZE           ( 6U ) /* The size of the queue containing requests ready to send to the server. */
 #endif
 #ifndef IOT_HTTPS_DISPATCH_TASK_COUNT
-    #define IOT_HTTPS_DISPATCH_TASK_COUNT          ( 3U ) /* The number of tasks that send requests from the queue. */
+    #define IOT_HTTPS_DISPATCH_TASK_COUNT           ( 3U ) /* The number of tasks that send requests from the queue. */
 #endif
 #ifndef IOT_HTTPS_DISPATCH_TASK_STACK_SIZE
-    #define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE ) /* The stack size of each dispatch task. */
+    #define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE ) /* The stack size of each dispatch task. */
 #endif
 #ifndef IOT_HTTPS_DISPATCH_TASK_PRIORITY
-    #define IOT_HTTPS_DISPATCH_TASK_PRIORITY       ( tskIDLE_PRIORITY ) /* The priority of each dispatch task. */
+    #define IOT_HTTPS_DISPATCH_TASK_PRIORITY        ( tskIDLE_PRIORITY ) /* The priority of each dispatch task. */
 #endif
 #ifndef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
     #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    ( 0 ) /* The dispatch queue and tasks will not use static memory by default. */

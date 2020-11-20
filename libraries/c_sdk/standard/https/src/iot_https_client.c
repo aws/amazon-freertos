@@ -2227,7 +2227,9 @@ IotHttpsReturnCode_t _scheduleHttpsRequestSend( _httpsRequest_t * pHttpsRequest 
     /* Occurs when the queue remains full for #IOT_HTTPS_QUEUE_SEND_TICKS. */
     if( queueStatus != pdTRUE )
     {
-        IotLogError( "Failed to add request to full dispatch queue. Error code: %d", ( int ) queueStatus );
+        IotLogError( "Failed to add request to full dispatch queue of size %u. Error code: %d",
+                     IOT_HTTPS_DISPATCH_QUEUE_SIZE,
+                     ( int ) queueStatus );
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
     }
 
@@ -2400,8 +2402,23 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
         _httpParserSettings.on_chunk_header = _httpParserOnChunkHeaderCallback;
         _httpParserSettings.on_chunk_complete = _httpParserOnChunkCompleteCallback;
     #endif
-    HTTPS_GOTO_CLEANUP();
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+    HTTPS_FUNCTION_CLEANUP_BEGIN();
+    #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1
+        /* Upon error, free any dynamic memory in order to prevent a memory leak upon the second invocation. */
+        if( dispatchQueue != NULL )
+        {
+            vQueueDelete( dispatchQueue );
+        }
+
+        for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
+        {
+            if( httpsDispatchTask[ dispatchTaskIndex ] != NULL )
+            {
+                vTaskDelete( httpsDispatchTask[ dispatchTaskIndex ] );
+            }
+        }
+    #endif /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1 */
+    HTTPS_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -2562,6 +2579,11 @@ void IotHttpsClient_Cleanup( void )
             vTaskDelete( httpsDispatchTask[ dispatchTaskIndex ] );
         }
     }
+
+    /* Free memory used for the dispatch queue. */
+    #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1
+        vQueueDelete( dispatchQueue );
+    #endif
 }
 
 /* --------------------------------------------------------- */
