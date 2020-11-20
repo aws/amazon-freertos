@@ -25,7 +25,7 @@
 #include <string.h>
 
 /* Demo config. */
-#include "demo_config.h"
+#include "defender_demo_config.h"
 
 /* Interface include. */
 #include "report_builder.h"
