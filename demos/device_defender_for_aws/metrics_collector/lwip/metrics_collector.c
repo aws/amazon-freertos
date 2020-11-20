@@ -24,7 +24,7 @@
  *
  * This function finds the listening TCP ports by traversing LWIP TCP PCBs list 
  * for ports that are in listen state. The head of the list is "tcp_listen_pcbs.listen_pcbs struture".
- * It can be called with @p pOutTcpPortsArray NULL to get the number of the open TCP ports.
+ * This function can be called with @p pOutTcpPortsArray NULL to get the number of the open TCP ports.
  *
  * @param[in] pOutTcpPortsArray The array to write the open TCP ports into. This
  * can be NULL, if only the number of open ports is needed.
