@@ -572,6 +572,9 @@ TEST_SETUP( coreHTTP_Integration )
     pNetworkData = NULL;
     networkDataLen = 0U;
 
+    /* Seed the pseudo random number generator used for connection retries. */
+    seedRandomNumberGenerator();
+
     /* Establish TLS session with HTTP server on top of a newly-created TCP connection. */
     connectToServerWithBackoffRetries( &networkContext );
 
