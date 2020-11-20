@@ -2177,7 +2177,7 @@ static void _dispatchTaskRoutine( void * pParameters )
                            &pHttpsRequest,
                            IOT_HTTPS_QUEUE_RECV_TICKS ) == pdFALSE )
         {
-            IotLogDebug( ( "No requests to send. Trying again." ) );
+            IotLogDebug( "No requests to send. Trying again." );
             continue;
         }
 
