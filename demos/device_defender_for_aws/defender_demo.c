@@ -516,8 +516,16 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
     /* Start with report not received. */
     reportStatus = ReportStatusNotReceived;
 
-    /* Set a report Id to be used. */
-    reportId = 1;
+    /* Set a report Id to be used.
+     *
+     * !!!NOTE!!!
+     * This demo sets the report ID to xTaskGetTickCount(), which may collide
+     * if the device is reset. Reports for a Thing with a previously used
+     * report ID will be assumed to be duplicates and discarded by the Device
+     * Defender service. The report ID needs to be unique per report sent with
+     * a given Thing. We recommend using an increasing unique id such as the
+     * current timestamp. */
+    reportId = ( uint32_t ) xTaskGetTickCount();
 
     LogInfo( ( "Establishing MQTT session..." ) );
     xDemoStatus = EstablishMqttSession( &xMqttContext,
