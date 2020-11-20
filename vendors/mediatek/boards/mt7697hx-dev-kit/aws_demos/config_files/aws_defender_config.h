@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202011.00
+ * FreeRTOS V1.4.8
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,8 +23,14 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef DEMO_CONFIG_H_
-#define DEMO_CONFIG_H_
+
+/**
+ * @file aws_defender_config.h
+ * @brief specify defender config
+ */
+
+#ifndef _AWS_DEFENDER_CONFIG_H_
+#define _AWS_DEFENDER_CONFIG_H_
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -32,20 +38,19 @@
 
 /* Include logging header files and define logging macros in the following order:
  * 1. Include the header file "logging_levels.h".
- * 2. Define LIBRARY_LOG_NAME and  LIBRARY_LOG_LEVEL.
+ * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros.
  * 3. Include the header file "logging_stack.h".
  */
 
-/* Include header that defines log levels. */
 #include "logging_levels.h"
 
-/* Logging configuration for the Demo. */
+/* Logging configuration for the Defender library. */
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "DEFENDER_DEMO"
+    #define LIBRARY_LOG_NAME    "Defender"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
-    #define LIBRARY_LOG_LEVEL    LOG_INFO
+    #define LIBRARY_LOG_LEVEL    LOG_NONE
 #endif
 
 #include "logging_stack.h"
@@ -66,32 +71,6 @@
  */
 #define NETWORK_BUFFER_SIZE       ( 1024U )
 
-/**
- * @brief The name of the operating system that the application is running on.
- * The current value is given as an example. Please update for your specific
- * operating system.
- */
-#define OS_NAME                   "FreeRTOS"
-
-/**
- * @brief The version of the operating system that the application is running
- * on. The current value is given as an example. Please update for your specific
- * operating system version.
- */
-#define OS_VERSION                "0.0.0"
-
-/**
- * @brief The name of the hardware platform the application is running on. The
- * current value is given as an example. Please update for your specific
- * hardware platform.
- */
-#define HARDWARE_PLATFORM_NAME    "MT7697"
-
-/**
- * @brief The name of the MQTT library used and its version, following an "@"
- * symbol.
- */
-#define MQTT_LIB                  "core-mqtt@1.0.0"
 
 /**
  * @brief Predefined thing name.
@@ -143,4 +122,5 @@
  */
 #define DEVICE_METRICS_REPORT_MINOR_VERSION    0
 
-#endif /* ifndef DEMO_CONFIG_H_ */
+
+#endif /* _AWS_DEFENDER_CONFIG_H_ */
