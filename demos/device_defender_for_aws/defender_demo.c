@@ -29,12 +29,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Demo configuration includes. */
-#include "iot_config.h"
-
-/* Demo logging include. */
-#include "iot_demo_logging.h"
-
 /* Demo config. */
 #include "defender_demo_config.h"
 
@@ -362,8 +356,8 @@ static BaseType_t collectDeviceMetrics( void )
 
     if( metricsCollectorStatus != MetricsCollectorSuccess )
     {
-        IotLogError( "GetNetworkStats failed. Status: %d.",
-                     metricsCollectorStatus );
+        LogError( ("GetNetworkStats failed. Status: %d.",
+                     metricsCollectorStatus) );
     }
 
     /* Collect a list of open TCP ports. */
@@ -375,8 +369,8 @@ static BaseType_t collectDeviceMetrics( void )
 
         if( metricsCollectorStatus != MetricsCollectorSuccess )
         {
-            IotLogError( "GetOpenTcpPorts failed. Status: %d.",
-                         metricsCollectorStatus );
+            LogError( ("GetOpenTcpPorts failed. Status: %d.",
+                         metricsCollectorStatus) );
         }
     }
 
@@ -403,8 +397,8 @@ static BaseType_t collectDeviceMetrics( void )
 
         if( metricsCollectorStatus != MetricsCollectorSuccess )
         {
-            IotLogError( "GetEstablishedConnections failed. Status: %d.",
-                         metricsCollectorStatus );
+            LogError( ("GetEstablishedConnections failed. Status: %d.",
+                         metricsCollectorStatus) );
         }
     }
 
@@ -480,14 +474,14 @@ static BaseType_t generateDeviceMetricsReport( uint32_t * pOutReportLength )
 
     if( reportBuilderStatus != ReportBuilderSuccess )
     {
-        IotLogError( "GenerateJsonReport failed. Status: %d.",
-                     reportBuilderStatus );
+        LogError( ("GenerateJsonReport failed. Status: %d.",
+                     reportBuilderStatus) );
     }
     else
     {
-        IotLogDebug( "Generated Report: %.*s.",
+        LogDebug( ("Generated Report: %.*s.",
                      *pOutReportLength,
-                     &( deviceMetricsJsonReport[ 0 ] ) );
+                     &( deviceMetricsJsonReport[ 0 ] ) ) );
         status = pdPASS;
     }
 
@@ -525,7 +519,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
     /* Set a report Id to be used. */
     reportId = 1;
 
-    IotLogInfo( "Establishing MQTT session..." );
+    LogInfo( ("Establishing MQTT session..." ) );
     xDemoStatus = EstablishMqttSession( &xMqttContext,
                                         &xNetworkContext,
                                         &xBuffer,
@@ -533,7 +527,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
 
     if( xDemoStatus == pdFAIL )
     {
-        IotLogError( "Failed to establish MQTT session." );
+        LogError( ("Failed to establish MQTT session.") );
     }
     else
     {
@@ -542,40 +536,40 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
 
     if( xDemoStatus == pdPASS )
     {
-        IotLogInfo( "Subscribing to defender topics..." );
+        LogInfo( ("Subscribing to defender topics...") );
         xDemoStatus = subscribeToDefenderTopics( &xMqttContext );
 
         if( xDemoStatus == pdFAIL )
         {
-            IotLogError( "Failed to subscribe to defender topics." );
+            LogError( ("Failed to subscribe to defender topics.") );
         }
     }
 
     if( xDemoStatus == pdPASS )
     {
-        IotLogInfo( "Collecting device metrics..." );
+        LogInfo( ("Collecting device metrics...") );
         xDemoStatus = collectDeviceMetrics();
 
         if( xDemoStatus == pdFAIL )
         {
-            IotLogError( "Failed to collect device metrics." );
+            LogError( ("Failed to collect device metrics." ) );
         }
     }
 
     if( xDemoStatus == pdPASS )
     {
-        IotLogInfo( "Generating device defender report..." );
+        LogInfo( ("Generating device defender report..." ) );
         xDemoStatus = generateDeviceMetricsReport( &( reportLength ) );
 
         if( xDemoStatus == pdFAIL )
         {
-            IotLogError( "Failed to generate device defender report." );
+            LogError( ("Failed to generate device defender report.") );
         }
     }
 
     if( xDemoStatus == pdPASS )
     {
-        IotLogInfo( "Publishing device defender report..." );
+        LogInfo( ("Publishing device defender report..." ) );
         xDemoStatus = PublishToTopic( &xMqttContext,
                                       DEFENDER_API_JSON_PUBLISH( THING_NAME ),
                                       DEFENDER_API_LENGTH_JSON_PUBLISH( THING_NAME_LENGTH ),
@@ -584,7 +578,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
 
         if( xDemoStatus == pdFAIL )
         {
-            IotLogError( "Failed to publish device defender report." );
+            LogError( ( "Failed to publish device defender report." ) );
         }
     }
 
@@ -605,7 +599,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
 
     if( reportStatus == ReportStatusNotReceived )
     {
-        IotLogError( "Failed to receive response from AWS IoT Device Defender Service." );
+        LogError( ( "Failed to receive response from AWS IoT Device Defender Service." ) );
         xDemoStatus = pdFAIL;
     }
 
@@ -615,26 +609,26 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
      * unsubscribe even if one more subscribe failed earlier. */
     if( mqttSessionEstablished == 1 )
     {
-        IotLogInfo( "Unsubscribing from defender topics..." );
+        LogInfo( ("Unsubscribing from defender topics...") );
         xDemoStatus = unsubscribeFromDefenderTopics( &xMqttContext );
 
         if( xDemoStatus == pdFAIL )
         {
-            IotLogError( "Failed to unsubscribe from defender topics." );
+            LogError( ("Failed to unsubscribe from defender topics.") );
         }
 
-        IotLogInfo( "Closing MQTT session..." );
+        LogInfo( ("Closing MQTT session...") );
         ( void ) DisconnectMqttSession( &xMqttContext, &xNetworkContext );
     }
 
     if( ( xDemoStatus == pdPASS ) && ( reportStatus == ReportStatusAccepted ) )
     {
-        IotLogInfo( "Demo completed successfully." );
+        LogInfo( ("Demo completed successfully.") );
     }
     else
     {
         xDemoStatus = pdFAIL;
-        IotLogError( "Demo failed." );
+        LogError( ("Demo failed.") );
     }
 
     return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
