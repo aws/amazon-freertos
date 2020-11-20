@@ -191,13 +191,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define configTCP_ECHO_CLIENT_PORT    7
 
 /* The address of a CoAP server that will be used by the demo CoAP client.*/
-#define configCOAP_SERVER_ADDR0 192
-#define configCOAP_SERVER_ADDR1 168
-#define configCOAP_SERVER_ADDR2 0
-#define configCOAP_SERVER_ADDR3 101
-#define configCOAP_PORT 5683
-#define configCOAP_URI_PATH "suite"
-#define configCOAP_URI_QUERY "t=1nce_test"
+#define configCOAP_SERVER_ADDR0              192
+#define configCOAP_SERVER_ADDR1              168
+#define configCOAP_SERVER_ADDR2              0
+#define configCOAP_SERVER_ADDR3              101
+#define configCOAP_PORT                      5683
+#define configCOAP_URI_PATH                  "suite"
+#define configCOAP_URI_QUERY                 "t=1nce_test"
 
 /* Prevent the assembler seeing code it doesn't understand. */
 #if defined(__ICCARM__) || defined( __ARMCC_VERSION ) || defined( __GNUC__)

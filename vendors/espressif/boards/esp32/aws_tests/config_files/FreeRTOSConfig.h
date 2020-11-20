@@ -236,13 +236,13 @@
 #define configTCP_ECHO_CLIENT_PORT           7
 
 /* The address of a CoAP server that will be used by the demo CoAP client.*/
-#define configCOAP_SERVER_ADDR0 192
-#define configCOAP_SERVER_ADDR1 168
-#define configCOAP_SERVER_ADDR2 0
-#define configCOAP_SERVER_ADDR3 101
-#define configCOAP_PORT 5683
-#define configCOAP_URI_PATH "suite"
-#define configCOAP_URI_QUERY "t=1nce_test"
+#define configCOAP_SERVER_ADDR0              192
+#define configCOAP_SERVER_ADDR1              168
+#define configCOAP_SERVER_ADDR2              0
+#define configCOAP_SERVER_ADDR3              101
+#define configCOAP_PORT                      5683
+#define configCOAP_URI_PATH                  "suite"
+#define configCOAP_URI_QUERY                 "t=1nce_test"
 
 /* Default MAC address configuration.  The demo creates a virtual network
  * connection that uses this MAC address by accessing the raw Ethernet/WiFi data
