@@ -8,7 +8,7 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- *
+ *ƒ
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  *
@@ -84,13 +84,13 @@ typedef struct NetworkStats
 
 extern MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats );
 extern MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectionsArray,
-                                                         uint32_t connectionsArrayLength,
-                                                         uint32_t * pOutNumEstablishedConnections );
+                                                           uint32_t connectionsArrayLength,
+                                                           uint32_t * pOutNumEstablishedConnections );
 extern MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutPortsArray,
-                                               uint32_t portsArrayLength,
-                                               uint32_t * pOutNumOpenPorts );
+                                                 uint32_t portsArrayLength,
+                                                 uint32_t * pOutNumOpenPorts );
 extern MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutPortsArray,
-                                               uint32_t portsArrayLength,
-                                               uint32_t * pOutNumOpenPorts );
+                                                 uint32_t portsArrayLength,
+                                                 uint32_t * pOutNumOpenPorts );
 
 #endif //__METRICS_H__

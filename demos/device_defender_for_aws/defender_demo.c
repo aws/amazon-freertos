@@ -25,10 +25,6 @@
 
 
 
-
-
-//#include "core_mqtt_serializer.h"
-
 /* Standard includes. */
 #include <stdlib.h>
 #include <string.h>
@@ -72,7 +68,7 @@
 /**
  * @brief The length of #THING_NAME.
  */
-#define THING_NAME_LENGTH                      ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
+#define THING_NAME_LENGTH    ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
 
 
 /**
@@ -160,7 +156,6 @@ static uint32_t reportId = 0;
 /*-----------------------------------------------------------*/
 
 
-
 /**
  * @brief Callback to receive the incoming publish messages from the MQTT broker.
  *
@@ -174,36 +169,36 @@ static void publishCallback( MQTTContext_t * pxMqttContext,
 /**
  * @brief Collect all the metrics to be sent in the device defender report.
  *
- * @return true if all the metrics are successfully collected;
- * false otherwise.
+ * @return pdPASS if all the metrics are successfully collected;
+ * pdFAIL otherwise.
  */
-static bool collectDeviceMetrics( void );
+static BaseType_t collectDeviceMetrics( void );
 
 /**
  * @brief Generate the device defender report.
  *
  * @param[out] pOutReportLength Length of the device defender report.
  *
- * @return true if the report is generated successfully;
- * false otherwise.
+ * @return pdPASS if the report is generated successfully;
+ * pdFAIL otherwise.
  */
-static int generateDeviceMetricsReport( uint32_t * pOutReportLength );
+static BaseType_t generateDeviceMetricsReport( uint32_t * pOutReportLength );
 
 /**
  * @brief Subscribe to the device defender topics.
  *
- * @return true if the subscribe is successful;
- * false otherwise.
+ * @return pdPASS if the subscribe is successful;
+ * pdFAIL otherwise.
  */
-static bool subscribeToDefenderTopics( MQTTContext_t * pxMqttContext );
+static BaseType_t subscribeToDefenderTopics( MQTTContext_t * pxMqttContext );
 
 /**
  * @brief Unsubscribe from the device defender topics.
  *
- * @return true if the unsubscribe is successful;
- * false otherwise.
+ * @return pdPASS if the unsubscribe is successful;
+ * pdFAIL otherwise.
  */
-static int unsubscribeFromDefenderTopics( MQTTContext_t * pxMqttContext );
+static BaseType_t unsubscribeFromDefenderTopics( MQTTContext_t * pxMqttContext );
 
 /**
  * @brief Validate the response received from the AWS IoT Device Defender Service.
@@ -218,12 +213,12 @@ static int unsubscribeFromDefenderTopics( MQTTContext_t * pxMqttContext );
  * false otherwise.
  */
 static bool validateDefenderResponse( const char * defenderResponse,
-                                      uint32_t defenderResponseLength );
+                                     uint32_t defenderResponseLength );
 /*-----------------------------------------------------------*/
 
 
 static bool validateDefenderResponse( const char * defenderResponse,
-                                      uint32_t defenderResponseLength )
+                                     uint32_t defenderResponseLength )
 {
     bool status = false;
     JSONStatus_t jsonResult = JSONSuccess;
@@ -289,14 +284,14 @@ static bool validateDefenderResponse( const char * defenderResponse,
 /*-----------------------------------------------------------*/
 
 static void publishCallback( MQTTContext_t * pxMqttContext,
-                              MQTTPacketInfo_t * pxPacketInfo,
-                              MQTTDeserializedInfo_t * pxDeserializedInfo )
+                             MQTTPacketInfo_t * pxPacketInfo,
+                             MQTTDeserializedInfo_t * pxDeserializedInfo )
 {
     DefenderStatus_t status;
     DefenderTopic_t api;
     bool validationResult;
     MQTTPublishInfo_t * pPublishInfo = pxDeserializedInfo->pPublishInfo;
-    
+
     /* Silence compiler warnings about unused variables. */
     ( void ) pxMqttContext;
     ( void ) pxPacketInfo;
@@ -353,9 +348,9 @@ static void publishCallback( MQTTContext_t * pxMqttContext,
 }
 /*-----------------------------------------------------------*/
 
-static bool collectDeviceMetrics( void )
+static BaseType_t collectDeviceMetrics( void )
 {
-    int status = EXIT_FAILURE;
+    BaseType_t status = pdFAIL;
     MetricsCollectorStatus_t metricsCollectorStatus;
     uint32_t numOpenTcpPorts, numOpenUdpPorts, numEstablishedConnections;
 
@@ -365,7 +360,7 @@ static bool collectDeviceMetrics( void )
     if( metricsCollectorStatus != MetricsCollectorSuccess )
     {
         IotLogError( "GetNetworkStats failed. Status: %d.",
-                    metricsCollectorStatus );
+                     metricsCollectorStatus );
     }
 
     /* Collect a list of open TCP ports. */
@@ -378,7 +373,7 @@ static bool collectDeviceMetrics( void )
         if( metricsCollectorStatus != MetricsCollectorSuccess )
         {
             IotLogError( "GetOpenTcpPorts failed. Status: %d.",
-                        metricsCollectorStatus );
+                         metricsCollectorStatus );
         }
     }
 
@@ -395,7 +390,7 @@ static bool collectDeviceMetrics( void )
                         metricsCollectorStatus ) );
         }
     }
-		
+
     /* Collect a list of established connections. */
     if( metricsCollectorStatus == MetricsCollectorSuccess )
     {
@@ -406,14 +401,14 @@ static bool collectDeviceMetrics( void )
         if( metricsCollectorStatus != MetricsCollectorSuccess )
         {
             IotLogError( "GetEstablishedConnections failed. Status: %d.",
-                        metricsCollectorStatus );
+                         metricsCollectorStatus );
         }
     }
 
     /* Populate device metrics. */
     if( metricsCollectorStatus == MetricsCollectorSuccess )
     {
-        status = EXIT_SUCCESS;
+        status = pdPASS;
         deviceMetrics.pNetworkStats = &( networkStats );
         deviceMetrics.pOpenTcpPortsArray = &( openTcpPorts[ 0 ] );
         deviceMetrics.openTcpPortsArrayLength = numOpenTcpPorts;
@@ -423,21 +418,19 @@ static bool collectDeviceMetrics( void )
         deviceMetrics.establishedConnectionsArrayLength = numEstablishedConnections;
     }
 
-    
-
     return status;
 }
 /*-----------------------------------------------------------*/
 
-static bool subscribeToDefenderTopics( MQTTContext_t * pxMqttContext )
+static BaseType_t subscribeToDefenderTopics( MQTTContext_t * pxMqttContext )
 {
-    bool status = false;
+    BaseType_t status = pdFAIL;
 
     status = SubscribeToTopic( pxMqttContext,
                                DEFENDER_API_JSON_ACCEPTED( THING_NAME ),
                                DEFENDER_API_LENGTH_JSON_ACCEPTED( THING_NAME_LENGTH ) );
 
-    if( status == true )
+    if( status == pdPASS )
     {
         status = SubscribeToTopic( pxMqttContext,
                                    DEFENDER_API_JSON_REJECTED( THING_NAME ),
@@ -448,15 +441,15 @@ static bool subscribeToDefenderTopics( MQTTContext_t * pxMqttContext )
 }
 /*-----------------------------------------------------------*/
 
-static int unsubscribeFromDefenderTopics( MQTTContext_t * pxMqttContext )
+static BaseType_t unsubscribeFromDefenderTopics( MQTTContext_t * pxMqttContext )
 {
-    int status = false;
+    BaseType_t status = pdFAIL;
 
     status = UnsubscribeFromTopic( pxMqttContext,
                                    DEFENDER_API_JSON_ACCEPTED( THING_NAME ),
                                    DEFENDER_API_LENGTH_JSON_ACCEPTED( THING_NAME_LENGTH ) );
 
-    if( status == true )
+    if( status == pdPASS )
     {
         status = UnsubscribeFromTopic( pxMqttContext,
                                        DEFENDER_API_JSON_REJECTED( THING_NAME ),
@@ -467,9 +460,9 @@ static int unsubscribeFromDefenderTopics( MQTTContext_t * pxMqttContext )
 }
 /*-----------------------------------------------------------*/
 
-static int generateDeviceMetricsReport( uint32_t * pOutReportLength )
+static BaseType_t generateDeviceMetricsReport( uint32_t * pOutReportLength )
 {
-    int status = EXIT_FAILURE;
+    BaseType_t status = pdFAIL;
     ReportBuilderStatus_t reportBuilderStatus;
 
     /* Generate the metrics report in the format expected by the AWS IoT Device
@@ -485,14 +478,14 @@ static int generateDeviceMetricsReport( uint32_t * pOutReportLength )
     if( reportBuilderStatus != ReportBuilderSuccess )
     {
         IotLogError( "GenerateJsonReport failed. Status: %d.",
-                    reportBuilderStatus );
+                     reportBuilderStatus );
     }
     else
     {
-        IotLogDebug( "Generated Report: %.*s.",                    
-                    *pOutReportLength,
-                    &( deviceMetricsJsonReport[ 0 ] ) );
-        status = EXIT_SUCCESS;
+        IotLogDebug( "Generated Report: %.*s.",
+                     *pOutReportLength,
+                     &( deviceMetricsJsonReport[ 0 ] ) );
+        status = pdPASS;
     }
 
     return status;
@@ -514,12 +507,12 @@ static int generateDeviceMetricsReport( uint32_t * pOutReportLength )
  */
 
 int RunDeviceDefenderDemo( bool awsIotMqttMode,
-                     const char * pIdentifier,
-                     void * pNetworkServerInfo,
-                     void * pNetworkCredentialInfo,
-                     const void * pNetworkInterface )
+                           const char * pIdentifier,
+                           void * pNetworkServerInfo,
+                           void * pNetworkCredentialInfo,
+                           const void * pNetworkInterface )
 {
-    int exitStatus = EXIT_FAILURE;
+    BaseType_t xDemoStatus = pdFAIL;
     uint32_t reportLength = 0, i, mqttSessionEstablished = 0;
 
 
@@ -530,12 +523,12 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
     reportId = 1;
 
     IotLogInfo( "Establishing MQTT session..." );
-    exitStatus = EstablishMqttSession( &xMqttContext,
-                                   &xNetworkContext,
-                                   &xBuffer,
-                                   publishCallback );
+    xDemoStatus = EstablishMqttSession( &xMqttContext,
+                                        &xNetworkContext,
+                                        &xBuffer,
+                                        publishCallback );
 
-    if( exitStatus != EXIT_SUCCESS )
+    if( xDemoStatus == pdFAIL )
     {
         IotLogError( "Failed to establish MQTT session." );
     }
@@ -544,59 +537,58 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
         mqttSessionEstablished = 1;
     }
 
-    if( exitStatus == EXIT_SUCCESS )
+    if( xDemoStatus == pdPASS )
     {
         IotLogInfo( "Subscribing to defender topics..." );
-        exitStatus = subscribeToDefenderTopics( &xMqttContext );
+        xDemoStatus = subscribeToDefenderTopics( &xMqttContext );
 
-        if( exitStatus != EXIT_SUCCESS )
+        if( xDemoStatus == pdFAIL )
         {
             IotLogError( "Failed to subscribe to defender topics." );
         }
     }
 
-    if( exitStatus == EXIT_SUCCESS )
+    if( xDemoStatus == pdPASS )
     {
         IotLogInfo( "Collecting device metrics..." );
-        exitStatus = collectDeviceMetrics();
+        xDemoStatus = collectDeviceMetrics();
 
-        if( exitStatus != EXIT_SUCCESS )
+        if( xDemoStatus == pdFAIL )
         {
             IotLogError( "Failed to collect device metrics." );
         }
     }
 
-    if( exitStatus == EXIT_SUCCESS )
+    if( xDemoStatus == pdPASS )
     {
         IotLogInfo( "Generating device defender report..." );
-        exitStatus = generateDeviceMetricsReport( &( reportLength ) );
+        xDemoStatus = generateDeviceMetricsReport( &( reportLength ) );
 
-        if( exitStatus != EXIT_SUCCESS )
+        if( xDemoStatus == pdFAIL )
         {
             IotLogError( "Failed to generate device defender report." );
         }
     }
 
-    if( exitStatus == EXIT_SUCCESS )
+    if( xDemoStatus == pdPASS )
     {
         IotLogInfo( "Publishing device defender report..." );
-        exitStatus = PublishToTopic( &xMqttContext,
-                                     DEFENDER_API_JSON_PUBLISH( THING_NAME ),
-                                     DEFENDER_API_LENGTH_JSON_PUBLISH( THING_NAME_LENGTH ),
-                                     &( deviceMetricsJsonReport[ 0 ] ),
-                                     reportLength );
+        xDemoStatus = PublishToTopic( &xMqttContext,
+                                      DEFENDER_API_JSON_PUBLISH( THING_NAME ),
+                                      DEFENDER_API_LENGTH_JSON_PUBLISH( THING_NAME_LENGTH ),
+                                      &( deviceMetricsJsonReport[ 0 ] ),
+                                      reportLength );
 
-        if( exitStatus != EXIT_SUCCESS )
+        if( xDemoStatus == pdFAIL )
         {
             IotLogError( "Failed to publish device defender report." );
         }
     }
 
-    if( exitStatus == EXIT_SUCCESS )
+    if( xDemoStatus == pdPASS )
     {
         for( i = 0; i < DEFENDER_RESPONSE_WAIT_SECONDS; i++ )
         {
-
             /* reportStatus is updated in the publishCallback. */
             if( reportStatus != ReportStatusNotReceived )
             {
@@ -611,7 +603,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
     if( reportStatus == ReportStatusNotReceived )
     {
         IotLogError( "Failed to receive response from AWS IoT Device Defender Service." );
-        exitStatus = EXIT_FAILURE;
+        xDemoStatus = pdFAIL;
     }
 
     /* Unsubscribe and disconnect if MQTT session was established. Per the MQTT
@@ -621,9 +613,9 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
     if( mqttSessionEstablished == 1 )
     {
         IotLogInfo( "Unsubscribing from defender topics..." );
-        exitStatus = unsubscribeFromDefenderTopics( &xMqttContext );
+        xDemoStatus = unsubscribeFromDefenderTopics( &xMqttContext );
 
-        if( exitStatus != EXIT_SUCCESS )
+        if( xDemoStatus == pdFAIL )
         {
             IotLogError( "Failed to unsubscribe from defender topics." );
         }
@@ -632,18 +624,18 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
         ( void ) DisconnectMqttSession( &xMqttContext, &xNetworkContext );
     }
 
-    if( ( exitStatus == EXIT_SUCCESS ) && ( reportStatus == ReportStatusAccepted ) )
+    if( ( xDemoStatus == pdPASS ) && ( reportStatus == ReportStatusAccepted ) )
     {
         IotLogInfo( "Demo completed successfully." );
     }
     else
     {
-        exitStatus = EXIT_FAILURE;
+        xDemoStatus = pdFAIL;
         IotLogError( "Demo failed." );
     }
 
-    return exitStatus;
+    return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }
-											 
+
 
 /*-----------------------------------------------------------*/

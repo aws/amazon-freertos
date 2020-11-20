@@ -36,8 +36,8 @@
  * #MetricsCollectorBadParameter if invalid parameters are passed;
  */
     MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
-                                            uint32_t portsArrayLength,
-                                            uint32_t * pOutNumTcpOpenPorts )
+                                              uint32_t portsArrayLength,
+                                              uint32_t * pOutNumTcpOpenPorts )
     {
         MetricsCollectorStatus_t status = MetricsCollectorSuccess;
         struct tcp_pcb_listen * pCurrPcb = tcp_listen_pcbs.listen_pcbs;
@@ -88,10 +88,10 @@
 
 
     MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutTcpPortsArray,
-                                            uint32_t portsArrayLength,
-                                            uint32_t * pOutNumTcpOpenPorts )
+                                              uint32_t portsArrayLength,
+                                              uint32_t * pOutNumTcpOpenPorts )
     {
-        //TODO
+        /*TODO */
         return MetricsCollectorSuccess;
     }
 
@@ -116,8 +116,8 @@
  * #MetricsCollectorBadParameter if invalid parameters are passed;
  */
     MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectionsArray,
-                                                      uint32_t connectionsArrayLength,
-                                                      uint32_t * pOutNumEstablishedConnections )
+                                                        uint32_t connectionsArrayLength,
+                                                        uint32_t * pOutNumEstablishedConnections )
     {
         MetricsCollectorStatus_t status = MetricsCollectorSuccess;
         struct tcp_pcb * pCurrPcb = tcp_active_pcbs;
