@@ -1779,6 +1779,11 @@
 			<locationURI>AFR_HOME/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
 		</link>
 		<link>
+			<name>demos/coreHTTP/http_demo_mutual_auth.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/coreHTTP/http_demo_mutual_auth.c</locationURI>
+		</link>
+		<link>
 			<name>demos/coreHTTP/http_demo_s3_download.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/coreHTTP/http_demo_s3_download.c</locationURI>
@@ -1957,6 +1962,11 @@
 			<name>config_files/defender_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/defender_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/http_demo_mutual_auth_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/http_demo_mutual_auth_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/http_demo_s3_download_config.h</name>
