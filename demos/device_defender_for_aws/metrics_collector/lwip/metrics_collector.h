@@ -23,14 +23,14 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef __METRICS_H__
-#define __METRICS_H__
+#ifndef __METRICS_COLLECTOR_H__
+#define __METRICS_COLLECTOR_H__
 
 /* Standard includes. */
 #include <stdint.h>
+
 /* Lwip includes. */
 #include "lwipopts.h"
-#include "lwip/ip_addr.h"
 #include "netif_port.h"
 
 #if !defined( FREERTOS_LWIP_METRICS_ENABLE ) || ( FREERTOS_LWIP_METRICS_ENABLE == 0 )
@@ -69,18 +69,24 @@ typedef struct Connection
  */
 typedef struct NetworkStats
 {
-    uint32_t bytesReceived;   /**< Number of bytes received. */
-    uint32_t bytesSent;       /**< Number of bytes sent. */
-    uint32_t packetsReceived; /**< Number of TCP packets received. */
-    uint32_t packetsSent;     /**< Number of TCP packets sent. */
+    uint32_t bytesReceived;   /* Number of bytes received. */
+    uint32_t bytesSent;       /* Number of bytes sent. */
+    uint32_t packetsReceived; /* Number of TCP packets received. */
+    uint32_t packetsSent;     /* Number of TCP packets sent. */
 } NetworkStats_t;
 
 
-#define LWIP_GET_TCP_PACKET_IN()           ( lwip_stats.mib2.ipinreceives )
-#define LWIP_GET_TCP_PACKET_OUT()          ( lwip_stats.mib2.ipoutrequests )
+#define LWIP_GET_TCP_PACKETS_IN()         ( lwip_stats.mib2.ipinreceives )
+#define LWIP_GET_TCP_PACKETS_OUT()        ( lwip_stats.mib2.ipoutrequests )
 
-#define LWIP_GET_NETIF_PACKET_IN_sta()     ( LWIP_NET_IF.mib2_counters.ifinoctets )
-#define LWIP_GET_NETIF_PACKET_OUT_sta()    ( LWIP_NET_IF.mib2_counters.ifoutoctets )
+#ifndef LWIP_BYTES_IN_OUT_UNSUPPORT
+    #define LWIP_GET_NETIF_BYTES_IN()     ( LWIP_NET_IF.mib2_counters.ifinoctets )
+    #define LWIP_GET_NETIF_BYTES_OUT()    ( LWIP_NET_IF.mib2_counters.ifoutoctets )
+#else
+    #warning "LWIP Network metrics Bytes-in and Bytes-out are not available."
+    #define LWIP_GET_NETIF_BYTES_IN()     ( 0 )
+    #define LWIP_GET_NETIF_BYTES_OUT()    ( 0 )
+#endif
 
 extern MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats );
 extern MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectionsArray,
@@ -93,4 +99,4 @@ extern MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutPortsArray,
                                                  uint32_t portsArrayLength,
                                                  uint32_t * pOutNumOpenPorts );
 
-#endif //__METRICS_H__
+#endif /* __METRICS_COLLECTOR_H__ */
