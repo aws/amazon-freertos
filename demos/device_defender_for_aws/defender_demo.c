@@ -289,56 +289,65 @@ static void publishCallback( MQTTContext_t * pxMqttContext,
 
     /* Silence compiler warnings about unused variables. */
     ( void ) pxMqttContext;
-    ( void ) pxPacketInfo;
 
-    status = Defender_MatchTopic( pPublishInfo->pTopicName,
-                                  pPublishInfo->topicNameLength,
-                                  &( api ),
-                                  NULL,
-                                  NULL );
-
-    if( status == DefenderSuccess )
+    /* Handle incoming publish. The lower 4 bits of the publish packet
+     * type is used for the dup, QoS, and retain flags. Hence masking
+     * out the lower bits to check if the packet is publish. */
+    if( ( pxPacketInfo->type & 0xF0U ) == MQTT_PACKET_TYPE_PUBLISH )
     {
-        if( api == DefenderJsonReportAccepted )
-        {
-            /* Check if the response is valid and is for the report we published. */
-            validationResult = validateDefenderResponse( pPublishInfo->pPayload,
-                                                         pPublishInfo->payloadLength );
+        status = Defender_MatchTopic( pPublishInfo->pTopicName,
+                                      pPublishInfo->topicNameLength,
+                                      &( api ),
+                                      NULL,
+                                      NULL );
 
-            if( validationResult == true )
+        if( status == DefenderSuccess )
+        {
+            if( api == DefenderJsonReportAccepted )
             {
-                LogInfo( ( "The defender report was accepted by the service. Response: %.*s.",
-                           ( int ) pPublishInfo->payloadLength,
-                           ( const char * ) pPublishInfo->pPayload ) );
-                reportStatus = ReportStatusAccepted;
+                /* Check if the response is valid and is for the report we published. */
+                validationResult = validateDefenderResponse( pPublishInfo->pPayload,
+                                                             pPublishInfo->payloadLength );
+
+                if( validationResult == true )
+                {
+                    LogInfo( ( "The defender report was accepted by the service. Response: %.*s.",
+                               ( int ) pPublishInfo->payloadLength,
+                               ( const char * ) pPublishInfo->pPayload ) );
+                    reportStatus = ReportStatusAccepted;
+                }
             }
-        }
-        else if( api == DefenderJsonReportRejected )
-        {
-            /* Check if the response is valid and is for the report we published. */
-            validationResult = validateDefenderResponse( pPublishInfo->pPayload,
-                                                         pPublishInfo->payloadLength );
-
-            if( validationResult == true )
+            else if( api == DefenderJsonReportRejected )
             {
-                LogError( ( "The defender report was rejected by the service. Response: %.*s.",
-                            ( int ) pPublishInfo->payloadLength,
-                            ( const char * ) pPublishInfo->pPayload ) );
-                reportStatus = ReportStatusRejected;
+                /* Check if the response is valid and is for the report we published. */
+                validationResult = validateDefenderResponse( pPublishInfo->pPayload,
+                                                             pPublishInfo->payloadLength );
+
+                if( validationResult == true )
+                {
+                    LogError( ( "The defender report was rejected by the service. Response: %.*s.",
+                                ( int ) pPublishInfo->payloadLength,
+                                ( const char * ) pPublishInfo->pPayload ) );
+                    reportStatus = ReportStatusRejected;
+                }
+            }
+            else
+            {
+                LogError( ( "Unexpected defender API : %d.", api ) );
             }
         }
         else
         {
-            LogError( ( "Unexpected defender API : %d.", api ) );
+            LogError( ( "Unexpected publish message received. Topic: %.*s, Payload: %.*s.",
+                        ( int ) pPublishInfo->topicNameLength,
+                        ( const char * ) pPublishInfo->pTopicName,
+                        ( int ) pPublishInfo->payloadLength,
+                        ( const char * ) ( pPublishInfo->pPayload ) ) );
         }
     }
     else
     {
-        LogError( ( "Unexpected publish message received. Topic: %.*s, Payload: %.*s.",
-                    ( int ) pPublishInfo->topicNameLength,
-                    ( const char * ) pPublishInfo->pTopicName,
-                    ( int ) pPublishInfo->payloadLength,
-                    ( const char * ) ( pPublishInfo->pPayload ) ) );
+        vHandleOtherIncomingPacket( pxPacketInfo, pxDeserializedInfo->packetIdentifier );
     }
 }
 /*-----------------------------------------------------------*/
