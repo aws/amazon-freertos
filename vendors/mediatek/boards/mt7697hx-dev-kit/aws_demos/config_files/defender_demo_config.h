@@ -25,12 +25,12 @@
 
 
 /**
- * @file aws_defender_config.h
+ * @file defender_demo_config.h
  * @brief specify defender config
  */
 
-#ifndef _AWS_DEFENDER_CONFIG_H_
-#define _AWS_DEFENDER_CONFIG_H_
+#ifndef _DEFENDER_DEMO_CONFIG_H_
+#define _DEFENDER_DEMO_CONFIG_H_
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -46,7 +46,7 @@
 
 /* Logging configuration for the Defender library. */
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "Defender"
+    #define LIBRARY_LOG_NAME    "Device_Defender_Demo"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
@@ -123,4 +123,4 @@
 #define DEVICE_METRICS_REPORT_MINOR_VERSION    0
 
 
-#endif /* _AWS_DEFENDER_CONFIG_H_ */
+#endif /* _DEFENDER_DEMO_CONFIG_H_ */
