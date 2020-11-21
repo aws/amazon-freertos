@@ -34,7 +34,7 @@ static const TickType_t xSendTimeOut = pdMS_TO_TICKS( 40000 );
 NetTransmit_fn CoAP_Send_Wifi( Socket_t socketHandle,
                                NetPacket_t * pckt )
 {
-    NetTransmit_fn result = false;
+    NetTransmit_fn result = ( NetTransmit_fn ) false;
     BaseType_t xTransmitted;
 
 
@@ -50,11 +50,11 @@ NetTransmit_fn CoAP_Send_Wifi( Socket_t socketHandle,
     }
     else
     {
-        result = true;
+        result = ( NetTransmit_fn ) true;
         configPRINTF( ( "CoAP Packet Sent\r\n" ) );
     }
 
-    return( result );
+    return( ( NetTransmit_fn ) result );
 }
 void _ram CoAP_Recv_Wifi( Socket_t socketHandle,
                           NetPacket_t * pPacket,

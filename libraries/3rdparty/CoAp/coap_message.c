@@ -222,8 +222,8 @@ CoAP_Result_t _rom CoAP_ParseMessageFromDatagram( uint8_t * srcArr,
         return COAP_PARSE_UNKOWN_COAP_VERSION;
     }
 
-    msg.Type = ( srcArr[ 0 ] & 0b110000 ) >> 4;
-    tokenLength = srcArr[ 0 ] & 0b1111;
+    msg.Type = ( srcArr[ 0 ] & 0x30 ) >> 4;
+    tokenLength = srcArr[ 0 ] & 0xf;
 
     if( tokenLength > 8 )
     {

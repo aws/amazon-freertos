@@ -1,5 +1,5 @@
 /*
- * /*
+ *
  *  Created on: Nov 10, 2020
  *  Authors: Mohammed Abdelmaksoud & Hatim Jamali
  *  1NCE GmbH
@@ -29,7 +29,8 @@
 #include "platform/iot_network.h"
 
 /* COAP include. */
-#include "coap_main.h"
+#include "coap.h"
+
 
 
 /*-----------------------------------------------------------*/
@@ -39,9 +40,12 @@
 CoAP_RespHandler_fn_t CoAP_Resp_handler( CoAP_Message_t * pRespMsg,
                                          NetEp_t * Sender )
 {
+    CoAP_RespHandler_fn_t result = COAP_OK;
+
     configPRINTF(
         ( "MESSAGE Payload : %s \r\n", pRespMsg->Payload ) );
     PrintEndpoint( Sender );
+    return result;
 }
 
 /* Declaration of demo function. */
@@ -74,7 +78,7 @@ int RuncoapDemo( bool awsIotMqttMode,
     ServerAddress.ulAddress = SOCKETS_inet_addr_quick( configCOAP_SERVER_ADDR0,
                                                        configCOAP_SERVER_ADDR1, configCOAP_SERVER_ADDR2,
                                                        configCOAP_SERVER_ADDR3 );
-    const NetEp_t ServerEp =
+    NetEp_t ServerEp =
     {
         .NetType = IPV4, .NetPort =
             configCOAP_PORT, .NetAddr= { .IPv4 = { .u8 =

@@ -255,7 +255,7 @@ CoAP_Interaction_t * _rom CoAP_FindInteractionByMessageIdAndEp( CoAP_Interaction
     /* servers and notificators use CON only in responses, clients in requests */
     while( pList != NULL )
     {
-        if( ( ( pList->pRespMsg != NULL ) && ( pList->pRespMsg->MessageID == mID ) || ( pList->pReqMsg != NULL ) && ( pList->pReqMsg->MessageID == mID ) ) && EpAreEqual( fromEp, &( pList->RemoteEp ) ) )
+        if( ( ( ( pList->pRespMsg != NULL ) && ( pList->pRespMsg->MessageID == mID ) ) || ( ( pList->pReqMsg != NULL ) && ( pList->pReqMsg->MessageID == mID ) ) ) && EpAreEqual( fromEp, &( pList->RemoteEp ) ) )
         {
             return pList;
         }
