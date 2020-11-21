@@ -1,5 +1,6 @@
 /* Standard includes. */
 #include <stdint.h>
+
 /* Lwip includes. */
 #include "lwip/arch.h"
 #include "lwip/stats.h"
@@ -8,10 +9,10 @@
 #include "lwip/tcp.h"           /* struct tcp_pcb */
 #include "lwip/udp.h"           /* struct udp_pcb */
 #include "lwip/priv/tcp_priv.h" /* tcp_listen_pcbs_t */
-/* Platform layer includes. */
-#include "platform/iot_threads.h"
-/* Demo logging include. */
-#include "iot_demo_logging.h"
+
+/* Demo config. */
+#include "defender_demo_config.h"
+
 /* Interface includes. */
 #include "metrics_collector.h"
 
@@ -48,11 +49,11 @@
         if( ( ( pOutTcpPortsArray != NULL ) && ( portsArrayLength == 0 ) ) ||
             ( pOutNumTcpOpenPorts == NULL ) )
         {
-            IotLogError( "Invalid parameters. pOutTcpPortsArray: 0x%08x,"
-                         "portsArrayLength: %u, pOutNumTcpOpenPorts: 0x%08x.",
-                         pOutTcpPortsArray,
-                         portsArrayLength,
-                         pOutNumTcpOpenPorts );
+            LogError( ( "Invalid parameters. pOutTcpPortsArray: 0x%08x,"
+                        "portsArrayLength: %u, pOutNumTcpOpenPorts: 0x%08x.",
+                        pOutTcpPortsArray,
+                        portsArrayLength,
+                        pOutNumTcpOpenPorts ) );
             status = MetricsCollectorBadParameter;
         }
 
@@ -77,7 +78,7 @@
 
         if( ( pOutTcpPortsArray != NULL ) && ( pcbCnt > portsArrayLength ) )
         {
-            IotLogWarn( "The portsArrayLength is not long engough to store all the listening ports" );
+            LogWarn( ( "The portsArrayLength is not long enough to store all the listening ports" ) );
         }
 
         if( status == MetricsCollectorSuccess )
@@ -100,11 +101,11 @@
         if( ( ( pOutUdpPortsArray != NULL ) && ( portsArrayLength == 0 ) ) ||
             ( pOutNumUdpOpenPorts == NULL ) )
         {
-            IotLogError( "Invalid parameters. pOutUdpPortsArray: 0x%08x,"
-                         "portsArrayLength: %u, pOutNumUdpOpenPorts: 0x%08x.",
-                         pOutUdpPortsArray,
-                         portsArrayLength,
-                         pOutNumUdpOpenPorts );
+            LogError( ( "Invalid parameters. pOutUdpPortsArray: 0x%08x,"
+                        "portsArrayLength: %u, pOutNumUdpOpenPorts: 0x%08x.",
+                        pOutUdpPortsArray,
+                        portsArrayLength,
+                        pOutNumUdpOpenPorts ) );
             status = MetricsCollectorBadParameter;
         }
 
@@ -129,7 +130,7 @@
 
         if( ( pOutUdpPortsArray != NULL ) && ( pcbCnt > portsArrayLength ) )
         {
-            IotLogWarn( "The portsArrayLength is not long engough to store all the listening ports" );
+            LogWarn( ( "The portsArrayLength is not long enough to store all the listening ports" ) );
         }
 
         if( status == MetricsCollectorSuccess )
@@ -172,11 +173,11 @@
         if( ( ( pOutConnectionsArray != NULL ) && ( connectionsArrayLength == 0 ) ) ||
             ( pOutNumEstablishedConnections == NULL ) )
         {
-            IotLogError( "Invalid parameters. pOutConnectionsArray: 0x%08x,"
-                         " connectionsArrayLength: %u, pOutNumEstablishedConnections: 0x%08x.",
-                         pOutConnectionsArray,
-                         connectionsArrayLength,
-                         pOutNumEstablishedConnections );
+            LogError( ( "Invalid parameters. pOutConnectionsArray: 0x%08x,"
+                        " connectionsArrayLength: %u, pOutNumEstablishedConnections: 0x%08x.",
+                        pOutConnectionsArray,
+                        connectionsArrayLength,
+                        pOutNumEstablishedConnections ) );
             status = MetricsCollectorBadParameter;
         }
 
@@ -207,7 +208,7 @@
 
         if( ( pOutConnectionsArray != NULL ) && ( pcbCnt > connectionsArrayLength ) )
         {
-            IotLogWarn( "The connectionsArrayLength is not long engough to store all the established connections" );
+            LogWarn( ( "The connectionsArrayLength is not long enough to store all the established connections" ) );
         }
 
         if( status == MetricsCollectorSuccess )
@@ -234,7 +235,7 @@
 
         if( pOutNetworkStats == NULL )
         {
-            IotLogError( "Invalid parameters. pOutNetworkStats: 0x%08x", pOutNetworkStats );
+            LogError( ( "Invalid parameters. pOutNetworkStats: 0x%08x", pOutNetworkStats ) );
             status = MetricsCollectorBadParameter;
         }
 
