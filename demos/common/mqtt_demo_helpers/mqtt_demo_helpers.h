@@ -156,4 +156,14 @@ BaseType_t PublishToTopic( MQTTContext_t * pxContext,
                            const char * pcPayload,
                            size_t payloadLength );
 
+/**
+ * @brief Invoke the core MQTT library's process loop function.
+ *
+ * @param[in] pxMqttContext The MQTT context for the MQTT connection.
+ *
+ * @return pdPASS if process loop was successful;
+ * pdFAIL otherwise.
+ */
+BaseType_t ProcessLoop( MQTTContext_t * pxMqttContext );
+
 #endif /* ifndef MQTT_DEMO_HELPERS_H_ */

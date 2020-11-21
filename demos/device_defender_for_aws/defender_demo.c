@@ -590,6 +590,9 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
 
     if( xDemoStatus == pdPASS )
     {
+        /* Note that PublishToTopic already called MQTT_ProcessLoop, therefore
+         * responses may have been received and the prvEventCallback may have
+         * been called. */
         for( i = 0; i < DEFENDER_RESPONSE_WAIT_SECONDS; i++ )
         {
             /* reportStatus is updated in the publishCallback. */
@@ -600,6 +603,8 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
 
             /* Wait for sometime between consecutive executions of ProcessLoop. */
             vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+
+            ( void ) ProcessLoop( &xMqttContext );
         }
     }
 
