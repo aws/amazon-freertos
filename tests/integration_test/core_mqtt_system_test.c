@@ -1250,6 +1250,7 @@ void Subscribe_Publish_With_Qos_1()
 
     /* Make sure that we have received the same message from the server,
      * that was published (as we have subscribed to the same topic). */
+    WAIT_FOR_PACKET( receivedPublish, MQTTSuccess );
     TEST_ASSERT_EQUAL( MQTTQoS1, incomingInfo.qos );
     TEST_ASSERT_EQUAL( TEST_MQTT_TOPIC_LENGTH, incomingInfo.topicNameLength );
     TEST_ASSERT_EQUAL_MEMORY( TEST_MQTT_TOPIC,
@@ -1328,6 +1329,7 @@ TEST( coreMQTT_Integration, Subscribe_Publish_With_Qos_2 )
 
     /* Make sure that we have received the same message from the server,
      * that was published (as we have subscribed to the same topic). */
+    WAIT_FOR_PACKET( receivedPublish, MQTTSuccess );
     TEST_ASSERT_EQUAL( MQTTQoS2, incomingInfo.qos );
     TEST_ASSERT_EQUAL( TEST_MQTT_TOPIC_LENGTH, incomingInfo.topicNameLength );
     TEST_ASSERT_EQUAL_MEMORY( TEST_MQTT_TOPIC,

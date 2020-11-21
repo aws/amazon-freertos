@@ -1330,6 +1330,9 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\http_demo_s3_download_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\http_demo_s3_upload_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_config.h</name>
 							</file>
 							<file>
@@ -2808,6 +2811,9 @@
 			<name>coreHTTP</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreHTTP\http_demo_s3_download.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreHTTP\http_demo_s3_upload.c</name>
 			</file>
 		</group>
 		<group>

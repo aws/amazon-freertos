@@ -1511,6 +1511,9 @@
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_download.c">
 			<Filter>demos\coreHTTP</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_upload.c">
+			<Filter>demos\coreHTTP</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_mutual_auth.c">
 			<Filter>demos\coreMQTT</Filter>
 		</ClCompile>
