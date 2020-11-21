@@ -1203,7 +1203,7 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/liblobaro_coap.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/CoAp/option-types</name>
+			<name>libraries/3rdparty/CoAp/option_types</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -1218,29 +1218,29 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/CoAp/option-types/coap_option_ETag.c</name>
+			<name>libraries/3rdparty/CoAp/option_types/coap_option_ETag.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/option-types/coap_option_ETag.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/option_types/coap_option_ETag.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/CoAp/option-types/coap_option_blockwise.c</name>
+			<name>libraries/3rdparty/CoAp/option_types/coap_option_blockwise.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/option-types/coap_option_blockwise.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/option_types/coap_option_blockwise.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/CoAp/option-types/coap_option_cf.c</name>
+			<name>libraries/3rdparty/CoAp/option_types/coap_option_cf.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/option-types/coap_option_cf.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/option_types/coap_option_cf.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/CoAp/option-types/coap_option_observe.c</name>
+			<name>libraries/3rdparty/CoAp/option_types/coap_option_observe.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/option-types/coap_option_observe.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/option_types/coap_option_observe.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/CoAp/option-types/coap_option_uri.c</name>
+			<name>libraries/3rdparty/CoAp/option_types/coap_option_uri.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/option-types/coap_option_uri.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/CoAp/option_types/coap_option_uri.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/CoAp/interface/network/net_Endpoint.c</name>

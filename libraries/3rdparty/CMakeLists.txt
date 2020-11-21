@@ -296,23 +296,23 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/CoAp")
         "${AFR_3RDPARTY_DIR}/CoAp/interface/network/net_Socket.h"
         "${AFR_3RDPARTY_DIR}/CoAp/liblobaro_coap.c"
         "${AFR_3RDPARTY_DIR}/CoAp/liblobaro_coap.h"
-        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_ETag.c"
-        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_ETag.h"
-        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_blockwise.c"
-        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_blockwise.h"
-        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_cf.c"
-        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_cf.h"
-        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_observe.c"
-        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_observe.h"
-        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_uri.c"
-        "${AFR_3RDPARTY_DIR}/CoAp/option-types/coap_option_uri.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/option_types/coap_option_ETag.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/option_types/coap_option_ETag.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/option_types/coap_option_blockwise.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/option_types/coap_option_blockwise.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/option_types/coap_option_cf.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/option_types/coap_option_cf.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/option_types/coap_option_observe.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/option_types/coap_option_observe.h"
+        "${AFR_3RDPARTY_DIR}/CoAp/option_types/coap_option_uri.c"
+        "${AFR_3RDPARTY_DIR}/CoAp/option_types/coap_option_uri.h"
     )
     target_include_directories(
         afr_3rdparty_coap INTERFACE
         "${AFR_3RDPARTY_DIR}/CoAp"
         "${AFR_3RDPARTY_DIR}/CoAp/interface"
         "${AFR_3RDPARTY_DIR}/CoAp/interface/network"
-        "${AFR_3RDPARTY_DIR}/CoAp/option-types"
+        "${AFR_3RDPARTY_DIR}/CoAp/option_types"
     )
     add_library(3rdparty::coap ALIAS afr_3rdparty_coap)
 endif()
