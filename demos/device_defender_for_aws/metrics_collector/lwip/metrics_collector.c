@@ -267,10 +267,10 @@
         if( status == MetricsCollectorSuccess )
         {
             LOCK_TCPIP_CORE();
-            pOutNetworkStats->bytesReceived = LWIP_GET_NETIF_PACKET_IN_sta();
-            pOutNetworkStats->bytesSent = LWIP_GET_NETIF_PACKET_OUT_sta();
-            pOutNetworkStats->packetsReceived = LWIP_GET_TCP_PACKET_IN();
-            pOutNetworkStats->packetsSent = LWIP_GET_TCP_PACKET_OUT();
+            pOutNetworkStats->bytesReceived = LWIP_GET_NETIF_BYTES_IN();
+            pOutNetworkStats->bytesSent = LWIP_GET_NETIF_BYTES_OUT();
+            pOutNetworkStats->packetsReceived = LWIP_GET_TCP_PACKETS_IN();
+            pOutNetworkStats->packetsSent = LWIP_GET_TCP_PACKETS_OUT();
             UNLOCK_TCPIP_CORE();
         }
 
