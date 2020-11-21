@@ -38,7 +38,7 @@ Code sizes are calculated on [202011.00 release](https://github.com/aws/amazon-f
 
 **Note** Refer to the [CODESIZE.md](CODESIZE.md) for more details about the calculation of code sizes for the Compatibility Layer and the [coreMQTT FreeRTOS documentation](https://freertos.org/mqtt/index.html) for coreMQTT library.
 
-**For applications requiring low memory footprint, we recommend using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md), which doesn't have any dependency other than the standard C library, a customer-implemented network transport interface, and *optionally* a user-implemented platform time function.**
+Note that coreMQTT library requires ~66% less code space as compared to the Compatibility Layer. **Hence, for applications requiring low memory footprint, we recommend using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md), which doesn't have any dependency other than the standard C library, a customer-implemented network transport interface, and *optionally* a user-implemented platform time function.**
 
 ## Comparison of tasks needed for Compatibility Layer and coreMQTT library
 
