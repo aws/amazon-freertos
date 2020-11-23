@@ -351,7 +351,7 @@ static void seedRandomNumberGenerator()
 static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
 {
     /* Status returned by the retry utilities. */
-    BackoffAlgStatus_t BackoffAlgStatus = BackoffAlgorithmSuccess;
+    BackoffAlgorithmStatus_t BackoffAlgStatus = BackoffAlgorithmSuccess;
     /* Struct containing Sockets configurations. */
     SocketsConfig_t socketsConfig = { 0 };
     /* Struct containing the next backoff time. */

@@ -1030,7 +1030,7 @@ static void seedRandomNumberGenerator()
 static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
 {
     bool isSuccessful = false;
-    BackoffAlgStatus_t BackoffAlgStatus = BackoffAlgorithmSuccess;
+    BackoffAlgorithmStatus_t BackoffAlgStatus = BackoffAlgorithmSuccess;
     BackoffAlgorithmContext_t reconnectParams;
     uint16_t nextRetryBackOff = 0U;
     TransportSocketStatus_t transportStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
