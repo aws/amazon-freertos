@@ -222,7 +222,7 @@
 #endif
 
 /**
- * @brief Time in ticks to wait between each iteration of the demo execution, 
+ * @brief Time in ticks to wait between each iteration of the demo execution,
  * in case a retry is required from demo execution failure.
  */
 #define DELAY_BETWEEN_DEMO_ITERATIONS_TICKS    ( pdMS_TO_TICKS( 5000U ) )
@@ -830,7 +830,7 @@ int RunJobsDemo( bool awsIotMqttMode,
         }
 
         /* Increment the demo run count. */
-        ulDemoRunCount++;
+        uxDemoRunCount++;
 
         /* Retry demo loop only if there is a failure before completing
          * the processing of any pending jobs. Any failure in MQTT unsubscribe
@@ -839,9 +839,9 @@ int RunJobsDemo( bool awsIotMqttMode,
          * make this demo indefinitely wait. */
         if( ( xDemoStatus == pdFAIL ) || ( xDemoEncounteredError == pdTRUE ) )
         {
-            if( ulDemoRunCount < JOBS_MAX_DEMO_COUNT )
+            if( uxDemoRunCount < JOBS_MAX_DEMO_COUNT )
             {
-                LogWarn( ( "Demo iteration %lu failed. Retrying...", ulDemoRunCount ) );
+                LogWarn( ( "Demo iteration %lu failed. Retrying...", uxDemoRunCount ) );
                 retryDemoLoop = pdTRUE;
             }
             else
