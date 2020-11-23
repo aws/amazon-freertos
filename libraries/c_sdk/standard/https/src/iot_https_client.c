@@ -43,7 +43,7 @@
  * The minimum path is "/" because we cannot know how long the application requested path is is going to be.
  * CONNECT is the longest string length HTTP method according to RFC 2616.
  */
-#define HTTPS_PARTIAL_REQUEST_LINE                        HTTPS_CONNECT_METHOD " " HTTPS_EMPTY_PATH " " HTTPS_PROTOCOL_VERSION
+#define HTTPS_PARTIAL_REQUEST_LINE        HTTPS_CONNECT_METHOD " " HTTPS_EMPTY_PATH " " HTTPS_PROTOCOL_VERSION
 
 /**
  * @brief The User-Agent header line string.
@@ -52,7 +52,7 @@
  * "User-Agent: <configured-user-agent>\r\n"
  * This is used for the calculation of the requestUserBufferMinimumSize.
  */
-#define HTTPS_USER_AGENT_HEADER_LINE                      HTTPS_USER_AGENT_HEADER HTTPS_HEADER_FIELD_SEPARATOR IOT_HTTPS_USER_AGENT HTTPS_END_OF_HEADER_LINES_INDICATOR
+#define HTTPS_USER_AGENT_HEADER_LINE      HTTPS_USER_AGENT_HEADER HTTPS_HEADER_FIELD_SEPARATOR IOT_HTTPS_USER_AGENT HTTPS_END_OF_HEADER_LINES_INDICATOR
 
 /**
  * @brief The Host header line with the field only and not the value.
@@ -62,27 +62,7 @@
  * This is used for the calculation of the requestUserBufferMinimumSize. The Host value is not specified because we
  * cannot anticipate what server the client is making requests to.
  */
-#define HTTPS_PARTIAL_HOST_HEADER_LINE                    HTTPS_HOST_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_END_OF_HEADER_LINES_INDICATOR
-
-/**
- * String constants for the Connection header and possible values.
- *
- * This is used for writing headers automatically during the sending of the HTTP request.
- * "Connection: keep-alive\r\n" is written automatically for a persistent connection.
- * "Connection: close\r\n" is written automatically for a non-persistent connection.
- */
-#define HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE           HTTPS_CONNECTION_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_CONNECTION_KEEP_ALIVE_HEADER_VALUE HTTPS_END_OF_HEADER_LINES_INDICATOR /**< @brief String literal for "Connection: keep-alive\r\n". */
-#define HTTPS_CONNECTION_CLOSE_HEADER_LINE                HTTPS_CONNECTION_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_CONNECTION_CLOSE_HEADER_VALUE HTTPS_END_OF_HEADER_LINES_INDICATOR      /**< @brief String literal for "Connection: close\r\n". */
-
-/**
- * @brief The length of the "Connection: keep-alive\r\n" header.
- *
- * This is used for sizing a local buffer for the final headers to send that include the "Connection: keep-alive\r\n"
- * header line.
- *
- * This is used to initialize a local array for the final headers to send.
- */
-#define HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE_LENGTH    ( 24 )
+#define HTTPS_PARTIAL_HOST_HEADER_LINE    HTTPS_HOST_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_END_OF_HEADER_LINES_INDICATOR
 
 /**
  * Indicates for the http-parser parsing execution function to tell it to keep parsing or to stop parsing.
@@ -90,8 +70,8 @@
  * A value of 0 means the parser should keep parsing if there is more unparsed length.
  * A value greater than 0 tells the parser to stop parsing.
  */
-#define KEEP_PARSING                                      ( ( int ) 0 ) /**< @brief Indicator in the http-parser callback to keep parsing when the function returns. */
-#define STOP_PARSING                                      ( ( int ) 1 ) /**< @brief Indicator in the http-parser callback to stop parsing when the function returns. */
+#define KEEP_PARSING                      ( ( int ) 0 )                 /**< @brief Indicator in the http-parser callback to keep parsing when the function returns. */
+#define STOP_PARSING                      ( ( int ) 1 )                 /**< @brief Indicator in the http-parser callback to stop parsing when the function returns. */
 
 /*-----------------------------------------------------------*/
 
@@ -337,40 +317,6 @@ static void _networkDisconnect( _httpsConnection_t * pHttpsConnection );
 static void _networkDestroy( _httpsConnection_t * pHttpsConnection );
 
 /**
- * @brief Add a header to the current HTTP request.
- *
- * The headers are stored in reqHandle->pHeaders.
- *
- * @param[in] pHttpsRequest - HTTP request context.
- * @param[in] pName - The name of the header to add.
- * @param[in] nameLen - The length of the header name string.
- * @param[in] pValue - The buffer containing the value string.
- * @param[in] valueLen - The length of the header value string.
- *
- * @return #IOT_HTTPS_OK if the header was added to the request successfully.
- *         #IOT_HTTPS_INSUFFICIENT_MEMORY if there was not enough room in the IotHttpsRequestHandle_t->pHeaders.
- */
-static IotHttpsReturnCode_t _addHeader( _httpsRequest_t * pHttpsRequest,
-                                        const char * pName,
-                                        uint32_t nameLen,
-                                        const char * pValue,
-                                        uint32_t valueLen );
-
-/**
- * @brief Send data on the network.
- *
- * @param[in] pHttpsConnection - HTTP connection context.
- * @param[in] pBuf - The buffer containing the data to send.
- * @param[in] len - The length of the data to send.
- *
- * @return #IOT_HTTPS_OK if the data sent successfully.
- *         #IOT_HTTPS_NETWORK_ERROR if there was an error sending the data on the network.
- */
-static IotHttpsReturnCode_t _networkSend( _httpsConnection_t * pHttpsConnection,
-                                          uint8_t * pBuf,
-                                          size_t len );
-
-/**
  * @brief Receive data on the network.
  *
  * @param[in] pHttpsConnection - HTTP connection context.
@@ -385,42 +331,6 @@ static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t * pHttpsConnection,
                                           uint8_t * pBuf,
                                           size_t bufLen,
                                           size_t * numBytesRecv );
-
-/**
- * @brief Send all of the HTTP request headers in the pHeadersBuf and the final Content-Length and Connection headers.
- *
- * All of the headers in headerbuf are sent first followed by the computed content length and persistent connection
- * indication.
- *
- * @param[in] pHttpsConnection - HTTP connection context.
- * @param[in] pHeadersBuf - The buffer containing the request headers to send. This buffer must contain HTTP headers
- *            lines without the indicator for the the end of the HTTP headers.
- * @param[in] headersLength - The length of the request headers to send.
- * @param[in] isNonPersistent - Indicator of whether the connection is persistent or not.
- * @param[in] contentLength - The length of the request body used for automatically creating a "Content-Length" header.
- *
- * @return #IOT_HTTPS_OK if the headers were fully sent successfully.
- *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
- */
-static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t * pHttpsConnection,
-                                               uint8_t * pHeadersBuf,
-                                               uint32_t headersLength,
-                                               bool isNonPersistent,
-                                               uint32_t contentLength );
-
-/**
- * @brief Send all of the HTTP request body in pBodyBuf.
- *
- * @param[in] pHttpsConnection - HTTP connection context.
- * @param[in] pBodyBuf - Buffer of the request body to send.
- * @param[in] bodyLength - The length of the body to send.
- *
- * @return #IOT_HTTPS_OK if the body was fully sent successfully.
- *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
- */
-static IotHttpsReturnCode_t _sendHttpsBody( _httpsConnection_t * pHttpsConnection,
-                                            uint8_t * pBodyBuf,
-                                            uint32_t bodyLength );
 
 /**
  * @brief Parse the HTTP response message in pBuf.
@@ -525,15 +435,11 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t * pHttpsC
                                                     _httpsResponse_t * pHttpsResponse );
 
 /**
- * @brief Task pool job routine to send the HTTP request within the pUserContext.
+ * @brief Send an HTTP request from the dispatch queue.
  *
- * @param[in] pTaskPool - Pointer to the system task pool.
- * @param[in] pJob - Pointer to the HTTP request sending job.
- * @param[in] pUserContext - Pointer to an HTTP request, passed as an opaque context.
+ * @param[in] pHttpsRequest - Pointer to an HTTP request.
  */
-static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
-                               IotTaskPoolJob_t pJob,
-                               void * pUserContext );
+static void _sendHttpsRequest( _httpsRequest_t * pHttpsRequest );
 
 /**
  * @brief Receive the HTTPS body specific to an asynchronous type of response.
@@ -560,12 +466,60 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync( _httpsResponse_t * pHttpsRes
 static IotHttpsReturnCode_t _receiveHttpsBodySync( _httpsResponse_t * pHttpsResponse );
 
 /**
+ * @brief A dummy function for the transport interface receive.
+ *
+ * HTTP V1 library handles receiving from the network and hence the transport
+ * implementation for receive is not used by the coreHTTP library. This
+ * dummy implementation is used for passing a non-NULL parameter to
+ * `HTTPClient_Send()`.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pBuffer Buffer to receive the data into.
+ * @param[in] bytesToRecv Number of bytes requested from the network.
+ *
+ * @return -1 to always return an error.
+ */
+static int32_t transportRecv( NetworkContext_t * pNetworkContext,
+                              void * pBuffer,
+                              size_t bytesToRecv );
+
+/**
+ * @brief Function for sending data over the network.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pBuffer Buffer containing the bytes to send over the network stack.
+ * @param[in] bytesToSend Number of bytes to send over the network.
+ *
+ * @return The number of bytes sent or a negative error code.
+ */
+static int32_t transportSend( NetworkContext_t * pNetworkContext,
+                              const void * pMessage,
+                              size_t bytesToSend );
+
+/**
+ * @brief A task handle that sends an HTTPS request.
+ */
+static TaskHandle_t httpsDispatchTask[ IOT_HTTPS_DISPATCH_TASK_COUNT ];
+
+/**
+ * @brief A queue that holds requests that are ready to be sent to the server.
+ */
+static QueueHandle_t dispatchQueue;
+
+/**
+ * @brief Sends requests from the dispatch queue.
+ *
+ * @param[in] pParameters User-provided parameters that are left unused.
+ */
+static void _dispatchTaskRoutine( void * pParameters );
+
+/**
  * @brief Schedule the task to send the the HTTP request.
  *
  * @param[in] pHttpsRequest - HTTP request context.
  *
  * @return  #IOT_HTTPS_OK if the task to send the HTTP request was successfully scheduled.
- *          #IOT_HTTPS_INTERNAL_ERROR if a taskpool job could not be created.
+ *          #IOT_HTTPS_INTERNAL_ERROR if the dispatch queue was full.
  *          #IOT_HTTPS_ASYNC_SCHEDULING_ERROR if there was an error scheduling the job.
  */
 IotHttpsReturnCode_t _scheduleHttpsRequestSend( _httpsRequest_t * pHttpsRequest );
@@ -578,7 +532,7 @@ IotHttpsReturnCode_t _scheduleHttpsRequestSend( _httpsRequest_t * pHttpsRequest 
  * @param[in] pHttpsRequest - HTTP request context.
  *
  * @return  #IOT_HTTPS_OK if the request was successfully added to the connection's request queue.
- *          #IOT_HTTPS_INTERNAL_ERROR if a taskpool job could not be created.
+ *          #IOT_HTTPS_INTERNAL_ERROR if the dispatch queue was full.
  *          #IOT_HTTPS_ASYNC_SCHEDULING_ERROR if there was an error scheduling the job.
  */
 IotHttpsReturnCode_t _addRequestToConnectionReqQ( _httpsRequest_t * pHttpsRequest );
@@ -1068,6 +1022,57 @@ static IotHttpsReturnCode_t _receiveHttpsBodySync( _httpsResponse_t * pHttpsResp
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Defining a network context for sending packets through the network interface.
+ * The declaration of the structure is mentioned in the transport_interface.h file.
+ */
+struct NetworkContext
+{
+    void * pNetworkConnection;                       /**< @brief The network connection used for sending packets on the network. */
+    const IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
+};
+
+/*-----------------------------------------------------------*/
+
+static int32_t transportRecv( NetworkContext_t * pNetworkContext,
+                              void * pBuffer,
+                              size_t bytesToRecv )
+{
+    /* This dummy implementation is used for passing a non-NULL parameter. */
+    ( void ) pNetworkContext;
+    ( void ) pBuffer;
+    ( void ) bytesToRecv;
+
+    /* Always return an error. */
+    return -1;
+}
+
+/*-----------------------------------------------------------*/
+
+static int32_t transportSend( NetworkContext_t * pNetworkContext,
+                              const void * pMessage,
+                              size_t bytesToSend )
+{
+    int32_t bytesSent = 0;
+
+    /* Sending the bytes on the network using the network interface. */
+    bytesSent = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection,
+                                                          ( const uint8_t * ) pMessage,
+                                                          bytesToSend );
+
+    /* 0 bytes returned for the old HTTP library implied a network error. However,
+     * #HTTPClient_Send from coreHTTP will block while the return value is 0, so
+     * the return value must be manually set to -1 to also denote a network error. */
+    if( bytesSent == 0 )
+    {
+        bytesSent = -1;
+    }
+
+    return bytesSent;
+}
+
+/*-----------------------------------------------------------*/
+
 static void _networkReceiveCallback( void * pNetworkConnection,
                                      void * pReceiveContext )
 {
@@ -1207,7 +1212,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
         }
         else /* Any other error. */
         {
-            IotLogError( "Failed to retrive the HTTPS body for response %p. Error code: %d", pCurrentHttpsResponse, status );
+            IotLogError( "Failed to retrieve the HTTPS body for response %p. Error code: %d", pCurrentHttpsResponse, status );
         }
 
         HTTPS_GOTO_CLEANUP();
@@ -1294,7 +1299,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
         pQItem = IotDeQueue_PeekHead( &( pHttpsConnection->reqQ ) );
         IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
-        /* If there is a next request to process, then create a taskpool job to send the request. */
+        /* If there is a next request to process, then add a dispatch task to the queue. */
         if( pQItem != NULL )
         {
             /* Set this next request to send. */
@@ -1586,86 +1591,6 @@ static void _networkDestroy( _httpsConnection_t * pHttpsConnection )
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _addHeader( _httpsRequest_t * pHttpsRequest,
-                                        const char * pName,
-                                        uint32_t nameLen,
-                                        const char * pValue,
-                                        uint32_t valueLen )
-{
-    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
-
-    int headerFieldSeparatorLen = HTTPS_HEADER_FIELD_SEPARATOR_LENGTH;
-    uint32_t additionalLength = nameLen + headerFieldSeparatorLen + valueLen + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
-    uint32_t possibleLastHeaderAdditionalLength = HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
-
-    /* Check if there is enough space to add the header field and value
-     * (name:value\r\n). We need to add a "\r\n" at the end of headers. The use of
-     * possibleLastHeaderAdditionalLength is to make sure that there is always
-     * space for the last "\r\n". */
-    if( ( additionalLength + possibleLastHeaderAdditionalLength ) > ( ( uint32_t ) ( pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur ) ) )
-    {
-        IotLogError( "There is %d space left in the header buffer, but we want to add %d more of header.",
-                     pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur,
-                     additionalLength + possibleLastHeaderAdditionalLength );
-        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INSUFFICIENT_MEMORY );
-    }
-
-    memcpy( pHttpsRequest->pHeadersCur, pName, nameLen );
-    pHttpsRequest->pHeadersCur += nameLen;
-    memcpy( pHttpsRequest->pHeadersCur, HTTPS_HEADER_FIELD_SEPARATOR, headerFieldSeparatorLen );
-    pHttpsRequest->pHeadersCur += headerFieldSeparatorLen;
-    memcpy( pHttpsRequest->pHeadersCur, pValue, valueLen );
-    pHttpsRequest->pHeadersCur += valueLen;
-    memcpy( pHttpsRequest->pHeadersCur, HTTPS_END_OF_HEADER_LINES_INDICATOR, HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH );
-    pHttpsRequest->pHeadersCur += HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
-    IotLogDebug( "Wrote header: \"%s: %.*s\r\n\". Space left in request user buffer: %d",
-                 pName,
-                 valueLen,
-                 pValue,
-                 pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur );
-
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
-}
-
-/*-----------------------------------------------------------*/
-
-static IotHttpsReturnCode_t _networkSend( _httpsConnection_t * pHttpsConnection,
-                                          uint8_t * pBuf,
-                                          size_t len )
-{
-    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
-
-    size_t numBytesSent = 0;
-    size_t numBytesSentTotal = 0;
-    size_t sendLength = len;
-
-    while( numBytesSentTotal < sendLength )
-    {
-        numBytesSent = pHttpsConnection->pNetworkInterface->send( pHttpsConnection->pNetworkConnection,
-                                                                  &( pBuf[ numBytesSentTotal ] ),
-                                                                  sendLength - numBytesSentTotal );
-
-        /* pNetworkInterface->send returns 0 on error. */
-        if( numBytesSent == 0 )
-        {
-            IotLogError( "Error in sending the HTTPS headers. Error code: %d", numBytesSent );
-            break;
-        }
-
-        numBytesSentTotal += numBytesSent;
-    }
-
-    if( numBytesSentTotal != sendLength )
-    {
-        IotLogError( "Error sending data on the network. We sent %d but there were total %d.", numBytesSentTotal, sendLength );
-        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_NETWORK_ERROR );
-    }
-
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
-}
-
-/*-----------------------------------------------------------*/
-
 static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t * pHttpsConnection,
                                           uint8_t * pBuf,
                                           size_t bufLen,
@@ -1696,88 +1621,6 @@ static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t * pHttpsConnection,
         * the server was too slow to respond. If the server is too slow to respond, then a network error must
         * be returned to trigger a connection close. The connection must close after the network error so
         * that the response from this request does not piggyback on the response from the next request. */
-    }
-
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
-}
-
-/*-----------------------------------------------------------*/
-
-static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t * pHttpsConnection,
-                                               uint8_t * pHeadersBuf,
-                                               uint32_t headersLength,
-                                               bool isNonPersistent,
-                                               uint32_t contentLength )
-{
-    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
-
-    const char * connectionHeader = NULL;
-    int numWritten = 0;
-    int connectionHeaderLen = 0;
-    /* The Content-Length header of the form "Content-Length: N\r\n" with a NULL terminator for snprintf. */
-    char contentLengthHeaderStr[ HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH + 1 ];
-
-    /* The HTTP headers to send after the headers in pHeadersBuf are the Content-Length and
-     * the final "\r\n" to indicate the end of the header lines. */
-    char trailingHeaders[ HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH ] = { 0 };
-
-    /* Send the headers passed into this function first. Although the headers in this buffer are terminated
-     * with a second set of "\r\n", they will not be sent until the trailing headers are written. */
-    status = _networkSend( pHttpsConnection, pHeadersBuf, headersLength - HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH );
-
-    if( HTTPS_FAILED( status ) )
-    {
-        IotLogError( "Error sending the HTTPS headers in the request user buffer. Error code: %d", status );
-        HTTPS_GOTO_CLEANUP();
-    }
-
-    /* If there is a Content-Length, then write that to the trailingHeaders to send. */
-    if( contentLength > 0 )
-    {
-        numWritten = snprintf( contentLengthHeaderStr,
-                               sizeof( contentLengthHeaderStr ),
-                               "%s: %u\r\n",
-                               HTTPS_CONTENT_LENGTH_HEADER,
-                               ( unsigned int ) contentLength );
-    }
-
-    if( ( numWritten < 0 ) || ( numWritten >= ( ( int ) sizeof( contentLengthHeaderStr ) ) ) )
-    {
-        IotLogError( "Internal error in snprintf() in _sendHttpsHeaders(). Error code %d.", numWritten );
-        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
-    }
-
-    /* snprintf() succeeded so copy that to the trailingHeaders. */
-    memcpy( trailingHeaders, contentLengthHeaderStr, numWritten );
-
-    memcpy( &trailingHeaders[ numWritten ], HTTPS_END_OF_HEADER_LINES_INDICATOR, HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH );
-    numWritten += HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
-
-    status = _networkSend( pHttpsConnection, ( uint8_t * ) trailingHeaders, numWritten );
-
-    if( HTTPS_FAILED( status ) )
-    {
-        IotLogError( "Error sending final HTTPS Headers \r\n%s. Error code: %d", trailingHeaders, status );
-        HTTPS_GOTO_CLEANUP();
-    }
-
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
-}
-
-/*-----------------------------------------------------------*/
-
-static IotHttpsReturnCode_t _sendHttpsBody( _httpsConnection_t * pHttpsConnection,
-                                            uint8_t * pBodyBuf,
-                                            uint32_t bodyLength )
-{
-    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
-
-    status = _networkSend( pHttpsConnection, pBodyBuf, bodyLength );
-
-    if( HTTPS_FAILED( status ) )
-    {
-        IotLogError( "Error sending final HTTPS body at location %p. Error code: %d", pBodyBuf, status );
-        HTTPS_GOTO_CLEANUP();
     }
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
@@ -2089,32 +1932,35 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
-    /* Send the HTTP headers. */
-    status = _sendHttpsHeaders( pHttpsConnection,
-                                pHttpsRequest->pHeaders,
-                                pHttpsRequest->pHeadersCur - pHttpsRequest->pHeaders,
-                                pHttpsRequest->isNonPersistent,
-                                pHttpsRequest->bodyLength );
+    HTTPStatus_t coreHttpStatus = HTTPSuccess;
+    HTTPRequestHeaders_t coreHttpRequestHeaders;
+    TransportInterface_t transportInterface;
+    NetworkContext_t networkContext;
+    uint32_t sendFlags = 0;
+
+    coreHttpRequestHeaders.pBuffer = pHttpsRequest->pHeaders;
+    coreHttpRequestHeaders.bufferLen = ( size_t ) ( pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeaders );
+    coreHttpRequestHeaders.headersLen = ( size_t ) ( pHttpsRequest->pHeadersCur - pHttpsRequest->pHeaders );
+
+    networkContext.pNetworkConnection = pHttpsConnection->pNetworkConnection;
+    networkContext.pNetworkInterface = pHttpsConnection->pNetworkInterface;
+
+    transportInterface.send = transportSend;
+    transportInterface.recv = transportRecv;
+    transportInterface.pNetworkContext = &networkContext;
+
+    coreHttpStatus = HTTPClient_Send( &transportInterface,
+                                      &coreHttpRequestHeaders,
+                                      pHttpsRequest->pBody,
+                                      ( size_t ) pHttpsRequest->bodyLength,
+                                      NULL,
+                                      sendFlags );
+    status = _shimConvertStatus( coreHttpStatus );
 
     if( HTTPS_FAILED( status ) )
     {
-        IotLogError( "Error sending the HTTPS headers with error code: %d", status );
+        IotLogError( "Error sending the HTTPS request with error code: %d", status );
         HTTPS_GOTO_CLEANUP();
-    }
-
-    IotLogDebug( "Sent HTTPS headers for request %p.", pHttpsRequest );
-
-    if( ( pHttpsRequest->pBody != NULL ) && ( pHttpsRequest->bodyLength > 0 ) )
-    {
-        status = _sendHttpsBody( pHttpsConnection, pHttpsRequest->pBody, pHttpsRequest->bodyLength );
-
-        if( HTTPS_FAILED( status ) )
-        {
-            IotLogError( "Error sending final HTTPS body. Return code: %d", status );
-            HTTPS_GOTO_CLEANUP();
-        }
-
-        IotLogDebug( "Sent HTTPS body for request %p.", pHttpsRequest );
     }
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
@@ -2122,22 +1968,16 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
 
 /*-----------------------------------------------------------*/
 
-static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
-                               IotTaskPoolJob_t pJob,
-                               void * pUserContext )
+static void _sendHttpsRequest( _httpsRequest_t * pHttpsRequest )
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
-    _httpsRequest_t * pHttpsRequest = ( _httpsRequest_t * ) ( pUserContext );
     _httpsConnection_t * pHttpsConnection = pHttpsRequest->pHttpsConnection;
     _httpsResponse_t * pHttpsResponse = pHttpsRequest->pHttpsResponse;
     IotHttpsReturnCode_t disconnectStatus = IOT_HTTPS_OK;
     IotHttpsReturnCode_t scheduleStatus = IOT_HTTPS_OK;
     IotLink_t * pQItem = NULL;
     _httpsRequest_t * pNextHttpsRequest = NULL;
-
-    ( void ) pTaskPool;
-    ( void ) pJob;
 
     IotLogDebug( "Task with request ID: %p started.", pHttpsRequest );
 
@@ -2324,34 +2164,48 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
 
 /*-----------------------------------------------------------*/
 
+static void _dispatchTaskRoutine( void * pParameters )
+{
+    ( void ) pParameters;
+
+    _httpsRequest_t * pHttpsRequest = NULL;
+
+    for( ; ; )
+    {
+        /* If there are no requests in the dispatch queue, try again. */
+        if( xQueueReceive( dispatchQueue,
+                           &pHttpsRequest,
+                           IOT_HTTPS_QUEUE_RECV_TICKS ) == pdFALSE )
+        {
+            IotLogDebug( "No requests to send. Trying again." );
+            continue;
+        }
+
+        _sendHttpsRequest( pHttpsRequest );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 IotHttpsReturnCode_t _scheduleHttpsRequestSend( _httpsRequest_t * pHttpsRequest )
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
-    IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
+    BaseType_t queueStatus = pdTRUE;
     _httpsConnection_t * pHttpsConnection = pHttpsRequest->pHttpsConnection;
 
     /* Set the request to scheduled even if scheduling fails. */
     pHttpsRequest->scheduled = true;
 
-    taskPoolStatus = IotTaskPool_CreateJob( _sendHttpsRequest,
-                                            ( void * ) ( pHttpsRequest ),
-                                            &( pHttpsConnection->taskPoolJobStorage ),
-                                            &( pHttpsConnection->taskPoolJob ) );
+    queueStatus = xQueueSendToBack( dispatchQueue, &pHttpsRequest, IOT_HTTPS_QUEUE_SEND_TICKS );
 
-    /* Creating a task pool job should never fail when parameters are valid. */
-    if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
+    /* Occurs when the queue remains full for #IOT_HTTPS_QUEUE_SEND_TICKS. */
+    if( queueStatus != pdTRUE )
     {
-        IotLogError( "Error creating a taskpool job for request servicing. Error code: %d", taskPoolStatus );
+        IotLogError( "Failed to add request to full dispatch queue of size %u. Error code: %d",
+                     IOT_HTTPS_DISPATCH_QUEUE_SIZE,
+                     ( int ) queueStatus );
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
-    }
-
-    taskPoolStatus = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, pHttpsConnection->taskPoolJob, 0 );
-
-    if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
-    {
-        IotLogError( "Failed to schedule taskpool job. Error code: %d", taskPoolStatus );
-        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_ASYNC_SCHEDULING_ERROR );
     }
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
@@ -2402,17 +2256,17 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ( _httpsRequest_t * pHttpsReques
     if( ( IotDeQueue_IsEmpty( &( pHttpsConnection->reqQ ) ) ) &&
         ( IotDeQueue_IsEmpty( &( pHttpsConnection->respQ ) ) ) )
     {
-        IotLogDebug( "Both the request and response queue are empty, so schedule the request to run in the taskpool." );
+        IotLogDebug( "Both the request and response queue are empty, so schedule the request to run in the dispatch queue." );
         scheduleRequest = true;
     }
 
-    /* Place into the connection's request to have a taskpool worker schedule to serve it later. */
+    /* Place into the connection's request to have a dispatch task serve it later. */
     IotDeQueue_EnqueueTail( &( pHttpsConnection->reqQ ), &( pHttpsRequest->link ) );
     IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
     if( scheduleRequest )
     {
-        /* This routine schedules a task pool worker to send the request. If a worker is available immediately, then
+        /* This routine schedules a dispatch task to send the request. If a task is available immediately, then
          * the request is sent right away. */
         status = _scheduleHttpsRequestSend( pHttpsRequest );
 
@@ -2452,6 +2306,72 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
+    uint8_t dispatchTaskIndex = 0;
+    BaseType_t taskCreationResult = pdFALSE;
+
+    /* Allocate the dispatch queue. */
+    #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
+        /* An array that holds the TCB of each dispatch task. */
+        static StaticTask_t dispatchTaskBuffer[ IOT_HTTPS_DISPATCH_TASK_COUNT ];
+
+        /* An array that holds the stack of each dispatch task.
+         * The size of StackType_t is dependent on the RTOS port. */
+        static StackType_t dispatchTaskStack[ IOT_HTTPS_DISPATCH_TASK_COUNT ][ IOT_HTTPS_DISPATCH_TASK_STACK_SIZE ];
+
+        /* A data structure to contain a statically allocated queue. */
+        static StaticQueue_t dispatchQueueBuffer;
+
+        /* A buffer to hold static memory for the dispatch queue. */
+        static uint8_t dispatchQueueStorageBuffer[ IOT_HTTPS_DISPATCH_QUEUE_SIZE * sizeof( _httpsRequest_t * ) ];
+
+        dispatchQueue = xQueueCreateStatic( IOT_HTTPS_DISPATCH_QUEUE_SIZE,
+                                            sizeof( _httpsRequest_t * ),
+                                            dispatchQueueStorageBuffer,
+                                            &dispatchQueueBuffer );
+    #else /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1 */
+        dispatchQueue = xQueueCreate( IOT_HTTPS_DISPATCH_QUEUE_SIZE, sizeof( _httpsRequest_t * ) );
+    #endif /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1 */
+
+    if( dispatchQueue == NULL )
+    {
+        /* Queue was not created and must not be used. */
+        IotLogError( "Failed to allocate resources for dispatch queue.", status );
+        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
+    }
+
+    /* Start tasks that send requests from the dispatch queue. */
+    for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
+    {
+        #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
+            httpsDispatchTask[ dispatchTaskIndex ] = xTaskCreateStatic( _dispatchTaskRoutine,
+                                                                        "iot_thread",
+                                                                        IOT_HTTPS_DISPATCH_TASK_STACK_SIZE,
+                                                                        NULL,
+                                                                        IOT_HTTPS_DISPATCH_TASK_PRIORITY,
+                                                                        dispatchTaskStack[ dispatchTaskIndex ],
+                                                                        &dispatchTaskBuffer[ dispatchTaskIndex ] );
+
+            if( httpsDispatchTask[ dispatchTaskIndex ] == NULL )
+            {
+                IotLogError( "Failed to allocate static memory for request task.", status );
+                HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
+            }
+        #else /* ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY */
+            taskCreationResult = xTaskCreate( _dispatchTaskRoutine,
+                                              "iot_thread",
+                                              IOT_HTTPS_DISPATCH_TASK_STACK_SIZE,
+                                              NULL,
+                                              IOT_HTTPS_DISPATCH_TASK_PRIORITY,
+                                              &httpsDispatchTask[ dispatchTaskIndex ] );
+
+            if( taskCreationResult != pdPASS )
+            {
+                IotLogError( "Failed to allocate dynamic memory for request task.", status );
+                HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
+            }
+        #endif /* ifdef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY */
+    }
+
     /* This sets all member in the _httpParserSettings to zero. It does not return any errors. */
     http_parser_settings_init( &_httpParserSettings );
 
@@ -2470,8 +2390,32 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
         _httpParserSettings.on_chunk_header = _httpParserOnChunkHeaderCallback;
         _httpParserSettings.on_chunk_complete = _httpParserOnChunkCompleteCallback;
     #endif
-    HTTPS_GOTO_CLEANUP();
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+    HTTPS_FUNCTION_CLEANUP_BEGIN();
+    /* Upon error, reset to original state, freeing up any dynamic memory. */
+    #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1
+        /* Free memory used for the dispatch queue. */
+        if( dispatchQueue != NULL )
+        {
+            vQueueDelete( dispatchQueue );
+        }
+    #endif /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1 */
+    dispatchQueue = NULL;
+
+    /* Delete the tasks that send requests from the dispatch queue. */
+    for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
+    {
+        if( httpsDispatchTask[ dispatchTaskIndex ] != NULL )
+        {
+            #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
+                vTaskSuspend( httpsDispatchTask[ dispatchTaskIndex ] );
+            #else
+                vTaskDelete( httpsDispatchTask[ dispatchTaskIndex ] );
+            #endif
+            httpsDispatchTask[ dispatchTaskIndex ] = NULL;
+        }
+    }
+
+    HTTPS_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -2622,7 +2566,30 @@ static IotHttpsReturnCode_t _shimConvertStatus( HTTPStatus_t coreHttpStatus )
 
 void IotHttpsClient_Cleanup( void )
 {
-    /* There is nothing to clean up here as of now. */
+    uint8_t dispatchTaskIndex = 0;
+
+    #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1
+        /* Free memory used for the dispatch queue. */
+        if( dispatchQueue != NULL )
+        {
+            vQueueDelete( dispatchQueue );
+        }
+    #endif /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1 */
+    dispatchQueue = NULL;
+
+    /* Delete the tasks that send requests from the dispatch queue. */
+    for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
+    {
+        if( httpsDispatchTask[ dispatchTaskIndex ] != NULL )
+        {
+            #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
+                vTaskSuspend( httpsDispatchTask[ dispatchTaskIndex ] );
+            #else
+                vTaskDelete( httpsDispatchTask[ dispatchTaskIndex ] );
+            #endif
+            httpsDispatchTask[ dispatchTaskIndex ] = NULL;
+        }
+    }
 }
 
 /* --------------------------------------------------------- */
@@ -2647,7 +2614,7 @@ IotHttpsReturnCode_t IotHttpsClient_Connect( IotHttpsConnectionHandle_t * pConnH
 
             if( HTTPS_FAILED( status ) )
             {
-                IotLogError( "Error disconnecting a connected *pConnHandle passed to IotHttpsClient_Connect().Error code %d", status );
+                IotLogError( "Error disconnecting a connected *pConnHandle passed to IotHttpsClient_Connect(). Error code %d", status );
                 *pConnHandle = NULL;
                 HTTPS_GOTO_CLEANUP();
             }
@@ -2678,7 +2645,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( connHandle );
 
-    /* If this routine is currently is progress by another thread, for instance the taskpool worker that received a
+    /* If this routine is currently is progress by another thread, for instance the dispatch task that received a
      * network error after sending, then return right away because connection resources are being used. */
     if( IotMutex_TryLock( &( connHandle->connectionMutex ) ) == false )
     {
