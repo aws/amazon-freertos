@@ -222,8 +222,8 @@
 #endif
 
 /**
- * @brief Time in ticks to wait between each cycle of the demo implemented
- * by RunJobsDemo(), in case a retry is required.
+ * @brief Time in ticks to wait between each iteration of the demo execution, 
+ * in case a retry is required from demo execution failure.
  */
 #define DELAY_BETWEEN_DEMO_ITERATIONS_TICKS    ( pdMS_TO_TICKS( 5000U ) )
 
@@ -717,7 +717,7 @@ int RunJobsDemo( bool awsIotMqttMode,
                  const void * pNetworkInterface )
 {
     BaseType_t xDemoStatus = pdPASS;
-    uint32_t ulDemoRunCount = 0UL;
+    UBaseType_t uxDemoRunCount = 0UL;
     BaseType_t retryDemoLoop = pdFALSE;
 
     /* Remove compiler warnings about unused parameters. */
@@ -834,7 +834,7 @@ int RunJobsDemo( bool awsIotMqttMode,
 
         /* Retry demo loop only if there is a failure before completing
          * the processing of any pending jobs. Any failure in MQTT unsubscribe
-         * or disconnect are considered a failure in demo execution and retry
+         * or disconnect is considered a failure in demo execution and retry
          * will not be attempted since a retry without any pending jobs will
          * make this demo indefinitely wait. */
         if( ( xDemoStatus == pdFAIL ) || ( xDemoEncounteredError == pdTRUE ) )
