@@ -29,11 +29,14 @@
 /* The config header is always included first. */
 #include "iot_config.h"
 
-/* Standard Includes. */
+/* Standard includes. */
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+/* Kernel includes. */
+#include "queue.h"
 
 /* coreHTTP includes. */
 #include "core_http_client.h"
@@ -44,14 +47,8 @@
 /* HTTPS Client library includes. */
 #include "iot_https_client.h"
 
-/* Task pool include. */
-#include "iot_taskpool.h"
-
 /* Linear containers (lists and queues) include. */
 #include "iot_linear_containers.h"
-
-/* Types include. */
-#include "types/iot_taskpool_types.h"
 
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
@@ -161,6 +158,9 @@
  */
 #if IOT_STATIC_MEMORY_ONLY == 1
     #include "private/iot_static_memory.h"
+    #ifndef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
+        #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    ( 1 ) /* Use static memory for dispatch queue and tasks. */
+    #endif
 #endif
 
 /**
@@ -170,26 +170,59 @@
  * Provide default values for undefined configuration constants.
  */
 #ifndef AWS_IOT_HTTPS_ENABLE_METRICS
-    #define AWS_IOT_HTTPS_ENABLE_METRICS           ( 1 )
+    #define AWS_IOT_HTTPS_ENABLE_METRICS            ( 1 )
 #endif
 #ifndef IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE
-    #define IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE        ( 1024 )
+    #define IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE         ( 1024 )
 #endif
 #ifndef IOT_HTTPS_RESPONSE_WAIT_MS
-    #define IOT_HTTPS_RESPONSE_WAIT_MS             ( 1000 )
+    #define IOT_HTTPS_RESPONSE_WAIT_MS              ( 1000 )
 #endif
 #ifndef IOT_HTTPS_MAX_HOST_NAME_LENGTH
-    #define IOT_HTTPS_MAX_HOST_NAME_LENGTH         ( 255 ) /* Per FQDN, the maximum host name length is 255 bytes. */
+    #define IOT_HTTPS_MAX_HOST_NAME_LENGTH          ( 255 ) /* Per FQDN, the maximum host name length is 255 bytes. */
 #endif
 #ifndef IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH
-    #define IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH    ( 255 ) /* The maximum alpn protocols length is chosen arbitrarily. */
+    #define IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH     ( 255 ) /* The maximum alpn protocols length is chosen arbitrarily. */
 #endif
-/* Provide the User-Agent Value definition from coreHTTP. */
+#ifndef IOT_HTTPS_QUEUE_RECV_TICKS
+    #define IOT_HTTPS_QUEUE_RECV_TICKS              ( portMAX_DELAY ) /* The ticks to wait for a #xQueueReceive to complete. */
+#endif
+#ifndef IOT_HTTPS_QUEUE_SEND_TICKS
+    #define IOT_HTTPS_QUEUE_SEND_TICKS              ( 0U ) /* The ticks to wait for a #xQueueSendToBack to complete. */
+#endif
+#ifndef IOT_HTTPS_DISPATCH_QUEUE_SIZE
+    #define IOT_HTTPS_DISPATCH_QUEUE_SIZE           ( 6U ) /* The size of the queue containing requests ready to send to the server. */
+#endif
+#ifndef IOT_HTTPS_DISPATCH_TASK_COUNT
+    #define IOT_HTTPS_DISPATCH_TASK_COUNT           ( 3U ) /* The number of tasks that send requests from the queue. */
+#endif
+#ifndef IOT_HTTPS_DISPATCH_TASK_STACK_SIZE
+    #define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE ) /* The stack size of each dispatch task. */
+#endif
+#ifndef IOT_HTTPS_DISPATCH_TASK_PRIORITY
+    #define IOT_HTTPS_DISPATCH_TASK_PRIORITY        ( IOT_THREAD_DEFAULT_PRIORITY ) /* Priority is deliberately chosen to match the original taskpool's priority. */
+#endif
+#ifndef IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY
+    #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    ( 0 ) /* The dispatch queue and tasks will not use static memory by default. */
+#endif
+
+/* Provide the User-Agent Value definition fom coreHTTP. */
 #ifdef HTTP_USER_AGENT_VALUE
     #define IOT_HTTPS_USER_AGENT    HTTP_USER_AGENT_VALUE
 #endif
 
 /** @endcond */
+
+/* Error checking of macro configurations. */
+#if IOT_HTTPS_DISPATCH_TASK_COUNT < 1
+    #error "IOT_HTTPS_DISPATCH_TASK_COUNT must be at least 1."
+#endif
+#if IOT_HTTPS_DISPATCH_QUEUE_SIZE < 1
+    #error "IOT_HTTPS_DISPATCH_QUEUE_SIZE must be at least 1."
+#endif
+#if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1 && configSUPPORT_STATIC_ALLOCATION != 1
+    #error "IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY is 1, but configSUPPORT_STATIC_ALLOCATION is not set to 1."
+#endif
 
 /**
  * @brief The HTTP protocol version of this library is HTTP/1.1.
@@ -395,12 +428,10 @@ typedef struct _httpsConnection
      * disconnect with a network error, or an explicit disconnect with a call to @ref https_client_function_disconnect.
      */
     bool isConnected;
-    bool isDestroyed;                           /**< @brief true if the connection is already destroyed and we should call anymore  */
-    IotMutex_t connectionMutex;                 /**< @brief Mutex protecting operations on this entire connection context. */
-    IotDeQueue_t reqQ;                          /**< @brief The queue for the requests that are not finished yet. */
-    IotDeQueue_t respQ;                         /**< @brief The queue for the responses that are waiting to be processed. */
-    IotTaskPoolJobStorage_t taskPoolJobStorage; /**< @brief An asynchronous operation requires storage for the task pool job. */
-    IotTaskPoolJob_t taskPoolJob;               /**< @brief The task pool job identifier for an asynchronous request. */
+    bool isDestroyed;           /**< @brief true if the connection is already destroyed and we should not make calls on it anymore.  */
+    IotMutex_t connectionMutex; /**< @brief Mutex protecting operations on this entire connection context. */
+    IotDeQueue_t reqQ;          /**< @brief The queue for the requests that are not finished yet. */
+    IotDeQueue_t respQ;         /**< @brief The queue for the responses that are waiting to be processed. */
 } _httpsConnection_t;
 
 /**
@@ -488,7 +519,7 @@ typedef struct _httpsRequest
     IotHttpsClientCallbacks_t * pCallbacks;     /**< @brief Pointer to the asynchronous request callbacks. */
     bool cancelled;                             /**< @brief Set this to true to stop the response processing in the asynchronous workflow. */
     IotHttpsReturnCode_t bodyTxStatus;          /**< @brief The status of network sending the HTTPS body to be returned during the #IotHttpsClientCallbacks_t.writeCallback. */
-    bool scheduled;                             /**< @brief Set to true when this request has already been scheduled to the task pool. */
+    bool scheduled;                             /**< @brief Set to true when this request has already been added to the dispatch queue. */
 } _httpsRequest_t;
 
 /*-----------------------------------------------------------*/
