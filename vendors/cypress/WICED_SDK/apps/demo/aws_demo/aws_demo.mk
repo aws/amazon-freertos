@@ -53,7 +53,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_LIBRARIES_PATH)logging/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include  \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include \
-                    $(AFR_ABSTRACTIONS_PATH)retry_utils/source/include \
+                    $(AFR_ABSTRACTIONS_PATH)backoff_algorithm/source/include \
                     $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets \
                     $(AFR_C_SDK_STANDARD_PATH)common/taskpool/private \
                     $(AFR_C_SDK_STANDARD_PATH)common/include/private \
@@ -130,7 +130,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c \
-                      $(AFR_ABSTRACTIONS_PATH)retry_utils/source/retry_utils.c \
+                      $(AFR_ABSTRACTIONS_PATH)backoff_algorithm/source/backoff_algorithm.c \
                       $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets/transport_secure_sockets.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_init.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_device_metrics.c \

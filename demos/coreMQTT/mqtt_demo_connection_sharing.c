@@ -68,7 +68,7 @@
 #include "core_mqtt_state.h"
 
 /* Retry utilities include. */
-#include "retry_utils.h"
+#include "backoff_algorithm.h"
 
 /* Include PKCS11 helpers header. */
 #include "pkcs11_helpers.h"
@@ -406,8 +406,8 @@ typedef struct publishElement
 /**
  * @brief The random number generator to use for exponential backoff with
  * jitter retry logic.
- * This function is an implementation the #RetryUtils_RNG_t interface type
- * of the retry utils library API.
+ * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
+ * of the backoff algorithm library API.
  *
  * @return The generated random number. This function ALWAYS succeeds
  * in generating a random number.
@@ -994,8 +994,8 @@ static BaseType_t prvSeedRandomNumberGenerator()
 static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
 {
     BaseType_t xConnected = pdFAIL;
-    RetryUtilsStatus_t xRetryUtilsStatus = RetryUtilsSuccess;
-    RetryUtilsContext_t xReconnectParams;
+    BackoffAlgStatus_t xBackoffAlgStatus = BackoffAlgorithmSuccess;
+    BackoffAlgorithmContext_t xReconnectParams;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     ServerInfo_t xServerInfo = { 0 };
     SocketsConfig_t xSocketConfig = { 0 };
@@ -1015,11 +1015,11 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
     xSocketConfig.rootCaSize = sizeof( democonfigROOT_CA_PEM );
 
     /* Initialize reconnect attempts and interval. */
-    RetryUtils_InitializeParams( &xReconnectParams,
-                                 RETRY_BACKOFF_BASE_MS,
-                                 RETRY_MAX_BACKOFF_DELAY_MS,
-                                 RETRY_MAX_ATTEMPTS,
-                                 prvGenerateRandomNumber );
+    BackoffAlgorithm_InitializeParams( &xReconnectParams,
+                                       RETRY_BACKOFF_BASE_MS,
+                                       RETRY_MAX_BACKOFF_DELAY_MS,
+                                       RETRY_MAX_ATTEMPTS,
+                                       prvGenerateRandomNumber );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after a
      * timeout. Timeout value will exponentially increase until the maximum
@@ -1041,14 +1041,14 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
         if( !xConnected )
         {
             /* Get back-off value (in milliseconds) for the next connection retry. */
-            xRetryUtilsStatus = RetryUtils_GetNextBackOff( &xReconnectParams, &usNextRetryBackOff );
-            configASSERT( xRetryUtilsStatus != RetryUtilsRngFailure );
+            xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &xReconnectParams, &usNextRetryBackOff );
+            configASSERT( xBackoffAlgStatus != BackoffAlgorithmRngFailure );
 
-            if( xRetryUtilsStatus == RetryUtilsRetriesExhausted )
+            if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
             {
                 LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
             }
-            else if( xRetryUtilsStatus == RetryUtilsSuccess )
+            else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
             {
                 LogWarn( ( "Connection to the broker failed. Retrying connection after backoff delay." ) );
                 vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
@@ -1058,7 +1058,7 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
                            xReconnectParams.maxRetryAttempts ) );
             }
         }
-    } while( ( xConnected != pdPASS ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
+    } while( ( xConnected != pdPASS ) && ( xBackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
     return xConnected;
 }
@@ -2135,7 +2135,7 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
      * synchronization primitives. */
     xDefaultResponseQueue = xQueueCreate( 1, sizeof( PublishElement_t ) );
 
-    /* Seed randon number generator for use with retry utils library for
+    /* Seed randon number generator for use with backoff algorithm library for
      * backoff calculation during failed connection retry attempts. */
     if( prvSeedRandomNumberGenerator() == pdPASS )
     {

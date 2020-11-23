@@ -77,9 +77,9 @@
 		<Filter Include="libraries\coreMQTT"/>
 		<Filter Include="libraries\coreMQTT\source\include"/>
 		<Filter Include="libraries\coreMQTT\source\interface"/>
-		<Filter Include="libraries\abstractions\retry_utils\source"/>
-		<Filter Include="libraries\abstractions\retry_utils"/>
-		<Filter Include="libraries\abstractions\retry_utils\source\include"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm\source"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm\source\include"/>
 		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
 		<Filter Include="libraries\abstractions\transport"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor"/>
@@ -419,8 +419,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h">
 			<Filter>libraries\coreMQTT\source\interface</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\retry_utils\source\include\retry_utils.h">
-			<Filter>libraries\abstractions\retry_utils\source\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include\backoff_algorithm.h">
+			<Filter>libraries\abstractions\backoff_algorithm\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
@@ -1018,8 +1018,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c">
 			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\retry_utils\source\retry_utils.c">
-			<Filter>libraries\abstractions\retry_utils\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\backoff_algorithm.c">
+			<Filter>libraries\abstractions\backoff_algorithm\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>

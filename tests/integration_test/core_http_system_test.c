@@ -48,7 +48,7 @@
 #include "iot_default_root_certificates.h"
 
 /* Retry parameters. */
-#include "retry_utils.h"
+#include "backoff_algorithm.h"
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -237,8 +237,8 @@ static size_t networkDataLen = 0U;
 /**
  * @brief The pseudo random number generator to use for exponential backoff with
  * jitter calculation for connection retries.
- * This function is an implementation the #RetryUtils_RNG_t interface type
- * of the retry utils library API.
+ * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
+ * of the backoff algorithm library API.
  *
  * @return The generated random number. This function ALWAYS succeeds
  * in generating a random number.
@@ -351,11 +351,11 @@ static void seedRandomNumberGenerator()
 static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
 {
     /* Status returned by the retry utilities. */
-    RetryUtilsStatus_t retryUtilsStatus = RetryUtilsSuccess;
+    BackoffAlgStatus_t BackoffAlgStatus = BackoffAlgorithmSuccess;
     /* Struct containing Sockets configurations. */
     SocketsConfig_t socketsConfig = { 0 };
     /* Struct containing the next backoff time. */
-    RetryUtilsContext_t reconnectParams;
+    BackoffAlgorithmContext_t reconnectParams;
     uint16_t nextRetryBackOff = 0U;
     /* Status returned by transport implementation. */
     TransportSocketStatus_t transportStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
@@ -376,11 +376,11 @@ static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
 
     /* Initialize reconnect attempts and interval. */
-    RetryUtils_InitializeParams( &reconnectParams,
-                                 CONNECTION_RETRY_BACKOFF_BASE_MS,
-                                 CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS,
-                                 CONNECTION_RETRY_MAX_ATTEMPTS,
-                                 generateRandomNumber );
+    BackoffAlgorithm_InitializeParams( &reconnectParams,
+                                       CONNECTION_RETRY_BACKOFF_BASE_MS,
+                                       CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS,
+                                       CONNECTION_RETRY_MAX_ATTEMPTS,
+                                       generateRandomNumber );
 
     /* Attempt to connect to HTTP server. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase until maximum
@@ -396,21 +396,21 @@ static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
         if( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
             /* Get back-off value for the next connection retry. */
-            retryUtilsStatus = RetryUtils_GetNextBackOff( &reconnectParams, &nextRetryBackOff );
-            TEST_ASSERT_TRUE( retryUtilsStatus != RetryUtilsRngFailure );
+            BackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &reconnectParams, &nextRetryBackOff );
+            TEST_ASSERT_TRUE( BackoffAlgStatus != BackoffAlgorithmRngFailure );
 
-            if( retryUtilsStatus == RetryUtilsRetriesExhausted )
+            if( BackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
             {
                 LogError( ( "Connection to the server failed, all attempts exhausted." ) );
             }
 
-            else if( retryUtilsStatus == RetryUtilsSuccess )
+            else if( BackoffAlgStatus == BackoffAlgorithmSuccess )
             {
                 LogWarn( ( "Connection to the server failed. Retrying connection after backoff delay." ) );
                 vTaskDelay( pdMS_TO_TICKS( nextRetryBackOff ) );
             }
         }
-    } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( retryUtilsStatus == RetryUtilsSuccess ) );
+    } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( BackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
     TEST_ASSERT_EQUAL( transportStatus, TRANSPORT_SOCKET_STATUS_SUCCESS );
 }

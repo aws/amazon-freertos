@@ -16,7 +16,7 @@ if(AFR_ENABLE_TESTS)
             AFR::transport_interface_secure_sockets
             AFR::common
             AFR::platform
-            AFR::retry_utils
+            AFR::backoff_algorithm
             AFR::pkcs11_implementation
     )
 
@@ -37,7 +37,7 @@ if(AFR_ENABLE_TESTS)
             AFR::transport_interface_secure_sockets
             AFR::common
             AFR::platform
-            AFR::retry_utils
+            AFR::backoff_algorithm
             AFR::pkcs11_implementation
     )
 
@@ -57,7 +57,7 @@ if(AFR_ENABLE_TESTS)
             AFR::transport_interface_secure_sockets
             AFR::common
             AFR::platform
-            AFR::retry_utils
+            AFR::backoff_algorithm
             AFR::pkcs11_implementation
     )
     

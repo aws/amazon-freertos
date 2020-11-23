@@ -98,7 +98,7 @@ if(EXISTS ${AFR_MODULES_DIR}/abstractions/transport/transport_interface_secure_s
   include(${AFR_MODULES_DIR}/abstractions/transport/transport_interface_secure_sockets.cmake)
 endif()
 
-# Add retry utils module ONLY if present in FreeRTOS console download.
-if(EXISTS ${AFR_MODULES_DIR}/retry_utils.cmake)
-  include(${AFR_MODULES_DIR}/retry_utils.cmake)
+# Add backoff algorithm module ONLY if present in FreeRTOS console download.
+if(EXISTS ${AFR_MODULES_DIR}/abstractions/backoff_algorithm.cmake)
+  include(${AFR_MODULES_DIR}/abstractions/backoff_algorithm.cmake)
 endif()

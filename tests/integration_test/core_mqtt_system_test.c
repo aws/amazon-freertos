@@ -52,7 +52,7 @@
 
 /* Include header for retrying network operations, like connection, with
  * exponential backoff and jitter.*/
-#include "retry_utils.h"
+#include "backoff_algorithm.h"
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -566,8 +566,8 @@ static int32_t failedRecv( NetworkContext_t * pNetworkContext,
 /**
  * @brief The pseudo random number generator to use for exponential backoff with
  * jitter calculation for connection retries.
- * This function is an implementation the #RetryUtils_RNG_t interface type
- * of the retry utils library API.
+ * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
+ * of the backoff algorithm library API.
  *
  * @return The generated random number. This function ALWAYS succeeds
  * in generating a random number.
@@ -1030,8 +1030,8 @@ static void seedRandomNumberGenerator()
 static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
 {
     bool isSuccessful = false;
-    RetryUtilsStatus_t retryUtilsStatus = RetryUtilsSuccess;
-    RetryUtilsContext_t reconnectParams;
+    BackoffAlgStatus_t BackoffAlgStatus = BackoffAlgorithmSuccess;
+    BackoffAlgorithmContext_t reconnectParams;
     uint16_t nextRetryBackOff = 0U;
     TransportSocketStatus_t transportStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
 
@@ -1051,11 +1051,11 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
 
     /* Initialize reconnect attempts and interval. */
-    RetryUtils_InitializeParams( &reconnectParams,
-                                 RETRY_BACKOFF_BASE_MS,
-                                 RETRY_MAX_BACKOFF_DELAY_MS,
-                                 RETRY_MAX_ATTEMPTS,
-                                 generateRandomNumber );
+    BackoffAlgorithm_InitializeParams( &reconnectParams,
+                                       RETRY_BACKOFF_BASE_MS,
+                                       RETRY_MAX_BACKOFF_DELAY_MS,
+                                       RETRY_MAX_ATTEMPTS,
+                                       generateRandomNumber );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase till maximum
@@ -1072,15 +1072,15 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
         if( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
             /* Get back-off value for the next connection retry. */
-            retryUtilsStatus = RetryUtils_GetNextBackOff( &reconnectParams, &nextRetryBackOff );
-            configASSERT( retryUtilsStatus != RetryUtilsRngFailure );
+            BackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &reconnectParams, &nextRetryBackOff );
+            configASSERT( BackoffAlgStatus != BackoffAlgorithmRngFailure );
 
-            if( retryUtilsStatus == RetryUtilsRetriesExhausted )
+            if( BackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
             {
                 LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
             }
 
-            else if( retryUtilsStatus == RetryUtilsSuccess )
+            else if( BackoffAlgStatus == BackoffAlgorithmSuccess )
             {
                 LogWarn( ( "Connection to the broker failed. Retrying connection after backoff delay." ) );
                 vTaskDelay( pdMS_TO_TICKS( nextRetryBackOff ) );
@@ -1090,7 +1090,7 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
         {
             isSuccessful = true;
         }
-    } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( retryUtilsStatus == RetryUtilsSuccess ) );
+    } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( BackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
     return isSuccessful;
 }
