@@ -45,30 +45,25 @@
 /* Device Defender Client Library. */
 #include "defender.h"
 
-
 #ifndef THING_NAME
-
-/**
- * @brief Predefined thing name.
- *
- * This is the example predefine thing name and could be compiled in ROM code.
- */
+    /**
+     * @brief Predefined thing name.
+     *
+     * This is the example predefine thing name and could be compiled in ROM code.
+     */
     #define THING_NAME    clientcredentialIOT_THING_NAME
 #endif
-
 
 /**
  * @brief The length of #THING_NAME.
  */
 #define THING_NAME_LENGTH    ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
 
-
 /**
  * @brief Number of seconds to wait for the response from AWS IoT Device
  * Defender service.
  */
 #define DEFENDER_RESPONSE_WAIT_SECONDS    ( 2 )
-
 
 /**
  * @brief Status values of the device defender report.
@@ -80,7 +75,6 @@ typedef enum
     ReportStatusRejected
 } ReportStatus_t;
 /*-----------------------------------------------------------*/
-
 
 /**
  * @brief The MQTT context used for MQTT operation.
@@ -147,13 +141,12 @@ static char deviceMetricsJsonReport[ DEVICE_METRICS_REPORT_BUFFER_SIZE ];
 static uint32_t reportId = 0;
 /*-----------------------------------------------------------*/
 
-
 /**
  * @brief Callback to receive the incoming publish messages from the MQTT broker.
  *
  * @param[in] pxMqttContext MQTT context pointer.
- * @param[in] pPublishInfo Pointer to publish info of the incoming publish.
- * @param[in] packetIdentifier Packet identifier of the incoming publish.
+ * @param[in] pxPacketInfo Information on the type of incoming MQTT packet.
+ * @param[in] pxDeserializedInfo Deserialized information from incoming packet.
  */
 static void publishCallback( MQTTContext_t * pxMqttContext,
                              MQTTPacketInfo_t * pxPacketInfo,
@@ -181,6 +174,7 @@ static BaseType_t generateDeviceMetricsReport( uint32_t * pOutReportLength );
  * @brief Subscribe to the device defender topics.
  *
  * @param[in] pxMqttContext MQTT context pointer.
+ *
  * @return pdPASS if the subscribe is successful;
  * pdFAIL otherwise.
  */
@@ -190,6 +184,7 @@ static BaseType_t subscribeToDefenderTopics( MQTTContext_t * pxMqttContext );
  * @brief Unsubscribe from the device defender topics.
  *
  * @param[in] pxMqttContext MQTT context pointer.
+ *
  * @return pdPASS if the unsubscribe is successful;
  * pdFAIL otherwise.
  */
@@ -211,7 +206,6 @@ static bool validateDefenderResponse( const char * defenderResponse,
                                       uint32_t defenderResponseLength );
 /*-----------------------------------------------------------*/
 
-
 static bool validateDefenderResponse( const char * defenderResponse,
                                       uint32_t defenderResponseLength )
 {
@@ -223,7 +217,6 @@ static bool validateDefenderResponse( const char * defenderResponse,
 
     /* Is the response a valid JSON? */
     jsonResult = JSON_Validate( defenderResponse, defenderResponseLength );
-
     if( jsonResult != JSONSuccess )
     {
         LogError( ( "Invalid response from AWS IoT Device Defender Service: %.*s.",
@@ -653,6 +646,4 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
 
     return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }
-
-
 /*-----------------------------------------------------------*/

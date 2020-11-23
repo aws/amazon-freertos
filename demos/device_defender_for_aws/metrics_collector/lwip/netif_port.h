@@ -26,29 +26,22 @@
 #ifndef __NETIF_PORT_H__
 #define __NETIF_PORT_H__
 
-/* The LWIP network metric bytes-in and bytes-out need the support from the board
- * LWIP network interface port. The bytes counts are inplemented in the board
+/* The LWIP network metric bytes-in and bytes-out need the support from LWIP
+ * network interface port. The bytes counts are implemented in the board
  * LWIP network interface port. The metric collector reads the bytes-in and
  * bytes-out data from a LWIP netif structure defined in the board LWIP network
- * interface port.
- *
- * To enable the bytes-in/out metric on a particular board you need to define one
- * of these:
- *
- *          MT7697HX_DEV_KIT
- *
- * */
-#define REPLACE_WITH_A_BOARD_FROM_LIST
+ */
 
-/* Boards netif port configurations */
+/* Boards netif port configurations. */
 #ifdef MT7697HX_DEV_KIT
-    /* Extern netif veriables from board's port */
+    /* Extern netif variables from board's port. */
     extern struct netif sta_if, ap_if;
 
-/* These define is used by metrics_collector.h to read the number of bytes-in/out */
+    /* These define is used by metrics_collector.c to read the number of
+     * bytes-in/out. */
     #define LWIP_NET_IF    sta_if
 #else
-    #define LWIP_BYTES_IN_OUT_UNSUPPORT
+    #define LWIP_BYTES_IN_OUT_UNSUPPORTED   1
 #endif
 
 #endif /* __NETIF_PORT_H__ */

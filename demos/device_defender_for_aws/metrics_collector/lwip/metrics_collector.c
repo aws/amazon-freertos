@@ -26,6 +26,12 @@
 /* Standard includes. */
 #include <stdint.h>
 
+/* Demo config. */
+#include "defender_demo_config.h"
+
+/* Interface includes. */
+#include "metrics_collector.h"
+
 /* Lwip includes. */
 #include "lwip/arch.h"
 #include "lwip/stats.h"
@@ -35,246 +41,244 @@
 #include "lwip/udp.h"           /* struct udp_pcb */
 #include "lwip/priv/tcp_priv.h" /* tcp_listen_pcbs_t */
 
-/* Demo config. */
-#include "defender_demo_config.h"
+/* Lwip configuration includes. */
+#include "lwipopts.h"
+#include "netif_port.h"
 
-/* Interface includes. */
-#include "metrics_collector.h"
+#if !defined( LWIP_TCPIP_CORE_LOCKING_INPUT ) || ( LWIP_TCPIP_CORE_LOCKING_INPUT == 0 )
+    #error "Network metrics are only supported in core locking mode. Please define LWIP_TCPIP_CORE_LOCKING_INPUT to 1 in lwipopts.h."
+#endif
 
-#if ( FREERTOS_LWIP_METRICS_ENABLE == 1 )
+/* Helper macros to get bytes in/out and packets in/out. */
+#define LWIP_GET_PACKETS_IN()         ( lwip_stats.mib2.ipinreceives )
+#define LWIP_GET_PACKETS_OUT()        ( lwip_stats.mib2.ipoutrequests )
+#if( LWIP_BYTES_IN_OUT_UNSUPPORTED == 1 )
+    #define LWIP_GET_BYTES_IN()       ( LWIP_NET_IF.mib2_counters.ifinoctets )
+    #define LWIP_GET_BYTES_OUT()      ( LWIP_NET_IF.mib2_counters.ifoutoctets )
+#else
+    #define LWIP_GET_BYTES_IN()       ( 0 )
+    #define LWIP_GET_BYTES_OUT()      ( 0 )
+#endif /* LWIP_BYTES_IN_OUT_UNSUPPORTED == 1 */
 
-    extern struct tcp_pcb * tcp_active_pcbs;        /* List of all TCP PCBs that are in a state in which they accept or send data. */
-    extern union tcp_listen_pcbs_t tcp_listen_pcbs; /* List of all TCP PCBs in LISTEN state */
-    extern struct udp_pcb * udp_pcbs;               /* List of UDP PCBs */
+/* Variables defined in the LWIP source code. */
+extern struct tcp_pcb * tcp_active_pcbs;        /* List of all TCP PCBs that are in a state in which they accept or send data. */
+extern union tcp_listen_pcbs_t tcp_listen_pcbs; /* List of all TCP PCBs in LISTEN state. */
+extern struct udp_pcb * udp_pcbs;               /* List of UDP PCBs. */
+/*-----------------------------------------------------------*/
 
-/**
- * @brief Get a list of the listening TCP ports.
- *
- * This function finds the listening TCP ports by traversing LWIP TCP PCBs list
- * for ports that are in listen state. The head of the list is "tcp_listen_pcbs.listen_pcbs struture".
- * This function can be called with @p pOutTcpPortsArray NULL to get the number of the open TCP ports.
- *
- * @param[in] pOutTcpPortsArray The array to write the open TCP ports into. This
- * can be NULL, if only the number of open ports is needed.
- * @param[in] tcpPortsArrayLength Length of the pOutTcpPortsArray, if it is not
- * NULL.
- * @param[out] pOutNumTcpOpenPorts Number of the open TCP ports.
- *
- * @return #MetricsCollectorSuccess if open TCP ports are successfully obtained;
- * #MetricsCollectorBadParameter if invalid parameters are passed;
- */
-    MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
-                                              uint32_t portsArrayLength,
-                                              uint32_t * pOutNumTcpOpenPorts )
+MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
+{
+    MetricsCollectorStatus_t status = MetricsCollectorSuccess;
+
+    if( pOutNetworkStats == NULL )
     {
-        MetricsCollectorStatus_t status = MetricsCollectorSuccess;
-        struct tcp_pcb_listen * pCurrPcb = tcp_listen_pcbs.listen_pcbs;
-        uint16_t pcbCnt = 0;
+        LogError( ( "Invalid parameters. pOutNetworkStats: 0x%08x", pOutNetworkStats ) );
+        status = MetricsCollectorBadParameter;
+    }
 
-        if( ( ( pOutTcpPortsArray != NULL ) && ( portsArrayLength == 0 ) ) ||
-            ( pOutNumTcpOpenPorts == NULL ) )
+    if( status == MetricsCollectorSuccess )
+    {
+        LOCK_TCPIP_CORE();
+
+        pOutNetworkStats->bytesReceived = LWIP_GET_BYTES_IN();
+        pOutNetworkStats->bytesSent = LWIP_GET_BYTES_OUT();
+        pOutNetworkStats->packetsReceived = LWIP_GET_PACKETS_IN();
+        pOutNetworkStats->packetsSent = LWIP_GET_PACKETS_OUT();
+
+        UNLOCK_TCPIP_CORE();
+    }
+
+    return status;
+}
+/*-----------------------------------------------------------*/
+
+MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
+                                            uint32_t tcpPortsArrayLength,
+                                            uint32_t * pOutNumTcpOpenPorts )
+{
+    MetricsCollectorStatus_t status = MetricsCollectorSuccess;
+    struct tcp_pcb_listen * pCurrPcb;
+    uint16_t pcbCnt = 0;
+
+    if( ( ( pOutTcpPortsArray != NULL ) && ( tcpPortsArrayLength == 0 ) ) ||
+        ( pOutNumTcpOpenPorts == NULL ) )
+    {
+        LogError( ( "Invalid parameters. pOutTcpPortsArray: 0x%08x,"
+                    "tcpPortsArrayLength: %u, pOutNumTcpOpenPorts: 0x%08x.",
+                    pOutTcpPortsArray,
+                    tcpPortsArrayLength,
+                    pOutNumTcpOpenPorts ) );
+        status = MetricsCollectorBadParameter;
+    }
+
+    if( status == MetricsCollectorSuccess )
+    {
+        LOCK_TCPIP_CORE();
+
+        for( pCurrPcb = tcp_listen_pcbs.listen_pcbs; pCurrPcb != NULL; pCurrPcb = pCurrPcb->next )
         {
-            LogError( ( "Invalid parameters. pOutTcpPortsArray: 0x%08x,"
-                        "portsArrayLength: %u, pOutNumTcpOpenPorts: 0x%08x.",
-                        pOutTcpPortsArray,
-                        portsArrayLength,
-                        pOutNumTcpOpenPorts ) );
-            status = MetricsCollectorBadParameter;
-        }
-
-        if( status == MetricsCollectorSuccess )
-        {
-            LOCK_TCPIP_CORE();
-
-            while( pCurrPcb )
+            if( pOutTcpPortsArray != NULL )
             {
-                /*  Write the ports into pOutTcpPortsArray, if not NULL */
-                if( ( pOutTcpPortsArray != NULL ) && ( pcbCnt < portsArrayLength ) )
+                if( pcbCnt < tcpPortsArrayLength )
                 {
                     pOutTcpPortsArray[ pcbCnt ] = pCurrPcb->local_port;
+                    ++pcbCnt;
                 }
-
-                ++pcbCnt;
-                pCurrPcb = pCurrPcb->next;
+                else
+                {
+                    /* Break if the output array is full. */
+                    break;
+                }
             }
-
-            UNLOCK_TCPIP_CORE();
+            else
+            {
+                ++pcbCnt;
+            }
         }
 
-        if( ( pOutTcpPortsArray != NULL ) && ( pcbCnt > portsArrayLength ) )
-        {
-            LogWarn( ( "The portsArrayLength is not long enough to store all the listening ports" ) );
-        }
-
-        if( status == MetricsCollectorSuccess )
-        {
-            *pOutNumTcpOpenPorts = pcbCnt;
-        }
-
-        return status;
+        UNLOCK_TCPIP_CORE();
     }
 
-
-    MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
-                                              uint32_t portsArrayLength,
-                                              uint32_t * pOutNumUdpOpenPorts )
+    if( ( pOutTcpPortsArray != NULL ) && ( pcbCnt == tcpPortsArrayLength ) && ( pCurrPcb != NULL ) )
     {
-        MetricsCollectorStatus_t status = MetricsCollectorSuccess;
-        struct udp_pcb * pCurrPcb = udp_pcbs;
-        uint16_t pcbCnt = 0;
+        LogWarn( ( "The pOutTcpPortsArray is not large enough to store all the open TCP ports." ) );
+    }
 
-        if( ( ( pOutUdpPortsArray != NULL ) && ( portsArrayLength == 0 ) ) ||
-            ( pOutNumUdpOpenPorts == NULL ) )
+    if( status == MetricsCollectorSuccess )
+    {
+        *pOutNumTcpOpenPorts = pcbCnt;
+    }
+
+    return status;
+}
+/*-----------------------------------------------------------*/
+
+MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
+                                            uint32_t udpPortsArrayLength,
+                                            uint32_t * pOutNumUdpOpenPorts )
+{
+    MetricsCollectorStatus_t status = MetricsCollectorSuccess;
+    struct udp_pcb * pCurrPcb;
+    uint16_t pcbCnt = 0;
+
+    if( ( ( pOutUdpPortsArray != NULL ) && ( udpPortsArrayLength == 0 ) ) ||
+        ( pOutNumUdpOpenPorts == NULL ) )
+    {
+        LogError( ( "Invalid parameters. pOutUdpPortsArray: 0x%08x,"
+                    "udpPortsArrayLength: %u, pOutNumUdpOpenPorts: 0x%08x.",
+                    pOutUdpPortsArray,
+                    udpPortsArrayLength,
+                    pOutNumUdpOpenPorts ) );
+        status = MetricsCollectorBadParameter;
+    }
+
+    if( status == MetricsCollectorSuccess )
+    {
+        LOCK_TCPIP_CORE();
+
+        for( pCurrPcb = udp_pcbs; pCurrPcb != NULL; pCurrPcb = pCurrPcb->next )
         {
-            LogError( ( "Invalid parameters. pOutUdpPortsArray: 0x%08x,"
-                        "portsArrayLength: %u, pOutNumUdpOpenPorts: 0x%08x.",
-                        pOutUdpPortsArray,
-                        portsArrayLength,
-                        pOutNumUdpOpenPorts ) );
-            status = MetricsCollectorBadParameter;
-        }
-
-        if( status == MetricsCollectorSuccess )
-        {
-            LOCK_TCPIP_CORE();
-
-            while( pCurrPcb )
+            if( pOutUdpPortsArray != NULL )
             {
-                /*  Write the ports into pOutUdpPortsArray, if not NULL */
-                if( ( pOutUdpPortsArray != NULL ) && ( pcbCnt < portsArrayLength ) )
+                if( pcbCnt < udpPortsArrayLength )
                 {
                     pOutUdpPortsArray[ pcbCnt ] = pCurrPcb->local_port;
+                    ++pcbCnt;
                 }
-
-                ++pcbCnt;
-                pCurrPcb = pCurrPcb->next;
+                else
+                {
+                    /* Break if the output array is full. */
+                    break;
+                }
             }
-
-            UNLOCK_TCPIP_CORE();
+            else
+            {
+                ++pcbCnt;
+            }
         }
 
-        if( ( pOutUdpPortsArray != NULL ) && ( pcbCnt > portsArrayLength ) )
-        {
-            LogWarn( ( "The portsArrayLength is not long enough to store all the listening ports" ) );
-        }
-
-        if( status == MetricsCollectorSuccess )
-        {
-            *pOutNumUdpOpenPorts = pcbCnt;
-        }
-
-        return status;
+        UNLOCK_TCPIP_CORE();
     }
 
-
-
-/**
- * @brief Get a list of established connections.
- *
- * This function finds the established connections by traversing LWIP TCP active PCBs list.
- * The head of LWIP TCP active PCBs list is "tcp_active_pcbs".
- * This function can be called with @p pOutConnectionsArray NULL to get the number of
- * established connections.
- *
- * @param[in] pOutConnectionsArray The array to write the established connections
- * into. This can be NULL, if only the number of established connections is
- * needed.
- * @param[in] connectionsArrayLength Length of the pOutConnectionsArray, if it
- * is not NULL.
- * @param[out] pOutNumEstablishedConnections Number of the established connections.
- *
- * @return #MetricsCollectorSuccess if open TCP ports are successfully obtained;
- * #MetricsCollectorBadParameter if invalid parameters are passed;
- */
-    MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectionsArray,
-                                                        uint32_t connectionsArrayLength,
-                                                        uint32_t * pOutNumEstablishedConnections )
+    if( ( pOutUdpPortsArray != NULL ) && ( pcbCnt == udpPortsArrayLength ) && ( pCurrPcb != NULL ) )
     {
-        MetricsCollectorStatus_t status = MetricsCollectorSuccess;
-        struct tcp_pcb * pCurrPcb = tcp_active_pcbs;
-        uint16_t pcbCnt = 0;
-        Connection_t * pEstablishedConnection;
+        LogWarn( ( "The pOutUdpPortsArray is not large enough to store all the open UDP ports." ) );
+    }
 
-        if( ( ( pOutConnectionsArray != NULL ) && ( connectionsArrayLength == 0 ) ) ||
-            ( pOutNumEstablishedConnections == NULL ) )
+    if( status == MetricsCollectorSuccess )
+    {
+        *pOutNumUdpOpenPorts = pcbCnt;
+    }
+
+    return status;
+}
+/*-----------------------------------------------------------*/
+
+MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectionsArray,
+                                                    uint32_t connectionsArrayLength,
+                                                    uint32_t * pOutNumEstablishedConnections )
+{
+    MetricsCollectorStatus_t status = MetricsCollectorSuccess;
+    struct tcp_pcb * pCurrPcb = tcp_active_pcbs;
+    uint16_t pcbCnt = 0;
+    Connection_t * pEstablishedConnection;
+
+    if( ( ( pOutConnectionsArray != NULL ) && ( connectionsArrayLength == 0 ) ) ||
+        ( pOutNumEstablishedConnections == NULL ) )
+    {
+        LogError( ( "Invalid parameters. pOutConnectionsArray: 0x%08x,"
+                    " connectionsArrayLength: %u, pOutNumEstablishedConnections: 0x%08x.",
+                    pOutConnectionsArray,
+                    connectionsArrayLength,
+                    pOutNumEstablishedConnections ) );
+        status = MetricsCollectorBadParameter;
+    }
+
+    if( status == MetricsCollectorSuccess )
+    {
+        LOCK_TCPIP_CORE();
+
+        for( pCurrPcb = tcp_active_pcbs; pCurrPcb != NULL; pCurrPcb = pCurrPcb->next )
         {
-            LogError( ( "Invalid parameters. pOutConnectionsArray: 0x%08x,"
-                        " connectionsArrayLength: %u, pOutNumEstablishedConnections: 0x%08x.",
-                        pOutConnectionsArray,
-                        connectionsArrayLength,
-                        pOutNumEstablishedConnections ) );
-            status = MetricsCollectorBadParameter;
-        }
-
-        if( status == MetricsCollectorSuccess )
-        {
-            LOCK_TCPIP_CORE();
-
-            while( pCurrPcb )
+            if( pOutConnectionsArray != NULL )
             {
-                /*  Write the ports into pOutConnectionsArray, if not NULL. */
-                if( ( pOutConnectionsArray != NULL ) && ( pcbCnt < connectionsArrayLength ) )
+                if( pcbCnt < connectionsArrayLength )
                 {
                     /* The output array member to fill. */
                     pEstablishedConnection = &( pOutConnectionsArray[ pcbCnt ] );
 
-                    pEstablishedConnection->remoteIp = pCurrPcb->remote_ip.addr; /* network byte order */
-                    pEstablishedConnection->localIp = pCurrPcb->local_ip.addr;   /* network byte order */
-                    pEstablishedConnection->localPort = pCurrPcb->local_port;    /* host byte order */
-                    pEstablishedConnection->remotePort = pCurrPcb->remote_port;  /* host byte order */
+                    pEstablishedConnection->remoteIp = pCurrPcb->remote_ip.addr; /* Network byte order. */
+                    pEstablishedConnection->localIp = pCurrPcb->local_ip.addr;   /* Network byte order. */
+                    pEstablishedConnection->localPort = pCurrPcb->local_port;    /* Host byte order. */
+                    pEstablishedConnection->remotePort = pCurrPcb->remote_port;  /* Host byte order. */
+
+                    ++pcbCnt;
                 }
-
-                ++pcbCnt;
-                pCurrPcb = pCurrPcb->next;
+                else
+                {
+                    /* Break if the output array is full. */
+                    break;
+                }
             }
-
-            UNLOCK_TCPIP_CORE();
+            else
+            {
+                ++pcbCnt;
+            }
         }
 
-        if( ( pOutConnectionsArray != NULL ) && ( pcbCnt > connectionsArrayLength ) )
-        {
-            LogWarn( ( "The connectionsArrayLength is not long enough to store all the established connections" ) );
-        }
-
-        if( status == MetricsCollectorSuccess )
-        {
-            *pOutNumEstablishedConnections = pcbCnt;
-        }
-
-        return status;
+        UNLOCK_TCPIP_CORE();
     }
 
-/**
- * @brief Get network stats.
- *
- * This function finds the network stats by reading MIB-II structure.
- *
- * @param[out] pOutNetworkStats The network stats.
- *
- * @return #MetricsCollectorSuccess if the network stats are successfully obtained;
- * #MetricsCollectorBadParameter if invalid parameters are passed;
- */
-    MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
+    if( ( pOutConnectionsArray != NULL ) && ( pcbCnt == connectionsArrayLength ) && ( pCurrPcb != NULL ) )
     {
-        MetricsCollectorStatus_t status = MetricsCollectorSuccess;
-
-        if( pOutNetworkStats == NULL )
-        {
-            LogError( ( "Invalid parameters. pOutNetworkStats: 0x%08x", pOutNetworkStats ) );
-            status = MetricsCollectorBadParameter;
-        }
-
-        if( status == MetricsCollectorSuccess )
-        {
-            LOCK_TCPIP_CORE();
-            pOutNetworkStats->bytesReceived = LWIP_GET_NETIF_BYTES_IN();
-            pOutNetworkStats->bytesSent = LWIP_GET_NETIF_BYTES_OUT();
-            pOutNetworkStats->packetsReceived = LWIP_GET_TCP_PACKETS_IN();
-            pOutNetworkStats->packetsSent = LWIP_GET_TCP_PACKETS_OUT();
-            UNLOCK_TCPIP_CORE();
-        }
-
-        return status;
+        LogWarn( ( "The pOutConnectionsArray is not large enough to store all the established connections." ) );
     }
 
-#endif //FREERTOS_LWIP_METRICS_ENABLE
+    if( status == MetricsCollectorSuccess )
+    {
+        *pOutNumEstablishedConnections = pcbCnt;
+    }
+
+    return status;
+}
+/*-----------------------------------------------------------*/
