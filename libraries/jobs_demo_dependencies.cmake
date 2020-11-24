@@ -47,7 +47,7 @@ afr_module_include_dirs(
 afr_module(NAME jobs_demo_dependencies )
 
 afr_set_lib_metadata(ID "jobs_demo_dependencies")
-afr_set_lib_metadata(DESCRIPTION "This library enables device metrics reporting with AWS IoT Jobs.")
+afr_set_lib_metadata(DESCRIPTION "This library enables you to receive pending "jobs" from and send job execution updates to the AWS IoT Jobs service for a device registered on AWS IoT.")
 afr_set_lib_metadata(DISPLAY_NAME "Jobs")
 afr_set_lib_metadata(CATEGORY "Amazon Services")
 afr_set_lib_metadata(VERSION "1.0.0")
