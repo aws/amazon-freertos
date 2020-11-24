@@ -27,16 +27,23 @@
  * Demo for showing use of the HTTP API using a server-authenticated network
  * connection.
  *
- * This example resolves a domain, establishes a TCP connection, validates the
- * server's certificate using the root CA certificate defined in the config
- * header, then finally performs a TLS handshake with the HTTP server so that
- * all communication is encrypted. After which, an HTTP thread is started which
- * uses HTTP Client library API to send requests it reads from the request
- * queue, and writes the responses to the response queue. The main thread sends
- * requests on the request queue, which are used to download the S3 file by
- * sending multiple range requests. While it is doing this, the main thread also
- * reads responses from the response queue and prints them until the entire file
- * is received. If any request fails, an error code is returned.
+ * This example, using a pre-signed URL, resolves a S3 domain, establishes a TCP
+ * connection, validates the server's certificate using the root CA certificate
+ * defined in the config header, then finally performs a TLS handshake with the
+ * HTTP server so that all communication is encrypted.
+ *
+ * Afterwards, an independent HTTP task is started, to read requests from the
+ * request queue and execute them using the HTTP Client library API, and write
+ * the corresponding responses to the response queue. The main thread sends
+ * requests to the request queue, which are used to download the S3 file in
+ * chunks using range requests. While doing so, the main thread reads responses
+ * from the response queue continuously until the entire file is received. If
+ * any request fails, an error code is returned.
+ *
+ * @Note: This demo requires user-generated pre-signed URLs to be pasted into
+ * demo_config.h. Please use the provided script "presigned_urls_gen.py"
+ * (located in Http_Demo_Helpers) to generate these URLs. For detailed
+ * instructions, see the accompanied README.md.
  */
 
 /**
@@ -50,25 +57,16 @@
 #include <stdio.h>
 #include <string.h>
 
-/* FreeRTOS includes. */
-#include "FreeRTOS_POSIX.h"
-
-/* FreeRTOS+POSIX. */
-#include "FreeRTOS_POSIX/pthread.h"
-#include "FreeRTOS_POSIX/mqueue.h"
-#include "FreeRTOS_POSIX/time.h"
-#include "FreeRTOS_POSIX/fcntl.h"
-#include "FreeRTOS_POSIX/errno.h"
+/* Kernel includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
 
 /* Include demo config as the first non-system header. */
 #include "http_demo_s3_download_multithreaded_config.h"
 
 /* Include common demo header. */
 #include "aws_demo.h"
-
-/* Kernel includes. */
-#include "FreeRTOS.h"
-#include "task.h"
 
 /* Transport interface implementation include header for TLS. */
 #include "transport_secure_sockets.h"
@@ -81,7 +79,7 @@
 
 /*------------- Demo configurations -------------------------*/
 
-/* Check that TLS port of the server is defined. */
+/* Check that the TLS port of the server is defined. */
 #ifndef democonfigHTTPS_PORT
     #error "Please define a democonfigHTTPS_PORT."
 #endif
@@ -101,9 +99,9 @@
     #define democonfigS3_PRESIGNED_GET_URL    "GET-URL"
 #endif
 
-/* Check that transport timeout for transport send and receive is defined. */
+/* Check that a timeout for transport send and receive functions is defined.*/
 #ifndef democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS
-    #define democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 1000 )
+    #define democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 5000 )
 #endif
 
 /* Check that size of the user buffer is defined. */
@@ -117,23 +115,14 @@
 #endif
 
 /**
- * @brief The name of the HTTP thread's input queue. Must begin with a slash and
- * be a valid pathname.
+ * @brief The maximum number of times to run the loop in this demo.
  */
-#define httpexampleREQUEST_QUEUE                             "/demo_request_queue"
+#ifndef httpexampleMAX_DEMO_COUNT
+    #define httpexampleMAX_DEMO_COUNT    ( 3 )
+#endif
 
 /**
- * @brief The name of the HTTP thread's output queue. Must begin with a slash
- * and be a valid pathname.
- */
-#define httpexampleRESPONSE_QUEUE                            "/demo_response_queue"
-
-/* Posix file permissions for the queues. Allows read and write access to the
- * user this demo is running as. */
-#define httpexampleQUEUE_PERMISSIONS                         0600
-
-/**
- * @brief Length of the pre-signed GET URL defined in demo_config.h.
+ * @brief Length of the pre-signed GET URL defined in http_demo_s3_download_multithreaded_config.h.
  */
 #define httpexampleS3_PRESIGNED_GET_URL_LENGTH               ( sizeof( democonfigS3_PRESIGNED_GET_URL ) - 1 )
 
@@ -157,6 +146,29 @@
  */
 #define httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT          206
 
+
+/**
+ * @brief Time in ticks to wait between each iteration of
+ * RunCoreHttpS3DownloadMultithreadedDemo().
+ */
+#define httpexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS    ( pdMS_TO_TICKS( 5000U ) )
+
+/**
+ * @brief The stack size to use for HTTP tasks.
+ */
+#define httpexampleTASK_STACK_SIZE                        ( configMINIMAL_STACK_SIZE * 2 )
+
+/**
+ * @brief Ticks to wait for task notifications.
+ */
+#define httpexampleDEMO_TICKS_TO_WAIT                     pdMS_TO_TICKS( 1000 )
+
+/**
+ * @brief Represents the network context used for the TLS session with the
+ * server.
+ */
+static NetworkContext_t xNetworkContext;
+
 /**
  * @brief The host address string extracted from the pre-signed URL.
  *
@@ -173,9 +185,9 @@ static size_t xServerHostLength;
 /**
  * @brief Data type for request queue.
  *
- * In addition to sending #HTTPRequestHeaders_t, we need to send the buffer it uses.
- * The pointer to the buffer in #HTTPRequestHeaders_t will be incorrect after
- * it is received, so it will need to be fixed.
+ * In addition to sending #HTTPRequestHeaders_t, we need to send the buffer it
+ * uses as the pointer to the buffer in #HTTPRequestHeaders_t may not be
+ * accurate after being copied into the queue.
  */
 typedef struct RequestItem
 {
@@ -186,9 +198,9 @@ typedef struct RequestItem
 /**
  * @brief Data type for response queue.
  *
- * In addition to sending the #HTTPResponse_t, we need to send the buffer it uses.
- * The pointer to the buffer in #HTTPResponse_t will be incorrect after
- * it is received, so it will need to be fixed.
+ * In addition to sending the #HTTPResponse_t, we need to send the buffer it
+ * uses as the pointer to the buffer in #HTTPRequestHeaders_t may not be
+ * accurate after being copied into the queue.
  */
 typedef struct ResponseItem
 {
@@ -199,54 +211,37 @@ typedef struct ResponseItem
 /*
  * @brief Struct used for sending requests to the HTTP thread.
  *
- * This is used by both the main and HTTP threads. We have this as a global so
- * that it will be located at the same address in the main and HTTP threads so
- * that way pointers remain valid when copied over.
+ * This is used by both the main and HTTP threads. The global scope ensures that
+ * it will be located at the same address in the main and HTTP threads, so that
+ * pointers remain valid when copied over.
  */
 static RequestItem_t xRequestItem = { 0 };
 
 /**
  * @brief Struct used for receiving responses from the HTTP thread.
  *
- * This is used by both the main and HTTP threads. We have this as a global so
- * that it will be located at the same address in the main and HTTP threads so
- * that way pointers remain valid when copied over.
+ * This is used by both the main and HTTP threads. The global scope ensures that
+ * it will be located at the same address in the main and HTTP threads, so that
+ * pointers remain valid when copied over.
  */
 static ResponseItem_t xResponseItem = { 0 };
 
 /**
  * @brief Queue for HTTP requests. Requests are written by the main thread, and
- * serviced by the HTTP thread.
+ * executed by the HTTP thread.
  */
-static mqd_t xRequestQueue = ( mqd_t ) -1;
+static QueueHandle_t xRequestQueue;
 
 /**
  * @brief Queue for HTTP responses. Responses are written by the HTTP thread,
  * and read by the main thread.
  */
-static mqd_t xResponseQueue = ( mqd_t ) -1;
+static QueueHandle_t xResponseQueue;
 
 /**
- * @brief The return status for requestS3ObjectRange() and retrieveHTTPResponse().
+ * @brief Handle of prvAsyncPublishTask.
  */
-typedef enum QueueOpStatus
-{
-    /**
-     * @brief The function completed successfully.
-     */
-    QUEUE_OP_SUCCESS,
-
-    /**
-     * @brief The function was given a non-blocking queue and would have blocked
-     * were it a blocking queue.
-     */
-    QUEUE_OP_WOULD_BLOCK,
-
-    /**
-     * @brief The function encountered an error.
-     */
-    QUEUE_OP_FAILURE,
-} QueueOpStatus_t;
+static TaskHandle_t xHTTPTask;
 
 /*-----------------------------------------------------------*/
 
@@ -278,8 +273,8 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
                                            const size_t xHostLen,
                                            const char * pcRequest,
                                            const size_t xRequestUriLen,
-                                           mqd_t xRequestQueue,
-                                           mqd_t xResponseQueue );
+                                           QueueHandle_t xRequestQueue,
+                                           QueueHandle_t xResponseQueue );
 
 /**
  * @brief Enqueue an HTTP request for a range of the S3 file.
@@ -289,25 +284,24 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
  * @param[in] xStart The position of the first byte in the range.
  * @param[in] xEnd The position of the last byte in the range, inclusive.
  *
- * @return QUEUE_OP_FAILURE on failure; QUEUE_OP_WOULD_BLOCK if would block,
- * QUEUE_OP_SUCCESS on success.
+ * @return pdFAIL on failure; pdPASS on success.
  */
-static QueueOpStatus_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestInfo,
-                                                mqd_t xRequestQueue,
-                                                const size_t xStart,
-                                                const size_t xEnd );
+static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestInfo,
+                                           QueueHandle_t xRequestQueue,
+                                           const size_t xStart,
+                                           const size_t xEnd );
 
 /**
- * @brief Processes an HTTP response from the response queue.
+ * @brief Process an HTTP response from the response queue.
  *
  * @param[in] xResponseQueue The queue from which HTTP responses should be read.
  * @param[out] pxResponseItem The HTTP response received.
  *
- * @return QUEUE_OP_FAILURE on failure; QUEUE_OP_WOULD_BLOCK if would block,
- * QUEUE_OP_SUCCESS on success.
+ * @return pdFAIL on failure; pdPASS on success.
+ *
  */
-static QueueOpStatus_t prvRetrieveHTTPResponse( mqd_t xResponseQueue,
-                                                ResponseItem_t * pxResponseItem );
+static BaseType_t prvRetrieveHTTPResponse( QueueHandle_t xResponseQueue,
+                                           ResponseItem_t * pxResponseItem );
 
 /**
  * @brief Retrieve the size of the S3 object that is specified in pcPath using
@@ -321,28 +315,29 @@ static QueueOpStatus_t prvRetrieveHTTPResponse( mqd_t xResponseQueue,
  * @return pdFAIL on failure; pdPASS on success.
  */
 static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInfo,
-                                          mqd_t xRequestQueue,
-                                          mqd_t xResponseQueue,
+                                          QueueHandle_t xRequestQueue,
+                                          QueueHandle_t xResponseQueue,
                                           size_t * pxFileSize );
 
 /**
- * @brief Services HTTP requests from the request queue and writes the
- * responses to the response queue.
+ * @brief Services HTTP requests from the request queue and writes responses to
+ * the response queue.
  *
- * @param[in] pTransportInterface The transport interface for making network calls.
- */
+ * @param[in] pvArgs Parameters as passed at the time of task creation. Not used
+ * in this example.
+ * */
 static void prvStartHTTPThread( void * pvArgs );
 
 /**
  * @brief Clean up resources created by demo.
  *
- * @param[in] httpThread The HTTP thread.
+ * @param[in] xHandle The HTTP task handle.
  * @param[in] xRequestQueue The request queue.
  * @param[in] xResponseQueue The response queue.
  */
-static void prvTearDown( pthread_t xHttpThread,
-                         mqd_t xRequestQueue,
-                         mqd_t xResponseQueue );
+static void prvTearDown( TaskHandle_t xHandle,
+                         QueueHandle_t xRequestQueue,
+                         QueueHandle_t xResponseQueue );
 
 /*-----------------------------------------------------------*/
 
@@ -394,12 +389,10 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
                                            const size_t xHostLen,
                                            const char * pcRequest,
                                            const size_t xRequestUriLen,
-                                           mqd_t xRequestQueue,
-                                           mqd_t xResponseQueue )
+                                           QueueHandle_t xRequestQueue,
+                                           QueueHandle_t xResponseQueue )
 {
     BaseType_t xStatus = pdPASS;
-    QueueOpStatus_t xQueueOpStatus = QUEUE_OP_SUCCESS;
-
     size_t xRequestCount = 0;
 
     /* Configurations of the initial request headers. */
@@ -452,12 +445,10 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
         /* Send range request if remaining. */
         if( xCurByte < xFileSize )
         {
-            xQueueOpStatus = prvRequestS3ObjectRange( &xRequestInfo,
-                                                      xRequestQueue,
-                                                      xCurByte,
-                                                      xCurByte + xNumReqBytes - 1 );
-
-            xStatus = ( xQueueOpStatus == QUEUE_OP_SUCCESS ) ? pdPASS : pdFAIL;
+            xStatus = prvRequestS3ObjectRange( &xRequestInfo,
+                                               xRequestQueue,
+                                               xCurByte,
+                                               xCurByte + xNumReqBytes - 1 );
 
             if( xStatus == pdPASS )
             {
@@ -472,11 +463,9 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
         }
 
         /* Retrieve response. */
-        if( ( xRequestCount > 0 ) && ( xQueueOpStatus != QUEUE_OP_FAILURE ) )
+        if( ( xRequestCount > 0 ) && ( xStatus != pdFAIL ) )
         {
-            xQueueOpStatus = prvRetrieveHTTPResponse( xResponseQueue, &xResponseItem );
-
-            xStatus = ( xQueueOpStatus == QUEUE_OP_SUCCESS ) ? pdPASS : pdFAIL;
+            xStatus = prvRetrieveHTTPResponse( xResponseQueue, &xResponseItem );
 
             if( xStatus == pdPASS )
             {
@@ -506,16 +495,13 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
 
 /*-----------------------------------------------------------*/
 
-static QueueOpStatus_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestInfo,
-                                                mqd_t xRequestQueue,
-                                                const size_t xStart,
-                                                const size_t xEnd )
+static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestInfo,
+                                           QueueHandle_t xRequestQueue,
+                                           const size_t xStart,
+                                           const size_t xEnd )
 {
-    QueueOpStatus_t xStatus = QUEUE_OP_SUCCESS;
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
-
-    /* Return value of mq_send. */
-    int mqerror = 0;
+    BaseType_t xStatus = pdPASS;
 
     /* Set the buffer used for storing request headers. */
     xRequestItem.xRequestHeaders.pBuffer = xRequestItem.ucHeaderBuffer;
@@ -528,10 +514,10 @@ static QueueOpStatus_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequ
     {
         LogError( ( "Failed to initialize HTTP request headers: Error=%s.",
                     HTTPClient_strerror( xHTTPStatus ) ) );
-        xStatus = QUEUE_OP_FAILURE;
+        xStatus = pdFAIL;
     }
 
-    if( xStatus == QUEUE_OP_SUCCESS )
+    if( xStatus == pdPASS )
     {
         xHTTPStatus = HTTPClient_AddRangeHeader( &( xRequestItem.xRequestHeaders ),
                                                  xStart,
@@ -541,11 +527,11 @@ static QueueOpStatus_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequ
         {
             LogError( ( "Failed to add Range header to request headers: Error=%s.",
                         HTTPClient_strerror( xHTTPStatus ) ) );
-            xStatus = QUEUE_OP_FAILURE;
+            xStatus = pdFAIL;
         }
     }
 
-    if( xStatus == QUEUE_OP_SUCCESS )
+    if( xStatus == pdPASS )
     {
         /* Enqueue the request. */
         LogInfo( ( "Enqueuing bytes %d to %d of S3 Object:  ",
@@ -555,24 +541,14 @@ static QueueOpStatus_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequ
                     ( int32_t ) xRequestItem.xRequestHeaders.headersLen,
                     ( char * ) xRequestItem.xRequestHeaders.pBuffer ) );
 
-        mqerror = mq_send( xRequestQueue,
-                           ( char * ) &xRequestItem,
-                           sizeof( RequestItem_t ),
-                           0 );
+        xStatus = xQueueSendToBack( xRequestQueue,
+                                    &xRequestItem,
+                                    httpexampleDEMO_TICKS_TO_WAIT );
 
-        if( mqerror == -1 )
+        /* Ensure request was added to the queue. */
+        if( xStatus == pdFAIL )
         {
-            if( errno != EAGAIN )
-            {
-                /* Error other than due to not blocking. */
-                LogError( ( "Failed to write to request queue with error %s.",
-                            strerror( errno ) ) );
-                xStatus = QUEUE_OP_FAILURE;
-            }
-            else
-            {
-                xStatus = QUEUE_OP_WOULD_BLOCK;
-            }
+            LogError( ( "Could not enqueue request." ) );
         }
     }
 
@@ -581,39 +557,19 @@ static QueueOpStatus_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequ
 
 /*-----------------------------------------------------------*/
 
-static QueueOpStatus_t prvRetrieveHTTPResponse( mqd_t xResponseQueue,
-                                                ResponseItem_t * pxResponseItem )
+static BaseType_t prvRetrieveHTTPResponse( QueueHandle_t xResponseQueue,
+                                           ResponseItem_t * pxResponseItem )
 {
-    QueueOpStatus_t xStatus = QUEUE_OP_SUCCESS;
-    /* Return value of mq_receive. */
-    int mqread = 0;
+    BaseType_t xStatus = pdPASS;
 
     /* Read response from queue. */
-    mqread = mq_receive( xResponseQueue, ( char * ) pxResponseItem,
-                         sizeof( ResponseItem_t ), NULL );
+    xStatus = xQueueReceive( xResponseQueue,
+                             pxResponseItem,
+                             httpexampleDEMO_TICKS_TO_WAIT );
 
-    if( mqread == -1 )
+    if( xStatus == pdFAIL )
     {
-        if( errno != EAGAIN )
-        {
-            /* Error other than due to not blocking. */
-            LogError( ( "Failed to read from response queue with error %s.",
-                        strerror( errno ) ) );
-            xStatus = QUEUE_OP_FAILURE;
-        }
-        else
-        {
-            xStatus = QUEUE_OP_WOULD_BLOCK;
-        }
-    }
-
-    if( xStatus == QUEUE_OP_SUCCESS )
-    {
-        if( mqread != sizeof( ResponseItem_t ) )
-        {
-            LogError( ( "Response from response queue has incorrect size." ) );
-            xStatus = QUEUE_OP_FAILURE;
-        }
+        LogError( ( "Failed to read from response queue." ) );
     }
 
     return xStatus;
@@ -622,13 +578,12 @@ static QueueOpStatus_t prvRetrieveHTTPResponse( mqd_t xResponseQueue,
 /*-----------------------------------------------------------*/
 
 static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInfo,
-                                          mqd_t xRequestQueue,
-                                          mqd_t xResponseQueue,
+                                          QueueHandle_t xRequestQueue,
+                                          QueueHandle_t xResponseQueue,
                                           size_t * pxFileSize )
 {
     BaseType_t xStatus = pdPASS;
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
-    QueueOpStatus_t xQueueOpStatus = QUEUE_OP_SUCCESS;
 
     /* The location of the file size in pcContentRangeValStr. */
     char * pcFileSizeStr = NULL;
@@ -643,25 +598,16 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
      * header that contains the size of the file in it. This header will look
      * like: "Content-Range: bytes 0-0/FILESIZE". The body will have a single
      * byte that we are ignoring. */
-    xQueueOpStatus = prvRequestS3ObjectRange( pxRequestInfo,
-                                              xRequestQueue,
-                                              0,
-                                              0 );
-
-    xStatus = ( xQueueOpStatus == QUEUE_OP_SUCCESS ) ? pdPASS : pdFAIL;
+    xStatus = prvRequestS3ObjectRange( pxRequestInfo,
+                                       xRequestQueue,
+                                       0,
+                                       0 );
 
     if( xStatus == pdPASS )
     {
-        do
-        {
-            xQueueOpStatus = prvRetrieveHTTPResponse( xResponseQueue, &xResponseItem );
-        } while( xQueueOpStatus == QUEUE_OP_WOULD_BLOCK );
+        xStatus = prvRetrieveHTTPResponse( xResponseQueue, &xResponseItem );
 
-        if( xQueueOpStatus == QUEUE_OP_FAILURE )
-        {
-            xStatus = pdFAIL;
-        }
-        else if( xResponseItem.xResponse.statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
+        if( xResponseItem.xResponse.statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
         {
             LogError( ( "Received response with unexpected status code: %d.", xResponseItem.xResponse.statusCode ) );
             xStatus = pdFAIL;
@@ -722,38 +668,33 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
 
 static void prvStartHTTPThread( void * pvArgs )
 {
-    TransportInterface_t xTransport = *( TransportInterface_t * ) pvArgs;
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
-    /* Return value of mq_receive. */
-    int mqread = 0;
-    /* Return value of mq_send. */
-    int mqerror = 0;
+    BaseType_t xStatus = pdPASS;
+    /* The transport layer interface used by the HTTP Client library. */
+    TransportInterface_t xTransportInterface;
+
+    ( void ) pvArgs;
+
+    /* Define the transport interface. */
+    xTransportInterface.pNetworkContext = &xNetworkContext;
+    xTransportInterface.send = SecureSocketsTransport_Send;
+    xTransportInterface.recv = SecureSocketsTransport_Recv;
 
     /* Initialize response struct. */
     xResponseItem.xResponse.pBuffer = xResponseItem.ucResponseBuffer;
-    xResponseItem.xResponse.bufferLen = sizeof( xResponseItem.ucResponseBuffer );
+    xResponseItem.xResponse.bufferLen = democonfigUSER_BUFFER_LENGTH;
 
     for( ; ; )
     {
-        xHTTPStatus = HTTPSuccess;
-        mqread = 0;
-        mqerror = 0;
-
         /* Read request from queue. */
-        mqread = mq_receive( xRequestQueue,
-                             ( char * ) &xRequestItem,
-                             sizeof( RequestItem_t ),
-                             NULL );
+        xStatus = xQueueReceive( xRequestQueue,
+                                 &xRequestItem,
+                                 httpexampleDEMO_TICKS_TO_WAIT );
 
-        if( mqread == -1 )
+        if( xStatus == pdFAIL )
         {
-            LogError( ( "Failed to read from request queue with error %s.",
-                        strerror( errno ) ) );
-        }
-
-        if( mqread != sizeof( RequestItem_t ) )
-        {
-            LogError( ( "Response from request queue has incorrect size." ) );
+            LogInfo( ( "No requests in the queue. Trying again." ) );
+            continue;
         }
 
         LogInfo( ( "HTTP thread retrieved request." ) );
@@ -761,7 +702,7 @@ static void prvStartHTTPThread( void * pvArgs )
                     ( int32_t ) xRequestItem.xRequestHeaders.headersLen,
                     ( char * ) xRequestItem.xRequestHeaders.pBuffer ) );
 
-        xHTTPStatus = HTTPClient_Send( &xTransport,
+        xHTTPStatus = HTTPClient_Send( &xTransportInterface,
                                        &xRequestItem.xRequestHeaders,
                                        NULL,
                                        0,
@@ -775,17 +716,17 @@ static void prvStartHTTPThread( void * pvArgs )
         }
         else
         {
-            LogInfo( ( "HTTP thread received HTTP response" ) );
+            LogInfo( ( "HTTP thread received response." ) );
             /* Write response to queue. */
-            mqerror = mq_send( xResponseQueue,
-                               ( char * ) &xResponseItem,
-                               sizeof( ResponseItem_t ),
-                               0 );
+            xStatus = xQueueSendToBack( xResponseQueue,
+                                        &xResponseItem,
+                                        httpexampleDEMO_TICKS_TO_WAIT );
 
-            if( mqerror != 0 )
+            /* Ensure response was added to the queue. */
+            if( xStatus != pdPASS )
             {
-                LogError( ( "Failed to write to response queue with error %s.",
-                            strerror( errno ) ) );
+                LogError( ( "Could not enqueue response." ) );
+                break;
             }
         }
     }
@@ -793,42 +734,23 @@ static void prvStartHTTPThread( void * pvArgs )
 
 /*-----------------------------------------------------------*/
 
-void prvTearDown( pthread_t xHttpThread,
-                  mqd_t xRequestQueue,
-                  mqd_t xResponseQueue )
+void prvTearDown( TaskHandle_t xHandle,
+                  QueueHandle_t xRequestQueue,
+                  QueueHandle_t xResponseQueue )
 {
-    /* Wait for the thread to terminate. */
-    ( void ) pthread_join( xHttpThread, NULL );
+    /* Delete HTTP task. */
+    LogInfo( ( "Deleting HTTP task." ) );
+    vTaskDelete( xHandle );
 
-    /* Close and then delete the queues. */
-    if( xRequestQueue != ( mqd_t ) -1 )
+    /* Close and delete the queues. */
+    if( xRequestQueue != NULL )
     {
-        if( mq_close( xRequestQueue ) == -1 )
-        {
-            LogError( ( "Failed to close request queue with error %s.",
-                        strerror( errno ) ) );
-        }
-
-        if( mq_unlink( httpexampleREQUEST_QUEUE ) == -1 )
-        {
-            LogError( ( "Failed to delete request queue with error %s.",
-                        strerror( errno ) ) );
-        }
+        vQueueDelete( xRequestQueue );
     }
 
-    if( xResponseQueue != ( mqd_t ) -1 )
+    if( xResponseQueue != NULL )
     {
-        if( mq_close( xResponseQueue ) == -1 )
-        {
-            LogError( ( "Failed to close response queue with error %s.",
-                        strerror( errno ) ) );
-        }
-
-        if( mq_unlink( httpexampleRESPONSE_QUEUE ) == -1 )
-        {
-            LogError( ( "Failed to delete response queue with error %s.",
-                        strerror( errno ) ) );
-        }
+        vQueueDelete( xResponseQueue );
     }
 }
 
@@ -837,16 +759,18 @@ void prvTearDown( pthread_t xHttpThread,
 /**
  * @brief Entry point of the demo.
  *
- * This example resolves a domain, establishes a TCP connection, validates the
- * server's certificate using the root CA certificate defined in the config
- * header, then finally performs a TLS handshake with the HTTP server so that
- * all communication is encrypted. After which, an HTTP thread is started which
- * uses HTTP Client library API to send requests it reads from the request
- * queue, and writes the responses to the response queue. The main thread sends
- * requests on the request queue, which are used to download the S3 file by
- * sending multiple range requests. While it is doing this, the main thread also
- * reads responses from the response queue and prints them until the entire file
- * is received. If any request fails, an error code is returned.
+ * This example, using a pre-signed URL, resolves a S3 domain, establishes a TCP
+ * connection, validates the server's certificate using the root CA certificate
+ * defined in the config header, then finally performs a TLS handshake with the
+ * HTTP server so that all communication is encrypted.
+ *
+ * Afterwards, an independent HTTP task is started, to read requests from the
+ * request queue and execute them using the HTTP Client library API, and write
+ * the corresponding responses to the response queue. The main thread sends
+ * requests to the request queue, which are used to download the S3 file in
+ * chunks using range requests. While doing so, the main thread reads responses
+ * from the response queue continuously until the entire file is received. If
+ * any request fails, an error code is returned.
  *
  * @note This example is multi-threaded and uses statically allocated memory.
  *
@@ -857,10 +781,6 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
                                             void * pNetworkCredentialInfo,
                                             const IotNetworkInterface_t * pNetworkInterface )
 {
-    /* The transport layer interface used by the HTTP Client library. */
-    TransportInterface_t xTransportInterface;
-    /* The network context for the transport layer interface. */
-    NetworkContext_t xNetworkContext = { 0 };
     TransportSocketStatus_t xNetworkStatus;
     BaseType_t xIsConnectionEstablished = pdFALSE;
     /* HTTPS Client library return status. */
@@ -869,6 +789,7 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
     const char * pcAddress = NULL;
     /* The location of the path within the pre-signed URL. */
     const char * pcPath = NULL;
+    UBaseType_t ulDemoRunCount = 0UL;
 
     /* Upon return, pdPASS will indicate a successful demo execution.
     * pdFAIL will indicate some failures occurred during execution. The
@@ -884,11 +805,6 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
     /* The length of the Request-URI within string S3_PRESIGNED_GET_URL */
     size_t xRequestUriLen = 0;
 
-    /* Settings for constructing queues. */
-    struct mq_attr xQueueSettings;
-    /* HTTP thread. */
-    pthread_t xThread = { 0 };
-
     /* Remove compiler warnings about unused parameters. */
     ( void ) awsIotMqttMode;
     ( void ) pIdentifier;
@@ -898,157 +814,152 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
 
     LogInfo( ( "HTTP Client multi-threaded S3 download demo using pre-signed URL:\n%s", democonfigS3_PRESIGNED_GET_URL ) );
 
-    /**************************** Parse Signed URL. ******************************/
-    if( xDemoStatus == pdPASS )
+    do
     {
-        /* Retrieve the path location from democonfigS3_PRESIGNED_GET_URL. This
-         * function returns the length of the path without the query into
-         * pathLen. */
-        xHTTPStatus = getUrlPath( democonfigS3_PRESIGNED_GET_URL,
-                                  httpexampleS3_PRESIGNED_GET_URL_LENGTH,
-                                  &pcPath,
-                                  &pathLen );
+        /* Reset for each iteration of the demo. */
+        xDemoStatus = pdPASS;
 
-        /* The path used for the requests in this demo needs
-         * all the query information following the location of the object, to
-         * the end of the S3 presigned URL. */
-        xRequestUriLen = strlen( pcPath );
-
-        xDemoStatus = ( xHTTPStatus == HTTPSuccess ) ? pdPASS : pdFAIL;
-    }
-
-    if( xDemoStatus == pdPASS )
-    {
-        /* Retrieve the address location and length from the democonfigS3_PRESIGNED_GET_URL. */
-        xHTTPStatus = getUrlAddress( democonfigS3_PRESIGNED_GET_URL,
-                                     httpexampleS3_PRESIGNED_GET_URL_LENGTH,
-                                     &pcAddress,
-                                     &xServerHostLength );
-
-        xDemoStatus = ( xHTTPStatus == HTTPSuccess ) ? pdPASS : pdFAIL;
-    }
-
-    if( xDemoStatus == pdPASS )
-    {
-        /* cServerHost should consist only of the host address located in
-         * democonfigS3_PRESIGNED_GET_URL. */
-        memcpy( cServerHost, pcAddress, xServerHostLength );
-        cServerHost[ xServerHostLength ] = '\0';
-    }
-
-    /**************************** Connect. ******************************/
-
-    /* Establish a TLS connection on top of TCP connection using OpenSSL. */
-    if( xDemoStatus == pdPASS )
-    {
-        /* Attempt to connect to the HTTP server. If connection fails, retry
-         * after a timeout. The timeout value will be exponentially increased
-         * until either the maximum number of attempts or the maximum timeout
-         * value is reached. The function returns pdFAIL if the TCP connection
-         * cannot be established with the broker after the configured number of
-         * attempts. */
-        xDemoStatus = connectToServerWithBackoffRetries( prvConnectToServer,
-                                                         &xNetworkContext );
-
-        if( xDemoStatus == pdFAIL )
+        /**************************** Parse Signed URL. ******************************/
+        if( xDemoStatus == pdPASS )
         {
-            /* Log an error to indicate connection failure after all
-             * reconnect attempts are over. */
-            LogError( ( "Failed to connect to HTTP server %s.",
-                        cServerHost ) );
-        }
-    }
+            /* Retrieve the path location from democonfigS3_PRESIGNED_GET_URL. This
+             * function returns the length of the path without the query into
+             * pathLen. */
+            xHTTPStatus = getUrlPath( democonfigS3_PRESIGNED_GET_URL,
+                                      httpexampleS3_PRESIGNED_GET_URL_LENGTH,
+                                      &pcPath,
+                                      &pathLen );
 
-    /* Define the transport interface. */
-    if( xDemoStatus == pdPASS )
-    {
-        /* Set a flag indicating that a TLS connection exists. */
-        xIsConnectionEstablished = pdTRUE;
+            /* The path used for the requests in this demo needs
+             * all the query information following the location of the object, to
+             * the end of the S3 presigned URL. */
+            xRequestUriLen = strlen( pcPath );
+
+            xDemoStatus = ( xHTTPStatus == HTTPSuccess ) ? pdPASS : pdFAIL;
+        }
+
+        if( xDemoStatus == pdPASS )
+        {
+            /* Retrieve the address location and length from the democonfigS3_PRESIGNED_GET_URL. */
+            xHTTPStatus = getUrlAddress( democonfigS3_PRESIGNED_GET_URL,
+                                         httpexampleS3_PRESIGNED_GET_URL_LENGTH,
+                                         &pcAddress,
+                                         &xServerHostLength );
+
+            xDemoStatus = ( xHTTPStatus == HTTPSuccess ) ? pdPASS : pdFAIL;
+        }
+
+        if( xDemoStatus == pdPASS )
+        {
+            /* cServerHost should consist only of the host address located in
+             * democonfigS3_PRESIGNED_GET_URL. */
+            memcpy( cServerHost, pcAddress, xServerHostLength );
+            cServerHost[ xServerHostLength ] = '\0';
+        }
+
+        /**************************** Connect. ******************************/
+
+        /* Establish a TLS connection on top of TCP connection using OpenSSL. */
+        if( xDemoStatus == pdPASS )
+        {
+            /* Attempt to connect to the HTTP server. If connection fails, retry
+             * after a timeout. The timeout value will be exponentially increased
+             * until either the maximum number of attempts or the maximum timeout
+             * value is reached. The function returns pdFAIL if the TCP connection
+             * cannot be established with the broker after the configured number of
+             * attempts. */
+            xDemoStatus = connectToServerWithBackoffRetries( prvConnectToServer,
+                                                             &xNetworkContext );
+
+            if( xDemoStatus == pdFAIL )
+            {
+                /* Log an error to indicate connection failure after all
+                 * reconnect attempts are over. */
+                LogError( ( "Failed to connect to HTTP server %s.",
+                            cServerHost ) );
+            }
+        }
 
         /* Define the transport interface. */
-        xTransportInterface.pNetworkContext = &xNetworkContext;
-        xTransportInterface.send = SecureSocketsTransport_Send;
-        xTransportInterface.recv = SecureSocketsTransport_Recv;
-    }
-
-    /******************** Open queues and HTTP task. *******************/
-
-    /* Open request and response queues. */
-    if( xDemoStatus == pdPASS )
-    {
-        xQueueSettings.mq_maxmsg = democonfigQUEUE_SIZE;
-        xQueueSettings.mq_msgsize = sizeof( RequestItem_t );
-
-        xRequestQueue = mq_open( httpexampleREQUEST_QUEUE,
-                                 O_CREAT | O_RDWR,
-                                 ( mode_t ) 0,
-                                 &xQueueSettings );
-
-        if( xRequestQueue == ( mqd_t ) -1 )
+        if( xDemoStatus == pdPASS )
         {
-            LogError( ( "Failed to open request queue with error %s.",
-                        strerror( errno ) ) );
-            xDemoStatus = pdFAIL;
+            /* Set a flag indicating that a TLS connection exists. */
+            xIsConnectionEstablished = pdTRUE;
         }
 
-        xQueueSettings.mq_msgsize = sizeof( ResponseItem_t );
+        /******************** Open queues and HTTP task. *******************/
 
-        xResponseQueue = mq_open( httpexampleRESPONSE_QUEUE,
-                                  O_CREAT | O_RDWR,
-                                  ( mode_t ) 0,
-                                  &xQueueSettings );
-
-        if( xResponseQueue == ( mqd_t ) -1 )
+        /* Open request and response queues. */
+        if( xDemoStatus == pdPASS )
         {
-            LogError( ( "Failed to open response queue with error %s.",
-                        strerror( errno ) ) );
-            xDemoStatus = pdFAIL;
+            xRequestQueue = xQueueCreate( democonfigQUEUE_SIZE,
+                                          sizeof( RequestItem_t ) );
+
+            xResponseQueue = xQueueCreate( democonfigQUEUE_SIZE,
+                                           sizeof( ResponseItem_t ) );
+
+            xDemoStatus = xTaskCreate( prvStartHTTPThread, "HTTPTask", httpexampleTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHTTPTask );
         }
-    }
 
-    /* Start the HTTP thread which services requests in xRequestQueue. */
-    if( xDemoStatus == pdPASS )
-    {
-        ( void ) pthread_create( &( xThread ), NULL, prvStartHTTPThread, &xTransportInterface );
-    }
+        /******************** Download S3 Object File. **********************/
 
-    /******************** Download S3 Object File. **********************/
-
-    if( xDemoStatus == pdPASS )
-    {
-        xDemoStatus = prvDownloadS3ObjectFile( cServerHost,
-                                               xServerHostLength,
-                                               pcPath,
-                                               xRequestUriLen,
-                                               xRequestQueue,
-                                               xResponseQueue );
-    }
-
-    /************************** Disconnect. *****************************/
-
-    /* Close the network connection to clean up any system resources that the
-     * demo may have consumed. */
-    if( xIsConnectionEstablished == pdTRUE )
-    {
-        /* Close the network connection.  */
-        xNetworkStatus = SecureSocketsTransport_Disconnect( &xNetworkContext );
-
-        if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
+        if( xDemoStatus == pdPASS )
         {
-            xDemoStatus = pdFAIL;
-            LogError( ( "SecureSocketsTransport_Disconnect() failed to close the network connection. "
-                        "StatusCode=%d.", ( int ) xNetworkStatus ) );
+            xDemoStatus = prvDownloadS3ObjectFile( cServerHost,
+                                                   xServerHostLength,
+                                                   pcPath,
+                                                   xRequestUriLen,
+                                                   xRequestQueue,
+                                                   xResponseQueue );
         }
-    }
+
+        /************************** Disconnect. *****************************/
+
+        /* Close the network connection to clean up any system resources that the
+         * demo may have consumed. */
+        if( xIsConnectionEstablished == pdTRUE )
+        {
+            /* Close the network connection.  */
+            xNetworkStatus = SecureSocketsTransport_Disconnect( &xNetworkContext );
+
+            if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
+            {
+                LogError( ( "SecureSocketsTransport_Disconnect() failed to close the network connection. "
+                            "StatusCode=%d.", ( int ) xNetworkStatus ) );
+                xDemoStatus = pdFAIL;
+            }
+        }
+
+        /*********** Clean up and evaluate demo iteration status. ***********/
+
+        /* Close and delete the queues. */
+        prvTearDown( xHTTPTask, xRequestQueue, xResponseQueue );
+
+        /* Increment the demo run count. */
+        ulDemoRunCount++;
+
+        if( xDemoStatus == pdPASS )
+        {
+            LogInfo( ( "Demo iteration %lu is successful.", ulDemoRunCount ) );
+        }
+        /* Attempt to retry a failed iteration of demo for up to #httpexampleMAX_DEMO_COUNT times. */
+        else if( ulDemoRunCount < httpexampleMAX_DEMO_COUNT )
+        {
+            LogWarn( ( "Demo iteration %lu failed. Retrying...", ulDemoRunCount ) );
+            vTaskDelay( httpexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
+        }
+        /* Failed all #httpexampleMAX_DEMO_COUNT demo iterations. */
+        else
+        {
+            LogError( ( "All %d demo iterations failed.", httpexampleMAX_DEMO_COUNT ) );
+            break;
+        }
+    } while( xDemoStatus != pdPASS );
 
     if( xDemoStatus == pdPASS )
     {
         LogInfo( ( "Demo completed successfully." ) );
     }
-
-    /******************** Clean up queues and HTTP thread. ****************/
-
-    prvTearDown( xThread, xRequestQueue, xResponseQueue );
 
     return ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
