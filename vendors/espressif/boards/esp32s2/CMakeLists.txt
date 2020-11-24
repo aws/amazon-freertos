@@ -16,7 +16,12 @@ if(AFR_METADATA_MODE)
     set(PYTHON_DEPS_CHECKED 1)
 endif()
 
-
+if(DEFINED ENV{IDF_PATH})
+    message("WARNING: IDF_PATH environment variable is not cleared.
+    If CMake is generating an error, consider clearing the IDF_PATH environment
+    variable, and generating a clean build. This message can be ignored if
+    CMake was successful.")
+endif()
 
 set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
 # Provides idf_import_components and idf_link_components
@@ -80,6 +85,7 @@ set(
     "${esp_idf_dir}/components/soc/include"
     "${esp_idf_dir}/components/spi_flash/include"
     "${esp_idf_dir}/components/vfs/include"
+    "${esp_idf_dir}/components/esp_ringbuf/include/"
     "${extra_components_dir}/freertos/include"
     "${esp_idf_dir}/components/mbedtls/port/include"
     "${esp_idf_dir}/components/xtensa/esp32s2/include/xtensa"
@@ -96,7 +102,7 @@ if(AFR_ESP_FREERTOS_TCP)
     "${extra_components_dir}/freertos_tcpip/ethernet/include"
     "${extra_components_dir}/freertos_tcpip/smartconfig_ack/include"
     "${extra_components_dir}/freertos_tcpip/tcpip_adapter/include"
-    "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
+    "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/GCC"
     "${esp_idf_dir}/components/xtensa"
     "${esp_idf_dir}/components/esp_wifi/include"
     "${esp_idf_dir}/components/esp_netif/include"
@@ -149,6 +155,10 @@ target_include_directories(
         "${esp_idf_dir}/components/lwip/lwip/src/include"
         "${esp_idf_dir}/components/lwip/port/esp32/include"
         "${esp_idf_dir}/components/lwip/port/esp32/include/arch"
+        "${esp_idf_dir}/components/protocomm/include/common"
+        "${esp_idf_dir}/components/protocomm/include/security"
+        "${esp_idf_dir}/components/protocomm/include/transports"
+        "${esp_idf_dir}/components/wifi_provisioning/include"
         "${esp_idf_dir}/components/esp_wifi/include"
         "${esp_idf_dir}/components/esp_netif/include"
         "${esp_idf_dir}/components/esp_eth/include"
@@ -158,7 +168,9 @@ endif()
 
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
+    INTERFACE
+    "${afr_ports_dir}/wifi/iot_wifi.c"
+    "${afr_ports_dir}/wifi/iot_softap_wifi_provisioning.c"
 )
 
 # PKCS11
@@ -194,7 +206,7 @@ else()
     target_sources(
         AFR::pkcs11_implementation::mcu_port
         INTERFACE
-            "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+            "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
     )
 endif()
 
@@ -210,8 +222,8 @@ afr_mcu_port(freertos_plus_tcp)
 target_sources(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/esp32/NetworkInterface.c"
 )
 
 # Secure sockets
@@ -251,6 +263,38 @@ target_link_libraries(
 )
 
 endif()
+
+# Common I/O
+afr_mcu_port(common_io)
+target_sources(
+    AFR::common_io::mcu_port
+    INTERFACE
+        "${afr_ports_dir}/common_io/iot_i2c.c"
+        "${afr_ports_dir}/common_io/iot_spi.c"
+        "${afr_ports_dir}/common_io/iot_uart.c"
+        $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
+        # Add the header file to generate metadata for it so that
+        # it is present in the code downloaded from FreeRTOS console.
+        "${afr_ports_dir}/common_io/include/iot_board_gpio.h"
+)
+target_include_directories(
+    AFR::common_io::mcu_port
+    INTERFACE
+        "${afr_ports_dir}/common_io/include"
+        "${AFR_ROOT_DIR}/libraries/abstractions/common_io/test"
+        "${esp_idf_dir}/components/soc/soc/include"
+)
+
+
+target_compile_options(
+    AFR::common_io::mcu_port
+    INTERFACE
+    -Wno-implicit-function-declaration
+    -Wno-format -Wno-maybe-uninitialized
+    -Wno-pointer-sign
+    -Wno-unused-but-set-variable
+    -Wno-incompatible-pointer-types
+)
 
 if(AFR_IS_TESTING)
 target_compile_definitions(
@@ -310,6 +354,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         PRIVATE
             AFR::wifi
             AFR::utils
+            AFR::common_io
     )
 endif()
 
@@ -364,6 +409,10 @@ set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-int-conversion"
 )
+
+set_source_files_properties(${AFR_ROOT_DIR}/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_subscription.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-restrict")
 
 set(IDF_TARGET esp32)
 set(ENV{IDF_PATH} ${esp_idf_dir})

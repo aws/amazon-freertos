@@ -35,7 +35,6 @@
 #include "aws_dev_mode_key_provisioning.h"
 
 /* AWS System includes. */
-#include "bt_hal_manager.h"
 #include "iot_system_init.h"
 #include "iot_logging_task.h"
 
@@ -48,13 +47,6 @@
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_interface.h"
-#include "esp_bt.h"
-#if CONFIG_NIMBLE_ENABLED == 1
-    #include "esp_nimble_hci.h"
-#else
-    #include "esp_gap_ble_api.h"
-    #include "esp_bt_main.h"
-#endif
 
 #include "driver/uart.h"
 #include "aws_application_version.h"
@@ -63,17 +55,6 @@
 #include "iot_network_manager_private.h"
 
 #include "iot_uart.h"
-
-#if BLE_ENABLED
-    #include "bt_hal_manager_adapter_ble.h"
-    #include "bt_hal_manager.h"
-    #include "bt_hal_gatt_server.h"
-
-    #include "iot_ble.h"
-    #include "iot_ble_config.h"
-    #include "iot_ble_wifi_provisioning.h"
-    #include "iot_ble_numericComparison.h"
-#endif
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
@@ -90,13 +71,6 @@
  * @brief Initializes the board.
  */
 static void prvMiscInitialization( void );
-
-#if BLE_ENABLED
-/* Initializes bluetooth */
-    static esp_err_t prvBLEStackInit( void );
-    /** Helper function to teardown BLE stack. **/
-    esp_err_t xBLEStackTeardown( void );
-#endif
 
 IotUARTHandle_t xConsoleUart;
 
@@ -139,22 +113,6 @@ int app_main( void )
          * by production ready key provisioning mechanism. */
         vDevModeKeyProvisioning();
 
-        #if BLE_ENABLED
-            /* Initialize BLE. */
-            ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
-
-            if( prvBLEStackInit() != ESP_OK )
-            {
-                configPRINTF( ( "Failed to initialize the bluetooth stack\n " ) );
-
-                while( 1 )
-                {
-                }
-            }
-        #else
-            ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
-            ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_BLE ) );
-        #endif /* if BLE_ENABLED */
         /* Run all demos. */
         DEMO_RUNNER_RunDemos();
     }
@@ -185,10 +143,6 @@ static void prvMiscInitialization( void )
 
     iot_uart_init();
 
-    #if BLE_ENABLED
-        NumericComparisonInit();
-    #endif
-
     /* Create tasks that are not dependent on the WiFi being initialized. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
                             tskIDLE_PRIORITY + 5,
@@ -202,135 +156,6 @@ static void prvMiscInitialization( void )
     vApplicationIPInit();
 #endif
 }
-
-/*-----------------------------------------------------------*/
-
-#if BLE_ENABLED
-
-    #if CONFIG_NIMBLE_ENABLED == 1
-        esp_err_t prvBLEStackInit( void )
-        {
-            return ESP_OK;
-        }
-
-
-        esp_err_t xBLEStackTeardown( void )
-        {
-            esp_err_t xRet;
-
-            xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
-
-            return xRet;
-        }
-
-    #else /* if CONFIG_NIMBLE_ENABLED == 1 */
-
-        static esp_err_t prvBLEStackInit( void )
-        {
-            return ESP_OK;
-        }
-
-        esp_err_t xBLEStackTeardown( void )
-        {
-            esp_err_t xRet = ESP_OK;
-
-            if( esp_bluedroid_get_status() == ESP_BLUEDROID_STATUS_ENABLED )
-            {
-                xRet = esp_bluedroid_disable();
-            }
-
-            if( xRet == ESP_OK )
-            {
-                xRet = esp_bluedroid_deinit();
-            }
-
-            if( xRet == ESP_OK )
-            {
-                if( esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED )
-                {
-                    xRet = esp_bt_controller_disable();
-                }
-            }
-
-            if( xRet == ESP_OK )
-            {
-                xRet = esp_bt_controller_deinit();
-            }
-
-            if( xRet == ESP_OK )
-            {
-                xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
-            }
-
-            if( xRet == ESP_OK )
-            {
-                xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
-            }
-
-            return xRet;
-        }
-    #endif /* if CONFIG_NIMBLE_ENABLED == 1 */
-#endif /* if BLE_ENABLED */
-
-/*-----------------------------------------------------------*/
-
-
-#if BLE_ENABLED
-/*-----------------------------------------------------------*/
-
-    static void prvUartCallback( IotUARTOperationStatus_t xStatus,
-                                      void * pvUserContext )
-    {
-        SemaphoreHandle_t xUartSem = ( SemaphoreHandle_t ) pvUserContext;
-        configASSERT( xUartSem != NULL );
-        xSemaphoreGive( xUartSem );
-    }
-
-  
-    BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage,
-                               TickType_t xAuthTimeout )
-    {
-        BaseType_t xReturnMessage = pdFALSE;
-        SemaphoreHandle_t xUartSem;
-        int32_t status, bytesRead = 0;
-        uint8_t *pucResponse;
-
-        xUartSem = xSemaphoreCreateBinary();
-
-        
-        /* BLE Numeric comparison response is one character (y/n). */
-        pucResponse = ( uint8_t * ) pvPortMalloc( sizeof( uint8_t ) );
-
-        if( ( xUartSem != NULL ) && ( pucResponse != NULL ) )
-        {
-            iot_uart_set_callback( xConsoleUart, prvUartCallback, xUartSem );
-
-            status = iot_uart_read_async( xConsoleUart, pucResponse, 1 );
-
-            /* Wait for  auth timeout to get the input character. */
-            xSemaphoreTake( xUartSem, xAuthTimeout );
-
-            /* Cancel the uart operation if the character is received or timeout occured. */
-            iot_uart_cancel( xConsoleUart );
-
-            /* Reset the callback. */
-            iot_uart_set_callback( xConsoleUart, NULL, NULL );
-
-            iot_uart_ioctl( xConsoleUart, eGetRxNoOfbytes, &bytesRead );
-
-            if( bytesRead == 1 )
-            {
-                pxINPUTmessage->pcData = pucResponse;
-                pxINPUTmessage->xDataSize = 1;
-                xReturnMessage = pdTRUE;
-            }
-
-            vSemaphoreDelete( xUartSem );
-        }
-
-        return xReturnMessage;
-    }
-#endif /* if BLE_ENABLED */
 
 /*-----------------------------------------------------------*/
 

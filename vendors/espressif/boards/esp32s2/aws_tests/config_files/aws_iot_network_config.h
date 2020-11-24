@@ -40,7 +40,7 @@
  * in "aws_iot_network.h"
  */
 
-#define configSUPPORTED_NETWORKS    ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
+#define configSUPPORTED_NETWORKS    ( AWSIOT_NETWORK_TYPE_WIFI )
 
 /**
  * @brief Configuration flag which is used to enable one or more network interfaces for a board.
@@ -52,6 +52,6 @@
  *
  */
 
-#define configENABLED_NETWORKS      ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
+#define configENABLED_NETWORKS      ( AWSIOT_NETWORK_TYPE_WIFI )
 
 #endif /* CONFIG_FILES_AWS_IOT_NETWORK_CONFIG_H_ */

@@ -33,10 +33,10 @@
 #define _IOT_BLE_CONFIG_H_
 
 /* Device name for this peripheral device. */
-#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME                     "TEST_ESP32"
+#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME                     "TEST_ESP32_S2"
 
 /* Enable WIFI provisioning GATT service. */
-#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 1 )
+#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 0 )
 #define IOT_BLE_ENABLE_GATT_DEMO                 ( 0 )
 
 /* Disable numeric comparison */

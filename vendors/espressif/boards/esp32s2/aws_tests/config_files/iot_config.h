@@ -33,7 +33,7 @@
 
 /* Network type configuration for this board. */
 #define DEFAULT_NETWORK    AWSIOT_NETWORK_TYPE_WIFI
-#define BLE_SUPPORTED      ( 1 )
+#define BLE_SUPPORTED      ( 0 )
 #define WIFI_SUPPORTED     ( 1 )
 
 #define iotconfigUSE_PORT_SPECIFIC_HOOKS

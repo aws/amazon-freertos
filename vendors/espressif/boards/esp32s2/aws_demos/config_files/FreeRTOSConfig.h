@@ -37,7 +37,7 @@
 
 #ifndef __ASSEMBLER__
     #include <stdlib.h> /* for abort() */
-    #include "esp32/rom/ets_sys.h"
+    #include "esp32s2/rom/ets_sys.h"
     #include <sys/reent.h>
     #include "soc/cpu.h"
     #include "esp_attr.h"
@@ -299,7 +299,7 @@
 #define configPROFILING                      ( 0 )
 
 /* The platform FreeRTOS is running on. */
-#define configPLATFORM_NAME    "EspressifESP32"
+#define configPLATFORM_NAME    "EspressifESP32-S2"
 
 /* The size of the global output buffer that is available for use when there
    *  are multiple command interpreters running at once (for example, one on a UART

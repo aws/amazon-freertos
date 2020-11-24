@@ -45,19 +45,9 @@
 #endif
 #include "esp_netif.h"
 #include "aws_test_utils.h"
-#include "esp_bt.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_interface.h"
-#include "bt_hal_manager_adapter_ble.h"
-#include "bt_hal_manager.h"
-#include "bt_hal_gatt_server.h"
-#if CONFIG_NIMBLE_ENABLED == 1
-    #include "esp_nimble_hci.h"
-#else
-    #include "esp_gap_ble_api.h"
-    #include "esp_bt_main.h"
-#endif
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 6 )
@@ -206,12 +196,6 @@ static void prvMiscInitialization( void )
         ESP_ERROR_CHECK( nvs_flash_erase() );
         ret = nvs_flash_init();
     }
-
-    #if CONFIG_NIMBLE_ENABLED == 1
-    #else
-        /* Release BT memory as it is not used. */
-        ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
-    #endif
 
     ESP_ERROR_CHECK( ret );
 }
@@ -383,69 +367,3 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 }
 #endif /* !AFR_ESP_LWIP */
 
-#if CONFIG_NIMBLE_ENABLED == 1
-    BTStatus_t bleStackInit( void )
-    {
-        return eBTStatusSuccess;
-    }
-
-    esp_err_t bleStackTeardown( void )
-    {
-        esp_err_t xRet;
-
-        xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
-
-        return xRet;
-    }
-
-
-#else /* if CONFIG_NIMBLE_ENABLED == 1 */
-
-/*
- * Return on success
- */
-    BTStatus_t bleStackInit( void )
-    {
-        return eBTStatusSuccess;
-    }
-
-    esp_err_t bleStackTeardown( void )
-    {
-        esp_err_t xRet = ESP_OK;
-
-        if( esp_bluedroid_get_status() == ESP_BLUEDROID_STATUS_ENABLED )
-        {
-            xRet = esp_bluedroid_disable();
-        }
-
-        if( xRet == ESP_OK )
-        {
-            xRet = esp_bluedroid_deinit();
-        }
-
-        if( xRet == ESP_OK )
-        {
-            if( esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED )
-            {
-                xRet = esp_bt_controller_disable();
-            }
-        }
-
-        if( xRet == ESP_OK )
-        {
-            xRet = esp_bt_controller_deinit();
-        }
-
-        if( xRet == ESP_OK )
-        {
-            xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
-        }
-
-        if( xRet == ESP_OK )
-        {
-            xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
-        }
-
-        return xRet;
-    }
-#endif /* if CONFIG_NIMBLE_ENABLED == 1 */

@@ -58,11 +58,6 @@
 #define testrunnerFULL_WIFI_ENABLED                    0
 #define testrunnerFULL_MEMORYLEAK_ENABLED              0
 #define testrunnerFULL_TLS_ENABLED                     0
-#define testrunnerFULL_BLE_END_TO_END_TEST_ENABLED     0
-#define testrunnerFULL_BLE_ENABLED                     0
-#define testrunnerFULL_BLE_STRESS_TEST_ENABLED         0
-#define testrunnerFULL_BLE_KPI_TEST_ENABLED            0
-#define testrunnerFULL_BLE_INTEGRATION_TEST_ENABLED    0
 #define testrunnerFULL_WIFI_PROVISIONING_ENABLED       0
 #define testrunnerUTIL_PLATFORM_CLOCK_ENABLED          0
 #define testrunnerFULL_LINEAR_CONTAINERS_ENABLED       0
