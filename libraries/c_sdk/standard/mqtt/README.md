@@ -28,4 +28,5 @@ In comparison with the code size of the MQTT Compatibility Layer, coreMQTT libra
 ## Tasks required for MQTT Compatibility Layer
 
 The MQTT Compatibility Layer has a run time dependency on tasks created by Task Pool and Network Interface implementation, in addition to the system tasks. Task Pool creates `IotTaskPoolInfo.minThreads` number of tasks and the Network Interface implementation creates a task to receive from the network.
-In comparison with MQTT Compatibility Layer, coreMQTT library doesn't have dependency on any additional tasks other than system tasks.
+
+Please note that the redesigned [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md) doesn't have dependency on any additional tasks other than system tasks.
