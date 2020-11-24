@@ -666,7 +666,7 @@ int RunCoreHttpS3UploadDemo( bool awsIotMqttMode,
     BaseType_t xIsConnectionEstablished = pdFALSE;
     /* HTTPS Client library return status. */
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
-    uint32_t ulDemoRunCount = 0UL;
+    BaseType_t xDemoRunCount = 0UL;
 
     /* Upon return, pdPASS will indicate a successful demo execution.
     * pdFAIL will indicate some failures occurred during execution. The
@@ -695,23 +695,21 @@ int RunCoreHttpS3UploadDemo( bool awsIotMqttMode,
         /**************************** Connect. ******************************/
 
         /* Establish TLS connection on top of TCP connection using Secure Sockets. */
-        if( xDemoStatus == pdPASS )
-        {
-            /* Attempt to connect to S3. If connection fails, retry after a timeout.
-             * The timeout value will be exponentially increased until either the
-             * maximum number of attempts or the maximum timeout value is reached.
-             * The function returns pdFAIL if a TCP connection with the broker
-             * cannot be established after the configured number of attempts. */
-            xDemoStatus = connectToServerWithBackoffRetries( prvConnectToServer,
-                                                             &xNetworkContext );
 
-            if( xDemoStatus == pdFAIL )
-            {
-                /* Log an error to indicate connection failure after all
-                 * reconnect attempts are over. */
-                LogError( ( "Failed to connect to HTTP server %s.",
-                            cServerHost ) );
-            }
+        /* Attempt to connect to S3. If connection fails, retry after a timeout.
+         * The timeout value will be exponentially increased until either the
+         * maximum number of attempts or the maximum timeout value is reached.
+         * The function returns pdFAIL if a TCP connection with the broker
+         * cannot be established after the configured number of attempts. */
+        xDemoStatus = connectToServerWithBackoffRetries( prvConnectToServer,
+                                                         &xNetworkContext );
+
+        if( xDemoStatus == pdFAIL )
+        {
+            /* Log an error to indicate connection failure after all
+             * reconnect attempts are over. */
+            LogError( ( "Failed to connect to HTTP server %s.",
+                        cServerHost ) );
         }
 
         /* Define the transport interface. */
@@ -787,16 +785,16 @@ int RunCoreHttpS3UploadDemo( bool awsIotMqttMode,
         }
 
         /* Increment the demo run count. */
-        ulDemoRunCount++;
+        xDemoRunCount++;
 
         if( xDemoStatus == pdPASS )
         {
-            LogInfo( ( "Demo iteration %lu is successful.", ulDemoRunCount ) );
+            LogInfo( ( "Demo iteration %lu is successful.", xDemoRunCount ) );
         }
         /* Attempt to retry a failed iteration of demo for up to #httpexampleMAX_DEMO_COUNT times. */
-        else if( ulDemoRunCount < httpexampleMAX_DEMO_COUNT )
+        else if( xDemoRunCount < httpexampleMAX_DEMO_COUNT )
         {
-            LogWarn( ( "Demo iteration %lu failed. Retrying...", ulDemoRunCount ) );
+            LogWarn( ( "Demo iteration %lu failed. Retrying...", xDemoRunCount ) );
             vTaskDelay( httpexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
         }
         /* Failed all #httpexampleMAX_DEMO_COUNT demo iterations. */
