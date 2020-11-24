@@ -1,5 +1,5 @@
 # Demo module for AWS IoT Defender.
-afr_demo_module(device_defender)
+afr_demo_module(device_defender_lwip)
 
 afr_set_demo_metadata(ID "DEVICE_DEFENDER_DEMO")
 afr_set_demo_metadata(DESCRIPTION "An example that demonstrates the use of the AWS IoT Defender library.")
@@ -16,11 +16,10 @@ afr_module_sources(
         "${CMAKE_CURRENT_LIST_DIR}/defender_demo.c"
         "${CMAKE_CURRENT_LIST_DIR}/report_builder.c"
         "${CMAKE_CURRENT_LIST_DIR}/metrics_collector/lwip/metrics_collector.c"
-
         # List of header files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
         "${CMAKE_CURRENT_LIST_DIR}/report_builder.h"
-        "${CMAKE_CURRENT_LIST_DIR}/metrics_collector/lwip/metrics_collector.h" 
+        "${CMAKE_CURRENT_LIST_DIR}/metrics_collector.h"
         "${CMAKE_CURRENT_LIST_DIR}/metrics_collector/lwip/netif_port.h"
 )
 
@@ -38,8 +37,9 @@ afr_module_dependencies(
         AFR::mqtt_demo_helpers
         AFR::core_json
         AFR::device_defender
-        # Add dependency on the device_shadow_demo_dependencies 
+        AFR::secure_sockets_lwip
+        # Add dependency on the device_defender_demo_dependencies
         # metadata module so that this demo is only shown when the
-        # Device Shadow library is selected on the FreeRTOS console.
+        # Device Defender library is selected on the FreeRTOS console.
         AFR::device_defender_demo_dependencies
 )

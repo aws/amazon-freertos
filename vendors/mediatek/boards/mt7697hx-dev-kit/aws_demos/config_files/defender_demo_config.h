@@ -44,13 +44,13 @@
 
 #include "logging_levels.h"
 
-/* Logging configuration for the Defender library. */
+/* Logging configuration for the Defender demo. */
 #ifndef LIBRARY_LOG_NAME
     #define LIBRARY_LOG_NAME    "Device_Defender_Demo"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
-    #define LIBRARY_LOG_LEVEL    LOG_NONE
+    #define LIBRARY_LOG_LEVEL    LOG_ERROR
 #endif
 
 #include "logging_stack.h"
@@ -58,28 +58,9 @@
 /************ End of logging configuration ****************/
 
 /**
- * @brief MQTT client identifier.
- *
- * No two clients may use the same client identifier simultaneously.
- */
-#ifndef CLIENT_IDENTIFIER
-    #define CLIENT_IDENTIFIER    "testclient"
-#endif
-
-/**
  * @brief Size of the network buffer for MQTT packets.
  */
-#define NETWORK_BUFFER_SIZE    ( 1024U )
-
-
-/**
- * @brief Predefined thing name.
- *
- * This is the example predefine thing name and could be compiled in ROM code.
- *
- * #define THING_NAME             "...insert here..."
- */
-
+#define NETWORK_BUFFER_SIZE                    ( 1024U )
 
 /**
  * @brief Size of the open TCP ports array.

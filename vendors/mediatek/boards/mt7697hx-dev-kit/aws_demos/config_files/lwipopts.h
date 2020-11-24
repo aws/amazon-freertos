@@ -139,7 +139,7 @@ extern char                     ram_heap[ MEM_SIZE ];
 
 #if FREERTOS_LWIP_METRICS_ENABLE == 1
 #define LINK_SPEED_OF_YOUR_NETIF_IN_BPS 0
-#define LWIP_TCPIP_CORE_LOCKING_INPUT   1
+#define LWIP_TCPIP_CORE_LOCKING         1
 #define LWIP_STATS                      1
 #define LWIP_STATS_DISPLAY              1
 #define MIB2_STATS                      1

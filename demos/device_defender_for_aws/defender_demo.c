@@ -45,14 +45,12 @@
 /* Device Defender Client Library. */
 #include "defender.h"
 
-#ifndef THING_NAME
-    /**
-     * @brief Predefined thing name.
-     *
-     * This is the example predefine thing name and could be compiled in ROM code.
-     */
-    #define THING_NAME    clientcredentialIOT_THING_NAME
-#endif
+/**
+ * @brief Predefined thing name.
+ *
+ * This is the example predefine thing name and could be compiled in ROM code.
+ */
+#define THING_NAME           clientcredentialIOT_THING_NAME
 
 /**
  * @brief The length of #THING_NAME.

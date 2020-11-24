@@ -45,14 +45,14 @@
 #include "lwipopts.h"
 #include "netif_port.h"
 
-#if !defined( LWIP_TCPIP_CORE_LOCKING_INPUT ) || ( LWIP_TCPIP_CORE_LOCKING_INPUT == 0 )
-    #error "Network metrics are only supported in core locking mode. Please define LWIP_TCPIP_CORE_LOCKING_INPUT to 1 in lwipopts.h."
+#if !defined( LWIP_TCPIP_CORE_LOCKING ) || ( LWIP_TCPIP_CORE_LOCKING == 0 )
+    #error "Network metrics are only supported in core locking mode. Please define LWIP_TCPIP_CORE_LOCKING to 1 in lwipopts.h."
 #endif
 
 /* Helper macros to get bytes in/out and packets in/out. */
 #define LWIP_GET_PACKETS_IN()         ( lwip_stats.mib2.ipinreceives )
 #define LWIP_GET_PACKETS_OUT()        ( lwip_stats.mib2.ipoutrequests )
-#if( LWIP_BYTES_IN_OUT_UNSUPPORTED == 1 )
+#if( LWIP_BYTES_IN_OUT_UNSUPPORTED == 0 )
     #define LWIP_GET_BYTES_IN()       ( LWIP_NET_IF.mib2_counters.ifinoctets )
     #define LWIP_GET_BYTES_OUT()      ( LWIP_NET_IF.mib2_counters.ifoutoctets )
 #else
