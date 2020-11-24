@@ -152,19 +152,6 @@ function(afr_add_subdirectory module_name)
   afr_cache_append(AFR_METADATA_CMAKE_FILES "${module_name}/CMakeLists.txt")
 endfunction()
 
-# Function to add module-specific CMake files to metadata.
-# This function should be used to add cmake files when:
-# 1. The module name does not match its parent folder name
-#                 OR/AND
-# 2. A non-CMakeLists.txt (like "core_json.cmake") file needs to be added to metadata.
-# Thif function sets the AFR_MODULE_${module_name}_CMAKE_FILES cache
-# variable.
-function(afr_module_cmake_files module_name)
-    set(prop_var AFR_MODULE_${module_name}_CMAKE_FILES)
-    set(${prop_var} "" CACHE INTERNAL "")
-    afr_cache_append(${prop_var} ${ARGN})
-endfunction()
-
 function(afr_write_metadata)
     set(ide_dir "${AFR_METADATA_OUTPUT_DIR}/ide")
     set(console_dir "${AFR_METADATA_OUTPUT_DIR}/console")

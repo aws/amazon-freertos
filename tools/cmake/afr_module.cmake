@@ -4,6 +4,7 @@
 # First we need to clean defined CACHE variables on previous CMake run.
 foreach(module IN LISTS AFR_MODULES)
     foreach(prop IN ITEMS SOURCES INCLUDES DEPENDS)
+        unset(AFR_MODULE_${module}_CMAKE_FILES CACHE)
         unset(AFR_MODULE_${module}_${prop}_PRIVATE CACHE)
         unset(AFR_MODULE_${module}_${prop}_PUBLIC CACHE)
         unset(AFR_MODULE_${module}_${prop}_INTERFACE CACHE)
@@ -184,6 +185,19 @@ endfunction()
 # Specify dependencies of a module.
 function(afr_module_dependencies arg_module)
     __afr_module_prop(${arg_module} DEPENDS ${ARGN})
+endfunction()
+
+# Function to add module-specific CMake files to metadata.
+# This function should be used to add cmake files when:
+# 1. The module name does not match its parent folder name
+#                 OR/AND
+# 2. A non-CMakeLists.txt (like "core_json.cmake") file needs to be added to metadata.
+# Thif function sets the AFR_MODULE_${module_name}_CMAKE_FILES cache
+# variable.
+function(afr_module_cmake_files module_name)
+    set(prop_var AFR_MODULE_${module_name}_CMAKE_FILES)
+    set(${prop_var} "" CACHE INTERNAL "")
+    afr_cache_append(${prop_var} ${ARGN})
 endfunction()
 
 # -------------------------------------------------------------------------------------------------
