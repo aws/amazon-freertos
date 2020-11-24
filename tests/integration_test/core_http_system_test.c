@@ -44,6 +44,9 @@
 #include "core_pkcs11.h"
 #include "pkcs11.h"
 
+/* Include connection configurations header. */
+#include "aws_clientcredential.h"
+
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
@@ -130,9 +133,31 @@
 #define CONNECTION_RETRY_BACKOFF_BASE_MS         ( 500U )
 
 /**
+ * @brief AWS IoT HTTP server endpoint.
+ * Clients can publish messages to an MQTT topic by making HTTP requests to the
+ * AWS IoT core REST API. Please see
+ * https://docs.aws.amazon.com/iot/latest/developerguide/http.html for more
+ * information.
+ */
+#define AWS_IOT_SERVER_HOST_NAME                 clientcredentialMQTT_BROKER_ENDPOINT
+
+/**
+ * @brief Length of the AWS IoT HTTP server host name.
+ */
+#define AWS_IOT_SERVER_HOST_LENGTH               ( ( sizeof( AWS_IOT_SERVER_HOST_NAME ) - 1U ) )
+
+/**
+ * @brief Port number for the AWS IoT HTTP server.
+ * Port 8443 does not need an ALPN protocol, for AWS IoT Core. Please see
+ * https://docs.aws.amazon.com/iot/latest/developerguide/protocols.html for more
+ * information.
+ */
+#define AWS_IOT_HTTPS_PORT                       ( 8443 )
+
+/**
  * @brief The maximum number of retries to attempt on network error.
  */
-#define MAX_RETRY_COUNT                          ( 3 )
+#define MAX_RETRY_COUNT                          ( 3U )
 
 /**
  * @brief Paths for different HTTP methods for the specified host.
@@ -141,11 +166,12 @@
 #define HEAD_PATH                                "/get"
 #define PUT_PATH                                 "/put"
 #define POST_PATH                                "/post"
+#define AWS_IOT_POST_PATH                        "/topics/topic?qos=1"
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define TRANSPORT_SEND_RECV_TIMEOUT_MS           ( 5000 )
+#define TRANSPORT_SEND_RECV_TIMEOUT_MS           ( 5000U )
 
 /**
  * @brief Request body to send for PUT and POST requests.
@@ -182,8 +208,8 @@
     "\n"                                   \
     "HTTP/0.0 0\n"                         \
     "test-header0: ab"
-#define HTTP_TEST_RESPONSE_LINE_FEEDS_ONLY_BODY_LENGTH       ( 27 )
-#define HTTP_TEST_RESPONSE_LINE_FEEDS_ONLY_HEADERS_LENGTH    ( 18 )
+#define HTTP_TEST_RESPONSE_LINE_FEEDS_ONLY_BODY_LENGTH       ( 27U )
+#define HTTP_TEST_RESPONSE_LINE_FEEDS_ONLY_HEADERS_LENGTH    ( 18U )
 
 /*-----------------------------------------------------------*/
 
@@ -224,6 +250,12 @@ static uint8_t * pNetworkData = NULL;
  * @brief The length of the network data to return in the transportRecvStub.
  */
 static size_t networkDataLen = 0U;
+
+/**
+ * @brief Flag to represent whether the tests are being run against AWS IoT
+ * Core. This flag is zero when not testing against AWS IoT Core.
+ */
+static uint8_t testingAgainstAWS = 0U;
 
 /*-----------------------------------------------------------*/
 
@@ -351,6 +383,15 @@ static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     socketsConfig.rootCaSize = sizeof( ROOT_CA_CERT );
     socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
     socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
+
+    /* Set the AWS IoT Core connection configurations, if we are testing against
+     * AWS IoT core. */
+    if( testingAgainstAWS != 0U )
+    {
+        serverInfo.pHostName = AWS_IOT_SERVER_HOST_NAME;
+        serverInfo.hostNameLength = AWS_IOT_SERVER_HOST_LENGTH;
+        serverInfo.port = AWS_IOT_HTTPS_PORT;
+    }
 
     /* Initialize reconnect attempts and interval. */
     BackoffAlgorithm_InitializeParams( &reconnectParams,
@@ -500,6 +541,9 @@ static void sendHttpRequest( const TransportInterface_t * pTransportInterface,
     {
         TEST_ASSERT_GREATER_THAN( 0, response.bodyLen );
     }
+
+    /* Verify that we received a 200 response status code from the server. */
+    TEST_ASSERT_EQUAL( 200, response.statusCode );
 }
 
 /*-----------------------------------------------------------*/
@@ -532,13 +576,8 @@ static int32_t transportSendStub( NetworkContext_t * pNetworkContext,
 
 /* ============================   UNITY FIXTURES ============================ */
 
-/**
- * @brief Test group for running coreHTTP system tests.
- */
-TEST_GROUP( coreHTTP_Integration );
-
 /* Called before each test method. */
-TEST_SETUP( coreHTTP_Integration )
+void testSetup()
 {
     /* Clear the global response before each test. */
     memset( &response, 0, sizeof( HTTPResponse_t ) );
@@ -559,8 +598,8 @@ TEST_SETUP( coreHTTP_Integration )
     transportInterface.pNetworkContext = &networkContext;
 }
 
-/* Called after each test method. */
-TEST_TEAR_DOWN( coreHTTP_Integration )
+/* Called after test method. */
+void testTeardown()
 {
     TransportSocketStatus_t transportStatus;
 
@@ -570,7 +609,52 @@ TEST_TEAR_DOWN( coreHTTP_Integration )
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, transportStatus );
 }
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test group for coreHTTP system tests for features that are supported
+ * by AWS IoT.
+ */
+TEST_GROUP( coreHTTP_Integration_AWS_IoT_Compatible );
+
+TEST_SETUP( coreHTTP_Integration_AWS_IoT_Compatible )
+{
+    testSetup();
+}
+
+/* Called after each test method. */
+TEST_TEAR_DOWN( coreHTTP_Integration_AWS_IoT_Compatible )
+{
+    testTeardown();
+}
+
+/**
+ * @brief Test group for running coreHTTP system tests.
+ */
+TEST_GROUP( coreHTTP_Integration );
+
+/* Called before each test method. */
+TEST_SETUP( coreHTTP_Integration )
+{
+    testSetup();
+}
+
+/* Called after each test method. */
+TEST_TEAR_DOWN( coreHTTP_Integration )
+{
+    testTeardown();
+}
+
 /* ========================== Test Cases ============================ */
+
+/**
+ * @brief Test group runner for HTTP system tests that can be run against AWS IoT.
+ */
+TEST_GROUP_RUNNER( coreHTTP_Integration_AWS_IoT_Compatible )
+{
+    testingAgainstAWS = 1U;
+    RUN_TEST_CASE( coreHTTP_Integration_AWS_IoT_Compatible, test_HTTP_POST_Request );
+}
 
 /**
  * @brief Test group runner for HTTP system tests.
@@ -588,67 +672,58 @@ TEST_GROUP_RUNNER( coreHTTP_Integration )
 /**
  * @brief Sends a GET request synchronously and verifies the result.
  */
-void test_HTTP_GET_Request( void )
+TEST( coreHTTP_Integration, test_HTTP_GET_Request )
 {
     sendHttpRequest( &transportInterface,
                      HTTP_METHOD_GET,
                      GET_PATH );
 }
 
-TEST( coreHTTP_Integration, test_HTTP_GET_Request )
-{
-    test_HTTP_GET_Request();
-}
-
 /**
  * @brief Sends a HEAD request synchronously and verifies the result.
  */
-void test_HTTP_HEAD_Request( void )
+TEST( coreHTTP_Integration, test_HTTP_HEAD_Request )
 {
     sendHttpRequest( &transportInterface,
                      HTTP_METHOD_HEAD,
                      HEAD_PATH );
 }
 
-TEST( coreHTTP_Integration, test_HTTP_HEAD_Request )
+/**
+ * @brief Sends a POST request synchronously, to AWS IoT Core, and verifies the
+ * result.
+ */
+TEST( coreHTTP_Integration_AWS_IoT_Compatible, test_HTTP_POST_Request )
 {
-    test_HTTP_HEAD_Request();
+    sendHttpRequest( &transportInterface,
+                     HTTP_METHOD_POST,
+                     AWS_IOT_POST_PATH );
 }
 
 /**
  * @brief Sends a POST request synchronously and verifies the result.
  */
-void test_HTTP_POST_Request( void )
+TEST( coreHTTP_Integration, test_HTTP_POST_Request )
 {
     sendHttpRequest( &transportInterface,
                      HTTP_METHOD_POST,
                      POST_PATH );
 }
 
-TEST( coreHTTP_Integration, test_HTTP_POST_Request )
-{
-    test_HTTP_POST_Request();
-}
-
 /**
  * @brief Sends a PUT request synchronously and verifies the result.
  */
-void test_HTTP_PUT_Request( void )
+TEST( coreHTTP_Integration, test_HTTP_PUT_Request )
 {
     sendHttpRequest( &transportInterface,
                      HTTP_METHOD_PUT,
                      PUT_PATH );
 }
 
-TEST( coreHTTP_Integration, test_HTTP_PUT_Request )
-{
-    test_HTTP_PUT_Request();
-}
-
 /**
  * @brief Receive a Transfer-Encoding chunked response.
  */
-void test_HTTP_Chunked_Response( void )
+TEST( coreHTTP_Integration, test_HTTP_Chunked_Response )
 {
     sendHttpRequest( &transportInterface,
                      HTTP_METHOD_GET,
@@ -659,16 +734,11 @@ void test_HTTP_Chunked_Response( void )
     TEST_ASSERT_EQUAL( CHUNKED_BODY_LENGTH, response.bodyLen );
 }
 
-TEST( coreHTTP_Integration, test_HTTP_Chunked_Response )
-{
-    test_HTTP_Chunked_Response();
-}
-
 /**
  * @brief Test how http-parser responds with a response of line-feeds only and
  * no carriage returns.
  */
-void test_HTTP_LineFeedOnly_Response( void )
+TEST( coreHTTP_Integration, test_HTTP_LineFeedOnly_Response )
 {
     HTTPRequestHeaders_t requestHeaders = { 0 };
     HTTPStatus_t status = HTTPSuccess;
@@ -702,9 +772,4 @@ void test_HTTP_LineFeedOnly_Response( void )
     TEST_ASSERT_EQUAL( HTTPSuccess, status );
     TEST_ASSERT_EQUAL( HTTP_TEST_RESPONSE_LINE_FEEDS_ONLY_BODY_LENGTH, response.bodyLen );
     TEST_ASSERT_EQUAL( HTTP_TEST_RESPONSE_LINE_FEEDS_ONLY_HEADERS_LENGTH, response.headersLen );
-}
-
-TEST( coreHTTP_Integration, test_HTTP_LineFeedOnly_Response )
-{
-    test_HTTP_LineFeedOnly_Response();
 }
