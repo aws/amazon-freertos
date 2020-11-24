@@ -305,13 +305,6 @@
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Global variable used by the pseudo random number generator.
- * The random number generator is used for calculating exponential back-off
- * with jitter for retry attempts of failed network operations with the broker.
- */
-static uint32_t nextRand;
-
-/**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
  * it is used to match received Subscribe ACK to the transmitted subscribe.
  */
@@ -569,20 +562,13 @@ static int32_t failedRecv( NetworkContext_t * pNetworkContext,
  * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
  * of the backoff algorithm library API.
  *
+ * The PKCS11 module is used to generate the random random number as it allows
+ * access to a True Random Number Generator (TRNG) if the vendor platform supports it.
+ *
  * @return The generated random number. This function ALWAYS succeeds
  * in generating a random number.
  */
 static int32_t generateRandomNumber();
-
-/**
- * @brief Seed the random number generator used for exponential backoff
- * used in connection retry attempts.
- *
- * The PKCS11 module is used to seed the random number generator
- * as it allows access to a True Random Number Generator (TRNG) if the
- * vendor platform supports it.
- */
-static void seedRandomNumberGenerator();
 
 /**
  * @brief Connect to the MQTT broker with reconnection retries.
@@ -990,41 +976,33 @@ static int32_t failedRecv( NetworkContext_t * pNetworkContext,
 
 static int32_t generateRandomNumber()
 {
-    const uint32_t multiplier = 0x015a4e35UL, increment = 1UL;
+    UBaseType_t uxRandNum = 0;
 
-    nextRand = ( multiplier * nextRand ) + increment;
-    return( ( int32_t ) ( ulNextRand & 0x7ffffffUL );
-}
+    CK_FUNCTION_LIST_PTR pFunctionList = NULL;
+    CK_SESSION_HANDLE session = CK_INVALID_HANDLE;
 
-static void seedRandomNumberGenerator()
-{
-    /* Seed the global variable ONLY if it wasn't already seeded. */
-    if( nextRand == 0 )
-    {
-        CK_FUNCTION_LIST_PTR pFunctionList = NULL;
-        CK_SESSION_HANDLE session = CK_INVALID_HANDLE;
+    /* Get list of functions supported by the PKCS11 port. */
+    TEST_ASSERT_EQUAL( CKR_OK, C_GetFunctionList( &pFunctionList ) );
+    TEST_ASSERT_TRUE( pFunctionList != NULL );
 
-        /* Get list of functions supported by the PKCS11 port. */
-        TEST_ASSERT_EQUAL( CKR_OK, C_GetFunctionList( &pFunctionList ) );
-        TEST_ASSERT_TRUE( pFunctionList != NULL );
+    /* Initialize PKCS11 module and create a new session. */
+    TEST_ASSERT_EQUAL( CKR_OK, xInitializePkcs11Session( &session ) );
+    TEST_ASSERT_TRUE( session != CK_INVALID_HANDLE );
 
-        /* Initialize PKCS11 module and create a new session. */
-        TEST_ASSERT_EQUAL( CKR_OK, xInitializePkcs11Session( &session ) );
-        TEST_ASSERT_TRUE( session != CK_INVALID_HANDLE );
-
-        /*
-         * Seed random number generator with PKCS11.
-         * Use of PKCS11 can allow use of True Random Number Generator (TRNG)
-         * if the platform supports it.
-         */
-        TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_GenerateRandom( session,
-                                                                    ( unsigned char * ) &nextRand,
-                                                                    sizeof( nextRand ) ) );
+    /*
+     * Seed random number generator with PKCS11.
+     * Use of PKCS11 can allow use of True Random Number Generator (TRNG)
+     * if the platform supports it.
+     */
+    TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_GenerateRandom( session,
+                                                                ( unsigned char * ) &uxRandNum,
+                                                                sizeof( uxRandNum ) ) );
 
 
-        /* Close PKCS11 session. */
-        TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_CloseSession( session ) );
-    }
+    /* Close PKCS11 session. */
+    TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_CloseSession( session ) );
+
+    return( uxRandNum & INT32_MAX );
 }
 
 static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
@@ -1130,9 +1108,6 @@ static void resumePersistentSession()
 /* Called before each test method. */
 void testSetUp()
 {
-    /* Seed the pseudo random number generator. */
-    seedRandomNumberGenerator();
-
     /* Reset file-scoped global variables. */
     receivedSubAck = false;
     receivedUnsubAck = false;

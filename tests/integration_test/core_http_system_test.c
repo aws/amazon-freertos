@@ -188,13 +188,6 @@
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Global variable used by the pseudo random number generator.
- * The random number generator is used for calculating exponential back-off
- * with jitter for retry attempts of failed network operations with the broker.
- */
-static uint32_t nextRand;
-
-/**
  * @brief Represents the network context used for the TLS session with the
  * server.
  */
@@ -240,20 +233,13 @@ static size_t networkDataLen = 0U;
  * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
  * of the backoff algorithm library API.
  *
+ * The PKCS11 module is used to generate the random random number as it allows
+ * access to a True Random Number Generator (TRNG) if the vendor platform supports it.
+ *
  * @return The generated random number. This function ALWAYS succeeds
  * in generating a random number.
  */
 static int32_t generateRandomNumber();
-
-/**
- * @brief Seed the random number generator used for exponential backoff
- * used in connection retry attempts.
- *
- * The PKCS11 module is used to seed the random number generator
- * as it allows access to a True Random Number Generator (TRNG) if the
- * vendor platform supports it.
- */
-static void seedRandomNumberGenerator();
 
 /**
  * @brief Connect to HTTP server with reconnection retries.
@@ -308,44 +294,35 @@ static int32_t transportSendStub( NetworkContext_t * pNetworkContext,
 
 /*-----------------------------------------------------------*/
 
-
 static int32_t generateRandomNumber()
 {
-    const uint32_t multiplier = 0x015a4e35UL, increment = 1UL;
+    UBaseType_t uxRandNum = 0;
 
-    nextRand = ( multiplier * nextRand ) + increment;
-    return( ( int32_t ) ( ulNextRand & 0x7ffffffUL );
-}
+    CK_FUNCTION_LIST_PTR pFunctionList = NULL;
+    CK_SESSION_HANDLE session = CK_INVALID_HANDLE;
 
-static void seedRandomNumberGenerator()
-{
-    /* Seed the global variable ONLY if it wasn't already seeded. */
-    if( nextRand == 0 )
-    {
-        CK_FUNCTION_LIST_PTR pFunctionList = NULL;
-        CK_SESSION_HANDLE session = CK_INVALID_HANDLE;
+    /* Get list of functions supported by the PKCS11 port. */
+    TEST_ASSERT_EQUAL( CKR_OK, C_GetFunctionList( &pFunctionList ) );
+    TEST_ASSERT_TRUE( pFunctionList != NULL );
 
-        /* Get list of functions supported by the PKCS11 port. */
-        TEST_ASSERT_EQUAL( CKR_OK, C_GetFunctionList( &pFunctionList ) );
-        TEST_ASSERT_TRUE( pFunctionList != NULL );
+    /* Initialize PKCS11 module and create a new session. */
+    TEST_ASSERT_EQUAL( CKR_OK, xInitializePkcs11Session( &session ) );
+    TEST_ASSERT_TRUE( session != CK_INVALID_HANDLE );
 
-        /* Initialize PKCS11 module and create a new session. */
-        TEST_ASSERT_EQUAL( CKR_OK, xInitializePkcs11Session( &session ) );
-        TEST_ASSERT_TRUE( session != CK_INVALID_HANDLE );
-
-        /*
-         * Seed random number generator with PKCS11.
-         * Use of PKCS11 can allow use of True Random Number Generator (TRNG)
-         * if the platform supports it.
-         */
-        TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_GenerateRandom( session,
-                                                                    ( unsigned char * ) &nextRand,
-                                                                    sizeof( nextRand ) ) );
+    /*
+     * Seed random number generator with PKCS11.
+     * Use of PKCS11 can allow use of True Random Number Generator (TRNG)
+     * if the platform supports it.
+     */
+    TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_GenerateRandom( session,
+                                                                ( unsigned char * ) &uxRandNum,
+                                                                sizeof( uxRandNum ) ) );
 
 
-        /* Close PKCS11 session. */
-        TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_CloseSession( session ) );
-    }
+    /* Close PKCS11 session. */
+    TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_CloseSession( session ) );
+
+    return( uxRandNum & INT32_MAX );
 }
 
 static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
@@ -571,9 +548,6 @@ TEST_SETUP( coreHTTP_Integration )
     /* Apply defaults and reset the transport receive data globals. */
     pNetworkData = NULL;
     networkDataLen = 0U;
-
-    /* Seed the pseudo random number generator used for connection retries. */
-    seedRandomNumberGenerator();
 
     /* Establish TLS session with HTTP server on top of a newly-created TCP connection. */
     connectToServerWithBackoffRetries( &networkContext );
