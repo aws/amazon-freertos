@@ -48,11 +48,12 @@ export AFR_ABSTRACTIONS_PATH := ../../../../../../libraries/abstractions/
 GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AMAZON_FREERTOS_PATH)demos/common/http_demo_helpers \
                     $(AMAZON_FREERTOS_PATH)demos/common/mqtt_demo_helpers \
+                    $(AMAZON_FREERTOS_PATH)demos/common/pkcs11_helpers \
                     $(AFR_C_SDK_STANDARD_PATH)common/include \
                     $(AFR_LIBRARIES_PATH)logging/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include  \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include \
-                    $(AFR_ABSTRACTIONS_PATH)retry_utils \
+                    $(AFR_ABSTRACTIONS_PATH)backoff_algorithm/source/include \
                     $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets \
                     $(AFR_C_SDK_STANDARD_PATH)common/taskpool/private \
                     $(AFR_C_SDK_STANDARD_PATH)common/include/private \
@@ -107,6 +108,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_version.c \
                       $(AMAZON_FREERTOS_PATH)demos/common/http_demo_helpers/http_demo_utils.c \
                       $(AMAZON_FREERTOS_PATH)demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c \
+                      $(AMAZON_FREERTOS_PATH)demos/common/pkcs11_helpers/pkcs11_helpers.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_s3_download.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_s3_upload.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_mutual_auth.c \
@@ -128,7 +130,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c \
-                      $(AFR_ABSTRACTIONS_PATH)retry_utils/freertos/retry_utils_freertos.c \
+                      $(AFR_ABSTRACTIONS_PATH)backoff_algorithm/source/backoff_algorithm.c \
                       $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets/transport_secure_sockets.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_init.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_device_metrics.c \

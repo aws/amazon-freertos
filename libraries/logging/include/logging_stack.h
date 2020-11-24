@@ -36,6 +36,7 @@
 
 /* Standard Include. */
 #include <stdint.h>
+#include <string.h>
 
 /* Metadata information to prepend to every log message. */
 
