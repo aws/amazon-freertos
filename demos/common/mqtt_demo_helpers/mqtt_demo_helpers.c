@@ -456,9 +456,9 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
                                  MQTTEventCallback_t eventCallback )
 {
     BaseType_t xReturnStatus = pdPASS;
-    MQTTStatus_t eMqttStatus;
-    MQTTConnectInfo_t xConnectInfo;
-    TransportInterface_t xTransport;
+    MQTTStatus_t eMqttStatus = MQTTSuccess;
+    MQTTConnectInfo_t xConnectInfo = { 0 };
+    TransportInterface_t xTransport = { 0 };
     bool sessionPresent = false;
 
     assert( pxMqttContext != NULL );
@@ -475,6 +475,7 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
         LogError( ( "Failed to connect to MQTT broker %.*s.",
                     strlen( democonfigMQTT_BROKER_ENDPOINT ),
                     democonfigMQTT_BROKER_ENDPOINT ) );
+        xReturnStatus = pdFAIL;
     }
     else
     {
