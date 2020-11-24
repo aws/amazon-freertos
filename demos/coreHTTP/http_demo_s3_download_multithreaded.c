@@ -42,7 +42,7 @@
  *
  * @Note: This demo requires user-generated pre-signed URLs to be pasted into
  * demo_config.h. Please use the provided script "presigned_urls_gen.py"
- * (located in Http_Demo_Helpers) to generate these URLs. For detailed
+ * (located in http_demo_helpers) to generate these URLs. For detailed
  * instructions, see the accompanied README.md.
  */
 
@@ -789,7 +789,7 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
     const char * pcAddress = NULL;
     /* The location of the path within the pre-signed URL. */
     const char * pcPath = NULL;
-    UBaseType_t ulDemoRunCount = 0UL;
+    UBaseType_t uxDemoRunCount = 0UL;
 
     /* Upon return, pdPASS will indicate a successful demo execution.
     * pdFAIL will indicate some failures occurred during execution. The
@@ -936,16 +936,16 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
         prvTearDown( xHTTPTask, xRequestQueue, xResponseQueue );
 
         /* Increment the demo run count. */
-        ulDemoRunCount++;
+        uxDemoRunCount++;
 
         if( xDemoStatus == pdPASS )
         {
-            LogInfo( ( "Demo iteration %lu is successful.", ulDemoRunCount ) );
+            LogInfo( ( "Demo iteration %lu was successful.", uxDemoRunCount ) );
         }
         /* Attempt to retry a failed iteration of demo for up to #httpexampleMAX_DEMO_COUNT times. */
-        else if( ulDemoRunCount < httpexampleMAX_DEMO_COUNT )
+        else if( uxDemoRunCount < httpexampleMAX_DEMO_COUNT )
         {
-            LogWarn( ( "Demo iteration %lu failed. Retrying...", ulDemoRunCount ) );
+            LogWarn( ( "Demo iteration %lu failed. Retrying...", uxDemoRunCount ) );
             vTaskDelay( httpexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
         }
         /* Failed all #httpexampleMAX_DEMO_COUNT demo iterations. */
