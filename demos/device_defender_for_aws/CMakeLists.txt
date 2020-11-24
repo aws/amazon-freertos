@@ -1,4 +1,4 @@
-# Demo module for AWS IoT Defender.
+# Demo module for AWS IoT Defender for platforms LWIP.
 afr_demo_module(device_defender_lwip)
 
 afr_set_demo_metadata(ID "DEVICE_DEFENDER_DEMO")
@@ -37,6 +37,8 @@ afr_module_dependencies(
         AFR::mqtt_demo_helpers
         AFR::core_json
         AFR::device_defender
+        # The dependency on secure_sockets_lwip is to make sure that this demo
+        # is only enabled on platforms using LWIP.
         AFR::secure_sockets_lwip
         # Add dependency on the device_defender_demo_dependencies
         # metadata module so that this demo is only shown when the
