@@ -15,6 +15,8 @@
 #ifndef _BOARD_GPIO_H_
 #define _BOARD_GPIO_H_
 
+#include "driver/gpio.h"
+
 #define ESP_GPIO_PORTS ( 2 )
 #define ESP_GPIO_PORT0 ( 0 )
 #define ESP_GPIO_PORT1 ( 1 )
@@ -56,7 +58,7 @@ struct esp_spi_pin_config {
     /* UART 0 */                  \
     { GPIO_NUM_1, GPIO_NUM_3 },   \
     /* UART 1: this ACK team's preference */  \
-    { GPIO_NUM_19, GPIO_NUM_22 }, \
+    { GPIO_NUM_19, GPIO_NUM_20 }, \
     /* UART 2 */                  \
     { GPIO_NUM_17, GPIO_NUM_16 }, \
 }
@@ -64,16 +66,16 @@ struct esp_spi_pin_config {
 /* Configuration to be assigned internally for I2C to pin mappings */
 #define ESP_I2C_PIN_MAP  {       \
     /* I2C 0 */                  \
-    { GPIO_NUM_25, GPIO_NUM_26 },   \
+    { GPIO_NUM_26, GPIO_NUM_27 },   \
     /* I2C 1 */                  \
-    { GPIO_NUM_19, GPIO_NUM_22 }, \
+    { GPIO_NUM_19, GPIO_NUM_21 }, \
 }
 
 /* Configuration to be assigned internally for LED to pin mappings */
 #define ESP_LED_PIN_MAP  {  \
-    {GPIO_NUM_25},  \
-    {GPIO_NUM_22},  \
-    {GPIO_NUM_26},  \
+    {GPIO_NUM_10},  \
+    {GPIO_NUM_11},  \
+    {GPIO_NUM_12},  \
 }
 
 /* Configuration to be assigned internally for PWM to pin mappings */
