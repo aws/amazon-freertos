@@ -15,6 +15,7 @@
 #include "iot_uart.h"
 #include "esp_log.h"
 #include "driver/uart.h"
+#include "soc/uart_reg.h"
 #include "string.h"
 #include "iot_board_gpio.h"
 #include "freertos/timers.h"

@@ -20,7 +20,7 @@
 #include "iot_i2c.h"
 
 /* UART */
-const uint8_t uartTestPort[ UART_TEST_SET ] = { 2 };
+const uint8_t uartTestPort[ UART_TEST_SET ] = { 1 };
 /* Following configurations are not being used for now. */
 const uint32_t uartIotUartFlowControl[ UART_TEST_SET ] = { 0 };
 const uint32_t uartIotUartParity[ UART_TEST_SET ] = { 0 };
