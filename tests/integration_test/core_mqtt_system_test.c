@@ -993,7 +993,7 @@ static int32_t generateRandomNumber()
     const uint32_t multiplier = 0x015a4e35UL, increment = 1UL;
 
     nextRand = ( multiplier * nextRand ) + increment;
-    return( ( int32_t ) ( nextRand >> 16UL ) & 0x7fffUL );
+    return( ( int32_t ) ( ulNextRand & 0x7ffffffUL );
 }
 
 static void seedRandomNumberGenerator()

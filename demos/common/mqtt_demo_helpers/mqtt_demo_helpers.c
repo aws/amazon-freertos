@@ -296,7 +296,7 @@ static int32_t prvGenerateRandomNumber()
     const uint32_t ulMultiplier = 0x015a4e35UL, ulIncrement = 1UL;
 
     ulNextRand = ( ulMultiplier * ulNextRand ) + ulIncrement;
-    return( ( int32_t ) ( ulNextRand >> 16UL ) & 0x7fffUL );
+    return( ( int32_t ) ( ulNextRand & 0x7ffffffUL );
 }
 
 /*-----------------------------------------------------------*/
