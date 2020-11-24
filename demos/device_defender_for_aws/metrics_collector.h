@@ -35,7 +35,8 @@
 typedef enum
 {
     MetricsCollectorSuccess = 0,
-    MetricsCollectorBadParameter
+    MetricsCollectorBadParameter,
+    MetricsCollectorCollectionFailed
 } MetricsCollectorStatus_t;
 
 /**
@@ -66,7 +67,8 @@ typedef struct Connection
  * @param[out] pOutNetworkStats The network stats.
  *
  * @return #MetricsCollectorSuccess if the network stats are successfully obtained;
- * #MetricsCollectorBadParameter if invalid parameters are passed.
+ * #MetricsCollectorBadParameter if invalid parameters are passe;
+ * #MetricsCollectorCollectionFailed if the collection methods failed.
  */
 MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats );
 
@@ -83,7 +85,8 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats );
  * @param[out] pOutNumTcpOpenPorts Number of the open TCP ports.
  *
  * @return #MetricsCollectorSuccess if open TCP ports are successfully obtained;
- * #MetricsCollectorBadParameter if invalid parameters are passed.
+ * #MetricsCollectorBadParameter if invalid parameters are passed;
+ * #MetricsCollectorCollectionFailed if the collection methods failed.
  */
 MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
                                           uint32_t tcpPortsArrayLength,
@@ -102,7 +105,8 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
  * @param[out] pOutNumUdpOpenPorts Number of the open UDP ports.
  *
  * @return #MetricsCollectorSuccess if open UDP ports are successfully obtained;
- * #MetricsCollectorBadParameter if invalid parameters are passed.
+ * #MetricsCollectorBadParameter if invalid parameters are passed;
+ * #MetricsCollectorCollectionFailed if the collection methods failed.
  */
 MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
                                           uint32_t udpPortsArrayLength,
@@ -122,7 +126,8 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
  * @param[out] pOutNumEstablishedConnections Number of the established connections.
  *
  * @return #MetricsCollectorSuccess if established connections are successfully obtained;
- * #MetricsCollectorBadParameter if invalid parameters are passed.
+ * #MetricsCollectorBadParameter if invalid parameters are passed;
+ * #MetricsCollectorCollectionFailed if the collection methods failed.
  */
 MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectionsArray,
                                                     uint32_t connectionsArrayLength,
