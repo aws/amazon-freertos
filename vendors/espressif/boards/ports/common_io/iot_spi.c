@@ -20,6 +20,7 @@
 #include <esp_err.h>
 #include <iot_spi.h>
 #include <iot_board_gpio.h>
+#include <freertos/semphr.h>
 
 #define WAIT_TICKS (10)
 #define NULL_BUF_SZ (1024 * 4)
