@@ -77,8 +77,9 @@
 		<Filter Include="libraries\coreMQTT"/>
 		<Filter Include="libraries\coreMQTT\source\include"/>
 		<Filter Include="libraries\coreMQTT\source\interface"/>
-		<Filter Include="libraries\abstractions\retry_utils\freertos"/>
-		<Filter Include="libraries\abstractions\retry_utils"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm\source"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm\source\include"/>
 		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
 		<Filter Include="libraries\abstractions\transport"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor"/>
@@ -133,8 +134,10 @@
 		<Filter Include="libraries\jobs_for_aws\source"/>
 		<Filter Include="libraries\jobs_for_aws"/>
 		<Filter Include="libraries\jobs_for_aws\source\include"/>
-		<Filter Include="demos\common\mqtt_demo_helpers"/>
+		<Filter Include="demos\common\http_demo_helpers"/>
 		<Filter Include="demos\common"/>
+		<Filter Include="demos\common\mqtt_demo_helpers"/>
+		<Filter Include="demos\common\pkcs11_helpers"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\unit"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\system"/>
@@ -416,8 +419,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h">
 			<Filter>libraries\coreMQTT\source\interface</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h">
-			<Filter>libraries\abstractions\retry_utils</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include\backoff_algorithm.h">
+			<Filter>libraries\abstractions\backoff_algorithm\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
@@ -1015,8 +1018,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c">
 			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c">
-			<Filter>libraries\abstractions\retry_utils\freertos</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\backoff_algorithm.c">
+			<Filter>libraries\abstractions\backoff_algorithm\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
@@ -1147,8 +1150,14 @@
 		<ClCompile Include="..\..\..\..\..\libraries\jobs_for_aws\source\jobs.c">
 			<Filter>libraries\jobs_for_aws\source</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\http_demo_helpers\http_demo_utils.c">
+			<Filter>demos\common\http_demo_helpers</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c">
 			<Filter>demos\common\mqtt_demo_helpers</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\pkcs11_helpers\pkcs11_helpers.c">
+			<Filter>demos\common\pkcs11_helpers</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">
 			<Filter>libraries\c_sdk\aws\defender\test\unit</Filter>

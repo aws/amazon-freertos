@@ -16,7 +16,8 @@ if(AFR_ENABLE_TESTS)
             AFR::transport_interface_secure_sockets
             AFR::common
             AFR::platform
-            AFR::retry_utils
+            AFR::backoff_algorithm
+            AFR::pkcs11_implementation
     )
 
     # Shadow test
@@ -36,7 +37,8 @@ if(AFR_ENABLE_TESTS)
             AFR::transport_interface_secure_sockets
             AFR::common
             AFR::platform
-            AFR::retry_utils
+            AFR::backoff_algorithm
+            AFR::pkcs11_implementation
     )
 
     # HTTP test
@@ -55,7 +57,8 @@ if(AFR_ENABLE_TESTS)
             AFR::transport_interface_secure_sockets
             AFR::common
             AFR::platform
-            AFR::retry_utils
+            AFR::backoff_algorithm
+            AFR::pkcs11_implementation
     )
     
     # FreeRTOS+TCP Test

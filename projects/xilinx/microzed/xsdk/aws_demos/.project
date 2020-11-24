@@ -798,14 +798,14 @@
 			<locationURI>AFR_ROOT/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
+			<name>libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/retry_utils/retry_utils.h</name>
+			<name>libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/abstractions/retry_utils/retry_utils.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
@@ -1041,6 +1041,11 @@
 			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
+		</link>
+		<link>
+			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
 		</link>
 		<link>
 			<name>demos/coreHTTP/http_demo_s3_download.c</name>

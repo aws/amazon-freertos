@@ -26,10 +26,69 @@
 #include "http_demo_utils.h"
 
 /* Retry utilities. */
-#include "retry_utils.h"
+#include "backoff_algorithm.h"
+
+/* Include PKCS11 helpers header. */
+#include "pkcs11_helpers.h"
 
 /* Parser utilities. */
 #include "http_parser.h"
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief The maximum number of retries for connecting to server.
+ */
+#define CONNECTION_RETRY_MAX_ATTEMPTS            ( 5U )
+
+/**
+ * @brief The maximum back-off delay (in milliseconds) for retrying connection to server.
+ */
+#define CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS    ( 5000U )
+
+/**
+ * @brief The base back-off delay (in milliseconds) to use for connection retry attempts.
+ */
+#define CONNECTION_RETRY_BACKOFF_BASE_MS         ( 500U )
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief The random number generator to use for exponential backoff with
+ * jitter retry logic.
+ * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
+ * of the backoff algorithm library API.
+ *
+ * The PKCS11 module is used to generate the random number as it allows access
+ * to a True Random Number Generator (TRNG) if the vendor platform supports it.
+ * It is recommended to use a device-specific unique random number generator so
+ * that probability of collisions from devices in connection retries is mitigated.
+ *
+ * @return A positive value if generating the random number was successful; otherwise
+ * -1 to indicate failure.
+ */
+static int32_t prvGenerateRandomNumber();
+
+/*-----------------------------------------------------------*/
+
+static int32_t prvGenerateRandomNumber()
+{
+    uint32_t ulRandomNum;
+
+    /* Use the PKCS11 module to generate a random number. */
+    if( xPkcs11GenerateRandomNumber( ( uint8_t * ) &ulRandomNum,
+                                     ( sizeof( ulRandomNum ) == pdPASS ) ) )
+    {
+        ulRandomNum = ( ulRandomNum & INT32_MAX );
+    }
+    else
+    {
+        /* Set the return value as negative to indicate failure. */
+        ulRandomNum = -1;
+    }
+
+    return ( int32_t ) ulRandomNum;
+}
 
 /*-----------------------------------------------------------*/
 
@@ -38,15 +97,20 @@ BaseType_t connectToServerWithBackoffRetries( TransportConnect_t connectFunction
 {
     BaseType_t xReturn = pdFAIL;
     /* Status returned by the retry utilities. */
-    RetryUtilsStatus_t xRetryUtilsStatus = RetryUtilsSuccess;
+    BackoffAlgorithmStatus_t xBackoffAlgStatus = BackoffAlgorithmSuccess;
     /* Struct containing the next backoff time. */
-    RetryUtilsParams_t xReconnectParams;
+    BackoffAlgorithmContext_t xReconnectParams;
+    uint16_t usNextRetryBackOff = 0U;
 
-    assert( connectFunction != NULL );
+    configASSERT( connectFunction != NULL );
+    configASSERT( pxNetworkContext != NULL );
 
-    /* Initialize reconnect attempts and interval */
-    RetryUtils_ParamsReset( &xReconnectParams );
-    xReconnectParams.maxRetryAttempts = MAX_RETRY_ATTEMPTS;
+    /* Initialize reconnect attempts and interval. */
+    BackoffAlgorithm_InitializeParams( &xReconnectParams,
+                                       CONNECTION_RETRY_BACKOFF_BASE_MS,
+                                       CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS,
+                                       CONNECTION_RETRY_MAX_ATTEMPTS,
+                                       prvGenerateRandomNumber );
 
     /* Attempt to connect to the HTTP server. If connection fails, retry after a
      * timeout. The timeout value will exponentially increase until either the
@@ -58,19 +122,25 @@ BaseType_t connectToServerWithBackoffRetries( TransportConnect_t connectFunction
 
         if( xReturn != pdPASS )
         {
-            LogWarn( ( "Connection to the HTTP server failed. "
-                       "Retrying connection with backoff and jitter." ) );
-            LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
-                       ( xReconnectParams.attemptsDone + 1 ),
-                       MAX_RETRY_ATTEMPTS ) );
-            xRetryUtilsStatus = RetryUtils_BackoffAndSleep( &xReconnectParams );
-        }
-    } while( ( xReturn == pdFAIL ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
+            /* Get back-off value (in milliseconds) for the next connection retry. */
+            xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &xReconnectParams, &usNextRetryBackOff );
+            configASSERT( xBackoffAlgStatus != BackoffAlgorithmRngFailure );
 
-    if( xReturn == pdFAIL )
-    {
-        LogError( ( "Connection to the server failed, all attempts exhausted." ) );
-    }
+            if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
+            {
+                LogError( ( "Connection to the server failed, all attempts exhausted." ) );
+            }
+            else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
+            {
+                LogWarn( ( "Connection to the HTTP server failed. "
+                           "Retrying connection with backoff and jitter." ) );
+                vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
+                LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
+                           ( xReconnectParams.attemptsDone + 1 ),
+                           MAX_RETRY_ATTEMPTS ) );
+            }
+        }
+    } while( ( xReturn == pdFAIL ) && ( xBackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
     return xReturn;
 }

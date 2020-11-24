@@ -29,7 +29,7 @@ afr_module_dependencies(
     INTERFACE
         AFR::http_demo_helpers
         AFR::core_http
-        AFR::retry_utils
+        AFR::backoff_algorithm
         AFR::transport_interface_secure_sockets
         AFR::secure_sockets
         # Add dependency on the core_http_demo_dependencies metadata module 
