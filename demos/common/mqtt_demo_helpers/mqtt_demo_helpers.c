@@ -197,8 +197,8 @@ static bool mqttSessionEstablished = false;
  * It is recommended to use a device-specific unique random number generator so
  * that probability of collisions from devices in connection retries is mitigated.
  *
- * @return pdPASS if generating the randon number was successful; otherwise pdFAIL
- * for failure.
+ * @return A positive value if generating the random number was successful; otherwise
+ * -1 to indicate failure.
  */
 static int32_t prvGenerateRandomNumber();
 
