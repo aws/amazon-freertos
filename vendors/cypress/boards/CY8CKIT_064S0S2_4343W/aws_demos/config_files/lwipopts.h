@@ -259,15 +259,6 @@
 #endif /* ifdef LWIP_SO_RCVBUF */
 
 /**
- * LWIP_STATS==1: Enable statistics collection in lwip_stats.
- */
-#ifdef CY_LWIP_DEBUG
-#define LWIP_STATS                     (1)
-#else
-#define LWIP_STATS                     (0)
-#endif /* ifdef CY_LWIP_DEBUG */
-
-/**
  * LWIP_NETIF_API==1: Support netif api (in netifapi.c)
  */
 #define LWIP_NETIF_API                  1
@@ -285,5 +276,30 @@
  * Currently, the pbuf_custom code is only needed for one specific configuration
  * of IP_FRAG, unless required by external driver/application code. */
 #define LWIP_SUPPORT_CUSTOM_PBUF        1
+
+/*
+   ---------------------------------
+   ----- Networt Metric options ----
+   ---------------------------------
+ */
+
+#define FREERTOS_LWIP_METRICS_ENABLE 1
+
+#if FREERTOS_LWIP_METRICS_ENABLE == 1
+    #define LINK_SPEED_OF_YOUR_NETIF_IN_BPS 0
+    #define LWIP_TCPIP_CORE_LOCKING         1
+    #define LWIP_STATS                      1
+    #define LWIP_STATS_DISPLAY              1
+    #define MIB2_STATS                      1
+#else
+    /**
+     * LWIP_STATS==1: Enable statistics collection in lwip_stats.
+     */
+    #ifdef CY_LWIP_DEBUG
+    #define LWIP_STATS                     (1)
+    #else
+    #define LWIP_STATS                     (0)
+    #endif /* ifdef CY_LWIP_DEBUG */
+#endif
 
 #endif /* ifdef CUSTOM_LWIPOPTS */

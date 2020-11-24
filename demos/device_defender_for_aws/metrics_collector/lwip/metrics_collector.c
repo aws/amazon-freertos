@@ -247,8 +247,16 @@ MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectio
                     /* The output array member to fill. */
                     pEstablishedConnection = &( pOutConnectionsArray[ pcbCnt ] );
 
+                 #if LWIP_IPV4 && LWIP_IPV6
+                    pEstablishedConnection->remoteIp = pCurrPcb->remote_ip.u_addr.ip4.addr; /* Network byte order. */
+                    pEstablishedConnection->localIp = pCurrPcb->local_ip.u_addr.ip4.addr;   /* Network byte order. */
+                 #elif LWIP_IPV4
                     pEstablishedConnection->remoteIp = pCurrPcb->remote_ip.addr; /* Network byte order. */
                     pEstablishedConnection->localIp = pCurrPcb->local_ip.addr;   /* Network byte order. */
+                 #else
+                    #error "IPV6 only is not supported."
+                 #endif
+
                     pEstablishedConnection->localPort = pCurrPcb->local_port;    /* Host byte order. */
                     pEstablishedConnection->remotePort = pCurrPcb->remote_port;  /* Host byte order. */
 
