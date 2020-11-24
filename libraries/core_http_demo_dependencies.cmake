@@ -79,6 +79,7 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::core_http
+        AFR::http_demo_helpers
 )
 
 # Add more dependencies for Secure Sockets based HTTP demo 

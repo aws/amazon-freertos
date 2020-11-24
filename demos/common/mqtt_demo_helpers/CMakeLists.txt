@@ -1,5 +1,5 @@
 # Module for demo helper utilities based on coreMQTT library. 
-afr_module(NAME mqtt_demo_helpers)
+afr_module(INTERNAL NAME mqtt_demo_helpers)
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
