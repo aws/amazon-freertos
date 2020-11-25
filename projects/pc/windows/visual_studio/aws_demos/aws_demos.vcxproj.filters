@@ -142,6 +142,7 @@
 		<Filter Include="demos\coreMQTT"/>
 		<Filter Include="demos\defender"/>
 		<Filter Include="demos\device_shadow_for_aws"/>
+		<Filter Include="demos\device_defender_for_aws"/>
 		<Filter Include="demos\greengrass_connectivity"/>
 		<Filter Include="demos\https"/>
 		<Filter Include="demos\jobs_for_aws"/>
@@ -1152,6 +1153,15 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\device_shadow_for_aws\shadow_demo_main.c">
 			<Filter>demos\device_shadow_for_aws</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\defender_demo.c">
+			<Filter>demos\device_defender_for_aws</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\report_builder.c">
+			<Filter>demos\device_defender_for_aws</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp\defender_demo.c">
+			<Filter>demos\device_defender_for_aws</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c">
 			<Filter>demos\greengrass_connectivity</Filter>
