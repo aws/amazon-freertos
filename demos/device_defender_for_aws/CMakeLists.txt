@@ -75,7 +75,6 @@ afr_module_include_dirs(
     INTERFACE
         ${AFR_DEMOS_DIR}/common/mqtt_demo_helpers
         ${CMAKE_CURRENT_LIST_DIR}
-        ${CMAKE_CURRENT_LIST_DIR}/metrics_collector/freertos_plus_tcp
 )
 
 afr_module_dependencies(
@@ -84,6 +83,7 @@ afr_module_dependencies(
         AFR::mqtt_demo_helpers
         AFR::core_json
         AFR::device_defender
+        AFR::freertos_plus_tcp_utils
         # The dependency on secure_sockets_freertos_plus_tcp is to make sure
         # that this demo is only enabled on platforms using FreeRTOS+TCP.
         AFR::secure_sockets_freertos_plus_tcp

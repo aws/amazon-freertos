@@ -119,9 +119,6 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
 
     if( status == MetricsCollectorSuccess )
     {
-        /* Set the out value for number of open TCP ports. */
-        *pOutNumTcpOpenPorts = metrics.xTCPPortList.uxCount;
-
         /* Fill the output array with as many TCP ports as will fit in the
          * given array. */
         if( pOutTcpPortsArray != NULL )
@@ -136,6 +133,14 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
             }
 
             memcpy( pOutTcpPortsArray, &metrics.xTCPPortList.usTCPPortList, copyAmount * sizeof( uint16_t ) );
+
+            /* Return the number of elements copied to the array. */
+            *pOutNumTcpOpenPorts = copyAmount;
+        }
+        else
+        {
+            /* Return the total number of open ports. */
+            *pOutNumTcpOpenPorts = metrics.xTCPPortList.uxCount;
         }
     }
 
@@ -168,8 +173,6 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
 
     if( status == MetricsCollectorSuccess )
     {
-        *pOutNumUdpOpenPorts = metrics.xUDPPortList.uxCount;
-
         /* Fill the output array with as many UDP ports as will fit in the
          * given array. */
         if( pOutUdpPortsArray != NULL )
@@ -184,6 +187,14 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
             }
 
             memcpy( pOutUdpPortsArray, &metrics.xUDPPortList.usUDPPortList, copyAmount * sizeof( uint16_t ) );
+
+            /* Return the number of elements copied to the array. */
+            *pOutNumUdpOpenPorts = copyAmount;
+        }
+        else
+        {
+            /* Return the total number of open ports. */
+             *pOutNumUdpOpenPorts = metrics.xUDPPortList.uxCount;
         }
     }
 
@@ -219,9 +230,6 @@ MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectio
 
     if( status == MetricsCollectorSuccess )
     {
-        /* We consider only TCP sockets for open connections. */
-        *pOutNumEstablishedConnections = metrics.xTCPSocketList.uxCount;
-
         /* Fill the output array with as many TCP socket infos as will fit in
          * the given array. */
         if( pOutConnectionsArray != NULL )
@@ -242,12 +250,20 @@ MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectio
             {
                 pOutConnectionsArray[ i ].localIp = localIp;
                 pOutConnectionsArray[ i ].localPort =
-                    metrics.xTCPSocketList.xTCPList[ i ].localPort;
+                    metrics.xTCPSocketList.xTCPList[ i ].usLocalPort;
                 pOutConnectionsArray[ i ].remoteIp =
-                    metrics.xTCPSocketList.xTCPList[ i ].remoteIP;
+                    metrics.xTCPSocketList.xTCPList[ i ].ulRemoteIP;
                 pOutConnectionsArray[ i ].remotePort =
-                    metrics.xTCPSocketList.xTCPList[ i ].remotePort;
+                    metrics.xTCPSocketList.xTCPList[ i ].usRemotePort;
             }
+
+            /* Return the number of elements copied to the array. */
+            *pOutNumEstablishedConnections = copyAmount;
+        }
+        else
+        {
+            /* Return the total number of established connections. */
+            *pOutNumEstablishedConnections = metrics.xTCPSocketList.uxCount;
         }
     }
 

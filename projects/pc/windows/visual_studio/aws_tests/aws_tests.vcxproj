@@ -204,6 +204,9 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_types.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_internal.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_dump_packets.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_mem_stats.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_netstat.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow_config_defaults.h"/>
@@ -407,6 +410,9 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_timer.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_unistd.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_dump_packets.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_mem_stats.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_netstat.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\shadow.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c"/>
