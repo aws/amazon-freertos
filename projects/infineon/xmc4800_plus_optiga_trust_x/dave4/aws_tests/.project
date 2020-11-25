@@ -1389,14 +1389,14 @@
 			<locationURI>AFR_HOME/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
+			<name>libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
+			<locationURI>AFR_HOME/libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/retry_utils/retry_utils.h</name>
+			<name>libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/retry_utils/retry_utils.h</locationURI>
+			<locationURI>AFR_HOME/libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
@@ -1759,9 +1759,19 @@
 			<locationURI>AFR_HOME/libraries/jobs_for_aws/source/include/jobs.h</locationURI>
 		</link>
 		<link>
+			<name>demos/common/http_demo_helpers/http_demo_utils.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/common/http_demo_helpers/http_demo_utils.c</locationURI>
+		</link>
+		<link>
 			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
+		</link>
+		<link>
+			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>

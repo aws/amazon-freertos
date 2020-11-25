@@ -386,7 +386,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
@@ -1607,15 +1607,15 @@
 				</group>
 			</group>
 			<group>
-				<name>retry_utils</name>
+				<name>backoff_algorithm</name>
 				<group>
 					<name>freertos</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\backoff_algorithm.c</name>
 					</file>
 				</group>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include\backoff_algorithm.h</name>
 				</file>
 			</group>
 			<group>

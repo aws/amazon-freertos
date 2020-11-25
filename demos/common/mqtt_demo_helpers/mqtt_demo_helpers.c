@@ -45,7 +45,10 @@
 #include "mqtt_demo_helpers.h"
 
 /* Retry utilities include. */
-#include "retry_utils.h"
+#include "backoff_algorithm.h"
+
+/* Include PKCS11 helpers header. */
+#include "pkcs11_helpers.h"
 
 /* Include header for client credentials. */
 #include "aws_clientcredential.h"
@@ -54,6 +57,21 @@
 #include "iot_default_root_certificates.h"
 
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief The maximum number of retries for connecting to server.
+ */
+#define CONNECTION_RETRY_MAX_ATTEMPTS                ( 5U )
+
+/**
+ * @brief The maximum back-off delay (in milliseconds) for retrying connection to server.
+ */
+#define CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS        ( 5000U )
+
+/**
+ * @brief The base back-off delay (in milliseconds) to use for connection retry attempts.
+ */
+#define CONNECTION_RETRY_BACKOFF_BASE_MS             ( 500U )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milliseconds.
@@ -169,6 +187,22 @@ static bool mqttSessionEstablished = false;
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief The random number generator to use for exponential backoff with
+ * jitter retry logic.
+ * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
+ * of the backoff algorithm library API.
+ *
+ * The PKCS11 module is used to generate the random number as it allows access
+ * to a True Random Number Generator (TRNG) if the vendor platform supports it.
+ * It is recommended to use a device-specific unique random number generator so
+ * that probability of collisions from devices in connection retries is mitigated.
+ *
+ * @return A positive value if generating the random number was successful; otherwise
+ * -1 to indicate failure.
+ */
+static int32_t prvGenerateRandomNumber();
+
+/**
  * @brief Connect to MQTT broker with reconnection retries.
  *
  * If connection fails, retry is attempted after a timeout.
@@ -233,13 +267,33 @@ static uint32_t prvGetTimeMs( void );
 
 /*-----------------------------------------------------------*/
 
+static int32_t prvGenerateRandomNumber()
+{
+    uint32_t ulRandomNum;
+
+    /* Use the PKCS11 module to generate a random number. */
+    if( xPkcs11GenerateRandomNumber( ( uint8_t * ) &ulRandomNum,
+                                     ( sizeof( ulRandomNum ) == pdPASS ) ) )
+    {
+        ulRandomNum = ( ulRandomNum & INT32_MAX );
+    }
+    else
+    {
+        /* Set the return value as negative to indicate failure. */
+        ulRandomNum = -1;
+    }
+
+    return ( int32_t ) ulRandomNum;
+}
+
 static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNetworkContext )
 {
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
-    RetryUtilsStatus_t xRetryUtilsStatus = RetryUtilsSuccess;
-    RetryUtilsParams_t xReconnectParams = { 0 };
+    BackoffAlgorithmStatus_t xBackoffAlgStatus = BackoffAlgorithmSuccess;
+    BackoffAlgorithmContext_t xReconnectParams = { 0 };
     ServerInfo_t xServerInfo = { 0 };
     SocketsConfig_t xSocketConfig = { 0 };
+    uint16_t usNextRetryBackOff = 0U;
 
     /* Initialize information to connect to the MQTT broker. */
     xServerInfo.pHostName = democonfigMQTT_BROKER_ENDPOINT;
@@ -255,8 +309,11 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
     xSocketConfig.recvTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;
 
     /* Initialize reconnect attempts and interval. */
-    RetryUtils_ParamsReset( &xReconnectParams );
-    xReconnectParams.maxRetryAttempts = MAX_RETRY_ATTEMPTS;
+    BackoffAlgorithm_InitializeParams( &xReconnectParams,
+                                       CONNECTION_RETRY_BACKOFF_BASE_MS,
+                                       CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS,
+                                       CONNECTION_RETRY_MAX_ATTEMPTS,
+                                       prvGenerateRandomNumber );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase until maximum
@@ -276,16 +333,21 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
 
         if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            LogWarn( ( "Connection to the broker failed. Retrying connection with backoff and jitter." ) );
-            xRetryUtilsStatus = RetryUtils_BackoffAndSleep( &xReconnectParams );
-        }
+            /* Get back-off value (in milliseconds) for the next connection retry. */
+            xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &xReconnectParams, &usNextRetryBackOff );
+            configASSERT( xBackoffAlgStatus != BackoffAlgorithmRngFailure );
 
-        if( xRetryUtilsStatus == RetryUtilsRetriesExhausted )
-        {
-            LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
-            xNetworkStatus = TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE;
+            if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
+            {
+                LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
+            }
+            else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
+            {
+                LogWarn( ( "Connection to the broker failed. Retrying connection after backoff delay." ) );
+                vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
+            }
         }
-    } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xRetryUtilsStatus == RetryUtilsSuccess ) );
+    } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xBackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
     return xNetworkStatus;
 }
@@ -456,9 +518,9 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
                                  MQTTEventCallback_t eventCallback )
 {
     BaseType_t xReturnStatus = pdPASS;
-    MQTTStatus_t eMqttStatus;
-    MQTTConnectInfo_t xConnectInfo;
-    TransportInterface_t xTransport;
+    MQTTStatus_t eMqttStatus = MQTTSuccess;
+    MQTTConnectInfo_t xConnectInfo = { 0 };
+    TransportInterface_t xTransport = { 0 };
     bool sessionPresent = false;
 
     assert( pxMqttContext != NULL );
@@ -475,6 +537,7 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
         LogError( ( "Failed to connect to MQTT broker %.*s.",
                     strlen( democonfigMQTT_BROKER_ENDPOINT ),
                     democonfigMQTT_BROKER_ENDPOINT ) );
+        xReturnStatus = pdFAIL;
     }
     else
     {

@@ -74,6 +74,7 @@ afr_module_dependencies(
     PUBLIC
         AFR::jobs
         AFR::core_json
+        AFR::mqtt_demo_helpers
         # Add dependency on core_mqtt_demo_dependencies module 
         # so that coreMQTT library is auto-included when selecting
         # Jobs library on the FreeRTOS console.
