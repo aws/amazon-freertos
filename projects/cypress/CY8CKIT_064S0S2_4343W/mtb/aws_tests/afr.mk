@@ -330,6 +330,7 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/system/*.c)\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c\
 	$(CY_AFR_ROOT)/tests/integration_test/core_mqtt_system_test.c\
+	$(CY_AFR_ROOT)/tests/integration_test/core_http_system_test.c\
 	$(CY_AFR_ROOT)/tests/integration_test/shadow_system_test.c
 	
 
