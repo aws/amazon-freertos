@@ -2,10 +2,10 @@
 # FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "SensorHub")
-afr_set_board_metadata(DISPLAY_NAME "Sierra SensorHub")
+afr_set_board_metadata(DISPLAY_NAME "SensorHub")
 afr_set_board_metadata(DESCRIPTION "SensorHub IoT board")
-afr_set_board_metadata(VENDOR_NAME "Sierra")
-afr_set_board_metadata(FAMILY_NAME "BX3102")
+afr_set_board_metadata(VENDOR_NAME "Sierra Wireless")
+afr_set_board_metadata(FAMILY_NAME "BX3105")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
 afr_set_board_metadata(DATA_RAM_MEMORY "520KB")
 afr_set_board_metadata(PROGRAM_MEMORY "4MB")
