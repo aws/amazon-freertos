@@ -880,9 +880,6 @@ TEST_GROUP( deviceShadow_Integration );
 
 TEST_SETUP( deviceShadow_Integration )
 {
-    /* Seed the pseudo random number generator. */
-    seedRandomNumberGenerator();
-
     /* Reset file-scoped global variables. */
     receivedSubAck = false;
     receivedUnsubAck = false;
