@@ -2002,6 +2002,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
 		</link>
 		<link>
+			<name>demos/coreHTTP/http_demo_mutual_auth.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/coreHTTP/http_demo_mutual_auth.c</locationURI>
+		</link>
+		<link>
 			<name>demos/coreHTTP/http_demo_s3_download.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/coreHTTP/http_demo_s3_download.c</locationURI>
@@ -2155,6 +2160,11 @@
 			<name>config_files/defender_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/defender_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/http_demo_mutual_auth_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/http_demo_mutual_auth_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/http_demo_s3_download_config.h</name>
