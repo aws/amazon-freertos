@@ -82,7 +82,8 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats );
  * can be NULL, if only the number of open ports is needed.
  * @param[in] tcpPortsArrayLength Length of the pOutTcpPortsArray, if it is not
  * NULL.
- * @param[out] pOutNumTcpOpenPorts Number of the open TCP ports.
+ * @param[out] pOutNumTcpOpenPorts Number of open TCP ports if @p
+ * pOutTcpPortsArray NULL, else number of TCP ports written.
  *
  * @return #MetricsCollectorSuccess if open TCP ports are successfully obtained;
  * #MetricsCollectorBadParameter if invalid parameters are passed;
@@ -102,7 +103,8 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
  * be NULL, if only number of open ports is needed.
  * @param[in] udpPortsArrayLength Length of the pOutUdpPortsArray, if it is not
  * NULL.
- * @param[out] pOutNumUdpOpenPorts Number of the open UDP ports.
+ * @param[out] pOutNumUdpOpenPorts Number of open UDP ports if @p
+ * pOutUdpPortsArray NULL, else number of UDP ports written.
  *
  * @return #MetricsCollectorSuccess if open UDP ports are successfully obtained;
  * #MetricsCollectorBadParameter if invalid parameters are passed;
@@ -124,6 +126,8 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
  * @param[in] connectionsArrayLength Length of the pOutConnectionsArray, if it
  * is not NULL.
  * @param[out] pOutNumEstablishedConnections Number of the established connections.
+ * @param[out] pOutNumEstablishedConnections Number of established connections if @p
+ * pOutNumEstablishedConnections NULL, else number of established connections written.
  *
  * @return #MetricsCollectorSuccess if established connections are successfully obtained;
  * #MetricsCollectorBadParameter if invalid parameters are passed;
