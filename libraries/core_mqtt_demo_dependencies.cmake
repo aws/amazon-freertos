@@ -79,6 +79,8 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::core_mqtt
+        AFR::backoff_algorithm
+        AFR::pkcs11_helpers
 )
 
 # Add more dependencies for Secure Sockets based MQTT demo 
@@ -88,7 +90,6 @@ if(TARGET AFR::secure_sockets::mcu_port)
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}
         PUBLIC
-            AFR::backoff_algorithm
             AFR::transport_interface_secure_sockets
             AFR::secure_sockets
     )
