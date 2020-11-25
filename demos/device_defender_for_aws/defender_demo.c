@@ -90,25 +90,25 @@ typedef enum
 /**
  * @brief The MQTT context used for MQTT operation.
  */
-static MQTTContext_t xMqttContext;
+static MQTTContext_t mqttContext;
 
 /**
- * @brief The network context used for Openssl operation.
+ * @brief The network context used for OpenSSL operation.
  */
-static NetworkContext_t xNetworkContext;
+static NetworkContext_t networkContext;
 
 /**
  * @brief Static buffer used to hold MQTT messages being sent and received.
  */
-static uint8_t ucSharedBuffer[ NETWORK_BUFFER_SIZE ];
+static uint8_t sharedBuffer[ NETWORK_BUFFER_SIZE ];
 
 /**
  * @brief Static buffer used to hold MQTT messages being sent and received.
  */
 static MQTTFixedBuffer_t xBuffer =
 {
-    .pBuffer = ucSharedBuffer,
-    .size    = NETWORK_BUFFER_SIZE
+    sharedBuffer,
+    NETWORK_BUFFER_SIZE
 };
 
 /**
@@ -155,13 +155,13 @@ static uint32_t reportId = 0;
 /**
  * @brief Callback to receive the incoming publish messages from the MQTT broker.
  *
- * @param[in] pxMqttContext MQTT context pointer.
- * @param[in] pxPacketInfo Information on the type of incoming MQTT packet.
- * @param[in] pxDeserializedInfo Deserialized information from incoming packet.
+ * @param[in] pMqttContext MQTT context pointer.
+ * @param[in] pPacketInfo Information on the type of incoming MQTT packet.
+ * @param[in] pDeserializedInfo Deserialized information from incoming packet.
  */
-static void publishCallback( MQTTContext_t * pxMqttContext,
-                             MQTTPacketInfo_t * pxPacketInfo,
-                             MQTTDeserializedInfo_t * pxDeserializedInfo );
+static void publishCallback( MQTTContext_t * pMqttContext,
+                             MQTTPacketInfo_t * pPacketInfo,
+                             MQTTDeserializedInfo_t * pDeserializedInfo );
 
 /**
  * @brief Collect all the metrics to be sent in the device defender report.
@@ -184,22 +184,22 @@ static BaseType_t generateDeviceMetricsReport( uint32_t * pOutReportLength );
 /**
  * @brief Subscribe to the device defender topics.
  *
- * @param[in] pxMqttContext MQTT context pointer.
+ * @param[in] pMqttContext MQTT context pointer.
  *
  * @return pdPASS if the subscribe is successful;
  * pdFAIL otherwise.
  */
-static BaseType_t subscribeToDefenderTopics( MQTTContext_t * pxMqttContext );
+static BaseType_t subscribeToDefenderTopics( MQTTContext_t * pMqttContext );
 
 /**
  * @brief Unsubscribe from the device defender topics.
  *
- * @param[in] pxMqttContext MQTT context pointer.
+ * @param[in] pMqttContext MQTT context pointer.
  *
  * @return pdPASS if the unsubscribe is successful;
  * pdFAIL otherwise.
  */
-static BaseType_t unsubscribeFromDefenderTopics( MQTTContext_t * pxMqttContext );
+static BaseType_t unsubscribeFromDefenderTopics( MQTTContext_t * pMqttContext );
 
 /**
  * @brief Validate the response received from the AWS IoT Device Defender Service.
@@ -263,7 +263,7 @@ static bool validateDefenderResponse( const char * defenderResponse,
          * published report? */
         if( reportIdInResponse == reportId )
         {
-            LogInfo( ( "A valid reponse with reportId %u received from the "
+            LogInfo( ( "A valid response with reportId %u received from the "
                        "AWS IoT Device Defender Service.", reportId ) );
             status = true;
         }
@@ -283,22 +283,22 @@ static bool validateDefenderResponse( const char * defenderResponse,
 }
 /*-----------------------------------------------------------*/
 
-static void publishCallback( MQTTContext_t * pxMqttContext,
-                             MQTTPacketInfo_t * pxPacketInfo,
-                             MQTTDeserializedInfo_t * pxDeserializedInfo )
+static void publishCallback( MQTTContext_t * pMqttContext,
+                             MQTTPacketInfo_t * pPacketInfo,
+                             MQTTDeserializedInfo_t * pDeserializedInfo )
 {
     DefenderStatus_t status;
     DefenderTopic_t api;
     bool validationResult;
-    MQTTPublishInfo_t * pPublishInfo = pxDeserializedInfo->pPublishInfo;
+    MQTTPublishInfo_t * pPublishInfo = pDeserializedInfo->pPublishInfo;
 
     /* Silence compiler warnings about unused variables. */
-    ( void ) pxMqttContext;
+    ( void ) pMqttContext;
 
     /* Handle incoming publish. The lower 4 bits of the publish packet
      * type is used for the dup, QoS, and retain flags. Hence masking
      * out the lower bits to check if the packet is publish. */
-    if( ( pxPacketInfo->type & 0xF0U ) == MQTT_PACKET_TYPE_PUBLISH )
+    if( ( pPacketInfo->type & 0xF0U ) == MQTT_PACKET_TYPE_PUBLISH )
     {
         status = Defender_MatchTopic( pPublishInfo->pTopicName,
                                       pPublishInfo->topicNameLength,
@@ -352,7 +352,7 @@ static void publishCallback( MQTTContext_t * pxMqttContext,
     }
     else
     {
-        vHandleOtherIncomingPacket( pxPacketInfo, pxDeserializedInfo->packetIdentifier );
+        vHandleOtherIncomingPacket( pPacketInfo, pDeserializedInfo->packetIdentifier );
     }
 }
 /*-----------------------------------------------------------*/
@@ -431,17 +431,17 @@ static BaseType_t collectDeviceMetrics( void )
 }
 /*-----------------------------------------------------------*/
 
-static BaseType_t subscribeToDefenderTopics( MQTTContext_t * pxMqttContext )
+static BaseType_t subscribeToDefenderTopics( MQTTContext_t * pMqttContext )
 {
     BaseType_t status = pdFAIL;
 
-    status = SubscribeToTopic( pxMqttContext,
+    status = SubscribeToTopic( pMqttContext,
                                DEFENDER_API_JSON_ACCEPTED( THING_NAME ),
                                DEFENDER_API_LENGTH_JSON_ACCEPTED( THING_NAME_LENGTH ) );
 
     if( status == pdPASS )
     {
-        status = SubscribeToTopic( pxMqttContext,
+        status = SubscribeToTopic( pMqttContext,
                                    DEFENDER_API_JSON_REJECTED( THING_NAME ),
                                    DEFENDER_API_LENGTH_JSON_REJECTED( THING_NAME_LENGTH ) );
     }
@@ -450,17 +450,17 @@ static BaseType_t subscribeToDefenderTopics( MQTTContext_t * pxMqttContext )
 }
 /*-----------------------------------------------------------*/
 
-static BaseType_t unsubscribeFromDefenderTopics( MQTTContext_t * pxMqttContext )
+static BaseType_t unsubscribeFromDefenderTopics( MQTTContext_t * pMqttContext )
 {
     BaseType_t status = pdFAIL;
 
-    status = UnsubscribeFromTopic( pxMqttContext,
+    status = UnsubscribeFromTopic( pMqttContext,
                                    DEFENDER_API_JSON_ACCEPTED( THING_NAME ),
                                    DEFENDER_API_LENGTH_JSON_ACCEPTED( THING_NAME_LENGTH ) );
 
     if( status == pdPASS )
     {
-        status = UnsubscribeFromTopic( pxMqttContext,
+        status = UnsubscribeFromTopic( pMqttContext,
                                        DEFENDER_API_JSON_REJECTED( THING_NAME ),
                                        DEFENDER_API_LENGTH_JSON_REJECTED( THING_NAME_LENGTH ) );
     }
@@ -519,9 +519,9 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
                            void * pNetworkCredentialInfo,
                            const void * pNetworkInterface )
 {
-    BaseType_t xDemoStatus = pdFAIL;
+    BaseType_t demoStatus = pdFAIL;
     uint32_t reportLength = 0UL, i, mqttSessionEstablished = 0UL;
-    UBaseType_t uxDemoRunCount = 0;
+    UBaseType_t demoRunCount = 0;
     BaseType_t retryDemoLoop = pdFALSE;
 
     ( void ) awsIotMqttMode;
@@ -550,12 +550,12 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
         reportId = ( uint32_t ) xTaskGetTickCount();
 
         LogInfo( ( "Establishing MQTT session..." ) );
-        xDemoStatus = EstablishMqttSession( &xMqttContext,
-                                            &xNetworkContext,
-                                            &xBuffer,
-                                            publishCallback );
+        demoStatus = EstablishMqttSession( &mqttContext,
+                                           &networkContext,
+                                           &xBuffer,
+                                           publishCallback );
 
-        if( xDemoStatus == pdFAIL )
+        if( demoStatus == pdFAIL )
         {
             LogError( ( "Failed to establish MQTT session." ) );
         }
@@ -564,55 +564,55 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
             mqttSessionEstablished = 1;
         }
 
-        if( xDemoStatus == pdPASS )
+        if( demoStatus == pdPASS )
         {
             LogInfo( ( "Subscribing to defender topics..." ) );
-            xDemoStatus = subscribeToDefenderTopics( &xMqttContext );
+            demoStatus = subscribeToDefenderTopics( &mqttContext );
 
-            if( xDemoStatus == pdFAIL )
+            if( demoStatus == pdFAIL )
             {
                 LogError( ( "Failed to subscribe to defender topics." ) );
             }
         }
 
-        if( xDemoStatus == pdPASS )
+        if( demoStatus == pdPASS )
         {
             LogInfo( ( "Collecting device metrics..." ) );
-            xDemoStatus = collectDeviceMetrics();
+            demoStatus = collectDeviceMetrics();
 
-            if( xDemoStatus == pdFAIL )
+            if( demoStatus == pdFAIL )
             {
                 LogError( ( "Failed to collect device metrics." ) );
             }
         }
 
-        if( xDemoStatus == pdPASS )
+        if( demoStatus == pdPASS )
         {
             LogInfo( ( "Generating device defender report..." ) );
-            xDemoStatus = generateDeviceMetricsReport( &( reportLength ) );
+            demoStatus = generateDeviceMetricsReport( &( reportLength ) );
 
-            if( xDemoStatus == pdFAIL )
+            if( demoStatus == pdFAIL )
             {
                 LogError( ( "Failed to generate device defender report." ) );
             }
         }
 
-        if( xDemoStatus == pdPASS )
+        if( demoStatus == pdPASS )
         {
             LogInfo( ( "Publishing device defender report..." ) );
-            xDemoStatus = PublishToTopic( &xMqttContext,
-                                          DEFENDER_API_JSON_PUBLISH( THING_NAME ),
-                                          DEFENDER_API_LENGTH_JSON_PUBLISH( THING_NAME_LENGTH ),
-                                          &( deviceMetricsJsonReport[ 0 ] ),
-                                          reportLength );
+            demoStatus = PublishToTopic( &mqttContext,
+                                         DEFENDER_API_JSON_PUBLISH( THING_NAME ),
+                                         DEFENDER_API_LENGTH_JSON_PUBLISH( THING_NAME_LENGTH ),
+                                         &( deviceMetricsJsonReport[ 0 ] ),
+                                         reportLength );
 
-            if( xDemoStatus == pdFAIL )
+            if( demoStatus == pdFAIL )
             {
                 LogError( ( "Failed to publish device defender report." ) );
             }
         }
 
-        if( xDemoStatus == pdPASS )
+        if( demoStatus == pdPASS )
         {
             /* Note that PublishToTopic already called MQTT_ProcessLoop, therefore
              * responses may have been received and the prvEventCallback may have
@@ -628,14 +628,14 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
                 /* Wait for sometime between consecutive executions of ProcessLoop. */
                 vTaskDelay( pdMS_TO_TICKS( 1000 ) );
 
-                ( void ) ProcessLoop( &xMqttContext );
+                ( void ) ProcessLoop( &mqttContext );
             }
         }
 
         if( reportStatus == ReportStatusNotReceived )
         {
             LogError( ( "Failed to receive response from AWS IoT Device Defender Service." ) );
-            xDemoStatus = pdFAIL;
+            demoStatus = pdFAIL;
         }
 
         /* Unsubscribe and disconnect if MQTT session was established. Per the MQTT
@@ -645,21 +645,21 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
         if( mqttSessionEstablished == 1 )
         {
             LogInfo( ( "Unsubscribing from defender topics..." ) );
-            xDemoStatus = unsubscribeFromDefenderTopics( &xMqttContext );
+            demoStatus = unsubscribeFromDefenderTopics( &mqttContext );
 
-            if( xDemoStatus == pdFAIL )
+            if( demoStatus == pdFAIL )
             {
                 LogError( ( "Failed to unsubscribe from defender topics." ) );
             }
 
             LogInfo( ( "Closing MQTT session..." ) );
-            ( void ) DisconnectMqttSession( &xMqttContext, &xNetworkContext );
+            ( void ) DisconnectMqttSession( &mqttContext, &networkContext );
         }
 
         /* Increment the demo run count. */
-        uxDemoRunCount++;
+        demoRunCount++;
 
-        if( ( xDemoStatus == pdPASS ) && ( reportStatus == ReportStatusAccepted ) )
+        if( ( demoStatus == pdPASS ) && ( reportStatus == ReportStatusAccepted ) )
         {
             LogInfo( ( "Demo completed successfully." ) );
 
@@ -668,15 +668,15 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
         }
         else
         {
-            xDemoStatus = pdFAIL;
+            demoStatus = pdFAIL;
 
-            if( uxDemoRunCount < DEFENDER_MAX_DEMO_COUNT )
+            if( demoRunCount < DEFENDER_MAX_DEMO_COUNT )
             {
                 LogWarn( ( "Demo iteration %lu failed. Retrying...",
-                           ( unsigned long ) uxDemoRunCount ) );
+                           ( unsigned long ) demoRunCount ) );
                 retryDemoLoop = pdTRUE;
 
-                /* Clear the flag indicating sucessful MQTT session establishment
+                /* Clear the flag indicating successful MQTT session establishment
                  * before attempting a retry. */
                 mqttSessionEstablished = 0;
 
@@ -692,6 +692,6 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
         }
     } while( retryDemoLoop == pdTRUE );
 
-    return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
+    return( ( demoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }
 /*-----------------------------------------------------------*/
