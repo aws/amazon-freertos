@@ -156,7 +156,7 @@ target_include_directories(
     AFR::kernel::mcu_port
     INTERFACE
         ${kernel_inc_dirs}
-        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32_IDF3/include/"
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include/"
         "${aws_credentials_include}"
         "${board_dir}/config_files"
         "$<$<NOT:${AFR_METADATA_MODE}>:${CMAKE_BINARY_DIR}/config>"
