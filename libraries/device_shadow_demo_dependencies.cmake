@@ -59,8 +59,7 @@ afr_module_cmake_files(${AFR_CURRENT_MODULE}
 )
 
 afr_set_lib_metadata(ID "device_shadow_demo_dependencies")
-afr_set_lib_metadata(DESCRIPTION "This library enables you to store and retrieve the \
-current state (the \"shadow\") of every registered device on AWS IoT.")
+afr_set_lib_metadata(DESCRIPTION "This library enables a registered device to update and retrieve its current state (the \"shadow\") on AWS IoT.")
 afr_set_lib_metadata(DISPLAY_NAME "Device Shadow")
 afr_set_lib_metadata(CATEGORY "Amazon Services")
 afr_set_lib_metadata(VERSION "1.0.0")
