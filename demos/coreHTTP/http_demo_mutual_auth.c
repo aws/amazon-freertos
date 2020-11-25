@@ -143,6 +143,19 @@
 #define httpexampleREQUEST_BODY_LENGTH        ( sizeof( democonfigREQUEST_BODY ) - 1 )
 
 /**
+ * @brief The maximum number of times to run the loop in this demo.
+ */
+#ifndef httpexampleMAX_DEMO_COUNT
+    #define httpexampleMAX_DEMO_COUNT    ( 3 )
+#endif
+
+/**
+ * @brief Time in ticks to wait between each cycle of the demo implemented
+ * by RunCoreHttpMutualAuthDemo().
+ */
+#define httpexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS    ( pdMS_TO_TICKS( 5000U ) )
+
+/**
  * @brief A buffer used in the demo for storing HTTP request headers and
  * HTTP response headers and body.
  *
@@ -208,6 +221,7 @@ int RunCoreHttpMutualAuthDemo( bool awsIotMqttMode,
     NetworkContext_t xNetworkContext = { 0 };
     TransportSocketStatus_t xNetworkStatus;
     BaseType_t xIsConnectionEstablished = pdFALSE;
+    UBaseType_t uxDemoRunCount = 0UL;
 
     /* Upon return, pdPASS will indicate a successful demo execution.
     * pdFAIL will indicate some failures occurred during execution. The
@@ -221,62 +235,86 @@ int RunCoreHttpMutualAuthDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-    /**************************** Connect. ******************************/
-
-    /* Attempt to connect to the HTTP server. If connection fails, retry after a
-     * timeout. The timeout value will be exponentially increased until either the
-     * maximum number of attempts or the maximum timeout value is reached. The
-     * function returns pdFAIL if the TCP connection cannot be established with
-     * the broker after configured number of attempts. */
-    xDemoStatus = connectToServerWithBackoffRetries( prvConnectToServer,
-                                                     &xNetworkContext );
-
-    if( xDemoStatus == pdPASS )
+    do
     {
-        /* Set a flag indicating that a TLS connection exists. */
-        xIsConnectionEstablished = pdTRUE;
+        /**************************** Connect. ******************************/
 
-        /* Define the transport interface. */
-        xTransportInterface.pNetworkContext = &xNetworkContext;
-        xTransportInterface.send = SecureSocketsTransport_Send;
-        xTransportInterface.recv = SecureSocketsTransport_Recv;
-    }
-    else
-    {
-        /* Log error to indicate connection failure after all
-         * reconnect attempts are over. */
-        LogError( ( "Failed to connect to HTTP server %.*s.",
-                    ( int32_t ) httpexampleAWS_IOT_ENDPOINT_LENGTH,
-                    democonfigAWS_IOT_ENDPOINT ) );
-    }
+        /* Attempt to connect to the HTTP server. If connection fails, retry
+         * after a timeout. The timeout value will be exponentially increased
+         * until either the maximum number of attempts or the maximum timeout
+         * value is reached. The function returns pdFAIL if the TCP connection
+         * cannot be established with the broker after the configured number of
+         * attempts. */
+        xDemoStatus = connectToServerWithBackoffRetries( prvConnectToServer,
+                                                         &xNetworkContext );
 
-    /*********************** Send HTTP request.************************/
-
-    if( xDemoStatus == pdPASS )
-    {
-        xDemoStatus = prvSendHttpRequest( &xTransportInterface,
-                                          HTTP_METHOD_POST,
-                                          httpexampleHTTP_METHOD_POST_LENGTH,
-                                          democonfigPOST_PATH,
-                                          httpexamplePOST_PATH_LENGTH );
-    }
-
-    /**************************** Disconnect. ******************************/
-
-    /* Close the network connection to clean up any system resources that the
-     * demo may have consumed. */
-    if( xIsConnectionEstablished == pdTRUE )
-    {
-        /* Close the network connection.  */
-        xNetworkStatus = SecureSocketsTransport_Disconnect( &xNetworkContext );
-
-        if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
+        if( xDemoStatus == pdPASS )
         {
-            xDemoStatus = pdFAIL;
-            LogError( ( "SecureSocketsTransport_Disconnect() failed to close the network connection. "
-                        "StatusCode=%d.", ( int ) xNetworkStatus ) );
+            /* Set a flag indicating that a TLS connection exists. */
+            xIsConnectionEstablished = pdTRUE;
+
+            /* Define the transport interface. */
+            xTransportInterface.pNetworkContext = &xNetworkContext;
+            xTransportInterface.send = SecureSocketsTransport_Send;
+            xTransportInterface.recv = SecureSocketsTransport_Recv;
         }
-    }
+        else
+        {
+            /* Log error to indicate connection failure after all
+             * reconnect attempts are over. */
+            LogError( ( "Failed to connect to HTTP server %.*s.",
+                        ( int32_t ) httpexampleAWS_IOT_ENDPOINT_LENGTH,
+                        democonfigAWS_IOT_ENDPOINT ) );
+        }
+
+        /*********************** Send HTTP request.************************/
+
+        if( xDemoStatus == pdPASS )
+        {
+            xDemoStatus = prvSendHttpRequest( &xTransportInterface,
+                                              HTTP_METHOD_POST,
+                                              httpexampleHTTP_METHOD_POST_LENGTH,
+                                              democonfigPOST_PATH,
+                                              httpexamplePOST_PATH_LENGTH );
+        }
+
+        /**************************** Disconnect. ******************************/
+
+        /* Close the network connection to clean up any system resources that the
+         * demo may have consumed. */
+        if( xIsConnectionEstablished == pdTRUE )
+        {
+            /* Close the network connection.  */
+            xNetworkStatus = SecureSocketsTransport_Disconnect( &xNetworkContext );
+
+            if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
+            {
+                xDemoStatus = pdFAIL;
+                LogError( ( "SecureSocketsTransport_Disconnect() failed to close the network connection. "
+                            "StatusCode=%d.", ( int ) xNetworkStatus ) );
+            }
+        }
+
+        /* Increment the demo run count. */
+        uxDemoRunCount++;
+
+        if( xDemoStatus == pdPASS )
+        {
+            LogInfo( ( "Demo iteration %lu was successful.", uxDemoRunCount ) );
+        }
+        /* Attempt to retry a failed demo iteration for up to #httpexampleMAX_DEMO_COUNT times. */
+        else if( uxDemoRunCount < httpexampleMAX_DEMO_COUNT )
+        {
+            LogWarn( ( "Demo iteration %lu failed. Retrying...", uxDemoRunCount ) );
+            vTaskDelay( httpexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
+        }
+        /* Failed all #httpexampleMAX_DEMO_COUNT demo iterations. */
+        else
+        {
+            LogError( ( "All %d demo iterations failed.", httpexampleMAX_DEMO_COUNT ) );
+            break;
+        }
+    } while( xDemoStatus != pdPASS );
 
     if( xDemoStatus == pdPASS )
     {
