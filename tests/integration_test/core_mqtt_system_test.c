@@ -568,7 +568,7 @@ static int32_t failedRecv( NetworkContext_t * pNetworkContext,
  * @return The generated random number. This function ALWAYS succeeds
  * in generating a random number.
  */
-static int32_t generateRandomNumber();
+static uint32_t generateRandomNumber();
 
 /**
  * @brief Connect to the MQTT broker with reconnection retries.
@@ -974,7 +974,7 @@ static int32_t failedRecv( NetworkContext_t * pNetworkContext,
     return -1;
 }
 
-static int32_t generateRandomNumber()
+static uint32_t generateRandomNumber()
 {
     UBaseType_t uxRandNum = 0;
 
@@ -1002,7 +1002,7 @@ static int32_t generateRandomNumber()
     /* Close PKCS11 session. */
     TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_CloseSession( session ) );
 
-    return( uxRandNum & INT32_MAX );
+    return uxRandNum;
 }
 
 static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
@@ -1032,8 +1032,7 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     BackoffAlgorithm_InitializeParams( &reconnectParams,
                                        RETRY_BACKOFF_BASE_MS,
                                        RETRY_MAX_BACKOFF_DELAY_MS,
-                                       RETRY_MAX_ATTEMPTS,
-                                       generateRandomNumber );
+                                       RETRY_MAX_ATTEMPTS );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase till maximum
@@ -1049,9 +1048,10 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
 
         if( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            /* Get back-off value for the next connection retry. */
-            BackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &reconnectParams, &nextRetryBackOff );
-            configASSERT( BackoffAlgStatus != BackoffAlgorithmRngFailure );
+            /* Generate random number and get back-off value for the next connection retry. */
+            BackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &reconnectParams,
+                                                                generateRandomNumber(),
+                                                                &nextRetryBackOff );
 
             if( BackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
             {
