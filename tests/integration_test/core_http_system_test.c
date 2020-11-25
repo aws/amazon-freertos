@@ -389,7 +389,7 @@ static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
         }
     } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( BackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
-    TEST_ASSERT_EQUAL( transportStatus, TRANSPORT_SOCKET_STATUS_SUCCESS );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, transportStatus );
 }
 
 /*-----------------------------------------------------------*/
