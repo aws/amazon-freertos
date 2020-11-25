@@ -1742,6 +1742,11 @@
 					<GroupName>demos/coreHTTP/</GroupName>
 					<Files>
 						<File>
+							<FileName>http_demo_mutual_auth.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreHTTP/http_demo_mutual_auth.c</FilePath>
+						</File>
+						<File>
 							<FileName>http_demo_s3_download.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreHTTP/http_demo_s3_download.c</FilePath>

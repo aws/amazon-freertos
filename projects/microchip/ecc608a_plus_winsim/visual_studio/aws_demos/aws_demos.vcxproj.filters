@@ -1513,6 +1513,9 @@
 		<ClCompile Include="..\..\..\..\..\demos\common\pkcs11_helpers\pkcs11_helpers.c">
 			<Filter>demos\common\pkcs11_helpers</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_mutual_auth.c">
+			<Filter>demos\coreHTTP</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_download.c">
 			<Filter>demos\coreHTTP</Filter>
 		</ClCompile>
