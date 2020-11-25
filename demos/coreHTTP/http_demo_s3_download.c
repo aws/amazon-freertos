@@ -34,6 +34,11 @@
  * client library API is used to download the S3 file (by sending multiple GET
  * requests, filling up the response buffer each time until all parts are
  * downloaded). If any request fails, an error code is returned.
+ *
+ * @Note: This demo requires user-generated pre-signed URLs to be pasted into
+ * demo_config.h. Please use the provided script "presigned_urls_gen.py"
+ * (located in http_demo_helpers) to generate these URLs. For detailed
+ * instructions, see the accompanied README.md.
  */
 
 /**
@@ -87,7 +92,7 @@
 /* Check that a transport timeout for the transport send and receive functions
  * is defined. */
 #ifndef democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS
-    #define democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 1000 )
+    #define democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 5000 )
 #endif
 
 /* Check that the size of the user buffer is defined. */

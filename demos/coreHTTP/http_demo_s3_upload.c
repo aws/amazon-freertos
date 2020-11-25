@@ -34,6 +34,11 @@
  * Client library API is used to upload a file to a S3 bucket by sending a PUT
  * request, and verify the file was uploaded using a GET request. If any request
  * fails, an error code is returned.
+ *
+ * @Note: This demo requires user-generated pre-signed URLs to be pasted into
+ * demo_config.h. Please use the provided script "presigned_urls_gen.py"
+ * (located in http_demo_helpers) to generate these URLs. For detailed
+ * instructions, see the accompanied README.md.
  */
 
 /**
@@ -92,7 +97,7 @@
 /* Check that a transport timeout for transport send and receive functions is
  * defined. */
 #ifndef democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS
-    #define democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 1000 )
+    #define democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 5000 )
 #endif
 
 /* Check that the size of the user buffer is defined. */
