@@ -50,18 +50,31 @@
  *
  * This is the example predefine thing name and could be compiled in ROM code.
  */
-#define THING_NAME           clientcredentialIOT_THING_NAME
+#define THING_NAME                        clientcredentialIOT_THING_NAME
 
 /**
  * @brief The length of #THING_NAME.
  */
-#define THING_NAME_LENGTH    ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
+#define THING_NAME_LENGTH                 ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
 
 /**
  * @brief Number of seconds to wait for the response from AWS IoT Device
  * Defender service.
  */
 #define DEFENDER_RESPONSE_WAIT_SECONDS    ( 2 )
+
+/**
+ * @brief The maximum number of times to run the loop in this demo.
+ */
+#ifndef DEFENDER_MAX_DEMO_COUNT
+    #define DEFENDER_MAX_DEMO_COUNT    ( 3 )
+#endif
+
+/**
+ * @brief Time in ticks to wait between each iteration of the demo execution,
+ * in case a retry is required from demo execution failure.
+ */
+#define DELAY_BETWEEN_DEMO_ITERATIONS_TICKS    ( pdMS_TO_TICKS( 5000U ) )
 
 /**
  * @brief Status values of the device defender report.
@@ -215,6 +228,7 @@ static bool validateDefenderResponse( const char * defenderResponse,
 
     /* Is the response a valid JSON? */
     jsonResult = JSON_Validate( defenderResponse, defenderResponseLength );
+
     if( jsonResult != JSONSuccess )
     {
         LogError( ( "Invalid response from AWS IoT Device Defender Service: %.*s.",
@@ -491,12 +505,10 @@ static BaseType_t generateDeviceMetricsReport( uint32_t * pOutReportLength )
  * @brief The function that runs the Defender demo, called by the demo runner.
  *
  * @param[in] awsIotMqttMode Ignored for the Defender demo.
- * @param[in] pIdentifier NULL-terminated Defender Thing Name.
- * @param[in] pNetworkServerInfo Passed to the MQTT connect function when
- * establishing the MQTT connection for Defender.
- * @param[in] pNetworkCredentialInfo Passed to the MQTT connect function when
- * establishing the MQTT connection for Defender.
- * @param[in] pNetworkInterface The network interface to use for this demo.
+ * @param[in] pIdentifier Ignored for the Defender demo.
+ * @param[in] pNetworkServerInfo Ignored for the Defender demo.
+ * @param[in] pNetworkCredentialInfo Ignored for the Defender demo.
+ * @param[in] pNetworkInterface Ignored for the Defender demo.
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
  */
@@ -508,139 +520,177 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
                            const void * pNetworkInterface )
 {
     BaseType_t xDemoStatus = pdFAIL;
-    uint32_t reportLength = 0, i, mqttSessionEstablished = 0;
+    uint32_t reportLength = 0UL, i, mqttSessionEstablished = 0UL;
+    UBaseType_t uxDemoRunCount = 0;
+    BaseType_t retryDemoLoop = pdFALSE;
 
+    ( void ) awsIotMqttMode;
+    ( void ) pIdentifier;
+    ( void ) pNetworkServerInfo;
+    ( void ) pNetworkCredentialInfo;
+    ( void ) pNetworkInterface;
 
-    /* Start with report not received. */
-    reportStatus = ReportStatusNotReceived;
-
-    /* Set a report Id to be used.
-     *
-     * !!!NOTE!!!
-     * This demo sets the report ID to xTaskGetTickCount(), which may collide
-     * if the device is reset. Reports for a Thing with a previously used
-     * report ID will be assumed to be duplicates and discarded by the Device
-     * Defender service. The report ID needs to be unique per report sent with
-     * a given Thing. We recommend using an increasing unique id such as the
-     * current timestamp. */
-    reportId = ( uint32_t ) xTaskGetTickCount();
-
-    LogInfo( ( "Establishing MQTT session..." ) );
-    xDemoStatus = EstablishMqttSession( &xMqttContext,
-                                        &xNetworkContext,
-                                        &xBuffer,
-                                        publishCallback );
-
-    if( xDemoStatus == pdFAIL )
+    /* This demo runs a single loop unless there are failures in the demo execution.
+     * In case of failures in the demo execution, demo loop will be retried for up to
+     * DEFENDER_MAX_DEMO_COUNT times. */
+    do
     {
-        LogError( ( "Failed to establish MQTT session." ) );
-    }
-    else
-    {
-        mqttSessionEstablished = 1;
-    }
+        /* Start with report not received. */
+        reportStatus = ReportStatusNotReceived;
 
-    if( xDemoStatus == pdPASS )
-    {
-        LogInfo( ( "Subscribing to defender topics..." ) );
-        xDemoStatus = subscribeToDefenderTopics( &xMqttContext );
+        /* Set a report Id to be used.
+         *
+         * !!!NOTE!!!
+         * This demo sets the report ID to xTaskGetTickCount(), which may collide
+         * if the device is reset. Reports for a Thing with a previously used
+         * report ID will be assumed to be duplicates and discarded by the Device
+         * Defender service. The report ID needs to be unique per report sent with
+         * a given Thing. We recommend using an increasing unique id such as the
+         * current timestamp. */
+        reportId = ( uint32_t ) xTaskGetTickCount();
+
+        LogInfo( ( "Establishing MQTT session..." ) );
+        xDemoStatus = EstablishMqttSession( &xMqttContext,
+                                            &xNetworkContext,
+                                            &xBuffer,
+                                            publishCallback );
 
         if( xDemoStatus == pdFAIL )
         {
-            LogError( ( "Failed to subscribe to defender topics." ) );
+            LogError( ( "Failed to establish MQTT session." ) );
         }
-    }
-
-    if( xDemoStatus == pdPASS )
-    {
-        LogInfo( ( "Collecting device metrics..." ) );
-        xDemoStatus = collectDeviceMetrics();
-
-        if( xDemoStatus == pdFAIL )
+        else
         {
-            LogError( ( "Failed to collect device metrics." ) );
+            mqttSessionEstablished = 1;
         }
-    }
 
-    if( xDemoStatus == pdPASS )
-    {
-        LogInfo( ( "Generating device defender report..." ) );
-        xDemoStatus = generateDeviceMetricsReport( &( reportLength ) );
-
-        if( xDemoStatus == pdFAIL )
+        if( xDemoStatus == pdPASS )
         {
-            LogError( ( "Failed to generate device defender report." ) );
-        }
-    }
+            LogInfo( ( "Subscribing to defender topics..." ) );
+            xDemoStatus = subscribeToDefenderTopics( &xMqttContext );
 
-    if( xDemoStatus == pdPASS )
-    {
-        LogInfo( ( "Publishing device defender report..." ) );
-        xDemoStatus = PublishToTopic( &xMqttContext,
-                                      DEFENDER_API_JSON_PUBLISH( THING_NAME ),
-                                      DEFENDER_API_LENGTH_JSON_PUBLISH( THING_NAME_LENGTH ),
-                                      &( deviceMetricsJsonReport[ 0 ] ),
-                                      reportLength );
-
-        if( xDemoStatus == pdFAIL )
-        {
-            LogError( ( "Failed to publish device defender report." ) );
-        }
-    }
-
-    if( xDemoStatus == pdPASS )
-    {
-        /* Note that PublishToTopic already called MQTT_ProcessLoop, therefore
-         * responses may have been received and the prvEventCallback may have
-         * been called. */
-        for( i = 0; i < DEFENDER_RESPONSE_WAIT_SECONDS; i++ )
-        {
-            /* reportStatus is updated in the publishCallback. */
-            if( reportStatus != ReportStatusNotReceived )
+            if( xDemoStatus == pdFAIL )
             {
-                break;
+                LogError( ( "Failed to subscribe to defender topics." ) );
+            }
+        }
+
+        if( xDemoStatus == pdPASS )
+        {
+            LogInfo( ( "Collecting device metrics..." ) );
+            xDemoStatus = collectDeviceMetrics();
+
+            if( xDemoStatus == pdFAIL )
+            {
+                LogError( ( "Failed to collect device metrics." ) );
+            }
+        }
+
+        if( xDemoStatus == pdPASS )
+        {
+            LogInfo( ( "Generating device defender report..." ) );
+            xDemoStatus = generateDeviceMetricsReport( &( reportLength ) );
+
+            if( xDemoStatus == pdFAIL )
+            {
+                LogError( ( "Failed to generate device defender report." ) );
+            }
+        }
+
+        if( xDemoStatus == pdPASS )
+        {
+            LogInfo( ( "Publishing device defender report..." ) );
+            xDemoStatus = PublishToTopic( &xMqttContext,
+                                          DEFENDER_API_JSON_PUBLISH( THING_NAME ),
+                                          DEFENDER_API_LENGTH_JSON_PUBLISH( THING_NAME_LENGTH ),
+                                          &( deviceMetricsJsonReport[ 0 ] ),
+                                          reportLength );
+
+            if( xDemoStatus == pdFAIL )
+            {
+                LogError( ( "Failed to publish device defender report." ) );
+            }
+        }
+
+        if( xDemoStatus == pdPASS )
+        {
+            /* Note that PublishToTopic already called MQTT_ProcessLoop, therefore
+             * responses may have been received and the prvEventCallback may have
+             * been called. */
+            for( i = 0; i < DEFENDER_RESPONSE_WAIT_SECONDS; i++ )
+            {
+                /* reportStatus is updated in the publishCallback. */
+                if( reportStatus != ReportStatusNotReceived )
+                {
+                    break;
+                }
+
+                /* Wait for sometime between consecutive executions of ProcessLoop. */
+                vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+
+                ( void ) ProcessLoop( &xMqttContext );
+            }
+        }
+
+        if( reportStatus == ReportStatusNotReceived )
+        {
+            LogError( ( "Failed to receive response from AWS IoT Device Defender Service." ) );
+            xDemoStatus = pdFAIL;
+        }
+
+        /* Unsubscribe and disconnect if MQTT session was established. Per the MQTT
+         * protocol spec, it is okay to send UNSUBSCRIBE even if no corresponding
+         * subscription exists on the broker. Therefore, it is okay to attempt
+         * unsubscribe even if one more subscribe failed earlier. */
+        if( mqttSessionEstablished == 1 )
+        {
+            LogInfo( ( "Unsubscribing from defender topics..." ) );
+            xDemoStatus = unsubscribeFromDefenderTopics( &xMqttContext );
+
+            if( xDemoStatus == pdFAIL )
+            {
+                LogError( ( "Failed to unsubscribe from defender topics." ) );
             }
 
-            /* Wait for sometime between consecutive executions of ProcessLoop. */
-            vTaskDelay( pdMS_TO_TICKS( 1000 ) );
-
-            ( void ) ProcessLoop( &xMqttContext );
+            LogInfo( ( "Closing MQTT session..." ) );
+            ( void ) DisconnectMqttSession( &xMqttContext, &xNetworkContext );
         }
-    }
 
-    if( reportStatus == ReportStatusNotReceived )
-    {
-        LogError( ( "Failed to receive response from AWS IoT Device Defender Service." ) );
-        xDemoStatus = pdFAIL;
-    }
+        /* Increment the demo run count. */
+        uxDemoRunCount++;
 
-    /* Unsubscribe and disconnect if MQTT session was established. Per the MQTT
-     * protocol spec, it is okay to send UNSUBSCRIBE even if no corresponding
-     * subscription exists on the broker. Therefore, it is okay to attempt
-     * unsubscribe even if one more subscribe failed earlier. */
-    if( mqttSessionEstablished == 1 )
-    {
-        LogInfo( ( "Unsubscribing from defender topics..." ) );
-        xDemoStatus = unsubscribeFromDefenderTopics( &xMqttContext );
-
-        if( xDemoStatus == pdFAIL )
+        if( ( xDemoStatus == pdPASS ) && ( reportStatus == ReportStatusAccepted ) )
         {
-            LogError( ( "Failed to unsubscribe from defender topics." ) );
+            LogInfo( ( "Demo completed successfully." ) );
+
+            /* Reset the flag for demo retry. */
+            retryDemoLoop = pdFALSE;
         }
+        else
+        {
+            xDemoStatus = pdFAIL;
 
-        LogInfo( ( "Closing MQTT session..." ) );
-        ( void ) DisconnectMqttSession( &xMqttContext, &xNetworkContext );
-    }
+            if( uxDemoRunCount < DEFENDER_MAX_DEMO_COUNT )
+            {
+                LogWarn( ( "Demo iteration %lu failed. Retrying...",
+                           ( unsigned long ) uxDemoRunCount ) );
+                retryDemoLoop = pdTRUE;
 
-    if( ( xDemoStatus == pdPASS ) && ( reportStatus == ReportStatusAccepted ) )
-    {
-        LogInfo( ( "Demo completed successfully." ) );
-    }
-    else
-    {
-        xDemoStatus = pdFAIL;
-        LogError( ( "Demo failed." ) );
-    }
+                /* Clear the flag indicating sucessful MQTT session establishment
+                 * before attempting a retry. */
+                mqttSessionEstablished = 0;
+
+                LogInfo( ( "A short delay before the next demo iteration." ) );
+                vTaskDelay( DELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
+            }
+            else
+            {
+                LogError( ( "All %ld demo iterations failed.",
+                            ( unsigned long ) DEFENDER_MAX_DEMO_COUNT ) );
+                retryDemoLoop = pdFALSE;
+            }
+        }
+    } while( retryDemoLoop == pdTRUE );
 
     return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }
