@@ -46,7 +46,7 @@
 #include "tcp_netstat.h"
 
 /* Demo config. */
-#include "demo_config.h"
+#include "defender_demo_config.h"
 
 /* Interface include. */
 #include "metrics_collector.h"

@@ -209,7 +209,7 @@ static bool validateDefenderResponse( const char * defenderResponse,
 {
     bool status = false;
     JSONStatus_t jsonResult = JSONSuccess;
-    char * reportIdString;
+    char * reportIdString = NULL;
     size_t reportIdStringLength;
     uint32_t reportIdInResponse;
 
