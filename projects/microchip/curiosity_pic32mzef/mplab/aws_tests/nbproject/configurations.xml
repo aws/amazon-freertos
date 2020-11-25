@@ -374,6 +374,18 @@
 								</logicalFolder>
 							</logicalFolder>
 						</logicalFolder>
+						<logicalFolder name="tools" displayName="tools" projectFiles="true">
+							<logicalFolder name="tcp_utilities" displayName="tcp_utilities" projectFiles="true">
+								<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/tcp_dump_packets.c</itemPath>
+								<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/tcp_mem_stats.c</itemPath>
+								<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/tcp_netstat.c</itemPath>
+								<logicalFolder name="include" displayName="include" projectFiles="true">
+									<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include/tcp_dump_packets.h</itemPath>
+									<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include/tcp_mem_stats.h</itemPath>
+									<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include/tcp_netstat.h</itemPath>
+								</logicalFolder>
+							</logicalFolder>
+						</logicalFolder>
 					</logicalFolder>
 					<logicalFolder name="tls" displayName="tls" projectFiles="true">
 						<logicalFolder name="src" displayName="src" projectFiles="true">
