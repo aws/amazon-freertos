@@ -6,7 +6,7 @@ set(
     include_dirs
     include
     ${AMAZON_FREERTOS_KERNEL_DIR}/include
-    ${AMAZON_FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32_IDF3/include
+    ${AMAZON_FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include
 )
 
 if(AFR_ENABLE_TESTS)
@@ -26,7 +26,7 @@ set(COMPONENT_ADD_INCLUDEDIRS "${include_dirs}")
 set(COMPONENT_REQUIRES )
 set(COMPONENT_PRIV_REQUIRES )
 
-set(COMPONENT_SRCDIRS . ${AMAZON_FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32_IDF3 ${AMAZON_FREERTOS_KERNEL_DIR})
+set(COMPONENT_SRCDIRS . ${AMAZON_FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32 ${AMAZON_FREERTOS_KERNEL_DIR})
 
 set(COMPONENT_ADD_LDFRAGMENTS linker.lf)
 
