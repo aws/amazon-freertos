@@ -961,23 +961,52 @@ static MQTTStatus_t prvResumeSession( bool xSessionPresent )
 
 /*-----------------------------------------------------------*/
 
-static int32_t prvGenerateRandomNumber()
+static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams )
 {
-    uint32_t ulRandomNum;
+    BaseType_t xReturnStatus = pdFAIL;
+    uint16_t usNextRetryBackOff = 0U;
+    BackoffAlgorithmStatus_t xBackoffAlgStatus = BackoffAlgorithmSuccess;
 
-    /* Use the PKCS11 module to generate a random number. */
+    /**
+     * To calculate the backoff period for the next retry attempt, we will
+     * generate a random number to provide to the backoffAlgorithm library.
+     *
+     * Note: The PKCS11 module is used to generate the random number as it allows access
+     * to a True Random Number Generator (TRNG) if the vendor platform supports it.
+     * It is recommended to use a random number generator seeded with a device-specific
+     * entropy source so that probability of collisions from devices in connection retries
+     * is mitigated.
+     */
+    uint32_t ulRandomNum = 0;
+
     if( xPkcs11GenerateRandomNumber( ( uint8_t * ) &ulRandomNum,
                                      ( sizeof( ulRandomNum ) == pdPASS ) ) )
     {
-        ulRandomNum = ( ulRandomNum & INT32_MAX );
+        /* Get back-off value (in milliseconds) for the next retry attempt. */
+        xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( pxRetryParams, ulRandomNum, &usNextRetryBackOff );
+
+        if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
+        {
+            LogError( ( "All retry attempts have exhausted. Operation will not be retried" ) );
+        }
+        else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
+        {
+            /* Perform the backoff delay. */
+            vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
+
+            xReturnStatus = pdPASS;
+
+            LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
+                       ( pxRetryParams->attemptsDone + 1 ),
+                       pxRetryParams->maxRetryAttempts ) );
+        }
     }
     else
     {
-        /* Set the return value as negative to indicate failure. */
-        ulRandomNum = -1;
+        LogError( ( "Unable to retry operation with broker: Random number generation failed" ) );
     }
 
-    return ( int32_t ) ulRandomNum;
+    return xReturnStatus;
 }
 
 /*-----------------------------------------------------------*/
