@@ -32,13 +32,15 @@
  * defined in the config header, then finally performs a TLS handshake with the
  * HTTP server so that all communication is encrypted.
  *
- * Afterwards, an independent HTTP task is started, to read requests from the
- * request queue and execute them using the HTTP Client library API, and write
- * the corresponding responses to the response queue. The main thread sends
- * requests to the request queue, which are used to download the S3 file in
- * chunks using range requests. While doing so, the main thread reads responses
- * from the response queue continuously until the entire file is received. If
- * any request fails, an error code is returned.
+ * Afterwards, two thread-safe queues are created -- a request and response
+ * queue -- to be shared among two tasks, the main task and the HTTP task. The
+ * main task adds HTTP request headers into the request queue, for the HTTP task
+ * to retrieve abd send to the server using the HTTP Client library API. The
+ * HTTP task then places the server's response into the response queue, which
+ * the main task parses and evaluates. The requests created by the main task are
+ * range requests, used to download the S3 file in chunks. The main thread reads
+ * responses from the response queue continuously until the entire file is
+ * received. If any request fails, an error code is returned.
  *
  * @Note: This demo requires user-generated pre-signed URLs to be pasted into
  * demo_config.h. Please use the provided script "presigned_urls_gen.py"
@@ -81,17 +83,17 @@
 
 /* Check that the TLS port of the server is defined. */
 #ifndef democonfigHTTPS_PORT
-    #error "Please define a democonfigHTTPS_PORT."
+    #error "Please define a democonfigHTTPS_PORT in http_demo_s3_download_multithreaded_config.h."
 #endif
 
 /* Check that the root CA certificate is defined. */
 #ifndef democonfigROOT_CA_PEM
-    #error "Please define a democonfigROOT_CA_PEM."
+    #error "Please define a democonfigROOT_CA_PEM in http_demo_s3_download_multithreaded_config.h."
 #endif
 
 /* Check the the queue size is defined. */
 #ifndef democonfigQUEUE_SIZE
-    #error "Please define a QUEUE_SIZE."
+    #error "Please define a QUEUE_SIZE in http_demo_s3_download_multithreaded_config.h."
 #endif
 
 /* Check that the pre-signed GET URL is defined. */
@@ -156,12 +158,26 @@
 /**
  * @brief The stack size to use for HTTP tasks.
  */
-#define httpexampleTASK_STACK_SIZE                        ( configMINIMAL_STACK_SIZE * 2 )
+#define httpexampleTASK_STACK_SIZE                        ( configMINIMAL_STACK_SIZE * 4 )
 
 /**
  * @brief Ticks to wait for task notifications.
  */
 #define httpexampleDEMO_TICKS_TO_WAIT                     pdMS_TO_TICKS( 1000 )
+
+/**
+ * @brief Notification bit indicating HTTPClient_Send() error in HTTP task.
+ */
+#define httpexampleHTTP_SEND_ERROR                        ( 1U << 1 )
+
+/**
+ * @brief The maximum number of loop iterations to wait before declaring failure.
+ *
+ * Each `while` loop waiting for a task notification will wait for a total
+ * number of ticks equal to `httpexampleDEMO_TICKS_TO_WAIT` * this number of
+ * iterations before the loop exits.
+ */
+#define httpexampleMAX_WAIT_ITERATIONS                    ( 20 )
 
 /**
  * @brief Represents the network context used for the TLS session with the
@@ -185,9 +201,8 @@ static size_t xServerHostLength;
 /**
  * @brief Data type for request queue.
  *
- * In addition to sending #HTTPRequestHeaders_t, we need to send the buffer it
- * uses as the pointer to the buffer in #HTTPRequestHeaders_t may not be
- * accurate after being copied into the queue.
+ * Contains the request header struct and its corresponding buffer, to be read
+ * from the request queue by the HTTP thread and sent to the server.
  */
 typedef struct RequestItem
 {
@@ -198,9 +213,8 @@ typedef struct RequestItem
 /**
  * @brief Data type for response queue.
  *
- * In addition to sending the #HTTPResponse_t, we need to send the buffer it
- * uses as the pointer to the buffer in #HTTPRequestHeaders_t may not be
- * accurate after being copied into the queue.
+ * Contains the response data type and its corresponding buffer, to be read from
+ * the response queue by the main thread.
  */
 typedef struct ResponseItem
 {
@@ -208,21 +222,25 @@ typedef struct ResponseItem
     uint8_t ucResponseBuffer[ democonfigUSER_BUFFER_LENGTH ];
 } ResponseItem_t;
 
-/*
+/**
  * @brief Struct used for sending requests to the HTTP thread.
  *
- * This is used by both the main and HTTP threads. The global scope ensures that
- * it will be located at the same address in the main and HTTP threads, so that
- * pointers remain valid when copied over.
+ * This is modified by the main task and accessed by the HTTP task. The global
+ * scope ensures that it will be located at the same address in the main and
+ * HTTP tasks, so that pointers remain valid when copied over. Once it is placed
+ * on the queue by the main task, it is modified only after the HTTP task has
+ * successfully sent the HTTP request.
  */
 static RequestItem_t xRequestItem = { 0 };
 
 /**
  * @brief Struct used for receiving responses from the HTTP thread.
  *
- * This is used by both the main and HTTP threads. The global scope ensures that
- * it will be located at the same address in the main and HTTP threads, so that
- * pointers remain valid when copied over.
+ * This is modified by the HTTP task and accessed by the main task. The global
+ * scope ensures that it will be located at the same address in the main and
+ * HTTP tasks, so that pointers remain valid when copied over. Once it is placed
+ * on the queue by the HTTP thread, it is modified only after the main task has
+ * successfully acknowledged its receipt.
  */
 static ResponseItem_t xResponseItem = { 0 };
 
@@ -243,6 +261,11 @@ static QueueHandle_t xResponseQueue;
  */
 static TaskHandle_t xHTTPTask;
 
+/**
+ * @brief Handle for the main task.
+ */
+static TaskHandle_t xMainTask;
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -256,8 +279,8 @@ static TaskHandle_t xHTTPTask;
 static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext );
 
 /**
- * @brief Send an HTTP request based on a specified method and path, and
- * print the response received from the server.
+ * @brief Send continuous range requests until the entire S3 file is downloaded,
+ * and log the corresponding responses received from the server.
  *
  * @param[in] pcHost The host name of the server.
  * @param[in] xHostLen The length of pcHost.
@@ -277,7 +300,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
                                            QueueHandle_t xResponseQueue );
 
 /**
- * @brief Enqueue an HTTP request for a range of the S3 file.
+ * @brief Enqueue an HTTP GET request for a given range of the S3 file.
  *
  * @param[in] pxRequestInfo The #HTTPRequestInfo_t for configuring the request.
  * @param[in] xRequestQueue The queue to which HTTP requests should be written.
@@ -290,6 +313,20 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
                                            QueueHandle_t xRequestQueue,
                                            const size_t xStart,
                                            const size_t xEnd );
+
+/**
+ * @brief Wait for a task notification in a loop.
+ *
+ * @param[in] pulNotification pointer holding notification value.
+ * @param[in] ulExpectedBits Bits to wait for.
+ * @param[in] xClearBits If bits should be cleared.
+ *
+ * @return `true` if notification received without exceeding the timeout,
+ * `false` otherwise.
+ */
+static bool prvNotificationWaitLoop( uint32_t * pulNotification,
+                                     uint32_t ulExpectedBits,
+                                     bool xClearBits );
 
 /**
  * @brief Process an HTTP response from the response queue.
@@ -348,6 +385,8 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext )
     BaseType_t xStatus = pdPASS;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
 
+    configASSERT( pxNetworkContext != NULL );
+
     /* Initializer server information. */
     xServerInfo.pHostName = cServerHost;
     xServerInfo.hostNameLength = xServerHostLength;
@@ -377,6 +416,8 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext )
 
     if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
+        LogWarn( ( "Unsuccessful connection attempt, received error code:%d",
+                   ( int ) xNetworkStatus ) );
         xStatus = pdFAIL;
     }
 
@@ -393,7 +434,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
                                            QueueHandle_t xResponseQueue )
 {
     BaseType_t xStatus = pdPASS;
-    size_t xRequestCount = 0;
+    size_t xResponseCount = 0;
 
     /* Configurations of the initial request headers. */
     HTTPRequestInfo_t xRequestInfo = { 0 };
@@ -403,8 +444,11 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
 
     /* The number of bytes we want to request within each range of the file. */
     size_t xNumReqBytes = 0;
-    /* xCurByte indicates which starting byte we want to download next. */
+    /* The starting byte for the next range request. */
     size_t xCurByte = 0;
+
+    configASSERT( pcHost != NULL );
+    configASSERT( pcRequest != NULL );
 
     /* Initialize the request object. */
     xRequestInfo.pHost = pcHost;
@@ -425,6 +469,8 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
                                       xResponseQueue,
                                       &xFileSize );
 
+    /* Set the number of bytes to request in each iteration, defined by the user
+     * in democonfigRANGE_REQUEST_LENGTH. */
     if( xFileSize < democonfigRANGE_REQUEST_LENGTH )
     {
         xNumReqBytes = xFileSize;
@@ -434,42 +480,40 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
         xNumReqBytes = democonfigRANGE_REQUEST_LENGTH;
     }
 
-    /* Here we iterate sending byte range requests and retrieving responses
-     * until the full file has been downloaded. We keep track of the next byte
-     * to download with xCurByte. When this reaches the xFileSize we stop
-     * downloading. We keep track of the number of responses we are waiting for
-     * with xRequestCount.
+    /* Here we iterate sending byte range requests to the request queue and
+     * retrieving responses from the response queue until the entire file has
+     * been downloaded. We keep track of the next starting byte to download with
+     * xCurByte, and increment by xNumReqBytes after each iteration. When
+     * xCurByte reaches xFileSize, we stop downloading. We keep track of the
+     * number of responses we are waiting for with xResponseCount.
      */
-    while( ( xStatus != pdFAIL ) && ( xCurByte < xFileSize || xRequestCount > 0 ) )
+    while( ( xStatus != pdFAIL ) && ( xCurByte < xFileSize || xResponseCount > 0 ) )
     {
-        /* Send range request if remaining. */
+        /* Send a range request for the specified bytes, if remaining. */
         if( xCurByte < xFileSize )
         {
+            /* Add range request to the request queue. */
             xStatus = prvRequestS3ObjectRange( &xRequestInfo,
                                                xRequestQueue,
                                                xCurByte,
                                                xCurByte + xNumReqBytes - 1 );
 
+            /* If the request was successfully enqueued, we expect a
+             * corresponding response. */
             if( xStatus == pdPASS )
             {
-                xRequestCount += 1;
-                xCurByte += xNumReqBytes;
-
-                if( ( xFileSize - xCurByte ) < xNumReqBytes )
-                {
-                    xNumReqBytes = xFileSize - xCurByte;
-                }
+                xResponseCount += 1;
             }
         }
 
-        /* Retrieve response. */
-        if( ( xRequestCount > 0 ) && ( xStatus != pdFAIL ) )
+        /* Retrieve response from the response queue. */
+        if( ( xStatus == pdPASS ) && ( xResponseCount > 0 ) )
         {
             xStatus = prvRetrieveHTTPResponse( xResponseQueue, &xResponseItem );
 
             if( xStatus == pdPASS )
             {
-                LogInfo( ( "Main thread received HTTP response" ) );
+                LogInfo( ( "The main thread retrieved an HTTP response from the response queue." ) );
                 LogDebug( ( "Response Headers:\n%.*s",
                             ( int32_t ) xResponseItem.xResponse.headersLen,
                             xResponseItem.xResponse.pHeaders ) );
@@ -477,6 +521,20 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
                 LogDebug( ( "Response Body:\n%.*s\n", ( int32_t ) xResponseItem.xResponse.bodyLen,
                             xResponseItem.xResponse.pBody ) );
 
+                /* We increment by the content length because the server may not
+                 * have sent us the range we request. */
+                xCurByte += xResponseItem.xResponse.contentLength;
+
+                /* If the number of bytes left to download is less than the
+                 * pre-defined constant xNumReqBytes, set xNumReqBytes to equal
+                 * the accurate number of remaining bytes left to download. */
+                if( ( xFileSize - xCurByte ) < xNumReqBytes )
+                {
+                    xNumReqBytes = xFileSize - xCurByte;
+                }
+
+                /* Check for a partial content status code (206), indicating a
+                 * successful server response. */
                 if( xResponseItem.xResponse.statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
                 {
                     LogError( ( "Received response with unexpected status code: %d", xResponseItem.xResponse.statusCode ) );
@@ -484,7 +542,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
                 }
                 else
                 {
-                    xRequestCount -= 1;
+                    xResponseCount -= 1;
                 }
             }
         }
@@ -502,6 +560,8 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
 {
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
     BaseType_t xStatus = pdPASS;
+
+    configASSERT( pxRequestInfo != NULL );
 
     /* Set the buffer used for storing request headers. */
     xRequestItem.xRequestHeaders.pBuffer = xRequestItem.ucHeaderBuffer;
@@ -534,7 +594,7 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
     if( xStatus == pdPASS )
     {
         /* Enqueue the request. */
-        LogInfo( ( "Enqueuing bytes %d to %d of S3 Object:  ",
+        LogInfo( ( "Enqueuing bytes %d to %d of S3 Object: ",
                    ( int32_t ) xStart,
                    ( int32_t ) xEnd ) );
         LogDebug( ( "Request Headers:\n%.*s",
@@ -557,10 +617,42 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
 
 /*-----------------------------------------------------------*/
 
+static bool prvNotificationWaitLoop( uint32_t * pulNotification,
+                                     uint32_t ulExpectedBits,
+                                     bool xClearBits )
+{
+    uint32_t ulWaitCounter = 0U;
+    bool ret = true;
+
+    configASSERT( pulNotification != NULL );
+
+    while( ( *pulNotification & ulExpectedBits ) != ulExpectedBits )
+    {
+        xTaskNotifyWait( 0,
+                         ( xClearBits ) ? ulExpectedBits : 0,
+                         pulNotification,
+                         httpexampleDEMO_TICKS_TO_WAIT );
+
+        if( ++ulWaitCounter > httpexampleMAX_WAIT_ITERATIONS )
+        {
+            LogError( ( "Loop exceeded maximum wait time. Notification not received.\n" ) );
+            ret = false;
+            break;
+        }
+    }
+
+    return ret;
+}
+
+/*-----------------------------------------------------------*/
+
 static BaseType_t prvRetrieveHTTPResponse( QueueHandle_t xResponseQueue,
                                            ResponseItem_t * pxResponseItem )
 {
     BaseType_t xStatus = pdPASS;
+    uint32_t ulNotification = 0;
+
+    configASSERT( pxResponseItem != NULL );
 
     /* Read response from queue. */
     xStatus = xQueueReceive( xResponseQueue,
@@ -570,6 +662,11 @@ static BaseType_t prvRetrieveHTTPResponse( QueueHandle_t xResponseQueue,
     if( xStatus == pdFAIL )
     {
         LogError( ( "Failed to read from response queue." ) );
+
+        if( prvNotificationWaitLoop( &ulNotification, httpexampleHTTP_SEND_ERROR, true ) == true )
+        {
+            LogError( ( "Received notification from HTTP task indicating a HTTPClient_Send() error." ) );
+        }
     }
 
     return xStatus;
@@ -591,6 +688,9 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
     /* String to store the Content-Range header value. */
     char * pcContentRangeValStr = NULL;
     size_t xContentRangeValStrLength = 0;
+
+    configASSERT( pxRequestInfo != NULL );
+    configASSERT( pxFileSize != NULL );
 
     LogInfo( ( "Getting file object size from host..." ) );
 
@@ -697,7 +797,7 @@ static void prvStartHTTPThread( void * pvArgs )
             continue;
         }
 
-        LogInfo( ( "HTTP thread retrieved request." ) );
+        LogInfo( ( "The HTTP thread retrieved an HTTP request from the request queue." ) );
         LogDebug( ( "Request Headers:\n%.*s",
                     ( int32_t ) xRequestItem.xRequestHeaders.headersLen,
                     ( char * ) xRequestItem.xRequestHeaders.pBuffer ) );
@@ -713,6 +813,8 @@ static void prvStartHTTPThread( void * pvArgs )
         {
             LogError( ( "Failed to send HTTP request: Error=%s.",
                         HTTPClient_strerror( xHTTPStatus ) ) );
+            /*Notify the main task of failure. */
+            xTaskNotify( xMainTask, httpexampleHTTP_SEND_ERROR, eSetBits );
         }
         else
         {
@@ -812,6 +914,8 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
+    xMainTask = xTaskGetCurrentTaskHandle();
+
     LogInfo( ( "HTTP Client multi-threaded S3 download demo using pre-signed URL:\n%s", democonfigS3_PRESIGNED_GET_URL ) );
 
     do
@@ -887,7 +991,7 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
             xIsConnectionEstablished = pdTRUE;
         }
 
-        /******************** Open queues and HTTP task. *******************/
+        /***************** Open queues and create HTTP task. ****************/
 
         /* Open request and response queues. */
         if( xDemoStatus == pdPASS )
