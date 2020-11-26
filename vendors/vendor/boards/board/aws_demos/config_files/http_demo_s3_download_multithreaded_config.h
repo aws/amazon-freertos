@@ -60,7 +60,7 @@
     #define democonfigHTTPS_PORT    443
 #endif
 
-/*
+/**
  * @brief Server's root CA certificate for TLS authentication with S3.
  *
  * The Baltimore Cybertrust Root CA Certificate is defined below.
