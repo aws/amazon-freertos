@@ -329,18 +329,6 @@ static bool prvNotificationWaitLoop( uint32_t * pulNotification,
                                      bool xClearBits );
 
 /**
- * @brief Process an HTTP response from the response queue.
- *
- * @param[in] xResponseQueue The queue from which HTTP responses should be read.
- * @param[out] pxResponseItem The HTTP response received.
- *
- * @return pdFAIL on failure; pdPASS on success.
- *
- */
-static BaseType_t prvRetrieveHTTPResponse( QueueHandle_t xResponseQueue,
-                                           ResponseItem_t * pxResponseItem );
-
-/**
  * @brief Retrieve the size of the S3 object that is specified in pcPath using
  * HTTP task.
  *
@@ -671,28 +659,6 @@ static bool prvNotificationWaitLoop( uint32_t * pulNotification,
 
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvRetrieveHTTPResponse( QueueHandle_t xResponseQueue,
-                                           ResponseItem_t * pxResponseItem )
-{
-    BaseType_t xStatus = pdPASS;
-
-    configASSERT( pxResponseItem != NULL );
-
-    /* Read response from queue. */
-    xStatus = xQueueReceive( xResponseQueue,
-                             pxResponseItem,
-                             httpexampleDEMO_TICKS_TO_WAIT );
-
-    if( xStatus == pdFAIL )
-    {
-        LogWarn( ( "Failed to read from the response queue." ) );
-    }
-
-    return xStatus;
-}
-
-/*-----------------------------------------------------------*/
-
 static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInfo,
                                           QueueHandle_t xRequestQueue,
                                           QueueHandle_t xResponseQueue,
@@ -724,28 +690,30 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
 
     if( xStatus == pdPASS )
     {
-        xStatus = prvRetrieveHTTPResponse( xResponseQueue, &xResponseItem );
+        xStatus = xQueueReceive( xResponseQueue, &xResponseItem, httpexampleDEMO_TICKS_TO_WAIT );
+    }
 
+    if( xStatus == pdPASS )
+    {
         if( xResponseItem.xResponse.statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
         {
             LogError( ( "Received response with unexpected status code: %d.", xResponseItem.xResponse.statusCode ) );
             xStatus = pdFAIL;
         }
-    }
-
-    if( xStatus == pdPASS )
-    {
-        xHTTPStatus = HTTPClient_ReadHeader( &xResponseItem.xResponse,
-                                             ( char * ) httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD,
-                                             ( size_t ) httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD_LENGTH,
-                                             ( const char ** ) &pcContentRangeValStr,
-                                             &xContentRangeValStrLength );
-
-        if( xHTTPStatus != HTTPSuccess )
+        else
         {
-            LogError( ( "Failed to read Content-Range header from HTTP response: Error=%s.",
-                        HTTPClient_strerror( xHTTPStatus ) ) );
-            xStatus = pdFAIL;
+            xHTTPStatus = HTTPClient_ReadHeader( &xResponseItem.xResponse,
+                                                 ( char * ) httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD,
+                                                 ( size_t ) httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD_LENGTH,
+                                                 ( const char ** ) &pcContentRangeValStr,
+                                                 &xContentRangeValStrLength );
+
+            if( xHTTPStatus != HTTPSuccess )
+            {
+                LogError( ( "Failed to read Content-Range header from HTTP response: Error=%s.",
+                            HTTPClient_strerror( xHTTPStatus ) ) );
+                xStatus = pdFAIL;
+            }
         }
     }
 
