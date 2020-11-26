@@ -37,14 +37,14 @@ if(AFR_METADATA_MODE)
 endif()
 
 if(DEFINED ENV{IDF_PATH})
-    message("WARNING: IDF_PATH environment variable is not cleared. 
-    If CMake is generating an error, consider clearing the IDF_PATH environment 
-    variable, and generating a clean build. This message can be ignored if 
+    message("WARNING: IDF_PATH environment variable is not cleared.
+    If CMake is generating an error, consider clearing the IDF_PATH environment
+    variable, and generating a clean build. This message can be ignored if
     CMake was successful.")
 endif()
 
 # ESP-IDF directory from Espressif vendor
-set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
+set(esp_idf_dir "${AFR_VENDORS_DIR}/sierra/esp-idf")
 # Provides idf_import_components and idf_link_components
 include(${esp_idf_dir}/tools/cmake/idf_functions.cmake)
 
@@ -107,10 +107,7 @@ set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
-set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(extra_components_dir "${CMAKE_CURRENT_LIST_DIR}/components")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(AFR_IS_TESTING)
@@ -501,7 +498,7 @@ set_property(GLOBAL PROPERTY IDF_PROJECT_EXECUTABLE ${IDF_PROJECT_EXECUTABLE})
 if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
 get_filename_component(
     ABS_EXTRA_COMPONENT_DIRS
-    "${board_dir}/application_code/espressif_code" ABSOLUTE
+    "${board_dir}/application_code/sierra_code" ABSOLUTE
 )
 
 list(APPEND IDF_EXTRA_COMPONENT_DIRS ${ABS_EXTRA_COMPONENT_DIRS})
