@@ -205,7 +205,7 @@ static bool mqttSessionEstablished = false;
  * with the backoffAlgorithm library.
  *
  * @return pdPASS if calculating the backoff period was successful; otherwise pdFAIL
- * if there was failure in randon number generation OR all retry attempts had exhausted.
+ * if there was failure in random number generation OR all retry attempts had exhausted.
  */
 static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams );
 
