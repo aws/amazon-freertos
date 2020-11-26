@@ -80,7 +80,6 @@ afr_module_dependencies(
     PUBLIC
         AFR::core_mqtt
         AFR::backoff_algorithm
-        AFR::pkcs11_helpers
 )
 
 # Add dependency on PKCS11 Helpers module, that is required
