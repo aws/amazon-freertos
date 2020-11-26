@@ -116,6 +116,11 @@
     #define democonfigRANGE_REQUEST_LENGTH    ( 2048 )
 #endif
 
+/* Check that the stack size to use for HTTP tasks is defined. */
+#ifndef httpexampleTASK_STACK_SIZE
+    #define httpexampleTASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 4 )
+#endif
+
 /**
  * @brief The maximum number of times to run the loop in this demo.
  */
@@ -154,11 +159,6 @@
  * RunCoreHttpS3DownloadMultithreadedDemo().
  */
 #define httpexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS    ( pdMS_TO_TICKS( 5000U ) )
-
-/**
- * @brief The stack size to use for HTTP tasks.
- */
-#define httpexampleTASK_STACK_SIZE                        ( configMINIMAL_STACK_SIZE * 4 )
 
 /**
  * @brief Ticks to wait for task notifications.
@@ -202,7 +202,10 @@ static size_t xServerHostLength;
  * @brief Data type for request queue.
  *
  * Contains the request header struct and its corresponding buffer, to be read
- * from the request queue by the HTTP task and sent to the server.
+ * from the request queue by the HTTP task and sent to the server. Note that an
+ * instance of this struct and its contents MUST stay in scope until the
+ * associated HTTP send function is executed successfully by the HTTP task. In
+ * this demo, it is initialized globally.
  */
 typedef struct RequestItem
 {
@@ -214,7 +217,9 @@ typedef struct RequestItem
  * @brief Data type for response queue.
  *
  * Contains the response data type and its corresponding buffer, to be read from
- * the response queue by the main task.
+ * the response queue by the main task. Note that an instance of this struct and
+ * its contents MUST stay in scope until the main task has finished parsing its
+ * contents. In this demo, it is initialized globally.
  */
 typedef struct ResponseItem
 {
@@ -225,22 +230,26 @@ typedef struct ResponseItem
 /**
  * @brief Struct used for sending requests to the HTTP task.
  *
- * This is modified by the main task and accessed by the HTTP task. The global
- * scope ensures that it will be located at the same address in the main and
- * HTTP tasks, so that pointers remain valid when copied over. Once it is placed
- * on the queue by the main task, it is modified only after the HTTP task has
- * successfully sent the HTTP request.
+ * This structure is modified by the main task and accessed by the HTTP task.
+ * Once it is placed on the queue by the main task, it is modified only after
+ * the HTTP task has successfully sent the HTTP request.
+ *
+ * Note that this value is not meant to be modified by `startHTTPThread`, since
+ * access to this variable is not protected by thread synchronization
+ * primitives.
  */
 static RequestItem_t xRequestItem = { 0 };
 
 /**
  * @brief Struct used for receiving responses from the HTTP task.
  *
- * This is modified by the HTTP task and accessed by the main task. The global
- * scope ensures that it will be located at the same address in the main and
- * HTTP tasks, so that pointers remain valid when copied over. Once it is placed
- * on the queue by the HTTP task, it is modified only after the main task has
- * successfully acknowledged its receipt.
+ * This is modified by the HTTP task and accessed by the main task. Once it is
+ * placed on the queue by the HTTP task, it is modified only after the main task
+ * has successfully acknowledged its receipt.
+ *
+ * Note that this value is not meant to be modified by the main task, since
+ * access to this variable is not protected by thread synchronization
+ * primitives.
  */
 static ResponseItem_t xResponseItem = { 0 };
 
