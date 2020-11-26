@@ -191,13 +191,13 @@
     #define IOT_HTTPS_QUEUE_SEND_TICKS              ( 0U ) /* The ticks to wait for a #xQueueSendToBack to complete. */
 #endif
 #ifndef IOT_HTTPS_DISPATCH_QUEUE_SIZE
-    #define IOT_HTTPS_DISPATCH_QUEUE_SIZE           ( 6U ) /* The size of the queue containing requests ready to send to the server. */
+    #define IOT_HTTPS_DISPATCH_QUEUE_SIZE           ( 4U ) /* The size of the queue containing requests ready to send to the server. */
 #endif
 #ifndef IOT_HTTPS_DISPATCH_TASK_COUNT
-    #define IOT_HTTPS_DISPATCH_TASK_COUNT           ( 3U ) /* The number of tasks that send requests from the queue. */
+    #define IOT_HTTPS_DISPATCH_TASK_COUNT           ( 2U ) /* The number of tasks that send requests from the queue. */
 #endif
 #ifndef IOT_HTTPS_DISPATCH_TASK_STACK_SIZE
-    #define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE ) /* The stack size of each dispatch task. */
+    #define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 2 ) /* The stack size of each dispatch task. */
 #endif
 #ifndef IOT_HTTPS_DISPATCH_TASK_PRIORITY
     #define IOT_HTTPS_DISPATCH_TASK_PRIORITY        ( IOT_THREAD_DEFAULT_PRIORITY ) /* Priority is deliberately chosen to match the original taskpool's priority. */
