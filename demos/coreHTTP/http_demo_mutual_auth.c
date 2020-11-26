@@ -44,6 +44,14 @@
 /**
  * @file http_demo_mutual_auth.c
  * @brief Demonstrates usage of the HTTP library.
+ *
+ * @note This demo uses retry logic to connect to the server if connection attempts fail.
+ * The FreeRTOS/backoffAlgorithm library is used to calculate the retry interval with an exponential
+ * backoff and jitter algorithm. For generating random number required by the algorithm, the PKCS11
+ * module is used as it allows access to a True Random Number Generator (TRNG) if the vendor platform
+ * supports it.
+ * It is RECOMMENDED to seed the random number generator with a device-specific entropy source so that
+ * probability of collisions from devices in connection retries is mitigated.
  */
 /* Standard includes. */
 #include <stdio.h>

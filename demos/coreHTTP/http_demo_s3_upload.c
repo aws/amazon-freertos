@@ -34,6 +34,14 @@
  * Client library API is used to upload a file to a S3 bucket by sending a PUT
  * request, and verify the file was uploaded using a GET request. If any request
  * fails, an error code is returned.
+ *
+ * @note This demo uses retry logic to connect to the server if connection attempts fail.
+ * The FreeRTOS/backoffAlgorithm library is used to calculate the retry interval with an exponential
+ * backoff and jitter algorithm. For generating random number required by the algorithm, the PKCS11
+ * module is used as it allows access to a True Random Number Generator (TRNG) if the vendor platform
+ * supports it.
+ * It is RECOMMENDED to seed the random number generator with a device-specific entropy source so that
+ * probability of collisions from devices in connection retries is mitigated.
  */
 
 /**
