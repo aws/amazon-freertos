@@ -1399,6 +1399,11 @@
 			<locationURI>AFR_HOME/libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</locationURI>
 		</link>
 		<link>
+			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</locationURI>
@@ -1537,6 +1542,11 @@
 			<name>libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/http_demo_helpers/http_demo_utils.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/common/http_demo_helpers/http_demo_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
@@ -1734,6 +1744,11 @@
 			<locationURI>AFR_HOME/libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</locationURI>
 		</link>
 		<link>
+			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/device_defender_for_aws/source/defender.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/device_defender_for_aws/source/defender.c</locationURI>
@@ -1757,21 +1772,6 @@
 			<name>libraries/jobs_for_aws/source/include/jobs.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/jobs_for_aws/source/include/jobs.h</locationURI>
-		</link>
-		<link>
-			<name>demos/common/http_demo_helpers/http_demo_utils.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/common/http_demo_helpers/http_demo_utils.c</locationURI>
-		</link>
-		<link>
-			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
-		</link>
-		<link>
-			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
