@@ -50,14 +50,14 @@
 #endif
 
 /* Helper macros to get bytes in/out and packets in/out. */
-#define LWIP_GET_PACKETS_IN()         ( lwip_stats.mib2.ipinreceives )
-#define LWIP_GET_PACKETS_OUT()        ( lwip_stats.mib2.ipoutrequests )
-#if( LWIP_BYTES_IN_OUT_UNSUPPORTED == 0 )
-    #define LWIP_GET_BYTES_IN()       ( LWIP_NET_IF.mib2_counters.ifinoctets )
-    #define LWIP_GET_BYTES_OUT()      ( LWIP_NET_IF.mib2_counters.ifoutoctets )
+#define LWIP_GET_PACKETS_IN()       ( lwip_stats.mib2.ipinreceives )
+#define LWIP_GET_PACKETS_OUT()      ( lwip_stats.mib2.ipoutrequests )
+#if ( LWIP_BYTES_IN_OUT_UNSUPPORTED == 0 )
+    #define LWIP_GET_BYTES_IN()     ( LWIP_NET_IF.mib2_counters.ifinoctets )
+    #define LWIP_GET_BYTES_OUT()    ( LWIP_NET_IF.mib2_counters.ifoutoctets )
 #else
-    #define LWIP_GET_BYTES_IN()       ( 0 )
-    #define LWIP_GET_BYTES_OUT()      ( 0 )
+    #define LWIP_GET_BYTES_IN()     ( 0 )
+    #define LWIP_GET_BYTES_OUT()    ( 0 )
 #endif /* LWIP_BYTES_IN_OUT_UNSUPPORTED == 1 */
 
 /* Variables defined in the LWIP source code. */
@@ -93,8 +93,8 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
 /*-----------------------------------------------------------*/
 
 MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
-                                            uint32_t tcpPortsArrayLength,
-                                            uint32_t * pOutNumTcpOpenPorts )
+                                          uint32_t tcpPortsArrayLength,
+                                          uint32_t * pOutNumTcpOpenPorts )
 {
     MetricsCollectorStatus_t status = MetricsCollectorSuccess;
     struct tcp_pcb_listen * pCurrPcb;
@@ -154,8 +154,8 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
 /*-----------------------------------------------------------*/
 
 MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
-                                            uint32_t udpPortsArrayLength,
-                                            uint32_t * pOutNumUdpOpenPorts )
+                                          uint32_t udpPortsArrayLength,
+                                          uint32_t * pOutNumUdpOpenPorts )
 {
     MetricsCollectorStatus_t status = MetricsCollectorSuccess;
     struct udp_pcb * pCurrPcb;
@@ -247,18 +247,18 @@ MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectio
                     /* The output array member to fill. */
                     pEstablishedConnection = &( pOutConnectionsArray[ pcbCnt ] );
 
-                 #if LWIP_IPV4 && LWIP_IPV6
-                    pEstablishedConnection->remoteIp = pCurrPcb->remote_ip.u_addr.ip4.addr; /* Network byte order. */
-                    pEstablishedConnection->localIp = pCurrPcb->local_ip.u_addr.ip4.addr;   /* Network byte order. */
-                 #elif LWIP_IPV4
-                    pEstablishedConnection->remoteIp = pCurrPcb->remote_ip.addr; /* Network byte order. */
-                    pEstablishedConnection->localIp = pCurrPcb->local_ip.addr;   /* Network byte order. */
-                 #else
+                    #if LWIP_IPV4 && LWIP_IPV6
+                        pEstablishedConnection->remoteIp = pCurrPcb->remote_ip.u_addr.ip4.addr; /* Network byte order. */
+                        pEstablishedConnection->localIp = pCurrPcb->local_ip.u_addr.ip4.addr;   /* Network byte order. */
+                    #elif LWIP_IPV4
+                        pEstablishedConnection->remoteIp = pCurrPcb->remote_ip.addr;            /* Network byte order. */
+                        pEstablishedConnection->localIp = pCurrPcb->local_ip.addr;              /* Network byte order. */
+                    #else
                     #error "IPV6 only is not supported."
-                 #endif
+                    #endif
 
-                    pEstablishedConnection->localPort = pCurrPcb->local_port;    /* Host byte order. */
-                    pEstablishedConnection->remotePort = pCurrPcb->remote_port;  /* Host byte order. */
+                    pEstablishedConnection->localPort = pCurrPcb->local_port;   /* Host byte order. */
+                    pEstablishedConnection->remotePort = pCurrPcb->remote_port; /* Host byte order. */
 
                     ++pcbCnt;
                 }

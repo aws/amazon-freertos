@@ -37,11 +37,11 @@
     /* Extern netif variables from board's port. */
     extern struct netif sta_if, ap_if;
 
-    /* These define is used by metrics_collector.c to read the number of
-     * bytes-in/out. */
-    #define LWIP_NET_IF    sta_if
+/* This define is used by metrics_collector.c to read the number of
+ * bytes-in/out. */
+    #define LWIP_NET_IF                      sta_if
 #else
-    #define LWIP_BYTES_IN_OUT_UNSUPPORTED   1
+    #define LWIP_BYTES_IN_OUT_UNSUPPORTED    1
 #endif
 
 #endif /* __NETIF_PORT_H__ */

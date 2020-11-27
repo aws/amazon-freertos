@@ -194,7 +194,7 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
         else
         {
             /* Return the total number of open ports. */
-             *pOutNumUdpOpenPorts = metrics.xUDPPortList.uxCount;
+            *pOutNumUdpOpenPorts = metrics.xUDPPortList.uxCount;
         }
     }
 
