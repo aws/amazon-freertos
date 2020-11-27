@@ -50,7 +50,8 @@
  *
  */
 #define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"       /**< The file name of the Certificate object. */
-#define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"               /**< The file name of the Key object. */
+#define pkcs11palFILE_NAME_PUBLIC_KEY            "FreeRTOS_P11_PubKey.dat"            /**< The file name of the Public Key object. */
+#define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"               /**< The file name of the Private Key object. */
 #define pkcs11palFILE_CODE_SIGN_PUBLIC_KEY       "FreeRTOS_P11_CodeSignKey.dat"       /**< The file name of the Code Sign Key object. */
 
 /**
@@ -132,7 +133,7 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
                               &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                               sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
         {
-            *pcFileName = pkcs11palFILE_NAME_KEY;
+            *pcFileName = pkcs11palFILE_NAME_PUBLIC_KEY;
             *pHandle = eAwsDevicePublicKey;
         }
         else if( 0 == memcmp( pcLabel,
@@ -264,8 +265,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
     }
     else if( xHandle == eAwsDevicePublicKey )
     {
-        /* Public and private key are stored together in same file. */
-        pcFileName = pkcs11palFILE_NAME_KEY;
+        pcFileName = pkcs11palFILE_NAME_PUBLIC_KEY;
         *pIsPrivate = CK_FALSE;
     }
     else if( xHandle == eAwsCodeSigningKey )

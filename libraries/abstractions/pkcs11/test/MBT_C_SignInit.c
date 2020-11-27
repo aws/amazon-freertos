@@ -54,7 +54,7 @@ void generateRSAKeyPair( CK_OBJECT_HANDLE_PTR phPrivateKey,
 {
     CK_OBJECT_HANDLE hCertificate;
 
-    prvProvisionRsaTestCredentials( phPrivateKey, &hCertificate );
+    prvProvisionRsaTestCredentials( phPrivateKey, phPublicKey, &hCertificate );
 }
 
 void generateECDSAKeyPair( CK_OBJECT_HANDLE_PTR phPrivateKey,

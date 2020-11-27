@@ -51,6 +51,7 @@ void prvProvisionCredentialsWithKeyImport( CK_OBJECT_HANDLE_PTR pxPrivateKeyHand
                                            CK_OBJECT_HANDLE_PTR pxPublicKeyHandle );
 
 void prvProvisionRsaTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
+                                     CK_OBJECT_HANDLE_PTR pxPublicKeyHandle,
                                      CK_OBJECT_HANDLE_PTR pxCertificateHandle );
 
 void resetCredentials();
