@@ -1,6 +1,6 @@
 # Code size of MQTT Compatibility Layer
 
-Code size for the MQTT Compatibility Layer is calculated using GCC for ARM for cortex-M4 on [202011.00 release](https://github.com/aws/amazon-freertos/releases/tag/202011.00). Build for calculating code size is done using build configuration for [cypress CY8CKIT-064S0S2-4343W](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_psoc64.html) by using the `Release` configuration. All the logs were disabled in this build. Refer to the table below for calculated code sizes.
+Code size for the MQTT Compatibility Layer is calculated using GCC for ARM Cortex-M4 on [FreeRTOS 202011.00 release](https://github.com/aws/amazon-freertos/releases/tag/202011.00). Build for calculating code size is done using build configuration for [Cypress CY8CKIT-064S0S2-4343W](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_psoc64.html) by using the Release configuration. All logs were disabled in this build. Refer to the table below for calculated code sizes.
 
 | File | With -O1 Optimization | With -Os Optimization |
 | :-: | :-: | :-: |
@@ -18,18 +18,18 @@ Code size for the MQTT Compatibility Layer is calculated using GCC for ARM for c
 | iot_mqtt_validate.c | 0.5K | 0.4K |
 | **Total estimate** | **15K** | **13.5K** |
 
-The MQTT Compatibility Layer is implemented using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md). In addition to that, this MQTT Compatibility Layer also maintains all the dependencies of MQTT V2.x.x library. In order to account for the total code size cost of this MQTT Compatibility Layer, the code sizes for the dependencies also need to be considered. Please find the code sizes for dependencies below.
+The MQTT Compatibility Layer is implemented using the [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md). In addition, the MQTT Compatibility Layer maintains all dependencies of MQTT V2.x.x library. To account for the total code size of the MQTT Compatibility Layer, code sizes for all dependencies have been considered (see below).
 
-1. **coreMQTT library** : The MQTT Compatibility Layer is implemented using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md). Memory estimates for [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md) can be found in the documentation [here](https://freertos.org/mqtt/index.html).
+1. **The coreMQTT library** : The MQTT Compatibility Layer is implemented using [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md). Memory estimates for [coreMQTT library](https://github.com/FreeRTOS/coreMQTT/blob/master/README.md) can be found in the documentation [here](https://freertos.org/mqtt/index.html).
 
-2. **Task Pool** : The MQTT Compatibility Layer depends on [Task Pool](https://docs.aws.amazon.com/freertos/latest/lib-ref/embedded-csdk/v4.0_beta_deprecated/lib-ref/c-sdk/taskpool/index.html). Refer to the table below for calculated code size of Task Pool.
+2. **Task Pool library** : The MQTT Compatibility Layer depends on [Task Pool library](https://docs.aws.amazon.com/freertos/latest/lib-ref/embedded-csdk/v4.0_beta_deprecated/lib-ref/c-sdk/taskpool/index.html). Refer to the table below for calculated code size of Task Pool library.
 
 | File | With -O1 Optimization | With -Os Optimization |
 | :-: | :-: | :-: |
 | iot_taskpool.c | 3.8K | 3.0K |
 | **Total estimate** | **3.8K** | **3.0K** |
 
-Please note that this Task Pool may not be exclusively used by the MQTT Compatibility Layer, but may be shared by other libraries. However, this Task Pool is not used by any of the [redesigned libraries for LTS](https://www.freertos.org/ltsroadmap.html).
+Note that the Task Pool library may not be exclusively used by the MQTT Compatibility Layer, but may be shared by other libraries. However, this Task Pool library is not used by any of the [redesigned libraries for LTS](https://www.freertos.org/ltsroadmap.html).
 
 3. **Platform Abstraction** :  This MQTT Compatibility Layer depends on the implementation of Platform Abstraction for Network, Clock and Threads. The code size is calculated for the [FreeRTOS implementation of Abstraction Layer](../../../abstractions/platform/freertos) and is added in the table below.
 
@@ -40,6 +40,6 @@ Please note that this Task Pool may not be exclusively used by the MQTT Compatib
 | iot_threads_freertos.c | 0.7K | 0.7K |
 | **Total estimate** | **2.4K** | **2.3K** |
 
-Please note that the implementation for Platform Abstraction may not be exclusively used by the MQTT Compatibility Layer, but may be shared by other libraries. However, this Platform Abstraction is not used by any of the [redesigned libraries for LTS](https://www.freertos.org/ltsroadmap.html).
+Note that the implementation for Platform Abstraction may not be exclusively used by the MQTT Compatibility Layer, but may be shared by other libraries. However, this Platform Abstraction is not used by any of the [redesigned libraries for LTS](https://www.freertos.org/ltsroadmap.html).
 
 4. **Linear Containers** : This MQTT Compatibility Layer depends on [Linear Containers](https://docs.aws.amazon.com/freertos/latest/lib-ref/embedded-csdk/v4.0_beta_deprecated/lib-ref/c-sdk/linear_containers/index.html). However, this implementation is in [c header file](../common/include/iot_linear_containers.h) and the code sizes are already accounted for in the calculated sizes of this MQTT Compatibility Layer.
