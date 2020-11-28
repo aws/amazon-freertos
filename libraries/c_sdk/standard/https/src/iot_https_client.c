@@ -1978,6 +1978,7 @@ static void _sendHttpsRequest( _httpsRequest_t * pHttpsRequest )
     IotHttpsReturnCode_t scheduleStatus = IOT_HTTPS_OK;
     IotLink_t * pQItem = NULL;
     _httpsRequest_t * pNextHttpsRequest = NULL;
+    UBaseType_t uxHighWaterMark;
 
     IotLogDebug( "Task with request ID: %p started.", pHttpsRequest );
 
@@ -2158,6 +2159,12 @@ static void _sendHttpsRequest( _httpsRequest_t * pHttpsRequest )
     /* Now that the current request is finished, we dequeue the current request from the queue. */
     IotDeQueue_DequeueHead( &( pHttpsConnection->reqQ ) );
     IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
+
+    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+    IotLogError( "Stack unused: %lu, total: %lu, used: %lu.\r\n",
+                 ( unsigned long ) uxHighWaterMark,
+                 ( unsigned long ) IOT_HTTPS_DISPATCH_TASK_STACK_SIZE,
+                 ( unsigned long ) IOT_HTTPS_DISPATCH_TASK_STACK_SIZE - ( unsigned long ) uxHighWaterMark );
 
     /* This routine returns a void so there is no HTTPS_FUNCTION_CLEANUP_END();. */
 }
