@@ -30,7 +30,7 @@
 #define IOT_HTTPS_DISPATCH_TASK_COUNT           1
 #define IOT_HTTPS_DISPATCH_QUEUE_SIZE           2
 #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    1
-#define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 3 )
+#define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
 
 /* Set the number loop iterations in the task pool tests. This value is smaller than
  * the default. */
