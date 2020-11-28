@@ -33,6 +33,7 @@
 #define IOT_HTTPS_DISPATCH_TASK_COUNT           1
 #define IOT_HTTPS_DISPATCH_QUEUE_SIZE           1
 #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    1
+#define IOT_HTTPS_DISPATCH_TASK_PRIORITY        tskIDLE_PRIORITY
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
