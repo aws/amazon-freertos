@@ -1343,6 +1343,11 @@
 			<locationURI>BASE_DIR/libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</locationURI>
 		</link>
 		<link>
+			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</locationURI>
@@ -1481,6 +1486,11 @@
 			<name>libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/http_demo_helpers/http_demo_utils.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/common/http_demo_helpers/http_demo_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
@@ -1678,6 +1688,11 @@
 			<locationURI>BASE_DIR/libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</locationURI>
 		</link>
 		<link>
+			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/device_defender_for_aws/source/defender.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/device_defender_for_aws/source/defender.c</locationURI>
@@ -1701,21 +1716,6 @@
 			<name>libraries/jobs_for_aws/source/include/jobs.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/jobs_for_aws/source/include/jobs.h</locationURI>
-		</link>
-		<link>
-			<name>demos/common/http_demo_helpers/http_demo_utils.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/common/http_demo_helpers/http_demo_utils.c</locationURI>
-		</link>
-		<link>
-			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
-		</link>
-		<link>
-			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
 		</link>
 		<link>
 			<name>demos/coreHTTP/http_demo_mutual_auth.c</name>
