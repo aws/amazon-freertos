@@ -141,7 +141,7 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
 
     if( ( pOutTcpPortsArray != NULL ) && ( pcbCnt == tcpPortsArrayLength ) && ( pCurrPcb != NULL ) )
     {
-        LogWarn( ( "The pOutTcpPortsArray is not large enough to store all the open TCP ports." ) );
+        LogWarn( ( "The pOutTcpPortsArray is not large enough to store all of the open TCP ports." ) );
     }
 
     if( status == MetricsCollectorSuccess )
@@ -202,7 +202,7 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
 
     if( ( pOutUdpPortsArray != NULL ) && ( pcbCnt == udpPortsArrayLength ) && ( pCurrPcb != NULL ) )
     {
-        LogWarn( ( "The pOutUdpPortsArray is not large enough to store all the open UDP ports." ) );
+        LogWarn( ( "The pOutUdpPortsArray is not large enough to store all of the open UDP ports." ) );
     }
 
     if( status == MetricsCollectorSuccess )
@@ -279,7 +279,7 @@ MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectio
 
     if( ( pOutConnectionsArray != NULL ) && ( pcbCnt == connectionsArrayLength ) && ( pCurrPcb != NULL ) )
     {
-        LogWarn( ( "The pOutConnectionsArray is not large enough to store all the established connections." ) );
+        LogWarn( ( "The pOutConnectionsArray is not large enough to store all of the established connections." ) );
     }
 
     if( status == MetricsCollectorSuccess )

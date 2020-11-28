@@ -615,7 +615,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
         if( demoStatus == pdPASS )
         {
             /* Note that PublishToTopic already called MQTT_ProcessLoop, therefore
-             * responses may have been received and the prvEventCallback may have
+             * responses may have been received and the publishCallback may have
              * been called. */
             for( i = 0; i < DEFENDER_RESPONSE_WAIT_SECONDS; i++ )
             {
@@ -685,7 +685,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
             }
             else
             {
-                LogError( ( "All %ld demo iterations failed.",
+                LogError( ( "All %lu demo iterations failed.",
                             ( unsigned long ) DEFENDER_MAX_DEMO_COUNT ) );
                 retryDemoLoop = pdFALSE;
             }
