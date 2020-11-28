@@ -993,6 +993,36 @@
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/tcp_dump_packets.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/tcp_dump_packets.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/tcp_mem_stats.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/tcp_mem_stats.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/tcp_netstat.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/tcp_netstat.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include/tcp_dump_packets.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include/tcp_dump_packets.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include/tcp_mem_stats.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include/tcp_mem_stats.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include/tcp_netstat.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include/tcp_netstat.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/coreJSON/source/core_json.c</locationURI>
@@ -1076,6 +1106,31 @@
 			<name>demos/defender/aws_iot_demo_defender.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/demos/defender/aws_iot_demo_defender.c</locationURI>
+		</link>
+		<link>
+			<name>demos/device_defender_for_aws/defender_demo.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/device_defender_for_aws/defender_demo.c</locationURI>
+		</link>
+		<link>
+			<name>demos/device_defender_for_aws/report_builder.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/device_defender_for_aws/report_builder.c</locationURI>
+		</link>
+		<link>
+			<name>demos/device_defender_for_aws/metrics_collector/freertos_plus_tcp/metrics_collector.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/device_defender_for_aws/metrics_collector/freertos_plus_tcp/metrics_collector.c</locationURI>
+		</link>
+		<link>
+			<name>demos/device_defender_for_aws/report_builder.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/device_defender_for_aws/report_builder.h</locationURI>
+		</link>
+		<link>
+			<name>demos/device_defender_for_aws/metrics_collector.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/device_defender_for_aws/metrics_collector.h</locationURI>
 		</link>
 		<link>
 			<name>demos/device_shadow_for_aws/shadow_demo_main.c</name>
@@ -1226,6 +1281,11 @@
 			<name>config_files/defender_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/defender_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/defender_demo_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/defender_demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/http_demo_mutual_auth_config.h</name>
