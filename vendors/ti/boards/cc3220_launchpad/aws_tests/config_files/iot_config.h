@@ -25,8 +25,8 @@
 #define IOT_CONFIG_H_
 
 /* Platform thread stack size and priority. */
-#define IOT_THREAD_DEFAULT_STACK_SIZE    2048
-#define IOT_THREAD_DEFAULT_PRIORITY      5
+#define IOT_THREAD_DEFAULT_STACK_SIZE           2048
+#define IOT_THREAD_DEFAULT_PRIORITY             5
 #define IOT_HTTPS_DISPATCH_TASK_COUNT           1
 #define IOT_HTTPS_DISPATCH_QUEUE_SIZE           2
 #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    1
