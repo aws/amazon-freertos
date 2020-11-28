@@ -625,10 +625,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
                     break;
                 }
 
-                /* Wait for sometime between consecutive executions of ProcessLoop. */
-                vTaskDelay( pdMS_TO_TICKS( 1000 ) );
-
-                ( void ) ProcessLoop( &mqttContext );
+                ( void ) ProcessLoop( &mqttContext, 1000 );
             }
         }
 

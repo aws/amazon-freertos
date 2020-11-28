@@ -881,12 +881,13 @@ BaseType_t PublishToTopic( MQTTContext_t * pxMqttContext,
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t ProcessLoop( MQTTContext_t * pxMqttContext )
+BaseType_t ProcessLoop( MQTTContext_t * pxMqttContext,
+                        uint32_t ulTimeoutMs )
 {
     BaseType_t xReturnStatus = pdFAIL;
     MQTTStatus_t xMQTTStatus = MQTTSuccess;
 
-    xMQTTStatus = MQTT_ProcessLoop( pxMqttContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
+    xMQTTStatus = MQTT_ProcessLoop( pxMqttContext, ulTimeoutMs );
 
     if( xMQTTStatus != MQTTSuccess )
     {
