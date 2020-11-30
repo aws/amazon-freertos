@@ -153,22 +153,21 @@
  */
 #define httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT          206
 
-
 /**
  * @brief Time in ticks to wait between each iteration of
  * RunCoreHttpS3DownloadMultithreadedDemo().
  */
-#define httpexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS    ( pdMS_TO_TICKS( 5000U ) )
+#define httpexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS       ( pdMS_TO_TICKS( 5000U ) )
 
 /**
  * @brief Ticks to wait for task notifications.
  */
-#define httpexampleDEMO_TICKS_TO_WAIT                     pdMS_TO_TICKS( 1000 )
+#define httpexampleDEMO_TICKS_TO_WAIT                        pdMS_TO_TICKS( 1000 )
 
 /**
  * @brief Notification bit indicating HTTPClient_Send() error in HTTP task.
  */
-#define httpexampleHTTP_SEND_ERROR                        ( 1U << 1 )
+#define httpexampleHTTP_SEND_ERROR                           ( 1U << 1 )
 
 /**
  * @brief The maximum number of loop iterations to wait before declaring failure.
@@ -177,7 +176,7 @@
  * number of ticks equal to `httpexampleDEMO_TICKS_TO_WAIT` * this number of
  * iterations before the loop exits.
  */
-#define httpexampleMAX_WAIT_ITERATIONS                    ( 5 )
+#define httpexampleMAX_WAIT_ITERATIONS                       ( 20 )
 
 /**
  * @brief Represents the network context used for the TLS session with the
@@ -556,11 +555,10 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
         }
 
         /* Break if we have been stuck waiting for a response for too long. The
-         * total wait here will be (notification wait delay + queue check delay)
-         * multiplied by `httpexampleMAX_WAIT_ITERATIONS`. For example, with a
-         * 5000ms notification loop delay, a 1000 ms queue delay, and a maximum
-         * iteration of 5, this function will wait 30 seconds after receiving
-         * the last response. */
+         * total wait here will be the queue check delay, multiplied by
+         * `httpexampleMAX_WAIT_ITERATIONS`. For example, with a 1000 ms queue
+         * delay, and a maximum iteration of 20, this function will wait 20
+         * seconds after receiving the last response. */
         if( ++ulWaitCounter > httpexampleMAX_WAIT_ITERATIONS )
         {
             LogError( ( "Response receive loop exceeded maximum wait time.\n" ) );
