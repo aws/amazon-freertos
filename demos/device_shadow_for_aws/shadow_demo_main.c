@@ -43,6 +43,15 @@
  * a second message to update the reported state of powerOn.
  * 6. Handle incoming message again in prvEventCallback. If the message is from update/accepted, verify that it
  * has the same clientToken as previously published in the update message. That will mark the end of the demo.
+ *
+ * @note This demo uses retry logic to connect to AWS IoT broker if connection attempts fail.
+ * The FreeRTOS/backoffAlgorithm library is used to calculate the retry interval with an exponential
+ * backoff and jitter algorithm. For generating random number required by the algorithm, the PKCS11
+ * module is used as it allows access to a True Random Number Generator (TRNG) if the vendor platform
+ * supports it.
+ * It is RECOMMENDED to seed the random number generator with a device-specific entropy source so that
+ * probability of collisions from devices in connection retries is mitigated.
+ *
  */
 
 /* Standard includes. */
