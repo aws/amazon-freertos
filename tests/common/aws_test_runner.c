@@ -244,6 +244,10 @@ static void RunTests( void )
         RUN_TEST_GROUP( coreHTTP_Integration );
     #endif
 
+    #if ( testrunnerFULL_CORE_HTTP_AWS_IOT_ENABLED == 1 )
+        RUN_TEST_GROUP( coreHTTP_Integration_AWS_IoT_Compatible );
+    #endif
+
     #if ( testrunnerFULL_CLI_ENABLED == 1 )
         RUN_TEST_GROUP( FreeRTOS_CLI );
         RUN_TEST_GROUP( FreeRTOS_CLI_Console );
