@@ -35,10 +35,19 @@
  * request, and verify the file was uploaded using a GET request. If any request
  * fails, an error code is returned.
  *
- * @Note: This demo requires user-generated pre-signed URLs to be pasted into
- * demo_config.h. Please use the provided script "presigned_urls_gen.py"
- * (located in http_demo_helpers) to generate these URLs. For detailed
- * instructions, see the accompanied README.md.
+ * @note This demo requires user-generated pre-signed URLs to be pasted into
+ * http_demo_s3_upload_config. Please use the provided script
+ * "presigned_urls_gen.py" (located in http_demo_helpers) to generate these
+ * URLs. For detailed instructions, see the accompanied README.md.
+ *
+ * @note This demo uses retry logic to connect to the server if connection
+ * attempts fail. The FreeRTOS/backoffAlgorithm library is used to calculate the
+ * retry interval with an exponential backoff and jitter algorithm. For
+ * generating random number required by the algorithm, the PKCS11 module is used
+ * as it allows access to a True Random Number Generator (TRNG) if the vendor
+ * platform supports it. It is RECOMMENDED to seed the random number generator
+ * with a device-specific entropy source so that probability of collisions from
+ * devices in connection retries is mitigated.
  */
 
 /**

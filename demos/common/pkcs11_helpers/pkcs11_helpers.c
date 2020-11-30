@@ -54,26 +54,26 @@ BaseType_t xPkcs11GenerateRandomNumber( uint8_t * pusRandomNumBuffer,
 
     if( xStatus == pdPASS )
     {
-        /* Get list of functions supported by the PKCS11 port. */
+        /* Get list of functions supported by the PKCS #11 port. */
         xResult = C_GetFunctionList( &pxFunctionList );
 
         if( ( xResult != CKR_OK ) || ( pxFunctionList == NULL ) )
         {
             LogError( ( "Failed to generate random number. "
-                        "PCKS11 API, C_GetFunctionList, failed." ) );
+                        "PKCS #11 API, C_GetFunctionList, failed." ) );
             xStatus = pdFAIL;
         }
     }
 
     if( xStatus == pdPASS )
     {
-        /* Initialize PKCS11 module and create a new session. */
+        /* Initialize PKCS #11 module and create a new session. */
         xResult = xInitializePkcs11Session( &xSession );
 
         if( ( xResult != CKR_OK ) || ( xSession == CK_INVALID_HANDLE ) )
         {
             LogError( ( "Failed to generate random number. "
-                        "Failed to initialize PKCS11 session." ) );
+                        "Failed to initialize PKCS #11 session." ) );
             xStatus = pdFAIL;
         }
     }
@@ -86,7 +86,7 @@ BaseType_t xPkcs11GenerateRandomNumber( uint8_t * pusRandomNumBuffer,
         {
             xStatus = pdFAIL;
             LogError( ( "Failed to generate random number. "
-                        "PKCS11 API, C_GenerateRandom, failed to generate random number." ) );
+                        "PKCS #11 API, C_GenerateRandom, failed to generate random number." ) );
         }
     }
 
@@ -95,7 +95,7 @@ BaseType_t xPkcs11GenerateRandomNumber( uint8_t * pusRandomNumBuffer,
         if( pxFunctionList->C_CloseSession( xSession ) != CKR_OK )
         {
             xStatus = pdFAIL;
-            LogError( ( " Failed to close PKCS11 session after generating random number." ) );
+            LogError( ( " Failed to close PKCS #11 session after generating random number." ) );
         }
     }
 

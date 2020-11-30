@@ -2192,7 +2192,6 @@ IotHttpsReturnCode_t _scheduleHttpsRequestSend( _httpsRequest_t * pHttpsRequest 
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
     BaseType_t queueStatus = pdTRUE;
-    _httpsConnection_t * pHttpsConnection = pHttpsRequest->pHttpsConnection;
 
     /* Set the request to scheduled even if scheduling fails. */
     pHttpsRequest->scheduled = true;
@@ -2307,7 +2306,6 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
     uint8_t dispatchTaskIndex = 0;
-    BaseType_t taskCreationResult = pdFALSE;
 
     /* Allocate the dispatch queue. */
     #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
@@ -2329,6 +2327,8 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
                                             dispatchQueueStorageBuffer,
                                             &dispatchQueueBuffer );
     #else /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1 */
+        BaseType_t taskCreationResult = pdFALSE;
+
         dispatchQueue = xQueueCreate( IOT_HTTPS_DISPATCH_QUEUE_SIZE, sizeof( _httpsRequest_t * ) );
     #endif /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1 */
 
@@ -2384,34 +2384,38 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
     _httpParserSettings.on_body = _httpParserOnBodyCallback;
     _httpParserSettings.on_message_complete = _httpParserOnMessageCompleteCallback;
 
-/* This code prints debugging information and is, therefore, compiled only when
- * log level is set to IOT_LOG_DEBUG. */
+    /* This code prints debugging information and is, therefore, compiled only when
+     * log level is set to IOT_LOG_DEBUG. */
     #if ( LIBRARY_LOG_LEVEL == IOT_LOG_DEBUG )
         _httpParserSettings.on_chunk_header = _httpParserOnChunkHeaderCallback;
         _httpParserSettings.on_chunk_complete = _httpParserOnChunkCompleteCallback;
     #endif
     HTTPS_FUNCTION_CLEANUP_BEGIN();
-    /* Upon error, reset to original state, freeing up any dynamic memory. */
-    #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1
-        /* Free memory used for the dispatch queue. */
-        if( dispatchQueue != NULL )
-        {
-            vQueueDelete( dispatchQueue );
-        }
-    #endif /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1 */
-    dispatchQueue = NULL;
 
-    /* Delete the tasks that send requests from the dispatch queue. */
-    for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
+    /* Upon error, reset to original state, freeing up any dynamic memory. */
+    if( HTTPS_FAILED( status ) )
     {
-        if( httpsDispatchTask[ dispatchTaskIndex ] != NULL )
+        #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1
+            /* Free memory used for the dispatch queue. */
+            if( dispatchQueue != NULL )
+            {
+                vQueueDelete( dispatchQueue );
+            }
+        #endif /* if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY != 1 */
+        dispatchQueue = NULL;
+
+        /* Delete the tasks that send requests from the dispatch queue. */
+        for( dispatchTaskIndex = 0; dispatchTaskIndex < IOT_HTTPS_DISPATCH_TASK_COUNT; ++dispatchTaskIndex )
         {
-            #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
-                vTaskSuspend( httpsDispatchTask[ dispatchTaskIndex ] );
-            #else
-                vTaskDelete( httpsDispatchTask[ dispatchTaskIndex ] );
-            #endif
-            httpsDispatchTask[ dispatchTaskIndex ] = NULL;
+            if( httpsDispatchTask[ dispatchTaskIndex ] != NULL )
+            {
+                #if IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY == 1
+                    vTaskSuspend( httpsDispatchTask[ dispatchTaskIndex ] );
+                #else
+                    vTaskDelete( httpsDispatchTask[ dispatchTaskIndex ] );
+                #endif
+                httpsDispatchTask[ dispatchTaskIndex ] = NULL;
+            }
         }
     }
 
@@ -2746,11 +2750,6 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest( IotHttpsRequestHandle_t *
     HTTPRequestInfo_t coreHttpRequestInfo;
 
     _httpsRequest_t * pHttpsRequest = NULL;
-    size_t additionalLength = 0;
-    size_t spaceLen = 1;
-    char * pSpace = " ";
-    size_t httpsMethodLen = 0;
-    size_t httpsProtocolVersionLen = FAST_MACRO_STRLEN( HTTPS_PROTOCOL_VERSION );
 
     /* Check for NULL parameters in the public API. */
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqHandle );
@@ -2863,7 +2862,6 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
-    _httpsRequest_t * pHttpsRequest = NULL;
     HTTPStatus_t coreHttpStatus = HTTPSuccess;
     HTTPRequestHeaders_t coreHttpRequestHeaders;
 

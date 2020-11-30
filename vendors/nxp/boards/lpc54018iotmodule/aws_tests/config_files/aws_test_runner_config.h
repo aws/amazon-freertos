@@ -46,6 +46,7 @@
 #define testrunnerFULL_CORE_MQTT_ENABLED            0
 #define testrunnerFULL_CORE_MQTT_AWS_IOT_ENABLED    0
 #define testrunnerFULL_CORE_HTTP_ENABLED            0
+#define testrunnerFULL_CORE_HTTP_AWS_IOT_ENABLED    0
 #define testrunnerFULL_WIFI_ENABLED                 0
 #define testrunnerFULL_PKCS11_ENABLED               0
 #define testrunnerFULL_CRYPTO_ENABLED               0

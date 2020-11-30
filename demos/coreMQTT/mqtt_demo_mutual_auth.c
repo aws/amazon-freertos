@@ -229,20 +229,27 @@
 /*-----------------------------------------------------------*/
 
 /**
- * @brief The random number generator to use for exponential backoff with
- * jitter retry logic.
- * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
- * of the backoff algorithm library API.
+ * @brief Calculate and perform an exponential backoff with jitter delay for
+ * the next retry attempt of a failed network operation with the server.
  *
- * The PKCS11 module is used to generate the random number as it allows access
+ * The function generates a random number, calculates the next backoff period
+ * with the generated random number, and performs the backoff delay operation if the
+ * number of retries have not exhausted.
+ *
+ * @note The PKCS11 module is used to generate the random number as it allows access
  * to a True Random Number Generator (TRNG) if the vendor platform supports it.
- * It is recommended to use a device-specific unique random number generator so
- * that probability of collisions from devices in connection retries is mitigated.
+ * It is recommended to seed the random number generator with a device-specific entropy
+ * source so that probability of collisions from devices in connection retries is mitigated.
  *
- * @return A positive value if generating the random number was successful; otherwise
- * -1 to indicate failure.
+ * @note The backoff period is calculated using the backoffAlgorithm library.
+ *
+ * @param[in, out] pxRetryAttempts The context to use for backoff period calculation
+ * with the backoffAlgorithm library.
+ *
+ * @return pdPASS if calculating the backoff period was successful; otherwise pdFAIL
+ * if there was failure in random number generation OR all retry attempts had exhausted.
  */
-static int32_t prvGenerateRandomNumber();
+static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams );
 
 /**
  * @brief Connect to MQTT broker with reconnection retries.
@@ -642,23 +649,52 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
 }
 /*-----------------------------------------------------------*/
 
-static int32_t prvGenerateRandomNumber()
+static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams )
 {
-    uint32_t ulRandomNum;
+    BaseType_t xReturnStatus = pdFAIL;
+    uint16_t usNextRetryBackOff = 0U;
+    BackoffAlgorithmStatus_t xBackoffAlgStatus = BackoffAlgorithmSuccess;
 
-    /* Use the PKCS11 module to generate a random number. */
+    /**
+     * To calculate the backoff period for the next retry attempt, we will
+     * generate a random number to provide to the backoffAlgorithm library.
+     *
+     * Note: The PKCS11 module is used to generate the random number as it allows access
+     * to a True Random Number Generator (TRNG) if the vendor platform supports it.
+     * It is recommended to use a random number generator seeded with a device-specific
+     * entropy source so that probability of collisions from devices in connection retries
+     * is mitigated.
+     */
+    uint32_t ulRandomNum = 0;
+
     if( xPkcs11GenerateRandomNumber( ( uint8_t * ) &ulRandomNum,
-                                     ( sizeof( ulRandomNum ) == pdPASS ) ) )
+                                     sizeof( ulRandomNum ) ) == pdPASS )
     {
-        ulRandomNum = ( ulRandomNum & INT32_MAX );
+        /* Get back-off value (in milliseconds) for the next retry attempt. */
+        xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( pxRetryParams, ulRandomNum, &usNextRetryBackOff );
+
+        if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
+        {
+            LogError( ( "All retry attempts have exhausted. Operation will not be retried" ) );
+        }
+        else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
+        {
+            /* Perform the backoff delay. */
+            vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
+
+            xReturnStatus = pdPASS;
+
+            LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
+                       ( pxRetryParams->attemptsDone + 1 ),
+                       pxRetryParams->maxRetryAttempts ) );
+        }
     }
     else
     {
-        /* Set the return value as negative to indicate failure. */
-        ulRandomNum = -1;
+        LogError( ( "Unable to retry operation with broker: Random number generation failed" ) );
     }
 
-    return ( int32_t ) ulRandomNum;
+    return xReturnStatus;
 }
 
 /*-----------------------------------------------------------*/
@@ -666,12 +702,12 @@ static int32_t prvGenerateRandomNumber()
 static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNetworkContext )
 {
     ServerInfo_t xServerInfo = { 0 };
+
     SocketsConfig_t xSocketsConfig = { 0 };
     BaseType_t xStatus = pdPASS;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
-    BackoffAlgorithmStatus_t xBackoffAlgStatus = BackoffAlgorithmSuccess;
     BackoffAlgorithmContext_t xReconnectParams;
-    uint16_t usNextRetryBackOff = 0U;
+    BaseType_t xBackoffStatus = pdFALSE;
 
     /* Set the credentials for establishing a TLS connection. */
     /* Initializer server information. */
@@ -693,8 +729,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
     BackoffAlgorithm_InitializeParams( &xReconnectParams,
                                        RETRY_BACKOFF_BASE_MS,
                                        RETRY_MAX_BACKOFF_DELAY_MS,
-                                       RETRY_MAX_ATTEMPTS,
-                                       prvGenerateRandomNumber );
+                                       RETRY_MAX_ATTEMPTS );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase till maximum
@@ -715,26 +750,15 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
 
         if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            /* Get back-off value (in milliseconds) for the next connection retry. */
-            xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &xReconnectParams, &usNextRetryBackOff );
-            configASSERT( xBackoffAlgStatus != BackoffAlgorithmRngFailure );
+            LogWarn( ( "Connection to the broker failed. Attempting connection retry after backoff delay." ) );
 
-            if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
-            {
-                LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
-                xStatus = pdFAIL;
-            }
-            else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
-            {
-                LogWarn( ( "Connection to the broker failed. Retrying connection after backoff delay." ) );
-                vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
+            /* As the connection attempt failed, we will retry the connection after an
+             * exponential backoff with jitter delay. */
 
-                LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
-                           ( xReconnectParams.attemptsDone + 1 ),
-                           xReconnectParams.maxRetryAttempts ) );
-            }
+            /* Calculate the backoff period for the next retry attempt and perform the wait operation. */
+            xBackoffStatus = prvBackoffForRetry( &xReconnectParams );
         }
-    } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xBackoffAlgStatus == BackoffAlgorithmSuccess ) );
+    } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xBackoffStatus == pdPASS ) );
 
     return xStatus;
 }
@@ -824,10 +848,10 @@ static void prvUpdateSubAckStatus( MQTTPacketInfo_t * pxPacketInfo )
 static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTContext )
 {
     MQTTStatus_t xResult = MQTTSuccess;
-    BackoffAlgorithmStatus_t xBackoffAlgStatus = BackoffAlgorithmSuccess;
     BackoffAlgorithmContext_t xRetryParams;
+    BaseType_t xBackoffStatus = pdFAIL;
     MQTTSubscribeInfo_t xMQTTSubscription[ mqttexampleTOPIC_COUNT ];
-    bool xFailedSubscribeToTopic = false;
+    BaseType_t xFailedSubscribeToTopic = pdFALSE;
     uint32_t ulTopicCount = 0U;
     BaseType_t xStatus = pdFAIL;
 
@@ -847,8 +871,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
     BackoffAlgorithm_InitializeParams( &xRetryParams,
                                        RETRY_BACKOFF_BASE_MS,
                                        RETRY_MAX_BACKOFF_DELAY_MS,
-                                       RETRY_MAX_ATTEMPTS,
-                                       prvGenerateRandomNumber );
+                                       RETRY_MAX_ATTEMPTS );
 
     do
     {
@@ -893,7 +916,7 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
         if( xStatus == pdPASS )
         {
             /* Reset flag before checking suback responses. */
-            xFailedSubscribeToTopic = false;
+            xFailedSubscribeToTopic = pdFALSE;
 
             /* Check if recent subscription request has been rejected. #xTopicFilterContext is updated
              * in the event callback to reflect the status of the SUBACK sent by the broker. It represents
@@ -903,30 +926,21 @@ static BaseType_t prvMQTTSubscribeWithBackoffRetries( MQTTContext_t * pxMQTTCont
             {
                 if( xTopicFilterContext[ ulTopicCount ].xSubAckStatus == MQTTSubAckFailure )
                 {
-                    uint16_t usNextRetryBackOff = 0U;
-                    xFailedSubscribeToTopic = true;
+                    xFailedSubscribeToTopic = pdTRUE;
 
-                    /* Calculate back-off period for next retry of subscribe request. */
-                    xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &xRetryParams, &usNextRetryBackOff );
-                    configASSERT( xBackoffAlgStatus != BackoffAlgorithmRngFailure );
+                    /* As the subscribe attempt failed, we will retry the connection after an
+                     * exponential backoff with jitter delay. */
 
-                    if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
-                    {
-                        /* Retry subscribe after exponential back-off. */
-                        LogWarn( ( "Server rejected subscription request. Attempting to re-subscribe to topic %s.",
-                                   xTopicFilterContext[ ulTopicCount ].pcTopicFilter ) );
-                        vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
-                    }
-                    else
-                    {
-                        LogError( ( "SUBSCRIBE request re-tries exhausted." ) );
-                    }
+                    /* Retry subscribe after exponential back-off. */
+                    LogWarn( ( "Server rejected subscription request. Attempting to re-subscribe to topic %s.",
+                               xTopicFilterContext[ ulTopicCount ].pcTopicFilter ) );
 
+                    xBackoffStatus = prvBackoffForRetry( &xRetryParams );
                     break;
                 }
             }
         }
-    } while( ( xFailedSubscribeToTopic == true ) && ( xBackoffAlgStatus == BackoffAlgorithmSuccess ) );
+    } while( ( xFailedSubscribeToTopic == pdTRUE ) && ( xBackoffStatus == pdPASS ) );
 
     return xStatus;
 }
