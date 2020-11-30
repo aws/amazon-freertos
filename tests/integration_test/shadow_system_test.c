@@ -342,20 +342,13 @@ static uint32_t getTimeMs();
  * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
  * of the backoff algorithm library API.
  *
+ * The PKCS11 module is used to generate the random random number as it allows
+ * access to a True Random Number Generator (TRNG) if the vendor platform supports it.
+ *
  * @return The generated random number. This function ALWAYS succeeds
  * in generating a random number.
  */
-static int32_t generateRandomNumber();
-
-/**
- * @brief Seed the random number generator used for exponential backoff
- * used in connection retry attempts.
- *
- * The PKCS11 module is used to seed the random number generator
- * as it allows access to a True Random Number Generator (TRNG) if the
- * vendor platform supports it.
- */
-static void seedRandomNumberGenerator();
+static uint32_t generateRandomNumber();
 
 /**
  * @brief Sends an MQTT CONNECT packet over the already connected TCP socket.
@@ -775,45 +768,35 @@ static MQTTStatus_t publishToTopic( MQTTContext_t * pContext,
 
 /*-----------------------------------------------------------*/
 
-static int32_t generateRandomNumber()
+static uint32_t generateRandomNumber()
 {
-    const uint32_t multiplier = 0x015a4e35UL, increment = 1UL;
+    UBaseType_t uxRandNum = 0;
 
-    nextRand = ( multiplier * nextRand ) + increment;
-    return( ( int32_t ) ( nextRand >> 16UL ) & 0x7fffUL );
-}
+    CK_FUNCTION_LIST_PTR pFunctionList = NULL;
+    CK_SESSION_HANDLE session = CK_INVALID_HANDLE;
 
-/*-----------------------------------------------------------*/
+    /* Get list of functions supported by the PKCS11 port. */
+    TEST_ASSERT_EQUAL( CKR_OK, C_GetFunctionList( &pFunctionList ) );
+    TEST_ASSERT_TRUE( pFunctionList != NULL );
 
-static void seedRandomNumberGenerator()
-{
-    /* Seed the global variable ONLY if it wasn't already seeded. */
-    if( nextRand == 0 )
-    {
-        CK_FUNCTION_LIST_PTR pFunctionList = NULL;
-        CK_SESSION_HANDLE session = CK_INVALID_HANDLE;
+    /* Initialize PKCS11 module and create a new session. */
+    TEST_ASSERT_EQUAL( CKR_OK, xInitializePkcs11Session( &session ) );
+    TEST_ASSERT_TRUE( session != CK_INVALID_HANDLE );
 
-        /* Get list of functions supported by the PKCS11 port. */
-        TEST_ASSERT_EQUAL( CKR_OK, C_GetFunctionList( &pFunctionList ) );
-        TEST_ASSERT_TRUE( pFunctionList != NULL );
-
-        /* Initialize PKCS11 module and create a new session. */
-        TEST_ASSERT_EQUAL( CKR_OK, xInitializePkcs11Session( &session ) );
-        TEST_ASSERT_TRUE( session != CK_INVALID_HANDLE );
-
-        /*
-         * Seed random number generator with PKCS11.
-         * Use of PKCS11 can allow use of True Random Number Generator (TRNG)
-         * if the platform supports it.
-         */
-        TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_GenerateRandom( session,
-                                                                    ( unsigned char * ) &nextRand,
-                                                                    sizeof( nextRand ) ) );
+    /*
+     * Seed random number generator with PKCS11.
+     * Use of PKCS11 can allow use of True Random Number Generator (TRNG)
+     * if the platform supports it.
+     */
+    TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_GenerateRandom( session,
+                                                                ( unsigned char * ) &uxRandNum,
+                                                                sizeof( uxRandNum ) ) );
 
 
-        /* Close PKCS11 session. */
-        TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_CloseSession( session ) );
-    }
+    /* Close PKCS11 session. */
+    TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_CloseSession( session ) );
+
+    return uxRandNum;
 }
 
 /*-----------------------------------------------------------*/
@@ -845,8 +828,7 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     BackoffAlgorithm_InitializeParams( &reconnectParams,
                                        RETRY_BACKOFF_BASE_MS,
                                        RETRY_MAX_BACKOFF_DELAY_MS,
-                                       RETRY_MAX_ATTEMPTS,
-                                       generateRandomNumber );
+                                       RETRY_MAX_ATTEMPTS );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase till maximum
@@ -862,9 +844,10 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
 
         if( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            /* Get back-off value for the next connection retry. */
-            BackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &reconnectParams, &nextRetryBackOff );
-            configASSERT( BackoffAlgStatus != BackoffAlgorithmRngFailure );
+            /* Generate random number and get back-off value for the next connection retry. */
+            BackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &reconnectParams,
+                                                                generateRandomNumber(),
+                                                                &nextRetryBackOff );
 
             if( BackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
             {
@@ -897,9 +880,6 @@ TEST_GROUP( deviceShadow_Integration );
 
 TEST_SETUP( deviceShadow_Integration )
 {
-    /* Seed the pseudo random number generator. */
-    seedRandomNumberGenerator();
-
     /* Reset file-scoped global variables. */
     receivedSubAck = false;
     receivedUnsubAck = false;
