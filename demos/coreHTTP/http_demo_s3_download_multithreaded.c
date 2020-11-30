@@ -324,14 +324,13 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
                                            const size_t xEnd );
 
 /**
- * @brief Wait for a task notification in a loop.
+ * @brief Check for an HTTP task notification.
  *
  * @param[in] pulNotification pointer holding notification value.
  * @param[in] ulExpectedBits Bits to wait for.
  * @param[in] xClearBits If bits should be cleared.
  *
- * @return `true` if notification received without exceeding the timeout,
- * `false` otherwise.
+ * @return `true` if notification received, `false` otherwise.
  */
 static bool prvCheckNotification( uint32_t * pulNotification,
                                   uint32_t ulExpectedBits,
