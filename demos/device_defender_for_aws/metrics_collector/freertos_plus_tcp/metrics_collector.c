@@ -54,7 +54,7 @@
 
 MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
 {
-    MetricsCollectorStatus_t status = MetricsCollectorSuccess;
+    MetricsCollectorStatus_t status = MetricsCollectorCollectionFailed;
 
     MetricsType_t metrics = { 0 };
     BaseType_t metricsStatus = 0;
@@ -67,16 +67,9 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
     /* Get metrics from FreeRTOS+TCP tcp_netstat utility. */
     metricsStatus = vGetMetrics( &metrics );
 
-    if( metricsStatus != 0 )
+    if( metricsStatus == 0 )
     {
-        LogError( ( "Failed to acquire metrics from FreeRTOS+TCP tcp_netstat utility. Status: %d.",
-                    ( int ) metricsStatus ) );
-        status = MetricsCollectorCollectionFailed;
-    }
-
-    /* Fill our response with values gotten from FreeRTOS+TCP. */
-    if( status == MetricsCollectorSuccess )
-    {
+        /* Fill our response with values gotten from FreeRTOS+TCP. */
         LogDebug( ( "Network stats read. Bytes received: %u, packets received: %u, "
                     "bytes sent: %u, packets sent: %u.",
                     ( unsigned int ) metrics.xInput.uxByteCount,
@@ -88,6 +81,8 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
         pOutNetworkStats->packetsReceived = metrics.xInput.uxPacketCount;
         pOutNetworkStats->bytesSent = metrics.XOutput.uxByteCount;
         pOutNetworkStats->packetsSent = metrics.XOutput.uxPacketCount;
+
+        status = MetricsCollectorSuccess;
     }
 
     return status;
@@ -98,7 +93,7 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
                                           uint32_t tcpPortsArrayLength,
                                           uint32_t * pOutNumTcpOpenPorts )
 {
-    MetricsCollectorStatus_t status = MetricsCollectorSuccess;
+    MetricsCollectorStatus_t status = MetricsCollectorCollectionFailed;
 
     MetricsType_t metrics = { 0 };
     BaseType_t metricsStatus = 0;
@@ -110,14 +105,7 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
     /* Get metrics from FreeRTOS+TCP tcp_netstat utility. */
     metricsStatus = vGetMetrics( &metrics );
 
-    if( metricsStatus != 0 )
-    {
-        LogError( ( "Failed to acquire metrics from FreeRTOS+TCP tcp_netstat utility. Status: %d.",
-                    ( int ) metricsStatus ) );
-        status = MetricsCollectorCollectionFailed;
-    }
-
-    if( status == MetricsCollectorSuccess )
+    if( metricsStatus == 0 )
     {
         /* Fill the output array with as many TCP ports as will fit in the
          * given array. */
@@ -142,9 +130,11 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
             /* Return the total number of open ports. */
             *pOutNumTcpOpenPorts = metrics.xTCPPortList.uxCount;
         }
+
+        status = MetricsCollectorSuccess;
     }
 
-    return MetricsCollectorSuccess;
+    return status;
 }
 /*-----------------------------------------------------------*/
 
@@ -152,7 +142,7 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
                                           uint32_t udpPortsArrayLength,
                                           uint32_t * pOutNumUdpOpenPorts )
 {
-    MetricsCollectorStatus_t status = MetricsCollectorSuccess;
+    MetricsCollectorStatus_t status = MetricsCollectorCollectionFailed;
 
     MetricsType_t metrics = { 0 };
     BaseType_t metricsStatus = 0;
@@ -164,14 +154,7 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
     /* Get metrics from FreeRTOS+TCP tcp_netstat utility. */
     metricsStatus = vGetMetrics( &metrics );
 
-    if( metricsStatus != 0 )
-    {
-        LogError( ( "Failed to acquire metrics from FreeRTOS+TCP tcp_netstat utility. Status: %d.",
-                    ( int ) metricsStatus ) );
-        status = MetricsCollectorCollectionFailed;
-    }
-
-    if( status == MetricsCollectorSuccess )
+    if( metricsStatus == 0 )
     {
         /* Fill the output array with as many UDP ports as will fit in the
          * given array. */
@@ -196,9 +179,11 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
             /* Return the total number of open ports. */
             *pOutNumUdpOpenPorts = metrics.xUDPPortList.uxCount;
         }
+
+        status = MetricsCollectorSuccess;
     }
 
-    return MetricsCollectorSuccess;
+    return status;
 }
 
 /*-----------------------------------------------------------*/
@@ -207,7 +192,7 @@ MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectio
                                                     uint32_t connectionsArrayLength,
                                                     uint32_t * pOutNumEstablishedConnections )
 {
-    MetricsCollectorStatus_t status = MetricsCollectorSuccess;
+    MetricsCollectorStatus_t status = MetricsCollectorCollectionFailed;
 
     MetricsType_t metrics = { 0 };
     BaseType_t metricsStatus = 0;
@@ -221,14 +206,7 @@ MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectio
     /* Get metrics from FreeRTOS+TCP tcp_netstat utility. */
     metricsStatus = vGetMetrics( &metrics );
 
-    if( metricsStatus != 0 )
-    {
-        LogError( ( "Failed to acquire metrics from FreeRTOS+TCP tcp_netstat utility. Status: %d.",
-                    ( int ) metricsStatus ) );
-        status = MetricsCollectorCollectionFailed;
-    }
-
-    if( status == MetricsCollectorSuccess )
+    if( metricsStatus == 0 )
     {
         /* Fill the output array with as many TCP socket infos as will fit in
          * the given array. */
@@ -265,6 +243,8 @@ MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectio
             /* Return the total number of established connections. */
             *pOutNumEstablishedConnections = metrics.xTCPSocketList.uxCount;
         }
+
+        status = MetricsCollectorSuccess;
     }
 
     return status;

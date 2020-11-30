@@ -67,7 +67,7 @@ typedef struct Connection
  * @param[out] pOutNetworkStats The network stats.
  *
  * @return #MetricsCollectorSuccess if the network stats are successfully obtained;
- * #MetricsCollectorBadParameter if invalid parameters are passe;
+ * #MetricsCollectorBadParameter if invalid parameters are passed;
  * #MetricsCollectorCollectionFailed if the collection methods failed.
  */
 MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats );
