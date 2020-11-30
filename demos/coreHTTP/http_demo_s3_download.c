@@ -76,12 +76,12 @@
 
 /* Check that the TLS port of the server is defined. */
 #ifndef democonfigHTTPS_PORT
-    #error "Please define a democonfigHTTPS_PORT."
+    #error "Please define democonfigHTTPS_PORT in http_demo_s3_download_config.h."
 #endif
 
 /* Check that the root CA certificate is defined. */
 #ifndef democonfigROOT_CA_PEM
-    #error "Please define a democonfigROOT_CA_PEM."
+    #error "Please define democonfigROOT_CA_PEM in http_demo_s3_download_config.h."
 #endif
 
 /* Check that the pre-signed GET URL is defined. */
@@ -317,6 +317,7 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pxFileSize,
     char * pcContentRangeValStr = NULL;
     size_t xContentRangeValStrLength = 0;
 
+    configASSERT( pxFileSize != NULL );
     configASSERT( pcHost != NULL );
     configASSERT( pcPath != NULL );
 
@@ -521,6 +522,8 @@ static BaseType_t prvDownloadS3ObjectFile( const TransportInterface_t * pxTransp
                                       xServerHostLength,
                                       pcPath );
 
+    /* Set the number of bytes to request in each iteration, defined by the user
+     * in democonfigRANGE_REQUEST_LENGTH. */
     if( xFileSize < democonfigRANGE_REQUEST_LENGTH )
     {
         xNumReqBytes = xFileSize;
@@ -531,8 +534,9 @@ static BaseType_t prvDownloadS3ObjectFile( const TransportInterface_t * pxTransp
     }
 
     /* Here we iterate sending byte range requests until the full file has been
-     * downloaded. We keep track of the next byte to download with xCurByte. When
-     * this reaches the xFileSize we stop downloading. */
+     * downloaded. We keep track of the next byte to download with xCurByte, and
+     * increment by xNumReqBytes after each iteration. When xCurByte reaches
+     * xFileSize, we stop downloading. */
     while( ( xStatus == pdPASS ) && ( xHTTPStatus == HTTPSuccess ) && ( xCurByte < xFileSize ) )
     {
         xHTTPStatus = HTTPClient_InitializeRequestHeaders( &xRequestHeaders,
@@ -585,7 +589,7 @@ static BaseType_t prvDownloadS3ObjectFile( const TransportInterface_t * pxTransp
                        xResponse.pBody ) );
 
             /* We increment by the content length because the server may not
-             * have sent us the range we request. */
+             * have sent us the range we requested. */
             xCurByte += xResponse.contentLength;
 
             if( ( xFileSize - xCurByte ) < xNumReqBytes )
@@ -597,7 +601,7 @@ static BaseType_t prvDownloadS3ObjectFile( const TransportInterface_t * pxTransp
         }
         else
         {
-            LogError( ( "An error occured in downloading the file. "
+            LogError( ( "An error occurred in downloading the file. "
                         "Failed to send HTTP GET request to %s%s: Error=%s.",
                         cServerHost, pcPath, HTTPClient_strerror( xHTTPStatus ) ) );
         }
@@ -676,7 +680,7 @@ int RunCoreHttpS3DownloadDemo( bool awsIotMqttMode,
         /* Attempt to connect to S3. If connection fails, retry after a timeout.
          * The timeout value will be exponentially increased until either the
          * maximum number of attempts or the maximum timeout value is reached.
-         * The function returns pdFAIL if a TCP connection with the broker
+         * The function returns pdFAIL if a TCP connection with the server
          * cannot be established  after the configured number of attempts. */
         xDemoStatus = connectToServerWithBackoffRetries( prvConnectToServer,
                                                          &xNetworkContext );

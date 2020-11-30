@@ -76,12 +76,12 @@
 
 /* Check that the TLS port of the server is defined. */
 #ifndef democonfigHTTPS_PORT
-    #error "Please define a democonfigHTTPS_PORT."
+    #error "Please define democonfigHTTPS_PORT in http_demo_s3_upload_config.h."
 #endif
 
 /* Check that the root CA certificate is defined. */
 #ifndef democonfigROOT_CA_PEM
-    #error "Please define a democonfigROOT_CA_PEM."
+    #error "Please define democonfigROOT_CA_PEM in http_demo_s3_upload_config.h."
 #endif
 
 /* Check that the pre-signed GET URL is defined. */
@@ -357,6 +357,7 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pxFileSize,
     char * pcContentRangeValStr = NULL;
     size_t xContentRangeValStrLength = 0;
 
+    configASSERT( pxFileSize != NULL );
     configASSERT( pcHost != NULL );
     configASSERT( pcPath != NULL );
 
@@ -630,7 +631,7 @@ static BaseType_t prvVerifyS3ObjectFileSize( const TransportInterface_t * pxTran
         }
         else
         {
-            LogInfo( ( "Successfuly verified that the size of the file found on S3 matches the file size uploaded "
+            LogInfo( ( "Successfully verified that the size of the file found on S3 matches the file size uploaded "
                        "(Uploaded: %d bytes, Found: %d bytes).",
                        ( int32_t ) httpexampleDEMO_HTTP_UPLOAD_DATA_LENGTH,
                        ( int32_t ) xFileSize ) );
@@ -704,7 +705,7 @@ int RunCoreHttpS3UploadDemo( bool awsIotMqttMode,
         /* Attempt to connect to S3. If connection fails, retry after a timeout.
          * The timeout value will be exponentially increased until either the
          * maximum number of attempts or the maximum timeout value is reached.
-         * The function returns pdFAIL if a TCP connection with the broker
+         * The function returns pdFAIL if a TCP connection with the server
          * cannot be established after the configured number of attempts. */
         xDemoStatus = connectToServerWithBackoffRetries( prvConnectToServer,
                                                          &xNetworkContext );
