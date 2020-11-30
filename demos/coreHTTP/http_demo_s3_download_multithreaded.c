@@ -333,9 +333,9 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
  * @return `true` if notification received without exceeding the timeout,
  * `false` otherwise.
  */
-static bool prvNotificationWaitLoop( uint32_t * pulNotification,
-                                     uint32_t ulExpectedBits,
-                                     bool xClearBits );
+static bool prvCheckNotification( uint32_t * pulNotification,
+                                  uint32_t ulExpectedBits,
+                                  bool xClearBits );
 
 /**
  * @brief Retrieve the size of the S3 object that is specified in pcPath using
@@ -548,7 +548,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
                 xResponseCount -= 1;
             }
             /* Check for a notification from the HTTP task about an HTTP send failure. */
-            else if( prvNotificationWaitLoop( &ulNotification, httpexampleHTTP_SEND_ERROR, true ) != false )
+            else if( prvCheckNotification( &ulNotification, httpexampleHTTP_SEND_ERROR, true ) != false )
             {
                 LogError( ( "Received notification from the HTTP task indicating a HTTPClient_Send() error." ) );
                 xStatus = pdFAIL;
@@ -639,29 +639,20 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
 
 /*-----------------------------------------------------------*/
 
-static bool prvNotificationWaitLoop( uint32_t * pulNotification,
-                                     uint32_t ulExpectedBits,
-                                     bool xClearBits )
+static bool prvCheckNotification( uint32_t * pulNotification,
+                                  uint32_t ulExpectedBits,
+                                  bool xClearBits )
 {
-    uint32_t ulWaitCounter = 0U;
     bool ret = true;
 
     configASSERT( pulNotification != NULL );
 
-    while( ( *pulNotification & ulExpectedBits ) != ulExpectedBits )
-    {
-        xTaskNotifyWait( 0,
-                         ( xClearBits ) ? ulExpectedBits : 0,
-                         pulNotification,
-                         httpexampleDEMO_TICKS_TO_WAIT );
+    xTaskNotifyWait( 0,
+                     ( xClearBits ) ? ulExpectedBits : 0,
+                     pulNotification,
+                     httpexampleDEMO_TICKS_TO_WAIT );
 
-        if( ++ulWaitCounter > httpexampleMAX_WAIT_ITERATIONS )
-        {
-            LogDebug( ( "Loop exceeded maximum wait time. Notification not received.\n" ) );
-            ret = false;
-            break;
-        }
-    }
+    ret = ( ( *pulNotification & ulExpectedBits ) == ulExpectedBits );
 
     return ret;
 }
@@ -675,6 +666,7 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
 {
     BaseType_t xStatus = pdPASS;
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
+    uint32_t ulNotification = 0;
 
     /* The location of the file size in pcContentRangeValStr. */
     char * pcFileSizeStr = NULL;
@@ -724,6 +716,11 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
                 xStatus = pdFAIL;
             }
         }
+    }
+    /* Check for a notification from the HTTP task about an HTTP send failure. */
+    else if( prvCheckNotification( &ulNotification, httpexampleHTTP_SEND_ERROR, true ) != false )
+    {
+        LogError( ( "Received notification from the HTTP task indicating a HTTPClient_Send() error." ) );
     }
 
     /* Parse the Content-Range header value to get the file size. */
