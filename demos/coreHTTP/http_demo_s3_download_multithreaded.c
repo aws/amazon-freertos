@@ -172,13 +172,8 @@
 /**
  * @brief The maximum number of loop iterations to wait after the last received
  * server response, before declaring failure.
- *
- * The `while` loop used to download the S3 file using range requests will wait
- * for a server response for the total number of ticks equal to
- * `httpexampleDEMO_TICKS_TO_WAIT` * `httpexampleMAX_WAIT_ITERATIONS` before the
- * loop exits.
  */
-#define httpexampleMAX_WAIT_ITERATIONS                       ( 20 )
+#define httpexampleMAX_WAIT_ITERATIONS                       ( 10 )
 
 /**
  * @brief Represents the network context used for the TLS session with the
@@ -557,10 +552,11 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
         }
 
         /* Break if we have been stuck waiting for a response for too long. The
-         * total wait here will be the queue check delay, multiplied by
-         * `httpexampleMAX_WAIT_ITERATIONS`. For example, with a 1000 ms queue
-         * delay, and a maximum iteration of 20, this function will wait 20
-         * seconds after receiving the last response. */
+         * total wait here will be the (notification check delay + queue check
+         * delay), multiplied by `httpexampleMAX_WAIT_ITERATIONS`. For example,
+         * with a 1000 ms delay for both checks, and a maximum iteration of 10,
+         * this function will wait 20 seconds after receiving the last response
+         * before exiting the loop. */
         if( ++ulWaitCounter > httpexampleMAX_WAIT_ITERATIONS )
         {
             LogError( ( "Response receive loop exceeded maximum wait time.\n" ) );
