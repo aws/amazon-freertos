@@ -293,7 +293,7 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
     uint32_t ulRandomNum = 0;
 
     if( xPkcs11GenerateRandomNumber( ( uint8_t * ) &ulRandomNum,
-                                     ( sizeof( ulRandomNum ) == pdPASS ) ) )
+                                     sizeof( ulRandomNum ) ) == pdPASS )
     {
         /* Get back-off value (in milliseconds) for the next retry attempt. */
         xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( pxRetryParams, ulRandomNum, &usNextRetryBackOff );
