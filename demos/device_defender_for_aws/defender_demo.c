@@ -66,15 +66,15 @@
 /**
  * @brief The maximum number of times to run the loop in this demo.
  */
-#ifndef DEFENDER_MAX_DEMO_COUNT
-    #define DEFENDER_MAX_DEMO_COUNT    ( 3 )
+#ifndef DEFENDER_DEMO_MAX_ATTEMPTS
+    #define DEFENDER_DEMO_MAX_ATTEMPTS    ( 3 )
 #endif
 
 /**
  * @brief Time in ticks to wait between each iteration of the demo execution,
  * in case a retry is required from demo execution failure.
  */
-#define DELAY_BETWEEN_DEMO_ITERATIONS_TICKS    ( pdMS_TO_TICKS( 5000U ) )
+#define DELAY_BETWEEEN_DEMO_ATTEMPTS_TICKS    ( pdMS_TO_TICKS( 5000U ) )
 
 /**
  * @brief Status values of the device defender report.
@@ -532,7 +532,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
 
     /* This demo runs a single loop unless there are failures in the demo execution.
      * In case of failures in the demo execution, demo loop will be retried for up to
-     * DEFENDER_MAX_DEMO_COUNT times. */
+     * DEFENDER_DEMO_MAX_ATTEMPTS times. */
     do
     {
         /* Start with report not received. */
@@ -667,7 +667,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
         {
             demoStatus = pdFAIL;
 
-            if( demoRunCount < DEFENDER_MAX_DEMO_COUNT )
+            if( demoRunCount < DEFENDER_DEMO_MAX_ATTEMPTS )
             {
                 LogWarn( ( "Demo iteration %lu failed. Retrying...",
                            ( unsigned long ) demoRunCount ) );
@@ -678,12 +678,12 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
                 mqttSessionEstablished = 0;
 
                 LogInfo( ( "A short delay before the next demo iteration." ) );
-                vTaskDelay( DELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
+                vTaskDelay( DELAY_BETWEEEN_DEMO_ATTEMPTS_TICKS );
             }
             else
             {
                 LogError( ( "All %lu demo iterations failed.",
-                            ( unsigned long ) DEFENDER_MAX_DEMO_COUNT ) );
+                            ( unsigned long ) DEFENDER_DEMO_MAX_ATTEMPTS ) );
                 retryDemoLoop = pdFALSE;
             }
         }

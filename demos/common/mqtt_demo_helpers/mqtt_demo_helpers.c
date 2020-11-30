@@ -885,14 +885,14 @@ BaseType_t ProcessLoop( MQTTContext_t * pxMqttContext,
                         uint32_t ulTimeoutMs )
 {
     BaseType_t xReturnStatus = pdFAIL;
-    MQTTStatus_t xMQTTStatus = MQTTSuccess;
+    MQTTStatus_t eMQTTStatus = MQTTSuccess;
 
     xMQTTStatus = MQTT_ProcessLoop( pxMqttContext, ulTimeoutMs );
 
-    if( xMQTTStatus != MQTTSuccess )
+    if( eMQTTStatus != MQTTSuccess )
     {
         LogWarn( ( "MQTT_ProcessLoop returned with status = %u.",
-                   xMQTTStatus ) );
+                   MQTT_Status_strerror( eMQTTStatus ) ) );
     }
     else
     {
