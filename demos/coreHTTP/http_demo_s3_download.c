@@ -45,9 +45,10 @@
  * retry interval with an exponential backoff and jitter algorithm. For
  * generating random number required by the algorithm, the PKCS11 module is used
  * as it allows access to a True Random Number Generator (TRNG) if the vendor
- * platform supports it. It is RECOMMENDED to seed the random number generator
- * with a device-specific entropy source so that probability of collisions from
- * devices in connection retries is mitigated.
+ * platform supports it.
+ * It is RECOMMENDED to seed the random number generator with a device-specific
+ * entropy source so that probability of collisions from devices in connection
+ * retries is mitigated.
  */
 
 /**
