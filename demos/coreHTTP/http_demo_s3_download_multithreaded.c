@@ -170,11 +170,13 @@
 #define httpexampleHTTP_SEND_ERROR                           ( 1U << 1 )
 
 /**
- * @brief The maximum number of loop iterations to wait before declaring failure.
+ * @brief The maximum number of loop iterations to wait after the last received
+ * server response, before declaring failure.
  *
- * Each `while` loop waiting for a task notification will wait for a total
- * number of ticks equal to `httpexampleDEMO_TICKS_TO_WAIT` * this number of
- * iterations before the loop exits.
+ * The `while` loop used to download the S3 file using range requests will wait
+ * for a server response for the total number of ticks equal to
+ * `httpexampleDEMO_TICKS_TO_WAIT` * `httpexampleMAX_WAIT_ITERATIONS` before the
+ * loop exits.
  */
 #define httpexampleMAX_WAIT_ITERATIONS                       ( 20 )
 
