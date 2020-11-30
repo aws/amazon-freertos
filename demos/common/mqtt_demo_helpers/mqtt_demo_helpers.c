@@ -556,7 +556,8 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
         if( eMqttStatus != MQTTSuccess )
         {
             xReturnStatus = pdFAIL;
-            LogError( ( "MQTT init failed with status %u.", eMqttStatus ) );
+            LogError( ( "MQTT init failed with status %u.",
+                        MQTT_Status_strerror( eMqttStatus ) ) );
         }
         else
         {
@@ -595,7 +596,8 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
             if( eMqttStatus != MQTTSuccess )
             {
                 xReturnStatus = pdFAIL;
-                LogError( ( "Connection with MQTT broker failed with status %u.", eMqttStatus ) );
+                LogError( ( "Connection with MQTT broker failed with status %u.",
+                            MQTT_Status_strerror( eMqttStatus ) ) );
             }
             else
             {
@@ -659,7 +661,7 @@ BaseType_t DisconnectMqttSession( MQTTContext_t * pxMqttContext,
         if( eMqttStatus != MQTTSuccess )
         {
             LogError( ( "Sending MQTT DISCONNECT failed with status=%u.",
-                        eMqttStatus ) );
+                        MQTT_Status_strerror( eMqttStatus ) ) );
             xReturnStatus = pdFAIL;
         }
     }
@@ -711,7 +713,7 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
     if( eMqttStatus != MQTTSuccess )
     {
         LogError( ( "Failed to send SUBSCRIBE packet to broker with error = %u.",
-                    eMqttStatus ) );
+                    MQTT_Status_strerror( eMqttStatus ) ) );
         xReturnStatus = pdFAIL;
     }
     else
@@ -733,7 +735,7 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
         {
             xReturnStatus = pdFAIL;
             LogError( ( "MQTT_ProcessLoop returned with status = %u.",
-                        eMqttStatus ) );
+                        MQTT_Status_strerror( eMqttStatus ) ) );
         }
     }
 
@@ -774,7 +776,7 @@ BaseType_t UnsubscribeFromTopic( MQTTContext_t * pxMqttContext,
     if( eMqttStatus != MQTTSuccess )
     {
         LogError( ( "Failed to send UNSUBSCRIBE packet to broker with error = %u.",
-                    eMqttStatus ) );
+                    MQTT_Status_strerror( eMqttStatus ) ) );
         xReturnStatus = pdFAIL;
     }
     else
@@ -796,7 +798,7 @@ BaseType_t UnsubscribeFromTopic( MQTTContext_t * pxMqttContext,
         {
             xReturnStatus = pdFAIL;
             LogError( ( "MQTT_ProcessLoop returned with status = %u.",
-                        eMqttStatus ) );
+                        MQTT_Status_strerror( eMqttStatus ) ) );
         }
     }
 
@@ -850,7 +852,7 @@ BaseType_t PublishToTopic( MQTTContext_t * pxMqttContext,
         if( eMqttStatus != MQTTSuccess )
         {
             LogError( ( "Failed to send PUBLISH packet to broker with error = %u.",
-                        eMqttStatus ) );
+                        MQTT_Status_strerror( eMqttStatus ) ) );
             vCleanupOutgoingPublishAt( ucPublishIndex );
             xReturnStatus = pdFAIL;
         }
@@ -872,7 +874,7 @@ BaseType_t PublishToTopic( MQTTContext_t * pxMqttContext,
             if( eMqttStatus != MQTTSuccess )
             {
                 LogWarn( ( "MQTT_ProcessLoop returned with status = %u.",
-                           eMqttStatus ) );
+                           MQTT_Status_strerror( eMqttStatus ) ) );
             }
         }
     }
@@ -885,14 +887,14 @@ BaseType_t ProcessLoop( MQTTContext_t * pxMqttContext,
                         uint32_t ulTimeoutMs )
 {
     BaseType_t xReturnStatus = pdFAIL;
-    MQTTStatus_t eMQTTStatus = MQTTSuccess;
+    MQTTStatus_t eMqttStatus = MQTTSuccess;
 
-    xMQTTStatus = MQTT_ProcessLoop( pxMqttContext, ulTimeoutMs );
+    eMqttStatus = MQTT_ProcessLoop( pxMqttContext, ulTimeoutMs );
 
-    if( eMQTTStatus != MQTTSuccess )
+    if( eMqttStatus != MQTTSuccess )
     {
         LogWarn( ( "MQTT_ProcessLoop returned with status = %u.",
-                   MQTT_Status_strerror( eMQTTStatus ) ) );
+                   MQTT_Status_strerror( eMqttStatus ) ) );
     }
     else
     {
