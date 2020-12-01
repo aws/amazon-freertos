@@ -44,6 +44,7 @@
  *          CONFIG_BLE_GATT_SERVER_DEMO_ENABLED
  *          CONFIG_MQTT_BLE_TRANSPORT_DEMO_ENABLED
  *          CONFIG_SHADOW_BLE_TRANSPORT_DEMO_ENABLED
+ *          CONFIG_DEVICE_DEFENDER_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 

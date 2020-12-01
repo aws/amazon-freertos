@@ -67,6 +67,7 @@ target_compile_definitions(
     -D__MTK_BLE_ONLY_ENABLE__
     -DMTK_SINGLE_SKU_SUPPORT
     -DHAL_DFS_MODULE_ENABLED
+    -DMT7697HX_DEV_KIT
     -DLWIP_NO_STDINT_H=1
     -DLWIP_TIMEVAL_PRIVATE=1
     # Needed by tinycbor to determine byte order
