@@ -82,6 +82,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/greengrass/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/greengrass/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/coreJSON/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/device_shadow_for_aws/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/common/mqtt_demo_helpers"/>

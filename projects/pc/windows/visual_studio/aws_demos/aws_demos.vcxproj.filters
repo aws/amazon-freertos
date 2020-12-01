@@ -125,6 +125,9 @@
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include"/>
 		<Filter Include="libraries\coreJSON\source"/>
 		<Filter Include="libraries\coreJSON"/>
 		<Filter Include="libraries\coreJSON\source\include"/>
@@ -141,6 +144,9 @@
 		<Filter Include="demos\coreHTTP"/>
 		<Filter Include="demos\coreMQTT"/>
 		<Filter Include="demos\defender"/>
+		<Filter Include="demos\device_defender_for_aws"/>
+		<Filter Include="demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp"/>
+		<Filter Include="demos\device_defender_for_aws\metrics_collector"/>
 		<Filter Include="demos\device_shadow_for_aws"/>
 		<Filter Include="demos\greengrass_connectivity"/>
 		<Filter Include="demos\https"/>
@@ -521,6 +527,15 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_dump_packets.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_mem_stats.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_netstat.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h">
 			<Filter>libraries\coreJSON\source\include</Filter>
 		</ClInclude>
@@ -538,6 +553,12 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\jobs_for_aws\source\include\jobs.h">
 			<Filter>libraries\jobs_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\demos\device_defender_for_aws\report_builder.h">
+			<Filter>demos\device_defender_for_aws</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\demos\device_defender_for_aws\metrics_collector.h">
+			<Filter>demos\device_defender_for_aws</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_tasks.h">
 			<Filter>demos\tcp</Filter>
@@ -1117,6 +1138,15 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_dump_packets.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_mem_stats.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_netstat.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
 			<Filter>libraries\coreJSON\source</Filter>
 		</ClCompile>
@@ -1149,6 +1179,15 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c">
 			<Filter>demos\defender</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\defender_demo.c">
+			<Filter>demos\device_defender_for_aws</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\report_builder.c">
+			<Filter>demos\device_defender_for_aws</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp\metrics_collector.c">
+			<Filter>demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\device_shadow_for_aws\shadow_demo_main.c">
 			<Filter>demos\device_shadow_for_aws</Filter>

@@ -147,6 +147,8 @@
 
 #elif defined( CONFIG_CLI_UART_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vRunCLIUartDemo
+#elif defined( CONFIG_DEVICE_DEFENDER_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunDeviceDefenderDemo
 #else /* if defined( CONFIG_CORE_MQTT_BASIC_TLS_DEMO_ENABLED ) */
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "No demo to run. One demo should be enabled"

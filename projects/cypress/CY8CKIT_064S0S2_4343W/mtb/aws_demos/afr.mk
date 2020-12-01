@@ -188,7 +188,9 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/device_shadow_for_aws/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/jobs_for_aws/*.c)
+	$(wildcard $(CY_AFR_ROOT)/demos/jobs_for_aws/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/lwip/*.c)
 
 INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common\
@@ -201,6 +203,8 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/demos/common/http_demo_helpers\
 	$(CY_AFR_ROOT)/demos/common/mqtt_demo_helpers\
 	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers\
+	$(CY_AFR_ROOT)/demos/device_defender_for_aws\
+	$(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/lwip\
 
 ################################################################################
 # libraries (3rd party)

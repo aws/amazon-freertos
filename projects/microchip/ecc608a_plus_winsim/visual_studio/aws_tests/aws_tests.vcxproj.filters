@@ -134,6 +134,9 @@
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include"/>
 		<Filter Include="libraries\coreJSON\source"/>
 		<Filter Include="libraries\coreJSON"/>
 		<Filter Include="libraries\coreJSON\source\include"/>
@@ -706,6 +709,15 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_dump_packets.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_mem_stats.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_netstat.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h">
 			<Filter>libraries\coreJSON\source\include</Filter>
@@ -1521,6 +1533,15 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_dump_packets.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_mem_stats.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_netstat.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
 			<Filter>libraries\coreJSON\source</Filter>
