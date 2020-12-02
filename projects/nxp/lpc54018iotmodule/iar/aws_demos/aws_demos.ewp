@@ -2052,12 +2052,6 @@
 			</file>
 		</group>
 		<group>
-			<name>defender</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\defender\aws_iot_demo_defender.c</name>
-			</file>
-		</group>
-		<group>
 			<name>device_shadow_for_aws</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_shadow_for_aws\shadow_demo_main.c</name>

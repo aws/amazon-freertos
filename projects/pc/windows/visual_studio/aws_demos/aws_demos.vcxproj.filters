@@ -143,7 +143,6 @@
 		<Filter Include="libraries\jobs_for_aws\source\include"/>
 		<Filter Include="demos\coreHTTP"/>
 		<Filter Include="demos\coreMQTT"/>
-		<Filter Include="demos\defender"/>
 		<Filter Include="demos\device_defender_for_aws"/>
 		<Filter Include="demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp"/>
 		<Filter Include="demos\device_defender_for_aws\metrics_collector"/>
@@ -1176,9 +1175,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_connection_sharing.c">
 			<Filter>demos\coreMQTT</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c">
-			<Filter>demos\defender</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\defender_demo.c">
 			<Filter>demos\device_defender_for_aws</Filter>

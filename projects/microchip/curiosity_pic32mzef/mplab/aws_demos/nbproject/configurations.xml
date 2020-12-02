@@ -93,9 +93,6 @@
 				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</itemPath>
 				<itemPath>../../../../../demos/coreMQTT/mqtt_demo_connection_sharing.c</itemPath>
 			</logicalFolder>
-			<logicalFolder name="defender" displayName="defender" projectFiles="true">
-				<itemPath>../../../../../demos/defender/aws_iot_demo_defender.c</itemPath>
-			</logicalFolder>
 			<logicalFolder name="device_defender_for_aws" displayName="device_defender_for_aws" projectFiles="true">
 				<itemPath>../../../../../demos/device_defender_for_aws/defender_demo.c</itemPath>
 				<itemPath>../../../../../demos/device_defender_for_aws/report_builder.c</itemPath>
