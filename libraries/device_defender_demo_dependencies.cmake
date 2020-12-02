@@ -85,3 +85,24 @@ afr_module_dependencies(
         # Device Defender library on the FreeRTOS console.
         AFR::core_mqtt_demo_dependencies
 )
+
+# The Device Defender demo depends on either of LWIP or FreeRTOS+TCP
+# network stacks for collecting network metrics for the demo. 
+# Therefore, add dependency on the network stack supported by the board.
+if(TARGET AFR::freertos_plus_tcp::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::secure_sockets_freertos_plus_tcp
+    )
+# Note: Even though ESP32 boards support LWIP, the Defender Demo
+# is not supported for the ESP32 boards. Thus, we prevent visibility
+# of the Defender Library in list of libraries for ESP32 boards on
+# the FreeRTOS console with this special check.
+elseif(NOT "${AFR_BOARD_NAME}" MATCHES "^(esp32).*" )
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::secure_sockets_lwip
+    )
+endif()
