@@ -1766,6 +1766,11 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</FilePath>
 						</File>
+						<File>
+							<FileName>mqtt_demo_connection_sharing.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_connection_sharing.c</FilePath>
+						</File>
 					</Files>
 				</Group>
 				<Group>
