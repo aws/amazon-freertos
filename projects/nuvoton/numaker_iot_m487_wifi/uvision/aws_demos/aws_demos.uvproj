@@ -1701,16 +1701,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>demos/defender/</GroupName>
-					<Files>
-						<File>
-							<FileName>aws_iot_demo_defender.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/defender/aws_iot_demo_defender.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>demos/device_shadow_for_aws/</GroupName>
 					<Files>
 						<File>

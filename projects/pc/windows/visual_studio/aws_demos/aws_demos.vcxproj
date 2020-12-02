@@ -422,7 +422,6 @@
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_upload.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_mutual_auth.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_connection_sharing.c"/>
-		<ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\defender_demo.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\report_builder.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp\metrics_collector.c"/>

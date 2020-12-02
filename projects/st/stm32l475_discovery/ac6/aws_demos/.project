@@ -2018,11 +2018,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT/mqtt_demo_connection_sharing.c</locationURI>
 		</link>
 		<link>
-			<name>demos/defender/aws_iot_demo_defender.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/defender/aws_iot_demo_defender.c</locationURI>
-		</link>
-		<link>
 			<name>demos/device_shadow_for_aws/shadow_demo_main.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/device_shadow_for_aws/shadow_demo_main.c</locationURI>
