@@ -60,7 +60,7 @@
 /* Platform thread priority. */
 #define IOT_THREAD_DEFAULT_PRIORITY             ( 5 )
 
-/* Platform stack size for HTTPS library. */
+/* Dispatch task and queue configurations for HTTPS library. */
 #define IOT_HTTPS_DISPATCH_TASK_COUNT           1
 #define IOT_HTTPS_DISPATCH_QUEUE_SIZE           2
 #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    1
