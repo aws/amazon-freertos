@@ -21,11 +21,10 @@ INCLUDES+=\
 ################################################################################
 
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/src/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/src/*.c)
 
 INCLUDES+=\
-	$(CY_AFR_ROOT)/demos/dev_mode_key_provisioning\
-	$(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/include\
+	$(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/include
 
 ifeq ($(CY_AFR_IS_TESTING), 0)
 SOURCES+=\
@@ -33,36 +32,49 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/demo_runner/aws_demo_version.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
+	$(CY_AFR_ROOT)/demos/common/http_demo_helpers/http_demo_utils.c\
+	$(CY_AFR_ROOT)/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c\
+	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers/pkcs11_helpers.c\
 	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/defender/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/coreHTTP/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)
+	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_shadow_for_aws/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/jobs_for_aws/*.c)
 
 INCLUDES+=\
+	$(CY_EXTAPP_PATH)/common\
 	$(CY_AFR_ROOT)/demos/https\
 	$(CY_AFR_ROOT)/demos/include\
 	$(CY_AFR_ROOT)/demos/network_manager\
-	$(CY_AFR_ROOT)/demos/tcp
+	$(CY_AFR_ROOT)/demos/tcp\
+	$(CY_AFR_ROOT)/demos/common/http_demo_helpers\
+	$(CY_AFR_ROOT)/demos/common/mqtt_demo_helpers\
+	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers
 else
+
 SOURCES+=\
 	$(CY_AFR_ROOT)/tests/common/aws_test_framework.c\
 	$(CY_AFR_ROOT)/tests/common/aws_test_runner.c\
 	$(CY_AFR_ROOT)/tests/common/aws_test.c\
 	$(CY_AFR_ROOT)/tests/common/iot_test_freertos.c\
-	$(CY_AFR_ROOT)/tests/common/iot_tests_network.c\
+	$(CY_AFR_ROOT)/tests/common/iot_tests_network.c
 
 INCLUDES+=\
+	$(CY_EXTAPP_PATH)/common\
 	$(CY_AFR_ROOT)/tests/include
+
 endif
 ################################################################################
 # libraries (3rd party)
 ################################################################################
 
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/http_parser/http_parser.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/api/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/core/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/core/ipv4/*.c)\
@@ -88,7 +100,6 @@ endif
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/pkcs11\
-	$(CY_AFR_ROOT)/libraries/3rdparty/http_parser\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include\
@@ -107,10 +118,19 @@ INCLUDES+=\
 ################################################################################
 
 SOURCES+=\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/backoff_algorithm/source/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*.c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/transport/secure_sockets/*.c)
+	
 
 INCLUDES+=\
+	$(CY_AFR_ROOT)/libraries/abstractions/backoff_algorithm/source/include\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/include\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11\
 	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls\
@@ -123,7 +143,9 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/secure_sockets\
 	$(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi\
-	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include
+	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include\
+	$(CY_AFR_ROOT)/libraries/abstractions/retry_utils\
+	$(CY_AFR_ROOT)/libraries/abstractions/transport/secure_sockets
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),1)
 SOURCES+=\
@@ -286,6 +308,17 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/portable/
 
+################################################################################
+# core HTTP
+################################################################################
+SOURCES+=\
+	$(wildcard $(CY_AFR_ROOT)/libraries/coreHTTP/source/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c)
+
+INCLUDES+=\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/include\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/interface\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/dependency/3rdparty/http_parser
 
 ################################################################################
 # Logging
@@ -297,16 +330,33 @@ SOURCES+=\
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/logging/include
 
+
 ################################################################################
-# PKCS11
+# Json
 ################################################################################
 
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa/*.c)
-	
+	$(wildcard $(CY_AFR_ROOT)/libraries/coreJson/source/*.c)
 
 INCLUDES+=\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/include\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include
+	$(CY_AFR_ROOT)/libraries/coreJson/source/include
+
+################################################################################
+# Shadow
+################################################################################
+
+SOURCES+=\
+	$(wildcard $(CY_AFR_ROOT)/libraries/jobs_for_aws/source/*.c)
+
+INCLUDES+=\
+	$(CY_AFR_ROOT)/libraries/jobs_for_aws/source/include
+
+################################################################################
+# Shadow
+################################################################################\
+
+SOURCES+=\
+	$(wildcard $(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/*.c)
+
+INCLUDES+=\
+	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/include
