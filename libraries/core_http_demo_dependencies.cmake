@@ -79,6 +79,9 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::core_http
+        AFR::http_demo_helpers
+        AFR::backoff_algorithm
+        AFR::pkcs11_helpers
 )
 
 # Add more dependencies for Secure Sockets based HTTP demo 
@@ -88,7 +91,6 @@ if(TARGET AFR::secure_sockets::mcu_port)
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}
         PUBLIC
-            AFR::retry_utils
             AFR::transport_interface_secure_sockets
             AFR::secure_sockets
     )

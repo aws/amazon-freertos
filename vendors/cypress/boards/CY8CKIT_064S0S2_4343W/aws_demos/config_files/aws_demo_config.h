@@ -29,6 +29,7 @@
 /* To run a particular demo you need to define one of these.
  * Only one demo can be configured at a time
  *
+ *          CONFIG_CORE_HTTP_MUTUAL_AUTH_DEMO_ENABLED
  *          CONFIG_CORE_HTTP_S3_DOWNLOAD_DEMO_ENABLED
  *          CONFIG_CORE_HTTP_S3_DOWNLOAD_MULTITHREADED_DEMO_ENABLED
  *          CONFIG_CORE_HTTP_S3_UPLOAD_DEMO_ENABLED
@@ -44,6 +45,7 @@
  *          CONFIG_BLE_GATT_SERVER_DEMO_ENABLED
  *          CONFIG_MQTT_BLE_TRANSPORT_DEMO_ENABLED
  *          CONFIG_SHADOW_BLE_TRANSPORT_DEMO_ENABLED
+ *          CONFIG_DEVICE_DEFENDER_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 

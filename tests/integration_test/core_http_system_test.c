@@ -40,11 +40,18 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+/* Include PKCS11 headers. */
+#include "core_pkcs11.h"
+#include "pkcs11.h"
+
+/* Include connection configurations header. */
+#include "aws_clientcredential.h"
+
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
 /* Retry parameters. */
-#include "retry_utils.h"
+#include "backoff_algorithm.h"
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -107,42 +114,81 @@
 /**
  * @brief Length of HTTP server host name.
  */
-#define SERVER_HOST_LENGTH                ( ( sizeof( SERVER_HOST_NAME ) - 1 ) )
+#define SERVER_HOST_LENGTH                       ( ( sizeof( SERVER_HOST_NAME ) - 1 ) )
+
+/**
+ * @brief The maximum number of connection retries with server.
+ */
+#define CONNECTION_RETRY_MAX_ATTEMPTS            ( 5U )
+
+/**
+ * @brief The maximum back-off delay (in milliseconds) for retry connection attempts
+ * with server.
+ */
+#define CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS    ( 5000U )
+
+/**
+ * @brief The base back-off delay (in milliseconds) to use for connection retry attempts.
+ */
+#define CONNECTION_RETRY_BACKOFF_BASE_MS         ( 500U )
+
+/**
+ * @brief AWS IoT HTTP server endpoint.
+ * Clients can publish messages to an MQTT topic by making HTTP requests to the
+ * AWS IoT core REST API. Please see
+ * https://docs.aws.amazon.com/iot/latest/developerguide/http.html for more
+ * information.
+ */
+#define AWS_IOT_SERVER_HOST_NAME                 clientcredentialMQTT_BROKER_ENDPOINT
+
+/**
+ * @brief Length of the AWS IoT HTTP server host name.
+ */
+#define AWS_IOT_SERVER_HOST_LENGTH               ( ( sizeof( AWS_IOT_SERVER_HOST_NAME ) - 1U ) )
+
+/**
+ * @brief Port number for the AWS IoT HTTP server.
+ * Port 8443 does not need an ALPN protocol, for AWS IoT Core. Please see
+ * https://docs.aws.amazon.com/iot/latest/developerguide/protocols.html for more
+ * information.
+ */
+#define AWS_IOT_HTTPS_PORT                       ( 8443 )
 
 /**
  * @brief The maximum number of retries to attempt on network error.
  */
-#define MAX_RETRY_COUNT                   ( 3 )
+#define MAX_RETRY_COUNT                          ( 3U )
 
 /**
  * @brief Paths for different HTTP methods for the specified host.
  */
-#define GET_PATH                          "/get"
-#define HEAD_PATH                         "/get"
-#define PUT_PATH                          "/put"
-#define POST_PATH                         "/post"
+#define GET_PATH                                 "/get"
+#define HEAD_PATH                                "/get"
+#define PUT_PATH                                 "/put"
+#define POST_PATH                                "/post"
+#define AWS_IOT_POST_PATH                        "/topics/topic?qos=1"
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define TRANSPORT_SEND_RECV_TIMEOUT_MS    ( 5000 )
+#define TRANSPORT_SEND_RECV_TIMEOUT_MS           ( 5000U )
 
 /**
  * @brief Request body to send for PUT and POST requests.
  */
-#define REQUEST_BODY                      "Hello, world!"
+#define REQUEST_BODY                             "Hello, world!"
 
 /**
  * @brief Length of the request body.
  */
-#define REQUEST_BODY_LENGTH               ( sizeof( REQUEST_BODY ) - 1 )
+#define REQUEST_BODY_LENGTH                      ( sizeof( REQUEST_BODY ) - 1 )
 
 /**
  * @brief The total length, of the chunked HTTP response body, to test receiving.
  * This length is inserted as a string into the request path, so avoid putting
  * parenthesis around it.
  */
-#define CHUNKED_BODY_LENGTH               128
+#define CHUNKED_BODY_LENGTH                      128
 
 /**
  * @brief The path used for testing receiving a transfer encoding chunked
@@ -162,8 +208,10 @@
     "\n"                                   \
     "HTTP/0.0 0\n"                         \
     "test-header0: ab"
-#define HTTP_TEST_RESPONSE_LINE_FEEDS_ONLY_BODY_LENGTH       ( 27 )
-#define HTTP_TEST_RESPONSE_LINE_FEEDS_ONLY_HEADERS_LENGTH    ( 18 )
+#define HTTP_TEST_RESPONSE_LINE_FEEDS_ONLY_BODY_LENGTH       ( 27U )
+#define HTTP_TEST_RESPONSE_LINE_FEEDS_ONLY_HEADERS_LENGTH    ( 18U )
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Represents the network context used for the TLS session with the
@@ -203,7 +251,27 @@ static uint8_t * pNetworkData = NULL;
  */
 static size_t networkDataLen = 0U;
 
+/**
+ * @brief Flag to represent whether the tests are being run against AWS IoT
+ * Core. This flag is zero when not testing against AWS IoT Core.
+ */
+static uint8_t testingAgainstAWS = 0U;
+
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief The pseudo random number generator to use for exponential backoff with
+ * jitter calculation for connection retries.
+ * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
+ * of the backoff algorithm library API.
+ *
+ * The PKCS11 module is used to generate the random random number as it allows
+ * access to a True Random Number Generator (TRNG) if the vendor platform supports it.
+ *
+ * @return The generated random number. This function ALWAYS succeeds
+ * in generating a random number.
+ */
+static uint32_t generateRandomNumber();
 
 /**
  * @brief Connect to HTTP server with reconnection retries.
@@ -258,14 +326,46 @@ static int32_t transportSendStub( NetworkContext_t * pNetworkContext,
 
 /*-----------------------------------------------------------*/
 
+static uint32_t generateRandomNumber()
+{
+    UBaseType_t uxRandNum = 0;
+
+    CK_FUNCTION_LIST_PTR pFunctionList = NULL;
+    CK_SESSION_HANDLE session = CK_INVALID_HANDLE;
+
+    /* Get list of functions supported by the PKCS11 port. */
+    TEST_ASSERT_EQUAL( CKR_OK, C_GetFunctionList( &pFunctionList ) );
+    TEST_ASSERT_TRUE( pFunctionList != NULL );
+
+    /* Initialize PKCS11 module and create a new session. */
+    TEST_ASSERT_EQUAL( CKR_OK, xInitializePkcs11Session( &session ) );
+    TEST_ASSERT_TRUE( session != CK_INVALID_HANDLE );
+
+    /*
+     * Seed random number generator with PKCS11.
+     * Use of PKCS11 can allow use of True Random Number Generator (TRNG)
+     * if the platform supports it.
+     */
+    TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_GenerateRandom( session,
+                                                                ( unsigned char * ) &uxRandNum,
+                                                                sizeof( uxRandNum ) ) );
+
+
+    /* Close PKCS11 session. */
+    TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_CloseSession( session ) );
+
+    return uxRandNum;
+}
+
 static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
 {
     /* Status returned by the retry utilities. */
-    RetryUtilsStatus_t retryUtilsStatus = RetryUtilsSuccess;
+    BackoffAlgorithmStatus_t BackoffAlgStatus = BackoffAlgorithmSuccess;
     /* Struct containing Sockets configurations. */
     SocketsConfig_t socketsConfig = { 0 };
     /* Struct containing the next backoff time. */
-    RetryUtilsParams_t reconnectParams;
+    BackoffAlgorithmContext_t reconnectParams;
+    uint16_t nextRetryBackOff = 0U;
     /* Status returned by transport implementation. */
     TransportSocketStatus_t transportStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
 
@@ -284,9 +384,20 @@ static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
     socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
 
-    /* Initialize reconnect attempts and interval */
-    RetryUtils_ParamsReset( &reconnectParams );
-    reconnectParams.maxRetryAttempts = MAX_RETRY_ATTEMPTS;
+    /* Set the AWS IoT Core connection configurations, if we are testing against
+     * AWS IoT core. */
+    if( testingAgainstAWS != 0U )
+    {
+        serverInfo.pHostName = AWS_IOT_SERVER_HOST_NAME;
+        serverInfo.hostNameLength = AWS_IOT_SERVER_HOST_LENGTH;
+        serverInfo.port = AWS_IOT_HTTPS_PORT;
+    }
+
+    /* Initialize reconnect attempts and interval. */
+    BackoffAlgorithm_InitializeParams( &reconnectParams,
+                                       CONNECTION_RETRY_BACKOFF_BASE_MS,
+                                       CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS,
+                                       CONNECTION_RETRY_MAX_ATTEMPTS );
 
     /* Attempt to connect to HTTP server. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase until maximum
@@ -301,17 +412,25 @@ static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
 
         if( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            LogWarn( ( "Connection to the broker failed. Retrying connection with backoff and jitter." ) );
-            retryUtilsStatus = RetryUtils_BackoffAndSleep( &reconnectParams );
-        }
+            /* Generate random number and get back-off value for the next connection retry. */
+            BackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &reconnectParams,
+                                                                generateRandomNumber(),
+                                                                &nextRetryBackOff );
 
-        if( retryUtilsStatus == RetryUtilsRetriesExhausted )
-        {
-            LogError( ( "Connection to the server failed, all attempts exhausted." ) );
-        }
-    } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( retryUtilsStatus == RetryUtilsSuccess ) );
+            if( BackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
+            {
+                LogError( ( "Connection to the server failed, all attempts exhausted." ) );
+            }
 
-    TEST_ASSERT_EQUAL( transportStatus, TRANSPORT_SOCKET_STATUS_SUCCESS );
+            else if( BackoffAlgStatus == BackoffAlgorithmSuccess )
+            {
+                LogWarn( ( "Connection to the server failed. Retrying connection after backoff delay." ) );
+                vTaskDelay( pdMS_TO_TICKS( nextRetryBackOff ) );
+            }
+        }
+    } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( BackoffAlgStatus == BackoffAlgorithmSuccess ) );
+
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, transportStatus );
 }
 
 /*-----------------------------------------------------------*/
@@ -422,6 +541,9 @@ static void sendHttpRequest( const TransportInterface_t * pTransportInterface,
     {
         TEST_ASSERT_GREATER_THAN( 0, response.bodyLen );
     }
+
+    /* Verify that we received a 200 response status code from the server. */
+    TEST_ASSERT_EQUAL( 200, response.statusCode );
 }
 
 /*-----------------------------------------------------------*/
@@ -454,13 +576,8 @@ static int32_t transportSendStub( NetworkContext_t * pNetworkContext,
 
 /* ============================   UNITY FIXTURES ============================ */
 
-/**
- * @brief Test group for running coreHTTP system tests.
- */
-TEST_GROUP( coreHTTP_Integration );
-
 /* Called before each test method. */
-TEST_SETUP( coreHTTP_Integration )
+void testSetup()
 {
     /* Clear the global response before each test. */
     memset( &response, 0, sizeof( HTTPResponse_t ) );
@@ -481,8 +598,8 @@ TEST_SETUP( coreHTTP_Integration )
     transportInterface.pNetworkContext = &networkContext;
 }
 
-/* Called after each test method. */
-TEST_TEAR_DOWN( coreHTTP_Integration )
+/* Called after test method. */
+void testTeardown()
 {
     TransportSocketStatus_t transportStatus;
 
@@ -492,7 +609,52 @@ TEST_TEAR_DOWN( coreHTTP_Integration )
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, transportStatus );
 }
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test group for coreHTTP system tests for features that are supported
+ * by AWS IoT.
+ */
+TEST_GROUP( coreHTTP_Integration_AWS_IoT_Compatible );
+
+TEST_SETUP( coreHTTP_Integration_AWS_IoT_Compatible )
+{
+    testSetup();
+}
+
+/* Called after each test method. */
+TEST_TEAR_DOWN( coreHTTP_Integration_AWS_IoT_Compatible )
+{
+    testTeardown();
+}
+
+/**
+ * @brief Test group for running coreHTTP system tests.
+ */
+TEST_GROUP( coreHTTP_Integration );
+
+/* Called before each test method. */
+TEST_SETUP( coreHTTP_Integration )
+{
+    testSetup();
+}
+
+/* Called after each test method. */
+TEST_TEAR_DOWN( coreHTTP_Integration )
+{
+    testTeardown();
+}
+
 /* ========================== Test Cases ============================ */
+
+/**
+ * @brief Test group runner for HTTP system tests that can be run against AWS IoT.
+ */
+TEST_GROUP_RUNNER( coreHTTP_Integration_AWS_IoT_Compatible )
+{
+    testingAgainstAWS = 1U;
+    RUN_TEST_CASE( coreHTTP_Integration_AWS_IoT_Compatible, test_HTTP_POST_Request );
+}
 
 /**
  * @brief Test group runner for HTTP system tests.
@@ -510,67 +672,58 @@ TEST_GROUP_RUNNER( coreHTTP_Integration )
 /**
  * @brief Sends a GET request synchronously and verifies the result.
  */
-void test_HTTP_GET_Request( void )
+TEST( coreHTTP_Integration, test_HTTP_GET_Request )
 {
     sendHttpRequest( &transportInterface,
                      HTTP_METHOD_GET,
                      GET_PATH );
 }
 
-TEST( coreHTTP_Integration, test_HTTP_GET_Request )
-{
-    test_HTTP_GET_Request();
-}
-
 /**
  * @brief Sends a HEAD request synchronously and verifies the result.
  */
-void test_HTTP_HEAD_Request( void )
+TEST( coreHTTP_Integration, test_HTTP_HEAD_Request )
 {
     sendHttpRequest( &transportInterface,
                      HTTP_METHOD_HEAD,
                      HEAD_PATH );
 }
 
-TEST( coreHTTP_Integration, test_HTTP_HEAD_Request )
+/**
+ * @brief Sends a POST request synchronously, to AWS IoT Core, and verifies the
+ * result.
+ */
+TEST( coreHTTP_Integration_AWS_IoT_Compatible, test_HTTP_POST_Request )
 {
-    test_HTTP_HEAD_Request();
+    sendHttpRequest( &transportInterface,
+                     HTTP_METHOD_POST,
+                     AWS_IOT_POST_PATH );
 }
 
 /**
  * @brief Sends a POST request synchronously and verifies the result.
  */
-void test_HTTP_POST_Request( void )
+TEST( coreHTTP_Integration, test_HTTP_POST_Request )
 {
     sendHttpRequest( &transportInterface,
                      HTTP_METHOD_POST,
                      POST_PATH );
 }
 
-TEST( coreHTTP_Integration, test_HTTP_POST_Request )
-{
-    test_HTTP_POST_Request();
-}
-
 /**
  * @brief Sends a PUT request synchronously and verifies the result.
  */
-void test_HTTP_PUT_Request( void )
+TEST( coreHTTP_Integration, test_HTTP_PUT_Request )
 {
     sendHttpRequest( &transportInterface,
                      HTTP_METHOD_PUT,
                      PUT_PATH );
 }
 
-TEST( coreHTTP_Integration, test_HTTP_PUT_Request )
-{
-    test_HTTP_PUT_Request();
-}
-
 /**
  * @brief Receive a Transfer-Encoding chunked response.
  */
-void test_HTTP_Chunked_Response( void )
+TEST( coreHTTP_Integration, test_HTTP_Chunked_Response )
 {
     sendHttpRequest( &transportInterface,
                      HTTP_METHOD_GET,
@@ -581,16 +734,11 @@ void test_HTTP_Chunked_Response( void )
     TEST_ASSERT_EQUAL( CHUNKED_BODY_LENGTH, response.bodyLen );
 }
 
-TEST( coreHTTP_Integration, test_HTTP_Chunked_Response )
-{
-    test_HTTP_Chunked_Response();
-}
-
 /**
  * @brief Test how http-parser responds with a response of line-feeds only and
  * no carriage returns.
  */
-void test_HTTP_LineFeedOnly_Response( void )
+TEST( coreHTTP_Integration, test_HTTP_LineFeedOnly_Response )
 {
     HTTPRequestHeaders_t requestHeaders = { 0 };
     HTTPStatus_t status = HTTPSuccess;
@@ -624,9 +772,4 @@ void test_HTTP_LineFeedOnly_Response( void )
     TEST_ASSERT_EQUAL( HTTPSuccess, status );
     TEST_ASSERT_EQUAL( HTTP_TEST_RESPONSE_LINE_FEEDS_ONLY_BODY_LENGTH, response.bodyLen );
     TEST_ASSERT_EQUAL( HTTP_TEST_RESPONSE_LINE_FEEDS_ONLY_HEADERS_LENGTH, response.headersLen );
-}
-
-TEST( coreHTTP_Integration, test_HTTP_LineFeedOnly_Response )
-{
-    test_HTTP_LineFeedOnly_Response();
 }

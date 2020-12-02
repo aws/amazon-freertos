@@ -1,5 +1,5 @@
 # Module for demo helper utilities based on coreHTTP library. 
-afr_module(NAME http_demo_helpers)
+afr_module(INTERNAL NAME http_demo_helpers)
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -17,6 +17,7 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::core_http
-        AFR::retry_utils
+        AFR::backoff_algorithm
         AFR::transport_interface_secure_sockets
+        AFR::pkcs11_helpers
 )

@@ -47,7 +47,7 @@ afr_module_include_dirs(
 afr_module(NAME jobs_demo_dependencies )
 
 afr_set_lib_metadata(ID "jobs_demo_dependencies")
-afr_set_lib_metadata(DESCRIPTION "This library enables device metrics reporting with AWS IoT Jobs.")
+afr_set_lib_metadata(DESCRIPTION "This library enables a device registered on AWS IoT to receive pending job requests and post job updates to the AWS IoT Jobs service.")
 afr_set_lib_metadata(DISPLAY_NAME "Jobs")
 afr_set_lib_metadata(CATEGORY "Amazon Services")
 afr_set_lib_metadata(VERSION "1.0.0")
@@ -74,6 +74,7 @@ afr_module_dependencies(
     PUBLIC
         AFR::jobs
         AFR::core_json
+        AFR::mqtt_demo_helpers
         # Add dependency on core_mqtt_demo_dependencies module 
         # so that coreMQTT library is auto-included when selecting
         # Jobs library on the FreeRTOS console.

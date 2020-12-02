@@ -14,6 +14,7 @@ afr_module_cmake_files(${AFR_CURRENT_MODULE}
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
+        "${CMAKE_CURRENT_LIST_DIR}/http_demo_mutual_auth.c"
         "${CMAKE_CURRENT_LIST_DIR}/http_demo_s3_download.c"
         "${CMAKE_CURRENT_LIST_DIR}/http_demo_s3_download_multithreaded.c"
         "${CMAKE_CURRENT_LIST_DIR}/http_demo_s3_upload.c"
@@ -30,7 +31,7 @@ afr_module_dependencies(
     INTERFACE
         AFR::http_demo_helpers
         AFR::core_http
-        AFR::retry_utils
+        AFR::backoff_algorithm
         AFR::transport_interface_secure_sockets
         AFR::secure_sockets
         # Add dependency on the core_http_demo_dependencies metadata module 

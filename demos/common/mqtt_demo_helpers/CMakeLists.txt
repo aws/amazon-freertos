@@ -1,5 +1,5 @@
 # Module for demo helper utilities based on coreMQTT library. 
-afr_module(NAME mqtt_demo_helpers)
+afr_module(INTERNAL NAME mqtt_demo_helpers)
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -18,5 +18,6 @@ afr_module_dependencies(
     PUBLIC
         AFR::core_mqtt
         AFR::transport_interface_secure_sockets
-        AFR::retry_utils
+        AFR::backoff_algorithm
+        AFR::pkcs11_helpers
 )
