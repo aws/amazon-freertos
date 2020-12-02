@@ -590,8 +590,6 @@
             "demos/coreMQTT/CMakeLists.txt": "f9f2741f9f7f4c4d90c2b842aa0d6f79987b282d4630c64f909396e9b502de2c", 
             "demos/coreMQTT/mqtt_demo_connection_sharing.c": "840f43642dea234fa6209e0f547ba7c7d8dfefe8206456b50d03826d34124441", 
             "demos/coreMQTT/mqtt_demo_mutual_auth.c": "93914b9d3ce72bfcff3dfa49bbbfa3bc4b1a683d76d863983b41af1ded6fa53d", 
-            "demos/defender/CMakeLists.txt": "b3f4010fd23f131d054f5167aba38f466bc360b351e16ba2add61be2451d5357", 
-            "demos/defender/aws_iot_demo_defender.c": "52a6bc764c600945cfff17028ced469605146e574d22655044d65c25cff4defa", 
             "demos/demo_runner/aws_demo.c": "a3b07e2ce3a49e2479a49cda2284d4b57729a25425d6056fed61d29e1f107d86", 
             "demos/demo_runner/aws_demo_network_addr.c": "a0e5f2c4ec43ec26eed8862e512518dcf7db1a96dc8e93bdb3043a9818e26232", 
             "demos/demo_runner/aws_demo_version.c": "ac90c8d8b97312db96c0c181adda62493da688da6ad43d92648192e122a2e184", 
