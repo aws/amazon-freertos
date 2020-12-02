@@ -42,10 +42,20 @@
  * responses from the response queue continuously until the entire file is
  * received. If any request fails, an error code is returned.
  *
- * @Note: This demo requires user-generated pre-signed URLs to be pasted into
- * demo_config.h. Please use the provided script "presigned_urls_gen.py"
- * (located in http_demo_helpers) to generate these URLs. For detailed
- * instructions, see the accompanied README.md.
+ * @note This demo requires user-generated pre-signed URLs to be pasted into
+ * http_s3_download_multithreaded_demo_config.h. Please use the provided script
+ * "presigned_urls_gen.py" (located in http_demo_helpers) to generate these
+ * URLs. For detailed instructions, see the accompanied README.md.
+ *
+ * @note This demo uses retry logic to connect to the server if connection
+ * attempts fail. The FreeRTOS/backoffAlgorithm library is used to calculate the
+ * retry interval with an exponential backoff and jitter algorithm. For
+ * generating random number required by the algorithm, the PKCS11 module is used
+ * as it allows access to a True Random Number Generator (TRNG) if the vendor
+ * platform supports it.
+ * It is RECOMMENDED to seed the random number generator with a device-specific
+ * entropy source so that probability of collisions from devices in connection
+ * retries is mitigated.
  */
 
 /**
@@ -108,12 +118,12 @@
 
 /* Check that size of the user buffer is defined. */
 #ifndef democonfigUSER_BUFFER_LENGTH
-    #define democonfigUSER_BUFFER_LENGTH    ( 4096 )
+    #define democonfigUSER_BUFFER_LENGTH    ( 2048 )
 #endif
 
 /* Check that the range request length is defined. */
 #ifndef democonfigRANGE_REQUEST_LENGTH
-    #define democonfigRANGE_REQUEST_LENGTH    ( 2048 )
+    #define democonfigRANGE_REQUEST_LENGTH    ( 1024 )
 #endif
 
 /* Check that the stack size to use for HTTP tasks is defined. */
@@ -195,13 +205,11 @@ static char cServerHost[ httpexampleS3_PRESIGNED_GET_URL_LENGTH ];
 static size_t xServerHostLength;
 
 /**
- * @brief Data type for request queue.
+ * @brief Data type for the request queue.
  *
- * Contains the request header struct and its corresponding buffer, to be read
- * from the request queue by the HTTP task and sent to the server. Note that an
- * instance of this struct and its contents MUST stay in scope until the
- * associated HTTP send function is executed successfully by the HTTP task. In
- * this demo, it is initialized globally.
+ * Contains the request header struct and its corresponding buffer, to be
+ * populated and enqueued by the main task, and read by the HTTP task. The
+ * buffer is included to avoid pointer inaccuracy during queue copy operations.
  */
 typedef struct RequestItem
 {
@@ -210,12 +218,11 @@ typedef struct RequestItem
 } RequestItem_t;
 
 /**
- * @brief Data type for response queue.
+ * @brief Data type for the response queue.
  *
- * Contains the response data type and its corresponding buffer, to be read from
- * the response queue by the main task. Note that an instance of this struct and
- * its contents MUST stay in scope until the main task has finished parsing its
- * contents. In this demo, it is initialized globally.
+ * Contains the response data type and its corresponding buffer, to be enqueued
+ * by the HTTP task, and interpreted by the main task. The buffer is included to
+ * avoid pointer inaccuracy during queue copy operations.
  */
 typedef struct ResponseItem
 {
@@ -224,30 +231,43 @@ typedef struct ResponseItem
 } ResponseItem_t;
 
 /**
- * @brief Struct used for sending requests to the HTTP task.
+ * @brief Struct used by the main task to add requests to the request queue.
  *
- * This structure is modified by the main task and accessed by the HTTP task.
- * Once it is placed on the queue by the main task, it is modified only after
- * the HTTP task has successfully sent the HTTP request.
- *
- * Note that this value is not meant to be modified by `startHTTPThread`, since
- * access to this variable is not protected by thread synchronization
- * primitives.
+ * This structure is modified only by the main task. Since queue operations are
+ * done by-copy, it is safe for the main task to modify this struct once the
+ * previous request has been successfully enqueued.
  */
 static RequestItem_t xRequestItem = { 0 };
 
 /**
- * @brief Struct used for receiving responses from the HTTP task.
+ * @brief Struct used by the main task to receive responses from the response
+ * queue.
  *
- * This is modified by the HTTP task and accessed by the main task. Once it is
- * placed on the queue by the HTTP task, it is modified only after the main task
- * has successfully acknowledged its receipt.
- *
- * Note that this value is not meant to be modified by the main task, since
- * access to this variable is not protected by thread synchronization
- * primitives.
+ * This structure is modified only by the main task. Since queue operations are
+ * done by-copy, it is safe for the main task to modify this struct once the
+ * previous response has been parsed.
  */
 static ResponseItem_t xResponseItem = { 0 };
+
+/**
+ * @brief Struct used by the HTTP task to send requests to the server.
+ *
+ * This structure is modified only by the HTTP task, and is used to receive
+ * requests off of the request queue and send them to the HTTP server. Since
+ * queue operations are done by-copy, it is safe for the HTTP task to modify
+ * this struct once the previous request has been sent to the server.
+ */
+static RequestItem_t xHTTPRequestItem = { 0 };
+
+/**
+ * @brief Struct used by the HTTP task to receive responses from the server and
+ * place them on the response queue.
+ *
+ * This structure is modified only by the HTTP task. Since queue operations are
+ * done by-copy, it is safe for the HTTP task to modify this struct once the
+ * previous response has been successfully enqueued.
+ */
+static ResponseItem_t xHTTPResponseItem = { 0 };
 
 /**
  * @brief Queue for HTTP requests. Requests are written by the main task, and
@@ -262,7 +282,7 @@ static QueueHandle_t xRequestQueue;
 static QueueHandle_t xResponseQueue;
 
 /**
- * @brief Handle of prvAsyncPublishTask.
+ * @brief Handle of prvStartHTTPTask.
  */
 static TaskHandle_t xHTTPTask;
 
@@ -355,7 +375,7 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
  * @param[in] pvArgs Parameters as passed at the time of task creation. Not used
  * in this example.
  * */
-static void prvStartHTTPThread( void * pvArgs );
+static void prvStartHTTPTask( void * pvArgs );
 
 /**
  * @brief Clean up resources created by demo.
@@ -519,6 +539,9 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
         {
             if( xQueueReceive( xResponseQueue, &xResponseItem, httpexampleDEMO_TICKS_TO_WAIT ) != pdFAIL )
             {
+                /* Ensure that the buffer pointer is accurate after being copied from the queue. */
+                xResponseItem.xResponse.pBuffer = xResponseItem.ucResponseBuffer;
+
                 LogInfo( ( "The main task retrieved a server response from the response queue." ) );
                 LogDebug( ( "Response Headers:\n%.*s",
                             ( int32_t ) xResponseItem.xResponse.headersLen,
@@ -691,6 +714,9 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
 
     if( xStatus == pdPASS )
     {
+        /* Ensure that the buffer pointer is accurate after being copied from the queue. */
+        xResponseItem.xResponse.pBuffer = xResponseItem.ucResponseBuffer;
+
         if( xResponseItem.xResponse.statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
         {
             LogError( ( "Received response with unexpected status code: %d.", xResponseItem.xResponse.statusCode ) );
@@ -754,7 +780,7 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
 
 /*-----------------------------------------------------------*/
 
-static void prvStartHTTPThread( void * pvArgs )
+static void prvStartHTTPTask( void * pvArgs )
 {
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
     BaseType_t xStatus = pdPASS;
@@ -769,14 +795,14 @@ static void prvStartHTTPThread( void * pvArgs )
     xTransportInterface.recv = SecureSocketsTransport_Recv;
 
     /* Initialize response struct. */
-    xResponseItem.xResponse.pBuffer = xResponseItem.ucResponseBuffer;
-    xResponseItem.xResponse.bufferLen = democonfigUSER_BUFFER_LENGTH;
+    xHTTPResponseItem.xResponse.pBuffer = xHTTPResponseItem.ucResponseBuffer;
+    xHTTPResponseItem.xResponse.bufferLen = democonfigUSER_BUFFER_LENGTH;
 
     for( ; ; )
     {
         /* Read request from queue. */
         xStatus = xQueueReceive( xRequestQueue,
-                                 &xRequestItem,
+                                 &xHTTPRequestItem,
                                  httpexampleDEMO_TICKS_TO_WAIT );
 
         if( xStatus == pdFAIL )
@@ -785,16 +811,19 @@ static void prvStartHTTPThread( void * pvArgs )
             continue;
         }
 
+        /* Ensure that the buffer pointer is accurate after being copied from the queue. */
+        xHTTPRequestItem.xRequestHeaders.pBuffer = xHTTPRequestItem.ucHeaderBuffer;
+
         LogInfo( ( "The HTTP task retrieved a request from the request queue." ) );
         LogDebug( ( "Request Headers:\n%.*s",
-                    ( int32_t ) xRequestItem.xRequestHeaders.headersLen,
-                    ( char * ) xRequestItem.xRequestHeaders.pBuffer ) );
+                    ( int32_t ) xHTTPRequestItem.xRequestHeaders.headersLen,
+                    ( char * ) xHTTPRequestItem.xRequestHeaders.pBuffer ) );
 
         xHTTPStatus = HTTPClient_Send( &xTransportInterface,
-                                       &xRequestItem.xRequestHeaders,
+                                       &xHTTPRequestItem.xRequestHeaders,
                                        NULL,
                                        0,
-                                       &xResponseItem.xResponse,
+                                       &xHTTPResponseItem.xResponse,
                                        0 );
 
         if( xHTTPStatus != HTTPSuccess )
@@ -810,7 +839,7 @@ static void prvStartHTTPThread( void * pvArgs )
             LogInfo( ( "The HTTP task received a response from the server." ) );
             /* Write response to queue. */
             xStatus = xQueueSendToBack( xResponseQueue,
-                                        &xResponseItem,
+                                        &xHTTPResponseItem,
                                         httpexampleDEMO_TICKS_TO_WAIT );
 
             /* Ensure response was added to the queue. */
@@ -956,11 +985,11 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
         if( xDemoStatus == pdPASS )
         {
             /* Attempt to connect to the HTTP server. If connection fails, retry
-             * after a timeout. The timeout value will be exponentially increased
-             * until either the maximum number of attempts or the maximum timeout
-             * value is reached. The function returns pdFAIL if the TCP connection
-             * cannot be established with the broker after the configured number of
-             * attempts. */
+             * after a timeout. The timeout value will be exponentially
+             * increased until either the maximum number of attempts or the
+             * maximum timeout value is reached. The function returns pdFAIL if
+             * the TCP connection cannot be established with the server after
+             * the configured number of attempts. */
             xDemoStatus = connectToServerWithBackoffRetries( prvConnectToServer,
                                                              &xNetworkContext );
 
@@ -991,7 +1020,7 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
             xResponseQueue = xQueueCreate( democonfigQUEUE_SIZE,
                                            sizeof( ResponseItem_t ) );
 
-            xDemoStatus = xTaskCreate( prvStartHTTPThread, "HTTPTask", httpexampleTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHTTPTask );
+            xDemoStatus = xTaskCreate( prvStartHTTPTask, "HTTPTask", httpexampleTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHTTPTask );
         }
 
         /******************** Download S3 Object File. **********************/
