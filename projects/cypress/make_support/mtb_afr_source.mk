@@ -336,13 +336,13 @@ INCLUDES+=\
 ################################################################################
 
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/coreJson/source/*.c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/coreJSON/source/*.c)
 
 INCLUDES+=\
-	$(CY_AFR_ROOT)/libraries/coreJson/source/include
+	$(CY_AFR_ROOT)/libraries/coreJSON/source/include
 
 ################################################################################
-# Shadow
+# Jobs for aws
 ################################################################################
 
 SOURCES+=\
@@ -353,7 +353,7 @@ INCLUDES+=\
 
 ################################################################################
 # Shadow
-################################################################################\
+################################################################################
 
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/*.c)
