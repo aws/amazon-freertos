@@ -55,8 +55,8 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
     /* Initialize everything to zero. */
     memset( pOutNetworkStats, 0, sizeof( NetworkStats_t ) );
 
-    LogWarn( ( "GetNetworkStats called from stub metrics_collector! "
-               "This will need to be implemented for you network stack for correct metrics" ) );
+    LogError( ( "GetNetworkStats called from stub metrics_collector! "
+                "This will need to be implemented for your network stack for correct metrics" ) );
 
     pOutNetworkStats->bytesReceived = 0;
     pOutNetworkStats->packetsReceived = 0;
@@ -76,8 +76,8 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
     /* pOutTcpPortsArray can be NULL. */
     configASSERT( pOutNumTcpOpenPorts != NULL );
 
-    LogWarn( ( "GetNetworkStats called from stub metrics_collector! "
-               "This will need to be implemented for you network stack for correct metrics" ) );
+    LogError( ( "GetOpenTcpPorts called from stub metrics_collector! "
+                "This will need to be implemented for your network stack for correct metrics" ) );
 
     if( pOutTcpPortsArray != NULL )
     {
@@ -106,8 +106,8 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
     /* pOutUdpPortsArray can be NULL. */
     configASSERT( pOutNumUdpOpenPorts != NULL );
 
-    LogWarn( ( "GetNetworkStats called from stub metrics_collector! "
-               "This will need to be implemented for you network stack for correct metrics" ) );
+    LogError( ( "GetOpenUdpPorts called from stub metrics_collector! "
+                "This will need to be implemented for your network stack for correct metrics" ) );
 
     if( pOutUdpPortsArray != NULL )
     {
@@ -137,8 +137,8 @@ MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectio
     /* pOutConnectionsArray can be NULL. */
     configASSERT( pOutNumEstablishedConnections != NULL );
 
-    LogWarn( ( "GetNetworkStats called from stub metrics_collector! "
-               "This will need to be implemented for you network stack for correct metrics" ) );
+    LogError( ( "GetEstablishedConnections called from stub metrics_collector! "
+                "This will need to be implemented for your network stack for correct metrics" ) );
 
     if( pOutConnectionsArray != NULL )
     {
