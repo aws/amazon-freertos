@@ -31,6 +31,7 @@
 #include <whd.h>
 #include <whd_wifi_api.h>
 #include <whd_network_types.h>
+#include "types/iot_network_types.h"
 
 /* Board and Abstraction layer includes */
 #include <cyabs_rtos.h>
@@ -40,6 +41,10 @@ extern cy_mutex_t wifiMutex;
 extern WIFIDeviceMode_t devMode;
 extern bool isConnected;
 extern bool isPoweredUp;
+extern bool isMutexInitialized;
+extern IotNetworkStateChangeEventCallback_t userCb;
+
+typedef void (*cy_network_activity_event_callback_t)(bool callback_arg);
 
 extern void cy_check_network_params(const WIFINetworkParams_t * const pxNetworkParams);
 extern void cy_convert_network_params(
@@ -49,3 +54,32 @@ extern void cy_convert_network_params(
     uint8_t *keylen,
     whd_security_t *security,
     uint8_t *channel);
+
+/**
+ * Register network activity callback
+ *
+ * @param cb : callback function of type cy_network_activity_event_callback_t
+ *
+ */
+void cy_network_activity_register_cb(cy_network_activity_event_callback_t cb);
+
+/**
+ * Return the single LwIP network interface.
+ *
+ * @return netif structure of the WHD interface
+ */
+struct netif *cy_lwip_get_interface() ;
+
+/**
+ * lwip bringup wrapper function
+ *
+ * @return CY_RSLT_SUCCESS if lwip bringup is successful, failure code otherwise.
+ */
+cy_rslt_t cy_lwip_bringup_interface( void );
+
+/**
+ * lwip bringdown wrapper function
+ *
+ * @return CY_RSLT_SUCCESS if lwip bringdown is successful, failure code otherwise.
+ */
+cy_rslt_t cy_lwip_bringdown_interface( void );

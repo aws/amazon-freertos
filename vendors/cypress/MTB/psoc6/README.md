@@ -1,0 +1,1 @@
+This folder contains source that is specific the PSoC 6 platform. Majority of the sources/libraries in this folder are expected to be in the form submodule. The only exception to this is the CMake core infrastructure that is specific to amazon-freertos.

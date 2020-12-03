@@ -56,3 +56,54 @@
 [submodule "tools/litani"]
 	path = tools/litani
 	url = https://github.com/awslabs/aws-build-accumulator
+[submodule "vendors/cypress/MTB/libraries/serial-flash"]
+	path = vendors/cypress/MTB/libraries/serial-flash
+	url = https://github.com/cypresssemiconductorco/serial-flash.git
+[submodule "vendors/cypress/MTB/libraries/whd-bsp-integration"]
+	path = vendors/cypress/MTB/libraries/whd-bsp-integration
+	url = https://github.com/cypresssemiconductorco/whd-bsp-integration.git
+[submodule "vendors/cypress/MTB/libraries/retarget-io"]
+	path = vendors/cypress/MTB/libraries/retarget-io
+	url = https://github.com/cypresssemiconductorco/retarget-io.git
+[submodule "vendors/cypress/MTB/libraries/rgb-led"]
+	path = vendors/cypress/MTB/libraries/rgb-led
+	url = https://github.com/cypresssemiconductorco/rgb-led.git
+[submodule "vendors/cypress/MTB/libraries/core-lib"]
+	path = vendors/cypress/MTB/libraries/core-lib
+	url = https://github.com/cypresssemiconductorco/core-lib.git
+[submodule "vendors/cypress/MTB/libraries/abstraction-rtos"]
+	path = vendors/cypress/MTB/libraries/abstraction-rtos
+	url = https://github.com/cypresssemiconductorco/abstraction-rtos.git
+[submodule "vendors/cypress/MTB/psoc6/psoc6cm0p"]
+	path = vendors/cypress/MTB/psoc6/psoc6cm0p
+	url = https://github.com/cypresssemiconductorco/psoc6cm0p.git
+[submodule "vendors/cypress/MTB/libraries/emeeprom"]
+	path = vendors/cypress/MTB/libraries/emeeprom
+	url = https://github.com/cypresssemiconductorco/emeeprom.git
+[submodule "vendors/cypress/MTB/libraries/capsense"]
+	path = vendors/cypress/MTB/libraries/capsense
+	url = https://github.com/cypresssemiconductorco/capsense.git
+[submodule "vendors/cypress/MTB/libraries/connectivity-utilities"]
+	path = vendors/cypress/MTB/libraries/connectivity-utilities
+	url = https://github.com/cypresssemiconductorco/connectivity-utilities.git
+[submodule "vendors/cypress/MTB/libraries/wifi-host-driver"]
+	path = vendors/cypress/MTB/libraries/wifi-host-driver
+	url = https://github.com/cypresssemiconductorco/wifi-host-driver.git
+[submodule "vendors/cypress/MTB/libraries/clib-support"]
+	path = vendors/cypress/MTB/libraries/clib-support
+	url = https://github.com/cypresssemiconductorco/clib-support.git
+[submodule "vendors/cypress/MTB/psoc6/psoc6make"]
+	path = vendors/cypress/MTB/psoc6/psoc6make
+	url = https://github.com/cypresssemiconductorco/psoc6make.git
+[submodule "vendors/cypress/MTB/psoc6/psoc6pdl"]
+	path = vendors/cypress/MTB/psoc6/psoc6pdl
+	url = https://github.com/cypresssemiconductorco/psoc6pdl.git
+[submodule "vendors/cypress/MTB/psoc6/udb-sdio-whd"]
+	path = vendors/cypress/MTB/psoc6/udb-sdio-whd
+	url = https://github.com/cypresssemiconductorco/udb-sdio-whd.git
+[submodule "vendors/cypress/MTB/psoc6/psoc6hal"]
+	path = vendors/cypress/MTB/psoc6/psoc6hal
+	url = https://github.com/cypresssemiconductorco/psoc6hal.git
+[submodule "vendors/cypress/MTB/libraries/lpa"]
+	path = vendors/cypress/MTB/libraries/lpa
+	url = https://github.com/cypresssemiconductorco/lpa.git
