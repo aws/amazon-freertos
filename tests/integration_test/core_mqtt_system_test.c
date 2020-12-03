@@ -301,6 +301,15 @@
         TEST_ASSERT_TRUE( flag );                                                       \
     } while( 0 )
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit must define the NetworkContext struct.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
 
 /*-----------------------------------------------------------*/
 
@@ -329,6 +338,11 @@ static uint16_t globalPublishPacketIdentifier = 0U;
  * with the broker for tests.
  */
 static NetworkContext_t networkContext;
+
+/**
+ * @brief The parameters for the network context using a TLS channel.
+ */
+static SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
 /**
  * @brief Represents the hostname and port of the broker.
@@ -1122,6 +1136,7 @@ void testSetUp()
     receivedPacketTypeForDisconnection = false;
     memset( &incomingInfo, 0u, sizeof( MQTTPublishInfo_t ) );
     receivedPublish = false;
+    networkContext.pParams = &secureSocketsTransportParams;
 
     /* Establish TLS over TCP connection with retry attempts on failures. */
     TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &networkContext ) );

@@ -138,6 +138,18 @@
  */
 #define httpexampleDELAY_BETWEEN_DEMO_ITERATIONS_TICKS    ( pdMS_TO_TICKS( 5000U ) )
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit must define the NetworkContext struct.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief A buffer used in the demo for storing HTTP request headers, and HTTP
  * response headers and body.
@@ -639,6 +651,7 @@ int RunCoreHttpS3DownloadDemo( bool awsIotMqttMode,
     /* HTTPS Client library return status. */
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
     BaseType_t xDemoRunCount = 0UL;
+    SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
     /* Upon return, pdPASS will indicate a successful demo execution.
     * pdFAIL will indicate some failures occurred during execution. The
@@ -658,7 +671,7 @@ int RunCoreHttpS3DownloadDemo( bool awsIotMqttMode,
      * query information following the location of the object, to the end of the
      * S3 presigned URL. */
     size_t xPathLen = 0;
-
+    xNetworkContext.pParams = &secureSocketsTransportParams;
     LogInfo( ( "HTTP Client Synchronous S3 download demo using pre-signed URL:\n%s",
                democonfigS3_PRESIGNED_GET_URL ) );
 

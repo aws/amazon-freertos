@@ -197,6 +197,16 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Each compilation unit must define the NetworkContext struct.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Global variable used by the pseudo random number generator.
  * The random number generator is used for calculating exponential back-off
  * with jitter for retry attempts of failed network operations with the broker.
@@ -228,6 +238,11 @@ static uint16_t globalPublishPacketIdentifier = 0U;
  * for tests.
  */
 static NetworkContext_t networkContext;
+
+/**
+ * @brief The parameters for the network context using a TLS channel.
+ */
+static SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
 /**
  * @brief Represents the hostname and port of the broker.
@@ -916,6 +931,7 @@ TEST_SETUP( deviceShadow_Integration )
     receivedDeleteRejectedResult = false;
     receivedGetAcceptedResult = false;
     receivedGetRejectedResult = false;
+    networkContext.pParams = &secureSocketsTransportParams;
 
     /* Establish TLS over TCP connection with retry attempts on failures. */
     TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &networkContext ) );

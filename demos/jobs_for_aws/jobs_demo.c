@@ -240,6 +240,14 @@ typedef enum JobActionType
     JOB_ACTION_UNKNOWN  /**< Unknown action. */
 } JobActionType;
 
+/**
+ * @brief Each compilation unit must define the NetworkContext struct.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -719,6 +727,7 @@ int RunJobsDemo( bool awsIotMqttMode,
     BaseType_t xDemoStatus = pdPASS;
     UBaseType_t uxDemoRunCount = 0UL;
     BaseType_t retryDemoLoop = pdFALSE;
+    SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
     /* Remove compiler warnings about unused parameters. */
     ( void ) awsIotMqttMode;
@@ -727,6 +736,7 @@ int RunJobsDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
+    xNetworkContext.pParams = &secureSocketsTransportParams;
     /* This demo runs a single loop unless there are failures in the demo execution.
      * In case of failures in the demo execution, demo loop will be retried for up to
      * JOBS_MAX_DEMO_COUNT times. */

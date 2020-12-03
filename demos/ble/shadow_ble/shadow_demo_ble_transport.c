@@ -203,10 +203,27 @@
  */
 #define THING_NAME_LENGTH    ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit must define the NetworkContext struct.
+ */
+struct NetworkContext
+{
+    BleTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief BLE transport interface context passed in by the MQTT library.
  */
 static NetworkContext_t xBLETransportCtxt = { 0 };
+
+/**
+ * @brief Ble Transport Parameters structure to store the data channel.
+ */
+static BleTransportParams_t xBleTransportParams = { 0 };
 
 /**
  * @brief Semaphore used to synchronize BLE data transfer channel callback.
@@ -487,15 +504,15 @@ static int32_t prvBLETransportInterfaceConnect( NetworkContext_t * pTransportCtx
 {
     int32_t status = EXIT_SUCCESS;
 
-    pTransportCtxt->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
+    pTransportCtxt->pParams->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
 
-    if( pTransportCtxt->pChannel != NULL )
+    if( pTransportCtxt->pParams->pChannel != NULL )
     {
         xChannelSemaphore = xSemaphoreCreateBinary();
 
         if( xChannelSemaphore != NULL )
         {
-            ( void ) IotBleDataTransfer_SetCallback( pTransportCtxt->pChannel, bleChannelCallback, NULL );
+            ( void ) IotBleDataTransfer_SetCallback( pTransportCtxt->pParams->pChannel, bleChannelCallback, NULL );
 
             /* Open is a handshake proceture, so we need to wait until it is ready to use. */
             if( xSemaphoreTake( xChannelSemaphore, pdMS_TO_TICKS( IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) ) == pdTRUE )
@@ -535,8 +552,8 @@ static int32_t prvBLETransportInterfaceDisconnect( NetworkContext_t * pTransport
     int32_t status = EXIT_SUCCESS;
 
     ( void ) IotBleMqttTransportCleanup( pTransportCtxt );
-    ( void ) IotBleDataTransfer_Close( pTransportCtxt->pChannel );
-    ( void ) IotBleDataTransfer_Reset( pTransportCtxt->pChannel );
+    ( void ) IotBleDataTransfer_Close( pTransportCtxt->pParams->pChannel );
+    ( void ) IotBleDataTransfer_Reset( pTransportCtxt->pParams->pChannel );
     ( void ) vSemaphoreDelete( xChannelSemaphore );
 
     return status;
@@ -1260,6 +1277,7 @@ int RunShadowBLETransportDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
+    xBLETransportCtxt.pParams = &xBleTransportParams;
     returnStatus = prvEstablishMqttSession( &xBLETransportCtxt, &xMQTTContext, &prvEventCallback );
 
     if( returnStatus == EXIT_FAILURE )

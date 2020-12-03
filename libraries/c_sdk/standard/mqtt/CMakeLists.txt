@@ -3,7 +3,13 @@ afr_module(INTERNAL)
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
-
+if( EXISTS ${AFR_MODULES_DIR}/coreMQTT/source )
+    set(transport_interface_dir "${AFR_MODULES_DIR}/coreMQTT/source/interface")
+elseif( EXISTS ${AFR_MODULES_DIR}/coreHTTP/source )
+    set(transport_interface_dir "${AFR_MODULES_DIR}/coreHTTP/source/interface")
+else()
+    message( FATAL_ERROR "No transport_interface.h exists for this included interface.")
+endif()
 
 # Enable test access and mocks if building tests.
 if(${AFR_IS_TESTING})
@@ -96,6 +102,8 @@ afr_module_include_dirs(
     INTERFACE
         "${test_dir}/access"
         "${test_dir}/mock"
+    PUBLIC
+        "${transport_interface_dir}"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

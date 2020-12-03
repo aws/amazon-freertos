@@ -229,6 +229,16 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Each compilation unit must define the NetworkContext struct.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief The random number generator to use for exponential backoff with
  * jitter retry logic.
  * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
@@ -464,6 +474,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
     uint32_t ulDemoRunCount = 0UL, ulDemoSuccessCount = 0UL;
     TransportSocketStatus_t xNetworkStatus;
     BaseType_t xIsConnectionEstablished = pdFALSE;
+    SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
     /* Upon return, pdPASS will indicate a successful demo execution.
     * pdFAIL will indicate some failures occurred during execution. The
@@ -482,7 +493,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
      * by the timer utility function that is provided to the MQTT library.
      */
     ulGlobalEntryTimeMs = prvGetTimeMs();
-
+    xNetworkContext.pParams = &secureSocketsTransportParams;
     for( ulDemoRunCount = 0UL; ( ulDemoRunCount < democonfigMQTT_MAX_DEMO_COUNT ); ulDemoRunCount++ )
     {
         /****************************** Connect. ******************************/

@@ -67,10 +67,10 @@
  * @brief Definition of the network context for the transport interface
  * implementation that uses Secure Sockets API.
  */
-struct NetworkContext
+typedef struct SecureSocketsTransportParams
 {
     Socket_t tcpSocket;
-};
+} SecureSocketsTransportParams_t;
 
 /**
  * @brief TCP, TLS Connect / Disconnect return status.

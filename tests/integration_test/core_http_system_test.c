@@ -214,10 +214,25 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Each compilation unit must define the NetworkContext struct.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Represents the network context used for the TLS session with the
  * server.
  */
 static NetworkContext_t networkContext;
+
+/**
+ * @brief The parameters for the network context using a TLS channel.
+ */
+static SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
 /**
  * @brief The transport layer interface used by the HTTP Client library.
@@ -583,6 +598,9 @@ void testSetup()
     memset( &response, 0, sizeof( HTTPResponse_t ) );
     /* Clear the network context before each test. */
     memset( &networkContext, 0, sizeof( networkContext ) );
+    /* Clear thhe parameters TLS channel before each test. */
+    memset( &secureSocketsTransportParams, 0, sizeof( SecureSocketsTransportParams_t ) );
+    networkContext.pParams = &secureSocketsTransportParams;
 
     /* Apply defaults and reset the transport receive data globals. */
     pNetworkData = NULL;

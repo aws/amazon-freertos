@@ -52,6 +52,9 @@
 /* FreeRTOS include. */
 #include "semphr.h"
 
+/* Transport interface include. */
+#include "transport_interface.h"
+
 /**
  * @def IotMqtt_Assert( expression )
  * @brief Assertion macro for the MQTT library.
@@ -313,11 +316,11 @@ typedef struct _mqttConnection
  * @brief Defining the structure for network context used for sending the packets on the network.
  * The declaration of the structure is mentioned in the transport_interface.h file.
  */
-struct NetworkContext
+typedef struct MqttTransportParams
 {
     void * pNetworkConnection;                       /**< @brief The network connection used for sending packets on the network. */
     const IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
-};
+} MqttTransportParams_t;
 
 /**
  * @brief Represents a subscription stored in an MQTT connection.
@@ -454,6 +457,7 @@ typedef struct connContextMapping
     _mqttSubscription_t subscriptionArray[ MAX_NO_OF_MQTT_SUBSCRIPTIONS ]; /**< @brief Holds subscriptions associated with this connection. */
     StaticSemaphore_t subscriptionMutexStorage;                            /**< @brief Static storage for Mutex for synchronization of subscription list. */
     SemaphoreHandle_t subscriptionMutex;                                   /**< @brief Grants exclusive access to the subscription list. */
+    MqttTransportParams_t mqttTransportParams;
 } _connContext_t;
 
 /**

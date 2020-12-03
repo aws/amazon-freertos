@@ -56,6 +56,9 @@
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
+/* Include the secure sockets implementation of the transport interface. */
+#include "transport_secure_sockets.h"
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -129,6 +132,16 @@
  * @brief Milliseconds per FreeRTOS tick.
  */
 #define MILLISECONDS_PER_TICK                        ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit must define the NetworkContext struct.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
 
 /*-----------------------------------------------------------*/
 

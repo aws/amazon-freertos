@@ -68,6 +68,8 @@
 /* shadow demo helpers header. */
 #include "mqtt_demo_helpers.h"
 
+/* Transport interface implementation include header for TLS. */
+#include "transport_secure_sockets.h"
 
 /**
  * @brief Format string representing a Shadow document with a "desired" state.
@@ -197,6 +199,16 @@
  * @brief Length of #SHADOW_DELETE_REJECTED_ERROR_CODE_KEY
  */
 #define SHADOW_DELETE_REJECTED_ERROR_CODE_KEY_LENGTH    ( ( uint16_t ) ( sizeof( SHADOW_DELETE_REJECTED_ERROR_CODE_KEY ) - 1 ) )
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit must define the NetworkContext struct.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
 
 /*-----------------------------------------------------------*/
 

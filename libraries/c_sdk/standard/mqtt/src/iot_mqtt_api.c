@@ -64,6 +64,18 @@
     #error "IOT_MQTT_RETRY_MS_CEILING cannot be 0 or negative."
 #endif
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit must define the NetworkContext struct.
+ */
+struct NetworkContext
+{
+    MqttTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Fixed Size Array to hold Mapping of MQTT Connection used in MQTT 201906.00 library to MQTT Context
  * used in calling MQTT LTS API from shim to send packets on the network.
@@ -925,7 +937,7 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
     IotMqtt_Assert( pMessage != NULL );
 
     /* Sending the bytes on the network using Network Interface. */
-    bytesSend = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
+    bytesSend = pNetworkContext->pParams->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
 
     if( bytesSend <= 0 )
     {
@@ -1198,8 +1210,9 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         connToContext[ contextIndex ].mqttConnection = newMqttConnection;
 
         /* Assigning the Network Context to be used by this MQTT Context. */
-        connToContext[ contextIndex ].networkContext.pNetworkConnection = pNetworkConnection;
-        connToContext[ contextIndex ].networkContext.pNetworkInterface = pNetworkInfo->pNetworkInterface;
+        connToContext[ contextIndex ].networkContext.pParams = & connToContext[ contextIndex ].mqttTransportParams;
+        connToContext[ contextIndex ].mqttTransportParams.pNetworkConnection = pNetworkConnection;
+        connToContext[ contextIndex ].mqttTransportParams.pNetworkInterface = pNetworkInfo->pNetworkInterface;
 
         /* Fill in TransportInterface send function pointer. We will not be implementing the
          * TransportInterface receive function pointer as receiving of packets is handled in shim by network

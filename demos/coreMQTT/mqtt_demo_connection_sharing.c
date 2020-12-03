@@ -312,6 +312,14 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Each compilation unit must define the NetworkContext struct.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
+/**
  * @brief A type of command for interacting with the MQTT API.
  */
 typedef enum CommandType
@@ -2097,6 +2105,7 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
     uint32_t ulDemoCount = 0UL;
     uint32_t ulDemoSuccessCount = 0UL;
     int ret = EXIT_SUCCESS;
+    SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
     ( void ) awsIotMqttMode;
     ( void ) pIdentifier;
@@ -2123,6 +2132,7 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
      * to true in order to clear any prior state in the broker. We will disconnect
      * and later form a persistent session, so that it may be resumed if the
      * network suddenly disconnects. */
+    xNetworkContext.pParams = &secureSocketsTransportParams;
     xNetworkStatus = prvSocketConnect( &xNetworkContext );
 
     ret = EXIT_FAILURE;
