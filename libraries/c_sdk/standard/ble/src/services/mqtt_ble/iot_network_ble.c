@@ -204,7 +204,6 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
             configPRINTF( ( "Failed to open BLE data transfer channel.\r\n" ) );
             status = IOT_NETWORK_SYSTEM_ERROR;
         }
-
     }
 
     if( status == IOT_NETWORK_SUCCESS )

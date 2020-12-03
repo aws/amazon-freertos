@@ -418,6 +418,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 
     hostnameLength = pServerInfo->hostNameLength;
     pSecureSocketsTransportParams = pNetworkContext->pParams;
+
     if( ( hostnameLength > ( size_t ) securesocketsMAX_DNS_NAME_LENGTH ) )
     {
         LogError( ( "Host name length %lu exceeds max length %d",

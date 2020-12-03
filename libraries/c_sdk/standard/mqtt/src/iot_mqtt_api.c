@@ -1210,7 +1210,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         connToContext[ contextIndex ].mqttConnection = newMqttConnection;
 
         /* Assigning the Network Context to be used by this MQTT Context. */
-        connToContext[ contextIndex ].networkContext.pParams = & connToContext[ contextIndex ].mqttTransportParams;
+        connToContext[ contextIndex ].networkContext.pParams = &connToContext[ contextIndex ].mqttTransportParams;
         connToContext[ contextIndex ].mqttTransportParams.pNetworkConnection = pNetworkConnection;
         connToContext[ contextIndex ].mqttTransportParams.pNetworkInterface = pNetworkInfo->pNetworkInterface;
 

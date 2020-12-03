@@ -250,6 +250,7 @@ int RunCoreHttpMutualAuthDemo( bool awsIotMqttMode,
     ( void ) pNetworkInterface;
 
     xNetworkContext.pParams = &secureSocketsTransportParams;
+
     do
     {
         /**************************** Connect. ******************************/

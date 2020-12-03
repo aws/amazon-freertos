@@ -494,6 +494,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
      */
     ulGlobalEntryTimeMs = prvGetTimeMs();
     xNetworkContext.pParams = &secureSocketsTransportParams;
+
     for( ulDemoRunCount = 0UL; ( ulDemoRunCount < democonfigMQTT_MAX_DEMO_COUNT ); ulDemoRunCount++ )
     {
         /****************************** Connect. ******************************/

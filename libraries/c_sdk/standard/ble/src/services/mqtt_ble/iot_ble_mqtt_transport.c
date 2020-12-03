@@ -1017,6 +1017,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
      * payload information and process the payload part of the publish.
      */
     pBleTransportParams = pContext->pParams;
+
     if( pBleTransportParams->publishInfo.pending == true )
     {
         status = handleOutgoingPublish( ( MQTTBLEPublishInfo_t * ) &pBleTransportParams->publishInfo,
