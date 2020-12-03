@@ -12,7 +12,8 @@ Configuration settings are C pre-processor constants. They can be set with a #de
 1. `IOT_HTTPS_DISPATCH_QUEUE_SIZE` - The number of requests in the queue that are ready to be sent to the HTTP server.
 2. `IOT_HTTPS_DISPATCH_TASK_COUNT` - The number of tasks that are responsible for sending requests from the dispatch queue.
 3. `IOT_HTTPS_DISPATCH_TASK_STACK_SIZE` - The stack size of each dispatch task, sized appropriately for each board.
-4. `IOT_HTTPS_DISPATCH_TASK_PRIORITY` - The priority of each dispatch task. This priority is deliberately chosen to match the original taskpool's priority. Doing so prevents starvation of the network-receive task and tasks potentially used by other libraries.
+4. `IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY` - If set to 1, the memory used by the dispatch task will be allocated statically by the library. Otherwise, memory will be allocated on the heap.
+5. `IOT_HTTPS_DISPATCH_TASK_PRIORITY` - The priority of each dispatch task. This priority is deliberately chosen to match the original taskpool's priority. Doing so prevents starvation of the network-receive task and tasks potentially used by other libraries.
 
 
 ## Code size of HTTPS Compatibility Layer
@@ -26,3 +27,4 @@ Please be aware that, this code size is about 14KB higher than the [code size](h
 ## Tasks required for HTTPS Compatibility Layer
 
 The HTTPS Compatibility Layer has a run time dependency on tasks created by each dispatch task and Network Abstraction implementation, in addition to the system tasks. The Network Abstraction implementation creates a task to receive from the network.
+
