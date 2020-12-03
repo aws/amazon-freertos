@@ -1886,7 +1886,7 @@ TEST( Full_PKCS11_EC, AFQP_Sign )
 TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
 {
     /* See core_pkcs11_mbedtls.c for length explanation. */
-#define pkcs11EC_POINT_LENGTH                 ( ( 32UL * 2UL ) + 1UL + 1UL + 1UL )
+#define pkcs11EC_POINT_LENGTH    ( ( 32UL * 2UL ) + 1UL + 1UL + 1UL )
     CK_RV xResult;
     CK_OBJECT_HANDLE xPrivateKeyHandle = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xPublicKeyHandle = CK_INVALID_HANDLE;
