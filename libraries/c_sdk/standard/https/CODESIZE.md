@@ -1,6 +1,6 @@
 # Code size of HTTPS Compatibility Layer
 
-Code size for the HTTPS Compatibility Layer is calculated using GCC for ARM Cortex-M4 on [FreeRTOS 202011.00 release](https://github.com/aws/amazon-freertos/releases/tag/202011.00). Build for calculating code size is done using build configuration for [Cypress CY8CKIT-064S0S2-4343W](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_psoc64.html) by using the Release configuration. All logs were disabled in this build. Refer to the table below for calculated code sizes.
+Code size for the HTTPS Compatibility Layer is calculated using GCC for ARM Cortex-M4 on [FreeRTOS 202012.00 release](https://github.com/aws/amazon-freertos/releases/tag/202012.00). Build for calculating code size is done using build configuration for [Cypress CY8CKIT-064S0S2-4343W](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_psoc64.html) by using the Release configuration. All logs were disabled in this build. Refer to the table below for calculated code sizes.
 
 | File | With -O1 Optimization | With -Os Optimization |
 | :-: | :-: | :-: |
@@ -8,7 +8,7 @@ Code size for the HTTPS Compatibility Layer is calculated using GCC for ARM Cort
 | iot_https_utils.c | 0.5K | 0.5K |
 | **Total estimate** | **21.5K** | **21.1K** |
 
-The HTTPS Compatibility Layer is implemented using the [coreHTTP library](https://github.com/FreeRTOS/coreHTTP/blob/master/README.md). In addition, the HTTPS Compatibility Layer maintains all dependencies of HTTP V1.x.x library. To account for the total code size of the HTTPS Compatibility Layer, code sizes for all dependencies have been considered (see below).
+The HTTPS Compatibility Layer is implemented using the [coreHTTP library](https://github.com/FreeRTOS/coreHTTP/blob/master/README.md). In addition, the HTTPS Compatibility Layer maintains the dependency of the network abstraction and linear containers from the HTTP V1.x.x library. The task pool dependency is removed in order to allow statically-allocated tasks. To account for the total code size of the HTTPS Compatibility Layer, code sizes for all dependencies have been considered (see below).
 
 1. **The coreHTTP library** : The HTTPS Compatibility Layer is implemented using [coreHTTP library](https://github.com/FreeRTOS/coreHTTP/blob/master/README.md). Memory estimates for [coreHTTP library](https://github.com/FreeRTOS/coreHTTP/blob/master/README.md) can be found in the documentation [here](https://freertos.org/mqtt/index.html).
 

@@ -18,8 +18,8 @@ Configuration settings are C pre-processor constants. They can be set with a #de
 
 ## Code size of HTTPS Compatibility Layer
 
-Code sizes are calculated for the HTTPS Compatibility Layer on [FreeRTOS 202011.00 release](https://github.com/aws/amazon-freertos/releases/tag/202011.00). In order to calculate the total cost to memory of the HTTPS Compatibility Layer, the code sizes of its dependencies are also included. HTTPS Compatibility Layer and its dependencies have a code size of **22.2KB** with `-Os` compiler optimization.
-Please be aware that, this code size is about 14KB higher than the [code size](https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/standard/coreHTTP/docs/doxygen/output/html/index.html) required by the [coreHTTP library](https://github.com/FreeRTOS/coreHTTP/blob/master/README.md).
+Code sizes are calculated for the HTTPS Compatibility Layer on [FreeRTOS 202011.00 release](https://github.com/aws/amazon-freertos/releases/tag/202011.00). In order to calculate the total cost to memory of the HTTPS Compatibility Layer, the code sizes of its dependencies are also included. HTTPS Compatibility Layer and its dependencies have a code size of **30.4KB** with `-Os` compiler optimization.
+Please be aware that, this code size is about **22.2KB** higher than the [code size](https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/standard/coreHTTP/docs/doxygen/output/html/index.html) required by the [coreHTTP library](https://github.com/FreeRTOS/coreHTTP/blob/master/README.md).
 
 **Note** Refer to the [CODESIZE.md](CODESIZE.md) for more details about the calculation of code sizes for the HTTPS Compatibility Layer and the [coreHTTP FreeRTOS documentation](https://freertos.org/http/index.html) for coreHTTP library.
 
