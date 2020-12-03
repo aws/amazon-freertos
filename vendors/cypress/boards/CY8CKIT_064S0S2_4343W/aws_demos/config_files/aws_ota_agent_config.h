@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.4
+ * Amazon FreeRTOS V1.4.8
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,7 +34,7 @@
 /**
  * @brief The number of words allocated to the stack for the OTA agent.
  */
-#define otaconfigSTACK_SIZE                     6144U
+#define otaconfigSTACK_SIZE                     8192U
 
 /**
  * @brief Log base 2 of the size of the file data block message (excluding the header).
@@ -155,7 +155,7 @@
  * Enable data over HTTP - ( OTA_DATA_OVER_HTTP)
  * Enable data over both MQTT & HTTP ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
  */
-#define configENABLED_DATA_PROTOCOLS         ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
+#define configENABLED_DATA_PROTOCOLS        ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
 
 /**
  * @brief The preferred protocol selected for OTA data operations.
@@ -167,6 +167,6 @@
  * Note - use OTA_DATA_OVER_HTTP for HTTP as primary data protocol.
  */
 
-#define configOTA_PRIMARY_DATA_PROTOCOL     ( OTA_DATA_OVER_HTTP )
+#define configOTA_PRIMARY_DATA_PROTOCOL     ( OTA_DATA_OVER_MQTT )
 
 #endif /* _AWS_OTA_AGENT_CONFIG_H_ */
