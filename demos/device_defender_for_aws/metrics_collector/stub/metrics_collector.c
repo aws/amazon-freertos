@@ -26,18 +26,42 @@
 /**
  * @file metrics_collector.c
  *
- * @brief Functions used by the defender demo to collect metrics on the
- * device's open ports and sockets. This file is a stub which returns zero for
- * all metrics. In order to report correct metrics, the functions in this file
- * must be implemented for the target platform's network stack. For guidance,
- * see the provided implmentations for FreeRTOS+TCP and lwIP (with
- * LWIP_TCPIP_CORE_LOCKING enabled) available at the following link:
- * https://github.com/aws/amazon-freertos/tree/master/demos/device_defender_for_aws/metrics_collector
+ * @brief Functions used by the defender demo to collect networking metrics.
+ * This file is a stub which returns zero for all metrics. In order to report
+ * correct metrics, the functions in this file must be implemented for the
+ * target platform's network stack.
+ *
+ * FreeRTOS+TCP:
+ *      If you are using FreeRTOS+TCP, use the metrics_collector.c file
+ *      available at
+ *      [FreeRTOS+TCP metrics_collector implementation](https://github.com/aws/amazon-freertos/blob/master/demos/device_defender_for_aws/metrics_collector/freertos_plus_tcp/metrics_collector.c).
+ *
+ * LWIP:
+ *      If you are using LWIP, use the metrics_collector.c available at
+ *      [LWIP metrics_collector implementation](https://github.com/aws/amazon-freertos/blob/master/demos/device_defender_for_aws/metrics_collector/lwip/metrics_collector.c).
+ *      In addition, define the following macros in your lwipopts.h:
+ *      #define LINK_SPEED_OF_YOUR_NETIF_IN_BPS 0
+ *      #define LWIP_TCPIP_CORE_LOCKING         1
+ *      #define LWIP_STATS                      1
+ *      #define MIB2_STATS                      1
+ *
+ * Any other TCP stack:
+ *      For any other TCP stack, fill in the function definitions in this file
+ *      for your TCP stack.
+ *      You can look at
+ *      [FreeRTOS+TCP metrics_collector implementation](https://github.com/aws/amazon-freertos/blob/master/demos/device_defender_for_aws/metrics_collector/freertos_plus_tcp/metrics_collector.c)
+ *      and
+ *      [LWIP metrics_collector implementation](https://github.com/aws/amazon-freertos/blob/master/demos/device_defender_for_aws/metrics_collector/lwip/metrics_collector.c)
+ *      for sample implementations.
  */
 
 /* Standard includes. */
 #include <stdlib.h>
 #include <stdint.h>
+
+/* FreeRTOS includes. */
+#include "FreeRTOS.h"
+#include "task.h"
 
 /* Demo config. */
 #include "defender_demo_config.h"
@@ -55,8 +79,9 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
     /* Initialize everything to zero. */
     memset( pOutNetworkStats, 0, sizeof( NetworkStats_t ) );
 
-    LogError( ( "GetNetworkStats called from stub metrics_collector! "
-                "This will need to be implemented for your network stack for correct metrics" ) );
+    /* Take a look at the comments at the top of this file. */
+    LogError( ( "Using stub definition of GetNetworkStats! "
+                "Please implement for your network stack to get correct metrics." ) );
 
     pOutNetworkStats->bytesReceived = 0;
     pOutNetworkStats->packetsReceived = 0;
@@ -76,8 +101,9 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
     /* pOutTcpPortsArray can be NULL. */
     configASSERT( pOutNumTcpOpenPorts != NULL );
 
-    LogError( ( "GetOpenTcpPorts called from stub metrics_collector! "
-                "This will need to be implemented for your network stack for correct metrics" ) );
+    /* Take a look at the comments at the top of this file. */
+    LogError( ( "Using stub definition of GetOpenTcpPorts! "
+                "Please implement for your network stack to get correct metrics." ) );
 
     if( pOutTcpPortsArray != NULL )
     {
@@ -106,8 +132,9 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
     /* pOutUdpPortsArray can be NULL. */
     configASSERT( pOutNumUdpOpenPorts != NULL );
 
-    LogError( ( "GetOpenUdpPorts called from stub metrics_collector! "
-                "This will need to be implemented for your network stack for correct metrics" ) );
+    /* Take a look at the comments at the top of this file. */
+    LogError( ( "Using stub definition of GetOpenUdpPorts! "
+                "Please implement for your network stack to get correct metrics." ) );
 
     if( pOutUdpPortsArray != NULL )
     {
@@ -137,8 +164,9 @@ MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectio
     /* pOutConnectionsArray can be NULL. */
     configASSERT( pOutNumEstablishedConnections != NULL );
 
-    LogError( ( "GetEstablishedConnections called from stub metrics_collector! "
-                "This will need to be implemented for your network stack for correct metrics" ) );
+    /* Take a look at the comments at the top of this file. */
+    LogError( ( "Using stub definition of GetEstablishedConnections! "
+                "Please implement for your network stack to get correct metrics." ) );
 
     if( pOutConnectionsArray != NULL )
     {
