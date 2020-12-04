@@ -82,6 +82,12 @@ struct NetworkContext
  */
 _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
+/**
+ * @brief Represents the network context used for the TLS session with the
+ * server.
+ */
+static NetworkContext_t networkContext;
+
 /* Static storage for mutex used for synchronized access to #_connContext_t array. */
 static StaticSemaphore_t connContextMutexStorage;
 
@@ -937,7 +943,7 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
     IotMqtt_Assert( pMessage != NULL );
 
     /* Sending the bytes on the network using Network Interface. */
-    bytesSend = pNetworkContext->pParams->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
+    bytesSend = pNetworkContext->pParams->pNetworkInterface->send( pNetworkContext->pParams->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
 
     if( bytesSend <= 0 )
     {
@@ -1210,14 +1216,14 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         connToContext[ contextIndex ].mqttConnection = newMqttConnection;
 
         /* Assigning the Network Context to be used by this MQTT Context. */
-        connToContext[ contextIndex ].networkContext.pParams = &connToContext[ contextIndex ].mqttTransportParams;
+        networkContext.pParams = &connToContext[ contextIndex ].mqttTransportParams;
         connToContext[ contextIndex ].mqttTransportParams.pNetworkConnection = pNetworkConnection;
         connToContext[ contextIndex ].mqttTransportParams.pNetworkInterface = pNetworkInfo->pNetworkInterface;
 
         /* Fill in TransportInterface send function pointer. We will not be implementing the
          * TransportInterface receive function pointer as receiving of packets is handled in shim by network
          * receive task. Only using MQTT LTS APIs for transmit path.*/
-        transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
+        transport.pNetworkContext = &networkContext;
         transport.send = transportSend;
         transport.recv = transportRecv;
 
