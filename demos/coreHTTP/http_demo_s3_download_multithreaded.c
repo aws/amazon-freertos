@@ -346,11 +346,11 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
  * @param[in] ulExpectedBits Bits to wait for.
  * @param[in] xClearBits If bits should be cleared.
  *
- * @return `true` if notification received, `false` otherwise.
+ * @return `pdTRUE` if notification received, `pdFALSE` otherwise.
  */
-static bool prvCheckNotification( uint32_t * pulNotification,
-                                  uint32_t ulExpectedBits,
-                                  bool xClearBits );
+static BaseType_t prvCheckNotification( uint32_t * pulNotification,
+                                        uint32_t ulExpectedBits,
+                                        BaseType_t xClearBits );
 
 /**
  * @brief Retrieve the size of the S3 object that is specified in pcPath using
@@ -446,7 +446,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
                                            QueueHandle_t xResponseQueue )
 {
     BaseType_t xStatus = pdPASS;
-    size_t xResponseCount = 0;
+    size_t xRemainingResponseCount = 0;
     uint32_t ulWaitCounter = 0;
     uint32_t ulNotification = 0;
 
@@ -499,9 +499,9 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
      * been downloaded. We keep track of the next starting byte to download with
      * xCurByte, and increment by xNumReqBytes after each iteration. When
      * xCurByte reaches xFileSize, we stop downloading. We keep track of the
-     * number of responses we are waiting for with xResponseCount.
+     * number of responses we are waiting for with xRemainingResponseCount.
      */
-    while( ( xStatus != pdFAIL ) && ( xCurByte < xFileSize || xResponseCount > 0 ) )
+    while( ( xStatus != pdFAIL ) && ( xCurByte < xFileSize || xRemainingResponseCount > 0 ) )
     {
         /* Send a range request for the specified bytes, if remaining. */
         if( xCurByte < xFileSize )
@@ -531,11 +531,11 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
 
             /* If the request was successfully enqueued, we expect a
              * corresponding response. */
-            xResponseCount += 1;
+            xRemainingResponseCount += 1;
         }
 
         /* Retrieve response from the response queue, if available. */
-        if( xResponseCount > 0 )
+        if( xRemainingResponseCount > 0 )
         {
             if( xQueueReceive( xResponseQueue, &xResponseItem, httpexampleDEMO_TICKS_TO_WAIT ) != pdFAIL )
             {
@@ -563,10 +563,10 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
 
                 /* Reset the wait counter every time a response is received. */
                 ulWaitCounter = 0;
-                xResponseCount -= 1;
+                xRemainingResponseCount -= 1;
             }
             /* Check for a notification from the HTTP task about an HTTP send failure. */
-            else if( prvCheckNotification( &ulNotification, httpexampleHTTP_SEND_ERROR, true ) != false )
+            else if( prvCheckNotification( &ulNotification, httpexampleHTTP_SEND_ERROR, pdTRUE ) != pdFALSE )
             {
                 LogError( ( "Received notification from the HTTP task indicating a HTTPClient_Send() error." ) );
                 xStatus = pdFAIL;
@@ -657,22 +657,25 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
 
 /*-----------------------------------------------------------*/
 
-static bool prvCheckNotification( uint32_t * pulNotification,
-                                  uint32_t ulExpectedBits,
-                                  bool xClearBits )
+static BaseType_t prvCheckNotification( uint32_t * pulNotification,
+                                        uint32_t ulExpectedBits,
+                                        BaseType_t xClearBits )
 {
-    bool ret = true;
+    BaseType_t xStatus = pdTRUE;
 
     configASSERT( pulNotification != NULL );
 
-    xTaskNotifyWait( 0,
-                     ( xClearBits ) ? ulExpectedBits : 0,
-                     pulNotification,
-                     httpexampleDEMO_TICKS_TO_WAIT );
+    xStatus = xTaskNotifyWait( 0,
+                               ( xClearBits ) ? ulExpectedBits : 0,
+                               pulNotification,
+                               httpexampleDEMO_TICKS_TO_WAIT );
 
-    ret = ( ( *pulNotification & ulExpectedBits ) == ulExpectedBits );
+    if( xStatus == pdTRUE )
+    {
+        xStatus = ( ( *pulNotification & ulExpectedBits ) == ulExpectedBits ) ? pdTRUE : pdFALSE;
+    }
 
-    return ret;
+    return xStatus;
 }
 
 /*-----------------------------------------------------------*/
@@ -739,7 +742,7 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
         }
     }
     /* Check for a notification from the HTTP task about an HTTP send failure. */
-    else if( prvCheckNotification( &ulNotification, httpexampleHTTP_SEND_ERROR, true ) != false )
+    else if( prvCheckNotification( &ulNotification, httpexampleHTTP_SEND_ERROR, pdTRUE ) != pdFALSE )
     {
         LogError( ( "Received notification from the HTTP task indicating a HTTPClient_Send() error." ) );
     }
@@ -1020,6 +1023,12 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
             xResponseQueue = xQueueCreate( democonfigQUEUE_SIZE,
                                            sizeof( ResponseItem_t ) );
 
+            xDemoStatus = ( ( xRequestQueue != NULL ) && ( xResponseQueue != NULL ) ) ? pdPASS : pdFAIL;
+        }
+
+        /* Start HTTP task. */
+        if( xDemoStatus == pdPASS )
+        {
             xDemoStatus = xTaskCreate( prvStartHTTPTask, "HTTPTask", httpexampleTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHTTPTask );
         }
 
