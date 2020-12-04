@@ -96,6 +96,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_THIRDPARTY_PATH)http_parser \
                     $(AFR_LIBRARIES_PATH)coreJSON/source/include \
                     $(AFR_LIBRARIES_PATH)device_shadow_for_aws/source/include \
+                    $(AFR_LIBRARIES_PATH)device_defender_for_aws/source/include \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/main.c \
@@ -115,6 +116,9 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_mutual_auth.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_connection_sharing.c \
                       $(AMAZON_FREERTOS_PATH)demos/device_shadow_for_aws/shadow_demo_main.c \
+                      $(AMAZON_FREERTOS_PATH)demos/device_defender_for_aws/defender_demo.c \
+                      $(AMAZON_FREERTOS_PATH)demos/device_defender_for_aws/report_builder.c \
+                      $(AMAZON_FREERTOS_PATH)demos/device_defender_for_aws/metrics_collector/lwip/metrics_collector.c \
                       $(AMAZON_FREERTOS_PATH)demos/jobs_for_aws/jobs_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/tcp/aws_tcp_echo_client_single_task.c \
                       $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c \
