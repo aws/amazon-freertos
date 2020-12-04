@@ -122,11 +122,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/greengrass_connectivity/aws_greengrass_discovery_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_demo_network.c \
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_network_manager.c \
-                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_common.c \
-                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_s3_download_async.c \
-                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_s3_download_sync.c \
-                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_s3_upload_async.c \
-                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_s3_upload_sync.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \

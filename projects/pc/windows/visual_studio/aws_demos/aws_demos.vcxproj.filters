@@ -148,7 +148,6 @@
 		<Filter Include="demos\device_defender_for_aws\metrics_collector"/>
 		<Filter Include="demos\device_shadow_for_aws"/>
 		<Filter Include="demos\greengrass_connectivity"/>
-		<Filter Include="demos\https"/>
 		<Filter Include="demos\jobs_for_aws"/>
 		<Filter Include="demos\ota"/>
 		<Filter Include="demos\tcp"/>
@@ -1193,21 +1192,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c">
 			<Filter>demos\greengrass_connectivity</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_sync.c">
-			<Filter>demos\https</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_async.c">
-			<Filter>demos\https</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_upload_sync.c">
-			<Filter>demos\https</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_upload_async.c">
-			<Filter>demos\https</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_common.c">
-			<Filter>demos\https</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\jobs_for_aws\jobs_demo.c">
 			<Filter>demos\jobs_for_aws</Filter>

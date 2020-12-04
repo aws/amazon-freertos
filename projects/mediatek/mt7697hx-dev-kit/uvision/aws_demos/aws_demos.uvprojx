@@ -2162,36 +2162,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>demos/https/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_demo_https_s3_download_sync.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_s3_download_sync.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_demo_https_s3_download_async.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_s3_download_async.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_demo_https_s3_upload_sync.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_s3_upload_sync.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_demo_https_s3_upload_async.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_s3_upload_async.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_demo_https_common.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_common.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>demos/jobs_for_aws/</GroupName>
 					<Files>
 						<File>
