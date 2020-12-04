@@ -106,33 +106,35 @@
     #error "Please define a QUEUE_SIZE in http_demo_s3_download_multithreaded_config.h."
 #endif
 
-/* Check that the pre-signed GET URL is defined. */
+/* The default value of the pre-signed GET URL macro. */
 #ifndef democonfigS3_PRESIGNED_GET_URL
     #define democonfigS3_PRESIGNED_GET_URL    "GET-URL"
 #endif
 
-/* Check that a timeout for transport send and receive functions is defined.*/
+/* The default value for the timeout of the transport send and receive
+ * functions. */
 #ifndef democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS
     #define democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 5000 )
 #endif
 
-/* Check that size of the user buffer is defined. */
+/* The default value for the size of the user buffer. */
 #ifndef democonfigUSER_BUFFER_LENGTH
     #define democonfigUSER_BUFFER_LENGTH    ( 2048 )
 #endif
 
-/* Check that the range request length is defined. */
+/* The default value for the range request length. */
 #ifndef democonfigRANGE_REQUEST_LENGTH
     #define democonfigRANGE_REQUEST_LENGTH    ( 1024 )
 #endif
 
-/* Check that the stack size to use for HTTP tasks is defined. */
+/* The default value for the stack size to use for HTTP tasks. */
 #ifndef httpexampleTASK_STACK_SIZE
     #define httpexampleTASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 4 )
 #endif
 
 /**
- * @brief The maximum number of times to run the loop in this demo.
+ * @brief The default value for the maximum number of times to run the loop in
+ * this demo.
  */
 #ifndef httpexampleMAX_DEMO_COUNT
     #define httpexampleMAX_DEMO_COUNT    ( 3 )
@@ -311,7 +313,6 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext );
  * @param[in] xHostLen The length of pcHost.
  * @param[in] pcRequest The HTTP Request-URI.
  * @param[in] xRequestUriLen The length of pcRequest.
- * @param[in] xFileSize The length of the file at democonfigS3_PRESIGNED_GET_URL.
  * @param[in] xRequestQueue The queue to which HTTP requests should be written.
  * @param[in] xResponseQueue The queue from which HTTP responses should be read.
  *
