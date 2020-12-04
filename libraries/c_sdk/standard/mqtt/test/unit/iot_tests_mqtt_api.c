@@ -151,6 +151,16 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Each compilation unit must define the NetworkContext struct.
+ */
+struct NetworkContext
+{
+    MqttTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Tracks whether #_publishSetDup has been called.
  */
 static bool _publishSetDupCalled = false;
@@ -190,6 +200,12 @@ static IotNetworkInterface_t _networkInterface = { 0 };
  * This needed in the thread simulating incoming PINGRESP messages.
  */
 static char pKeepAliveStatus[ KEEP_ALIVE_PERIODIC_STATUS_LENGTH ] = { 0 };
+
+/**
+ * @brief Represents the network context used for the TLS session with the
+ * server.
+ */
+static NetworkContext_t networkContext = { 0 };
 
 /*-----------------------------------------------------------*/
 
@@ -567,7 +583,7 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
     IotMqtt_Assert( pMessage != NULL );
 
     /* Sending the bytes on the network using Network Interface. */
-    bytesSent = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
+    bytesSent = pNetworkContext->pParams->pNetworkInterface->send( pNetworkContext->pParams->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
 
     if( bytesSent < 0 )
     {
@@ -711,13 +727,14 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
         connToContext[ contextIndex ].mqttConnection = pMqttConnection;
 
         /* Assigning the Network Context to be used by this MQTT Context. */
-        connToContext[ contextIndex ].networkContext.pNetworkConnection = pMqttConnection->pNetworkConnection;
-        connToContext[ contextIndex ].networkContext.pNetworkInterface = pMqttConnection->pNetworkInterface;
+        networkContext.pParams = &connToContext[ contextIndex ].mqttTransportParams;
+        connToContext[ contextIndex ].mqttTransportParams.pNetworkConnection = pMqttConnection->pNetworkConnection;
+        connToContext[ contextIndex ].mqttTransportParams.pNetworkInterface = pMqttConnection->pNetworkInterface;
 
         /* Fill in TransportInterface send function pointer. We will not be implementing the
          * TransportInterface receive function pointer as receiving of packets is handled in shim by network
          * receive task. Only using MQTT LTS APIs for transmit path.*/
-        transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
+        transport.pNetworkContext = &networkContext;
         transport.send = transportSend;
         transport.recv = transportRecv;
 

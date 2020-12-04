@@ -86,7 +86,7 @@ _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
  * @brief Represents the network context used for the TLS session with the
  * server.
  */
-static NetworkContext_t networkContext;
+static NetworkContext_t networkContext = { 0 };
 
 /* Static storage for mutex used for synchronized access to #_connContext_t array. */
 static StaticSemaphore_t connContextMutexStorage;

@@ -102,7 +102,6 @@ afr_module_include_dirs(
     INTERFACE
         "${test_dir}/access"
         "${test_dir}/mock"
-    PUBLIC
         "${transport_interface_dir}"
 )
 afr_module_dependencies(
