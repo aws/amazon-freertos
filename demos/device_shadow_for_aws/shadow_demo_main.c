@@ -219,9 +219,14 @@ struct NetworkContext
 static MQTTContext_t xMqttContext;
 
 /**
- * @brief The network context used for Openssl operation.
+ * @brief The network context used for TLS operation.
  */
 static NetworkContext_t xNetworkContext;
+
+/**
+ * @brief The parameters for the network context using a TLS channel.
+ */
+static SecureSocketsTransportParams_t xSecureSocketsTransportParams;
 
 /**
  * @brief The flag to indicate the mqtt session changed.
@@ -769,7 +774,6 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     BaseType_t xDemoStatus = pdPASS;
     BaseType_t xDemoRunCount = 0UL;
     BaseType_t xDeleteResponseLoopCount = 0UL;
-    SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
     /* A buffer containing the update document. It has static duration to prevent
      * it from being placed on the call stack. */
@@ -782,7 +786,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-    xNetworkContext.pParams = &secureSocketsTransportParams;
+    xNetworkContext.pParams = &xsecureSocketsTransportParams;
     do
     {
         xDemoStatus = EstablishMqttSession( &xMqttContext,

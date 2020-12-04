@@ -197,7 +197,7 @@ static NetworkContext_t xContext;
 /**
  * @brief Ble Transport Parameters structure to store the data channel.
  */
-static BleTransportParams_t xBleTransportParams = { 0 };
+static BleTransportParams_t xBleTransportParams;
 
 /**
  * @brief Flag to mark if the channel has been disconnected at all

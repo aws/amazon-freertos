@@ -223,7 +223,7 @@ static NetworkContext_t xBLETransportCtxt = { 0 };
 /**
  * @brief Ble Transport Parameters structure to store the data channel.
  */
-static BleTransportParams_t xBleTransportParams = { 0 };
+static BleTransportParams_t xBleTransportParams;
 
 /**
  * @brief Semaphore used to synchronize BLE data transfer channel callback.
