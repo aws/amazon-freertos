@@ -769,6 +769,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     BaseType_t xDemoStatus = pdPASS;
     BaseType_t xDemoRunCount = 0UL;
     BaseType_t xDeleteResponseLoopCount = 0UL;
+    SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
     /* A buffer containing the update document. It has static duration to prevent
      * it from being placed on the call stack. */
@@ -781,6 +782,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
+    xNetworkContext.pParams = &secureSocketsTransportParams;
     do
     {
         xDemoStatus = EstablishMqttSession( &xMqttContext,
