@@ -1451,9 +1451,11 @@ TEST( coreMQTT_Integration, Subscribe_Publish_With_Qos_2 )
 void Connect_LWT()
 {
     NetworkContext_t secondNetworkContext = { 0 };
+    SecureSocketsTransportParams_t secondSecureSocketsTransportParams = { 0 };
     bool sessionPresent;
     MQTTContext_t secondContext;
 
+    secondNetworkContext.pParams = &secondSecureSocketsTransportParams;
     /* Establish a second TCP connection with the server endpoint, then
      * a TLS session. The server info and credentials can be reused. */
     TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &secondNetworkContext ) );
