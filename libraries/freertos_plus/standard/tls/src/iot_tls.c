@@ -457,6 +457,7 @@ static int prvReadCertificateIntoContext( TLSContext_t * pxTlsContext,
     /* Get the handle of the certificate. */
     xResult = xFindObjectWithLabelAndClass( pxTlsContext->xP11Session,
                                             pcLabelName,
+                                            strlen( pcLabelName ),
                                             xClass,
                                             &xCertObj );
 
@@ -555,6 +556,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
         /* Get the handle of the device private key. */
         xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
                                                 pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ),
                                                 CKO_PRIVATE_KEY,
                                                 &pxCtx->xP11PrivateKey );
     }

@@ -1,7 +1,7 @@
 {
     "afr_source_dir":"../..",
-    "thing_name":"flaksjdflkasjdflkasjdflajsdf",
-    "wifi_ssid":"flaksdjf",
-    "wifi_password":"flaksdjf",
-    "wifi_security":"eWiFiSecurityWPA2"
+    "thing_name":"$thing_name",
+    "wifi_ssid":"$wifi_ssid",
+    "wifi_password":"$wifi_password",
+    "wifi_security":"$wifi_security"
 }

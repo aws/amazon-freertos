@@ -398,7 +398,8 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\pkcs11_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
@@ -406,6 +407,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\http_demo_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
@@ -413,9 +415,9 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</state>
@@ -1895,6 +1897,18 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\defender_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\http_demo_mutual_auth_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\http_demo_s3_download_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\http_demo_s3_download_multithreaded_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\http_demo_s3_upload_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_config.h</name>
 							</file>
 							<file>
@@ -2001,11 +2015,38 @@
 		<group>
 			<name>common</name>
 			<group>
+				<name>pkcs11_helpers</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\pkcs11_helpers\pkcs11_helpers.c</name>
+				</file>
+			</group>
+			<group>
+				<name>http_demo_helpers</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\http_demo_helpers\http_demo_utils.c</name>
+				</file>
+			</group>
+			<group>
 				<name>mqtt_demo_helpers</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c</name>
 				</file>
 			</group>
+		</group>
+		<group>
+			<name>coreHTTP</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreHTTP\http_demo_mutual_auth.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreHTTP\http_demo_s3_download.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreHTTP\http_demo_s3_download_multithreaded.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreHTTP\http_demo_s3_upload.c</name>
+			</file>
 		</group>
 		<group>
 			<name>coreMQTT</name>
@@ -2014,12 +2055,6 @@
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_connection_sharing.c</name>
-			</file>
-		</group>
-		<group>
-			<name>defender</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\defender\aws_iot_demo_defender.c</name>
 			</file>
 		</group>
 		<group>
@@ -2415,16 +2450,19 @@
 				</group>
 			</group>
 			<group>
-				<name>retry_utils</name>
+				<name>backoff_algorithm</name>
 				<group>
-					<name>freertos</name>
+					<name>source</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\backoff_algorithm.c</name>
 					</file>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include\backoff_algorithm.h</name>
+						</file>
+					</group>
 				</group>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h</name>
-				</file>
 			</group>
 			<group>
 				<name>transport</name>
@@ -2693,15 +2731,18 @@
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c</name>
 				</file>
 				<group>
-					<name>3rdparty</name>
+					<name>dependency</name>
 					<group>
-						<name>http_parser</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.h</name>
-						</file>
+						<name>3rdparty</name>
+						<group>
+							<name>http_parser</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.h</name>
+							</file>
+						</group>
 					</group>
 				</group>
 				<group>

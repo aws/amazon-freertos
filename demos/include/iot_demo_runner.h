@@ -58,6 +58,14 @@
         #undef democonfigDEMO_PRIORITY
         #define democonfigDEMO_PRIORITY     democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY
     #endif
+#elif defined( CONFIG_CORE_HTTP_MUTUAL_AUTH_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreHttpMutualAuthDemo
+#elif defined( CONFIG_CORE_HTTP_S3_DOWNLOAD_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreHttpS3DownloadDemo
+#elif defined( CONFIG_CORE_HTTP_S3_DOWNLOAD_MULTITHREADED_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreHttpS3DownloadMultithreadedDemo
+#elif defined( CONFIG_CORE_HTTP_S3_UPLOAD_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreHttpS3UploadDemo
 #elif defined( CONFIG_DEVICE_SHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunDeviceShadowDemo
     #if defined( democonfigSHADOW_DEMO_TASK_STACK_SIZE )
@@ -67,6 +75,16 @@
     #if defined( democonfigSHADOW_DEMO_TASK_PRIORITY )
         #undef democonfigDEMO_PRIORITY
         #define democonfigDEMO_PRIORITY     democonfigSHADOW_DEMO_TASK_PRIORITY
+    #endif
+#elif defined( CONFIG_JOBS_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunJobsDemo
+    #if defined( democonfigJOBS_DEMO_TASK_STACK_SIZE )
+        #undef democonfigDEMO_STACKSIZE
+        #define democonfigDEMO_STACKSIZE    democonfigJOBS_DEMO_TASK_STACK_SIZE
+    #endif
+    #if defined( democonfigJOBS_DEMO_TASK_PRIORITY )
+        #undef democonfigDEMO_PRIORITY
+        #define democonfigDEMO_PRIORITY     democonfigJOBS_DEMO_TASK_PRIORITY
     #endif
 #elif defined( CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              vStartGreenGrassDiscoveryTask
@@ -88,8 +106,6 @@
         #undef democonfigDEMO_PRIORITY
         #define democonfigDEMO_PRIORITY     democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY
     #endif
-#elif defined( CONFIG_DEFENDER_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              RunDefenderDemo
 #elif defined( CONFIG_POSIX_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              vStartPOSIXDemo
 #elif defined( CONFIG_OTA_UPDATE_DEMO_ENABLED )
@@ -131,6 +147,8 @@
 
 #elif defined( CONFIG_CLI_UART_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vRunCLIUartDemo
+#elif defined( CONFIG_DEVICE_DEFENDER_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunDeviceDefenderDemo
 #else /* if defined( CONFIG_CORE_MQTT_BASIC_TLS_DEMO_ENABLED ) */
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "No demo to run. One demo should be enabled"

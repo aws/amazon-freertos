@@ -185,7 +185,7 @@ GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include/platform \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include/platform \
                     $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets \
-                    $(AFR_ABSTRACTIONS_PATH)retry_utils \
+                    $(AFR_ABSTRACTIONS_PATH)backoff_algorithm \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/include \
                     $(AFR_THIRDPARTY_PATH)jsmn \
                     $(AFR_THIRDPARTY_PATH)mbedtls_config \

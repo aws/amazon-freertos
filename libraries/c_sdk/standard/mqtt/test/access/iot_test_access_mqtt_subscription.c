@@ -26,9 +26,9 @@
 /**
  * @file iot_test_access_mqtt_subscription.c
  * @brief Provides access to the internal functions and variables of
- * iot_mqtt_subscription.c
+ * iot_mqtt_subscription_container.c
  *
- * This file should only be included at the bottom of iot_mqtt_subscription.c
+ * This file should only be included at the bottom of iot_mqtt_subscription_container.c
  * and never compiled by itself.
  */
 

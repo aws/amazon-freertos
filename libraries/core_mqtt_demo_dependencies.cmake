@@ -79,7 +79,19 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::core_mqtt
+        AFR::backoff_algorithm
 )
+
+# Add dependency on PKCS11 Helpers module, that is required
+# by the Secure Sockets based coreMQTT demo, ONLY if the board
+# supports the PKCS11 module.
+if(TARGET AFR::pkcs11_implementation::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::pkcs11_helpers
+    )
+endif()
 
 # Add more dependencies for Secure Sockets based MQTT demo 
 # (at demos/coreMQTT folder) ONLY if the board supports 
@@ -88,7 +100,6 @@ if(TARGET AFR::secure_sockets::mcu_port)
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}
         PUBLIC
-            AFR::retry_utils
             AFR::transport_interface_secure_sockets
             AFR::secure_sockets
     )

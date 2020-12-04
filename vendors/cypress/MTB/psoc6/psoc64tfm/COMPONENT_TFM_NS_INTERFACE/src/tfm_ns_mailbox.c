@@ -113,10 +113,10 @@ static uint8_t acquire_empty_slot(const struct ns_mailbox_queue_t *queue)
     return idx;
 }
 
-static void set_msg_sema_handle(uint8_t idx, void *sem)
+static void set_msg_owner(uint8_t idx, const void *owner)
 {
     if (idx < NUM_MAILBOX_QUEUE_SLOT) {
-        mailbox_queue_ptr->queue[idx].sem = sem;
+        mailbox_queue_ptr->queue[idx].owner = owner;
     }
 }
 
@@ -191,7 +191,7 @@ mailbox_msg_handle_t tfm_ns_mailbox_tx_client_req(uint32_t call_type,
     uint8_t idx;
     struct mailbox_msg_t *msg_ptr;
     mailbox_msg_handle_t handle;
-    void *sem_handle;
+    const void *task_handle;
 
     if (!mailbox_queue_ptr) {
         return MAILBOX_MSG_NULL_HANDLE;
@@ -218,11 +218,11 @@ mailbox_msg_handle_t tfm_ns_mailbox_tx_client_req(uint32_t call_type,
     msg_ptr->client_id = client_id;
 
     /*
-     * Create a semaphore and store the semaphore handle in mailbx message,
-     * which will be used to wake up the owner thread.
+     * Fetch the current task handle. The task will be woken up according the
+     * handle value set in the owner field.
      */
-    sem_handle = tfm_ns_mailbox_hal_create_semaphore();
-    set_msg_sema_handle(idx, sem_handle);
+    task_handle = tfm_ns_mailbox_get_task_handle();
+    set_msg_owner(idx, task_handle);
 
     get_mailbox_msg_handle(idx, &handle);
 
@@ -256,9 +256,8 @@ int32_t tfm_ns_mailbox_rx_client_reply(mailbox_msg_handle_t handle,
 
     *reply = mailbox_queue_ptr->queue[idx].reply.return_val;
 
-    /* Delete the semaphore and remove the semaphore handle */
-    tfm_ns_mailbox_hal_delete_semaphore(handle);
-    set_msg_sema_handle(idx, NULL);
+    /* Clear up the owner field */
+    set_msg_owner(idx, NULL);
 
     tfm_ns_mailbox_hal_enter_critical();
     clear_queue_slot_replied(idx);
@@ -338,7 +337,7 @@ mailbox_msg_handle_t tfm_ns_mailbox_fetch_reply_msg_isr(void)
     return MAILBOX_MSG_NULL_HANDLE;
 }
 
-void *tfm_ns_mailbox_get_msg_semaphore(mailbox_msg_handle_t handle)
+const void *tfm_ns_mailbox_get_msg_owner(mailbox_msg_handle_t handle)
 {
     uint8_t idx;
 
@@ -347,7 +346,7 @@ void *tfm_ns_mailbox_get_msg_semaphore(mailbox_msg_handle_t handle)
     }
 
     if (idx < NUM_MAILBOX_QUEUE_SLOT) {
-        return mailbox_queue_ptr->queue[idx].sem;
+        return mailbox_queue_ptr->queue[idx].owner;
     }
 
     return NULL;

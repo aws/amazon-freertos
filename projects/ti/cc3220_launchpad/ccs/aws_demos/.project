@@ -798,14 +798,19 @@
 			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
+			<name>libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/retry_utils/retry_utils.h</name>
+			<name>libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/retry_utils/retry_utils.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
@@ -948,6 +953,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</locationURI>
 		</link>
 		<link>
+			<name>demos/common/http_demo_helpers/http_demo_utils.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/http_demo_helpers/http_demo_utils.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
@@ -1088,6 +1098,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</locationURI>
 		</link>
 		<link>
+			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/device_defender_for_aws/source/defender.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/device_defender_for_aws/source/defender.c</locationURI>
@@ -1113,9 +1128,24 @@
 			<locationURI>BASE_DIR_ROOT/libraries/jobs_for_aws/source/include/jobs.h</locationURI>
 		</link>
 		<link>
-			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
+			<name>demos/coreHTTP/http_demo_mutual_auth.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/coreHTTP/http_demo_mutual_auth.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreHTTP/http_demo_s3_download.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/coreHTTP/http_demo_s3_download.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreHTTP/http_demo_s3_download_multithreaded.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/coreHTTP/http_demo_s3_download_multithreaded.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreHTTP/http_demo_s3_upload.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/coreHTTP/http_demo_s3_upload.c</locationURI>
 		</link>
 		<link>
 			<name>demos/coreMQTT/mqtt_demo_mutual_auth.c</name>
@@ -1126,11 +1156,6 @@
 			<name>demos/coreMQTT/mqtt_demo_connection_sharing.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/coreMQTT/mqtt_demo_connection_sharing.c</locationURI>
-		</link>
-		<link>
-			<name>demos/defender/aws_iot_demo_defender.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/defender/aws_iot_demo_defender.c</locationURI>
 		</link>
 		<link>
 			<name>demos/device_shadow_for_aws/shadow_demo_main.c</name>
@@ -1296,6 +1321,26 @@
 			<name>config_files/defender_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/defender_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/http_demo_mutual_auth_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/http_demo_mutual_auth_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/http_demo_s3_download_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/http_demo_s3_download_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/http_demo_s3_download_multithreaded_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/http_demo_s3_download_multithreaded_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/http_demo_s3_upload_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/http_demo_s3_upload_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/iot_config.h</name>

@@ -79,26 +79,6 @@ static SemaphoreHandle_t connContextMutex;
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Set the unsubscribed flag of an MQTT subscription.
- *
- * @param[in] pSubscriptionLink Pointer to the link member of an #_mqttSubscription_t.
- * @param[in] pMatch Not used.
- *
- * @return Always returns `true`.
- */
-static bool _mqttSubscription_setUnsubscribe( const IotLink_t * pSubscriptionLink,
-                                              void * pMatch );
-
-/**
- * @brief Destroy an MQTT subscription if its reference count is 0.
- *
- * @param[in] pData The subscription to destroy. This parameter is of type
- * `void*` for compatibility with [free]
- * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
- */
-static void _mqttSubscription_tryDestroy( void * pData );
-
-/**
  * @brief Decrement the reference count of an MQTT operation and attempt to
  * destroy it.
  *
@@ -215,51 +195,6 @@ static int32_t transportRecv( NetworkContext_t * pNetworkContext,
 static int32_t transportSend( NetworkContext_t * pNetworkContext,
                               const void * pMessage,
                               size_t bytesToSend );
-
-/*-----------------------------------------------------------*/
-
-static bool _mqttSubscription_setUnsubscribe( const IotLink_t * pSubscriptionLink,
-                                              void * pMatch )
-{
-    /* Because this function is called from a container function, the given link
-     * must never be NULL. */
-    IotMqtt_Assert( pSubscriptionLink != NULL );
-
-    _mqttSubscription_t * pSubscription = IotLink_Container( _mqttSubscription_t,
-                                                             pSubscriptionLink,
-                                                             link );
-
-    /* Silence warnings about unused parameters. */
-    ( void ) pMatch;
-
-    /* Set the unsubscribed flag. */
-    pSubscription->unsubscribed = true;
-
-    return true;
-}
-
-/*-----------------------------------------------------------*/
-
-static void _mqttSubscription_tryDestroy( void * pData )
-{
-    _mqttSubscription_t * pSubscription = ( _mqttSubscription_t * ) pData;
-
-    /* Reference count must not be negative. */
-    IotMqtt_Assert( pSubscription->references >= 0 );
-
-    /* Unsubscribed flag should be set. */
-    IotMqtt_Assert( pSubscription->unsubscribed == true );
-
-    /* Free the subscription if it has no references. */
-    if( pSubscription->references == 0 )
-    {
-        IotMqtt_FreeSubscription( pSubscription );
-    }
-    else
-    {
-        EMPTY_ELSE_MARKER;
-    }
-}
 
 /*-----------------------------------------------------------*/
 
@@ -1666,7 +1601,6 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     _mqttOperation_t * pOperation = NULL;
-    uint8_t ** pPacketIdentifierHigh = NULL;
 
     /* Check that the PUBLISH information is valid. */
     if( _IotMqtt_ValidatePublish( mqttConnection->awsIotMqttMode,
@@ -1750,16 +1684,6 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
     /* Check the PUBLISH operation data and set the operation type. */
     IotMqtt_Assert( pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING );
     pOperation->u.operation.type = IOT_MQTT_PUBLISH_TO_SERVER;
-
-    /* In AWS IoT MQTT mode, a pointer to the packet identifier must be saved. */
-    if( mqttConnection->awsIotMqttMode == true )
-    {
-        pPacketIdentifierHigh = &( pOperation->u.operation.pPacketIdentifierHigh );
-    }
-    else
-    {
-        EMPTY_ELSE_MARKER;
-    }
 
     /* Initialize PUBLISH retry if retryLimit is set. */
     if( pPublishInfo->retryLimit > 0 )
