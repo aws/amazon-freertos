@@ -111,13 +111,6 @@
 			<logicalFolder name="greengrass_connectivity" displayName="greengrass_connectivity" projectFiles="true">
 				<itemPath>../../../../../demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</itemPath>
 			</logicalFolder>
-			<logicalFolder name="https" displayName="https" projectFiles="true">
-				<itemPath>../../../../../demos/https/iot_demo_https_s3_download_sync.c</itemPath>
-				<itemPath>../../../../../demos/https/iot_demo_https_s3_download_async.c</itemPath>
-				<itemPath>../../../../../demos/https/iot_demo_https_s3_upload_sync.c</itemPath>
-				<itemPath>../../../../../demos/https/iot_demo_https_s3_upload_async.c</itemPath>
-				<itemPath>../../../../../demos/https/iot_demo_https_common.c</itemPath>
-			</logicalFolder>
 			<logicalFolder name="jobs_for_aws" displayName="jobs_for_aws" projectFiles="true">
 				<itemPath>../../../../../demos/jobs_for_aws/jobs_demo.c</itemPath>
 			</logicalFolder>

@@ -428,11 +428,6 @@
 		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp\metrics_collector.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\device_shadow_for_aws\shadow_demo_main.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c"/>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_sync.c"/>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_async.c"/>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_upload_sync.c"/>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_upload_async.c"/>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_common.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\jobs_for_aws\jobs_demo.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\ota\aws_iot_ota_update_demo.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_task.c"/>

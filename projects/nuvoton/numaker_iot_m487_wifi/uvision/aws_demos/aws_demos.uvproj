@@ -1726,36 +1726,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>demos/https/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_demo_https_s3_download_sync.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_s3_download_sync.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_demo_https_s3_download_async.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_s3_download_async.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_demo_https_s3_upload_sync.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_s3_upload_sync.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_demo_https_s3_upload_async.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_s3_upload_async.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_demo_https_common.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_common.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>demos/jobs_for_aws/</GroupName>
 					<Files>
 						<File>
@@ -1852,6 +1822,11 @@
 							<FileName>defender_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/defender_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>defender_demo_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/defender_demo_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>http_demo_mutual_auth_config.h</FileName>
