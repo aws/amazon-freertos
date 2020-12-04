@@ -74,13 +74,13 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
                     "bytes sent: %u, packets sent: %u.",
                     ( unsigned int ) metrics.xInput.uxByteCount,
                     ( unsigned int ) metrics.xInput.uxPacketCount,
-                    ( unsigned int ) metrics.XOutput.uxByteCount,
-                    ( unsigned int ) metrics.XOutput.uxPacketCount ) );
+                    ( unsigned int ) metrics.xOutput.uxByteCount,
+                    ( unsigned int ) metrics.xOutput.uxPacketCount ) );
 
         pOutNetworkStats->bytesReceived = metrics.xInput.uxByteCount;
         pOutNetworkStats->packetsReceived = metrics.xInput.uxPacketCount;
-        pOutNetworkStats->bytesSent = metrics.XOutput.uxByteCount;
-        pOutNetworkStats->packetsSent = metrics.XOutput.uxPacketCount;
+        pOutNetworkStats->bytesSent = metrics.xOutput.uxByteCount;
+        pOutNetworkStats->packetsSent = metrics.xOutput.uxPacketCount;
 
         status = MetricsCollectorSuccess;
     }
