@@ -111,6 +111,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/common/pkcs11_helpers/pkcs11_helpers.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_mutual_auth.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_s3_download.c \
+                      $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_s3_download_multithreaded.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_s3_upload.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_mutual_auth.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_connection_sharing.c \

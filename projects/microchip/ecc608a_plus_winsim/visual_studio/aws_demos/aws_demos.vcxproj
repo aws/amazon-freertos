@@ -542,6 +542,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\jobs_for_aws\source\jobs.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_mutual_auth.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_download.c"/>
+		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_download_multithreaded.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_upload.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_mutual_auth.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_connection_sharing.c"/>

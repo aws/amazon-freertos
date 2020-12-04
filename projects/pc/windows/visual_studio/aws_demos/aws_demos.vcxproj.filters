@@ -1167,6 +1167,9 @@
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_download.c">
 			<Filter>demos\coreHTTP</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_download_multithreaded.c">
+			<Filter>demos\coreHTTP</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_upload.c">
 			<Filter>demos\coreHTTP</Filter>
 		</ClCompile>

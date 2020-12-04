@@ -1679,6 +1679,11 @@
 							<FilePath>../../../../../demos/coreHTTP/http_demo_s3_download.c</FilePath>
 						</File>
 						<File>
+							<FileName>http_demo_s3_download_multithreaded.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreHTTP/http_demo_s3_download_multithreaded.c</FilePath>
+						</File>
+						<File>
 							<FileName>http_demo_s3_upload.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreHTTP/http_demo_s3_upload.c</FilePath>
@@ -1857,6 +1862,11 @@
 							<FileName>http_demo_s3_download_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/http_demo_s3_download_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>http_demo_s3_download_multithreaded_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/http_demo_s3_download_multithreaded_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>http_demo_s3_upload_config.h</FileName>

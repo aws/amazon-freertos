@@ -1903,6 +1903,9 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\http_demo_s3_download_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\http_demo_s3_download_multithreaded_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\http_demo_s3_upload_config.h</name>
 							</file>
 							<file>
@@ -2037,6 +2040,9 @@
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreHTTP\http_demo_s3_download.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreHTTP\http_demo_s3_download_multithreaded.c</name>
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreHTTP\http_demo_s3_upload.c</name>

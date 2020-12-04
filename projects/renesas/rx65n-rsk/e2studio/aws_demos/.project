@@ -2042,6 +2042,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/coreHTTP/http_demo_s3_download.c</locationURI>
 		</link>
 		<link>
+			<name>demos/coreHTTP/http_demo_s3_download_multithreaded.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/coreHTTP/http_demo_s3_download_multithreaded.c</locationURI>
+		</link>
+		<link>
 			<name>demos/coreHTTP/http_demo_s3_upload.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/coreHTTP/http_demo_s3_upload.c</locationURI>
@@ -2225,6 +2230,11 @@
 			<name>config_files/http_demo_s3_download_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/http_demo_s3_download_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/http_demo_s3_download_multithreaded_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/http_demo_s3_download_multithreaded_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/http_demo_s3_upload_config.h</name>
