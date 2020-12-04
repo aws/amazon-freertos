@@ -49,6 +49,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AMAZON_FREERTOS_PATH)demos/common/http_demo_helpers \
                     $(AMAZON_FREERTOS_PATH)demos/common/mqtt_demo_helpers \
                     $(AMAZON_FREERTOS_PATH)demos/common/pkcs11_helpers \
+                    $(AMAZON_FREERTOS_PATH)demos/device_defender_for_aws \
+                    $(AMAZON_FREERTOS_PATH)demos/device_defender_for_aws/metrics_collector/lwip \
                     $(AFR_C_SDK_STANDARD_PATH)common/include \
                     $(AFR_LIBRARIES_PATH)logging/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include  \
