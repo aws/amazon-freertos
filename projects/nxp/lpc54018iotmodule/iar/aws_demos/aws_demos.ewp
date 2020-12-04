@@ -2070,24 +2070,6 @@
 			</file>
 		</group>
 		<group>
-			<name>https</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_download_sync.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_download_async.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_upload_sync.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_upload_async.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_common.c</name>
-			</file>
-		</group>
-		<group>
 			<name>jobs_for_aws</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\jobs_for_aws\jobs_demo.c</name>
