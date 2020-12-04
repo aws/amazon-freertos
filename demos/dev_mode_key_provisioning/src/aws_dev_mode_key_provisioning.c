@@ -926,7 +926,7 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
     {
         xResult = xFindObjectWithLabelAndClass( xSession,
                                                 pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                                sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ),
+                                                sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) - 1,
                                                 CKO_PRIVATE_KEY,
                                                 &pxProvisionedState->xPrivateKey );
     }
@@ -936,7 +936,7 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
         /* Check also for the corresponding public. */
         xResult = xFindObjectWithLabelAndClass( xSession,
                                                 pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-                                                sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ),
+                                                sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) - 1,
                                                 CKO_PUBLIC_KEY,
                                                 &pxProvisionedState->xPublicKey );
     }
@@ -955,7 +955,7 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
     {
         xResult = xFindObjectWithLabelAndClass( xSession,
                                                 pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                                sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ),
+                                                sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) - 1,
                                                 CKO_CERTIFICATE,
                                                 &pxProvisionedState->xClientCertificate );
     }
