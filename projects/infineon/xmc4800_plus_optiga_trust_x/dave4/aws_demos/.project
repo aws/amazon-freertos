@@ -1814,6 +1814,31 @@
 			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_connection_sharing.c</locationURI>
 		</link>
 		<link>
+			<name>demos/device_defender_for_aws/defender_demo.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/device_defender_for_aws/defender_demo.c</locationURI>
+		</link>
+		<link>
+			<name>demos/device_defender_for_aws/report_builder.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/device_defender_for_aws/report_builder.c</locationURI>
+		</link>
+		<link>
+			<name>demos/device_defender_for_aws/metrics_collector/stub/metrics_collector.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/device_defender_for_aws/metrics_collector/stub/metrics_collector.c</locationURI>
+		</link>
+		<link>
+			<name>demos/device_defender_for_aws/report_builder.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/device_defender_for_aws/report_builder.h</locationURI>
+		</link>
+		<link>
+			<name>demos/device_defender_for_aws/metrics_collector.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/device_defender_for_aws/metrics_collector.h</locationURI>
+		</link>
+		<link>
 			<name>demos/device_shadow_for_aws/shadow_demo_main.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/device_shadow_for_aws/shadow_demo_main.c</locationURI>
@@ -1942,6 +1967,11 @@
 			<name>config_files/defender_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/defender_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/defender_demo_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/defender_demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/http_demo_mutual_auth_config.h</name>
