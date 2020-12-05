@@ -224,11 +224,6 @@ static MQTTContext_t xMqttContext;
 static NetworkContext_t xNetworkContext;
 
 /**
- * @brief The parameters for the network context using a TLS channel.
- */
-static SecureSocketsTransportParams_t xSecureSocketsTransportParams;
-
-/**
  * @brief The flag to indicate the mqtt session changed.
  */
 static BaseType_t mqttSessionEstablished = pdTRUE;
@@ -786,7 +781,6 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-    xNetworkContext.pParams = &xSecureSocketsTransportParams;
     do
     {
         xDemoStatus = EstablishMqttSession( &xMqttContext,

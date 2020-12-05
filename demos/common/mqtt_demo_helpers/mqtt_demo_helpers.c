@@ -197,6 +197,11 @@ static PublishPackets_t outgoingPublishPackets[ MAX_OUTGOING_PUBLISHES ] = { 0 }
  */
 static bool mqttSessionEstablished = false;
 
+/**
+ * @brief The parameters for the network context using a TLS channel.
+ */
+static SecureSocketsTransportParams_t xSecureSocketsTransportParams;
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -543,6 +548,8 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
     ( void ) memset( pxMqttContext, 0U, sizeof( MQTTContext_t ) );
     ( void ) memset( pxNetworkContext, 0U, sizeof( NetworkContext_t ) );
 
+
+    pxNetworkContext->pParams = &xSecureSocketsTransportParams;
     if( prvConnectToServerWithBackoffRetries( pxNetworkContext ) != TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
         /* Log error to indicate connection failure after all

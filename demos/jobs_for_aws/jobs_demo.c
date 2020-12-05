@@ -261,11 +261,6 @@ static MQTTContext_t xMqttContext;
 static NetworkContext_t xNetworkContext;
 
 /**
- * @brief The parameters for the network context using a TLS channel.
- */
-static SecureSocketsTransportParams_t xSecureSocketsTransportParams;
-
-/**
  * @brief Static buffer used to hold MQTT messages being sent and received.
  */
 static uint8_t ucSharedBuffer[ democonfigNETWORK_BUFFER_SIZE ];
@@ -740,7 +735,6 @@ int RunJobsDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-    xNetworkContext.pParams = &xSecureSocketsTransportParams;
     /* This demo runs a single loop unless there are failures in the demo execution.
      * In case of failures in the demo execution, demo loop will be retried for up to
      * JOBS_MAX_DEMO_COUNT times. */
