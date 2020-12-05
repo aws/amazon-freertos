@@ -1,8 +1,17 @@
-# Demo module for AWS IoT Defender for platforms using LWIP.
-afr_demo_module(device_defender_lwip)
+# Demo module for AWS IoT Defender.
+afr_demo_module(device_defender)
 
+# The device defender demo collectes metrics using functions defined in
+# metrics_collector.h. We provide an implementation of these functions for
+# FreeRTOS+TCP and for LWIP in core locking mode.
+# We check the availablitiy of FreeRTOS+TCP or supported lwIP in order to
+# provide our metrics_collector implementations.
+# If neither is available we include a stub implementation.
+
+# Metrics are supported on all FreeRTOS+TCP configurations, so if it is
+# available we use it.
 if(TARGET AFR::freertos_plus_tcp::mcu_port)
-    # FreeRTOS+TCP metrics
+    # Demo using FreeRTOS+TCP metrics
     afr_set_demo_metadata(ID "DEVICE_DEFENDER_DEMO")
     afr_set_demo_metadata(DESCRIPTION "An example that demonstrates the use of the AWS IoT Defender library.")
     afr_set_demo_metadata(DISPLAY_NAME "Device Defender Demo")
@@ -37,6 +46,7 @@ if(TARGET AFR::freertos_plus_tcp::mcu_port)
             AFR::mqtt_demo_helpers
             AFR::core_json
             AFR::device_defender
+            AFR::freertos_plus_tcp
             AFR::freertos_plus_tcp_utils
             # Add dependency on the device_defender_demo_dependencies
             # metadata module so that this demo is only shown when the
@@ -44,8 +54,10 @@ if(TARGET AFR::freertos_plus_tcp::mcu_port)
             AFR::device_defender_demo_dependencies
     )
 
+# The DEFENDER_METRICS_LWIP_SUPPORTED flag is defined in board configurations
+# which support LWIP metrics collection.
 elseif(${DEFENDER_METRICS_LWIP_SUPPORTED})
-    # lwIP metrics
+    # Demo using LWIP metrics
     afr_set_demo_metadata(ID "DEVICE_DEFENDER_DEMO")
     afr_set_demo_metadata(DESCRIPTION "An example that demonstrates the use of the AWS IoT Defender library.")
     afr_set_demo_metadata(DISPLAY_NAME "Device Defender Demo")
@@ -82,14 +94,18 @@ elseif(${DEFENDER_METRICS_LWIP_SUPPORTED})
             AFR::mqtt_demo_helpers
             AFR::core_json
             AFR::device_defender
+            3rdparty::lwip
             # Add dependency on the device_defender_demo_dependencies
             # metadata module so that this demo is only shown when the
             # Device Defender library is selected on the FreeRTOS console.
             AFR::device_defender_demo_dependencies
     )
 
+# If both previous checks failed, we do not have an implemented
+# metrics_collector available, and thus we use the stub implementation.
 else()
-    # Stubbed metrics
+    # Demo using stubbed metrics for boards that do not support either
+    # FreeRTOS+TCP or lwIP.
     afr_set_demo_metadata(ID "DEVICE_DEFENDER_DEMO")
     afr_set_demo_metadata(DESCRIPTION "An example that demonstrates the use of the AWS IoT Defender library.")
     afr_set_demo_metadata(DISPLAY_NAME "Device Defender Demo (Stubbed metrics)")
@@ -131,6 +147,3 @@ else()
     )
 
 endif()
-
-
-
