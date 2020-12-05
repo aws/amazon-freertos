@@ -74,19 +74,25 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
 {
     MetricsCollectorStatus_t status = MetricsCollectorSuccess;
 
-    configASSERT( pOutNetworkStats != NULL );
+    if( pOutNetworkStats == NULL )
+    {
+        status = MetricsCollectorBadParameter;
+    }
 
-    /* Initialize everything to zero. */
-    memset( pOutNetworkStats, 0, sizeof( NetworkStats_t ) );
+    if( status == MetricsCollectorSuccess )
+    {
+        /* Initialize everything to zero. */
+        memset( pOutNetworkStats, 0, sizeof( NetworkStats_t ) );
 
-    /* Take a look at the comments at the top of this file. */
-    LogError( ( "Using stub definition of GetNetworkStats! "
-                "Please implement for your network stack to get correct metrics." ) );
+        /* Take a look at the comments at the top of this file. */
+        LogError( ( "Using stub definition of GetNetworkStats! "
+                    "Please implement for your network stack to get correct metrics." ) );
 
-    pOutNetworkStats->bytesReceived = 0;
-    pOutNetworkStats->packetsReceived = 0;
-    pOutNetworkStats->bytesSent = 0;
-    pOutNetworkStats->packetsSent = 0;
+        pOutNetworkStats->bytesReceived = 0;
+        pOutNetworkStats->packetsReceived = 0;
+        pOutNetworkStats->bytesSent = 0;
+        pOutNetworkStats->packetsSent = 0;
+    }
 
     return status;
 }
@@ -99,24 +105,30 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
     MetricsCollectorStatus_t status = MetricsCollectorSuccess;
 
     /* pOutTcpPortsArray can be NULL. */
-    configASSERT( pOutNumTcpOpenPorts != NULL );
-
-    /* Take a look at the comments at the top of this file. */
-    LogError( ( "Using stub definition of GetOpenTcpPorts! "
-                "Please implement for your network stack to get correct metrics." ) );
-
-    if( pOutTcpPortsArray != NULL )
+    if( pOutNumTcpOpenPorts == NULL )
     {
-        /* Fill the output array with as many TCP ports as will fit in the
-         * given array. */
-
-        /* Return the number of elements copied to the array. */
-        *pOutNumTcpOpenPorts = 0;
+        status = MetricsCollectorBadParameter;
     }
-    else
+
+    if( status == MetricsCollectorSuccess )
     {
-        /* Return the total number of open ports. */
-        *pOutNumTcpOpenPorts = 0;
+        /* Take a look at the comments at the top of this file. */
+        LogError( ( "Using stub definition of GetOpenTcpPorts! "
+                    "Please implement for your network stack to get correct metrics." ) );
+
+        if( pOutTcpPortsArray != NULL )
+        {
+            /* Fill the output array with as many TCP ports as will fit in the
+             * given array. */
+
+            /* Return the number of elements copied to the array. */
+            *pOutNumTcpOpenPorts = 0;
+        }
+        else
+        {
+            /* Return the total number of open ports. */
+            *pOutNumTcpOpenPorts = 0;
+        }
     }
 
     return status;
@@ -129,25 +141,30 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
 {
     MetricsCollectorStatus_t status = MetricsCollectorSuccess;
 
-    /* pOutUdpPortsArray can be NULL. */
-    configASSERT( pOutNumUdpOpenPorts != NULL );
-
-    /* Take a look at the comments at the top of this file. */
-    LogError( ( "Using stub definition of GetOpenUdpPorts! "
-                "Please implement for your network stack to get correct metrics." ) );
-
-    if( pOutUdpPortsArray != NULL )
+    if( pOutNumUdpOpenPorts == NULL )
     {
-        /* Fill the output array with as many UDP ports as will fit in the
-         * given array. */
-
-        /* Return the number of elements copied to the array. */
-        *pOutNumUdpOpenPorts = 0;
+        status = MetricsCollectorBadParameter;
     }
-    else
+
+    if( status == MetricsCollectorSuccess )
     {
-        /* Return the total number of open ports. */
-        *pOutNumUdpOpenPorts = 0;
+        /* Take a look at the comments at the top of this file. */
+        LogError( ( "Using stub definition of GetOpenUdpPorts! "
+                    "Please implement for your network stack to get correct metrics." ) );
+
+        if( pOutUdpPortsArray != NULL )
+        {
+            /* Fill the output array with as many UDP ports as will fit in the
+             * given array. */
+
+            /* Return the number of elements copied to the array. */
+            *pOutNumUdpOpenPorts = 0;
+        }
+        else
+        {
+            /* Return the total number of open ports. */
+            *pOutNumUdpOpenPorts = 0;
+        }
     }
 
     return status;
@@ -161,25 +178,30 @@ MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectio
 {
     MetricsCollectorStatus_t status = MetricsCollectorSuccess;
 
-    /* pOutConnectionsArray can be NULL. */
-    configASSERT( pOutNumEstablishedConnections != NULL );
-
-    /* Take a look at the comments at the top of this file. */
-    LogError( ( "Using stub definition of GetEstablishedConnections! "
-                "Please implement for your network stack to get correct metrics." ) );
-
-    if( pOutConnectionsArray != NULL )
+    if( pOutNumEstablishedConnections == NULL )
     {
-        /* Fill the output array with as many TCP socket infos as will fit in
-         * the given array. */
-
-        /* Return the number of elements copied to the array. */
-        *pOutNumEstablishedConnections = 0;
+        status = MetricsCollectorBadParameter;
     }
-    else
+
+    if( status == MetricsCollectorSuccess )
     {
-        /* Return the total number of established connections. */
-        *pOutNumEstablishedConnections = 0;
+        /* Take a look at the comments at the top of this file. */
+        LogError( ( "Using stub definition of GetEstablishedConnections! "
+                    "Please implement for your network stack to get correct metrics." ) );
+
+        if( pOutConnectionsArray != NULL )
+        {
+            /* Fill the output array with as many TCP socket infos as will fit in
+             * the given array. */
+
+            /* Return the number of elements copied to the array. */
+            *pOutNumEstablishedConnections = 0;
+        }
+        else
+        {
+            /* Return the total number of established connections. */
+            *pOutNumEstablishedConnections = 0;
+        }
     }
 
     return status;
