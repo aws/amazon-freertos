@@ -786,7 +786,7 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-    xNetworkContext.pParams = &xsecureSocketsTransportParams;
+    xNetworkContext.pParams = &xSecureSocketsTransportParams;
     do
     {
         xDemoStatus = EstablishMqttSession( &xMqttContext,
