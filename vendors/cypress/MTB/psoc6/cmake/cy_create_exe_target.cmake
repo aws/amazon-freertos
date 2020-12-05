@@ -543,8 +543,8 @@ function(cy_create_exe_target)
     if (OTA_SUPPORT)
         cy_config_ota_exe_target(EXE_APP_NAME ${ARG_EXE_APP_NAME})
     endif()
-
-    cy_sign_boot_image(EXE_APP_NAME ${ARG_EXE_APP_NAME})
+    if(NOT AFR_METADATA_MODE)
+        cy_sign_boot_image(EXE_APP_NAME ${ARG_EXE_APP_NAME})
+    endif()
 
 endfunction()
-
