@@ -1,6 +1,14 @@
 # Demo module for AWS IoT Defender.
 afr_demo_module(device_defender)
 
+afr_set_demo_metadata(ID "DEVICE_DEFENDER_DEMO")
+afr_set_demo_metadata(DESCRIPTION "An example that demonstrates the use of the AWS IoT Defender library.")
+
+# Add the CMakeLists.txt file of module to metadata list.
+afr_module_cmake_files(${AFR_CURRENT_MODULE}
+    ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
+)
+
 # The device defender demo collectes metrics using functions defined in
 # metrics_collector.h. We provide an implementation of these functions for
 # FreeRTOS+TCP and for LWIP in core locking mode.
@@ -12,14 +20,7 @@ afr_demo_module(device_defender)
 # available we use it.
 if(TARGET AFR::freertos_plus_tcp::mcu_port)
     # Demo using FreeRTOS+TCP metrics
-    afr_set_demo_metadata(ID "DEVICE_DEFENDER_DEMO")
-    afr_set_demo_metadata(DESCRIPTION "An example that demonstrates the use of the AWS IoT Defender library.")
     afr_set_demo_metadata(DISPLAY_NAME "Device Defender Demo")
-
-    # Add the CMakeLists.txt file of module to metadata list.
-    afr_module_cmake_files(${AFR_CURRENT_MODULE}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
-    )
 
     afr_module_sources(
         ${AFR_CURRENT_MODULE}
@@ -58,14 +59,7 @@ if(TARGET AFR::freertos_plus_tcp::mcu_port)
 # which support LWIP metrics collection.
 elseif(${DEFENDER_METRICS_LWIP_SUPPORTED})
     # Demo using LWIP metrics
-    afr_set_demo_metadata(ID "DEVICE_DEFENDER_DEMO")
-    afr_set_demo_metadata(DESCRIPTION "An example that demonstrates the use of the AWS IoT Defender library.")
     afr_set_demo_metadata(DISPLAY_NAME "Device Defender Demo")
-
-    # Add the CMakeLists.txt file of module to metadata list.
-    afr_module_cmake_files(${AFR_CURRENT_MODULE}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
-    )
 
     afr_module_sources(
         ${AFR_CURRENT_MODULE}
@@ -106,14 +100,7 @@ elseif(${DEFENDER_METRICS_LWIP_SUPPORTED})
 else()
     # Demo using stubbed metrics for boards that do not support either
     # FreeRTOS+TCP or lwIP.
-    afr_set_demo_metadata(ID "DEVICE_DEFENDER_DEMO")
-    afr_set_demo_metadata(DESCRIPTION "An example that demonstrates the use of the AWS IoT Defender library.")
     afr_set_demo_metadata(DISPLAY_NAME "Device Defender Demo (Stubbed metrics)")
-
-    # Add the CMakeLists.txt file of module to metadata list.
-    afr_module_cmake_files(${AFR_CURRENT_MODULE}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt
-    )
 
     afr_module_sources(
         ${AFR_CURRENT_MODULE}
