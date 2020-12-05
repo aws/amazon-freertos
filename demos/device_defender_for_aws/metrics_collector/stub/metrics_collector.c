@@ -30,6 +30,7 @@
  * This file is a stub which returns zero for all metrics. In order to report
  * correct metrics, the functions in this file must be implemented for the
  * target platform's network stack.
+ * Here are reference implmentations for the FreeRTOS+TCP and LWIP network stacks:
  *
  * FreeRTOS+TCP:
  *      If you are using FreeRTOS+TCP, use the metrics_collector.c file
@@ -39,20 +40,12 @@
  * LWIP:
  *      If you are using LWIP, use the metrics_collector.c available at
  *      [LWIP metrics_collector implementation](https://github.com/aws/amazon-freertos/blob/master/demos/device_defender_for_aws/metrics_collector/lwip/metrics_collector.c).
+ *
  *      In addition, define the following macros in your lwipopts.h:
  *      #define LINK_SPEED_OF_YOUR_NETIF_IN_BPS 0
  *      #define LWIP_TCPIP_CORE_LOCKING         1
  *      #define LWIP_STATS                      1
  *      #define MIB2_STATS                      1
- *
- * Any other TCP stack:
- *      For any other TCP stack, fill in the function definitions in this file
- *      for your TCP stack.
- *      You can look at
- *      [FreeRTOS+TCP metrics_collector implementation](https://github.com/aws/amazon-freertos/blob/master/demos/device_defender_for_aws/metrics_collector/freertos_plus_tcp/metrics_collector.c)
- *      and
- *      [LWIP metrics_collector implementation](https://github.com/aws/amazon-freertos/blob/master/demos/device_defender_for_aws/metrics_collector/lwip/metrics_collector.c)
- *      for sample implementations.
  */
 
 /* Standard includes. */
