@@ -185,8 +185,7 @@ target_include_directories(
         "${esp_idf_dir}/components/protocomm/include/security"
         "${esp_idf_dir}/components/protocomm/include/transports"
         "${esp_idf_dir}/components/wifi_provisioning/include"
-        "${esp_idf_dir}/components/nghttp/port/include"
-        "${afr_ports_dir}/wifi"
+        "${CMAKE_SOURCE_DIR}/libraries/coreHTTP/source/3rdparty/http_parser"
 )
 endif()
 
@@ -195,7 +194,6 @@ target_sources(
     INTERFACE 
         "${afr_ports_dir}/wifi/iot_wifi.c"
         "${afr_ports_dir}/wifi/iot_softap_wifi_provisioning.c"
-        "${esp_idf_dir}/components/nghttp/port/http_parser.c"
 )
 
 # BLE
