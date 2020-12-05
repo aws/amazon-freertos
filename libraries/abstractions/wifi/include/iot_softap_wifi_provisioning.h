@@ -23,13 +23,12 @@
  * http://www.FreeRTOS.org
  */
 
+#ifndef _AWS_SOFTAP_WIFI_PROVISIONING_H_
 #include <stdint.h>
-
 /**
  * @file iot_softap_wifi_provisioning.h
  * @brief Wi-Fi SoftAP Provisioning Interface.
  */
-#ifndef _AWS_SOFTAP_WIFI_PROVISIONING_H_
 
 /**
  * @brief Initialize wifi provisioning over SoftAP.
@@ -43,7 +42,6 @@ uint32_t IotWifiSoftAPProv_Init( void );
 
 /**
  * @brief Gets the total number of provisioned networks.
- *
  *
  * @return Number of provisioned networks
  */
@@ -62,7 +60,7 @@ uint32_t IotWifiSoftAPProv_Connect( uint32_t networkIndex );
  * @brief Tear down WIFI provisioning service
  *
  */
-/* @[declare_iotwifisoftprov_delete] */
+/* @[declare_iotwifisoftprov_Deinit] */
 void IotWifiSoftAPProv_Deinit( void );
 
 
