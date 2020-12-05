@@ -98,22 +98,6 @@ static uint16_t _nextPacketIdentifier( void );
 
 /*-----------------------------------------------------------*/
 
-#if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
-
-/**
- * @brief If logging is enabled, define a log configuration that only prints the log
- * string. This is used when printing out details of deserialized MQTT packets.
- */
-    static const IotLogConfig_t _logHideAll =
-    {
-        .hideLibraryName = true,
-        .hideLogLevel    = true,
-        .hideTimestring  = true
-    };
-#endif
-
-/*-----------------------------------------------------------*/
-
 static uint16_t _nextPacketIdentifier( void )
 {
     /* MQTT specifies 2 bytes for the packet identifier; however, operating on

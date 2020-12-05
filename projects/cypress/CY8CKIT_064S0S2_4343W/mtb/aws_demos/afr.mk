@@ -179,7 +179,6 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers/pkcs11_helpers.c\
 	$(wildcard $(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreHTTP/*.c)\
@@ -195,7 +194,6 @@ INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common\
 	$(CY_AFR_ROOT)/demos/dev_mode_key_provisioning\
 	$(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/include\
-	$(CY_AFR_ROOT)/demos/https\
 	$(CY_AFR_ROOT)/demos/include\
 	$(CY_AFR_ROOT)/demos/network_manager\
 	$(CY_AFR_ROOT)/demos/tcp\

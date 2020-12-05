@@ -29,6 +29,7 @@
 #include "cybsp.h"
 #if defined(CY_USING_HAL)
 #include "cyhal_hwmgr.h"
+#include "cyhal_syspm.h"
 #endif
 
 #if defined(__cplusplus)
@@ -81,11 +82,24 @@ cy_rslt_t cybsp_init(void)
     /* Setup hardware manager to track resource usage then initialize all system (clock/power) board configuration */
 #if defined(CY_USING_HAL)
     cy_rslt_t result = cyhal_hwmgr_init();
+
+    if (CY_RSLT_SUCCESS == result)
+    {
+        result = cyhal_syspm_init();
+    }
+
+#ifdef CY_CFG_PWR_VDDA_MV
+    if(CY_RSLT_SUCCESS == result)
+    {
+        cyhal_syspm_set_supply_voltage(CYHAL_VOLTAGE_SUPPLY_VDDA, CY_CFG_PWR_VDDA_MV);
+    }
+#endif
+
 #else
     cy_rslt_t result = CY_RSLT_SUCCESS;
 #endif
 
-#if defined(COMPONENT_CUSTOM_DESIGN_MODUS)
+#if defined(COMPONENT_BSP_DESIGN_MODUS) || defined(COMPONENT_CUSTOM_DESIGN_MODUS)
     init_cycfg_all();
 #endif
 

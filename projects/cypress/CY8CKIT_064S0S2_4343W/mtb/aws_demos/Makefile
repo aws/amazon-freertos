@@ -26,9 +26,6 @@
 # Choose between "aws_demos" and "aws_tests"
 CY_AFR_BUILD=aws_demos
 
-# BLE support
-BLE_SUPPORT=1
-
 # Root location of AFR directory
 CY_AFR_ROOT=../../../../..
 
@@ -65,8 +62,6 @@ CONFIG=Debug
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
-# OTA_SUPPORT needed for some AWS Demos
-OTA_SUPPORT=0
 
 ################################################################################
 # Advanced Configuration
@@ -79,10 +74,10 @@ OTA_SUPPORT=0
 #
 #    COMPONENTS=foo bar
 #
-# ... then code in directories named COMPONENT_foo and COMPONENT_bar will be 
+# ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS=FREERTOS 4343W CY8CKIT_064S0S2_4343W TFM_NS_FREERTOS_WRAPPER TFM_NS_INTERFACE
+COMPONENTS=
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=
@@ -95,15 +90,13 @@ SOURCES=
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
-INCLUDES=
+# TODO remove this once whd is update to new version
+INCLUDES=$(CY_AFR_ROOT)/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/nvram/TARGET_CY8CKIT_064B0S2_4343W
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USE_LWIP CY_TFM_PSA_SUPPORTED CONFIG_MEDTLS_USE_AFR_MEMORY MBEDTLS_CONFIG_FILE=\"aws_mbedtls_config.h\" TFM_MULTI_CORE_MULTI_CLIENT_CALL CY_TFM_VERSION_1_0
+DEFINES=
 
-# Add BLE defines
-DEFINES+=CY_BLE_SUPPORTED
-
-# Select softfp or hardfp floating point. Default is softfp. 
+# Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT=
 
 # Additional / custom C compiler flags.
@@ -141,6 +134,35 @@ POSTBUILD=
 
 
 ################################################################################
+# Feature Configuration
+################################################################################
+# Enable or disable BLE module
+BLE_SUPPORT=1
+
+# Set to 1 to add OTA defines, sources, and libraries (must be used with MCUBoot)
+# NOTE: Extra code must be called from your app to initialize AFR OTA Agent
+OTA_SUPPORT=0
+
+# This platform always uses EXTERNAL_FLASH
+OTA_USE_EXTERNAL_FLASH:=1
+
+# Define CY_TEST_APP_VERSION_IN_TAR here to test application version
+#        in TAR archive at start of OTA image download.
+# NOTE: This requires that the version numbers here and in the header file match.
+# NOTE: This will create compile warnings such as
+#		'warning: "APP_VERSION_MAJOR" redefined'
+#
+# CY_TEST_APP_VERSION_IN_TAR=1
+#
+# APP_VERSION_MAJOR:=1
+# APP_VERSION_MINOR:=0
+# APP_VERSION_BUILD:=0
+
+# CY_TFM_PSA_SUPPORTED feature cannot be disabled on this platform.
+CY_TFM_PSA_SUPPORTED=1
+
+
+################################################################################
 # Paths
 ################################################################################
 
@@ -149,18 +171,18 @@ POSTBUILD=
 # This controls where automatic source code discovery looks for code.
 CY_APP_PATH=
 
-# Relative path to the "base" library. It provides the core makefile build 
+# Relative path to the "base" library. It provides the core makefile build
 # infrastructure.
 CY_BASELIB_PATH=$(CY_AFR_ROOT)/vendors/cypress/MTB/psoc6/psoc6make
 
-# Absolute path to the compiler's "bin" directory. 
+# Absolute path to the compiler's "bin" directory.
 #
 # The default depends on the selected TOOLCHAIN (GCC_ARM uses the ModusToolbox
 # IDE provided compiler by default).
 CY_COMPILER_PATH=
 
-# Include aFR configuration make file 
-include ./afr.mk
+# Include aFR configuration make file
+include $(CY_AFR_ROOT)/projects/cypress/make_support/afr.mk
 
 
 ################################################################################

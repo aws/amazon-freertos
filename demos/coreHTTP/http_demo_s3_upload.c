@@ -35,13 +35,20 @@
  * request, and verify the file was uploaded using a GET request. If any request
  * fails, an error code is returned.
  *
- * @note This demo uses retry logic to connect to the server if connection attempts fail.
- * The FreeRTOS/backoffAlgorithm library is used to calculate the retry interval with an exponential
- * backoff and jitter algorithm. For generating random number required by the algorithm, the PKCS11
- * module is used as it allows access to a True Random Number Generator (TRNG) if the vendor platform
- * supports it.
- * It is RECOMMENDED to seed the random number generator with a device-specific entropy source so that
- * probability of collisions from devices in connection retries is mitigated.
+ * @note This demo requires user-generated pre-signed URLs to be pasted into
+ * http_demo_s3_upload_config. Please use the provided script
+ * "presigned_urls_gen.py" (located in http_demo_helpers) to generate these
+ * URLs. For detailed instructions, see the accompanied README.md.
+ *
+ * @note This demo uses retry logic to connect to the server if connection
+ * attempts fail. The FreeRTOS/backoffAlgorithm library is used to calculate the
+ * retry interval with an exponential backoff and jitter algorithm. For
+ * generating random number required by the algorithm, the PKCS11 module is used
+ * as it allows access to a True Random Number Generator (TRNG) if the vendor
+ * platform supports it.
+ * It is RECOMMENDED to seed the random number generator with a device-specific
+ * entropy source so that probability of collisions from devices in connection
+ * retries is mitigated.
  */
 
 /**
@@ -79,12 +86,12 @@
 
 /* Check that the TLS port of the server is defined. */
 #ifndef democonfigHTTPS_PORT
-    #error "Please define a democonfigHTTPS_PORT."
+    #error "Please define democonfigHTTPS_PORT in http_demo_s3_upload_config.h."
 #endif
 
 /* Check that the root CA certificate is defined. */
 #ifndef democonfigROOT_CA_PEM
-    #error "Please define a democonfigROOT_CA_PEM."
+    #error "Please define democonfigROOT_CA_PEM in http_demo_s3_upload_config.h."
 #endif
 
 /* Check that the pre-signed GET URL is defined. */
@@ -100,7 +107,7 @@
 /* Check that a transport timeout for transport send and receive functions is
  * defined. */
 #ifndef democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS
-    #define democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 1000 )
+    #define democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 5000 )
 #endif
 
 /* Check that the size of the user buffer is defined. */
@@ -360,6 +367,7 @@ static BaseType_t prvGetS3ObjectFileSize( size_t * pxFileSize,
     char * pcContentRangeValStr = NULL;
     size_t xContentRangeValStrLength = 0;
 
+    configASSERT( pxFileSize != NULL );
     configASSERT( pcHost != NULL );
     configASSERT( pcPath != NULL );
 
@@ -633,7 +641,7 @@ static BaseType_t prvVerifyS3ObjectFileSize( const TransportInterface_t * pxTran
         }
         else
         {
-            LogInfo( ( "Successfuly verified that the size of the file found on S3 matches the file size uploaded "
+            LogInfo( ( "Successfully verified that the size of the file found on S3 matches the file size uploaded "
                        "(Uploaded: %d bytes, Found: %d bytes).",
                        ( int32_t ) httpexampleDEMO_HTTP_UPLOAD_DATA_LENGTH,
                        ( int32_t ) xFileSize ) );
@@ -707,7 +715,7 @@ int RunCoreHttpS3UploadDemo( bool awsIotMqttMode,
         /* Attempt to connect to S3. If connection fails, retry after a timeout.
          * The timeout value will be exponentially increased until either the
          * maximum number of attempts or the maximum timeout value is reached.
-         * The function returns pdFAIL if a TCP connection with the broker
+         * The function returns pdFAIL if a TCP connection with the server
          * cannot be established after the configured number of attempts. */
         xDemoStatus = connectToServerWithBackoffRetries( prvConnectToServer,
                                                          &xNetworkContext );

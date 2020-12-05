@@ -87,6 +87,7 @@
 			<logicalFolder name="coreHTTP" displayName="coreHTTP" projectFiles="true">
 				<itemPath>../../../../../demos/coreHTTP/http_demo_mutual_auth.c</itemPath>
 				<itemPath>../../../../../demos/coreHTTP/http_demo_s3_download.c</itemPath>
+				<itemPath>../../../../../demos/coreHTTP/http_demo_s3_download_multithreaded.c</itemPath>
 				<itemPath>../../../../../demos/coreHTTP/http_demo_s3_upload.c</itemPath>
 			</logicalFolder>
 			<logicalFolder name="coreMQTT" displayName="coreMQTT" projectFiles="true">
@@ -109,13 +110,6 @@
 			</logicalFolder>
 			<logicalFolder name="greengrass_connectivity" displayName="greengrass_connectivity" projectFiles="true">
 				<itemPath>../../../../../demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</itemPath>
-			</logicalFolder>
-			<logicalFolder name="https" displayName="https" projectFiles="true">
-				<itemPath>../../../../../demos/https/iot_demo_https_s3_download_sync.c</itemPath>
-				<itemPath>../../../../../demos/https/iot_demo_https_s3_download_async.c</itemPath>
-				<itemPath>../../../../../demos/https/iot_demo_https_s3_upload_sync.c</itemPath>
-				<itemPath>../../../../../demos/https/iot_demo_https_s3_upload_async.c</itemPath>
-				<itemPath>../../../../../demos/https/iot_demo_https_common.c</itemPath>
 			</logicalFolder>
 			<logicalFolder name="jobs_for_aws" displayName="jobs_for_aws" projectFiles="true">
 				<itemPath>../../../../../demos/jobs_for_aws/jobs_demo.c</itemPath>
@@ -830,6 +824,7 @@
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/defender_demo_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/http_demo_mutual_auth_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/http_demo_s3_download_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/http_demo_s3_download_multithreaded_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/http_demo_s3_upload_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_demos/config_files/iot_mqtt_agent_config.h</itemPath>
