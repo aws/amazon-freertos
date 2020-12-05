@@ -30,7 +30,7 @@
  * This file is a stub which returns zero for all metrics. In order to report
  * correct metrics, the functions in this file must be implemented for the
  * target platform's network stack.
- * Here are reference implmentations for the FreeRTOS+TCP and LWIP network stacks:
+ * Here are reference implementations for the FreeRTOS+TCP and LWIP network stacks:
  *
  * FreeRTOS+TCP:
  *      If you are using FreeRTOS+TCP, use the metrics_collector.c file
