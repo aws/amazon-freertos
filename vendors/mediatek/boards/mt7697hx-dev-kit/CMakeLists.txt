@@ -320,6 +320,8 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".axf")
 
+set(DEFENDER_METRICS_LWIP_SUPPORTED TRUE CACHE INTERNAL "LWIP Defender Metrics supported")
+
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/mediatek_code")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 

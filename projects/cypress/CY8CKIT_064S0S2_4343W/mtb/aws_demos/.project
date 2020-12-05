@@ -338,11 +338,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/include/types</locationURI>
 		</link>
  		<link>
-			<name>libraries/c_sdk/aws/defender/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/defender/include</locationURI>
-		</link>
- 		<link>
 			<name>libraries/freertos_plus/standard/crypto</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/standard/crypto</locationURI>
