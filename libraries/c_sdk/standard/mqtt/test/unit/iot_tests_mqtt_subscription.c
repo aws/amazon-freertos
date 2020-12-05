@@ -131,7 +131,7 @@ extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
                                                                  topicFilterString );                   \
                                                                                                         \
         TEST_ASSERT_EQUAL_INT( expectedResult,                                                          \
-                               IotTestMqtt_topicMatch( &( pTopicFilter->link ), &_topicMatchParams ) ); \
+                               IotTestMqtt_topicMatch( pTopicFilter, &_topicMatchParams ) ); \
         IotMqtt_FreeMessage( pTopicFilter->pTopicFilter );                                              \
     }
 
