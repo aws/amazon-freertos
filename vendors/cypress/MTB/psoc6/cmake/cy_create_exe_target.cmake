@@ -345,7 +345,7 @@ function(cy_sign_boot_image)
 
         # Sign both TFM and AFR images
         find_program(CY_SIGN_SCRIPT cysecuretools)
-        if(NOT CY_SIGN_SCRIPT )
+        if(NOT CY_SIGN_SCRIPT AND (NOT AFR_METADATA_MODE))
             message(FATAL_ERROR "Cannot find cysecuretools.")
         endif()
 
@@ -543,8 +543,7 @@ function(cy_create_exe_target)
     if (OTA_SUPPORT)
         cy_config_ota_exe_target(EXE_APP_NAME ${ARG_EXE_APP_NAME})
     endif()
-    if(NOT AFR_METADATA_MODE)
+
         cy_sign_boot_image(EXE_APP_NAME ${ARG_EXE_APP_NAME})
-    endif()
 
 endfunction()
