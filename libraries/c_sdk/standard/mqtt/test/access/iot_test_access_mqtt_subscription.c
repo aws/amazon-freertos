@@ -32,26 +32,26 @@
  * and never compiled by itself.
  */
 
-bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
+bool IotTestMqtt_topicMatch( _mqttSubscription_t * pSubscription,
                              void * pMatch );
 
-bool IotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
+bool IotTestMqtt_packetMatch( _mqttSubscription_t * pSubscription,
                               void * pMatch );
 
 /*-----------------------------------------------------------*/
 
-bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
+bool IotTestMqtt_topicMatch( _mqttSubscription_t * pSubscription,
                              void * pMatch )
 {
-    return _topicMatch( pSubscriptionLink, pMatch );
+    return _topicMatch( pSubscription, pMatch );
 }
 
 /*-----------------------------------------------------------*/
 
-bool IotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
+bool IotTestMqtt_packetMatch( _mqttSubscription_t * pSubscription,
                               void * pMatch )
 {
-    return _packetMatch( pSubscriptionLink, pMatch );
+    return _packetMatch( pSubscription, pMatch );
 }
 
 /*-----------------------------------------------------------*/

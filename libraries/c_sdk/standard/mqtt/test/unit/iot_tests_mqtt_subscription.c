@@ -118,21 +118,21 @@ extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
  * @note This macro may only be used when a #_mqttSubscription_t pointer named pTopicFilter
  * is in scope.
  */
-#define TEST_TOPIC_MATCH( topicNameString, topicFilterString, exactMatch, expectedResult )              \
-    {                                                                                                   \
-        _topicMatchParams_t _topicMatchParams = { 0 };                                                  \
-        _topicMatchParams.pTopicName = topicNameString;                                                 \
-        _topicMatchParams.topicNameLength = ( uint16_t ) strlen( _topicMatchParams.pTopicName );        \
-        _topicMatchParams.exactMatchOnly = exactMatch;                                                  \
-                                                                                                        \
-        pTopicFilter->pTopicFilter = IotMqtt_MallocMessage( TOPIC_FILTER_MATCH_MAX_LENGTH );            \
-        pTopicFilter->topicFilterLength = ( uint16_t ) snprintf( pTopicFilter->pTopicFilter,            \
-                                                                 TOPIC_FILTER_MATCH_MAX_LENGTH,         \
-                                                                 topicFilterString );                   \
-                                                                                                        \
-        TEST_ASSERT_EQUAL_INT( expectedResult,                                                          \
-                               IotTestMqtt_topicMatch( &( pTopicFilter->link ), &_topicMatchParams ) ); \
-        IotMqtt_FreeMessage( pTopicFilter->pTopicFilter );                                              \
+#define TEST_TOPIC_MATCH( topicNameString, topicFilterString, exactMatch, expectedResult )       \
+    {                                                                                            \
+        _topicMatchParams_t _topicMatchParams = { 0 };                                           \
+        _topicMatchParams.pTopicName = topicNameString;                                          \
+        _topicMatchParams.topicNameLength = ( uint16_t ) strlen( _topicMatchParams.pTopicName ); \
+        _topicMatchParams.exactMatchOnly = exactMatch;                                           \
+                                                                                                 \
+        pTopicFilter->pTopicFilter = IotMqtt_MallocMessage( TOPIC_FILTER_MATCH_MAX_LENGTH );     \
+        pTopicFilter->topicFilterLength = ( uint16_t ) snprintf( pTopicFilter->pTopicFilter,     \
+                                                                 TOPIC_FILTER_MATCH_MAX_LENGTH,  \
+                                                                 topicFilterString );            \
+                                                                                                 \
+        TEST_ASSERT_EQUAL_INT( expectedResult,                                                   \
+                               IotTestMqtt_topicMatch( pTopicFilter, &_topicMatchParams ) );     \
+        IotMqtt_FreeMessage( pTopicFilter->pTopicFilter );                                       \
     }
 
 /*-----------------------------------------------------------*/
