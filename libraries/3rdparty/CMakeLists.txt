@@ -142,7 +142,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
     target_include_directories(
         afr_3rdparty_mbedtls PUBLIC
         "${AFR_3RDPARTY_DIR}/mbedtls/include"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/corePKCS11/source/portable/mbedtls/include"
+        "${AFR_3RDPARTY_DIR}/mbedtls_config"
         "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
         "${AFR_3RDPARTY_DIR}/mbedtls_utils"
     )
