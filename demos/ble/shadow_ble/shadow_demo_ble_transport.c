@@ -901,6 +901,7 @@ static int32_t prvEstablishMqttSession( NetworkContext_t * pxNetworkContext,
     ( void ) memset( pxMqttContext, 0U, sizeof( MQTTContext_t ) );
     ( void ) memset( pxNetworkContext, 0U, sizeof( NetworkContext_t ) );
 
+    xBLETransportCtxt.pParams = &xBleTransportParams;
     returnStatus = prvBLETransportInterfaceConnect( pxNetworkContext );
 
     if( returnStatus != EXIT_SUCCESS )
@@ -1277,7 +1278,6 @@ int RunShadowBLETransportDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-    xBLETransportCtxt.pParams = &xBleTransportParams;
     returnStatus = prvEstablishMqttSession( &xBLETransportCtxt, &xMQTTContext, &prvEventCallback );
 
     if( returnStatus == EXIT_FAILURE )
