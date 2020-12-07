@@ -185,7 +185,6 @@ target_include_directories(
         "${esp_idf_dir}/components/protocomm/include/security"
         "${esp_idf_dir}/components/protocomm/include/transports"
         "${esp_idf_dir}/components/wifi_provisioning/include"
-        "${CMAKE_SOURCE_DIR}/libraries/coreHTTP/source/3rdparty/http_parser"
 )
 endif()
 

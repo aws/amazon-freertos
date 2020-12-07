@@ -83,6 +83,4 @@
     #endif /* if( INCLUDE_uxTaskGetStackHighWaterMark == 1 ) */
 #endif /* democonfigMEMORY_ANALYSIS */
 
-#define IOT_WIFI_ENABLE_SOFTAP_PROVISIONING 1
-
 #endif /* _AWS_DEMO_CONFIG_H_ */
