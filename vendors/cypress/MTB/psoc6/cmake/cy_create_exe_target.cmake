@@ -230,7 +230,7 @@ function(cy_sign_boot_image)
 
         # We can use objcopy for .hex to .bin for all toolchains
         find_program(GCC_OBJCOPY arm-none-eabi-objcopy HINT "${AFR_TOOLCHAIN_PATH}")
-        if(NOT GCC_OBJCOPY AND (NOT AFR_METADATA_MODE))
+        if((NOT GCC_OBJCOPY) AND (NOT AFR_METADATA_MODE))
             message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
         endif()
 
@@ -302,7 +302,7 @@ function(cy_sign_boot_image)
 
         # We can use objcopy for .hex to .bin for all toolchains
         find_program(GCC_OBJCOPY arm-none-eabi-objcopy HINT "${AFR_TOOLCHAIN_PATH}")
-        if(NOT GCC_OBJCOPY AND (NOT AFR_METADATA_MODE))
+        if((NOT GCC_OBJCOPY) AND (NOT AFR_METADATA_MODE))
             message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
         endif()
 
@@ -345,7 +345,7 @@ function(cy_sign_boot_image)
 
         # Sign both TFM and AFR images
         find_program(CY_SIGN_SCRIPT cysecuretools)
-        if(NOT CY_SIGN_SCRIPT AND (NOT AFR_METADATA_MODE))
+        if((NOT CY_SIGN_SCRIPT) AND (NOT AFR_METADATA_MODE))
             message(FATAL_ERROR "Cannot find cysecuretools.")
         endif()
 
