@@ -169,11 +169,14 @@ target_include_directories(
         "${esp_idf_dir}/components/protocomm/include/security"
         "${esp_idf_dir}/components/protocomm/include/transports"
         "${esp_idf_dir}/components/wifi_provisioning/include"
+<<<<<<< HEAD
         "${esp_idf_dir}/components/esp_wifi/include"
         "${esp_idf_dir}/components/esp_netif/include"
         "${esp_idf_dir}/components/esp_eth/include"
         "${esp_idf_dir}/components/soc/soc/include"
         "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser"
+=======
+>>>>>>> ab7f38b20... stop override esp_http_server and enable std version
 )
 endif()
 
