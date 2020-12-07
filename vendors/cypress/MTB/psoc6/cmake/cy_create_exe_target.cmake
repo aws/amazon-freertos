@@ -544,6 +544,6 @@ function(cy_create_exe_target)
         cy_config_ota_exe_target(EXE_APP_NAME ${ARG_EXE_APP_NAME})
     endif()
 
-        cy_sign_boot_image(EXE_APP_NAME ${ARG_EXE_APP_NAME})
+    cy_sign_boot_image(EXE_APP_NAME ${ARG_EXE_APP_NAME})
 
 endfunction()
