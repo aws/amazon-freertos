@@ -81,6 +81,9 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/interface \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/include \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/interface \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/dependency/3rdparty/http_parser \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/portable/Compiler/GCC \
                     $(AFR_C_SDK_AWS_PATH)shadow/include \
