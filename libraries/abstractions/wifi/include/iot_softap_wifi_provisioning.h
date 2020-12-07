@@ -24,7 +24,10 @@
  */
 
 #ifndef _AWS_SOFTAP_WIFI_PROVISIONING_H_
+#define _AWS_SOFTAP_WIFI_PROVISIONING_H_
+
 #include <stdint.h>
+
 /**
  * @file iot_softap_wifi_provisioning.h
  * @brief Wi-Fi SoftAP Provisioning Interface.
@@ -32,9 +35,9 @@
 
 /**
  * @brief Initialize wifi provisioning over SoftAP.
- * 
- * @return true if the initialization succeeded.
- *         false if the initialization failed.
+ *
+ * @return pdPASS if the initialization succeeded.
+ *         pdFAIL if the initialization failed.
  */
 /* @[declare_iotwifisoftapprov_init] */
 uint32_t IotWifiSoftAPProv_Init( void );
@@ -51,7 +54,7 @@ uint32_t IotWifiSoftAPProv_GetNumNetworks( void );
 /**
  * @brief Connects to one of the saved networks in priority order.
  *
- * @return Returns pdTRUE or pdFALSE whether connection succeeded
+ * @return Returns pdPASS or pdFAIL whether connection succeeded
  */
 /* @[declare_iotwifisoftapprov_connect] */
 uint32_t IotWifiSoftAPProv_Connect( uint32_t networkIndex );
@@ -63,6 +66,4 @@ uint32_t IotWifiSoftAPProv_Connect( uint32_t networkIndex );
 /* @[declare_iotwifisoftprov_Deinit] */
 void IotWifiSoftAPProv_Deinit( void );
 
-
-#define _AWS_SOFTAP_WIFI_PROVISIONING_H_
-#endif
+#endif /* ifndef _AWS_SOFTAP_WIFI_PROVISIONING_H_ */

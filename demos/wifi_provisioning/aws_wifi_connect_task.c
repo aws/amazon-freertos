@@ -38,10 +38,10 @@
 #include "iot_network_manager_private.h"
 
 #if IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1
-#include "iot_softap_wifi_provisioning.h"
+    #include "iot_softap_wifi_provisioning.h"
 #endif
 #if IOT_BLE_ENABLE_WIFI_PROVISIONING == 1
-#include "iot_ble_wifi_provisioning.h"
+    #include "iot_ble_wifi_provisioning.h"
 #endif
 
 #define wifiConnectTASK_NAME        "WiFiConnectTask"
@@ -105,6 +105,7 @@ void prvWiFiConnectTask( void * pvParams )
                 #if IOT_BLE_ENABLE_WIFI_PROVISIONING == 1
                     ulNumNetworks += IotBleWifiProv_GetNumNetworks();
                 #endif
+
                 if( ulNumNetworks > 0 )
                 {
                     for( ulNetworkIndex = 0; ulNetworkIndex < ulNumNetworks; ulNetworkIndex++ )
@@ -116,7 +117,6 @@ void prvWiFiConnectTask( void * pvParams )
                             #else
                                 xWiFiConnected = IotBleWifiProv_Connect( ulNetworkIndex );
                             #endif
-
                         }
                         else
                         {

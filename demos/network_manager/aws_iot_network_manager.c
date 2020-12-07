@@ -503,7 +503,7 @@ static IotNetworkManager_t networkManager =
             return status;
         }
 
-    #endif
+    #endif /* if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 && IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 0 ) */
 
 
     static bool _wifiEnable( void )
@@ -540,18 +540,18 @@ static IotNetworkManager_t networkManager =
         #else
             if( ret == true )
             {
-            #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )       
+                #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
                     if( IotBleWifiProv_Init() != pdTRUE )
                     {
                         ret = false;
                     }
-            #endif
-            #if ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1 )       
+                #endif
+                #if ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1 )
                     if( IotWifiSoftAPProv_Init() != pdTRUE )
                     {
                         ret = false;
                     }
-            #endif
+                #endif
             }
 
             if( ret == true )
@@ -561,7 +561,7 @@ static IotNetworkManager_t networkManager =
                     ret = false;
                 }
             }
-#endif
+        #endif /* if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 && IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 0 ) */
 
         return ret;
     }
