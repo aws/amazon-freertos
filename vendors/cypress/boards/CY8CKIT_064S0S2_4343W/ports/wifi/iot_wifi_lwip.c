@@ -50,7 +50,6 @@
 #include "whd_wifi_api.h"
 #include "whd_network_types.h"
 #include "whd_buffer_api.h"
-#include <cy_wifi_notify.h>
 
 #if defined(CY_USE_LWIP)
 
@@ -89,7 +88,7 @@ typedef struct
     ip_addr_t gateway ;
 } ip_static_addr_t ;
 
-static ip_static_addr_t staticAddr =
+static ip_static_addr_t staticAddr = 
 {
     IPADDR4_INIT_BYTES(configIP_ADDR0, configIP_ADDR1, configIP_ADDR2, configIP_ADDR3),
     IPADDR4_INIT_BYTES(configNET_MASK0, configNET_MASK1, configNET_MASK2, configNET_MASK3),
@@ -101,17 +100,14 @@ static bool isNetworkUp = false;
 static bool isNetifAdded = false;
 static bool isApStarted = false;
 static bool isDhcpEnabled = false;
-static bool isOlmInitialise = false;
-static void *olm_instance = NULL;
 eapol_packet_handler_t emac_eapol_packet_handler = NULL;
-static cy_network_activity_event_callback_t activity_callback = NULL;
 
 /*----------------------- lwIP Helpers -------------------------------*/
 static void emac_receive_eapol_packet(whd_interface_t interface, whd_buffer_t buffer)
 {
     if (buffer != NULL)
     {
-        if (emac_eapol_packet_handler != NULL)
+        if (emac_eapol_packet_handler != NULL) 
         {
             emac_eapol_packet_handler(interface, buffer);
         } else
@@ -154,13 +150,6 @@ void cy_network_process_ethernet_data(whd_interface_t ifp, whd_buffer_t buf)
         {
             if (netInterface != NULL)
             {
-                /* Call activity handler which is registered with argument as false
-                 * indicating there is RX packet
-                 */
-                if (activity_callback)
-                {
-                    activity_callback(false);
-                }
                 if (netInterface->input(buf, netInterface) != ERR_OK)
                 {
                     cy_buffer_release(buf, WHD_NETWORK_RX);
@@ -199,13 +188,6 @@ static err_t low_level_output(struct netif *iface, struct pbuf *p)
         printf("failed to allocate buffer for outgoing packet\n");
         return ERR_MEM;
     }
-    /* Call activity handler which is registered with argument as true
-     * indicating there is TX packet
-     */
-    if (activity_callback)
-    {
-        activity_callback(true);
-    }
     whd_network_send_ethernet_data((whd_interface_t)iface->state, whd_buf);
     return ERR_OK;
 }
@@ -239,7 +221,7 @@ static err_t igmp_filter(struct netif *iface, const ip4_addr_t *group, enum neti
 static err_t ethernetif_init(struct netif *iface)
 {
     cy_rslt_t res;
-    whd_mac_t macaddr;
+    whd_mac_t macaddr;    
 
     iface->output = etharp_output;
     iface->linkoutput = low_level_output;
@@ -251,7 +233,7 @@ static err_t ethernetif_init(struct netif *iface)
     {
         printf("initLWIP: whd_wifi_get_mac_address call failed, err = %lx", (unsigned long)res);
         return res;
-    }
+    }  
 
     memcpy(&iface->hwaddr, &macaddr, sizeof(macaddr));
     iface->hwaddr_len = sizeof(macaddr);
@@ -269,7 +251,7 @@ static err_t ethernetif_init(struct netif *iface)
 
     macaddr.octet[0] = 0x33;
     macaddr.octet[1] = 0x33;
-    macaddr.octet[2] = 0xff;
+    macaddr.octet[2] = 0xff;  
     whd_wifi_register_multicast_address((whd_interface_t)iface->state, &macaddr);
 
     memset(&macaddr, 0, sizeof(macaddr));
@@ -298,29 +280,16 @@ static cy_rslt_t cywifi_lwip_bringup(void)
 {
     cy_rslt_t result = CY_RSLT_SUCCESS;
     int itr_count = 0;
-    ip4_addr_t ip_addr;
-
     netifapi_netif_set_link_up(netInterface);
     netifapi_netif_set_up(netInterface);
     if (isDhcpEnabled)
     {
-       /*
-        * For DHCP only, we should reset netif IP address
-        * We don't want to re-use previous netif IP address
-        * given from previous DHCP session
-        */
-        ip4_addr_set_zero(&ip_addr);
-        netif_set_ipaddr(netInterface, &ip_addr);
-
-        if (netifapi_dhcp_start(netInterface)!= CY_RSLT_SUCCESS)
-        {
-            return CY_DHCP_NOT_COMPLETE;
-        }
+        netifapi_dhcp_start(netInterface);
         result = CY_DHCP_NOT_COMPLETE;
         while(result != CY_RSLT_SUCCESS && itr_count < CY_MAX_DHCP_ITERATION_COUNT)
         {
             tcpip_callback(checkDhcpStatus, &result);
-            cy_rtos_delay_milliseconds(10);
+            vTaskDelay(pdMS_TO_TICKS(10));
         }
     }
     return result;
@@ -360,7 +329,7 @@ static WIFIReturnCode_t network_stack_bringup(whd_interface_t iface, const ip_st
     if (ip_addr != NULL)
     {
         netifapi_netif_set_addr(
-            netInterface,
+            netInterface, 
             &ip_addr->addr.u_addr.ip4,
             &ip_addr->netmask.u_addr.ip4,
             &ip_addr->gateway.u_addr.ip4);
@@ -370,12 +339,6 @@ static WIFIReturnCode_t network_stack_bringup(whd_interface_t iface, const ip_st
     {
         isDhcpEnabled = true;
     }
-    /*
-     * Register a handler for any address changes
-     * Note : The "status" callback will also be called when the interface
-     * goes up or down
-     */
-    netif_set_status_callback(netInterface, cy_network_ip_change_callback);
 
     if (cywifi_lwip_bringup() != CY_RSLT_SUCCESS)
     {
@@ -394,20 +357,10 @@ WIFIReturnCode_t WIFI_Off( void )
         if ((devMode == eWiFiModeStation && WIFI_Disconnect() != eWiFiSuccess) ||
             (devMode == eWiFiModeAP && WIFI_StopAP() != eWiFiSuccess))
         {
-            cy_sta_link_up = true;
-            cy_rtos_deinit_mutex(&wifiMutex);
-            cy_rtos_deinit_mutex(&cy_app_cb_Mutex);
             return eWiFiFailure;
         }
 
-        if (isMutexInitialized && cy_rtos_deinit_mutex(&wifiMutex) != CY_RSLT_SUCCESS)
-        {
-            cy_rtos_deinit_mutex(&cy_app_cb_Mutex);
-            return eWiFiFailure;
-        }
-        isMutexInitialized = false;
-
-        if (cy_rtos_deinit_mutex(&cy_app_cb_Mutex) != CY_RSLT_SUCCESS)
+        if (wifiMutex != NULL && cy_rtos_deinit_mutex(&wifiMutex) != CY_RSLT_SUCCESS)
         {
             return eWiFiFailure;
         }
@@ -425,33 +378,10 @@ WIFIReturnCode_t WIFI_Off( void )
             return eWiFiFailure;
         }
 
-        cy_wifi_worker_thread_delete();
         isPoweredUp = false;
         devMode = eWiFiModeNotSupported;
     }
     return eWiFiSuccess;
-}
-
-/*-----------------------------------------------------------*/
-/* This function will be overridden by LPA Library
-*/
-__WEAK void *cy_get_olm_instance()
-{
-    return NULL;
-}
-
-/* This function will be overridden by LPA Library
-*/
-__WEAK cy_rslt_t cy_olm_init_ols(void *olm, void *whd, void *ip)
-{
-    return CY_RSLT_SUCCESS;
-}
-
-/* This function will be overridden by LPA Library
-*/
-__WEAK void cy_olm_deinit_ols(void *olm)
-{
-    /* Do Nothing */
 }
 
 /*-----------------------------------------------------------*/
@@ -465,13 +395,10 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     whd_security_t security;
     uint8_t channel;
 
-    memset(&cy_connected_ap_details, 0, sizeof(cy_connected_ap_details));
-
     cy_check_network_params(pxNetworkParams);
-
+    
     if (isConnected && WIFI_Disconnect() != eWiFiSuccess)
     {
-        isConnected = false;
         return eWiFiFailure;
     }
 
@@ -485,7 +412,6 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     if (cy_rtos_get_mutex(&wifiMutex, wificonfigMAX_SEMAPHORE_WAIT_TIME_MS) == CY_RSLT_SUCCESS)
     {
         cy_convert_network_params(pxNetworkParams, &ssid, &key, &keylen, &security, &channel);
-        cy_sta_security_type = security;
 
         res = whd_wifi_join(primaryInterface, &ssid, security, key, keylen);
         if (res != CY_RSLT_SUCCESS)
@@ -497,25 +423,6 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         isConnected = true;
         devMode = eWiFiModeStation;
 
-        /* Offload Manager init : This function initialises LPA Offload Manager
-         * and definition of the function is added as WEAK and will be replaced by
-         * strong function in LPA Library when it is included.
-         * LPA library failures will be informed via logs and should not block
-         * wifi_connect sequence as this will return error when LPA library is added and
-         * no offload are configured
-         */
-        olm_instance = cy_get_olm_instance();
-        if ((isOlmInitialise == false) && ( olm_instance != NULL))
-        {
-            if (cy_olm_init_ols(olm_instance, primaryInterface, NULL) == CY_RSLT_SUCCESS)
-            {
-                isOlmInitialise = true;
-            }
-            else
-            {
-               configPRINTF(("cy_olm_init_ols failed \n"));
-            }
-        }
         if (!isNetworkUp)
         {
             if (network_stack_bringup(primaryInterface, (LWIP_DHCP == 1) ? NULL : &staticAddr) != eWiFiSuccess)
@@ -535,26 +442,6 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     {
         return eWiFiTimeout;
     }
-
-    /* Register for Link events*/
-    if (cy_wifi_link_event_register(primaryInterface) != CY_RSLT_SUCCESS)
-    {
-        configPRINTF(("Failed to register for wifi link events \n"));
-        return eWiFiFailure;
-    }
-
-    /* save current AP credentials to reuse during retry in case handshake fails occurs */
-    cy_connected_ap_details.security = security;
-    cy_connected_ap_details.SSID.length = ssid.length;
-    cy_connected_ap_details.keylen = keylen;
-    memcpy(cy_connected_ap_details.key, key, keylen+1);
-    memcpy(cy_connected_ap_details.SSID.value, ssid.value, cy_connected_ap_details.SSID.length+1);
-    cy_sta_link_up = true;
-
-    if (userCb != NULL)
-    {
-        userCb(AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateEnabled);
-    }
     return eWiFiSuccess;
 }
 /*-----------------------------------------------------------*/
@@ -565,9 +452,6 @@ WIFIReturnCode_t WIFI_Disconnect( void )
     {
         if (cy_rtos_get_mutex(&wifiMutex, wificonfigMAX_SEMAPHORE_WAIT_TIME_MS) == CY_RSLT_SUCCESS)
         {
-            /* Deregister the link event handler */
-            cy_wifi_link_event_deregister(primaryInterface);
-
             if (cywifi_lwip_bringdown() != CY_RSLT_SUCCESS)
             {
                 cy_rtos_set_mutex(&wifiMutex);
@@ -580,17 +464,6 @@ WIFIReturnCode_t WIFI_Disconnect( void )
                 return eWiFiFailure;
             }
             isConnected = false;
-            cy_sta_link_up = false;
-
-            /* Offload Manager deinit : This function de-initialises LPA Offload Manager
-             * and definition of the function is added as WEAK and will be replaced by
-             * strong function in LPA Library when it is included.
-             */
-            if ((isOlmInitialise == true) && (olm_instance != NULL))
-            {
-                cy_olm_deinit_ols(olm_instance);
-                isOlmInitialise = false;
-            }
             if (cy_rtos_set_mutex(&wifiMutex) != CY_RSLT_SUCCESS)
             {
                 return eWiFiFailure;
@@ -600,14 +473,6 @@ WIFIReturnCode_t WIFI_Disconnect( void )
         {
             return eWiFiTimeout;
         }
-    }
-
-    /* clear the saved ap credentials */
-    memset(&cy_connected_ap_details, 0, sizeof(cy_connected_ap_details));
-
-    if (userCb != NULL)
-    {
-        userCb(AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateDisabled);
     }
     return eWiFiSuccess;
 }
@@ -777,27 +642,4 @@ WIFIReturnCode_t WIFI_StopAP( void )
 }
 
 /*-----------------------------------------------------------*/
-
-struct netif* cy_lwip_get_interface( void )
-{
-    return netInterface ;
-}
-/*-----------------------------------------------------------*/
-
-void cy_network_activity_register_cb(cy_network_activity_event_callback_t cb)
-{
-    /* update the activity callback with the argument passed */
-    activity_callback = cb;
-}
-/*-----------------------------------------------------------*/
-
-cy_rslt_t cy_lwip_bringup_interface( void )
-{
-    return cywifi_lwip_bringup();
-}
-cy_rslt_t cy_lwip_bringdown_interface( void )
-{
-    return cywifi_lwip_bringdown();
-}
-
 #endif /* CY_USE_LWIP */

@@ -135,7 +135,7 @@ struct mailbox_reply_t {
 struct ns_mailbox_slot_t {
     struct mailbox_msg_t   msg;
     struct mailbox_reply_t reply;
-    const void             *owner;          /* Handle of the owner task of this
+    void                   *sem;            /* Handle of the semaphore of this
                                              * slot
                                              */
     bool                   is_woken;        /* Indicate that owner task has been

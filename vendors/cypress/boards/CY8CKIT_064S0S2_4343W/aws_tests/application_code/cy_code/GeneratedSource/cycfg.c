@@ -4,8 +4,8 @@
 * Description:
 * Wrapper function to initialize all generated code.
 * This file was automatically generated and should not be modified.
-* cfg-backend-cli: 1.2.0.1483
-* Device Support Library (libs/psoc6pdl): 1.6.0.4266
+* Device Configurator: 2.0.0.1483
+* Device Support Library (../../../../../../output/libs/COMPONENT_PSOC6/psoc6pdl): 1.5.0.1988
 *
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
