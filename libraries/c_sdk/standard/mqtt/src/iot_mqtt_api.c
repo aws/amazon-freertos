@@ -86,7 +86,7 @@ _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
  * @brief Represents the network context used for the TLS session with the
  * server.
  */
-static NetworkContext_t networkContext = { 0 };
+static NetworkContext_t networkContext[ MAX_NO_OF_MQTT_CONNECTIONS ] = { 0 };
 
 /* Static storage for mutex used for synchronized access to #_connContext_t array. */
 static StaticSemaphore_t connContextMutexStorage;
@@ -1216,14 +1216,14 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         connToContext[ contextIndex ].mqttConnection = newMqttConnection;
 
         /* Assigning the Network Context to be used by this MQTT Context. */
-        networkContext.pParams = &connToContext[ contextIndex ].mqttTransportParams;
+        networkContext[ contextIndex ].pParams = &connToContext[ contextIndex ].mqttTransportParams;
         connToContext[ contextIndex ].mqttTransportParams.pNetworkConnection = pNetworkConnection;
         connToContext[ contextIndex ].mqttTransportParams.pNetworkInterface = pNetworkInfo->pNetworkInterface;
 
         /* Fill in TransportInterface send function pointer. We will not be implementing the
          * TransportInterface receive function pointer as receiving of packets is handled in shim by network
          * receive task. Only using MQTT LTS APIs for transmit path.*/
-        transport.pNetworkContext = &networkContext;
+        transport.pNetworkContext = &networkContext[ contextIndex ];
         transport.send = transportSend;
         transport.recv = transportRecv;
 
