@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file system_psoc6_cm4.c
-* \version 2.80
+* \version 2.70
 *
 * The device system-source file.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2020 Cypress Semiconductor Corporation
+* Copyright 2016-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,10 +39,6 @@
         #include "cy_flash.h"
     #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 #endif /* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
-
-#if defined(CY_DEVICE_SECURE)
-    #include "cy_pra.h"
-#endif /* defined(CY_DEVICE_SECURE) */
 
 
 /*******************************************************************************
@@ -129,7 +125,6 @@ uint32_t cy_delay32kMs    = CY_DELAY_MS_OVERFLOW_THRESHOLD *
 * - Unlocks and disables WDT.
 * - Calls Cy_PDL_Init() function to define the driver library.
 * - Calls the Cy_SystemInit() function, if compiled from PSoC Creator.
-* - Calls \ref Cy_PRA_Init() for PSoC 64 devices.
 * - Calls \ref SystemCoreClockUpdate().
 * \endcond
 *******************************************************************************/
@@ -165,7 +160,7 @@ void SystemInit(void)
 #ifdef __CM0P_PRESENT
     #if (__CM0P_PRESENT == 0)
         /* Configure data register (as CM0p in deep sleep state) of IPC structure #7, reserved for the Deep-Sleep operations. */
-        REG_IPC_STRUCT_DATA(CY_IPC_STRUCT_PTR(CY_IPC_CHAN_DDFT)) = (CY_STARTUP_CM0_DP_STATE <<
+        REG_IPC_STRUCT_DATA(CY_IPC_STRUCT_PTR(CY_IPC_CHAN_DDFT)) = (CY_STARTUP_CM0_DP_STATE << 
                                                                     CY_STARTUP_IPC7_DP_OFFSET);
 
         /* Release IPC structure #7 to avoid deadlocks in case of SW or WDT reset during Deep-Sleep entering. */
@@ -176,13 +171,9 @@ void SystemInit(void)
 #if !defined(CY_IPC_DEFAULT_CFG_DISABLE)
 
 #ifdef __CM0P_PRESENT
-    #if (__CM0P_PRESENT == 0)
-        /* Allocate and initialize semaphores for the system operations. */
-        static uint32_t ipcSemaArray[CY_IPC_SEMA_COUNT / CY_IPC_SEMA_PER_WORD];
-        (void) Cy_IPC_Sema_Init(CY_IPC_CHAN_SEMA, CY_IPC_SEMA_COUNT, ipcSemaArray);
-    #else
-        (void) Cy_IPC_Sema_Init(CY_IPC_CHAN_SEMA, 0ul, NULL);
-    #endif /* (__CM0P_PRESENT) */
+    /* Allocate and initialize semaphores for the system operations. */
+    static uint32_t ipcSemaArray[CY_IPC_SEMA_COUNT / CY_IPC_SEMA_PER_WORD];
+    (void) Cy_IPC_Sema_Init(CY_IPC_CHAN_SEMA, CY_IPC_SEMA_COUNT, ipcSemaArray);
 #else
     (void) Cy_IPC_Sema_Init(CY_IPC_CHAN_SEMA, 0ul, NULL);
 #endif /* __CM0P_PRESENT */
@@ -238,11 +229,6 @@ void SystemInit(void)
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
 #endif /* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
-
-#if defined(CY_DEVICE_SECURE)
-    /* Initialize Protected Register Access driver */
-    Cy_PRA_Init();
-#endif /* defined(CY_DEVICE_SECURE) */
 }
 
 

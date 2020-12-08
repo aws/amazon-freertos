@@ -1,1 +1,0 @@
-This folder will host all the source required specifically for amazon-freertos not cannot be re-used in other reference flows in ModusToolbox.

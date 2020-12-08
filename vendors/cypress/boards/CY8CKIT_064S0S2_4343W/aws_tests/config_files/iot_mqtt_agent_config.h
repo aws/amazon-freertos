@@ -59,7 +59,7 @@
  * This macro defines the interval of inactivity after which a keep alive messages
  * is sent.
  */
-#define mqttconfigKEEP_ALIVE_ACTUAL_INTERVAL_TICKS    ( pdMS_TO_TICKS( 30000 ) )
+#define mqttconfigKEEP_ALIVE_ACTUAL_INTERVAL_TICKS    ( pdMS_TO_TICKS( 300000 ) )
 
 /**
  * @brief The maximum interval in ticks to wait for PINGRESP.

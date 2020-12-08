@@ -1,1 +1,0 @@
-This folder will host non platform specific source/libraries that is/are common across other reference flows in ModusToolbox. All the source in this folder is expected to be in the form of submodules.

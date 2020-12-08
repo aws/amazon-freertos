@@ -48,6 +48,16 @@ uint32_t os_wrapper_semaphore_acquire(void *handle, uint32_t timeout);
 uint32_t os_wrapper_semaphore_release(void *handle);
 
 /**
+ * \brief Releases the semaphore in interrupt service route
+ *
+ * \param[in] hanlde Semaphore handle
+ *
+ * \return \ref 1 if schedule is requried
+ *         \ref 0, otherwise
+ */
+uint32_t os_wrapper_semaphore_release_isr(void *handle);
+
+/**
  * \brief Deletes the semaphore
  *
  * \param[in] handle Semaphore handle
