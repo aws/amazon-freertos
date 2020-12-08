@@ -72,7 +72,7 @@
                                                                                              #define USOCR_PROTOCOL_TCP                            ( 6U )
                                                                                              #define USOCR_PROTOCOL_UDP                            ( 17U )
                                                                                              *
-                                                                                             * /*-----------------------------------------------------------*/
+                                                                                             */
 #define RAT_PRIOIRTY_LIST_LENGTH                ( 3U )
 
 /**
@@ -98,8 +98,6 @@ static CellularPktStatus_t _Cellular_RecvFuncData( CellularContext_t * pContext,
                                                    const CellularATCommandResponse_t * pAtResp,
                                                    void * pData,
                                                    uint16_t dataLen );
-static CellularError_t buildSocketConfig( CellularSocketHandle_t socketHandle,
-                                          char * pCmdBuf );
 static CellularError_t storeAccessModeAndAddress( CellularContext_t * pContext,
                                                   CellularSocketHandle_t socketHandle,
                                                   CellularSocketAccessMode_t dataAccessMode,
@@ -145,7 +143,6 @@ static CellularPktStatus_t socketRecvDataPrefix( void * pCallbackContext,
                                                  uint32_t * pDataLength )
 {
     char * pToken = NULL;
-    uint32_t tempStrlen = 0;
     int32_t tempValue = 0;
     CellularATError_t atResult = CELLULAR_AT_SUCCESS;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
@@ -362,40 +359,6 @@ static CellularPktStatus_t _Cellular_RecvFuncData( CellularContext_t * pContext,
 
 /*-----------------------------------------------------------*/
 
-static CellularError_t buildSocketConfig( CellularSocketHandle_t socketHandle,
-                                          char * pCmdBuf )
-{
-    CellularError_t cellularStatus = CELLULAR_SUCCESS;
-
-    if( pCmdBuf == NULL )
-    {
-        IotLogDebug( "buildSocketConfig: Invalid command buffer" );
-        cellularStatus = CELLULAR_BAD_PARAMETER;
-    }
-    else if( socketHandle->socketProtocol != CELLULAR_SOCKET_PROTOCOL_TCP )
-    {
-        IotLogError( "buildSocketConfig: socket protocol unsupported %d",
-                     socketHandle->socketProtocol );
-        cellularStatus = CELLULAR_UNSUPPORTED;
-    }
-    else
-    {
-        /* Form the AT command. The socket number is returned in response.
-         * AT+USOCR=<protocol>[,<local_port>[,<IP_type>]]
-         * protocol=6 => TCP, local_port=0 => random port. */
-
-        /* The return value of snprintf is not used.
-         * The max length of the string is fixed and checked offline. */
-        /* coverity[misra_c_2012_rule_21_6_violation]. */
-        ( void ) snprintf( pCmdBuf, CELLULAR_AT_CMD_MAX_SIZE,
-                           "AT+USOCR=6,0" );
-    }
-
-    return cellularStatus;
-}
-
-/*-----------------------------------------------------------*/
-
 static CellularError_t storeAccessModeAndAddress( CellularContext_t * pContext,
                                                   CellularSocketHandle_t socketHandle,
                                                   CellularSocketAccessMode_t dataAccessMode,
@@ -452,7 +415,6 @@ static CellularPktStatus_t _Cellular_RecvFuncGetSocketId( CellularContext_t * pC
 {
     char * pInputLine = NULL;
     uint8_t * pSessionId = pData;
-    bool parseStatus = true;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     int32_t tempValue = 0;
@@ -608,11 +570,13 @@ CellularError_t Cellular_SocketRecv( CellularHandle_t cellularHandle,
                 recvTimeout = socketHandle->recvTimeoutMs;
             }
 
-            /* The return value of snprintf is not used.
-             * The max length of the string is fixed and checked offline. */
+            /* 
+             * The return value of snprintf is not used.
+             * The max length of the string is fixed and checked offline. 
+             */
             /* coverity[misra_c_2012_rule_21_6_violation]. */
             ( void ) snprintf( cmdBuf, CELLULAR_AT_CMD_TYPICAL_MAX_SIZE,
-                               "%s%ld,%ld", "AT+USORD=", sessionId, recvLen );
+                               "%s%d,%d", "AT+USORD=", sessionId, recvLen );
             pktStatus = _Cellular_TimeoutAtcmdDataRecvRequestWithCallback( pContext,
                                                                            atReqSocketRecv,
                                                                            recvTimeout,
@@ -747,10 +711,12 @@ CellularError_t Cellular_SocketSend( CellularHandle_t cellularHandle,
             sendTimeout = socketHandle->sendTimeoutMs;
         }
 
-        /* The return value of snprintf is not used.
-         * The max length of the string is fixed and checked offline. */
+        /* 
+         * The return value of snprintf is not used.
+         * The max length of the string is fixed and checked offline.
+         */
         /* coverity[misra_c_2012_rule_21_6_violation]. */
-        ( void ) snprintf( cmdBuf, CELLULAR_AT_CMD_TYPICAL_MAX_SIZE, "%s%lu,%ld",
+        ( void ) snprintf( cmdBuf, CELLULAR_AT_CMD_TYPICAL_MAX_SIZE, "%s%u,%d",
                            "AT+USOWR=", sessionId, atDataReqSocketSend.dataLen );
 
         pktStatus = _Cellular_AtcmdDataSend( pContext, atReqSocketSend, atDataReqSocketSend,
@@ -917,8 +883,9 @@ CellularError_t Cellular_SocketConnect( CellularHandle_t cellularHandle,
     if( cellularStatus == CELLULAR_SUCCESS )
     {
         /*
-         * /* The return value of snprintf is not used.
-         * The max length of the string is fixed and checked offline. */
+         * The return value of snprintf is not used.
+         * The max length of the string is fixed and checked offline. 
+         */
         /* coverity[misra_c_2012_rule_21_6_violation]. */
         ( void ) snprintf( cmdBuf, CELLULAR_AT_CMD_MAX_SIZE,
                            "AT+USOCO=%u,\"%s\",%d,1",
@@ -952,7 +919,6 @@ CellularError_t Cellular_GetSimCardStatus( CellularHandle_t cellularHandle,
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
-    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
     /* pContext is checked in _Cellular_CheckLibraryStatus function. */
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
@@ -1054,7 +1020,7 @@ CellularError_t Cellular_DeactivatePdn( CellularHandle_t cellularHandle,
             }
 
             /* Deactivate context if active */
-            if( pdpContextsActInfo.contextActState[ contextId - 1 ] == TRUE )
+            if( pdpContextsActInfo.contextActState[ contextId - 1 ] == true )
             {
                 /* Don't deactivate LTE default bearer context */
                 /* Otherwise sending AT command "+CGACT=0,1" for deactivation will result in ERROR */
@@ -1261,7 +1227,7 @@ static CellularPktStatus_t _Cellular_RecvFuncGetPdpContextActState( CellularCont
                                         ( tempValue <= ( int32_t ) MAX_PDP_CONTEXTS ) )
                                     {
                                         contextId = ( uint8_t ) tempValue;
-                                        pPDPContextsActInfo->contextsPresent[ contextId - 1 ] = TRUE;
+                                        pPDPContextsActInfo->contextsPresent[ contextId - 1 ] = true;
                                         IotLogDebug( "_Cellular_RecvFuncGetPdpContextActState: Context Id: %d", contextId );
                                     }
                                     else
@@ -1378,8 +1344,6 @@ CellularError_t Cellular_ActivatePdn( CellularHandle_t cellularHandle,
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     char cmdBuf[ CELLULAR_AT_CMD_MAX_SIZE ] = { '\0' };
-    bool packetSwitchStatus = false;
-    bool pdnStatus = false;
 
     CellularPdnContextActInfo_t pdpContextsActInfo = { 0 };
 
@@ -1422,7 +1386,7 @@ CellularError_t Cellular_ActivatePdn( CellularHandle_t cellularHandle,
         }
 
         /* Activate context if not already active */
-        if( pdpContextsActInfo.contextActState[ contextId - 1 ] == FALSE )
+        if( pdpContextsActInfo.contextActState[ contextId - 1 ] == false )
         {
             if( pktStatus == CELLULAR_PKT_STATUS_OK )
             {
@@ -1457,7 +1421,6 @@ CellularError_t Cellular_GetPdnStatus( CellularHandle_t cellularHandle,
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
-    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
     CellularPdnContextActInfo_t pdpContextsActInfo = { 0 };
 
@@ -1755,10 +1718,8 @@ static bool _parseExtendedSignalQuality( char * pQcsqPayload,
 {
     char * pToken = NULL, * pTmpQcsqPayload = pQcsqPayload;
     int32_t tempValue = 0;
-    int16_t berValue = 0;
     bool parseStatus = true;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
-    CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     if( ( pSignalInfo == NULL ) || ( pQcsqPayload == NULL ) )
     {
@@ -1896,10 +1857,8 @@ static bool _parseSignalQuality( char * pQcsqPayload,
 {
     char * pToken = NULL, * pTmpQcsqPayload = pQcsqPayload;
     int32_t tempValue = 0;
-    int16_t berValue = 0;
     bool parseStatus = true;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
-    CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     if( ( pSignalInfo == NULL ) || ( pQcsqPayload == NULL ) )
     {
@@ -2231,7 +2190,6 @@ static CellularPktStatus_t _Cellular_RecvFuncResolveDomainToIpAddress( CellularC
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     const CellularATCommandLine_t * pCommnadItem = NULL;
-    uint8_t tokenIndex = 0;
     char * pToken = NULL;
 
     if( pContext == NULL )
@@ -2444,7 +2402,7 @@ static CellularPktStatus_t _Cellular_RecvFuncGetPdpContextSettings( CellularCont
                                         ( tempValue <= ( int32_t ) MAX_PDP_CONTEXTS ) )
                                     {
                                         contextId = ( uint8_t ) tempValue;
-                                        pPDPContextsInfo->contextsPresent[ contextId - 1 ] = TRUE;
+                                        pPDPContextsInfo->contextsPresent[ contextId - 1 ] = true;
                                         IotLogDebug( "_Cellular_RecvFuncGetPdpContextSettings: Context Id: %d", contextId );
                                     }
                                     else
@@ -2611,8 +2569,10 @@ CellularError_t Cellular_SetPdnConfig( CellularHandle_t cellularHandle,
     {
         /* Form the AT command. */
 
-        /* The return value of snprintf is not used.
-         * The max length of the string is fixed and checked offline. */
+        /* 
+         *The return value of snprintf is not used.
+         * The max length of the string is fixed and checked offline. 
+         */
         /* coverity[misra_c_2012_rule_21_6_violation]. */
 
         if( ( strstr( pdpContextsInfo.apnName[ contextId - 1 ], pPdnConfig->apnName ) == NULL ) || ( strcmp( pdpContextsInfo.ipType[ contextId - 1 ], pPdpTypeStr ) != 0 ) )
