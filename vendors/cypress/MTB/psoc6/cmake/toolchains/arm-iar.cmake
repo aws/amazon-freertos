@@ -8,23 +8,12 @@ function(cy_cfg_toolchain)
     endif()
 
     # set common/core compiler arguments
-    if(CMAKE_BUILD_TYPE)
-        # Workaround an issue in cmake, when -DCMAKE_BUILD_TYPE is used in cmake -O and -r added added by cmake
-        # without first checking if they user already specified those values. In this case we will not add
-        # duplicated defines which would cause an error.
-        # When -DCMAKE_BUILD_TYPE is used gcc for example cmake seem smart enough to remove the -O command specified
-        # by the user before adding its own optimation flags.
-        set(ENV{OPTIMIZATION} "")
-        set(ENV{COMMON_FLAGS} "--char_is_unsigned;--cpu_mode=t;--dlib_config;full;-e;--guard_calls;--no_wrap_diagnostics;--silent")
-        set(ENV{ASFLAGS} "--cpu;Cortex-M4F;--cpu_mode;t;--endian;l")
-    else()
-        set(ENV{OPTIMIZATION} "-Ohz")
-        set(ENV{COMMON_FLAGS} "--char_is_unsigned;--cpu_mode=t;--debug;--dlib_config;full;-e;--guard_calls;--no_wrap_diagnostics;--silent")
-        set(ENV{ASFLAGS} "--cpu;Cortex-M4F;--cpu_mode;t;--endian;l;-r")
-    endif()
+    set(ENV{OPTIMIZATION} "-Ohz")
     set(ENV{DEBUG_FLAG} "DEBUG")
+    set(ENV{COMMON_FLAGS} "--char_is_unsigned;--cpu_mode=t;--debug;--dlib_config;full;-e;--guard_calls;--no_wrap_diagnostics;--silent")
     set(ENV{VFP_FLAGS} "--fpu=FPv4-SP")
     set(ENV{CORE_FLAGS} "--cpu=Cortex-M4F")
+    set(ENV{ASFLAGS} "--cpu;Cortex-M4F;--cpu_mode;t;--endian;l;-r")
     set(ENV{LDFLAGS} "--inline;--merge_duplicate_sections;--no_wrap_diagnostics;--silent;--threaded_lib;--manual_dynamic_initialization;--keep;uxTopUsedPriority")
 
     # list(FIND ... doesn't work reliably with lists in environment variables :-/

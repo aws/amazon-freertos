@@ -7,9 +7,6 @@
  * @brief Hardware Abstraction Layer for GAP ble stack.
  */
 
-/* The config header is always included first. */
-#include "iot_config.h"
-
 #include <string.h>
 #include <stdio.h>
 #include "FreeRTOS.h"
@@ -26,33 +23,51 @@
 
 #include "platform_bt_nvram.h"
 
-#include "cybt_platform_config.h"
-#include "wiced_memory.h"
+#include "wiced_rtos.h"
 
-#include "cy_worker_thread.h"
+#include "platform_peripheral.h"
 
-extern const cybt_platform_config_t bt_platform_cfg_settings;
 
 #define MAX_NUMBER_OF_BONDED_DEVIECS    5
 #define STACK_INITIALIZATION_TIMEOUT    20000
 #define ACE_BT_ADDRESS_ENTRY_LOCATION   13
 
-#define WORKER_TASK_NAME                "worker_task"
-#define WORKER_TASK_STACK_SIZE          2048
+#ifndef OFF
+#define OFF 0
+#endif
+
+#ifndef ON
+#define ON 1
+#endif
+
+#define BTM_SEC_MODE_SC             6
+
+extern wiced_bool_t btsnd_hcic_change_name (uint8_t* name);
+extern wiced_result_t BTM_ReadLocalDeviceNameFromController (wiced_bt_dev_cmpl_cback_t *p_rln_cmpl_cback);
+extern UINT8 *BTM_ReadDeviceClass (void);
+extern wiced_result_t BTM_SetDeviceClass (DEV_CLASS dev_class);
 
 wiced_bool_t BTM_IsAclConnectionUp (wiced_bt_device_address_t remote_bda, wiced_bt_transport_t transport);
+extern const wiced_bt_cfg_buf_pool_t wiced_bt_cfg_buf_pools[];
 extern wiced_bt_cfg_settings_t wiced_bt_cfg_settings;
+extern void BTM_SetPairableMode (BOOLEAN allow_pairing, BOOLEAN connect_only_paired);
+extern void BTM_SetSecurityMode (UINT8 sec_mode);
 
-cy_worker_thread_info_t bt_worker_thread;
+extern uint16_t wiced_bt_get_conn_id_from_peer_addr(const uint8_t* pucBdAddr);
+int aceDeviceInfoDsHal_getEntry(const uint32_t entry, char* data, const uint32_t bufSize);
+
+wiced_worker_thread_t btStack_worker_thread = {0};
 
 extern BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 
 WICEDPropCache_t xWICEDPropCache;
 extern platform_bt_nvram_interface_t nvram_interface;
 platform_bt_nvram_interface_t *pxWicedNvramInterface = &nvram_interface;
+platform_bt_dev_property_interface_t *pxPlatformDevPropInterface = NULL;
 
+uint32_t ulGAPEvtMngHandle;
 static BTCallbacks_t xBTCallbacks;
-static cy_semaphore_t stack_init_semaphore;
+static wiced_semaphore_t stack_init_semaphore;
 
 BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks );
 BTStatus_t prvBtManagerCleanup( void );
@@ -263,30 +278,24 @@ static wiced_result_t prvWicedBTManagementCb( wiced_bt_management_evt_t event,
     bool bStart;
     BTStatus_t xStatus;
     static uint32_t bSecurityReqReceived = false;
-    cy_worker_thread_params_t bt_worker_thread_param;
-
-    IotLogDebug("prvWicedBTManagementCb, event=0x%x\n", event);
 
     switch ( event )
     {
-        /* Bluetooth stack enabled */
+        /* Bluetooth  stack enabled */
         case BTM_ENABLED_EVT:
 
             /* Trigger On event only when the callback status is success. Timeout and shutdown events are ignored for now */
             if(p_event_data->enabled.status == WICED_SUCCESS)
             {
                 //create a worker thread to send cb to app thread
-                memset(&bt_worker_thread_param, 0, sizeof(bt_worker_thread_param));
-                bt_worker_thread_param.priority = CY_RTOS_PRIORITY_MIN;
-                bt_worker_thread_param.stack_size = WORKER_TASK_STACK_SIZE;
-                bt_worker_thread_param.name = WORKER_TASK_NAME;
-                if( CY_RSLT_SUCCESS != cy_worker_thread_create(&bt_worker_thread, &bt_worker_thread_param))
-                    return WICED_BT_ERROR;
+                if(!btStack_worker_thread._thread._thread)
+                    wiced_rtos_create_worker_thread(&btStack_worker_thread, 0, 1024*2, 5);
 
                 //Set default IO cap.
                 xWICEDPropCache.xIoCap = eBTIODisplayYesNo;
                 xWICEDPropCache.bBondable = TRUE;
                 xWICEDPropCache.bSecureConnectionOnly = true;
+                BTM_SetSecurityMode(BTM_SEC_MODE_SC);
 
                 /** If status is ok and callback is set, trigger the callback.
                  *  If status is fail, not need to trig a callback as original call failed.
@@ -300,7 +309,7 @@ static wiced_result_t prvWicedBTManagementCb( wiced_bt_management_evt_t event,
                    Call this only after the pxDeviceStateChangedCb is made */
                 if(((uint32_t *)&stack_init_semaphore) != NULL)
                 {
-                    cy_rtos_set_semaphore(&stack_init_semaphore, false );
+                    wiced_rtos_set_semaphore(&stack_init_semaphore);
                 }
             }
             break;
@@ -319,7 +328,8 @@ static wiced_result_t prvWicedBTManagementCb( wiced_bt_management_evt_t event,
             p_event_data->pairing_io_capabilities_ble_request.init_keys         = BTM_LE_KEY_PENC|BTM_LE_KEY_PID|BTM_LE_KEY_PCSRK|BTM_LE_KEY_LENC;
             p_event_data->pairing_io_capabilities_ble_request.resp_keys         = BTM_LE_KEY_PENC|BTM_LE_KEY_PID|BTM_LE_KEY_PCSRK|BTM_LE_KEY_LENC;
 
-            if(xWICEDPropCache.bBondable && pxWicedNvramInterface != NULL)
+            if(xWICEDPropCache.bBondable && \
+                pxWicedNvramInterface != NULL)
             {
                 p_event_data->pairing_io_capabilities_ble_request.auth_req = BTM_LE_AUTH_REQ_SC_MITM_BOND;
             }
@@ -329,7 +339,8 @@ static wiced_result_t prvWicedBTManagementCb( wiced_bt_management_evt_t event,
             }
 
             //reset the SC flag if not requested by app
-            p_event_data->pairing_io_capabilities_ble_request.auth_req &= ~((xWICEDPropCache.bSecureConnectionOnly) ? 0 : BTM_LE_AUTH_REQ_SC);
+            p_event_data->pairing_io_capabilities_ble_request.auth_req &= ~((xWICEDPropCache.bSecureConnectionOnly) ? 0 : BTM_LE_AUTH_REQ_SC_ONLY);
+
             break;
 
         case BTM_PAIRING_IO_CAPABILITIES_BR_EDR_REQUEST_EVT:
@@ -339,16 +350,14 @@ static wiced_result_t prvWicedBTManagementCb( wiced_bt_management_evt_t event,
             break;
 
         case BTM_PAIRING_COMPLETE_EVT:
+
             //reset the flag for next connction
             bSecurityReqReceived = false;
 
             xStatus = (0 == p_event_data->pairing_complete.pairing_complete_info.ble.status) ? eBTStatusSuccess : eBTStatusFail;
 
-            IotLogDebug("ble.status : %d, ble.sec_level : %d, reason : %dn", p_event_data->pairing_complete.pairing_complete_info.ble.status, p_event_data->pairing_complete.pairing_complete_info.ble.sec_level, p_event_data->pairing_complete.pairing_complete_info.ble.reason);
-            IotLogDebug("transport=%d, bda=%02x:%02x:%02x:%02x:%02x:%02xn",
-                p_event_data->pairing_complete.transport,
-                p_event_data->pairing_complete.bd_addr[0], p_event_data->pairing_complete.bd_addr[1], p_event_data->pairing_complete.bd_addr[2],
-                p_event_data->pairing_complete.bd_addr[3], p_event_data->pairing_complete.bd_addr[4], p_event_data->pairing_complete.bd_addr[5]);
+            // printf("ble.status : %d, ble.sec_level : %d, reason : %d\n", p_event_data->pairing_complete.pairing_complete_info.ble.status, p_event_data->pairing_complete.pairing_complete_info.ble.sec_level, p_event_data->pairing_complete.pairing_complete_info.ble.reason);
+
             if ( xBTCallbacks.pxPairingStateChangedCb )
                 xBTCallbacks.pxPairingStateChangedCb( xStatus, (BTBdaddr_t *) p_event_data->pairing_complete.bd_addr, eBTbondStateBonded, p_event_data->pairing_complete.pairing_complete_info.ble.sec_level, p_event_data->pairing_complete.pairing_complete_info.ble.reason );
             break;
@@ -381,7 +390,7 @@ static wiced_result_t prvWicedBTManagementCb( wiced_bt_management_evt_t event,
         case BTM_SECURITY_REQUEST_EVT:
             bSecurityReqReceived = true;
             if (xBTCallbacks.pxSspRequestCb)
-                xBTCallbacks.pxSspRequestCb((BTBdaddr_t *)p_event_data->security_request.bd_addr, &xWICEDPropCache.xBtName,
+                xBTCallbacks.pxSspRequestCb((BTBdaddr_t *)p_event_data->user_confirmation_request.bd_addr, &xWICEDPropCache.xBtName,
                                             prvConvertCodToWICED(wiced_bt_cfg_settings.device_class), eBTsspVariantConsent, 0);
             break;
 
@@ -399,15 +408,9 @@ static wiced_result_t prvWicedBTManagementCb( wiced_bt_management_evt_t event,
             if(pxWicedNvramInterface != NULL && pxWicedNvramInterface->save_bonded_device_key != NULL)
             {
                 pxWicedNvramInterface->save_bonded_device_key(
-                        p_event_data->paired_device_link_keys_update.bd_addr,
-                        (uint8_t *) &p_event_data->paired_device_link_keys_update.key_data,
+                        p_event_data->paired_device_link_keys_request.bd_addr,
+                        (uint8_t *) &p_event_data->paired_device_link_keys_request.key_data,
                         sizeof(wiced_bt_device_sec_keys_t));
-            #if 0//for OTA debug
-                printf("\nLinkKey --> ");
-                for(uint8_t idx=0 ;idx<LINK_KEY_LEN;idx++)
-                    printf("%02x", p_event_data->paired_device_link_keys_update.key_data.le_keys.lltk[idx]);
-                printf("\n\n");
-            #endif
             }
             else
             {
@@ -450,6 +453,7 @@ static wiced_result_t prvWicedBTManagementCb( wiced_bt_management_evt_t event,
             break;
 
         case BTM_BLE_ADVERT_STATE_CHANGED_EVT:
+
             bStart = (BTM_BLE_ADVERT_OFF == p_event_data->ble_advert_state_changed) ? 0 : 1;
             if ( xBTBleAdapterCallbacks.pxAdvStatusCb )
                 xBTBleAdapterCallbacks.pxAdvStatusCb( eBTStatusSuccess, 1, bStart);
@@ -458,12 +462,8 @@ static wiced_result_t prvWicedBTManagementCb( wiced_bt_management_evt_t event,
         case BTM_BLE_PHY_UPDATE_EVT:
             if(xBTBleAdapterCallbacks.pxPhyUpdatedCb)
             {
-                xBTBleAdapterCallbacks.pxPhyUpdatedCb( xWICEDPropCache.ucAdapterIfCache, p_event_data->ble_phy_update_event.tx_phy, p_event_data->ble_phy_update_event.rx_phy, p_event_data->ble_phy_update_event.status);
+                xBTBleAdapterCallbacks.pxPhyUpdatedCb( wiced_bt_get_conn_id_from_peer_addr(p_event_data->ble_phy_update_event.bd_address), p_event_data->ble_phy_update_event.tx_phy, p_event_data->ble_phy_update_event.rx_phy, p_event_data->ble_phy_update_event.status);
             }
-            break;
-
-        case BTM_MULTI_ADVERT_RESP_EVENT:
-            IotLogDebug("opcode=%d, status=%d\n", p_event_data->ble_multi_adv_response_event.opcode, p_event_data->ble_multi_adv_response_event.status);
             break;
 
         default:
@@ -475,7 +475,7 @@ static wiced_result_t prvWicedBTManagementCb( wiced_bt_management_evt_t event,
 
 BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
 {
-    BTStatus_t xStatus = eBTStatusFail;
+    BTStatus_t xStatus = eBTStatusSuccess;
     wiced_result_t result;
 
     if( pxCallbacks != NULL )
@@ -490,23 +490,30 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
     //provide buffer for xBtName
     xWICEDPropCache.xBtName.ucName = xWICEDPropCache.pucDevName;
 
-    cybt_platform_config_init(&bt_platform_cfg_settings);
-    result = wiced_bt_stack_init( prvWicedBTManagementCb, &wiced_bt_cfg_settings );
+
+    result = wiced_bt_stack_init( prvWicedBTManagementCb, &wiced_bt_cfg_settings, wiced_bt_cfg_buf_pools );
     if ( WICED_SUCCESS != result )
     {
-        IotLogDebug("wiced_bt_stack_init failed\n");
         return prvConvertWicedErrorToAfr(result);
     }
 
     /* Amazon requested to wait in this API and return only when radio is turned on */
-    if( CY_RSLT_SUCCESS == cy_rtos_init_semaphore(&stack_init_semaphore, 1, 0) )
+    result = wiced_rtos_init_semaphore(&stack_init_semaphore);
+
+    if(result == WICED_SUCCESS)
     {
-         /* 20s timeout for stack initialization */
-        if( CY_RSLT_SUCCESS == cy_rtos_get_semaphore(&stack_init_semaphore, STACK_INITIALIZATION_TIMEOUT, false) ) //CY_RTOS_NEVER_TIMEOUT
+         /* 10s timeout for stack initialization */
+        result = wiced_rtos_get_semaphore(&stack_init_semaphore, STACK_INITIALIZATION_TIMEOUT);
+
+        if(result != WICED_SUCCESS)
         {
-            xStatus = eBTStatusSuccess;
+            xStatus = prvConvertWicedErrorToAfr(result);
         }
-        cy_rtos_deinit_semaphore(&stack_init_semaphore);
+        wiced_rtos_deinit_semaphore(&stack_init_semaphore);
+    }
+    else
+    {
+        xStatus = prvConvertWicedErrorToAfr(result);
     }
 
     if(pxWicedNvramInterface != NULL && pxWicedNvramInterface->init != NULL)
@@ -565,6 +572,20 @@ BTStatus_t prvBTGetAllDeviceProperties()
 }
 
 /*-----------------------------------------------------------*/
+void prvLocalNameCb(void *p1)
+{
+    BTProperty_t xReturnedProperty;
+
+    xReturnedProperty.xLen = strlen(p1);
+    xReturnedProperty.xType = eBTpropertyBdname;
+    xReturnedProperty.pvVal = p1;
+
+    /* update the cached name */
+    memcpy(xWICEDPropCache.pucDevName, p1, xReturnedProperty.xLen);
+
+    if (xBTCallbacks.pxAdapterPropertiesCb)
+        xBTCallbacks.pxAdapterPropertiesCb(eBTStatusSuccess, 1, &xReturnedProperty);
+}
 
 BTStatus_t prvBTGetDeviceProperty( BTPropertyType_t xType )
 {
@@ -574,7 +595,6 @@ BTStatus_t prvBTGetDeviceProperty( BTPropertyType_t xType )
     wiced_bt_device_address_t paired_device_list[MAX_NUMBER_OF_BONDED_DEVIECS];
     wiced_bt_dev_bonded_device_info_t ram_bonded_device_list[MAX_NUMBER_OF_BONDED_DEVIECS];
     uint16_t usDevNum = 0, idx;
-    BTDeviceType_t DeviceType = eBTdeviceDevtypeBle;
 
     if( xBTCallbacks.pxAdapterPropertiesCb != NULL )
     {
@@ -583,17 +603,12 @@ BTStatus_t prvBTGetDeviceProperty( BTPropertyType_t xType )
         switch( xType )
         {
             case eBTpropertyBdname:
-                xReturnedProperty.xType = eBTpropertyBdname;
-                xReturnedProperty.pvVal = xWICEDPropCache.pucDevName;
-                xReturnedProperty.xLen = strlen((const char*)xWICEDPropCache.pucDevName);
-
-                if (xBTCallbacks.pxAdapterPropertiesCb)
-                    xBTCallbacks.pxAdapterPropertiesCb(eBTStatusSuccess, 1, &xReturnedProperty);
+                BTM_ReadLocalDeviceNameFromController(prvLocalNameCb);
                 break;
 
             case eBTpropertyBdaddr:
                 wiced_bt_dev_read_local_addr(bda);
-		        xReturnedProperty.xLen = sizeof(wiced_bt_device_address_t);
+		xReturnedProperty.xLen = sizeof(wiced_bt_device_address_t);
 				xReturnedProperty.xType = eBTpropertyBdaddr;
 				xReturnedProperty.pvVal = bda;
 
@@ -602,9 +617,9 @@ BTStatus_t prvBTGetDeviceProperty( BTPropertyType_t xType )
                 break;
 
             case eBTpropertyTypeOfDevice:
-                xReturnedProperty.xLen = 1;
+                xReturnedProperty.xLen = 3;
                 xReturnedProperty.xType = eBTpropertyTypeOfDevice;
-                xReturnedProperty.pvVal = &DeviceType;
+                xReturnedProperty.pvVal = BTM_ReadDeviceClass();
 
                 if (xBTCallbacks.pxAdapterPropertiesCb)
                     xBTCallbacks.pxAdapterPropertiesCb(eBTStatusSuccess, 1, &xReturnedProperty);
@@ -612,9 +627,7 @@ BTStatus_t prvBTGetDeviceProperty( BTPropertyType_t xType )
 
     		case eBTpropertyAdapterBondedDevices:
     		    if(pxWicedNvramInterface != NULL && pxWicedNvramInterface->get_bonded_devices != NULL)
-                {
     		        pxWicedNvramInterface->get_bonded_devices( paired_device_list, &usDevNum );
-                }
                 else
                 {
                     //FIXME!!! get the list from NVRAM only
@@ -712,7 +725,17 @@ BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
                 /* Add NULL termination for name string */
                 pcName[ pxProperty->xLen ] = '\0';
 
-                memcpy(xWICEDPropCache.pucDevName, pcName, strlen(pcName));
+                if( !btsnd_hcic_change_name( (uint8_t *)pcName ) )
+                {
+                    xStatus = eBTStatusFail;
+                }
+                else
+                {
+                    /*@TODO: We should read the name always from controller instead of caching !! */
+                    memset(xWICEDPropCache.pucDevName, 0, sizeof(xWICEDPropCache.pucDevName));
+                    memcpy(xWICEDPropCache.pucDevName, pcName, strlen(pcName));
+                }
+
                 vPortFree( pcName );
             }
             else
@@ -728,7 +751,8 @@ BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
             break;
 
         case eBTpropertyBdaddr:
-            wiced_bt_set_local_bdaddr(pxProperty->pvVal, BLE_ADDR_PUBLIC);
+
+		wiced_bt_set_local_bdaddr(pxProperty->pvVal);
 
 		if( ( xBTCallbacks.pxAdapterPropertiesCb != NULL ) && ( xStatus == eBTStatusSuccess ) )
             {
@@ -737,11 +761,16 @@ BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
             break;
 
         case eBTpropertyTypeOfDevice:
-            xStatus = eBTStatusUnsupported;
+            BTM_SetDeviceClass(pxProperty->pvVal);
+            if( ( xBTCallbacks.pxAdapterPropertiesCb != NULL ) && ( xStatus == eBTStatusSuccess ) )
+            {
+                xBTCallbacks.pxAdapterPropertiesCb( xStatus, 1, ( BTProperty_t * ) pxProperty );
+            }
             break;
 
         case eBTpropertyLocalMTUSize:
             wiced_bt_cfg_settings.gatt_cfg.max_mtu_size = *(uint16_t *)pxProperty->pvVal;
+
             if( ( xBTCallbacks.pxAdapterPropertiesCb != NULL ) && ( xStatus == eBTStatusSuccess ) )
             {
                 xBTCallbacks.pxAdapterPropertiesCb( xStatus, 1, ( BTProperty_t * ) pxProperty );
@@ -750,7 +779,7 @@ BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
 
         case eBTpropertyBondable:
             xWICEDPropCache.bBondable = *(bool *)pxProperty->pvVal;
-            wiced_bt_set_pairable_mode(xWICEDPropCache.bBondable, false);
+            BTM_SetPairableMode(xWICEDPropCache.bBondable, false);
 
             if( ( xBTCallbacks.pxAdapterPropertiesCb != NULL ))
             {
@@ -1094,6 +1123,20 @@ const void * prvGetClassicAdapter()
 const BTInterface_t * BTGetBluetoothInterface()
 {
     return &xBTinterface;
+}
+
+/*
+ * Function     platform_bt_dev_property_interface_register
+ *
+ * Platform Bluetooth device property interaface registration API
+ *
+ * param:   platform_bt_dev_property_interface_t* : Pointer to platform device property interface APIs
+ * return:  Always returns WICED_TRUE. Platform can pass a NULL Pointer to un-register the device property interface
+ */
+wiced_result_t platform_bt_dev_property_interface_register(platform_bt_dev_property_interface_t *p_bt_dev_property)
+{
+    pxPlatformDevPropInterface = p_bt_dev_property;
+    return WICED_SUCCESS;
 }
 
 /*

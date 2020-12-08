@@ -16,7 +16,7 @@ wiced_bt_cfg_settings_t wiced_bt_cfg_settings =
 {
     .device_name               = (unsigned char *)"default", /* Set name using pxBTInterface->pxSetDeviceProperty */
     .device_class              = { 0x00, 0x00, 0x00 },        /**< Local device class */
-    .security_requirement_mask = BTM_SEC_SC_ONLY,                /**< Security requirements mask (BTM_SEC_NONE, or combination of BTM_SEC_IN_AUTHENTICATE, BTM_SEC_OUT_AUTHENTICATE, BTM_SEC_ENCRYPT (see #wiced_bt_sec_level_e)) */
+    .security_requirement_mask = BTM_SEC_NONE,                /**< Security requirements mask (BTM_SEC_NONE, or combination of BTM_SEC_IN_AUTHENTICATE, BTM_SEC_OUT_AUTHENTICATE, BTM_SEC_ENCRYPT (see #wiced_bt_sec_level_e)) */
     .max_simultaneous_links    = 3,                           /**< Maximum number simultaneous links to different devices */
 
     /* Scan and advertisement configuration */
@@ -79,9 +79,6 @@ wiced_bt_cfg_settings_t wiced_bt_cfg_settings =
          .server_max_links = 2,   /**< Server config: maximum number of remote clients connections allowed by the local */
          .max_attr_len     = 360, /**< Maximum attribute length; gki_cfg must have a corresponding buffer pool that can hold this length */
          .max_mtu_size     = 517, /**< Maxiimum MTU size;gki_cfg must have a corresponding buffer pool that can hold this length */
-         .max_db_service_modules = 4, /** Maximum number of service modules in the DB */
-         .max_gatt_bearers = 0,   /**< Maximum number of allowed gatt bearers */
-         .use_gatt_over_br_edr = 0  /**< Set to 1 to enable gatt over be edr */
     },
      /* Application managed l2cap protocol configuration */
     .rfcomm_cfg =
@@ -99,18 +96,11 @@ wiced_bt_cfg_settings_t wiced_bt_cfg_settings =
          /* LE L2cap connection-oriented channels configuration */
          .max_le_psm      = 0, /**< Maximum number of application-managed LE PSMs */
          .max_le_channels = 0, /**< Maximum number of application-managed LE channels */
-        /* LE L2cap fixed channel configuration */
-        .max_le_l2cap_fixed_channels    = 0,                                                           /**< Maximum number of application managed fixed channels supported (in addition to mandatory channels 4, 5 and 6). > */
-        .max_ertm_chnls = 0,
-        .max_ertm_tx_win = 0,
-
-        .max_rx_mtu = 515,
      },
      /* Audio/Video Distribution configuration */
      .avdt_cfg =
      {
          .max_links = 0, /**< Maximum simultaneous audio/video links */
-         .max_seps  = 0  /**< Maximum number of stream end points */
      },
 
      /* Audio/Video Remote Control configuration */
@@ -120,61 +110,28 @@ wiced_bt_cfg_settings_t wiced_bt_cfg_settings =
          .max_links = 0  /**< Maximum simultaneous remote control links */
      },
 
-    /* LE Address Resolution DB size  */
-    .addr_resolution_db_size            = 5,                                                               /**< LE Address Resolution DB settings - effective only for pre 4.2 controller*/
+     .max_number_of_buffer_pools = WICED_BT_CFG_NUM_BUF_POOLS,
+
+     .addr_resolution_db_size = 3,
+
+     /* rpa_refresh_timeout > 0 for enabling privacy */
+     .rpa_refresh_timeout = 0, /**< random address refreshing rate in seconds  */
+
 };
 
-#include "cybt_platform_config.h"
-#include "cybsp_types.h"
-#include "cycfg.h"
-
-const cybt_platform_config_t bt_platform_cfg_settings =
+/*****************************************************************************
+ * wiced_bt_stack buffer pool configuration
+ *
+ * Configure buffer pools used by the stack
+ *
+ * Pools must be ordered in increasing buf_size.
+ * If a pool runs out of buffers, the next  pool will be used
+ *****************************************************************************/
+const wiced_bt_cfg_buf_pool_t wiced_bt_cfg_buf_pools[WICED_BT_CFG_NUM_BUF_POOLS] =
 {
-    .hci_config =
-    {
-        .hci_transport = CYBT_HCI_UART,
-
-        .hci =
-        {
-            .hci_uart =
-            {
-                .uart_tx_pin = CYBSP_BT_UART_TX,
-                .uart_rx_pin = CYBSP_BT_UART_RX,
-                .uart_rts_pin = CYBSP_BT_UART_RTS,
-                .uart_cts_pin = CYBSP_BT_UART_CTS,
-
-                .baud_rate_for_fw_download = 115200,
-                .baud_rate_for_feature     = 115200,
-
-                .data_bits = 8,
-                .stop_bits = 1,
-                .parity = CYHAL_UART_PARITY_NONE,
-                .flow_control = true
-            }
-        }
-    },
-
-    .controller_config =
-    {
-        .bt_power_pin      = CYBSP_BT_POWER,
-        .sleep_mode =
-        {
-        // For ModusToolBox BT LPA configuration
-        #if defined(CYCFG_BT_LP_ENABLED)
-            .sleep_mode_enabled   = CYCFG_BT_LP_ENABLED,
-            .device_wakeup_pin    = CYCFG_BT_DEV_WAKE_GPIO,
-            .host_wakeup_pin      = CYCFG_BT_HOST_WAKE_GPIO,
-            .device_wake_polarity = CYCFG_BT_DEV_WAKE_POLARITY,
-            .host_wake_polarity   = CYCFG_BT_HOST_WAKE_IRQ_EVENT
-        #else
-            .sleep_mode_enabled   = CYBT_SLEEP_MODE_ENABLED,
-            .device_wakeup_pin    = CYBSP_BT_DEVICE_WAKE,
-            .host_wakeup_pin      = CYBSP_BT_HOST_WAKE,
-            .device_wake_polarity = CYBT_WAKE_ACTIVE_LOW,
-            .host_wake_polarity   = CYBT_WAKE_ACTIVE_LOW
-        #endif
-        }
-    },
-
-    .task_mem_pool_size    = 2048
+/*  { buf_size, buf_count } */
+    { 64,       12   },     /* Small Buffer Pool */
+    { 360,      6    },     /* Medium Buffer Pool (used for HCI & RFCOMM control messages, min recommended size is 360) */
+    { 1056,     8    },     /* Large Buffer Pool  (used for HCI ACL messages) */
+    { 1056,     5    },     /* Extra Large Buffer Pool - Used for avdt media packets and miscellaneous (if not needed, set buf_count to 0) */
 };
