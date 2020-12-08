@@ -25,7 +25,9 @@ ifeq ($(CY_AFR_IS_TESTING), 1)
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/ble_hal/test/src/*.c)\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/test/iot_test_ble_end_to_end.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/test/iot_test_wifi_provisioning.c
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/test/iot_mqtt_ble_system_test.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/test/iot_test_wifi_provisioning.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/test/iot_test_ble_mqtt_serialize.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/ble_hal/test/include\
