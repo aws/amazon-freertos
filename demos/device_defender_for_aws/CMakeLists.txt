@@ -85,12 +85,6 @@ elseif(${DEFENDER_METRICS_LWIP_SUPPORTED})
             ${CMAKE_CURRENT_LIST_DIR}/metrics_collector/lwip
     )
 
-    afr_module_dependencies(
-        ${AFR_CURRENT_MODULE}
-        INTERFACE
-            3rdparty::lwip
-    )
-
 # If both previous checks failed, we do not have an implemented
 # metrics_collector available, and thus we use the stub implementation.
 else()
