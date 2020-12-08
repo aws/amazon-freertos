@@ -66,6 +66,7 @@ struct NetworkContext
 /*-----------------------------------------------------------*/
 
 static NetworkContext_t context;
+
 /**
  * @brief Ble Transport Parameters structure to store the data channel.
  */
