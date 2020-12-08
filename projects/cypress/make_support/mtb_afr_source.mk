@@ -226,10 +226,7 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/test/system/aws_iot_tests_defender_system.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c\
-	$(CY_AFR_ROOT)/tests/integration_test/core_mqtt_system_test.c\
-	$(CY_AFR_ROOT)/tests/integration_test/core_http_system_test.c\
-	$(CY_AFR_ROOT)/tests/integration_test/shadow_system_test.c
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/test/access\
@@ -272,8 +269,7 @@ ifeq ($(CY_AFR_IS_TESTING), 1)
 # Test code
 SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/test/iot_test_tls.c\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/aws/greengrass/test/*.c)
+	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/test/iot_test_tls.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/greengrass/test
