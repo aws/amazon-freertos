@@ -583,9 +583,9 @@
 			<locationURI>AFR_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</name>
+			<name>libraries/3rdparty/mbedtls_config/threading_alt.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls_config/threading_alt.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11_pal.h</name>
