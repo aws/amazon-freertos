@@ -15,10 +15,6 @@ function(cy_cfg_toolchain)
     set(ENV{VFP_FLAGS} "-mfloat-abi=softfp;-mfpu=fpv4-sp-d16")
     set(ENV{CORE_FLAGS} "-mcpu=cortex-m4")
     set(ENV{LDFLAGS} "-Wl,--gc-sections,--undefined=uxTopUsedPriority")
-    # No nano.specs for CM4, as it has memory leak issues 
-    if(NOT $ENV{CY_CORE} STREQUAL "CM4")
-        set(ENV{LDFLAGS} "--specs=nano.specs;$ENV{LDFLAGS}")
-    endif()
 
     # list(FIND ... doesn't work reliably with lists in environment variables :-/
     set(check "$ENV{CY_DEVICES_WITH_M0P}")
@@ -38,7 +34,7 @@ function(cy_cfg_toolchain)
 
     set(check "$ENV{CY_DEVICES_WITH_FLASH_KB_2048}")
     list(FIND check $ENV{CY_DEVICE} flash_2048k)
-    
+
     # core specifics (from defines.mk)
     if(${device_m0p} LESS 0)
         if($ENV{CY_CORE} STREQUAL "CM0P")

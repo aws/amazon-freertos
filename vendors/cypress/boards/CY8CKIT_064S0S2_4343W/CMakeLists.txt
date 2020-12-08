@@ -1,5 +1,4 @@
 # These Amazon FreeRTOS related global variables are available to use.
-#
 # AFR_ROOT_DIR                  Amazon FreeRTOS source root.
 # AFR_KERNEL_DIR                FreeRTOS kernel root.
 # AFR_MODULES_DIR               Amazon FreeRTOS modules root.
@@ -32,31 +31,20 @@
 # Cypress Defines
 #
 include("${AFR_VENDORS_DIR}/cypress/MTB/psoc6/cmake/cy_defines.cmake")
-include("${cy_psoc6_dir}/cmake/cy_create_linked_target.cmake")
-include("${cy_psoc6_dir}/cmake/cy_create_exe_target.cmake")
 
 #--------------------------------------------------------------------
 # Default linker script for this board
 #  (modified for OTA builds)
 #
-set(ENV{LINKER_SCRIPT_NAME} "cyb06xxa_cm4_dual")
+set(LINKER_SCRIPT_NAME "cyb06xxa_cm4_dual")
 
 #--------------------------------------------------------------------
 # Board defines
 #
 
-# These must be in parent scope so the rest of the cmake flow sees them
-set(ENV{CY_TFM_HEX} "${cy_psoc6_dir}/psoc64tfm/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex")
-set(ENV{CY_TFM_POLICY_FILE} "${cy_psoc6_dir}/psoc64tfm/security/policy/policy_multi_CM0_CM4_jitp.json")
-set(ENV{CY_DEVICE_NAME} "cy8ckit-064s0s2-4343w")
-
-#Features
-# CY_TFM_PSA_SUPPORTED feature is required on this board.
-set(CY_TFM_PSA_SUPPORTED        "1" )
-# Enable BLE
-if (NOT DEFINED BLE_SUPPORTED)
-set(BLE_SUPPORTED               "1" )
-endif()
+set(CY_TFM_HEX "${cy_psoc6_dir}/psoc64tfm/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex")
+set(CY_TFM_POLICY_FILE "${cy_psoc6_dir}/psoc64tfm/security/policy/policy_multi_CM0_CM4_jitp.json")
+set(CY_DEVICE_NAME "cy8ckit-064s0s2-4343w")
 
 # Python path definition
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
@@ -64,6 +52,10 @@ find_program(CY_PYTHON_PATH "python")
 else()
 find_program(CY_PYTHON_PATH "python3")
 endif()
+
+target_compile_definitions(${AFR_TARGET_APP_NAME} PUBLIC
+    "-DCOMPONENT_CAPSENSE"
+    )
 
 #--------------------------------------------------------------------
 # PKCS11 library defines
@@ -93,26 +85,22 @@ set(DEFENDER_METRICS_LWIP_SUPPORTED TRUE CACHE INTERNAL "LWIP Defender Metrics s
 # 0x10100000 - 0x101C0000 Nonsecure Secondary
 # 0x101C0000 - 0x10200000 Reserved
 #
-
 if(OTA_SUPPORT)
-    set(ENV{MCUBOOT_HEADER_SIZE}         "0x400"      )       # Must be a multiple of 1024
-    set(ENV{MCUBOOT_MAX_IMG_SECTORS}     "2000"       )
-    set(ENV{CY_BOOT_SCRATCH_SIZE}        "0x00001000" )
-    set(ENV{MCUBOOT_BOOTLOADER_SIZE}     "0x00040000" )
-    set(ENV{CY_BOOT_PRIMARY_1_START}     "0x00050000" )
-    set(ENV{CY_BOOT_PRIMARY_1_SIZE}      "0x00120000" )
-    set(ENV{CY_BOOT_PRIMARY_2_START}     "0x00000000" )
-    set(ENV{CY_BOOT_PRIMARY_2_SIZE}      "0x00050000" )
+    set(OTA_SUPPORT "1")
+    set(MCUBOOT_HEADER_SIZE         "0x400"      )       # Must be a multiple of 1024
+    set(MCUBOOT_MAX_IMG_SECTORS     "2000"       )
+    set(CY_BOOT_SCRATCH_SIZE        "0x00001000" )
+    set(MCUBOOT_BOOTLOADER_SIZE     "0x00040000" )
+    set(CY_BOOT_PRIMARY_1_START     "0x10040000" )
+    set(CY_BOOT_PRIMARY_1_SIZE      "0x00120000" )
 
-    set(ENV{MCUBOOT_IMAGE_NUMBER}        "2")            # 2 images (primary_1 and primary_2)
-    set(ENV{CY_BOOT_SECONDARY_1_START}   "0x18000000" ) # start of external FLASH
-    set(ENV{CY_BOOT_SECONDARY_2_START}   "0x00170000" )
+    set(CY_BOOT_PRIMARY_2_SIZE      "0x50000" )
+    set(CY_BOOT_SECONDARY_2_START   "0x00170000" )
 
     # Default to internal FLASH value for MCUBoot header signing
     # Note that after cy_bootloader changes to support 0xFF erase values
-    # for different FLASH, this may	 need to change
-    set(ENV{CY_BOOT_USE_EXTERNAL_FLASH}     "1" )
-    set(ENV{CY_FLASH_ERASE_VALUE}           "1" )
+    # for external FLASH, this will need to change
+    set(CY_FLASH_ERASE_VALUE        "0x00" )
 endif()
 
 # -------------------------------------------------------------------
@@ -154,21 +142,25 @@ afr_set_board_metadata(IDE_ModusToolbox_PROJECT_LOCATION "${AFR_ROOT_DIR}/projec
 # demo project configuration file location
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
-cy_add_link_libraries(
-    DEVICE "CYB0644ABZI-S2D44"
-    PORT_DIR "${cy_board_dir}/ports"
-    BSP_DIR "${app_dir}/application_code/cy_code"
-    CONFIG_DIRS "${include_dirs}"
-    COMPONENTS "4343W;CAPSENSE;TFM_NS_FREERTOS_WRAPPER;TFM_NS_INTERFACE"
-    DEFINES "CY_USE_LWIP;CY_TFM_PSA_SUPPORTED;TFM_MULTI_CORE_MULTI_CLIENT_CALL;CY_TFM_VERSION_1_0"
-)
+#--------------------------------------------------------------------
+# Include general kit functions
+#
+include("${cy_psoc6_dir}/cmake/cy_kit_utils.cmake")
 
-# TODO: remove this once whd is updated to new version
-target_include_directories(psoc6_core INTERFACE "${cy_libraries_whd_dir}/WiFi_Host_Driver/resources/nvram/TARGET_CY8CKIT_064B0S2_4343W")
+set(KIT_FEATURES "CY_BLE_SUPPORTED")
+set(KIT_FEATURES "${KIT_FEATURES}; CY_USE_LWIP")
+set(KIT_FEATURES "${KIT_FEATURES}; CY_TFM_PSA_SUPPORTED")
+set(KIT_FEATURES "${KIT_FEATURES}; TFM_MULTI_CORE_MULTI_CLIENT_CALL")
+set(KIT_FEATURES "${KIT_FEATURES}; CY_TFM_VERSION_1_0")
 
-if (NOT DEFINED LIB_MODE)
-    cy_create_exe_target(
-        EXE_APP_NAME ""
-        SOURCE_DIRS "${app_dir}/application_code"
-    )
+if(OTA_SUPPORT)
+    set(KIT_FEATURES "${KIT_FEATURES}; OTA_SUPPORT")
+    set(KIT_FEATURES "${KIT_FEATURES}; CY_BOOT_USE_EXTERNAL_FLASH")
 endif()
+
+cy_kit_generate(
+    DEVICE "CYB0644ABZI-S2D44"
+    LINKER_SCRIPT "${LINKER_SCRIPT_NAME}"
+    COMPONENTS "4343W;CAPSENSE;TFM_NS_FREERTOS_WRAPPER;TFM_NS_INTERFACE"
+    DEFINES "${KIT_FEATURES}"
+)

@@ -6,8 +6,6 @@
  * @file bt_hal_manager_adapter_ble.c
  * @brief Hardware Abstraction Layer for GAP ble stack.
  */
-/* The config header is always included first. */
-#include "iot_config.h"
 
 #include <stddef.h>
 #include <string.h>
@@ -23,18 +21,25 @@
 #include "wiced_bt_ble.h"
 #include "wiced_bt_cfg.h"
 #include "wiced_bt_dynamic_gattdb.h"
-#include "wiced_bt_l2c.h"
 
+#include "platform_peripheral.h"
+
+extern uint16_t wiced_bt_get_conn_id_from_peer_addr(const uint8_t* pucBdAddr);
+extern uint8_t* wiced_bt_get_peer_addr_from_conn_id(const uint16_t usConnId);
+
+extern BOOLEAN wiced_bt_l2cap_update_ble_conn_params (BD_ADDR rem_bda, uint16_t min_int, uint16_t max_int, uint16_t latency, uint16_t timeout);
 extern const void * prvBTGetGattServerInterface();
+
+uint8_t BTM_BleSetStaticRandomAddr(BD_ADDR rs_addr);
+
 extern wiced_bt_cfg_settings_t wiced_bt_cfg_settings;
+extern platform_bt_dev_property_interface_t *pxPlatformDevPropInterface;
 
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 uint8_t ucAdvMode;
-
-#define MAX_MULTI_ADV_INST 3
-wiced_bool_t bMultAdvDataSet[MAX_MULTI_ADV_INST] = {false, false, false};
-wiced_bool_t bMultiAdvParamsUpdated[MAX_MULTI_ADV_INST] = {false, false, false};
-BTGattAdvertismentParams_t gxAdvParams[MAX_MULTI_ADV_INST];
+BOOLEAN bMultAdvDataSet[3];
+BOOLEAN bMultiAdvParamsUpdated[3];
+BTGattAdvertismentParams_t gxAdvParams[3];
 
 static BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks );
 static BTStatus_t prvBTRegisterBleApp( BTUuid_t * pxAppUuid );
@@ -111,10 +116,6 @@ static BTStatus_t prvBTMultiAdvSetInstData( uint8_t ucAdapterIf,
                                             BTUuid_t * pxServiceUuid,
                                             size_t xNbServices );
 static BTStatus_t prvBTMultiAdvDisable( uint8_t ucAdapterIf );
-static BTStatus_t prvBTMultiAdvSetInstRawData( uint8_t ucAdapterIf,
-                                               bool bSetScanRsp,
-                                               uint8_t *pucData,
-                                               size_t xDataLen );
 static BTStatus_t prvBTBatchscanCfgStorage( uint8_t ucAdapterIf,
                                             uint32_t ulBatchScanFullMax,
                                             uint32_t ulBatchScanTruncMax,
@@ -135,6 +136,8 @@ static BTStatus_t prvBTSetPreferredPhy( uint16_t usConnId,
 static BTStatus_t prvBTReadPhy( uint16_t usConnId,
                                 BTReadClientPhyCallback_t xCb );
 static BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks );
+
+extern WICEDPropCache_t xWICEDPropCache;
 
 BTBleAdapter_t xBTLeAdapter =
 {
@@ -172,7 +175,6 @@ BTBleAdapter_t xBTLeAdapter =
     .pxReadPhy                         = prvBTReadPhy,
     .ppvGetGattClientInterface         = NULL,
     .ppvGetGattServerInterface         = prvBTGetGattServerInterface,
-    .pxMultiAdvSetInstRawData          = prvBTMultiAdvSetInstRawData,
 };
 
 /*-----------------------------------------------------------*/
@@ -200,8 +202,6 @@ BTStatus_t prvBTRegisterBleApp( BTUuid_t * pxAppUuid )
     BTStatus_t xStatus = eBTStatusSuccess;
     static uint8_t ucAdapterIf = 1;
 
-    wiced_bt_dynamic_gattdb_init();
-
     if( ucAdapterIf > 3)
     {
         if ( xBTBleAdapterCallbacks.pxRegisterBleAdapterCb )
@@ -222,7 +222,7 @@ BTStatus_t prvBTUnregisterBleApp( uint8_t ucAdapterIf )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    wiced_bt_gatt_db_init(NULL, 0, NULL);
+    wiced_bt_gatt_db_init(NULL, 0);
     wiced_bt_gatt_db_reset();
 
     return xStatus;
@@ -442,8 +442,7 @@ BTTransport_t prvBTGetDeviceType( const BTBdaddr_t * pxBdAddr )
 {
     uint8_t ucDevType = 0xFF;
 
-    //TODO wiced_bt_dev_get_bonded_devices()
-    ucDevType = BT_DEVICE_TYPE_BLE;
+    ucDevType = wiced_bt_dev_get_remote_type((uint8_t *)pxBdAddr->ucAddress);
 
     switch (ucDevType)
     {
@@ -455,7 +454,7 @@ BTTransport_t prvBTGetDeviceType( const BTBdaddr_t * pxBdAddr )
             ucDevType = BTTransportLe;
         break;
 
-        case BT_DEVICE_TYPE_BREDR_BLE:
+        case BT_DEVICE_TYPE_DUMO:
             ucDevType = BTTransportAuto;
         break;
 
@@ -630,8 +629,8 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         {
             if(pxParams->ulMinInterval && pxParams->ulMaxInterval)
             {
-                p_adv_cfg->low_duty_min_interval = pxParams->usMinAdvInterval;
-                p_adv_cfg->low_duty_max_interval = pxParams->usMaxAdvInterval;
+                p_adv_cfg->low_duty_min_interval = pxParams->ulMinInterval;
+                p_adv_cfg->low_duty_max_interval = pxParams->ulMaxInterval;
             }
 
             p_adv_cfg->low_duty_duration = pxParams->usTimeout;
@@ -643,6 +642,28 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         if ( xWICEDStatus != WICED_SUCCESS )
         {
             xStatus = prvConvertWicedErrorToAfr(xWICEDStatus);
+        }
+        else if ( !pxParams->bSetScanRsp )
+        {
+            ucAdvMode = pxParams->usAdvertisingEventProperties;
+            BD_ADDR bdAddress;
+
+            memset(bdAddress, 0, sizeof(bdAddress));
+            if(pxParams->xAddrType == BTAddrTypePublic)
+            {
+                /* If address value is all zero, then the BTM_BleSetStaticRandomAddr API configures the address as public */
+                BTM_BleSetStaticRandomAddr(bdAddress);
+            }
+            else if(pxParams->xAddrType == BTAddrTypeRandom || pxParams->xAddrType == BTAddrTypeStaticRandom)
+            {
+                if(pxPlatformDevPropInterface != NULL && pxPlatformDevPropInterface->get_bd_address != NULL)
+                {
+                    if(WICED_SUCCESS == pxPlatformDevPropInterface->get_bd_address(&bdAddress[0], sizeof(bdAddress), PLATFORM_BD_ADDRESS_STATIC_RANDOM))
+                    {
+                        BTM_BleSetStaticRandomAddr(bdAddress);
+                    }
+                }
+            }
         }
     }
 
@@ -742,7 +763,7 @@ BTStatus_t prvBTMultiAdvEnable( uint8_t ucAdapterIf,
     xMultiAdvparams.own_addr_type = BLE_ADDR_PUBLIC;
 
     xWICEDStatus = wiced_set_multi_advertisement_params( ucAdapterIf, &xMultiAdvparams );
-    if((WICED_BT_SUCCESS != xWICEDStatus) && (WICED_BT_PENDING != xWICEDStatus))
+    if(WICED_BT_SUCCESS != xWICEDStatus)
     {
         return prvConvertWicedErrorToAfr(xWICEDStatus);
     }
@@ -754,7 +775,7 @@ BTStatus_t prvBTMultiAdvEnable( uint8_t ucAdapterIf,
     if(bMultAdvDataSet[ucAdapterIf])
     {
         xWICEDStatus = wiced_start_multi_advertisements( 1, ucAdapterIf );
-        if((WICED_BT_SUCCESS != xWICEDStatus) && (WICED_BT_PENDING != xWICEDStatus))
+        if(WICED_BT_SUCCESS != xWICEDStatus)
         {
             xStatus = prvConvertWicedErrorToAfr(xWICEDStatus);
         }
@@ -894,12 +915,12 @@ BTStatus_t prvBTMultiAdvSetInstData( uint8_t ucAdapterIf,
     }
     else
     {
-        if ( bSetScanRsp )
-            xWICEDStatus = wiced_set_multi_advertisement_scan_response_data( mult_adv_data, index, ucAdapterIf );
-        else
-            xWICEDStatus = wiced_set_multi_advertisement_data( mult_adv_data, index, ucAdapterIf );
+      if ( bSetScanRsp )
+          xWICEDStatus = wiced_set_multi_advertisement_scan_response_data( mult_adv_data, index, ucAdapterIf );
+      else
+          xWICEDStatus = wiced_set_multi_advertisement_data( mult_adv_data, index, ucAdapterIf );
 
-        if((WICED_BT_SUCCESS != xWICEDStatus) && (WICED_BT_PENDING != xWICEDStatus))
+        if ( xWICEDStatus != WICED_SUCCESS )
         {
             xStatus = prvConvertWicedErrorToAfr(xWICEDStatus);
         }
@@ -937,44 +958,6 @@ BTStatus_t prvBTMultiAdvDisable( uint8_t ucAdapterIf )
     return xStatus;
 }
 
-
-/*-----------------------------------------------------------*/
-
-BTStatus_t prvBTMultiAdvSetInstRawData( uint8_t ucAdapterIf,
-                                               bool bSetScanRsp,
-                                               uint8_t *pucData,
-                                               size_t xDataLen )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-    wiced_result_t xWICEDStatus;
-
-    if( bSetScanRsp )
-        xWICEDStatus = wiced_set_multi_advertisement_scan_response_data( pucData, xDataLen, ucAdapterIf );
-    else
-        xWICEDStatus = wiced_set_multi_advertisement_data( pucData, xDataLen, ucAdapterIf );
-
-    if((WICED_BT_SUCCESS != xWICEDStatus) && (WICED_BT_PENDING != xWICEDStatus))
-    {
-        xStatus = prvConvertWicedErrorToAfr(xWICEDStatus);
-    }
-    else
-    {
-        bMultAdvDataSet[ucAdapterIf] = true;
-
-        /* Start advertisements after setting up Adv data.
-         * This is an Amazon specific request to make out HAL work with their preexisting code */
-        if ( !bSetScanRsp && bMultiAdvParamsUpdated[ucAdapterIf] )
-        {
-            /* Call prvBTStartAdv instead of wiced_bt_start_advertisements to trigger ADV callback */
-            xStatus = prvBTMultiAdvEnable(ucAdapterIf, &gxAdvParams[ucAdapterIf]);
-        }
-    }
-
-    if ( xBTBleAdapterCallbacks.pxSetAdvDataCb )
-        xBTBleAdapterCallbacks.pxSetAdvDataCb( xStatus );
-
-    return xStatus;
-}
 
 /*-----------------------------------------------------------*/
 
@@ -1038,7 +1021,7 @@ BTStatus_t prvBTSetPreferredPhy( uint16_t usConnId,
     xphyPreferences.tx_phys = ucTxPhy;
     xphyPreferences.rx_phys = ucRxPhy;
     xphyPreferences.phy_opts = usPhyOptions;
-    memcpy(xphyPreferences.remote_bd_addr, xWICEDPropCache.remote_addr.ucAddress, BD_ADDR_LEN);
+    memcpy(xphyPreferences.remote_bd_addr, wiced_bt_get_peer_addr_from_conn_id(usConnId), sizeof(wiced_bt_device_address_t));
 
     xWICEDStatus = wiced_bt_ble_set_phy(&xphyPreferences);
     xStatus = prvConvertWicedErrorToAfr(xWICEDStatus);
@@ -1060,7 +1043,7 @@ static void wiced_bt_ble_read_phy_complete_cb (wiced_bt_ble_phy_update_t *p_phy_
 
     if(xcbCache)
     {
-        xcbCache( xWICEDPropCache.ucAdapterIfCache, p_phy_result->tx_phy, p_phy_result->rx_phy, xStatus );
+        xcbCache(wiced_bt_get_conn_id_from_peer_addr(p_phy_result->bd_address) ,p_phy_result->tx_phy, p_phy_result->rx_phy, xStatus);
     }
 }
 
@@ -1069,9 +1052,9 @@ BTStatus_t prvBTReadPhy( uint16_t usConnId,
 {
     wiced_bt_dev_status_t xWICEDStatus;
 
-    xcbCache = xCb;
+    xcbCache =xCb;
 
-    xWICEDStatus = wiced_bt_ble_read_phy( xWICEDPropCache.remote_addr.ucAddress, wiced_bt_ble_read_phy_complete_cb);
+    xWICEDStatus = wiced_bt_ble_read_phy( wiced_bt_get_peer_addr_from_conn_id(usConnId), wiced_bt_ble_read_phy_complete_cb);
 
     return prvConvertWicedErrorToAfr(xWICEDStatus);
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Design version="12" xmlns="http://cypress.com/xsd/cydesignfile_v3">
+<Design version="12" device_library_hint_path="../../../../../psoc6/psoc6pdl/devicesupport.xml" xmlns="http://cypress.com/xsd/cydesignfile_v3">
     <ToolInfo version="1.0.0"/>
     <Devices>
         <Device mpn="CYB0644ABZI-S2D44">
@@ -268,6 +268,11 @@
                 <Block location="srss[0].clock[0]">
                     <Personality template="mxs40sysclocks" version="1.2"/>
                 </Block>
+                <Block location="srss[0].clock[0].altsystickclk[0]">
+                    <Personality template="mxs40altsystick" version="1.0">
+                        <Param id="sourceClock" value="lfclk"/>
+                    </Personality>
+                </Block>
                 <Block location="srss[0].clock[0].bakclk[0]">
                     <Personality template="mxs40bakclk" version="1.0">
                         <Param id="sourceClock" value="lfclk"/>
@@ -340,7 +345,7 @@
                 </Block>
                 <Block location="srss[0].clock[0].periclk[0]">
                     <Personality template="mxs40periclk" version="1.0">
-                        <Param id="divider" value="1"/>
+                        <Param id="divider" value="2"/>
                     </Personality>
                 </Block>
                 <Block location="srss[0].clock[0].pll[0]">
@@ -381,7 +386,7 @@
                     </Personality>
                 </Block>
                 <Block location="srss[0].power[0]">
-                    <Personality template="mxs40power" version="1.3">
+                    <Personality template="mxs40power" version="1.2">
                         <Param id="pwrMode" value="LDO_1_1"/>
                         <Param id="actPwrMode" value="LP"/>
                         <Param id="coreRegulator" value="CY_SYSPM_LDO_MODE_NORMAL"/>

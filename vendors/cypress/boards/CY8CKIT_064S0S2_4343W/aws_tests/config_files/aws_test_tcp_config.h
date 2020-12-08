@@ -70,6 +70,6 @@
 #define         integrationtestportableSEND_TIMEOUT                2000  /* FIX ME. */
 
 #define tcptestTCP_ECHO_TASKS_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 8 )
-#define tcptestECHO_TEST_SYNC_TIMEOUT       600000 /* MS */
+#define tcptestECHO_TEST_SYNC_TIMEOUT       300000 /* MS */
 
 #endif /*AWS_INTEGRATION_TEST_TCP_CONFIG_H */

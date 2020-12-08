@@ -27,8 +27,6 @@
  * @file aws_ble_hal_gatt_server.c
  * @brief Hardware Abstraction Layer for GATT server ble stack.
  */
-/* The config header is always included first. */
-#include "iot_config.h"
 
 #include <string.h>
 #include "FreeRTOS.h"
@@ -36,12 +34,13 @@
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
 #include "bt_hal_internal.h"
+// #include "aws_ble_event_manager.h"
 
 #include "wiced_bt_gatt.h"
 #include "wiced_bt_ble.h"
 
+#include "bt_hal_internal.h"
 #include "wiced_bt_dynamic_gattdb.h"
-#include "cy_worker_thread.h"
 
 #define APP_ID    0
 
@@ -51,8 +50,8 @@ uint8_t ucGattRegistry = 0;
 
 static uint16_t usHandle = 1;
 static BTGattServerCallbacks_t xGattServerCb;
+static BTBdaddr_t xRemoteAddr;
 static wiced_bool_t bServerRegistered = WICED_FALSE;
-extern cy_worker_thread_info_t bt_worker_thread;
 
 extern void wiced_bt_gatt_deregister (void);
 
@@ -113,6 +112,10 @@ static BTStatus_t prvBTSendResponse( uint16_t usConnId,
 //                                   uint16_t usMtu );
 BTStatus_t prvUnRegisterGattInterface(wiced_bool_t* peRegistrationStatus);
 BTStatus_t prvRegisterGattInterface(wiced_bool_t* peRegistrationStatus);
+
+
+
+
 
 static BTGattServerInterface_t xGATTserverInterface =
 {
@@ -275,21 +278,23 @@ wiced_bt_gatt_status_t prvGattOperationCompleteCb( wiced_bt_gatt_operation_compl
     return WICED_BT_GATT_SUCCESS;
 }
 
- void prvGattsReadReqHandler(void* arg )
+ wiced_result_t prvGattsReadReqHandler(void* arg )
  {
-    wiced_bt_gatt_attribute_request_t *p_data = (wiced_bt_gatt_attribute_request_t *)arg;
+   wiced_bt_gatt_attribute_request_t *p_data =
+       (wiced_bt_gatt_attribute_request_t *)arg;
 
-    //@TODO: check if 0 is ok for the transaction ID
-    if (xGattServerCb.pxRequestReadCb)
-        xGattServerCb.pxRequestReadCb( p_data->conn_id,
-                                       0,
-                                       &xWICEDPropCache.remote_addr,
-                                       p_data->data.read_req.handle,
-                                       p_data->data.read_req.offset);
+   //@TODO: check if 0 is ok for the transaction ID
+   if (xGattServerCb.pxRequestReadCb)
+     xGattServerCb.pxRequestReadCb(p_data->conn_id, 0, &xRemoteAddr,
+                                   p_data->data.read_req.handle,
+                                   p_data->data.read_req.offset);
+
     vPortFree(arg);
+
+   return WICED_SUCCESS;
  }
 
- void prvGattsWriteReqHandler(void* arg )
+ wiced_result_t prvGattsWriteReqHandler(void* arg )
  {
     wiced_bt_gatt_attribute_request_t *p_data =
        (wiced_bt_gatt_attribute_request_t *)arg;
@@ -297,13 +302,15 @@ wiced_bt_gatt_status_t prvGattOperationCompleteCb( wiced_bt_gatt_operation_compl
 
     //@TODO: check if 0 is ok for the transaction ID
     if ( xGattServerCb.pxRequestWriteCb )
-        xGattServerCb.pxRequestWriteCb( p_data->conn_id, 0, &xWICEDPropCache.remote_addr, p_data->data.write_req.handle, p_data->data.write_req.offset,
-                p_data->data.write_req.val_len, (p_data->data.write_req.is_req | p_data->data.write_req.is_prep), p_data->data.write_req.is_prep, write_data_ptr );
+        xGattServerCb.pxRequestWriteCb( p_data->conn_id, 0, &xRemoteAddr, p_data->data.write_req.handle, p_data->data.write_req.offset,
+                p_data->data.write_req.val_len, 1, p_data->data.write_req.is_prep, write_data_ptr );
 
     vPortFree(arg);
+
+   return WICED_SUCCESS;
  }
 
- void prvGattsMtuReqHandler(void* arg )
+ wiced_result_t prvGattsMtuReqHandler(void* arg )
  {
    wiced_bt_gatt_attribute_request_t *p_data =
        (wiced_bt_gatt_attribute_request_t *)arg;
@@ -312,6 +319,8 @@ wiced_bt_gatt_status_t prvGattOperationCompleteCb( wiced_bt_gatt_operation_compl
         xGattServerCb.pxMtuChangedCb( p_data->conn_id, p_data->data.mtu );
 
     vPortFree(arg);
+
+   return WICED_SUCCESS;
  }
 
 wiced_bt_gatt_status_t prvGattsReqCb( wiced_bt_gatt_attribute_request_t *p_data )
@@ -320,47 +329,46 @@ wiced_bt_gatt_status_t prvGattsReqCb( wiced_bt_gatt_attribute_request_t *p_data 
     wiced_bt_gatt_attribute_request_t *data_ptr = NULL;
     wiced_bt_gatt_attribute_request_t *write_data_ptr = NULL;
 
-    IotLogDebug("%s, type=%d\n", __func__, p_data->request_type);
     switch ( p_data->request_type )
     {
         case GATTS_REQ_TYPE_READ:
-            data_ptr = (wiced_bt_gatt_attribute_request_t*)pvPortMalloc(sizeof(wiced_bt_gatt_attribute_request_t));
-            if(data_ptr)
-            {
-                memcpy(data_ptr, p_data, sizeof(wiced_bt_gatt_attribute_request_t));
-                cy_worker_thread_enqueue(&bt_worker_thread, prvGattsReadReqHandler, (void*)data_ptr);
-                result = WICED_BT_GATT_PENDING;
-            }
+          data_ptr = (wiced_bt_gatt_attribute_request_t*)pvPortMalloc(sizeof(wiced_bt_gatt_attribute_request_t));
+          memcpy(data_ptr, p_data, sizeof(wiced_bt_gatt_attribute_request_t));
+          wiced_rtos_send_asynchronous_event(&btStack_worker_thread, prvGattsReadReqHandler, (void*)data_ptr);
+          result = WICED_BT_GATT_PENDING;
+          break;
+
+        case GATTS_REQ_TYPE_WRITE_REQ:
+        case GATTS_REQ_TYPE_PREP_WRITE:
+          data_ptr = (wiced_bt_gatt_attribute_request_t*)pvPortMalloc(sizeof(wiced_bt_gatt_attribute_request_t) + p_data->data.write_req.val_len);
+          write_data_ptr = data_ptr + 1;
+          memcpy(data_ptr, p_data, sizeof(wiced_bt_gatt_attribute_request_t));
+          memcpy(write_data_ptr, p_data->data.write_req.p_val, p_data->data.write_req.val_len);
+
+          wiced_rtos_send_asynchronous_event(&btStack_worker_thread, prvGattsWriteReqHandler, (void*)data_ptr);
+            /* Indicate no auto response for Write request by returning WICED_BT_GATT_PENDING */
+            result = WICED_BT_GATT_PENDING;
             break;
 
-        case GATTS_REQ_TYPE_WRITE:
-        case GATTS_REQ_TYPE_PREP_WRITE:
-            data_ptr = (wiced_bt_gatt_attribute_request_t*)pvPortMalloc(sizeof(wiced_bt_gatt_attribute_request_t) + p_data->data.write_req.val_len);
-            if(data_ptr)
-            {
-                write_data_ptr = data_ptr + 1;
-                memcpy(data_ptr, p_data, sizeof(wiced_bt_gatt_attribute_request_t));
-                memcpy(write_data_ptr, p_data->data.write_req.p_val, p_data->data.write_req.val_len);
-                cy_worker_thread_enqueue(&bt_worker_thread, prvGattsWriteReqHandler, (void*)data_ptr);
-
-                /* Indicate no auto response for Write request by returning WICED_BT_GATT_PENDING */
-                if(p_data->data.write_req.is_req || p_data->data.write_req.is_prep)
-                    result = WICED_BT_GATT_PENDING;
-                else
-                    result = WICED_BT_GATT_SUCCESS;
-            }
+        case GATTS_REQ_TYPE_WRITE_CMD:
+            //@TODO: check if 0 is ok for the transaction ID
+            if ( xGattServerCb.pxRequestWriteCb )
+                xGattServerCb.pxRequestWriteCb( p_data->conn_id, 0, &xRemoteAddr, p_data->data.write_req.handle, p_data->data.write_req.offset,
+                        p_data->data.write_req.val_len, 0, p_data->data.write_req.is_prep, p_data->data.write_req.p_val );
+            /* Indicate no auto response for Write request by returning WICED_BT_GATT_PENDING */
+            result = WICED_BT_GATT_PENDING;
             break;
 
         case GATTS_REQ_TYPE_WRITE_EXEC:
             if ( xGattServerCb.pxRequestExecWriteCb )
-                xGattServerCb.pxRequestExecWriteCb( p_data->conn_id, 0, &xWICEDPropCache.remote_addr, p_data->data.exec_write );
-            result = WICED_BT_GATT_PENDING;
+                xGattServerCb.pxRequestExecWriteCb( p_data->conn_id, 0, &xRemoteAddr, p_data->data.exec_write );
+            return WICED_BT_GATT_PENDING;
             break;
 
         case GATTS_REQ_TYPE_MTU:
             data_ptr = (wiced_bt_gatt_attribute_request_t*)pvPortMalloc(sizeof(wiced_bt_gatt_attribute_request_t));
             memcpy(data_ptr, p_data, sizeof(wiced_bt_gatt_attribute_request_t));
-            cy_worker_thread_enqueue(&bt_worker_thread, prvGattsMtuReqHandler, (void*)data_ptr);
+            wiced_rtos_send_asynchronous_event(&btStack_worker_thread, prvGattsMtuReqHandler, (void*)data_ptr);
             break;
 
         case GATTS_REQ_TYPE_CONF:
@@ -384,13 +392,11 @@ wiced_bt_gatt_status_t prvGattsCb( wiced_bt_gatt_evt_t event, wiced_bt_gatt_even
     {
     case GATT_CONNECTION_STATUS_EVT:
 
-        memcpy( xWICEDPropCache.remote_addr.ucAddress, p_data->connection_status.bd_addr, BD_ADDR_LEN );
+        memcpy( xRemoteAddr.ucAddress, p_data->connection_status.bd_addr, BD_ADDR_LEN );
 
         if(xGattServerCb.pxConnectionCb)
-            xGattServerCb.pxConnectionCb( p_data->connection_status.conn_id,
-                                          0,
-                                          p_data->connection_status.connected,
-                                          &xWICEDPropCache.remote_addr);
+            xGattServerCb.pxConnectionCb(p_data->connection_status.conn_id, 0, p_data->connection_status.connected,
+                    &xRemoteAddr);
         break;
 
     case GATT_OPERATION_CPLT_EVT:
@@ -543,6 +549,20 @@ BTStatus_t prvBTAddService( uint8_t ucServerIf,
 }
 
 /*-----------------------------------------------------------*/
+
+extern uint8_t legattdb_getUUID(uint16_t usHandle, uint8_t *UUIDBuf);
+extern uint8_t legattdb_getGroupEndHandle(uint16_t usHandle);
+
+uint16_t prvGetUUID( uint16_t usServiceHandle, uint8_t* aucServiceUUID )
+{
+    return legattdb_getUUID( usServiceHandle, aucServiceUUID );
+}
+
+uint16_t prvGetEndHandle( uint16_t usServiceHandle )
+{
+    return legattdb_getGroupEndHandle( usServiceHandle );
+}
+
 BTStatus_t prvBTAddIncludedService( uint8_t ucServerIf,
                                     uint16_t usServiceHandle,
                                     uint16_t usIncludedHandle )
@@ -704,7 +724,7 @@ BTStatus_t prvBTDeleteService( uint8_t ucServerIf,
 }
 
 /*-----------------------------------------------------------*/
- void prvGattsIndCbHandler(void* arg )
+ wiced_result_t prvGattsIndCbHandler(void* arg )
  {
    uint16_t *scratch_buff = (uint16_t *)arg;
 
@@ -715,6 +735,8 @@ BTStatus_t prvBTDeleteService( uint8_t ucServerIf,
     }
 
     vPortFree(arg);
+
+   return WICED_SUCCESS;
  }
 
 BTStatus_t prvBTSendIndication( uint8_t ucServerIf,
@@ -742,13 +764,13 @@ BTStatus_t prvBTSendIndication( uint8_t ucServerIf,
     scratch_buff[0] = usConnId;
     scratch_buff[1] = xStatus;
 
-    cy_worker_thread_enqueue(&bt_worker_thread, prvGattsIndCbHandler, (void*)scratch_buff);
+    wiced_rtos_send_asynchronous_event(&btStack_worker_thread, prvGattsIndCbHandler, (void*)scratch_buff);
 
     return xStatus;
 }
 
 /*-----------------------------------------------------------*/
- void prvGattsRspCbHandler(void* arg )
+ wiced_result_t prvGattsRspCbHandler(void* arg )
  {
    uint16_t *scratch_buff = (uint16_t *)arg;
 
@@ -759,6 +781,8 @@ BTStatus_t prvBTSendIndication( uint8_t ucServerIf,
     }
 
     vPortFree(arg);
+
+   return WICED_SUCCESS;
  }
 
 BTStatus_t prvBTSendResponse( uint16_t usConnId,
@@ -771,19 +795,18 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
 
     if ( eBTStatusSuccess == xStatus )
     {
-        xWicedStatus = wiced_bt_gatt_send_response( WICED_BT_GATT_SUCCESS,
-                                                    usConnId,
-                                                    pxResponse->usHandle,
-                                                    pxResponse->xAttrValue.xLen,
-                                                    pxResponse->xAttrValue.usOffset,
-                                                    pxResponse->xAttrValue.pucValue );
+          xWicedStatus = wiced_bt_gatt_send_response(
+              WICED_BT_GATT_SUCCESS, usConnId, pxResponse->usHandle,
+              pxResponse->xAttrValue.xLen, pxResponse->xAttrValue.usOffset,
+              pxResponse->xAttrValue.pucValue);
+
         xStatus = prvConvertWicedGattErrorToAfr(xWicedStatus);
     }
 
     scratch_buff[0] = xStatus;
     scratch_buff[1] = pxResponse->usHandle;
 
-    cy_worker_thread_enqueue(&bt_worker_thread, prvGattsRspCbHandler, (void*)scratch_buff);
+    wiced_rtos_send_asynchronous_event(&btStack_worker_thread, prvGattsRspCbHandler, (void*)scratch_buff);
 
     return xStatus;
 
