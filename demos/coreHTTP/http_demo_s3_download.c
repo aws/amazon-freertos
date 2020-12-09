@@ -180,6 +180,12 @@ static HTTPRequestInfo_t xRequestInfo;
 static HTTPResponse_t xResponse;
 
 /**
+ * @brief Represents the network context used for the TLS session with the
+ * server.
+ */
+static NetworkContext_t xNetworkContext;
+
+/**
  * @brief The host address string extracted from the pre-signed URL.
  *
  * @note httpexampleS3_PRESIGNED_GET_URL_LENGTH is set as the array length here as the
@@ -196,6 +202,11 @@ static size_t xServerHostLength;
  * @brief The location of the path within the pre-signed URL.
  */
 static const char * pcPath;
+
+/**
+ * @brief The status of the network connection.
+ */
+static BaseType_t xIsConnectionEstablished = pdFALSE;
 
 /*-----------------------------------------------------------*/
 
@@ -486,6 +497,7 @@ static BaseType_t prvDownloadS3ObjectFile( const TransportInterface_t * pxTransp
     /* Return value of this method. */
     BaseType_t xStatus = pdFAIL;
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
+    TransportSocketStatus_t xNetworkStatus;
 
     /* The size of the file we are trying to download in S3. */
     size_t xFileSize = 0;
@@ -598,6 +610,43 @@ static BaseType_t prvDownloadS3ObjectFile( const TransportInterface_t * pxTransp
                        ( int32_t ) xResponse.bodyLen,
                        xResponse.pBody ) );
 
+            /* Check that we received a valid status code */
+            if( xResponse.statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
+            {
+                LogError( ( "Received response with unexpected status code: %d.", xResponse.statusCode ) );
+                xIsConnectionEstablished = pdFALSE;
+                xStatus = pdFAIL;
+                break;
+            }
+
+            /* Check for the "Connection: close" header in case the connection
+             * needs to be re-established. */
+            if( xResponse.respFlags == HTTP_RESPONSE_CONNECTION_CLOSE_FLAG )
+            {
+                LogInfo( ( "'Connection:close' header found in server response. Attempting to re-connect to the server." ) );
+
+                /* Disconnect and re-establish the connection. */
+                xNetworkStatus = SecureSocketsTransport_Disconnect( &xNetworkContext );
+
+                if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
+                {
+                    LogError( ( "SecureSocketsTransport_Disconnect() failed to close the network connection. "
+                                "StatusCode=%d.", ( int ) xNetworkStatus ) );
+                    xStatus = pdFAIL;
+                    break;
+                }
+
+                xStatus = connectToServerWithBackoffRetries( prvConnectToServer,
+                                                             &xNetworkContext );
+
+                if( xStatus != pdPASS )
+                {
+                    LogError( ( "Could not reconnect to server. Exiting loop." ) );
+                    xIsConnectionEstablished = pdFALSE;
+                    break;
+                }
+            }
+
             /* We increment by the content length because the server may not
              * have sent us the range we requested. */
             xCurByte += xResponse.contentLength;
@@ -606,8 +655,6 @@ static BaseType_t prvDownloadS3ObjectFile( const TransportInterface_t * pxTransp
             {
                 xNumReqBytes = xFileSize - xCurByte;
             }
-
-            xStatus = ( xResponse.statusCode == httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT ) ? pdPASS : pdFAIL;
         }
         else
         {
@@ -651,10 +698,7 @@ int RunCoreHttpS3DownloadDemo( bool awsIotMqttMode,
 {
     /* The transport layer interface used by the HTTP Client library. */
     TransportInterface_t xTransportInterface;
-    /* The network context for the transport layer interface. */
-    NetworkContext_t xNetworkContext = { 0 };
     TransportSocketStatus_t xNetworkStatus;
-    BaseType_t xIsConnectionEstablished = pdFALSE;
     /* HTTPS Client library return status. */
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
     BaseType_t xDemoRunCount = 0UL;
