@@ -123,7 +123,7 @@
  * be less than democonfigUSER_BUFFER_LENGTH. We don't expect S3 to send more
  * than 1024 bytes of headers.
  */
-#define democonfigUSER_BUFFER_LENGTH                ( 1024 )
+#define democonfigUSER_BUFFER_LENGTH                ( 1536 )
 
 /**
  * @brief The size of the range of the file to download, with each request.
@@ -132,7 +132,7 @@
  * in the user buffer. We don't expect S3 to send more than 1024 bytes of
  * headers.
  */
-#define democonfigRANGE_REQUEST_LENGTH              ( 1024 )
+#define democonfigRANGE_REQUEST_LENGTH              ( 512 )
 
 /**
  * @brief The number of items that can be held in each queue.
