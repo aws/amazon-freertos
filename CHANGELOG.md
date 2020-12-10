@@ -60,17 +60,17 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 - Added an API function to iterate over a collection in a JSON document.
 
-#### AWS IoT Device Shadow v1.0.2
-
-- Update logs and format specifiers to use standard C types.
-
-#### PKCS11 v3.0.0
+#### corePKCS11 v3.0.0
 
 - Updated xFindObjectWithLabelAndClass to include a size parameter to allow passing in the size of the label, in order to avoid calling strlen in the library code.
 - Added CBMC memory proofs for all functions.
 - Removed threading_alt.h from corePKCS11.
 - Restructured third party folder in order to align with other core repositories. Folders located in “corePKCS11/3rdparty” are now in “corePKCS11/source/dependency/3rdparty”.
 - Updated logs and format specifiers to use standard C types.
+
+#### AWS IoT Device Shadow v1.0.2
+
+- Update logs and format specifiers to use standard C types.
 
 #### MQTT Compatibility Layer v2.3.1 
 
