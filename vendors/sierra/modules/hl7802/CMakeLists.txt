@@ -19,3 +19,11 @@ afr_module_dependencies(
         AFR::cellular
         AFR::cellular_common
 )
+
+if( ${AFR_BOARD} STREQUAL "sierra.sensorhub" )
+set_source_files_properties(
+    "${AFR_VENDORS_DIR}/sierra/modules/hl7802/ports/cellular/cellular_hl7802_api.c"
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-format"
+)
+endif()

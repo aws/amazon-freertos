@@ -30,3 +30,7 @@
 [submodule "libraries/abstractions/pkcs11/psa"]
 	path = libraries/abstractions/pkcs11/psa
 	url = https://github.com/Linaro/freertos-pkcs11-psa.git
+[submodule "vendors/sierra/esp-idf"]
+	path = vendors/sierra/esp-idf
+	url = https://github.com/espressif/esp-afr-sdk.git
+	branch = release/v3.3

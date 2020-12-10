@@ -86,8 +86,8 @@ static bool urcTokenWoPrefix( const CellularContext_t * pContext,
 static _atRespType_t _getMsgType( const CellularContext_t * pContext,
                                   const char * pLine,
                                   const char * pRespPrefix );
-static void _Cellular_PktRxCallBack( void * pUserData,
-                                     CellularCommInterfaceHandle_t commInterfaceHandle );
+static CellularCommInterfaceError_t _Cellular_PktRxCallBack( void * pUserData,
+                                                             CellularCommInterfaceHandle_t commInterfaceHandle );
 static char * _handleLeftoverBuffer( CellularContext_t * pContext );
 static char * _Cellular_ReadLine( CellularContext_t * pContext,
                                   uint32_t * pBytesRead,
@@ -377,8 +377,11 @@ static CellularPktStatus_t _Cellular_ProcessLine( const CellularContext_t * pCon
         {
             pResp->status = false;
             pkStatus = CELLULAR_PKT_STATUS_OK;
-            IotLogError( "Modem return ERROR: %s %s respPrefix: %s status: %d",
-                         pContext->pCurrentCmd, pLine, pRespPrefix, pkStatus );
+            IotLogError( "Modem return ERROR: cmd: %s line: %s respPrefix: %s status: %d",
+                         ( ( pContext->pCurrentCmd == NULL ) ? "NULL" : pContext->pCurrentCmd ),
+                         pLine,
+                         ( ( pRespPrefix == NULL ) ? "NULL" : pRespPrefix ),
+                         pkStatus );
         }
         else
         {
@@ -475,16 +478,21 @@ static _atRespType_t _getMsgType( const CellularContext_t * pContext,
 /*-----------------------------------------------------------*/
 /* Cellular comm interface callback prototype. */
 /* coverity[misra_c_2012_rule_8_13_violation] */
-static void _Cellular_PktRxCallBack( void * pUserData,
-                                     CellularCommInterfaceHandle_t commInterfaceHandle )
+static CellularCommInterfaceError_t _Cellular_PktRxCallBack( void * pUserData,
+                                                             CellularCommInterfaceHandle_t commInterfaceHandle )
 {
     const CellularContext_t * pContext = ( CellularContext_t * ) pUserData;
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdPASS;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdFALSE;
+    CellularCommInterfaceError_t retComm = IOT_COMM_INTERFACE_SUCCESS;
 
     ( void ) commInterfaceHandle; /* Comm if is not used in this function. */
 
     /* The context of this function is a ISR. */
-    if( ( pContext != NULL ) && ( pContext->pPktioCommEvent != NULL ) )
+    if( ( pContext == NULL ) || ( pContext->pPktioCommEvent == NULL ) )
+    {
+        retComm = IOT_COMM_INTERFACE_BAD_PARAMETER;
+    }
+    else
     {
         xResult = xEventGroupSetBitsFromISR( pContext->pPktioCommEvent,
                                              PKTIO_EVT_MASK_RX_DATA,
@@ -492,13 +500,22 @@ static void _Cellular_PktRxCallBack( void * pUserData,
 
         if( xResult == pdPASS )
         {
-            /* portYIELD_FROM_ISR manipulates hardware registers by writing to them directly. */
-            /* coverity[misra_c_2012_rule_11_4_violation] */
-            /* coverity[misra_c_2012_rule_1_2_violation] */
-            /* coverity[misra_c_2012_rule_20_7_violation] */
-            portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+            if( xHigherPriorityTaskWoken == pdTRUE )
+            {
+                retComm = IOT_COMM_INTERFACE_SUCCESS;
+            }
+            else
+            {
+                retComm = IOT_COMM_INTERFACE_BUSY;
+            }
+        }
+        else
+        {
+            retComm = IOT_COMM_INTERFACE_FAILURE;
         }
     }
+
+    return retComm;
 }
 
 /*-----------------------------------------------------------*/
@@ -705,13 +722,15 @@ static CellularPktStatus_t _handleMsgType( CellularContext_t * pContext,
                 ( void ) memset( pContext->pktioReadBuf, 0, PKTIO_READ_BUFFER_SIZE + 1U );
                 pContext->pPktioReadPtr = NULL;
                 FREE_AT_RESPONSE_AND_SET_NULL( *ppAtResp );
-                IotLogError( "processLine ERROR, cleaning up! Current command %s", pContext->pCurrentCmd );
+                IotLogError( "processLine ERROR, cleaning up! Current command %s",
+                             ( ( pContext->pCurrentCmd == NULL ) ? "NULL" : pContext->pCurrentCmd ) );
             }
         }
     }
     else
     {
-        IotLogError( "recvdMsgType is AT_UNDEFINED for Message: %s %s", pLine, pContext->pCurrentCmd );
+        IotLogError( "recvdMsgType is AT_UNDEFINED for Message: line %s, cmd %s",
+                     pLine, ( ( pContext->pCurrentCmd == NULL ) ? "NULL" : pContext->pCurrentCmd ) );
         ( void ) memset( pContext->pktioReadBuf, 0, PKTIO_READ_BUFFER_SIZE + 1U );
         pContext->pPktioReadPtr = NULL;
         pContext->partialDataRcvdLen = 0;
