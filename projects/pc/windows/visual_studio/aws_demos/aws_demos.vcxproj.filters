@@ -57,7 +57,8 @@
 		<Filter Include="vendors"/>
 		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls"/>
 		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\portable"/>
-		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include"/>
+		<Filter Include="libraries\3rdparty\mbedtls_config"/>
+		<Filter Include="libraries\3rdparty"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\src"/>
 		<Filter Include="libraries\freertos_plus\standard\utils"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
@@ -111,7 +112,6 @@
 		<Filter Include="libraries\freertos_plus\aws\ota\src"/>
 		<Filter Include="libraries\3rdparty\mbedtls\library"/>
 		<Filter Include="libraries\3rdparty\mbedtls"/>
-		<Filter Include="libraries\3rdparty"/>
 		<Filter Include="vendors\pc\boards\windows\ports\ota"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\src\mqtt"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\src\http"/>
@@ -361,7 +361,7 @@
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls_config\threading_alt.h">
-			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</Filter>
+			<Filter>libraries\3rdparty\mbedtls_config</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pkcs11_pal.h">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
