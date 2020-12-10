@@ -2033,11 +2033,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/device_defender_for_aws/report_builder.c</locationURI>
 		</link>
 		<link>
-			<name>demos/device_defender_for_aws/metrics_collector/stub/metrics_collector.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/device_defender_for_aws/metrics_collector/stub/metrics_collector.c</locationURI>
-		</link>
-		<link>
 			<name>demos/device_defender_for_aws/report_builder.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/device_defender_for_aws/report_builder.h</locationURI>
@@ -2046,6 +2041,11 @@
 			<name>demos/device_defender_for_aws/metrics_collector.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/device_defender_for_aws/metrics_collector.h</locationURI>
+		</link>
+		<link>
+			<name>demos/device_defender_for_aws/metrics_collector/stub/metrics_collector.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/device_defender_for_aws/metrics_collector/stub/metrics_collector.c</locationURI>
 		</link>
 		<link>
 			<name>demos/device_shadow_for_aws/shadow_demo_main.c</name>
