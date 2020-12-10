@@ -233,6 +233,11 @@ typedef struct MQTTBLEPublishInfo
      * @brief Pending flag for continuation of publish packet.
      */
     bool pending;
+
+    /**
+     * @brief Packet Identifier for QoS1, QoS2 publish packet.
+     */
+    uint16_t packetIdentifier;
 } MQTTBLEPublishInfo_t;
 /** @} */
 
