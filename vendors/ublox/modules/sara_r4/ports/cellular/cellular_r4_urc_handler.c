@@ -105,8 +105,10 @@ uint32_t CellularUrcHandlerTableSize = sizeof( CellularUrcHandlerTable ) / sizeo
 static CellularPktStatus_t _parseUrcIndicationCall( const CellularContext_t * pContext,
                                                     char * pUrcStr )
 {
+    char * pToken = NULL;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
+    CellularError_t cellularStatus = CELLULAR_SUCCESS;
     int32_t isActivated = 0;
 
     if( ( pContext == NULL ) || ( pUrcStr == NULL ) )
@@ -162,8 +164,10 @@ static CellularPktStatus_t _parseUrcIndicationCall( const CellularContext_t * pC
 static CellularPktStatus_t _parseUrcIndicationCsq( const CellularContext_t * pContext,
                                                    char * pUrcStr )
 {
+    char * pToken = NULL;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
+    CellularError_t cellularStatus = CELLULAR_SUCCESS;
     int32_t retStrtoi = 0;
     int16_t csqBarLevel = CELLULAR_INVALID_SIGNAL_BAR_VALUE;
     CellularSignalInfo_t signalInfo = { 0 };
@@ -312,6 +316,7 @@ static CellularPktStatus_t _cellular_UrcProcessCiev( const CellularContext_t * p
 static void _cellular_UrcProcessUupsmr( CellularContext_t * pContext,
                                         char * pInputLine )
 {
+    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     char * pLocalInputLine = pInputLine;
     char * pToken = NULL;
@@ -369,6 +374,7 @@ static void _cellular_UrcProcessUupsmr( CellularContext_t * pContext,
 static void _cellular_UrcProcessUusoco( CellularContext_t * pContext,
                                         char * pInputLine )
 {
+    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     char * pLocalInputLine = pInputLine;
     char * pToken = NULL;
@@ -471,11 +477,13 @@ static void _cellular_UrcProcessUusoco( CellularContext_t * pContext,
 static void _cellular_UrcProcessUusord( CellularContext_t * pContext,
                                         char * pInputLine )
 {
+    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     char * pLocalInputLine = pInputLine;
     char * pToken = NULL;
     CellularSocketContext_t * pSocketData = NULL;
     uint8_t sessionId = 0;
+    uint32_t dataLength = 0;
     uint32_t socketIndex = 0;
     int32_t tempValue = 0;
 
@@ -540,11 +548,13 @@ static void _cellular_UrcProcessUusord( CellularContext_t * pContext,
 static void _cellular_UrcProcessUusocl( CellularContext_t * pContext,
                                         char * pInputLine )
 {
+    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     char * pLocalInputLine = pInputLine;
     char * pToken = NULL;
     CellularSocketContext_t * pSocketData = NULL;
     uint8_t sessionId = 0;
+    uint32_t dataLength = 0;
     uint32_t socketIndex = 0;
     int32_t tempValue = 0;
 
