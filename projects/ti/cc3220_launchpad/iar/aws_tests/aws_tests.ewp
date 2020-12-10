@@ -414,10 +414,9 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
@@ -1573,12 +1572,6 @@
 								<file>
 									<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\core_pkcs11_mbedtls.c</name>
 								</file>
-								<group>
-									<name>include</name>
-									<file>
-										<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config\threading_alt.h</name>
-									</file>
-								</group>
 							</group>
 						</group>
 						<file>
@@ -2258,85 +2251,13 @@
 			</group>
 		</group>
 		<group>
-			<name>coreMQTT</name>
-			<group>
-				<name>source</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_state.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c</name>
-				</file>
-				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_config_defaults.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_serializer.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_state.h</name>
-					</file>
-				</group>
-				<group>
-					<name>interface</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h</name>
-					</file>
-				</group>
-			</group>
-		</group>
-		<group>
-			<name>coreHTTP</name>
-			<group>
-				<name>source</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c</name>
-				</file>
-				<group>
-					<name>dependency</name>
-					<group>
-						<name>3rdparty</name>
-						<group>
-							<name>http_parser</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.h</name>
-							</file>
-						</group>
-					</group>
-				</group>
-				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client_private.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_config_defaults.h</name>
-					</file>
-				</group>
-				<group>
-					<name>interface</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h</name>
-					</file>
-				</group>
-			</group>
-		</group>
-		<group>
 			<name>3rdparty</name>
+			<group>
+				<name>mbedtls_config</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config\threading_alt.h</name>
+				</file>
+			</group>
 			<group>
 				<name>mbedtls</name>
 				<group>
@@ -2915,6 +2836,84 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c</name>
 				</file>
+			</group>
+		</group>
+		<group>
+			<name>coreMQTT</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_state.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_config_defaults.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_serializer.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_state.h</name>
+					</file>
+				</group>
+				<group>
+					<name>interface</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h</name>
+					</file>
+				</group>
+			</group>
+		</group>
+		<group>
+			<name>coreHTTP</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c</name>
+				</file>
+				<group>
+					<name>dependency</name>
+					<group>
+						<name>3rdparty</name>
+						<group>
+							<name>http_parser</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.h</name>
+							</file>
+						</group>
+					</group>
+				</group>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_config_defaults.h</name>
+					</file>
+				</group>
+				<group>
+					<name>interface</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h</name>
+					</file>
+				</group>
 			</group>
 		</group>
 		<group>
