@@ -30,8 +30,8 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 #### HTTP Compatibility Layer v1.2.0
 
-- The HTTPS Compatibility Layer provides backwards compatibility from coreHTTP library to HTTP V1.x.x APIs. In addition, the HTTPS Compatibility Layer maintains the dependency of the network abstraction and linear containers from the HTTP V1.x.x library. The task pool dependency is removed in order to allow the user to allocate tasks on the stack rather than exclusively on the heap.
-- Configuration settings using C preprocessor constants, for the HTTPS Compatibility Layer, are available in addition to the original configurations of the HTTPS V1.x.x library (https://docs.aws.amazon.com/freertos/latest/lib-ref/html2/https/https_config.html). They can be set with a #define in the config file (iot_config.h) or by using a compiler option such as -D in gcc. If a configuration setting is not defined, the HTTPS Compatibility Layer will use a "sensible" default value (unless otherwise noted). Because they are compile-time constants, this HTTPS Compatibility Layer must be rebuilt if a configuration setting is changed.
+- The HTTP Compatibility Layer provides backwards compatibility from coreHTTP library to HTTPS V1.x.x APIs. In addition, the HTTP Compatibility Layer maintains the dependency of the network abstraction and linear containers from the HTTPS V1.x.x library. The task pool dependency is removed in order to allow the user to allocate tasks on the stack rather than exclusively on the heap.
+- Configuration settings using C preprocessor constants, for the HTTP Compatibility Layer, are available in addition to the original configurations of the HTTPS V1.x.x library (https://docs.aws.amazon.com/freertos/latest/lib-ref/html2/https/https_config.html). They can be set with a #define in the config file (iot_config.h) or by using a compiler option such as -D in gcc. If a configuration setting is not defined, the HTTP Compatibility Layer will use a "sensible" default value (unless otherwise noted). Because they are compile-time constants, this HTTP Compatibility Layer must be rebuilt if a configuration setting is changed.
     - IOT_HTTPS_DISPATCH_QUEUE_SIZE - The number of requests in the queue that are ready to be sent to the HTTP server.
     - IOT_HTTPS_DISPATCH_TASK_COUNT - The number of tasks that are responsible for sending requests from the dispatch queue.
     - IOT_HTTPS_DISPATCH_TASK_STACK_SIZE - The stack size of each dispatch task, sized appropriately for each board.
@@ -60,7 +60,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 - Added an API function to iterate over a collection in a JSON document.
 
-#### Device Shadow v1.0.2
+#### AWS IoT Device Shadow v1.0.2
 
 - Update logs and format specifiers to use standard C types.
 
@@ -72,7 +72,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 - Restructured third party folder in order to align with other core repositories. Folders located in “corePKCS11/3rdparty” are now in “corePKCS11/source/dependency/3rdparty”.
 - Updated logs and format specifiers to use standard C types.
 
-#### MQTT Compatibility layer v2.3.1 
+#### MQTT Compatibility Layer v2.3.1 
 
 - Fixes for compiler warnings by removing unused functions and variables.
 
