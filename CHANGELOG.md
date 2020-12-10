@@ -28,7 +28,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 - The AWS IoT Jobs library has no dependencies on additional libraries other than the standard C library. It also doesn’t have any platform dependencies, such as threading or synchronization. It can be used with any MQTT library and any JSON library (see demos (https://github.com/aws/amazon-freertos/tree/master/demos/jobs_for_aws) with coreMQTT and coreJSON).
 - See memory requirements for the latest release (https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/jobs-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#jobs_memory_requirements)here (https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/jobs-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#jobs_memory_requirements).
 
-#### HTTP Compatibility Layer v1.2.0 (earlier HTTPS now changed to compatibility layer) 
+#### HTTP Compatibility Layer v1.2.0
 
 - The HTTPS Compatibility Layer provides backwards compatibility from coreHTTP library to HTTP V1.x.x APIs. In addition, the HTTPS Compatibility Layer maintains the dependency of the network abstraction and linear containers from the HTTP V1.x.x library. The task pool dependency is removed in order to allow the user to allocate tasks on the stack rather than exclusively on the heap.
 - Configuration settings using C preprocessor constants, for the HTTPS Compatibility Layer, are available in addition to the original configurations of the HTTPS V1.x.x library (https://docs.aws.amazon.com/freertos/latest/lib-ref/html2/https/https_config.html). They can be set with a #define in the config file (iot_config.h) or by using a compiler option such as -D in gcc. If a configuration setting is not defined, the HTTPS Compatibility Layer will use a "sensible" default value (unless otherwise noted). Because they are compile-time constants, this HTTPS Compatibility Layer must be rebuilt if a configuration setting is changed.
@@ -66,15 +66,11 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 #### PKCS11 v3.0.0
 
-- Changed xFindObjectWithLabelAndClass to include a size parameter to allow the caller to specify the size of the passed in label.
+- Updated xFindObjectWithLabelAndClass to include a size parameter to allow passing in the size of the label, in order to avoid calling strlen in the library code.
 - Added CBMC memory proofs for all functions.
 - Removed threading_alt.h from corePKCS11.
 - Restructured third party folder in order to align with other core repositories. Folders located in “corePKCS11/3rdparty” are now in “corePKCS11/source/dependency/3rdparty”.
 - Updated logs and format specifiers to use standard C types.
-
-##### PKCS API Change:
-- Function is xFindObjectWithLabelAndClass in core_pkcs11.h a helper function to find a object with it’s label and it’s object class type, and it will return a object handle to easily refer to the object. The function signature has changed, to allow passing in the size of the label, to avoid calling strlen in the library code.
-- This API was only used in provisioning code, iot_tls.c tls abstraction, and the PKCS #11 test code.
 
 #### MQTT Compatibility layer v2.3.1 
 
