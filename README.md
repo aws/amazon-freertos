@@ -35,7 +35,7 @@ For detailed documentation on FreeRTOS, refer to the [FreeRTOS User Guide](https
 
 ### AWS Collection of Metrics
 
-AWS collects usage metrics indicating the operating system, hardware platform and MQTT client information of use to AWS IoT from the MQTT mutual auth demo by sending a specially formatted string in the username field of the MQTT CONNECT packet. These metrics help AWS IoT improve security and provide better technical support. Providing these metrics is optional for users, and can be disabled by updating the `OS_NAME`, `OS_VERSION`, `HARDWARE_PLATFORM_NAME` and `MQTT_LIB` configuration macros in the `demos/mqtt/mqtt_demo_mutual_auth/demo_config.h` file of the MQTT mutual auth demo.
+AWS collects usage metrics indicating the operating system, and MQTT client information of use to AWS IoT from the MQTT mutual auth demo by sending a specially formatted string in the username field of the MQTT CONNECT packet. These metrics help AWS IoT improve security and provide better technical support. Providing these metrics is optional for users, and can be disabled by updating the `OS_NAME`, `OS_VERSION` and `MQTT_LIB` configuration macros in the `demos/include/aws_iot_metrics.h` file.
 
 #### Format
 
