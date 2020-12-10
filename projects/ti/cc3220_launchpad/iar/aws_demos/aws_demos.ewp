@@ -2858,6 +2858,12 @@
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_defender_for_aws\report_builder.c</name>
 			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_defender_for_aws\report_builder.h</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_defender_for_aws\metrics_collector.h</name>
+			</file>
 			<group>
 				<name>metrics_collector</name>
 				<group>
@@ -2867,12 +2873,6 @@
 					</file>
 				</group>
 			</group>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_defender_for_aws\report_builder.h</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\device_defender_for_aws\metrics_collector.h</name>
-			</file>
 		</group>
 		<group>
 			<name>device_shadow_for_aws</name>

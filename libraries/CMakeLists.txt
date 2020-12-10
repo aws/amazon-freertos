@@ -73,6 +73,11 @@ if(EXISTS ${AFR_MODULES_DIR}/freertos_plus/standard/freertos_plus_tcp.cmake)
     include(${AFR_MODULES_DIR}/freertos_plus/standard/freertos_plus_tcp.cmake)
 endif()
 
+# Add FreeRTOS+TCP utils module ONLY if present in FreeRTOS console download.
+if(EXISTS ${AFR_MODULES_DIR}/freertos_plus/standard/freertos_plus_tcp_utils.cmake)
+    include(${AFR_MODULES_DIR}/freertos_plus/standard/freertos_plus_tcp_utils.cmake)
+endif()
+
 # Add core_json modules ONLY if present in FreeRTOS console download.
 if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/core_json.cmake)
     include(core_json.cmake)
