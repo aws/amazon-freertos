@@ -82,6 +82,9 @@
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
+/* Include AWS IoT metrics macros header. */
+#include "aws_iot_metrics.h"
+
 /**
  * These configuration settings are required to run the demo.
  */
@@ -828,6 +831,11 @@ static MQTTStatus_t prvMQTTConnect( MQTTContext_t * pxMQTTContext,
      * unique, such as a device serial number. */
     xConnectInfo.pClientIdentifier = democonfigCLIENT_IDENTIFIER;
     xConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( democonfigCLIENT_IDENTIFIER );
+
+    /* Use the metrics string as username to report the OS and MQTT client version
+     * metrics to AWS IoT. */
+    xConnectInfo.pUserName = AWS_IOT_METRICS_STRING;
+    xConnectInfo.userNameLength = AWS_IOT_METRICS_STRING_LENGTH;
 
     /* Set MQTT keep-alive period. It is the responsibility of the application
      * to ensure that the interval between Control Packets being sent does not
