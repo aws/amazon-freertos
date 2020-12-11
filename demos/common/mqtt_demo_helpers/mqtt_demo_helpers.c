@@ -44,6 +44,9 @@
 /* Shadow includes */
 #include "mqtt_demo_helpers.h"
 
+/* Include AWS IoT metrics macros header. */
+#include "aws_iot_metrics.h"
+
 /* Retry utilities include. */
 #include "backoff_algorithm.h"
 
@@ -605,6 +608,14 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
              * unique, such as a device serial number. */
             xConnectInfo.pClientIdentifier = democonfigCLIENT_IDENTIFIER;
             xConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( democonfigCLIENT_IDENTIFIER );
+
+            /* Use the metrics string as username to report the OS and MQTT client version
+             * metrics to AWS IoT. */
+            xConnectInfo.pUserName = AWS_IOT_METRICS_STRING;
+            xConnectInfo.userNameLength = AWS_IOT_METRICS_STRING_LENGTH;
+            /* Password for authentication is not used. */
+            xConnectInfo.pPassword = NULL;
+            xConnectInfo.passwordLength = 0U;
 
             /* The maximum time interval in seconds which is allowed to elapse
              * between two Control Packets.

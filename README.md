@@ -33,6 +33,31 @@ To directly access the **Getting Started Guide** for supported hardware platform
 
 For detailed documentation on FreeRTOS, refer to the [FreeRTOS User Guide](https://aws.amazon.com/documentation/freertos).
 
+### AWS Collection of Metrics
+
+The demos that connect to AWS IoT report metrics to AWS about the operating system, and the MQTT client library used by sending a specially formatted string in the username field of the MQTT CONNECT packet. These metrics help AWS IoT improve security and provide better technical support. Providing these metrics is optional for users, and these can be disabled by updating the following configuration macros in the `demos/include/aws_iot_metrics.h` file:
+
+```
+#define AWS_IOT_METRICS_STRING           NULL
+#define AWS_IOT_METRICS_STRING_LENGTH    0U
+```
+
+#### Format
+
+The format of the username string with metrics is:
+
+```
+<Actual_Username>?SDK=<OS_Name>&Version=<OS_Version>MQTTLib=<MQTT_Library_name>@<MQTT_Library_version>
+```
+
+where
+
+* **Actual_Username** is the actual username used for authentication (if a username/password is used for authentication).
+* **OS_Name** is the Operating System the application is running on.
+* **OS_Version** is the version number of the Operating System.
+* **MQTT_Library_name** is the MQTT Client library being used.
+* **MQTT_Library_version** is the version of the MQTT Client library being used.
+
 ## Supported Hardware
 
 For additional boards that are supported for FreeRTOS, please visit the [AWS Device Catalog](https://devices.amazonaws.com/search?kw=freertos)
