@@ -609,8 +609,8 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
             xConnectInfo.pClientIdentifier = democonfigCLIENT_IDENTIFIER;
             xConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( democonfigCLIENT_IDENTIFIER );
 
-            /* User metrics string as username to report OS and MQTT client version metrics to
-             * AWS IoT. */
+            /* Use the metrics string as username to report the OS and MQTT client version
+             * metrics to AWS IoT. */
             xConnectInfo.pUserName = AWS_IOT_METRICS_STRING;
             xConnectInfo.userNameLength = AWS_IOT_METRICS_STRING_LENGTH;
             /* Password for authentication is not used. */
