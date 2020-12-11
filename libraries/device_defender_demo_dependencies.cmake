@@ -85,3 +85,13 @@ afr_module_dependencies(
         # Device Defender library on the FreeRTOS console.
         AFR::core_mqtt_demo_dependencies
 )
+
+# If using the FreeRTOS+TCP metrics collector implementation, the defender demo
+# depends on the FreeRTOS+TCP tcp utils.
+if(TARGET AFR::freertos_plus_tcp::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::freertos_plus_tcp_utils
+    )
+endif()
