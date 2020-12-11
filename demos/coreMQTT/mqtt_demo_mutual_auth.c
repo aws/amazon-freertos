@@ -81,6 +81,9 @@
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
+/* Include AWS IoT metrics macros header. */
+#include "aws_iot_metrics.h"
+
 /*------------- Demo configurations -------------------------*/
 
 /** Note: The device client certificate and private key credentials are
@@ -796,6 +799,11 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
      * unique, such as a device serial number. */
     xConnectInfo.pClientIdentifier = democonfigCLIENT_IDENTIFIER;
     xConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( democonfigCLIENT_IDENTIFIER );
+
+    /* Use the metrics string as username to report the OS and MQTT client version
+     * metrics to AWS IoT. */
+    xConnectInfo.pUserName = AWS_IOT_METRICS_STRING;
+    xConnectInfo.userNameLength = AWS_IOT_METRICS_STRING_LENGTH;
 
     /* Set MQTT keep-alive period. If the application does not send packets at an interval less than
      * the keep-alive period, the MQTT library will send PINGREQ packets. */
