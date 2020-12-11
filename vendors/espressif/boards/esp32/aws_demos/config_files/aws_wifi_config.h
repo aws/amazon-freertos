@@ -76,12 +76,12 @@
 /**
  * @brief Soft Access point SSID
  */
-#define wificonfigACCESS_POINT_SSID_PREFIX    ( "ConfigureMe" )
+#define wificonfigACCESS_POINT_SSID_PREFIX    ( "IOT_WIFI_PROV_" )
 
 /**
  * @brief Soft Access point Passkey
  */
-#define wificonfigACCESS_POINT_PASSKEY        ( "awsiotdevice" )
+#define wificonfigACCESS_POINT_PASSKEY        ( "password" )
 
 /**
  * @brief Soft Access point Channel

@@ -84,4 +84,7 @@
 #endif /* democonfigMEMORY_ANALYSIS */
 
 
+#define IOT_WIFI_ENABLE_SOFTAP_PROVISIONING    0
+
+
 #endif /* _AWS_DEMO_CONFIG_H_ */

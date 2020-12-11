@@ -461,7 +461,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         	return eWiFiFailure;
         }
 
-        if( xCurMode != WIFI_MODE_STA )
+        if( xCurMode != WIFI_MODE_STA && xCurMode != WIFI_MODE_APSTA )
         {
 
         	esp_wifi_stop();
