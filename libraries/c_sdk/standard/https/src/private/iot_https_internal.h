@@ -281,6 +281,11 @@
 #define HTTPS_CONTENT_LENGTH_HEADER                   "Content-Length"
 #define HTTPS_CONNECTION_HEADER                       "Connection"
 
+/*
+ * Constant for a mocked response so that #HTTPClient_Send returns #HTTPSuccess.
+ */
+#define HTTPS_MINIMAL_MOCKED_RESPONSE                 "HTTP/1.1 404\r\nContent-Length: 0\r\n\r\n"
+
 /**
  * @brief The maximum Content-Length header line size.
  *

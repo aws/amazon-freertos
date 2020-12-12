@@ -469,15 +469,15 @@ static IotHttpsReturnCode_t _receiveHttpsBodySync( _httpsResponse_t * pHttpsResp
  * @brief A dummy function for the transport interface receive.
  *
  * HTTP V1 library handles receiving from the network and hence the transport
- * implementation for receive is not used by the coreHTTP library. This
- * dummy implementation is used for passing a non-NULL parameter to
- * `HTTPClient_Send()`.
+ * implementation for receive is called by the coreHTTP library. However, it
+ * will always returns all bytes as successfully read so that `HTTPClient_Send`
+ * can return a successful status if there are no errors from sending the request.
  *
  * @param[in] pNetworkContext Implementation-defined network context.
  * @param[in] pBuffer Buffer to receive the data into.
  * @param[in] bytesToRecv Number of bytes requested from the network.
  *
- * @return -1 to always return an error.
+ * @return Always returns bytesToRecv or INT32_MAX if bytesToRecv > INT32_MAX.
  */
 static int32_t transportRecv( NetworkContext_t * pNetworkContext,
                               void * pBuffer,
@@ -1038,13 +1038,24 @@ static int32_t transportRecv( NetworkContext_t * pNetworkContext,
                               void * pBuffer,
                               size_t bytesToRecv )
 {
+    int32_t bytesReceived = -1;
+
     /* This dummy implementation is used for passing a non-NULL parameter. */
     ( void ) pNetworkContext;
     ( void ) pBuffer;
     ( void ) bytesToRecv;
 
-    /* Always return an error. */
-    return -1;
+    /* Always return the number of bytes requested or as many bytes as we can. */
+    if( bytesToRecv > ( size_t ) INT32_MAX )
+    {
+        bytesReceived = INT32_MAX;
+    }
+    else
+    {
+        bytesReceived = bytesToRecv;
+    }
+
+    return bytesReceived;
 }
 
 /*-----------------------------------------------------------*/
@@ -1934,8 +1945,10 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
 
     HTTPStatus_t coreHttpStatus = HTTPSuccess;
     HTTPRequestHeaders_t coreHttpRequestHeaders;
+    HTTPResponse_t coreHttpResponse;
     TransportInterface_t transportInterface;
     NetworkContext_t networkContext;
+    char pHttpsMinimalMockedResponse[ FAST_MACRO_STRLEN( HTTPS_MINIMAL_MOCKED_RESPONSE ) + 1 ] = HTTPS_MINIMAL_MOCKED_RESPONSE;
     uint32_t sendFlags = 0;
 
     coreHttpRequestHeaders.pBuffer = pHttpsRequest->pHeaders;
@@ -1949,11 +1962,16 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
     transportInterface.recv = transportRecv;
     transportInterface.pNetworkContext = &networkContext;
 
+    /* Fill buffer with a mocked response so that http-parser returns successfully. */
+    memset( &coreHttpResponse, 0, sizeof( HTTPResponse_t ) );
+    coreHttpResponse.pBuffer = ( uint8_t * ) pHttpsMinimalMockedResponse;
+    coreHttpResponse.bufferLen = FAST_MACRO_STRLEN( HTTPS_MINIMAL_MOCKED_RESPONSE );
+
     coreHttpStatus = HTTPClient_Send( &transportInterface,
                                       &coreHttpRequestHeaders,
                                       pHttpsRequest->pBody,
                                       ( size_t ) pHttpsRequest->bodyLength,
-                                      NULL,
+                                      &coreHttpResponse,
                                       sendFlags );
     status = _shimConvertStatus( coreHttpStatus );
 
