@@ -13,9 +13,11 @@
 
 #include "cy_ipc_drv.h"
 #include "cy_sysint.h"
+#include "cy_ipc_sema.h"
 
 #include "ns_ipc_config.h"
 #include "os_wrapper/thread.h"
+#include "os_wrapper/semaphore.h"
 #include "tfm_ns_mailbox.h"
 #include "platform_multicore.h"
 
@@ -51,6 +53,21 @@ int32_t tfm_ns_mailbox_hal_notify_peer(void)
     }
 }
 
+static int32_t mailbox_sema_init(void)
+{
+#if defined(CY_IPC_DEFAULT_CFG_DISABLE)
+    /* semaphore data */
+    static uint32_t tfm_sema __attribute__((section("TFM_SHARED_DATA")));
+
+    if (Cy_IPC_Sema_Init(PLATFORM_MAILBOX_IPC_CHAN_SEMA,
+                         sizeof(tfm_sema) * CHAR_BIT,
+                         &tfm_sema) != CY_IPC_SEMA_SUCCESS) {
+        return PLATFORM_MAILBOX_INIT_ERROR;
+    }
+#endif
+    return PLATFORM_MAILBOX_SUCCESS;
+}
+
 int32_t tfm_ns_mailbox_hal_init(struct ns_mailbox_queue_t *queue)
 {
     uint32_t stage;
@@ -58,6 +75,10 @@ int32_t tfm_ns_mailbox_hal_init(struct ns_mailbox_queue_t *queue)
     if (!queue) {
         return MAILBOX_INVAL_PARAMS;
     }
+
+    /* Init semaphores used for critical sections */
+    if (mailbox_sema_init() != PLATFORM_MAILBOX_SUCCESS)
+        return MAILBOX_INIT_ERROR;
 
     /*
      * FIXME
@@ -98,49 +119,154 @@ int32_t tfm_ns_mailbox_hal_init(struct ns_mailbox_queue_t *queue)
     return MAILBOX_SUCCESS;
 }
 
-const void *tfm_ns_mailbox_get_task_handle(void)
+void * tfm_ns_mailbox_hal_create_semaphore(void)
 {
-    return os_wrapper_thread_get_handle();
+    return os_wrapper_semaphore_create(1, 0, NULL);
 }
 
 void tfm_ns_mailbox_hal_wait_reply(mailbox_msg_handle_t handle)
 {
-    os_wrapper_thread_wait_flag((uint32_t)handle, OS_WRAPPER_WAIT_FOREVER);
+    void *sem = tfm_ns_mailbox_get_msg_semaphore(handle);
+    if (sem != NULL) {
+        os_wrapper_semaphore_acquire(sem, OS_WRAPPER_WAIT_FOREVER);
+    }
+}
+
+void tfm_ns_mailbox_hal_delete_semaphore(mailbox_msg_handle_t handle)
+{
+    void *sem = tfm_ns_mailbox_get_msg_semaphore(handle);
+    if (sem != NULL) {
+        os_wrapper_semaphore_delete(sem);
+    }
+}
+
+static cy_en_ipcsema_status_t mailbox_raw_spin_lock(uint32_t ipc_channel,
+                                                    uint32_t sema_num)
+{
+    uint32_t semaIndex;
+    uint32_t semaMask;
+    cy_stc_ipc_sema_t *semaStruct;
+    cy_en_ipcdrv_status_t acqStatus;
+    cy_en_ipcsema_status_t ret = CY_IPC_SEMA_BAD_PARAM;
+    bool is_lock = false;
+    IPC_STRUCT_Type *semaIpcStruct;
+
+    /* Get IPC register structure */
+    semaIpcStruct = Cy_IPC_Drv_GetIpcBaseAddress(ipc_channel);
+    /* Get pointer to structure */
+    semaStruct = (cy_stc_ipc_sema_t *)Cy_IPC_Drv_ReadDataValue(semaIpcStruct);
+
+    if (sema_num < semaStruct->maxSema) {
+        semaIndex = sema_num / CY_IPC_SEMA_PER_WORD;
+        semaMask = (uint32_t)(1ul << (sema_num - \
+                                      (semaIndex * CY_IPC_SEMA_PER_WORD)));
+
+        while (!is_lock) {
+            /* Check to make sure the IPC channel is released
+               If so, check if specific channel can be locked. */
+            do {
+                acqStatus = Cy_IPC_Drv_LockAcquire(semaIpcStruct);
+            } while (acqStatus != CY_IPC_DRV_SUCCESS);
+
+            if ((semaStruct->arrayPtr[semaIndex] & semaMask) == 0ul) {
+                semaStruct->arrayPtr[semaIndex] |= semaMask;
+                is_lock = true;
+            }
+
+            /* Release, but do not trigger a release event */
+            (void)Cy_IPC_Drv_LockRelease(semaIpcStruct,
+                                         CY_IPC_NO_NOTIFICATION);
+
+            if (!is_lock) {
+                /*
+                 * The secure core is occupying this lock. Insert a small delay
+                 * to give the secure core a chance to acquire the IPC channel
+                 * and release the lock.
+                 * Otherwise, the secure core may not be able to release the
+                 * lock if non-secure core has higher CPU frequency. It will
+                 * generate a deadlock.
+                 * This delay won't harm performance too much since non-secure
+                 * core has to busy wait here anyway.
+                 * Alternatively, non-secure core can wait for release
+                 * notification event from secure core. However, it is more
+                 * complex and requires more code and more modifications.
+                 */
+                Cy_IPC_Sema_Status(sema_num);
+            }
+        }
+
+        ret = CY_IPC_SEMA_SUCCESS;
+    }
+
+    return ret;
+}
+
+static cy_en_ipcsema_status_t mailbox_raw_spin_unlock(uint32_t ipc_channel,
+                                                      uint32_t sema_num)
+{
+    uint32_t semaIndex;
+    uint32_t semaMask;
+    cy_stc_ipc_sema_t *semaStruct;
+    cy_en_ipcdrv_status_t acqStatus;
+    cy_en_ipcsema_status_t ret = CY_IPC_SEMA_BAD_PARAM;
+    bool is_unlock = false;
+    IPC_STRUCT_Type *semaIpcStruct;
+
+    /* Get IPC register structure */
+    semaIpcStruct = Cy_IPC_Drv_GetIpcBaseAddress(ipc_channel);
+    /* Get pointer to structure */
+    semaStruct = (cy_stc_ipc_sema_t *)Cy_IPC_Drv_ReadDataValue(semaIpcStruct);
+
+    if (sema_num < semaStruct->maxSema) {
+        semaIndex = sema_num / CY_IPC_SEMA_PER_WORD;
+        semaMask = (uint32_t)(1ul << (sema_num - \
+                                      (semaIndex * CY_IPC_SEMA_PER_WORD)));
+
+        while (!is_unlock) {
+            /* Check to make sure the IPC channel is released
+               If so, check if specific channel can be locked. */
+            do {
+                acqStatus = Cy_IPC_Drv_LockAcquire(semaIpcStruct);
+            } while (acqStatus != CY_IPC_DRV_SUCCESS);
+
+            if ((semaStruct->arrayPtr[semaIndex] & semaMask) != 0ul) {
+                semaStruct->arrayPtr[semaIndex] &= ~semaMask;
+                is_unlock = true;
+            }
+
+            /* Release, but do not trigger a release event */
+            (void)Cy_IPC_Drv_LockRelease(semaIpcStruct,
+                                         CY_IPC_NO_NOTIFICATION);
+        }
+
+        ret = CY_IPC_SEMA_SUCCESS;
+    }
+
+    return ret;
 }
 
 void tfm_ns_mailbox_hal_enter_critical(void)
 {
     saved_irq_state = Cy_SysLib_EnterCriticalSection();
 
-    IPC_STRUCT_Type* ipc_struct =
-        Cy_IPC_Drv_GetIpcBaseAddress(IPC_PSA_MAILBOX_LOCK_CHAN);
-    while(CY_IPC_DRV_SUCCESS != Cy_IPC_Drv_LockAcquire (ipc_struct))
-    {
-    }
+    mailbox_raw_spin_lock(CY_IPC_CHAN_SEMA, MAILBOX_SEMAPHORE_NUM);
 }
 
 void tfm_ns_mailbox_hal_exit_critical(void)
 {
-    IPC_STRUCT_Type* ipc_struct =
-        Cy_IPC_Drv_GetIpcBaseAddress(IPC_PSA_MAILBOX_LOCK_CHAN);
-        Cy_IPC_Drv_LockRelease(ipc_struct, CY_IPC_NO_NOTIFICATION);
+    mailbox_raw_spin_unlock(CY_IPC_CHAN_SEMA, MAILBOX_SEMAPHORE_NUM);
+
     Cy_SysLib_ExitCriticalSection(saved_irq_state);
 }
 
 void tfm_ns_mailbox_hal_enter_critical_isr(void)
 {
-    IPC_STRUCT_Type* ipc_struct =
-        Cy_IPC_Drv_GetIpcBaseAddress(IPC_PSA_MAILBOX_LOCK_CHAN);
-    while(CY_IPC_DRV_SUCCESS != Cy_IPC_Drv_LockAcquire (ipc_struct))
-    {
-    }
+    mailbox_raw_spin_lock(CY_IPC_CHAN_SEMA, MAILBOX_SEMAPHORE_NUM);
 }
 
 void tfm_ns_mailbox_hal_exit_critical_isr(void)
 {
-    IPC_STRUCT_Type* ipc_struct =
-        Cy_IPC_Drv_GetIpcBaseAddress(IPC_PSA_MAILBOX_LOCK_CHAN);
-        Cy_IPC_Drv_LockRelease(ipc_struct, CY_IPC_NO_NOTIFICATION);
+    mailbox_raw_spin_unlock(CY_IPC_CHAN_SEMA, MAILBOX_SEMAPHORE_NUM);
 }
 
 static bool mailbox_clear_intr(void)
@@ -163,7 +289,8 @@ void cpuss_interrupts_ipc_8_IRQHandler(void)
 {
     uint32_t magic;
     mailbox_msg_handle_t handle;
-    void *task_handle;
+    void *sem;
+    uint32_t yield = 0;
 
     if (!mailbox_clear_intr())
         return;
@@ -177,10 +304,11 @@ void cpuss_interrupts_ipc_8_IRQHandler(void)
                 break;
             }
 
-            task_handle = (void *)tfm_ns_mailbox_get_msg_owner(handle);
-            if (task_handle) {
-                os_wrapper_thread_set_flag_isr(task_handle, (uint32_t)handle);
+            sem = (void *)tfm_ns_mailbox_get_msg_semaphore(handle);
+            if (sem) {
+                yield |= os_wrapper_semaphore_release_isr(sem);
             }
         }
+        os_wrapper_isr_yield(yield);
     }
 }

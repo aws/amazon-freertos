@@ -1,0 +1,104 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+	        &&JSONINCLUDELIST&&
+                "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include",
+                "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include-fixed",
+                "&&MODUSTOOLCHAIN&&/arm-none-eabi/include",
+                "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&",
+                "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&/arm-none-eabi/thumb/v7e-m/fpv4-sp/hard",
+                "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&/backward"
+            ],
+            "browse": {
+                "path": [
+	            &&JSONINCLUDELIST&&
+                    "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include",
+                    "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include-fixed",
+                    "&&MODUSTOOLCHAIN&&/arm-none-eabi/include",
+                    "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&",
+                    "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&/arm-none-eabi/thumb/v7e-m/fpv4-sp/hard",
+                    "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&/backward"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "defines": [
+	      &&JSONDEFINELIST&&
+		"EMPTY_ENTRY"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "compilerPath": "&&MODUSTOOLCHAIN&&/bin/arm-none-eabi-gcc.exe &&CFLAGS&&",
+            "cStandard": "c99",
+            "cppStandard": "c++11"
+        },
+        {
+            "name": "macOS",
+            "includePath": [
+	        &&JSONINCLUDELIST&&
+                "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include",
+                "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include-fixed",
+                "&&MODUSTOOLCHAIN&&/arm-none-eabi/include",
+                "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&",
+                "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&/arm-none-eabi/thumb/v7e-m/fpv4-sp/hard",
+                "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&/backward"
+            ],
+            "browse": {
+                "path": [
+	            &&JSONINCLUDELIST&&
+                    "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include",
+                    "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include-fixed",
+                    "&&MODUSTOOLCHAIN&&/arm-none-eabi/include",
+                    "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&",
+                    "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&/arm-none-eabi/thumb/v7e-m/fpv4-sp/hard",
+                    "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&/backward"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "defines": [
+	        &&JSONDEFINELIST&&
+		  "EMPTY_ENTRY"
+            ],
+            "intelliSenseMode": "clang-x64",
+            "compilerPath": "&&MODUSTOOLCHAIN&&/bin/arm-none-eabi-gcc &&CFLAGS&&",
+            "cStandard": "c99",
+            "cppStandard": "c++11"
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+	        &&JSONINCLUDELIST&&
+                "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include",
+                "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include-fixed",
+                "&&MODUSTOOLCHAIN&&/arm-none-eabi/include",
+                "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&",
+                "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&/arm-none-eabi/thumb/v7e-m/fpv4-sp/hard",
+                "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&/backward"
+            ],
+            "browse": {
+                "path": [
+	            &&JSONINCLUDELIST&&
+                    "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include",
+                    "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include-fixed",
+                    "&&MODUSTOOLCHAIN&&/arm-none-eabi/include",
+                    "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&",
+                    "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&/arm-none-eabi/thumb/v7e-m/fpv4-sp/hard",
+                    "&&MODUSTOOLCHAIN&&/arm-none-eabi/include/c++/&&MODUSTOOLCHAINVERSION&&/backward"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "defines": [
+	        &&JSONDEFINELIST&&
+		  "EMPTY_ENTRY"
+            ],
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "&&MODUSTOOLCHAIN&&/bin/arm-none-eabi-gcc &&CFLAGS&&",
+            "cStandard": "c99",
+            "cppStandard": "c++11"
+        }            
+    ],
+    "version": 4
+}
