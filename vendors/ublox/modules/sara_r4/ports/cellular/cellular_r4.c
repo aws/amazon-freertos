@@ -111,7 +111,6 @@ CellularError_t Cellular_ModuleInit( const CellularContext_t * pContext,
                                      void ** ppModuleContext )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
-    bool status = false;
     uint32_t i = 0;
 
     if( pContext == NULL )
