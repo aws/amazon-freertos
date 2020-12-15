@@ -64,6 +64,7 @@
 				<itemPath>../../../../../demos/include/iot_config_common.h</itemPath>
 				<itemPath>../../../../../demos/include/iot_demo_logging.h</itemPath>
 				<itemPath>../../../../../demos/include/iot_demo_runner.h</itemPath>
+				<itemPath>../../../../../demos/include/aws_iot_metrics.h</itemPath>
 			</logicalFolder>
 			<logicalFolder name="dev_mode_key_provisioning" displayName="dev_mode_key_provisioning" projectFiles="true">
 				<logicalFolder name="src" displayName="src" projectFiles="true">

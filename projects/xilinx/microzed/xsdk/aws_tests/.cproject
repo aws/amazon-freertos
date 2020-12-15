@@ -85,6 +85,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/coreJSON/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/device_shadow_for_aws/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/common/mqtt_demo_helpers"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/device_defender_for_aws/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/jobs_for_aws/source/include"/>

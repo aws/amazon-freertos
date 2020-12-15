@@ -207,6 +207,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow_config_defaults.h"/>
+		<ClInclude Include="..\..\..\..\..\demos\include\aws_iot_metrics.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\device_defender_for_aws\source\include\defender.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\device_defender_for_aws\source\include\defender_config_defaults.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_dump_packets.h"/>
