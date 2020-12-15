@@ -135,6 +135,11 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt_serializer.c                                     \
                     $(AFR_LIBRARIES_PATH)coreJSON/source/core_json.c                                                \
                     $(AFR_LIBRARIES_PATH)device_shadow_for_aws/source/shadow.c                     \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/core_http_client.c                                         \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c                         \
+                    $(AFR_LIBRARIES_PATH)coreJSON/source/core_json.c                                                \
+                    $(AFR_LIBRARIES_PATH)device_defender_for_aws/source/defender.c                                  \
+                    $(AFR_LIBRARIES_PATH)jobs_for_aws/source/jobs.c                                                 \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/lwip/iot_secure_sockets.c                                \
                     $(AFR_C_SDK_AWS_PATH)shadow/src/aws_shadow.c                                                    \
                     $(AFR_C_SDK_AWS_PATH)shadow/src/aws_iot_shadow_api.c                                            \
@@ -160,6 +165,12 @@ GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/interface \
                     $(AFR_LIBRARIES_PATH)coreJSON/source/include \
                     $(AFR_LIBRARIES_PATH)device_shadow_for_aws/source/include \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/include \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/interface \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/dependency/3rdparty/http_parser \
+                    $(AFR_LIBRARIES_PATH)coreJSON/source/include \
+                    $(AFR_LIBRARIES_PATH)device_defender_for_aws/source/include \
+                    $(AFR_LIBRARIES_PATH)jobs_for_aws/source/include \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include/types \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)/greengrass/include     \
@@ -169,12 +180,11 @@ GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)utils/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/include \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/portable/mbedtls/include \
                     $(AFR_C_SDK_STANDARD_PATH)common/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include/platform \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include/platform \
                     $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets \
-                    $(AFR_ABSTRACTIONS_PATH)retry_utils \
+                    $(AFR_ABSTRACTIONS_PATH)backoff_algorithm \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/include \
                     $(AFR_THIRDPARTY_PATH)jsmn \
                     $(AFR_THIRDPARTY_PATH)mbedtls_config \

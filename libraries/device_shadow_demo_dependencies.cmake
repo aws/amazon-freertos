@@ -11,17 +11,21 @@ set(DEVICE_SHADOW_HEADER_FILES "")
 foreach(shadow_public_include_dir ${SHADOW_INCLUDE_PUBLIC_DIRS})
     file(GLOB shadow_public_include_header_files
               LIST_DIRECTORIES false
-              ${shadow_public_include_dir}/* )
+              ${shadow_public_include_dir}/*.h )
     list(APPEND DEVICE_SHADOW_HEADER_FILES ${shadow_public_include_header_files})
 endforeach()
+
+# Add cmake files of module to metadata.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws/shadowFilePaths.cmake
+)
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         ${SHADOW_SOURCES}
-        # List of files added to the target so that these are available
+        # Header files added to the target so that these are available
         # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/device_shadow_for_aws/shadowFilePaths.cmake
         ${DEVICE_SHADOW_HEADER_FILES}
 )
 
@@ -49,9 +53,13 @@ afr_module_dependencies(
 # Device Shadow demo can be downloaded.
 afr_module(NAME device_shadow_demo_dependencies )
 
+# Add cmake files of module to metadata.
+afr_module_cmake_files(${AFR_CURRENT_MODULE} 
+    ${CMAKE_CURRENT_LIST_DIR}/device_shadow_demo_dependencies.cmake
+)
+
 afr_set_lib_metadata(ID "device_shadow_demo_dependencies")
-afr_set_lib_metadata(DESCRIPTION "This library enables you to store and retrieve the \
-current state (the \"shadow\") of every registered device on AWS IoT.")
+afr_set_lib_metadata(DESCRIPTION "This library enables a registered device to update and retrieve its current state (the \"shadow\") on AWS IoT.")
 afr_set_lib_metadata(DISPLAY_NAME "Device Shadow")
 afr_set_lib_metadata(CATEGORY "Amazon Services")
 afr_set_lib_metadata(VERSION "1.0.0")
@@ -64,9 +72,6 @@ afr_module_sources(
         # device_shadow_demo_dependencies target; otherwise, it gives the 
         # "Cannot determine link language for target" error.
         ${SHADOW_SOURCES}
-        # This file is added to the target so that it is available
-        # in code downloaded from the FreeRTOS console.
-        ${CMAKE_CURRENT_LIST_DIR}/device_shadow_demo_dependencies.cmake
 )
 
 # Add dependencies of the Device Shadow demo in this target
@@ -81,3 +86,15 @@ afr_module_dependencies(
         # Device Shadow library on the FreeRTOS console.
         AFR::core_mqtt_demo_dependencies
 )
+
+# Add dependency on "mqtt_demo_helpers" module for the
+# Device Shadow demo that uses Secure Sockets 
+# (present at demos/device_shadow_for_aws folder) ONLY if
+# the board supports the Secure Sockets library.
+if(TARGET AFR::secure_sockets::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::mqtt_demo_helpers
+    )
+endif()

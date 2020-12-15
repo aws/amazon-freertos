@@ -2302,7 +2302,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</PathWithFileName>
+      <PathWithFileName>../../../../../libraries/3rdparty/mbedtls_config/threading_alt.h</PathWithFileName>
       <FilenameWithoutPath>threading_alt.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -6724,38 +6724,6 @@
       <bDave2>0</bDave2>
       <PathWithFileName>../../../../../libraries/3rdparty/tinycbor/cborparser_dup_string.c</PathWithFileName>
       <FilenameWithoutPath>cborparser_dup_string.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-  </Group>
-
-  <Group>
-    <GroupName>libraries/3rdparty/http_parser/</GroupName>
-    <tvExp>0</tvExp>
-    <tvExpOptDlg>0</tvExpOptDlg>
-    <cbSel>0</cbSel>
-    <RteFlg>0</RteFlg>
-    <File>
-      <GroupNumber>95</GroupNumber>
-      <FileNumber>484</FileNumber>
-      <FileType>5</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/3rdparty/http_parser/http_parser.h</PathWithFileName>
-      <FilenameWithoutPath>http_parser.h</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>95</GroupNumber>
-      <FileNumber>485</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/3rdparty/http_parser/http_parser.c</PathWithFileName>
-      <FilenameWithoutPath>http_parser.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

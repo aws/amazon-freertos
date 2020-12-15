@@ -67,6 +67,7 @@ target_compile_definitions(
     -D__MTK_BLE_ONLY_ENABLE__
     -DMTK_SINGLE_SKU_SUPPORT
     -DHAL_DFS_MODULE_ENABLED
+    -DMT7697HX_DEV_KIT
     -DLWIP_NO_STDINT_H=1
     -DLWIP_TIMEVAL_PRIVATE=1
     # Needed by tinycbor to determine byte order
@@ -318,6 +319,8 @@ target_link_libraries(
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".axf")
+
+set(DEFENDER_METRICS_LWIP_SUPPORTED TRUE CACHE INTERNAL "LWIP Defender Metrics supported")
 
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/mediatek_code")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")

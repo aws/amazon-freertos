@@ -2290,7 +2290,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</PathWithFileName>
+      <PathWithFileName>../../../../../libraries/3rdparty/mbedtls_config/threading_alt.h</PathWithFileName>
       <FilenameWithoutPath>threading_alt.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -3252,26 +3252,6 @@
       <bDave2>0</bDave2>
       <PathWithFileName>../../../../../libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</PathWithFileName>
       <FilenameWithoutPath>aws_greengrass_discovery.h</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-  </Group>
-
-  <Group>
-    <GroupName>demos/defender/</GroupName>
-    <tvExp>0</tvExp>
-    <tvExpOptDlg>0</tvExpOptDlg>
-    <cbSel>0</cbSel>
-    <RteFlg>0</RteFlg>
-    <File>
-      <GroupNumber>60</GroupNumber>
-      <FileNumber>218</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../demos/defender/aws_iot_demo_defender.c</PathWithFileName>
-      <FilenameWithoutPath>aws_iot_demo_defender.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -6232,39 +6212,7 @@
       <bShared>0</bShared>
     </File>
   </Group>
-
-  <Group>
-    <GroupName>libraries/3rdparty/http_parser/</GroupName>
-    <tvExp>0</tvExp>
-    <tvExpOptDlg>0</tvExpOptDlg>
-    <cbSel>0</cbSel>
-    <RteFlg>0</RteFlg>
-    <File>
-      <GroupNumber>81</GroupNumber>
-      <FileNumber>452</FileNumber>
-      <FileType>5</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/3rdparty/http_parser/http_parser.h</PathWithFileName>
-      <FilenameWithoutPath>http_parser.h</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>81</GroupNumber>
-      <FileNumber>453</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/3rdparty/http_parser/http_parser.c</PathWithFileName>
-      <FilenameWithoutPath>http_parser.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-  </Group>
-
+  
   <Group>
     <GroupName>libraries/3rdparty/jsmn/</GroupName>
     <tvExp>0</tvExp>

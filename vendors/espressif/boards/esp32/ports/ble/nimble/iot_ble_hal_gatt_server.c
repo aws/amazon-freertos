@@ -265,6 +265,21 @@ static uint8_t prvAFRToESPDescPerm( BTCharPermissions_t xPermissions )
     return flags;
 }
 
+static struct ble_gatt_svc_def * prvAFRtoESPIncludedServices( BTIncludedService_t xIncludedService )
+{
+    uint16_t index;
+
+    for ( index = 0; index < serviceCnt; index++ )
+    {
+        if( memcmp( xIncludedService.pxPtrToService, afrServices[ index ], sizeof( BTService_t ) ) == 0 )
+        {
+            return &espServices[ index ];
+        }
+    }
+
+    return NULL;
+}
+
 ble_uuid_t * prvCopytoESPUUID( BTUuid_t * pxUuid,
                                ble_uuid_t * pUuid )
 {
@@ -514,6 +529,7 @@ void vESPBTGATTServerCleanup( void )
         for( index = 0; index < serviceCnt; index++ )
         {
             prvCleanupService( &espServices[ index ] );
+            vPortFree( ( void * ) afrServices[ index ] );
         }
 
         serviceCnt = 0;
@@ -747,6 +763,22 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
 }
 
 /*-----------------------------------------------------------*/
+static uint16_t prvCountIncludedServices( BTService_t * pxService )
+{
+    uint16_t nbIncludedServices = 0;
+    uint16_t index;
+
+    for( index = 0; index < pxService->xNumberOfAttributes; index++ )
+    {
+        if( pxService->pxBLEAttributes[ index ].xAttributeType == eBTDbIncludedService )
+        {
+            nbIncludedServices++;
+        }
+    }
+
+    return nbIncludedServices;
+}
+
 static uint16_t prvCountCharacteristics( BTService_t * pxService )
 {
     uint16_t nbCharacteristics = 0;
@@ -821,6 +853,11 @@ static void prvCleanupService( struct ble_gatt_svc_def * pSvc )
         vPortFree( ( void * ) pSvc->characteristics );
     }
 
+    if ( pSvc->includes != NULL )
+    {
+        vPortFree( ( void * ) pSvc->includes );
+    }
+
     memset( pSvc, 0x00, sizeof( struct ble_gatt_svc_def ) );
 }
 
@@ -837,13 +874,16 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
     uint16_t index;
     uint16_t charCount;
     uint16_t dscrCount;
+    uint16_t IncludedSvcCount;
     struct ble_gatt_chr_def * pCharacteristics = NULL;
+    struct ble_gatt_svc_def ** pIncludedServices = NULL;
     struct ble_gatt_dsc_def * pDescriptors = NULL;
     BTStatus_t xStatus = eBTStatusSuccess;
     ble_uuid_t * uuid;
     struct ble_gatt_svc_def * pSvc = NULL;
     uint16_t handle = 0;
     uint16_t attributeCount = 0;
+    BTService_t * afrFullService = NULL;
 
     if( ( pxService == 0 ) || ( pxService->xNumberOfAttributes == 0 ) )
     {
@@ -856,7 +896,17 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
         if( serviceCnt < MAX_SERVICES )
         {
             pSvc = &espServices[ serviceCnt ];
-            afrServices[ serviceCnt ] = pxService;
+            afrFullService = pvPortCalloc( 1, sizeof( BTService_t ) );
+            if ( afrFullService == NULL )
+            {
+                xStatus = eBTStatusNoMem;
+            }
+            else
+            {
+                memcpy( afrFullService, pxService, sizeof( BTService_t ) );
+            }
+
+            afrServices[ serviceCnt ] = afrFullService;
         }
         else
         {
@@ -914,15 +964,24 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
 
             if( pCharacteristics == NULL )
             {
-                configPRINTF( ( "Could not allocate memory for  characteristic array \n" ) );
+                configPRINTF( ( "Could not allocate memory for characteristic array \n" ) );
                 prvCleanupService( pSvc );
                 xStatus = eBTStatusNoMem;
             }
 
             pSvc->characteristics = pCharacteristics;
-            pSvc->includes = NULL;
+            pIncludedServices = pvPortCalloc( prvCountIncludedServices( pxService ) + 1, sizeof( struct ble_gatt_svc_def * ) );
+
+            if( pIncludedServices == NULL )
+            {
+                configPRINTF( ( "Could not allocate memory for included services \n" ) );
+                prvCleanupService( pSvc );
+                xStatus = eBTStatusNoMem;
+            }
+            pSvc->includes = ( const struct ble_gatt_svc_def ** ) pIncludedServices;
             charCount = 0;
             dscrCount = 0;
+            IncludedSvcCount = 0;
         }
     }
 
@@ -960,6 +1019,8 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                 case eBTDbIncludedService:
                     handle += 1;
                     pxService->pusHandlesBuffer[ attributeCount++ ] = handle;
+                    pIncludedServices[ IncludedSvcCount ] = prvAFRtoESPIncludedServices( pxService->pxBLEAttributes[ index ].xIncludedService );
+                    IncludedSvcCount++;
                     break;
 
                 case eBTDbDescriptor:

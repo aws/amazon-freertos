@@ -200,6 +200,14 @@ function(afr_write_metadata)
         if("${module}" STREQUAL "kernel")
             continue()
         endif()
+
+        # Check if module contains module-specifc cmake files.
+        set(prop_var AFR_MODULE_${module}_CMAKE_FILES)
+        if(DEFINED ${prop_var})
+            # Add cmake files associated with this module to the metadata file 
+            # containing list of all cmake files.
+            file(APPEND "${cmake_files_file}" ";${${prop_var}}")
+        endif()
         string(FIND ${module} ::mcu_port __idx)
         if(__idx EQUAL -1)
             set(dependencies_list ${AFR_MODULE_${module}_DEPENDS_ALL})

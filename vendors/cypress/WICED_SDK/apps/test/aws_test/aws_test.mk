@@ -58,7 +58,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_LIBRARIES_PATH)logging/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include  \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include \
-                    $(AFR_ABSTRACTIONS_PATH)retry_utils \
+                    $(AFR_ABSTRACTIONS_PATH)backoff_algorithm/source/include \
                     $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets \
                     $(AFR_C_SDK_STANDARD_PATH)common/taskpool/private \
                     $(AFR_C_SDK_STANDARD_PATH)common/include/private \
@@ -77,7 +77,6 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)tls/test \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/include \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/portable/mbedtls/include  \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/include \
                     $(AFR_PORTS_MODULES_PATH)mbedtls/include \
                     $(AFR_ABSTRACTIONS_PATH)wifi/include \
@@ -92,6 +91,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/test/mock \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/interface \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/include \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/interface \
                     $(AFR_C_SDK_STANDARD_PATH)serializer/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include/types \
@@ -117,7 +118,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)https/src \
                     $(AFR_C_SDK_STANDARD_PATH)https/test/access \
                     $(AFR_C_SDK_STANDARD_PATH)https/test/unit \
-                    $(AFR_THIRDPARTY_PATH)http_parser \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/dependency/3rdparty/http_parser \
                     $(AFR_LIBRARIES_PATH)device-shadow-for-aws-iot-embedded-sdk/source/include \
 
 #$(info $(AMAZON_FREERTOS_PATH))
@@ -152,6 +153,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_validate.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_metrics.c \
                       $(AMAZON_FREERTOS_PATH)tests/integration_test/core_mqtt_system_test.c \
+                      $(AMAZON_FREERTOS_PATH)tests/integration_test/core_http_system_test.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/aws_test_shadow.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_api.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_parser.c \
@@ -171,7 +173,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c \
-                      $(AFR_ABSTRACTIONS_PATH)retry_utils/freertos/retry_utils_freertos.c \
+                      $(AFR_ABSTRACTIONS_PATH)backoff_algorithm/source/backoff_algorithm.c \
                       $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets/transport_secure_sockets.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/test/iot_test_platform_clock.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/test/iot_test_platform_threads.c \
@@ -208,7 +210,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)https/test/system/iot_tests_https_system.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_client.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_utils.c \
-                      $(AFR_THIRDPARTY_PATH)http_parser/http_parser.c \
                       $(AMAZON_FREERTOS_PATH)tests/integration_test/shadow_system_test.c \
 
 

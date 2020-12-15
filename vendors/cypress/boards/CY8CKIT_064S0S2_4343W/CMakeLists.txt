@@ -63,6 +63,10 @@ target_compile_definitions(${AFR_TARGET_APP_NAME} PUBLIC
 set(AFR_PKCS11_PSA TRUE)
 
 #--------------------------------------------------------------------
+# Defender metrics collection using lwIP is supported on this platform
+set(DEFENDER_METRICS_LWIP_SUPPORTED TRUE CACHE INTERNAL "LWIP Defender Metrics supported")
+
+#--------------------------------------------------------------------
 # OTA SUPPORT is always used for this platform
 #
 # NOTES:

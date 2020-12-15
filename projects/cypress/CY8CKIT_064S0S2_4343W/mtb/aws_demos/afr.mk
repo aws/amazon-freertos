@@ -174,31 +174,40 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/demo_runner/aws_demo_version.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
+	$(CY_AFR_ROOT)/demos/common/http_demo_helpers/http_demo_utils.c\
+	$(CY_AFR_ROOT)/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c\
+	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers/pkcs11_helpers.c\
 	$(wildcard $(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/defender/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/coreHTTP/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/device_shadow_for_aws/*.c)
+	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_shadow_for_aws/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/jobs_for_aws/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/lwip/*.c)
 
 INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common\
 	$(CY_AFR_ROOT)/demos/dev_mode_key_provisioning\
 	$(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/include\
-	$(CY_AFR_ROOT)/demos/https\
 	$(CY_AFR_ROOT)/demos/include\
 	$(CY_AFR_ROOT)/demos/network_manager\
 	$(CY_AFR_ROOT)/demos/tcp\
-	$(CY_AFR_ROOT)/demos/device_shadow_for_aws\
+	$(CY_AFR_ROOT)/demos/common/http_demo_helpers\
+	$(CY_AFR_ROOT)/demos/common/mqtt_demo_helpers\
+	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers\
+	$(CY_AFR_ROOT)/demos/device_defender_for_aws\
+	$(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/lwip\
 
 ################################################################################
 # libraries (3rd party)
 ################################################################################
 
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/http_parser/http_parser.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/api/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/core/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/core/ipv4/*c)\
@@ -224,7 +233,6 @@ endif
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/pkcs11\
-	$(CY_AFR_ROOT)/libraries/3rdparty/http_parser\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_config\
@@ -247,18 +255,17 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/transport/secure_sockets/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/retry_utils/freertos/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/backoff_algorithm/source/*.c)\
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/include\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/include/platform\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/include/platform\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/include/types\
-	$(CY_AFR_ROOT)/libraries/abstractions/retry_utils\
+	$(CY_AFR_ROOT)/libraries/abstractions/backoff_algorithm/source/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/secure_sockets\
 	$(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/transport/secure_sockets\
@@ -301,15 +308,19 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c \
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c \
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c \
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_serializer.c\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c
 
-# Device Shadow and core JSON
+# Device Shadow, Device Defender, Jobs, coreJSON, coreMQTT and coreHTTP
 SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/shadow.c\
-	$(CY_AFR_ROOT)/libraries/coreJSON/source/core_json.c
+	$(CY_AFR_ROOT)/libraries/coreJSON/source/core_json.c \
+	$(CY_AFR_ROOT)/libraries/device_defender_for_aws/source/defender.c\
+	$(CY_AFR_ROOT)/libraries/jobs_for_aws/source/jobs.c\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_serializer.c\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt_state.c\
+	$(CY_AFR_ROOT)/libraries/coreMQTT/source/core_mqtt.c\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/core_http_client.c\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common\
@@ -327,8 +338,6 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/include/types\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/private\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
-	$(CY_AFR_ROOT)/libraries/coreMQTT/source/interface\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include\
@@ -336,8 +345,13 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/interface\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/include\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/interface\
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/dependency/3rdparty/http_parser\
 	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/include\
 	$(CY_AFR_ROOT)/libraries/coreJSON/source/include\
+	$(CY_AFR_ROOT)/libraries/device_defender_for_aws/source/include\
+	$(CY_AFR_ROOT)/libraries/jobs_for_aws/source/include
 
 ################################################################################
 # libraries (freertos_plus)

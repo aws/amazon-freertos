@@ -335,7 +335,7 @@
 							<MiscControls>--C99</MiscControls>
 							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot; CONFIG_MEDTLS_USE_AFR_MEMORY PCFG_OS=2 _REENT_SMALL PRODUCT_VERSION=7687 MTK_BLE_SMTCN_ENABLE MTK_BT_LWIP_ENABLE MTK_BLE_BQB_TEST_ENABLE MTK_BLE_CLI_ENABLE MTK_BLE_BQB_CLI_ENABLE MTK_HCI_CONSOLE_MIX_ENABLE MTK_MINISUPP_ENABLE MTK_BSPEXT_ENABLE MTK_HAL_LOWPOWER_ENABLE MTK_LWIP_CLI_ENABLE MTK_HTTPCLIENT_SSL_ENABLE MTK_IPERF_ENABLE MTK_SMTCN_ENABLE MTK_CLI_TEST_MODE_ENABLE MTK_WIFI_REPEATER_ENABLE  CONFIG_REPEATER MTK_DEBUG_LEVEL_NONE MTK_WIFI_PRIVILEGE_ENABLE SUPPORT_MBEDTLS __MTK_BLE_ONLY_ENABLE__ MTK_SINGLE_SKU_SUPPORT HAL_DFS_MODULE_ENABLED LWIP_NO_STDINT_H=1 LWIP_TIMEVAL_PRIVATE=1 __little_endian__=1</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/application_code/mediatek_code;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/application_code/mediatek_code/include;../../../../../demos/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../demos/network_manager;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/wifi/include;../../../../../vendors/mediatek/lwip/include;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/retry_utils;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws/source/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip_osal/include;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/application_code/mediatek_code;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/application_code/mediatek_code/include;../../../../../demos/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../demos/network_manager;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/wifi/include;../../../../../vendors/mediatek/lwip/include;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/backoff_algorithm/source/include;../../../../../demos/common/pkcs11_helpers;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser;../../../../../demos/common/http_demo_helpers;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws/source/include;../../../../../demos/common/mqtt_demo_helpers;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../demos/device_defender_for_aws;../../../../../demos/device_defender_for_aws/metrics_collector/lwip;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip_osal/include;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/jsmn</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -1672,22 +1672,32 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/abstractions/retry_utils/freertos/</GroupName>
+					<GroupName>libraries/abstractions/backoff_algorithm/source/</GroupName>
 					<Files>
 						<File>
-							<FileName>retry_utils_freertos.c</FileName>
+							<FileName>backoff_algorithm.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</FilePath>
 						</File>
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/abstractions/retry_utils/</GroupName>
+					<GroupName>libraries/abstractions/backoff_algorithm/source/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>retry_utils.h</FileName>
+							<FileName>backoff_algorithm.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/retry_utils/retry_utils.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>demos/common/pkcs11_helpers/</GroupName>
+					<Files>
+						<File>
+							<FileName>pkcs11_helpers.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/common/pkcs11_helpers/pkcs11_helpers.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1837,6 +1847,71 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/coreHTTP/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_http_client.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/core_http_client.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/source/dependency/3rdparty/http_parser/</GroupName>
+					<Files>
+						<File>
+							<FileName>http_parser.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c</FilePath>
+						</File>
+						<File>
+							<FileName>http_parser.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_http_client.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/include/core_http_client.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_http_client_private.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/include/core_http_client_private.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_http_config_defaults.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/include/core_http_config_defaults.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreHTTP/source/interface/</GroupName>
+					<Files>
+						<File>
+							<FileName>transport_interface.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreHTTP/source/interface/transport_interface.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>demos/common/http_demo_helpers/</GroupName>
+					<Files>
+						<File>
+							<FileName>http_demo_utils.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/common/http_demo_helpers/http_demo_utils.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/freertos_plus/aws/greengrass/src/</GroupName>
 					<Files>
 						<File>
@@ -1932,6 +2007,86 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>demos/common/mqtt_demo_helpers/</GroupName>
+					<Files>
+						<File>
+							<FileName>mqtt_demo_helpers.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/device_defender_for_aws/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>defender.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/device_defender_for_aws/source/defender.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/device_defender_for_aws/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>defender.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/device_defender_for_aws/source/include/defender.h</FilePath>
+						</File>
+						<File>
+							<FileName>defender_config_defaults.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/device_defender_for_aws/source/include/defender_config_defaults.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/jobs_for_aws/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>jobs.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/jobs_for_aws/source/jobs.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/jobs_for_aws/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>jobs.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/jobs_for_aws/source/include/jobs.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>demos/coreHTTP/</GroupName>
+					<Files>
+						<File>
+							<FileName>http_demo_mutual_auth.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreHTTP/http_demo_mutual_auth.c</FilePath>
+						</File>
+						<File>
+							<FileName>http_demo_s3_download.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreHTTP/http_demo_s3_download.c</FilePath>
+						</File>
+						<File>
+							<FileName>http_demo_s3_download_multithreaded.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreHTTP/http_demo_s3_download_multithreaded.c</FilePath>
+						</File>
+						<File>
+							<FileName>http_demo_s3_upload.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreHTTP/http_demo_s3_upload.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>demos/coreMQTT/</GroupName>
 					<Files>
 						<File>
@@ -1947,12 +2102,42 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>demos/defender/</GroupName>
+					<GroupName>demos/device_defender_for_aws/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_iot_demo_defender.c</FileName>
+							<FileName>defender_demo.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../demos/defender/aws_iot_demo_defender.c</FilePath>
+							<FilePath>../../../../../demos/device_defender_for_aws/defender_demo.c</FilePath>
+						</File>
+						<File>
+							<FileName>report_builder.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/device_defender_for_aws/report_builder.c</FilePath>
+						</File>
+						<File>
+							<FileName>report_builder.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../demos/device_defender_for_aws/report_builder.h</FilePath>
+						</File>
+						<File>
+							<FileName>metrics_collector.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../demos/device_defender_for_aws/metrics_collector.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>demos/device_defender_for_aws/metrics_collector/lwip/</GroupName>
+					<Files>
+						<File>
+							<FileName>metrics_collector.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/device_defender_for_aws/metrics_collector/lwip/metrics_collector.c</FilePath>
+						</File>
+						<File>
+							<FileName>netif_port.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../demos/device_defender_for_aws/metrics_collector/lwip/netif_port.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1963,16 +2148,6 @@
 							<FileName>shadow_demo_main.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/device_shadow_for_aws/shadow_demo_main.c</FilePath>
-						</File>
-						<File>
-							<FileName>shadow_demo_helpers.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/device_shadow_for_aws/shadow_demo_helpers.c</FilePath>
-						</File>
-						<File>
-							<FileName>shadow_demo_helpers.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../demos/device_shadow_for_aws/shadow_demo_helpers.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1987,32 +2162,12 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>demos/https/</GroupName>
+					<GroupName>demos/jobs_for_aws/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_demo_https_s3_download_sync.c</FileName>
+							<FileName>jobs_demo.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_s3_download_sync.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_demo_https_s3_download_async.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_s3_download_async.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_demo_https_s3_upload_sync.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_s3_upload_sync.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_demo_https_s3_upload_async.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_s3_upload_async.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_demo_https_common.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/https/iot_demo_https_common.c</FilePath>
+							<FilePath>../../../../../demos/jobs_for_aws/jobs_demo.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -2085,6 +2240,11 @@
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/aws_wifi_config.h</FilePath>
 						</File>
 						<File>
+							<FileName>core_http_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/core_http_config.h</FilePath>
+						</File>
+						<File>
 							<FileName>core_mqtt_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/core_mqtt_config.h</FilePath>
@@ -2095,6 +2255,36 @@
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/core_pkcs11_config.h</FilePath>
 						</File>
 						<File>
+							<FileName>defender_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/defender_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>defender_demo_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/defender_demo_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>http_demo_mutual_auth_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/http_demo_mutual_auth_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>http_demo_s3_download_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/http_demo_s3_download_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>http_demo_s3_download_multithreaded_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/http_demo_s3_download_multithreaded_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>http_demo_s3_upload_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/http_demo_s3_upload_config.h</FilePath>
+						</File>
+						<File>
 							<FileName>iot_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/iot_config.h</FilePath>
@@ -2103,6 +2293,11 @@
 							<FileName>iot_mqtt_agent_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/iot_mqtt_agent_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>jobs_demo_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/jobs_demo_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>lwipopts.h</FileName>
@@ -3037,12 +3232,12 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/</GroupName>
+					<GroupName>libraries/3rdparty/mbedtls_config/</GroupName>
 					<Files>
 						<File>
 							<FileName>threading_alt.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls_config/threading_alt.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -3388,21 +3583,6 @@
 							<FileName>cborparser_dup_string.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/3rdparty/http_parser/</GroupName>
-					<Files>
-						<File>
-							<FileName>http_parser.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/3rdparty/http_parser/http_parser.h</FilePath>
-						</File>
-						<File>
-							<FileName>http_parser.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/http_parser/http_parser.c</FilePath>
 						</File>
 					</Files>
 				</Group>

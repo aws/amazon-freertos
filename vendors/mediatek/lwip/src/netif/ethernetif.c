@@ -577,6 +577,9 @@ static int32_t low_level_output_scatter(struct netif *netif, struct pbuf *p)
 
     tx_info.real_tx_len = ALIGN_4BYTE(tx_info.tx_len);
 
+    /* Number of Bytes Out */
+    MIB2_STATS_NETIF_ADD(netif, ifoutoctets, tx_info.real_tx_len);
+
     p_txd = (P_HIF_TX_HEADER_PORT1_T)&tx_info.txd;
     p_txd->u2TxByteCount = tx_info.tx_len;
     p_txd->u2PQ_ID = P1_Q1;
@@ -919,6 +922,10 @@ ethernetif_intr_enhance_mode_dispatch(struct pbuf *p, struct netif *netif)
   case ETHTYPE_PPPOEDISC:
   case ETHTYPE_PPPOE:
 #endif /* PPPOE_SUPPORT */
+
+    /* Update SNMP stats (only if you use SNMP) */
+    MIB2_STATS_NETIF_ADD(netif, ifinoctets, p->tot_len);
+
     /* full packet send to tcpip_thread to process */
     if (netif->input(p, netif) != ERR_OK)
      { LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));

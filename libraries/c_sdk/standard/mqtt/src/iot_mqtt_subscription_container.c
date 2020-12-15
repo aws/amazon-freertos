@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.3.0
+ * FreeRTOS MQTT V2.3.1
  * Copyright(C) 2020 Amazon.com, Inc. or its affiliates.All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -343,3 +343,8 @@ int8_t IotMqtt_FindFirstMatch( _mqttSubscription_t * pSubscriptionArray,
 }
 
 /*-----------------------------------------------------------*/
+
+/* Provide access to internal functions and variables if testing. */
+#if IOT_BUILD_TESTS == 1
+    #include "iot_test_access_mqtt_subscription.c"
+#endif

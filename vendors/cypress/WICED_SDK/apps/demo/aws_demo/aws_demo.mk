@@ -46,11 +46,16 @@ export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../../libraries/freertos_plus/aw
 export AFR_ABSTRACTIONS_PATH := ../../../../../../libraries/abstractions/
 
 GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
+                    $(AMAZON_FREERTOS_PATH)demos/common/http_demo_helpers \
+                    $(AMAZON_FREERTOS_PATH)demos/common/mqtt_demo_helpers \
+                    $(AMAZON_FREERTOS_PATH)demos/common/pkcs11_helpers \
+                    $(AMAZON_FREERTOS_PATH)demos/device_defender_for_aws \
+                    $(AMAZON_FREERTOS_PATH)demos/device_defender_for_aws/metrics_collector/lwip \
                     $(AFR_C_SDK_STANDARD_PATH)common/include \
                     $(AFR_LIBRARIES_PATH)logging/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include  \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include \
-                    $(AFR_ABSTRACTIONS_PATH)retry_utils \
+                    $(AFR_ABSTRACTIONS_PATH)backoff_algorithm/source/include \
                     $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets \
                     $(AFR_C_SDK_STANDARD_PATH)common/taskpool/private \
                     $(AFR_C_SDK_STANDARD_PATH)common/include/private \
@@ -70,13 +75,15 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/cypress_code/include \
                     $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/include  \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/portable/mbedtls/include  \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/include  \
                     $(AMAZON_FREERTOS_PATH)demos/network_manager \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/interface \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/include \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/interface \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/dependency/3rdparty/http_parser \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/portable/Compiler/GCC \
                     $(AFR_C_SDK_AWS_PATH)shadow/include \
@@ -93,6 +100,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_THIRDPARTY_PATH)http_parser \
                     $(AFR_LIBRARIES_PATH)coreJSON/source/include \
                     $(AFR_LIBRARIES_PATH)device_shadow_for_aws/source/include \
+                    $(AFR_LIBRARIES_PATH)device_defender_for_aws/source/include \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/main.c \
@@ -103,26 +111,30 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_network_addr.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_version.c \
+                      $(AMAZON_FREERTOS_PATH)demos/common/http_demo_helpers/http_demo_utils.c \
+                      $(AMAZON_FREERTOS_PATH)demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c \
+                      $(AMAZON_FREERTOS_PATH)demos/common/pkcs11_helpers/pkcs11_helpers.c \
+                      $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_mutual_auth.c \
+                      $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_s3_download.c \
+                      $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_s3_download_multithreaded.c \
+                      $(AMAZON_FREERTOS_PATH)demos/coreHTTP/http_demo_s3_upload.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_mutual_auth.c \
                       $(AMAZON_FREERTOS_PATH)demos/coreMQTT/mqtt_demo_connection_sharing.c \
                       $(AMAZON_FREERTOS_PATH)demos/device_shadow_for_aws/shadow_demo_main.c \
-                      $(AMAZON_FREERTOS_PATH)demos/device_shadow_for_aws/shadow_demo_helpers.c \
-                      $(AMAZON_FREERTOS_PATH)demos/defender/aws_iot_demo_defender.c \
+                      $(AMAZON_FREERTOS_PATH)demos/device_defender_for_aws/defender_demo.c \
+                      $(AMAZON_FREERTOS_PATH)demos/device_defender_for_aws/report_builder.c \
+                      $(AMAZON_FREERTOS_PATH)demos/device_defender_for_aws/metrics_collector/lwip/metrics_collector.c \
+                      $(AMAZON_FREERTOS_PATH)demos/jobs_for_aws/jobs_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/tcp/aws_tcp_echo_client_single_task.c \
                       $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c \
                       $(AMAZON_FREERTOS_PATH)demos/greengrass_connectivity/aws_greengrass_discovery_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_demo_network.c \
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_network_manager.c \
-                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_common.c \
-                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_s3_download_async.c \
-                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_s3_download_sync.c \
-                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_s3_upload_async.c \
-                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_s3_upload_sync.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c \
-                      $(AFR_ABSTRACTIONS_PATH)retry_utils/freertos/retry_utils_freertos.c \
+                      $(AFR_ABSTRACTIONS_PATH)backoff_algorithm/source/backoff_algorithm.c \
                       $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets/transport_secure_sockets.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_init.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_device_metrics.c \
@@ -145,7 +157,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_encoder.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_client.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_utils.c \
-                      $(AFR_THIRDPARTY_PATH)http_parser/http_parser.c \
 
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws

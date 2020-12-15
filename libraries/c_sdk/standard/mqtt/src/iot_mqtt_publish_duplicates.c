@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.3.0
+ * FreeRTOS MQTT V2.3.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -95,22 +95,6 @@
  * @return The packet identifier.
  */
 static uint16_t _nextPacketIdentifier( void );
-
-/*-----------------------------------------------------------*/
-
-#if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
-
-/**
- * @brief If logging is enabled, define a log configuration that only prints the log
- * string. This is used when printing out details of deserialized MQTT packets.
- */
-    static const IotLogConfig_t _logHideAll =
-    {
-        .hideLibraryName = true,
-        .hideLogLevel    = true,
-        .hideTimestring  = true
-    };
-#endif
 
 /*-----------------------------------------------------------*/
 

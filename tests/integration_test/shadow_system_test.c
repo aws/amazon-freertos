@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202011.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -56,8 +56,14 @@
 /* Include task.h for delay function. */
 #include "task.h"
 
+/* Include PKCS11 headers. */
+#include "core_pkcs11.h"
+#include "pkcs11.h"
 
-#include "retry_utils.h"
+/* Include header for retrying network operations, like connection, with
+ * exponential backoff and jitter.*/
+#include "backoff_algorithm.h"
+
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -92,8 +98,11 @@
     #define BROKER_PORT    clientcredentialMQTT_BROKER_PORT
 #endif
 
+/* Use Starfield Root CA as the default Root CA because the TI C3220 Launchpad board
+ * requires that the Root CA certificate have its certificate self-signed. The Amazon Root CAs
+ * are cross-signed by Starfield Root CA.*/
 #ifndef SERVER_ROOT_CA_CERT
-    #define SERVER_ROOT_CA_CERT    tlsATS1_ROOT_CERTIFICATE_PEM
+    #define SERVER_ROOT_CA_CERT    tlsSTARFIELD_ROOT_CERTIFICATE_PEM
 #endif
 
 /**
@@ -112,6 +121,23 @@
  * @brief Length of the client identifier.
  */
 #define TEST_CLIENT_IDENTIFIER_LENGTH       ( sizeof( TEST_CLIENT_IDENTIFIER ) - 1U )
+
+/**
+ * @brief The maximum number of retries for network operation with server.
+ */
+#define RETRY_MAX_ATTEMPTS                  ( 5U )
+
+/**
+ * @brief The maximum back-off delay (in milliseconds) for retrying failed network
+ * operations with server.
+ */
+#define RETRY_MAX_BACKOFF_DELAY_MS          ( 5000U )
+
+/**
+ * @brief The base back-off delay (in milliseconds) to use for network operation retry
+ * attempts.
+ */
+#define RETRY_BACKOFF_BASE_MS               ( 500U )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
@@ -172,6 +198,13 @@
 #define TEST_SHADOW_DESIRED_LENGTH    ( sizeof( TEST_SHADOW_DESIRED ) - 1 )
 
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief Global variable used by the pseudo random number generator.
+ * The random number generator is used for calculating exponential back-off
+ * with jitter for retry attempts of failed network operations with the broker.
+ */
+static uint32_t nextRand;
 
 /**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
@@ -305,6 +338,20 @@ static uint32_t globalEntryTime;
  * @return Time in milliseconds.
  */
 static uint32_t getTimeMs();
+
+/**
+ * @brief The pseudo random number generator to use for exponential backoff with
+ * jitter calculation for connection retries.
+ * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
+ * of the backoff algorithm library API.
+ *
+ * The PKCS11 module is used to generate the random random number as it allows
+ * access to a True Random Number Generator (TRNG) if the vendor platform supports it.
+ *
+ * @return The generated random number. This function ALWAYS succeeds
+ * in generating a random number.
+ */
+static uint32_t generateRandomNumber();
 
 /**
  * @brief Sends an MQTT CONNECT packet over the already connected TCP socket.
@@ -724,12 +771,46 @@ static MQTTStatus_t publishToTopic( MQTTContext_t * pContext,
 
 /*-----------------------------------------------------------*/
 
+static uint32_t generateRandomNumber()
+{
+    UBaseType_t uxRandNum = 0;
+
+    CK_FUNCTION_LIST_PTR pFunctionList = NULL;
+    CK_SESSION_HANDLE session = CK_INVALID_HANDLE;
+
+    /* Get list of functions supported by the PKCS11 port. */
+    TEST_ASSERT_EQUAL( CKR_OK, C_GetFunctionList( &pFunctionList ) );
+    TEST_ASSERT_TRUE( pFunctionList != NULL );
+
+    /* Initialize PKCS11 module and create a new session. */
+    TEST_ASSERT_EQUAL( CKR_OK, xInitializePkcs11Session( &session ) );
+    TEST_ASSERT_TRUE( session != CK_INVALID_HANDLE );
+
+    /*
+     * Seed random number generator with PKCS11.
+     * Use of PKCS11 can allow use of True Random Number Generator (TRNG)
+     * if the platform supports it.
+     */
+    TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_GenerateRandom( session,
+                                                                ( unsigned char * ) &uxRandNum,
+                                                                sizeof( uxRandNum ) ) );
+
+
+    /* Close PKCS11 session. */
+    TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_CloseSession( session ) );
+
+    return uxRandNum;
+}
+
+/*-----------------------------------------------------------*/
+
 static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
 {
     bool isSuccessful = false;
-    RetryUtilsStatus_t retryUtilsStatus = RetryUtilsSuccess;
-    RetryUtilsParams_t reconnectParams;
+    BackoffAlgorithmStatus_t BackoffAlgStatus = BackoffAlgorithmSuccess;
+    BackoffAlgorithmContext_t reconnectParams;
     TransportSocketStatus_t transportStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
+    uint16_t nextRetryBackOff = 0U;
 
     /* Initializer server information. */
     serverInfo.pHostName = BROKER_ENDPOINT;
@@ -746,8 +827,11 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
     socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
 
-    /* Initialize reconnect attempts and interval */
-    RetryUtils_ParamsReset( &reconnectParams );
+    /* Initialize reconnect attempts and interval. */
+    BackoffAlgorithm_InitializeParams( &reconnectParams,
+                                       RETRY_BACKOFF_BASE_MS,
+                                       RETRY_MAX_BACKOFF_DELAY_MS,
+                                       RETRY_MAX_ATTEMPTS );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase till maximum
@@ -763,19 +847,27 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
 
         if( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            LogWarn( ( "Connection to the broker failed. Retrying connection with backoff and jitter." ) );
-            retryUtilsStatus = RetryUtils_BackoffAndSleep( &reconnectParams );
+            /* Generate random number and get back-off value for the next connection retry. */
+            BackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &reconnectParams,
+                                                                generateRandomNumber(),
+                                                                &nextRetryBackOff );
+
+            if( BackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
+            {
+                LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
+            }
+
+            else if( BackoffAlgStatus == BackoffAlgorithmSuccess )
+            {
+                LogWarn( ( "Connection to the broker failed. Retrying connection after backoff delay." ) );
+                vTaskDelay( pdMS_TO_TICKS( nextRetryBackOff ) );
+            }
         }
         else
         {
             isSuccessful = true;
         }
-
-        if( retryUtilsStatus == RetryUtilsRetriesExhausted )
-        {
-            LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
-        }
-    } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( retryUtilsStatus == RetryUtilsSuccess ) );
+    } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( BackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
     return isSuccessful;
 }
@@ -817,11 +909,19 @@ TEST_SETUP( deviceShadow_Integration )
 
 TEST_TEAR_DOWN( deviceShadow_Integration )
 {
+    MQTTStatus_t mqttStatus;
+    TransportSocketStatus_t transportStatus;
+
     /* Terminate MQTT connection. */
-    TEST_ASSERT_EQUAL( MQTTSuccess, MQTT_Disconnect( &context ) );
+    mqttStatus = MQTT_Disconnect( &context );
 
     /* Terminate TLS session and TCP connection. */
-    ( void ) SecureSocketsTransport_Disconnect( &networkContext );
+    transportStatus = SecureSocketsTransport_Disconnect( &networkContext );
+
+    /* Make any assertions at the end so that all memory is deallocated before
+     * the end of this function. */
+    TEST_ASSERT_EQUAL( MQTTSuccess, mqttStatus );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, transportStatus );
 }
 
 /* ========================== Test Cases ============================ */

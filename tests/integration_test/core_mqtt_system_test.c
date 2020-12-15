@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202011.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,18 +42,17 @@
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
-/* Include paths for public enums, structures, and macros. */
-#include "core_mqtt.h"
-#include "core_mqtt_state.h"
-
-/* Include OpenSSL implementation of transport interface. */
-#include "transport_secure_sockets.h"
-
 /* Include task.h for delay function. */
+#include "FreeRTOS.h"
 #include "task.h"
 
+/* Include PKCS11 headers. */
+#include "core_pkcs11.h"
+#include "pkcs11.h"
 
-#include "retry_utils.h"
+/* Include header for retrying network operations, like connection, with
+ * exponential backoff and jitter.*/
+#include "backoff_algorithm.h"
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -62,13 +61,14 @@
 /* Include logging header files and define logging macros in the following order:
  * 1. Include the header file "logging_levels.h".
  * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros depending on
- * the logging configuration for DEMO.
- * 3. Include the header file "logging_stack.h", if logging is enabled for DEMO.
+ * the logging configuration for the integration test.
+ * 3. Include the header file "logging_stack.h", if logging is enabled for the
+ * integration test.
  */
 
 #include "logging_levels.h"
 
-/* Logging configuration for the Demo. */
+/* Logging configuration for the integration test. */
 #ifndef LIBRARY_LOG_NAME
     #define LIBRARY_LOG_NAME    "TEST"
 #endif
@@ -77,6 +77,16 @@
     #define LIBRARY_LOG_LEVEL    LOG_INFO
 #endif
 #include "logging_stack.h"
+
+/* The logging configuration macros are defined above to ensure they are not
+ * superceded by definitions in the following header files. */
+
+/* Include the secure sockets implementation of the transport interface. */
+#include "transport_secure_sockets.h"
+
+/* Include paths for public enums, structures, and macros. These are included */
+#include "core_mqtt.h"
+#include "core_mqtt_state.h"
 
 /**************Default Configurations values***********************/
 
@@ -120,128 +130,179 @@
 /**
  * @brief A valid starting packet ID per MQTT spec. Start from 1.
  */
-#define MQTT_FIRST_VALID_PACKET_ID            ( 1 )
+#define MQTT_FIRST_VALID_PACKET_ID                 ( 1 )
 
 /**
  * @brief A PINGREQ packet is always 2 bytes in size, defined by MQTT 3.1.1 spec.
  */
-#define MQTT_PACKET_PINGREQ_SIZE              ( 2U )
+#define MQTT_PACKET_PINGREQ_SIZE                   ( 2U )
 
 /**
  * @brief A packet type not handled by MQTT_ProcessLoop.
  */
-#define MQTT_PACKET_TYPE_INVALID              ( 0U )
+#define MQTT_PACKET_TYPE_INVALID                   ( 0U )
 
 /**
  * @brief Number of milliseconds in a second.
  */
-#define MQTT_ONE_SECOND_TO_MS                 ( 1000U )
+#define MQTT_ONE_SECOND_TO_MS                      ( 1000U )
 
 /**
  * @brief Length of the MQTT network buffer.
  */
-#define MQTT_TEST_BUFFER_LENGTH               ( 128 )
+#define MQTT_TEST_BUFFER_LENGTH                    ( 128 )
 
 /**
  * @brief Sample length of remaining serialized data.
  */
-#define MQTT_SAMPLE_REMAINING_LENGTH          ( 64 )
+#define MQTT_SAMPLE_REMAINING_LENGTH               ( 64 )
 
 /**
  * @brief Subtract this value from max value of global entry time
  * for the timer overflow test.
  */
-#define MQTT_OVERFLOW_OFFSET                  ( 3 )
+#define MQTT_OVERFLOW_OFFSET                       ( 3 )
 
 /**
  * @brief Sample topic filter to subscribe to.
  */
-#define TEST_MQTT_TOPIC                       TEST_CLIENT_IDENTIFIER "/iot/integration/test"
+#define TEST_MQTT_TOPIC                            TEST_CLIENT_IDENTIFIER "/iot/integration/test"
 
 /**
  * @brief Sample topic filter 2 to use in tests.
  */
-#define TEST_MQTT_TOPIC_2                     TEST_CLIENT_IDENTIFIER "/iot/integration/test2"
+#define TEST_MQTT_TOPIC_2                          TEST_CLIENT_IDENTIFIER "/iot/integration/test2"
 
 /**
  * @brief Length of sample topic filter.
  */
-#define TEST_MQTT_TOPIC_LENGTH                ( sizeof( TEST_MQTT_TOPIC ) - 1 )
+#define TEST_MQTT_TOPIC_LENGTH                     ( sizeof( TEST_MQTT_TOPIC ) - 1 )
 
 /**
  * @brief Sample topic filter to subscribe to.
  */
-#define TEST_MQTT_LWT_TOPIC                   TEST_CLIENT_IDENTIFIER "/iot/integration/test/lwt"
+#define TEST_MQTT_LWT_TOPIC                        TEST_CLIENT_IDENTIFIER "/iot/integration/test/lwt"
 
 /**
  * @brief Length of sample topic filter.
  */
-#define TEST_MQTT_LWT_TOPIC_LENGTH            ( sizeof( TEST_MQTT_LWT_TOPIC ) - 1 )
+#define TEST_MQTT_LWT_TOPIC_LENGTH                 ( sizeof( TEST_MQTT_LWT_TOPIC ) - 1 )
 
 /**
  * @brief Size of the network buffer for MQTT packets.
  */
-#define NETWORK_BUFFER_SIZE                   ( 1024U )
+#define NETWORK_BUFFER_SIZE                        ( 1024U )
 
 /**
  * @brief Length of the client identifier.
  */
-#define TEST_CLIENT_IDENTIFIER_LENGTH         ( sizeof( TEST_CLIENT_IDENTIFIER ) - 1u )
+#define TEST_CLIENT_IDENTIFIER_LENGTH              ( sizeof( TEST_CLIENT_IDENTIFIER ) - 1u )
 
 /**
  * @brief Client identifier for use in LWT tests.
  */
-#define TEST_CLIENT_IDENTIFIER_LWT            TEST_CLIENT_IDENTIFIER "-LWT"
+#define TEST_CLIENT_IDENTIFIER_LWT                 TEST_CLIENT_IDENTIFIER "-LWT"
 
 /**
  * @brief Length of LWT client identifier.
  */
-#define TEST_CLIENT_IDENTIFIER_LWT_LENGTH     ( sizeof( TEST_CLIENT_IDENTIFIER_LWT ) - 1u )
+#define TEST_CLIENT_IDENTIFIER_LWT_LENGTH          ( sizeof( TEST_CLIENT_IDENTIFIER_LWT ) - 1u )
+
+/**
+ * @brief The maximum number of retries for network operation with server.
+ */
+#define RETRY_MAX_ATTEMPTS                         ( 5U )
+
+/**
+ * @brief The maximum back-off delay (in milliseconds) for retrying failed network
+ * operations with server.
+ */
+#define RETRY_MAX_BACKOFF_DELAY_MS                 ( 5000U )
+
+/**
+ * @brief The base back-off delay (in milliseconds) to use for network operation retry
+ * attempts.
+ */
+#define RETRY_BACKOFF_BASE_MS                      ( 500U )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define TRANSPORT_SEND_RECV_TIMEOUT_MS        ( 200U )
+#define TRANSPORT_SEND_RECV_TIMEOUT_MS             ( 200U )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milli seconds.
  */
-#define CONNACK_RECV_TIMEOUT_MS               ( 1000U )
+#define CONNACK_RECV_TIMEOUT_MS                    ( 20000U )
 
 /**
  * @brief Time interval in seconds at which an MQTT PINGREQ need to be sent to
  * broker.
  */
-#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS      ( 60U )
+#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS           ( 60U )
 
 /**
  * @brief The number of milliseconds to wait for AWS IoT Core Message Broker
  * to resend a PUBLISH that has not been acknowledged.
  */
-#define AWS_IOT_CORE_REPUBLISH_INTERVAL_MS    ( 30000U )
+#define AWS_IOT_CORE_REPUBLISH_INTERVAL_MS         ( 30000U )
 
 /**
  * @brief Timeout for MQTT_ProcessLoop() function in milliseconds.
- * The timeout value is appropriately chosen for receiving an incoming
- * PUBLISH message and ack responses for QoS 1 and QoS 2 communications
- * with the broker.
  */
-#define MQTT_PROCESS_LOOP_TIMEOUT_MS          ( 700U )
+#define MQTT_PROCESS_LOOP_TIMEOUT_MS               ( 700U )
+
+/**
+ * @brief The maximum number of times to call MQTT_ProcessLoop() when polling
+ * for a specific packet from the broker.
+ */
+#define MQTT_PROCESS_LOOP_PACKET_WAIT_COUNT_MAX    ( 30U )
 
 /**
  * @brief The MQTT message published in this example.
  */
-#define MQTT_EXAMPLE_MESSAGE                  "Hello World!"
+#define MQTT_EXAMPLE_MESSAGE                       "Hello World!"
 
 /**
  * @brief Milliseconds per second.
  */
-#define MILLISECONDS_PER_SECOND               ( 1000U )
+#define MILLISECONDS_PER_SECOND                    ( 1000U )
 
 /**
  * @brief Milliseconds per FreeRTOS tick.
  */
-#define MILLISECONDS_PER_TICK                 ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+#define MILLISECONDS_PER_TICK                      ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+
+/**
+ * @brief Helper function-like macro to test for a specified incoming packet
+ * from the broker. This helper macro allows us to wait for the specified
+ * incoming packet without unnecessarily blocking on MQTT_ProcessLoop() for
+ * beyond its arrival.
+ *
+ * By using a macro instead of a function, the line number in the test case will
+ * be printed in a failure.
+ *
+ * @param[in] flag Packet flag to test for true.
+ * @param[in] expectedStatus Status code expected to be returned from MQTT_Process
+ */
+#define WAIT_FOR_PACKET( flag, expectedStatus )                                         \
+    do {                                                                                \
+        uint8_t count = 0;                                                              \
+        MQTTStatus_t currentStatus = MQTTSuccess;                                       \
+                                                                                        \
+        while( ( flag == false ) &&                                                     \
+               ( count++ < MQTT_PROCESS_LOOP_PACKET_WAIT_COUNT_MAX ) &&                 \
+               ( currentStatus == MQTTSuccess ) )                                       \
+        {                                                                               \
+            currentStatus = MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ); \
+        }                                                                               \
+                                                                                        \
+        TEST_ASSERT_EQUAL( expectedStatus, currentStatus );                             \
+        TEST_ASSERT_TRUE( flag );                                                       \
+    } while( 0 )
+
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
@@ -264,8 +325,8 @@ static uint16_t globalUnsubscribePacketIdentifier = 0U;
 static uint16_t globalPublishPacketIdentifier = 0U;
 
 /**
- * @brief Represents the OpenSSL context used for TLS session with the broker
- * for tests.
+ * @brief Represents the secure sockets network context used for the TLS session
+ * with the broker for tests.
  */
 static NetworkContext_t networkContext;
 
@@ -344,6 +405,11 @@ static bool testingAgainstAWS = false;
 static MQTTPublishInfo_t incomingInfo;
 
 /**
+ * @brief Flag to represent whether a PUBLISH is received from the broker.
+ */
+static bool receivedPublish = false;
+
+/**
  * @brief Buffer to store incoming publish topic name for assertions in tests.
  */
 static uint8_t incomingTopicBuffer[ TEST_MQTT_LWT_TOPIC_LENGTH ];
@@ -358,6 +424,12 @@ static uint8_t incomingPayloadBuffer[ sizeof( MQTT_EXAMPLE_MESSAGE ) ];
  * restoration tests.
  */
 static uint8_t packetTypeForDisconnection = MQTT_PACKET_TYPE_INVALID;
+
+/**
+ * @brief Flag to represent whether the packetTypeForDisconnection is received
+ * from the broker.
+ */
+static bool receivedPacketTypeForDisconnection = false;
 
 /**
  * @brief Global entry time to use as a reference timestamp in the getTimeMs()
@@ -378,7 +450,7 @@ static uint32_t getTimeMs();
  * @brief Sends an MQTT CONNECT packet over the already connected TCP socket.
  *
  * @param[in] pContext MQTT context pointer.
- * @param[in] pNetworkContext Network context for OpenSSL transport implementation.
+ * @param[in] pNetworkContext Network context for secure sockets transport implementation.
  * @param[in] createCleanSession Creates a new MQTT session if true.
  * If false, tries to establish the existing session if there was session
  * already present in broker.
@@ -392,6 +464,7 @@ static void establishMqttSession( MQTTContext_t * pContext,
 
 /**
  * @brief Handler for incoming acknowledgement packets from the broker.
+ *
  * @param[in] pPacketInfo Info for the incoming acknowledgement packet.
  * @param[in] packetIdentifier The ID of the incoming packet.
  */
@@ -411,6 +484,64 @@ static void eventCallback( MQTTContext_t * pContext,
                            MQTTDeserializedInfo_t * pDeserializedInfo );
 
 /**
+ * @brief Helper function to subscribe to the given MQTT topic.
+ *
+ * @param[in] pContext MQTT context pointer.
+ * @param[in] pTopic MQTT topic to subscribe to.
+ * @param[in] qos MQTT subscribe packet quality of service.
+ *
+ * @return MQTTSuccess if successful, error code otherwise. See #MQTT_Subscribe
+ * for possible return codes.
+ */
+static MQTTStatus_t subscribeToTopic( MQTTContext_t * pContext,
+                                      const char * pTopic,
+                                      MQTTQoS_t qos );
+
+/**
+ * @brief Helper function to unsubscribe from the given MQTT topic.
+ *
+ * @param[in] pContext MQTT context pointer.
+ * @param[in] pTopic MQTT topic to unsubscribe from.
+ *
+ * @return MQTTSuccess if successful, error code otherwise. See #MQTT_Unsubscribe
+ * for possible return codes.
+ */
+static MQTTStatus_t unsubscribeFromTopic( MQTTContext_t * pContext,
+                                          const char * pTopic );
+
+/**
+ * @brief Helper function to publish to the given MQTT topic.
+ *
+ * @param[in] pContext MQTT context pointer.
+ * @param[in] pTopic MQTT topic to publish to.
+ * @param[in] pPayload Message payload.
+ * @param[in] setRetainFlag If this is true, then the retrain flag will be set.
+ * @param[in] isDuplicate If this is true, then the duplicate flag will be set.
+ * @param[in] qos The PUBLISH packet quality of service.
+ * @param[in] packetId A packet ID generated by #MQTT_GetPacketId.
+ *
+ * @return MQTTSuccess if successful, error code otherwise. See #MQTT_Publish
+ * for possible return codes.
+ */
+static MQTTStatus_t publishToTopic( MQTTContext_t * pContext,
+                                    const char * pTopic,
+                                    const char * pPayload,
+                                    bool setRetainFlag,
+                                    bool isDuplicate,
+                                    MQTTQoS_t qos,
+                                    uint16_t packetId );
+
+/**
+ * @brief Helper function to clear any possible retained message, on the broker,
+ * for the given MQTT topic.
+ *
+ * @param[in] pContext MQTT context pointer.
+ * @param[in] pTopic MQTT topic to clear a retained message from.
+ */
+static void clearRetainedMessage( MQTTContext_t * pContext,
+                                  const char * pTopic );
+
+/**
  * @brief Implementation of TransportSend_t interface that terminates the TLS
  * and TCP connection with the broker and returns failure.
  *
@@ -425,6 +556,32 @@ static int32_t failedRecv( NetworkContext_t * pNetworkContext,
                            void * pBuffer,
                            size_t bytesToRecv );
 
+/**
+ * @brief The pseudo random number generator to use for exponential backoff with
+ * jitter calculation for connection retries.
+ * This function is an implementation the #BackoffAlgorithm_RNG_t interface type
+ * of the backoff algorithm library API.
+ *
+ * The PKCS11 module is used to generate the random random number as it allows
+ * access to a True Random Number Generator (TRNG) if the vendor platform supports it.
+ *
+ * @return The generated random number. This function ALWAYS succeeds
+ * in generating a random number.
+ */
+static uint32_t generateRandomNumber();
+
+/**
+ * @brief Connect to the MQTT broker with reconnection retries.
+ *
+ * If connection fails, retry is attempted after a timeout.
+ * The timeout value will exponentially increased until the maximum
+ * timeout value is reached or the number of attempts are exhausted.
+ *
+ * @param[out] pNetworkContext The created network context.
+ *
+ * @return false on failure; true on successful connection.
+ */
+static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext );
 
 /**
  * @brief Helper function to start a new persistent session.
@@ -647,6 +804,10 @@ static void eventCallback( MQTTContext_t * pContext,
     if( ( pPacketInfo->type == packetTypeForDisconnection ) ||
         ( ( pPacketInfo->type & 0xF0U ) == packetTypeForDisconnection ) )
     {
+        /* Set the flag to represent reception of the disconnection packet type. */
+        receivedPacketTypeForDisconnection = true;
+        LogDebug( ( "Received packet type %u, disconnecting...", pPacketInfo->type ) );
+
         /* Terminate TLS session and TCP connection to test session restoration
          * across network connection. */
         ( void ) SecureSocketsTransport_Disconnect( &networkContext );
@@ -660,6 +821,13 @@ static void eventCallback( MQTTContext_t * pContext,
         {
             assert( pPublishInfo != NULL );
             /* Handle incoming publish. */
+
+            /* Set the flag to represent reception of a PUBLISH packet. */
+            receivedPublish = true;
+            LogDebug( ( "Received PUBLISH: PacketID=%u", pDeserializedInfo->packetIdentifier ) );
+            LogDebug( ( "PUBLISH topic: %.*s", pPublishInfo->topicNameLength, pPublishInfo->pTopicName ) );
+            LogDebug( ( "PUBLISH payload: %.*s", pPublishInfo->payloadLength, pPublishInfo->pPayload ) );
+            LogDebug( ( "PUBLISH retain flag: %d", pPublishInfo->retain ) );
 
             /* Cache information about the incoming PUBLISH message to process
              * in test case. */
@@ -690,6 +858,7 @@ static MQTTStatus_t subscribeToTopic( MQTTContext_t * pContext,
     MQTTSubscribeInfo_t pSubscriptionList[ 1 ];
 
     assert( pContext != NULL );
+    assert( pTopic != NULL );
 
     /* Start with everything at 0. */
     ( void ) memset( ( void * ) pSubscriptionList, 0x00, sizeof( pSubscriptionList ) );
@@ -714,6 +883,7 @@ static MQTTStatus_t unsubscribeFromTopic( MQTTContext_t * pContext,
     MQTTSubscribeInfo_t pSubscriptionList[ 1 ];
 
     assert( pContext != NULL );
+    assert( pTopic != NULL );
 
     /* Start with everything at 0. */
     ( void ) memset( ( void * ) pSubscriptionList, 0x00, sizeof( pSubscriptionList ) );
@@ -733,13 +903,16 @@ static MQTTStatus_t unsubscribeFromTopic( MQTTContext_t * pContext,
 
 static MQTTStatus_t publishToTopic( MQTTContext_t * pContext,
                                     const char * pTopic,
+                                    const char * pPayload,
                                     bool setRetainFlag,
                                     bool isDuplicate,
                                     MQTTQoS_t qos,
                                     uint16_t packetId )
 {
-    assert( pContext != NULL );
     MQTTPublishInfo_t publishInfo;
+
+    assert( pContext != NULL );
+    assert( pTopic != NULL );
 
     publishInfo.retain = setRetainFlag;
 
@@ -747,8 +920,16 @@ static MQTTStatus_t publishToTopic( MQTTContext_t * pContext,
     publishInfo.dup = isDuplicate;
     publishInfo.pTopicName = pTopic;
     publishInfo.topicNameLength = strlen( pTopic );
-    publishInfo.pPayload = MQTT_EXAMPLE_MESSAGE;
-    publishInfo.payloadLength = strlen( MQTT_EXAMPLE_MESSAGE );
+    publishInfo.pPayload = pPayload;
+
+    if( pPayload != NULL )
+    {
+        publishInfo.payloadLength = strlen( pPayload );
+    }
+    else
+    {
+        publishInfo.payloadLength = 0;
+    }
 
     /* Get a new packet id. */
     globalPublishPacketIdentifier = packetId;
@@ -757,6 +938,27 @@ static MQTTStatus_t publishToTopic( MQTTContext_t * pContext,
     return MQTT_Publish( pContext,
                          &publishInfo,
                          packetId );
+}
+
+static void clearRetainedMessage( MQTTContext_t * pContext,
+                                  const char * pTopic )
+{
+    assert( pContext != NULL );
+    assert( pTopic != NULL );
+
+    TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
+                           pContext,
+                           pTopic,
+                           NULL,
+                           true,
+                           false,
+                           MQTTQoS1,
+                           MQTT_GetPacketId( &context ) ) );
+
+    /* Ensure the broker received the message by waiting for a PUBACK. */
+    WAIT_FOR_PACKET( receivedPubAck, MQTTSuccess );
+    /* Clear the PUBACK received for the publish. */
+    receivedPubAck = false;
 }
 
 static int32_t failedRecv( NetworkContext_t * pNetworkContext,
@@ -772,11 +974,43 @@ static int32_t failedRecv( NetworkContext_t * pNetworkContext,
     return -1;
 }
 
+static uint32_t generateRandomNumber()
+{
+    UBaseType_t uxRandNum = 0;
+
+    CK_FUNCTION_LIST_PTR pFunctionList = NULL;
+    CK_SESSION_HANDLE session = CK_INVALID_HANDLE;
+
+    /* Get list of functions supported by the PKCS11 port. */
+    TEST_ASSERT_EQUAL( CKR_OK, C_GetFunctionList( &pFunctionList ) );
+    TEST_ASSERT_TRUE( pFunctionList != NULL );
+
+    /* Initialize PKCS11 module and create a new session. */
+    TEST_ASSERT_EQUAL( CKR_OK, xInitializePkcs11Session( &session ) );
+    TEST_ASSERT_TRUE( session != CK_INVALID_HANDLE );
+
+    /*
+     * Seed random number generator with PKCS11.
+     * Use of PKCS11 can allow use of True Random Number Generator (TRNG)
+     * if the platform supports it.
+     */
+    TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_GenerateRandom( session,
+                                                                ( unsigned char * ) &uxRandNum,
+                                                                sizeof( uxRandNum ) ) );
+
+
+    /* Close PKCS11 session. */
+    TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_CloseSession( session ) );
+
+    return uxRandNum;
+}
+
 static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
 {
     bool isSuccessful = false;
-    RetryUtilsStatus_t retryUtilsStatus = RetryUtilsSuccess;
-    RetryUtilsParams_t reconnectParams;
+    BackoffAlgorithmStatus_t BackoffAlgStatus = BackoffAlgorithmSuccess;
+    BackoffAlgorithmContext_t reconnectParams;
+    uint16_t nextRetryBackOff = 0U;
     TransportSocketStatus_t transportStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
 
     /* Initializer server information. */
@@ -794,8 +1028,11 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
     socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
 
-    /* Initialize reconnect attempts and interval */
-    RetryUtils_ParamsReset( &reconnectParams );
+    /* Initialize reconnect attempts and interval. */
+    BackoffAlgorithm_InitializeParams( &reconnectParams,
+                                       RETRY_BACKOFF_BASE_MS,
+                                       RETRY_MAX_BACKOFF_DELAY_MS,
+                                       RETRY_MAX_ATTEMPTS );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase till maximum
@@ -811,19 +1048,27 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
 
         if( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            LogWarn( ( "Connection to the broker failed. Retrying connection with backoff and jitter." ) );
-            retryUtilsStatus = RetryUtils_BackoffAndSleep( &reconnectParams );
+            /* Generate random number and get back-off value for the next connection retry. */
+            BackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &reconnectParams,
+                                                                generateRandomNumber(),
+                                                                &nextRetryBackOff );
+
+            if( BackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
+            {
+                LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
+            }
+
+            else if( BackoffAlgStatus == BackoffAlgorithmSuccess )
+            {
+                LogWarn( ( "Connection to the broker failed. Retrying connection after backoff delay." ) );
+                vTaskDelay( pdMS_TO_TICKS( nextRetryBackOff ) );
+            }
         }
         else
         {
             isSuccessful = true;
         }
-
-        if( retryUtilsStatus == RetryUtilsRetriesExhausted )
-        {
-            LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
-        }
-    } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( retryUtilsStatus == RetryUtilsSuccess ) );
+    } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( BackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
     return isSuccessful;
 }
@@ -874,23 +1119,42 @@ void testSetUp()
     persistentSession = false;
     useLWTClientIdentifier = false;
     packetTypeForDisconnection = MQTT_PACKET_TYPE_INVALID;
+    receivedPacketTypeForDisconnection = false;
     memset( &incomingInfo, 0u, sizeof( MQTTPublishInfo_t ) );
+    receivedPublish = false;
 
     /* Establish TLS over TCP connection with retry attempts on failures. */
     TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &networkContext ) );
 
     /* Establish MQTT session on top of the TCP+TLS connection. */
     establishMqttSession( &context, &networkContext, true, &persistentSession );
+
+    /* Ensure there are no retained messages on the test topics. AWS IoT does
+     * not support retained messages. If a request is made to AWS IoT to retain
+     * messages, the connection is disconnected.*/
+    if( testingAgainstAWS == false )
+    {
+        clearRetainedMessage( &context, TEST_MQTT_TOPIC );
+        clearRetainedMessage( &context, TEST_MQTT_TOPIC_2 );
+    }
 }
 
 /* Called after each test method. */
 void testTearDown()
 {
+    MQTTStatus_t mqttStatus;
+    TransportSocketStatus_t transportStatus;
+
     /* Terminate MQTT connection. */
-    TEST_ASSERT_EQUAL( MQTTSuccess, MQTT_Disconnect( &context ) );
+    mqttStatus = MQTT_Disconnect( &context );
 
     /* Terminate TLS session and TCP connection. */
-    ( void ) SecureSocketsTransport_Disconnect( &networkContext );
+    transportStatus = SecureSocketsTransport_Disconnect( &networkContext );
+
+    /* Make any assertions at the end so that all memory is deallocated before
+     * the end of this function. */
+    TEST_ASSERT_EQUAL( MQTTSuccess, mqttStatus );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, transportStatus );
 }
 
 /*-----------------------------------------------------------*/
@@ -978,14 +1242,13 @@ void Subscribe_Publish_With_Qos_0()
 
     /* We expect a SUBACK from the broker for the subscribe operation. */
     TEST_ASSERT_FALSE( receivedSubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedSubAck );
+    WAIT_FOR_PACKET( receivedSubAck, MQTTSuccess );
 
     /* Publish to the same topic, that we subscribed to, with Qos 0. */
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
                            &context,
                            TEST_MQTT_TOPIC,
+                           MQTT_EXAMPLE_MESSAGE,
                            false, /* setRetainFlag */
                            false, /* isDuplicate */
                            MQTTQoS0,
@@ -994,8 +1257,7 @@ void Subscribe_Publish_With_Qos_0()
     /* Call the MQTT library for the expectation to read an incoming PUBLISH for
      * the same message that we published (as we have subscribed to the same topic). */
     TEST_ASSERT_FALSE( receivedPubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
+    WAIT_FOR_PACKET( receivedPublish, MQTTSuccess );
     /* We do not expect a PUBACK from the broker for the QoS 0 PUBLISH. */
     TEST_ASSERT_FALSE( receivedPubAck );
 
@@ -1015,9 +1277,8 @@ void Subscribe_Publish_With_Qos_0()
     TEST_ASSERT_EQUAL( MQTTSuccess, unsubscribeFromTopic( &context, TEST_MQTT_TOPIC ) );
 
     /* We expect an UNSUBACK from the broker for the unsubscribe operation. */
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedUnsubAck );
+    TEST_ASSERT_FALSE( receivedUnsubAck );
+    WAIT_FOR_PACKET( receivedUnsubAck, MQTTSuccess );
 }
 
 /* Include Subscribe_Publish_With_Qos_0 test case in both test groups to run it against AWS IoT
@@ -1045,14 +1306,13 @@ void Subscribe_Publish_With_Qos_1()
 
     /* Expect a SUBACK from the broker for the subscribe operation. */
     TEST_ASSERT_FALSE( receivedSubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedSubAck );
+    WAIT_FOR_PACKET( receivedSubAck, MQTTSuccess );
 
     /* Publish to the same topic, that we subscribed to, with Qos 1. */
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
                            &context,
                            TEST_MQTT_TOPIC,
+                           MQTT_EXAMPLE_MESSAGE,
                            false, /* setRetainFlag */
                            false, /* isDuplicate */
                            MQTTQoS1,
@@ -1066,13 +1326,12 @@ void Subscribe_Publish_With_Qos_1()
     /* Expect a PUBACK response for the PUBLISH and an incoming PUBLISH for the
      * same message that we published (as we have subscribed to the same topic). */
     TEST_ASSERT_FALSE( receivedPubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
     /* Make sure we have received PUBACK response. */
-    TEST_ASSERT_TRUE( receivedPubAck );
+    WAIT_FOR_PACKET( receivedPubAck, MQTTSuccess );
 
     /* Make sure that we have received the same message from the server,
      * that was published (as we have subscribed to the same topic). */
+    WAIT_FOR_PACKET( receivedPublish, MQTTSuccess );
     TEST_ASSERT_EQUAL( MQTTQoS1, incomingInfo.qos );
     TEST_ASSERT_EQUAL( TEST_MQTT_TOPIC_LENGTH, incomingInfo.topicNameLength );
     TEST_ASSERT_EQUAL_MEMORY( TEST_MQTT_TOPIC,
@@ -1087,9 +1346,8 @@ void Subscribe_Publish_With_Qos_1()
     TEST_ASSERT_EQUAL( MQTTSuccess, unsubscribeFromTopic( &context, TEST_MQTT_TOPIC ) );
 
     /* Expect an UNSUBACK from the broker for the unsubscribe operation. */
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedUnsubAck );
+    TEST_ASSERT_FALSE( receivedUnsubAck );
+    WAIT_FOR_PACKET( receivedUnsubAck, MQTTSuccess );
 }
 
 /* Include Subscribe_Publish_With_Qos_1 test case in both test groups to run it against AWS IoT
@@ -1118,14 +1376,13 @@ TEST( coreMQTT_Integration, Subscribe_Publish_With_Qos_2 )
 
     /* Expect a SUBACK from the broker for the subscribe operation. */
     TEST_ASSERT_FALSE( receivedSubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedSubAck );
+    WAIT_FOR_PACKET( receivedSubAck, MQTTSuccess );
 
     /* Publish to the same topic, that we subscribed to, with Qos 2. */
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
                            &context,
                            TEST_MQTT_TOPIC,
+                           MQTT_EXAMPLE_MESSAGE,
                            false, /* setRetainFlag */
                            false, /* isDuplicate */
                            MQTTQoS2,
@@ -1146,15 +1403,14 @@ TEST( coreMQTT_Integration, Subscribe_Publish_With_Qos_2 )
     TEST_ASSERT_FALSE( receivedPubRec );
     TEST_ASSERT_FALSE( receivedPubComp );
     TEST_ASSERT_FALSE( receivedPubRel );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
+    WAIT_FOR_PACKET( receivedPubRec, MQTTSuccess );
+    WAIT_FOR_PACKET( receivedPubComp, MQTTSuccess );
+    WAIT_FOR_PACKET( receivedPubRel, MQTTSuccess );
     TEST_ASSERT_FALSE( receivedPubAck );
-    TEST_ASSERT_TRUE( receivedPubRec );
-    TEST_ASSERT_TRUE( receivedPubComp );
-    TEST_ASSERT_TRUE( receivedPubRel );
 
     /* Make sure that we have received the same message from the server,
      * that was published (as we have subscribed to the same topic). */
+    WAIT_FOR_PACKET( receivedPublish, MQTTSuccess );
     TEST_ASSERT_EQUAL( MQTTQoS2, incomingInfo.qos );
     TEST_ASSERT_EQUAL( TEST_MQTT_TOPIC_LENGTH, incomingInfo.topicNameLength );
     TEST_ASSERT_EQUAL_MEMORY( TEST_MQTT_TOPIC,
@@ -1169,9 +1425,8 @@ TEST( coreMQTT_Integration, Subscribe_Publish_With_Qos_2 )
     TEST_ASSERT_EQUAL( MQTTSuccess, unsubscribeFromTopic( &context, TEST_MQTT_TOPIC ) );
 
     /* Expect an UNSUBACK from the broker for the unsubscribe operation. */
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedUnsubAck );
+    TEST_ASSERT_FALSE( receivedUnsubAck );
+    WAIT_FOR_PACKET( receivedUnsubAck, MQTTSuccess );
 }
 
 /**
@@ -1186,9 +1441,7 @@ void Connect_LWT()
 
     /* Establish a second TCP connection with the server endpoint, then
      * a TLS session. The server info and credentials can be reused. */
-    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &secondNetworkContext,
-                                                                                        &serverInfo,
-                                                                                        &socketsConfig ) );
+    TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &secondNetworkContext ) );
 
     /* Establish MQTT session on top of the TCP+TLS connection. */
     useLWTClientIdentifier = true;
@@ -1199,17 +1452,15 @@ void Connect_LWT()
                            &context, TEST_MQTT_LWT_TOPIC, MQTTQoS0 ) );
 
     /* Wait for the SUBACK response from the broker for the subscribe request. */
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedSubAck );
+    TEST_ASSERT_FALSE( receivedSubAck );
+    WAIT_FOR_PACKET( receivedSubAck, MQTTSuccess );
 
     /* Abruptly terminate TCP connection. */
     ( void ) SecureSocketsTransport_Disconnect( &secondNetworkContext );
 
     /* Run the process loop to receive the LWT. Allow some more time for the
      * server to realize the connection is closed. */
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
+    WAIT_FOR_PACKET( receivedPublish, MQTTSuccess );
 
     /* Test if we have received the LWT. */
     TEST_ASSERT_EQUAL( MQTTQoS0, incomingInfo.qos );
@@ -1227,9 +1478,7 @@ void Connect_LWT()
 
     /* We expect an UNSUBACK from the broker for the unsubscribe operation. */
     TEST_ASSERT_FALSE( receivedUnsubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedUnsubAck );
+    WAIT_FOR_PACKET( receivedUnsubAck, MQTTSuccess );
 }
 
 /* Include Connect_LWT test group case both test groups to run it against AWS IoT
@@ -1295,6 +1544,7 @@ TEST( coreMQTT_Integration, Restore_Session_Resend_PubRel )
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
                            &context,
                            TEST_MQTT_TOPIC,
+                           MQTT_EXAMPLE_MESSAGE,
                            false, /* setRetainFlag */
                            false, /* isDuplicate */
                            MQTTQoS2,
@@ -1302,9 +1552,9 @@ TEST( coreMQTT_Integration, Restore_Session_Resend_PubRel )
 
     /* Disconnect on receiving PUBREC so that we are not able to complete the QoS 2 PUBLISH in the current connection. */
     TEST_ASSERT_FALSE( receivedPubComp );
+    TEST_ASSERT_FALSE( receivedPacketTypeForDisconnection );
     packetTypeForDisconnection = MQTT_PACKET_TYPE_PUBREC;
-    TEST_ASSERT_EQUAL( MQTTSendFailed,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
+    WAIT_FOR_PACKET( receivedPacketTypeForDisconnection, MQTTSendFailed );
     TEST_ASSERT_FALSE( receivedPubComp );
 
     /* Clear the global variable. */
@@ -1315,11 +1565,9 @@ TEST( coreMQTT_Integration, Restore_Session_Resend_PubRel )
     resumePersistentSession();
 
     /* Resume the incomplete QoS 2 PUBLISH in previous MQTT connection. */
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-
     /* Test that the MQTT library has completed the QoS 2 publish by sending the PUBREL flag. */
-    TEST_ASSERT_TRUE( receivedPubComp );
+    TEST_ASSERT_FALSE( receivedPubComp );
+    WAIT_FOR_PACKET( receivedPubComp, MQTTSuccess );
 }
 
 /**
@@ -1339,14 +1587,13 @@ TEST( coreMQTT_Integration, Restore_Session_Incoming_Duplicate_PubRel )
     TEST_ASSERT_EQUAL( MQTTSuccess, subscribeToTopic(
                            &context, TEST_MQTT_TOPIC, MQTTQoS2 ) );
     TEST_ASSERT_FALSE( receivedSubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedSubAck );
+    WAIT_FOR_PACKET( receivedSubAck, MQTTSuccess );
 
     /* Publish to the same topic with Qos 2 (so that the broker can re-publish it back to us). */
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
                            &context,
                            TEST_MQTT_TOPIC,
+                           MQTT_EXAMPLE_MESSAGE,
                            false, /* setRetainFlag */
                            false, /* isDuplicate */
                            MQTTQoS2,
@@ -1355,8 +1602,8 @@ TEST( coreMQTT_Integration, Restore_Session_Incoming_Duplicate_PubRel )
     /* Disconnect on receiving PUBREL so that we are not able to complete in the incoming QoS2
      * PUBLISH in the current connection. */
     packetTypeForDisconnection = MQTT_PACKET_TYPE_PUBREL;
-    TEST_ASSERT_EQUAL( MQTTSendFailed,
-                       MQTT_ProcessLoop( &context, 3 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
+    TEST_ASSERT_FALSE( receivedPacketTypeForDisconnection );
+    WAIT_FOR_PACKET( receivedPacketTypeForDisconnection, MQTTSendFailed );
 
     /* We will re-establish an MQTT over TLS connection with the broker to restore
      * the persistent session. */
@@ -1368,11 +1615,8 @@ TEST( coreMQTT_Integration, Restore_Session_Incoming_Duplicate_PubRel )
 
     /* Resume the incomplete incoming QoS 2 PUBLISH transaction from the previous MQTT connection. */
     TEST_ASSERT_FALSE( receivedPubRel );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-
     /* Make sure that the broker resent the PUBREL packet on session restoration. */
-    TEST_ASSERT_TRUE( receivedPubRel );
+    WAIT_FOR_PACKET( receivedPubRel, MQTTSuccess );
 
     /* Make sure that the library sent a PUBCOMP packet in response to the PUBREL packet
      * from the server to complete the incoming PUBLISH QoS2 transaction. */
@@ -1394,6 +1638,7 @@ void Resend_Unacked_Publish_QoS1()
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
                            &context,
                            TEST_MQTT_TOPIC,
+                           MQTT_EXAMPLE_MESSAGE,
                            false, /* setRetainFlag */
                            false, /* isDuplicate */
                            MQTTQoS1,
@@ -1432,6 +1677,7 @@ void Resend_Unacked_Publish_QoS1()
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
                            &context,
                            TEST_MQTT_TOPIC,
+                           MQTT_EXAMPLE_MESSAGE,
                            false, /* setRetainFlag */
                            true,  /* isDuplicate */
                            MQTTQoS1,
@@ -1439,11 +1685,8 @@ void Resend_Unacked_Publish_QoS1()
 
     /* Complete the QoS 1 PUBLISH resend operation. */
     TEST_ASSERT_FALSE( receivedPubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-
     /* Make sure that the PUBLISH resend was complete. */
-    TEST_ASSERT_TRUE( receivedPubAck );
+    WAIT_FOR_PACKET( receivedPubAck, MQTTSuccess );
 
     /* Make sure that the library has removed the record for the outgoing PUBLISH packet. */
     TEST_ASSERT_EQUAL( MQTT_PACKET_ID_INVALID, context.outgoingPublishRecords[ 0 ].packetId );
@@ -1477,6 +1720,7 @@ TEST( coreMQTT_Integration, Resend_Unacked_Publish_QoS2 )
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
                            &context,
                            TEST_MQTT_TOPIC,
+                           MQTT_EXAMPLE_MESSAGE,
                            false, /* setRetainFlag */
                            false, /* isDuplicate */
                            MQTTQoS2,
@@ -1514,6 +1758,7 @@ TEST( coreMQTT_Integration, Resend_Unacked_Publish_QoS2 )
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
                            &context,
                            TEST_MQTT_TOPIC,
+                           MQTT_EXAMPLE_MESSAGE,
                            false, /* setRetainFlag */
                            true,  /* isDuplicate */
                            MQTTQoS2,
@@ -1522,12 +1767,9 @@ TEST( coreMQTT_Integration, Resend_Unacked_Publish_QoS2 )
     /* Complete the QoS 2 PUBLISH resend operation. */
     TEST_ASSERT_FALSE( receivedPubRec );
     TEST_ASSERT_FALSE( receivedPubComp );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-
     /* Make sure that the QoS 2 PUBLISH re-transmission was complete. */
-    TEST_ASSERT_TRUE( receivedPubRec );
-    TEST_ASSERT_TRUE( receivedPubComp );
+    WAIT_FOR_PACKET( receivedPubRec, MQTTSuccess );
+    WAIT_FOR_PACKET( receivedPubComp, MQTTSuccess );
 
     /* Make sure that the library has removed the record for the outgoing PUBLISH packet. */
     TEST_ASSERT_EQUAL( MQTT_PACKET_ID_INVALID, context.outgoingPublishRecords[ 0 ].packetId );
@@ -1549,14 +1791,13 @@ void Restore_Session_Duplicate_Incoming_Publish_Qos1()
     TEST_ASSERT_EQUAL( MQTTSuccess, subscribeToTopic(
                            &context, TEST_MQTT_TOPIC, MQTTQoS1 ) );
     TEST_ASSERT_FALSE( receivedSubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedSubAck );
+    WAIT_FOR_PACKET( receivedSubAck, MQTTSuccess );
 
     /* Publish to the same topic with Qos 1 (so that the broker can re-publish it back to us). */
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
                            &context,
                            TEST_MQTT_TOPIC,
+                           MQTT_EXAMPLE_MESSAGE,
                            false, /* setRetainFlag */
                            false, /* isDuplicate */
                            MQTTQoS1,
@@ -1565,8 +1806,8 @@ void Restore_Session_Duplicate_Incoming_Publish_Qos1()
     /* Disconnect on receiving the incoming PUBLISH packet from the broker so that
      * an acknowledgement cannot be sent to the broker. */
     packetTypeForDisconnection = MQTT_PACKET_TYPE_PUBLISH;
-    TEST_ASSERT_EQUAL( MQTTSendFailed,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
+    TEST_ASSERT_FALSE( receivedPacketTypeForDisconnection );
+    WAIT_FOR_PACKET( receivedPacketTypeForDisconnection, MQTTSendFailed );
 
     /* Make sure that a record was created for the incoming PUBLISH packet. */
     TEST_ASSERT_NOT_EQUAL( MQTT_PACKET_ID_INVALID, context.incomingPublishRecords[ 0 ].packetId );
@@ -1587,11 +1828,10 @@ void Restore_Session_Duplicate_Incoming_Publish_Qos1()
 
     /* Process the duplicate incoming QoS 1 PUBLISH that will be sent by the broker
      * to re-attempt the PUBLISH operation. */
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-
+    TEST_ASSERT_NOT_EQUAL( MQTT_PACKET_ID_INVALID, context.incomingPublishRecords[ 0 ].packetId );
     /* Make sure that the library cleared the record for the incoming QoS 1 PUBLISH packet. */
-    TEST_ASSERT_EQUAL( MQTT_PACKET_ID_INVALID, context.incomingPublishRecords[ 0 ].packetId );
+    WAIT_FOR_PACKET( ( MQTT_PACKET_ID_INVALID == context.incomingPublishRecords[ 0 ].packetId ),
+                     MQTTSuccess );
 }
 
 /* Include Restore_Session_Duplicate_Incoming_Publish_Qos1 test case in both test groups to run it against AWS IoT
@@ -1622,14 +1862,14 @@ TEST( coreMQTT_Integration, Restore_Session_Duplicate_Incoming_Publish_Qos2 )
      * QoS 2 PUBLISH transaction in this connection. */
     TEST_ASSERT_EQUAL( MQTTSuccess, subscribeToTopic(
                            &context, TEST_MQTT_TOPIC, MQTTQoS2 ) );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedSubAck );
+    TEST_ASSERT_FALSE( receivedSubAck )
+    WAIT_FOR_PACKET( receivedSubAck, MQTTSuccess );
 
     /* Publish to the same topic with Qos 2 (so that the broker can re-publish it back to us). */
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic(
                            &context,
                            TEST_MQTT_TOPIC,
+                           MQTT_EXAMPLE_MESSAGE,
                            false, /* setRetainFlag */
                            false, /* isDuplicate */
                            MQTTQoS2,
@@ -1638,8 +1878,8 @@ TEST( coreMQTT_Integration, Restore_Session_Duplicate_Incoming_Publish_Qos2 )
     /* Disconnect on receiving the incoming PUBLISH packet from the broker so that
      * an acknowledgement cannot be sent to the broker. */
     packetTypeForDisconnection = MQTT_PACKET_TYPE_PUBLISH;
-    TEST_ASSERT_EQUAL( MQTTSendFailed,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
+    TEST_ASSERT_FALSE( receivedPacketTypeForDisconnection )
+    WAIT_FOR_PACKET( receivedPacketTypeForDisconnection, MQTTSendFailed );
 
     /* Make sure that a record was created for the incoming PUBLISH packet. */
     TEST_ASSERT_NOT_EQUAL( MQTT_PACKET_ID_INVALID, context.incomingPublishRecords[ 0 ].packetId );
@@ -1655,11 +1895,8 @@ TEST( coreMQTT_Integration, Restore_Session_Duplicate_Incoming_Publish_Qos2 )
     /* Process the duplicate incoming QoS 2 PUBLISH that will be sent by the broker
      * to re-attempt the PUBLISH operation. */
     TEST_ASSERT_FALSE( receivedPubRel );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-
     /* Make sure that the incoming QoS 2 transaction was completed. */
-    TEST_ASSERT_TRUE( receivedPubRel );
+    WAIT_FOR_PACKET( receivedPubRel, MQTTSuccess );
 
     /* Make sure that the library cleared the record for the incoming QoS 2 PUBLISH packet. */
     TEST_ASSERT_EQUAL( MQTT_PACKET_ID_INVALID, context.incomingPublishRecords[ 0 ].packetId );
@@ -1674,28 +1911,25 @@ TEST( coreMQTT_Integration, Publish_With_Retain_Flag )
     /* Publish to a topic with the "retain" flag set. */
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic( &context,
                                                     TEST_MQTT_TOPIC,
+                                                    MQTT_EXAMPLE_MESSAGE,
                                                     true,  /* setRetainFlag */
                                                     false, /* isDuplicate */
                                                     MQTTQoS1,
                                                     MQTT_GetPacketId( &context ) ) );
     /* Complete the QoS 1 PUBLISH operation. */
     TEST_ASSERT_FALSE( receivedPubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedPubAck );
+    WAIT_FOR_PACKET( receivedPubAck, MQTTSuccess );
 
     /* Subscribe to the same topic that we published the message to.
      * The broker should send the "retained" message with the "retain" flag set. */
     TEST_ASSERT_EQUAL( MQTTSuccess, subscribeToTopic(
                            &context, TEST_MQTT_TOPIC, MQTTQoS1 ) );
     TEST_ASSERT_FALSE( receivedSubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedSubAck );
+    WAIT_FOR_PACKET( receivedSubAck, MQTTSuccess );
 
     /* Make sure that the library invoked the event callback with the incoming PUBLISH from
      * the broker containing the "retained" flag set. */
-    TEST_ASSERT_TRUE( receivedRetainedMessage );
+    WAIT_FOR_PACKET( receivedRetainedMessage, MQTTSuccess );
 
     /* Reset the global variables for the remainder of the test. */
     receivedPubAck = false;
@@ -1706,6 +1940,7 @@ TEST( coreMQTT_Integration, Publish_With_Retain_Flag )
     /* Publish to another topic with the "retain" flag set to 0. */
     TEST_ASSERT_EQUAL( MQTTSuccess, publishToTopic( &context,
                                                     TEST_MQTT_TOPIC_2,
+                                                    MQTT_EXAMPLE_MESSAGE,
                                                     false, /* setRetainFlag */
                                                     false, /* isDuplicate */
                                                     MQTTQoS1,
@@ -1713,9 +1948,7 @@ TEST( coreMQTT_Integration, Publish_With_Retain_Flag )
 
     /* Complete the QoS 1 PUBLISH operation. */
     TEST_ASSERT_FALSE( receivedPubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedPubAck );
+    WAIT_FOR_PACKET( receivedPubAck, MQTTSuccess );
 
     /* Again, subscribe to the same topic that we just published to.
      * We don't expect the broker to send the message to us (as we
@@ -1723,9 +1956,7 @@ TEST( coreMQTT_Integration, Publish_With_Retain_Flag )
     TEST_ASSERT_EQUAL( MQTTSuccess, subscribeToTopic(
                            &context, TEST_MQTT_TOPIC_2, MQTTQoS1 ) );
     TEST_ASSERT_FALSE( receivedSubAck );
-    TEST_ASSERT_EQUAL( MQTTSuccess,
-                       MQTT_ProcessLoop( &context, 2 * MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
-    TEST_ASSERT_TRUE( receivedSubAck );
+    WAIT_FOR_PACKET( receivedSubAck, MQTTSuccess );
 
     /* Make sure that the library did not receive an incoming PUBLISH from the broker. */
     TEST_ASSERT_FALSE( receivedRetainedMessage );

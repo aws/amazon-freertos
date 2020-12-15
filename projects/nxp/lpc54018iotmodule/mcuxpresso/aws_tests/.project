@@ -1113,9 +1113,9 @@
 			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</name>
+			<name>libraries/3rdparty/mbedtls_config/threading_alt.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls_config/threading_alt.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11_pal.h</name>
@@ -1298,11 +1298,6 @@
 			<locationURI>BASE_DIR/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreMQTT/mqttFilePaths.cmake</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/coreMQTT/mqttFilePaths.cmake</locationURI>
-		</link>
-		<link>
 			<name>libraries/coreMQTT/source/include/core_mqtt.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/coreMQTT/source/include/core_mqtt.h</locationURI>
@@ -1328,14 +1323,19 @@
 			<locationURI>BASE_DIR/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</name>
+			<name>libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/retry_utils/freertos/retry_utils_freertos.c</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/retry_utils/retry_utils.h</name>
+			<name>libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/retry_utils/retry_utils.h</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
@@ -1441,6 +1441,46 @@
 			<name>libraries/c_sdk/standard/https/src/iot_https_utils.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/https/src/iot_https_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/core_http_client.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreHTTP/source/core_http_client.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/include/core_http_client.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreHTTP/source/include/core_http_client.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/include/core_http_client_private.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreHTTP/source/include/core_http_client_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/include/core_http_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreHTTP/source/include/core_http_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/interface/transport_interface.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreHTTP/source/interface/transport_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/http_demo_helpers/http_demo_utils.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/common/http_demo_helpers/http_demo_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
@@ -1636,6 +1676,36 @@
 			<name>libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_defender_for_aws/source/defender.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/device_defender_for_aws/source/defender.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_defender_for_aws/source/include/defender.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/device_defender_for_aws/source/include/defender.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/device_defender_for_aws/source/include/defender_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/device_defender_for_aws/source/include/defender_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/jobs_for_aws/source/jobs.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/jobs_for_aws/source/jobs.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/jobs_for_aws/source/include/jobs.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/jobs_for_aws/source/include/jobs.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
@@ -1873,6 +1943,11 @@
 			<locationURI>BASE_DIR/tests/integration_test/shadow_system_test.c</locationURI>
 		</link>
 		<link>
+			<name>tests/integration_test/core_http_system_test.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/tests/integration_test/core_http_system_test.c</locationURI>
+		</link>
+		<link>
 			<name>application_code/nxp_code/board.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/application_code/nxp_code/board.c</locationURI>
@@ -1968,6 +2043,11 @@
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/aws_wifi_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/core_http_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/core_http_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/core_mqtt_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/core_mqtt_config.h</locationURI>
@@ -1981,6 +2061,11 @@
 			<name>config_files/core_test_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/core_test_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/defender_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/defender_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/iot_config.h</name>
@@ -2891,16 +2976,6 @@
 			<name>libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/http_parser/http_parser.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/http_parser/http_parser.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/http_parser/http_parser.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/http_parser/http_parser.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.h</name>

@@ -29,12 +29,17 @@
 /* To run a particular demo you need to define one of these.
  * Only one demo can be configured at a time
  *
+ *          CONFIG_CORE_HTTP_MUTUAL_AUTH_DEMO_ENABLED
+ *          CONFIG_CORE_HTTP_S3_DOWNLOAD_DEMO_ENABLED
+ *          CONFIG_CORE_HTTP_S3_DOWNLOAD_MULTITHREADED_DEMO_ENABLED
+ *          CONFIG_CORE_HTTP_S3_UPLOAD_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
  *          CONFIG_DEVICE_SHADOW_DEMO_ENABLED
+ *          CONFIG_DEVICE_DEFENDER_DEMO_ENABLED
+ *          CONFIG_JOBS_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
- *          CONFIG_DEFENDER_DEMO_ENABLED
  *          CONFIG_POSIX_DEMO_ENABLED
  *          CONFIG_OTA_UPDATE_DEMO_ENABLED
  *          CONFIG_BLE_GATT_SERVER_DEMO_ENABLED
@@ -63,9 +68,6 @@
 #define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS                    ( 1 )
 /* Number of sub pub tasks that connect to a broker that is using TLS. */
 #define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS                      ( 1 )
-
-#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE                       ( configMINIMAL_STACK_SIZE * 5 )
-#define democonfigMQTT_SUB_PUB_TASK_PRIORITY                         ( tskIDLE_PRIORITY )
 
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */

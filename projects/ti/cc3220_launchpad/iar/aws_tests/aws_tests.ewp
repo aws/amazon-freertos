@@ -386,7 +386,8 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\pkcs11_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
@@ -394,6 +395,10 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\access</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\http_demo_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src</state>
@@ -403,15 +408,16 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -1331,6 +1337,9 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_wifi_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\core_http_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\core_mqtt_config.h</name>
 							</file>
 							<file>
@@ -1338,6 +1347,9 @@
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\core_test_pkcs11_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\defender_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_config.h</name>
@@ -1560,12 +1572,6 @@
 								<file>
 									<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\core_pkcs11_mbedtls.c</name>
 								</file>
-								<group>
-									<name>include</name>
-									<file>
-										<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include\threading_alt.h</name>
-									</file>
-								</group>
 							</group>
 						</group>
 						<file>
@@ -1596,16 +1602,19 @@
 				</group>
 			</group>
 			<group>
-				<name>retry_utils</name>
+				<name>backoff_algorithm</name>
 				<group>
-					<name>freertos</name>
+					<name>source</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\backoff_algorithm.c</name>
 					</file>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include\backoff_algorithm.h</name>
+						</file>
+					</group>
 				</group>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h</name>
-				</file>
 			</group>
 			<group>
 				<name>transport</name>
@@ -2242,43 +2251,13 @@
 			</group>
 		</group>
 		<group>
-			<name>coreMQTT</name>
-			<group>
-				<name>source</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_state.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c</name>
-				</file>
-				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_config_defaults.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_serializer.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_state.h</name>
-					</file>
-				</group>
-				<group>
-					<name>interface</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h</name>
-					</file>
-				</group>
-			</group>
-		</group>
-		<group>
 			<name>3rdparty</name>
+			<group>
+				<name>mbedtls_config</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config\threading_alt.h</name>
+				</file>
+			</group>
 			<group>
 				<name>mbedtls</name>
 				<group>
@@ -2850,15 +2829,6 @@
 				</group>
 			</group>
 			<group>
-				<name>http_parser</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c</name>
-				</file>
-			</group>
-			<group>
 				<name>jsmn</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h</name>
@@ -2866,6 +2836,84 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c</name>
 				</file>
+			</group>
+		</group>
+		<group>
+			<name>coreMQTT</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_state.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_config_defaults.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_serializer.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_state.h</name>
+					</file>
+				</group>
+				<group>
+					<name>interface</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h</name>
+					</file>
+				</group>
+			</group>
+		</group>
+		<group>
+			<name>coreHTTP</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c</name>
+				</file>
+				<group>
+					<name>dependency</name>
+					<group>
+						<name>3rdparty</name>
+						<group>
+							<name>http_parser</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.h</name>
+							</file>
+						</group>
+					</group>
+				</group>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include\core_http_config_defaults.h</name>
+					</file>
+				</group>
+				<group>
+					<name>interface</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h</name>
+					</file>
+				</group>
 			</group>
 		</group>
 		<group>
@@ -2897,6 +2945,39 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow_config_defaults.h</name>
+					</file>
+				</group>
+			</group>
+		</group>
+		<group>
+			<name>device_defender_for_aws</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\defender.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include\defender.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include\defender_config_defaults.h</name>
+					</file>
+				</group>
+			</group>
+		</group>
+		<group>
+			<name>jobs_for_aws</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\jobs.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\include\jobs.h</name>
 					</file>
 				</group>
 			</group>
@@ -2960,6 +3041,9 @@
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\shadow_system_test.c</name>
 			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\core_http_system_test.c</name>
+			</file>
 		</group>
 	</group>
 	<group>
@@ -2976,6 +3060,27 @@
 				<name>include</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h</name>
+				</file>
+			</group>
+		</group>
+		<group>
+			<name>common</name>
+			<group>
+				<name>pkcs11_helpers</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\pkcs11_helpers\pkcs11_helpers.c</name>
+				</file>
+			</group>
+			<group>
+				<name>http_demo_helpers</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\http_demo_helpers\http_demo_utils.c</name>
+				</file>
+			</group>
+			<group>
+				<name>mqtt_demo_helpers</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c</name>
 				</file>
 			</group>
 		</group>

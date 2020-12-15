@@ -1,5 +1,5 @@
 /*
- * FreeRTOS TLS V1.3.0
+ * FreeRTOS TLS V1.3.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -457,6 +457,7 @@ static int prvReadCertificateIntoContext( TLSContext_t * pxTlsContext,
     /* Get the handle of the certificate. */
     xResult = xFindObjectWithLabelAndClass( pxTlsContext->xP11Session,
                                             pcLabelName,
+                                            strlen( pcLabelName ),
                                             xClass,
                                             &xCertObj );
 
@@ -555,6 +556,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
         /* Get the handle of the device private key. */
         xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
                                                 pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) - 1,
                                                 CKO_PRIVATE_KEY,
                                                 &pxCtx->xP11PrivateKey );
     }

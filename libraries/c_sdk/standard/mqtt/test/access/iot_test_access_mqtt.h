@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.3.0
+ * FreeRTOS MQTT V2.3.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -67,7 +67,7 @@ _mqttConnection_t * IotTestMqtt_createMqttConnection( bool awsIotMqttMode,
  *
  * @see #_topicMatch.
  */
-bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
+bool IotTestMqtt_topicMatch( _mqttSubscription_t * pSubscription,
                              void * pMatch );
 
 /**
@@ -75,7 +75,7 @@ bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
  *
  * @see #_packetMatch.
  */
-bool IotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
+bool IotTestMqtt_packetMatch( _mqttSubscription_t * pSubscription,
                               void * pMatch );
 
 /**

@@ -1,6 +1,81 @@
 # Change Log
 This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT. The repository contains projects for many different microcontroller evaluation boards.
 
+## 202012.00 December 2020
+
+### New Features
+
+#### coreHTTP v2.0.0
+
+- The coreHTTP (https://github.com/FreeRTOS/coreHTTP) library provides the ability to establish an HTTP connection with a server over a customer-implemented transport layer, which can either be a secure channel like a TLS session (mutually authenticated or server-only authentication) or a non-secure channel like a plaintext TCP connection. The HTTP connection can be used to make "GET" (include range requests), "PUT", "POST" and "HEAD" requests. The library provides a mechanism to register a customer-defined callback for receiving parsed header fields in an HTTP response. The library has been refactored for memory optimization, and is a client implementation of a subset of the HTTP/1.1 (https://tools.ietf.org/html/rfc2616) standard.
+- See memory requirements for the latest release here (https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/standard/coreHTTP/docs/doxygen/output/html/index.html#http_memory_requirements).
+
+#### backoffAlgorithm v1.0.0
+
+- The backoffAlgorithm (https://github.com/FreeRTOS/backoffAlgorithm) library is a utility library to calculate backoff period for network operation retries (like failed network connection with server) using an exponential backoff with jitter algorithm. This library uses the "Full Jitter" strategy for the exponential backoff with jitter algorithm. More information about the algorithm can be seen in the Exponential Backoff and Jitter (https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/) AWS blog.
+- Exponential backoff with jitter is typically used when retrying a failed connection or network operation with the server. An exponential backoff with jitter helps to mitigate the request failures made to servers, that are caused due to network congestion or high load on the server, by spreading out retry requests across multiple devices. Besides, in an environment with poor connectivity, a client can get disconnected at any time. A backoff strategy helps the client to conserve battery by not repeatedly attempting reconnections when they are unlikely to succeed.
+- The backoffAlgorithm library has no dependencies on libraries other than the standard C library.
+
+#### AWS IoT Device Defender v1.0.1
+
+- The AWS IoT Device Defender (https://github.com/aws/device-defender-for-aws-iot-embedded-sdk) library enables you to interact with the AWS IoT Device Defender service to continuously monitor security metrics from devices for deviations from what you have defined as appropriate behavior for each device. If something doesn’t look right, AWS IoT Device Defender sends out an alert so you can take action to remediate the issue. More details about Device Defender can be found in AWS IoT Device Defender documentation (https://docs.aws.amazon.com/iot/latest/developerguide/device-defender.html).
+- The AWS IoT Device Defender library has no dependencies on additional libraries other than the standard C library. It also doesn’t have any platform dependencies, such as threading or synchronization. It can be used with any MQTT library and any JSON library (see demos (https://github.com/aws/amazon-freertos/tree/master/demos/device_defender_for_aws) with coreMQTT and coreJSON).
+- See memory requirements for the latest release here (https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/device-defender-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#defender_memory_requirements).
+
+#### AWS IoT Jobs v1.0.0
+
+- The AWS IoT Jobs (https://github.com/aws/jobs-for-aws-iot-embedded-sdk) library enables you to interact with the AWS IoT Jobs service which notifies one or more connected devices of a pending “Job”. A Job can be used to manage your fleet of devices, update firmware and security certificates on your devices, or perform administrative tasks such as restarting devices and performing diagnostics. For documentation of the service, please see the AWS IoT Developer Guide (https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html). Interactions with the Jobs service use the MQTT protocol. This library provides an API to compose and recognize the MQTT topic strings used by the Jobs service.
+- The AWS IoT Jobs library has no dependencies on additional libraries other than the standard C library. It also doesn’t have any platform dependencies, such as threading or synchronization. It can be used with any MQTT library and any JSON library (see demos (https://github.com/aws/amazon-freertos/tree/master/demos/jobs_for_aws) with coreMQTT and coreJSON).
+- See memory requirements for the latest release (https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/jobs-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#jobs_memory_requirements)here (https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/jobs-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#jobs_memory_requirements).
+
+#### HTTP Compatibility Layer v1.2.0
+
+- The HTTP Compatibility Layer provides backwards compatibility from coreHTTP library to HTTPS V1.x.x APIs. In addition, the HTTP Compatibility Layer maintains the dependency of the network abstraction and linear containers from the HTTPS V1.x.x library. The task pool dependency is removed in order to allow the user to allocate tasks on the stack rather than exclusively on the heap.
+- Configuration settings using C preprocessor constants, for the HTTP Compatibility Layer, are available in addition to the original configurations of the HTTPS V1.x.x library (https://docs.aws.amazon.com/freertos/latest/lib-ref/html2/https/https_config.html). They can be set with a #define in the config file (iot_config.h) or by using a compiler option such as -D in gcc. If a configuration setting is not defined, the HTTP Compatibility Layer will use a "sensible" default value (unless otherwise noted). Because they are compile-time constants, this HTTP Compatibility Layer must be rebuilt if a configuration setting is changed.
+    - IOT_HTTPS_DISPATCH_QUEUE_SIZE - The number of requests in the queue that are ready to be sent to the HTTP server.
+    - IOT_HTTPS_DISPATCH_TASK_COUNT - The number of tasks that are responsible for sending requests from the dispatch queue.
+    - IOT_HTTPS_DISPATCH_TASK_STACK_SIZE - The stack size of each dispatch task, sized appropriately for each board.
+    - IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY - If set to 1, the memory used by the dispatch task will be allocated statically by the library. Otherwise, memory will be allocated on the heap.
+    - IOT_HTTPS_DISPATCH_TASK_PRIORITY - The priority of each dispatch task. This priority is deliberately chosen to match the original taskpool's priority. Doing so prevents starvation of the network-receive task and tasks potentially used by other libraries.
+- See memory requirements for the latest release (https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/jobs-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#jobs_memory_requirements) here (https://github.com/aws/amazon-freertos/blob/master/libraries/c_sdk/standard/https/CODESIZE.md).
+
+### Updates
+
+#### FreeRTOS kernel V10.4.3 
+
+- Includes FreeRTOS kernel V10.4.3
+- Additional details can be found here: https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/V10.4.3-kernel-only/History.txt
+
+#### FreeRTOS-Plus-TCP v2.3.2
+
+- When a protocol error occurs during the SYN-phase of a TCP connection, a child socket will now be closed (calling FreeRTOS_closesocket() ), instead of being given the eCLOSE_WAIT status.  A client socket, which calls connect() to establish a connection, will receive the eCLOSE_WAIT status, just like before.
+
+#### coreMQTT v1.1.0 
+
+- Update logs and format specifiers to use standard C types.
+- Add dependence on stdbool.h
+- Introduce two new configuration macros for setting the timeout for transport reads and sends.
+
+#### coreJSON v3.0.0
+
+- Added an API function to iterate over a collection in a JSON document.
+
+#### corePKCS11 v3.0.0
+
+- Updated xFindObjectWithLabelAndClass to include a size parameter to allow passing in the size of the label, in order to avoid calling strlen in the library code.
+- Added CBMC memory proofs for all functions.
+- Removed threading_alt.h from corePKCS11.
+- Restructured third party folder in order to align with other core repositories. Folders located in “corePKCS11/3rdparty” are now in “corePKCS11/source/dependency/3rdparty”.
+- Updated logs and format specifiers to use standard C types.
+
+#### AWS IoT Device Shadow v1.0.2
+
+- Update logs and format specifiers to use standard C types.
+
+#### MQTT Compatibility Layer v2.3.1 
+
+- Fixes for compiler warnings by removing unused functions and variables.
+
 ## 202011.00 November 2020
 
 ### New Features

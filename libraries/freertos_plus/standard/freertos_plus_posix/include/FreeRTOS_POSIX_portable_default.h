@@ -128,6 +128,9 @@
 #ifndef posixconfigENABLE_USECONDS_T
     #define posixconfigENABLE_USECONDS_T             1 /**< useconds_t in sys/types.h */
 #endif
+#ifndef posixconfigENABLE_TM
+    #define posixconfigENABLE_TM                     1 /**< struct tm in time.h */
+#endif
 #ifndef posixconfigENABLE_TIMESPEC
     #define posixconfigENABLE_TIMESPEC               1 /**< struct timespec in time.h */
 #endif
