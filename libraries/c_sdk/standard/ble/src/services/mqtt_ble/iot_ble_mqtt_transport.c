@@ -700,7 +700,6 @@ static MQTTBLEStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t * pPublishInf
                                               size_t * pSerializedBufLength )
 {
     MQTTBLEStatus_t status = MQTTBLESuccess;
-    uint16_t packetIdentifier = 0;
 
     LogDebug( ( "Processing outgoing PUBLISH." ) );
 
@@ -715,7 +714,7 @@ static MQTTBLEStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t * pPublishInf
         pPublishInfo->pending = parsePublish( buf,
                                               bytesToSend,
                                               pPublishInfo,
-                                              &packetIdentifier );
+                                              &pPublishInfo->packetIdentifier );
     }
 
     LogDebug( ( "IotBleMqtt_SerializePublish before if" ) );
@@ -725,7 +724,7 @@ static MQTTBLEStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t * pPublishInf
         status = IotBleMqtt_SerializePublish( pPublishInfo,
                                               pSerializedBuf,
                                               pSerializedBufLength,
-                                              packetIdentifier );
+                                              pPublishInfo->packetIdentifier );
 
         if( pPublishInfo->pTopicName != NULL )
         {

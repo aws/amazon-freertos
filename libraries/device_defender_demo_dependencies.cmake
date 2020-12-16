@@ -79,8 +79,19 @@ afr_module_dependencies(
     PUBLIC
         AFR::device_defender
         AFR::core_json
+        AFR::mqtt_demo_helpers
         # Add dependency on core_mqtt_demo_dependencies module 
         # so that coreMQTT library is auto-included when selecting
         # Device Defender library on the FreeRTOS console.
         AFR::core_mqtt_demo_dependencies
 )
+
+# If using the FreeRTOS+TCP metrics collector implementation, the defender demo
+# depends on the FreeRTOS+TCP tcp utils.
+if(TARGET AFR::freertos_plus_tcp::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::freertos_plus_tcp_utils
+    )
+endif()

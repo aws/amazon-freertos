@@ -144,15 +144,19 @@
 		<Filter Include="libraries\device_defender_for_aws\source"/>
 		<Filter Include="libraries\device_defender_for_aws"/>
 		<Filter Include="libraries\device_defender_for_aws\source\include"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include"/>
 		<Filter Include="libraries\jobs_for_aws\source"/>
 		<Filter Include="libraries\jobs_for_aws"/>
 		<Filter Include="libraries\jobs_for_aws\source\include"/>
 		<Filter Include="demos\coreHTTP"/>
 		<Filter Include="demos\coreMQTT"/>
-		<Filter Include="demos\defender"/>
+		<Filter Include="demos\device_defender_for_aws"/>
+		<Filter Include="demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp"/>
+		<Filter Include="demos\device_defender_for_aws\metrics_collector"/>
 		<Filter Include="demos\device_shadow_for_aws"/>
 		<Filter Include="demos\greengrass_connectivity"/>
-		<Filter Include="demos\https"/>
 		<Filter Include="demos\jobs_for_aws"/>
 		<Filter Include="demos\ota"/>
 		<Filter Include="demos\tcp"/>
@@ -161,9 +165,7 @@
 		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include"/>
 		<Filter Include="libraries\3rdparty\mbedtls_utils"/>
-		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include"/>
-		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls"/>
-		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\portable"/>
+		<Filter Include="libraries\3rdparty\mbedtls_config"/>
 		<Filter Include="libraries\3rdparty\pkcs11"/>
 		<Filter Include="libraries\3rdparty\tinycbor\src"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
@@ -704,8 +706,23 @@
 		<ClInclude Include="..\..\..\..\..\libraries\device_defender_for_aws\source\include\defender_config_defaults.h">
 			<Filter>libraries\device_defender_for_aws\source\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_dump_packets.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_mem_stats.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_netstat.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\jobs_for_aws\source\include\jobs.h">
 			<Filter>libraries\jobs_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\demos\device_defender_for_aws\report_builder.h">
+			<Filter>demos\device_defender_for_aws</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\demos\device_defender_for_aws\metrics_collector.h">
+			<Filter>demos\device_defender_for_aws</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_tasks.h">
 			<Filter>demos\tcp</Filter>
@@ -947,8 +964,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.h">
 			<Filter>libraries\3rdparty\mbedtls_utils</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include\threading_alt.h">
-			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls_config\threading_alt.h">
+			<Filter>libraries\3rdparty\mbedtls_config</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11.h">
 			<Filter>libraries\3rdparty\pkcs11</Filter>
@@ -1510,6 +1527,15 @@
 		<ClCompile Include="..\..\..\..\..\libraries\device_defender_for_aws\source\defender.c">
 			<Filter>libraries\device_defender_for_aws\source</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_dump_packets.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_mem_stats.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_netstat.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\jobs_for_aws\source\jobs.c">
 			<Filter>libraries\jobs_for_aws\source</Filter>
 		</ClCompile>
@@ -1517,6 +1543,9 @@
 			<Filter>demos\coreHTTP</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_download.c">
+			<Filter>demos\coreHTTP</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_download_multithreaded.c">
 			<Filter>demos\coreHTTP</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_s3_upload.c">
@@ -1528,29 +1557,20 @@
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_connection_sharing.c">
 			<Filter>demos\coreMQTT</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c">
-			<Filter>demos\defender</Filter>
+		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\defender_demo.c">
+			<Filter>demos\device_defender_for_aws</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\report_builder.c">
+			<Filter>demos\device_defender_for_aws</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp\metrics_collector.c">
+			<Filter>demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\device_shadow_for_aws\shadow_demo_main.c">
 			<Filter>demos\device_shadow_for_aws</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c">
 			<Filter>demos\greengrass_connectivity</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_sync.c">
-			<Filter>demos\https</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_async.c">
-			<Filter>demos\https</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_upload_sync.c">
-			<Filter>demos\https</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_upload_async.c">
-			<Filter>demos\https</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_common.c">
-			<Filter>demos\https</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\jobs_for_aws\jobs_demo.c">
 			<Filter>demos\jobs_for_aws</Filter>

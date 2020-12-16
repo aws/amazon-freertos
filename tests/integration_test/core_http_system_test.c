@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202011.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -290,7 +290,7 @@ static uint8_t testingAgainstAWS = 0U;
  * @return The generated random number. This function ALWAYS succeeds
  * in generating a random number.
  */
-static int32_t generateRandomNumber();
+static uint32_t generateRandomNumber();
 
 /**
  * @brief Connect to HTTP server with reconnection retries.
@@ -345,7 +345,7 @@ static int32_t transportSendStub( NetworkContext_t * pNetworkContext,
 
 /*-----------------------------------------------------------*/
 
-static int32_t generateRandomNumber()
+static uint32_t generateRandomNumber()
 {
     UBaseType_t uxRandNum = 0;
 
@@ -373,7 +373,7 @@ static int32_t generateRandomNumber()
     /* Close PKCS11 session. */
     TEST_ASSERT_EQUAL( CKR_OK, pFunctionList->C_CloseSession( session ) );
 
-    return( uxRandNum & INT32_MAX );
+    return uxRandNum;
 }
 
 static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
@@ -416,8 +416,7 @@ static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     BackoffAlgorithm_InitializeParams( &reconnectParams,
                                        CONNECTION_RETRY_BACKOFF_BASE_MS,
                                        CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS,
-                                       CONNECTION_RETRY_MAX_ATTEMPTS,
-                                       generateRandomNumber );
+                                       CONNECTION_RETRY_MAX_ATTEMPTS );
 
     /* Attempt to connect to HTTP server. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase until maximum
@@ -432,9 +431,10 @@ static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
 
         if( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            /* Get back-off value for the next connection retry. */
-            BackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &reconnectParams, &nextRetryBackOff );
-            TEST_ASSERT_TRUE( BackoffAlgStatus != BackoffAlgorithmRngFailure );
+            /* Generate random number and get back-off value for the next connection retry. */
+            BackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &reconnectParams,
+                                                                generateRandomNumber(),
+                                                                &nextRetryBackOff );
 
             if( BackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
             {

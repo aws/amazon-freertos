@@ -27,8 +27,8 @@
 #include <stdbool.h>
 
 /* MQTT demo configuration. */
-#define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 10 )
-#define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 2 )
+#define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT       ( 10 )
+#define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE        ( 2 )
 
 /* Shadow demo configuration. The demo publishes periodic Shadow updates and responds
  * to changing Shadows. */
@@ -50,19 +50,25 @@
 
 
 /* Platform thread priority. */
-#define IOT_THREAD_DEFAULT_PRIORITY      5
+#define IOT_THREAD_DEFAULT_PRIORITY             5
 
-#define BLE_SUPPORTED      ( 1 )
-#define WIFI_SUPPORTED     ( 1 )
+/* Dispatch task and queue configurations for HTTPS library. */
+#define IOT_HTTPS_DISPATCH_TASK_COUNT           1
+#define IOT_HTTPS_DISPATCH_QUEUE_SIZE           2
+#define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    1
+#define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
+
+#define BLE_SUPPORTED                           ( 1 )
+#define WIFI_SUPPORTED                          ( 1 )
 
 /* Network type configuration for this board. */
 #ifndef DEFAULT_NETWORK
-#define DEFAULT_NETWORK    AWSIOT_NETWORK_TYPE_WIFI
+    #define DEFAULT_NETWORK    AWSIOT_NETWORK_TYPE_WIFI
 #endif
 
 /* Increasing MQTT and shadow timeout for the board, as there is a delay in sending large payload over BLE for the board. */
-#define IOT_TEST_MQTT_TIMEOUT_MS   ( 30000 )
-#define AWS_IOT_TEST_SHADOW_TIMEOUT ( 30000 )
+#define IOT_TEST_MQTT_TIMEOUT_MS       ( 30000 )
+#define AWS_IOT_TEST_SHADOW_TIMEOUT    ( 30000 )
 
 
 

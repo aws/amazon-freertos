@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202011.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -748,6 +748,7 @@ CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
 
         xResult = xFindObjectWithLabelAndClass( xSession,
                                                 ( char * ) pxLabel,
+                                                strlen( ( char * ) pxLabel ),
                                                 xClass[ uiIndex ],
                                                 &xObjectHandle );
 
@@ -763,6 +764,7 @@ CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
             {
                 xResult = xFindObjectWithLabelAndClass( xSession,
                                                         ( char * ) pxLabel,
+                                                        strlen( ( char * ) pxLabel ),
                                                         xClass[ uiIndex ],
                                                         &xObjectHandle );
             }
@@ -924,6 +926,7 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
     {
         xResult = xFindObjectWithLabelAndClass( xSession,
                                                 pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) - 1,
                                                 CKO_PRIVATE_KEY,
                                                 &pxProvisionedState->xPrivateKey );
     }
@@ -933,6 +936,7 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
         /* Check also for the corresponding public. */
         xResult = xFindObjectWithLabelAndClass( xSession,
                                                 pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                                sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) - 1,
                                                 CKO_PUBLIC_KEY,
                                                 &pxProvisionedState->xPublicKey );
     }
@@ -951,6 +955,7 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
     {
         xResult = xFindObjectWithLabelAndClass( xSession,
                                                 pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                                sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) - 1,
                                                 CKO_CERTIFICATE,
                                                 &pxProvisionedState->xClientCertificate );
     }

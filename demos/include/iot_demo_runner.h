@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202011.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -62,6 +62,8 @@
     #define DEMO_entryFUNCTION              RunCoreHttpMutualAuthDemo
 #elif defined( CONFIG_CORE_HTTP_S3_DOWNLOAD_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunCoreHttpS3DownloadDemo
+#elif defined( CONFIG_CORE_HTTP_S3_DOWNLOAD_MULTITHREADED_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreHttpS3DownloadMultithreadedDemo
 #elif defined( CONFIG_CORE_HTTP_S3_UPLOAD_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunCoreHttpS3UploadDemo
 #elif defined( CONFIG_DEVICE_SHADOW_DEMO_ENABLED )
@@ -104,8 +106,6 @@
         #undef democonfigDEMO_PRIORITY
         #define democonfigDEMO_PRIORITY     democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY
     #endif
-#elif defined( CONFIG_DEFENDER_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              RunDefenderDemo
 #elif defined( CONFIG_POSIX_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              vStartPOSIXDemo
 #elif defined( CONFIG_OTA_UPDATE_DEMO_ENABLED )
@@ -136,17 +136,10 @@
         #undef democonfigNETWORK_TYPES
         #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_BLE )
     #endif
-#elif defined( CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION             RunHttpsSyncDownloadDemo
-#elif defined( CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION             RunHttpsAsyncDownloadDemo
-#elif defined( CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION             RunHttpsSyncUploadDemo
-#elif defined( CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION             RunHttpsAsyncUploadDemo
-
 #elif defined( CONFIG_CLI_UART_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vRunCLIUartDemo
+#elif defined( CONFIG_DEVICE_DEFENDER_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunDeviceDefenderDemo
 #else /* if defined( CONFIG_CORE_MQTT_BASIC_TLS_DEMO_ENABLED ) */
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "No demo to run. One demo should be enabled"

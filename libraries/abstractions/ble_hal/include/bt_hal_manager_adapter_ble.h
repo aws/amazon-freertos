@@ -120,16 +120,16 @@ typedef struct
     BTGattAdvName_t ucName;
     bool bSetScanRsp;
     uint32_t ulAppearance;
-    uint32_t ulMinInterval;    /**< Minimum Connection Interval. If set to 0, minimum connection interval is not included in advertisement/scan response data. */
-    uint32_t ulMaxInterval;    /**< Maximum Connection Interval. If set to 0, maximum connection interval is not included in advertisement/scan response data. */
-    uint16_t usMinAdvInterval; /**< Minimum Advertising Interval in units of 0.625ms.
-                                *   Range: 0x0020 to 0x4000. Time Range: 20 ms to 10.24 s.
-                                *   If set to 0, stack specific default values will be used. */
+    uint32_t ulMinInterval;            /**< Minimum Connection Interval. If set to 0, minimum connection interval is not included in advertisement/scan response data. */
+    uint32_t ulMaxInterval;            /**< Maximum Connection Interval. If set to 0, maximum connection interval is not included in advertisement/scan response data. */
+    uint16_t usMinAdvInterval;         /**< Minimum Advertising Interval in units of 0.625ms.
+                                        *   Range: 0x0020 to 0x4000. Time Range: 20 ms to 10.24 s.
+                                        *   If set to 0, stack specific default values will be used. */
 
-    uint16_t usMaxAdvInterval; /**< Maximum Advertising Interval in units of 0.625ms.
-                                *   Range: 0x0020 to 0x4000. Time Range: 20 ms to 10.24 s.
-                                *   If set to 0, stack specific default values will be used. */
-    uint8_t ucChannelMap;
+    uint16_t usMaxAdvInterval;         /**< Maximum Advertising Interval in units of 0.625ms.
+                                        *   Range: 0x0020 to 0x4000. Time Range: 20 ms to 10.24 s.
+                                        *   If set to 0, stack specific default values will be used. */
+    uint8_t ucChannelMap;              /**< The bit map to specify channel indices for advertising. If set to 0, stack specific values will be used. */
     uint8_t ucTxPower;
     uint8_t ucTimeout;                 /**< This is deprecated. Use usTimeout for advertisement duration value*/
     uint16_t usTimeout;                /**< Advertisement duration value in units of 10ms. Set to 0 for infinite timeout for advertisements. */

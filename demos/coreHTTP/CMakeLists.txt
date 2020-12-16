@@ -16,6 +16,7 @@ afr_module_sources(
     INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/http_demo_mutual_auth.c"
         "${CMAKE_CURRENT_LIST_DIR}/http_demo_s3_download.c"
+        "${CMAKE_CURRENT_LIST_DIR}/http_demo_s3_download_multithreaded.c"
         "${CMAKE_CURRENT_LIST_DIR}/http_demo_s3_upload.c"
 )
 

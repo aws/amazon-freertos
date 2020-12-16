@@ -335,6 +335,11 @@ static SemaphoreHandle_t bleChannelSem;
 static uint32_t getTimeMs();
 
 /**
+ * @brief Global variable to keep track of BLE status and enable only once.
+ */
+static BaseType_t bleEnabled = pdFALSE;
+
+/**
  * @brief Sends an MQTT CONNECT packet over connected BLE Channel.
  *
  * @param[in] pContext MQTT context pointer.
@@ -831,6 +836,12 @@ static void testSetUp()
 
     networkContext.pParams = &xBleTransportParams;
 
+    if( bleEnabled == pdFALSE )
+    {
+        bleEnable();
+        bleEnabled = pdTRUE;
+    }
+
     /* setup BLE transport interface. */
     setupBleTransportInterface( &networkContext );
 
@@ -874,15 +885,15 @@ TEST_TEAR_DOWN( coreMQTT_Integration_BLE )
  */
 TEST_GROUP_RUNNER( coreMQTT_Integration_BLE )
 {
-    /* Enable BLE middleware and GATT services only once for all tests in the group. */
-    bleEnable();
-
     RUN_TEST_CASE( coreMQTT_Integration_BLE, Subscribe_Publish_With_Qos_0 );
     RUN_TEST_CASE( coreMQTT_Integration_BLE, Subscribe_Publish_With_Qos_1 );
     RUN_TEST_CASE( coreMQTT_Integration_BLE, ProcessLoop_KeepAlive );
 
     /* Disconnect and turn off BLE after all tests in the group. */
-    bleDisable();
+    if( bleEnabled == pdTRUE )
+    {
+        bleDisable();
+    }
 }
 
 /* ========================== Test Cases ============================ */

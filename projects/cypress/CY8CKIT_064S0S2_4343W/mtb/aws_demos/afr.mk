@@ -179,8 +179,6 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers/pkcs11_helpers.c\
 	$(wildcard $(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/defender/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreHTTP/*.c)\
@@ -188,19 +186,22 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/device_shadow_for_aws/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/jobs_for_aws/*.c)
+	$(wildcard $(CY_AFR_ROOT)/demos/jobs_for_aws/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/lwip/*.c)
 
 INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common\
 	$(CY_AFR_ROOT)/demos/dev_mode_key_provisioning\
 	$(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/include\
-	$(CY_AFR_ROOT)/demos/https\
 	$(CY_AFR_ROOT)/demos/include\
 	$(CY_AFR_ROOT)/demos/network_manager\
 	$(CY_AFR_ROOT)/demos/tcp\
 	$(CY_AFR_ROOT)/demos/common/http_demo_helpers\
 	$(CY_AFR_ROOT)/demos/common/mqtt_demo_helpers\
 	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers\
+	$(CY_AFR_ROOT)/demos/device_defender_for_aws\
+	$(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/lwip\
 
 ################################################################################
 # libraries (3rd party)
@@ -258,7 +259,6 @@ SOURCES+=\
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/include\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/include/platform\

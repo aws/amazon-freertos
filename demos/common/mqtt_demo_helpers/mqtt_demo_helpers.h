@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202010.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -155,5 +155,17 @@ BaseType_t PublishToTopic( MQTTContext_t * pxContext,
                            int32_t topicFilterLength,
                            const char * pcPayload,
                            size_t payloadLength );
+
+/**
+ * @brief Invoke the core MQTT library's process loop function.
+ *
+ * @param[in] pxMqttContext The MQTT context for the MQTT connection.
+ * @param[in] ulTimeoutMs Minimum time for the loop to run, if no error occurs.
+ *
+ * @return pdPASS if process loop was successful;
+ * pdFAIL otherwise.
+ */
+BaseType_t ProcessLoop( MQTTContext_t * pxMqttContext,
+                        uint32_t ulTimeoutMs );
 
 #endif /* ifndef MQTT_DEMO_HELPERS_H_ */

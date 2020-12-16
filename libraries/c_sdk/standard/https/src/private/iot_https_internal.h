@@ -1,5 +1,5 @@
 /*
- * FreeRTOS HTTPS Client V1.1.3
+ * FreeRTOS HTTPS Client V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -280,6 +280,11 @@
  */
 #define HTTPS_CONTENT_LENGTH_HEADER                   "Content-Length"
 #define HTTPS_CONNECTION_HEADER                       "Connection"
+
+/*
+ * Constant for a mocked response so that #HTTPClient_Send returns #HTTPSuccess.
+ */
+#define HTTPS_MINIMAL_MOCKED_RESPONSE                 "HTTP/1.1 404\r\nContent-Length: 0\r\n\r\n"
 
 /**
  * @brief The maximum Content-Length header line size.

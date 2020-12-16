@@ -88,8 +88,15 @@
 /**
  * @brief Server's root CA certificate for TLS authentication to AWS IoT Core.
  *
- * Amazon's root CA certificate can be found @ref
- * https://www.amazontrust.com/repository/AmazonRootCA1.pem.
+ * This certificate is used to identify the AWS IoT server and is publicly
+ * available. Refer to the AWS documentation available in the link below for
+ * information about server root CAs.
+ * https://docs.aws.amazon.com/iot/latest/developerguide/server-authentication.html#server-authentication-certs
+ *
+ * @note The TI C3220 Launchpad board requires that the root CA have its
+ * certificate self-signed. As specified in the link above, the Amazon Root CAs
+ * are cross-signed by the Starfield Root CA. Thus, ONLY the Starfield Root CA
+ * can be used to connect to the ATS endpoints on AWS IoT, for the TI board.
  *
  * @note This certificate should be PEM-encoded.
  *
@@ -97,9 +104,8 @@
  * "-----BEGIN CERTIFICATE-----\n"\
  * "...base64 data...\n"\
  * "-----END CERTIFICATE-----\n"
- *
- * #define democonfigROOT_CA_PEM    "...insert here..."
  */
+#define democonfigROOT_CA_PEM                       tlsSTARFIELD_ROOT_CERTIFICATE_PEM
 
 /**
  * @brief This endpoint can be used to publish a message to a topic named topic
