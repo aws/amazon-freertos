@@ -313,7 +313,7 @@ static MQTTStatus_t getNewData( const MQTTFixedBuffer_t * buf,
 
     /* Waits until there is data available from the channel to receive it.
      * A "No data was received from the transport." may appear from each unsuccessful attempt.
-     * This program will stop after 20 attempts, with 250 seconds in between by default.
+     * This program will stop after 20 attempts, with 250 milliseconds in between by default.
      * If you have high latency, you can adjust MQTT_MAX_RECV_ATTEMPTS above. */
     do
     {
@@ -788,16 +788,13 @@ MQTTStatus_t RunMQTTBLETransportDemo( void )
 
             mqttSubscribeToTopics( &fixedBuffer );
 
-            /* Process incoming packets from the broker. There will be one SUBACK packet
-             * for each topic subscribed to.  There remains the possiblity that another
+            /* Process incoming packets from the broker. Having just sent a single SUBSCRIBE
+             * for both topics, we should receive a single SUBACK. There remains the possiblity that another
              * person will publish to the topic before the SUBACK is received, but since
              * we are the only ones using this topic filter name, here that chance is zero.
              * However, one should use a generic incoming packet function for higher use
              * topic filters in case a PUBLISH arrives before the SUBACK. */
-            for( size_t subscriptionNumber = 0; subscriptionNumber < NUM_SUBS_AT_ONCE; ++subscriptionNumber )
-            {
-                mqttProcessIncomingPacket( &fixedBuffer );
-            }
+            mqttProcessIncomingPacket( &fixedBuffer );
 
             /********************* Publish and Keep Alive Loop. ********************/
             /* Publish messages with QOS0, send and process Keep alive messages. */
@@ -853,12 +850,7 @@ MQTTStatus_t RunMQTTBLETransportDemo( void )
             }
 
             mqttUnsubscribeFromTopic( &fixedBuffer );
-
-            /* Process Incoming unsubscribe acks from the broker. */
-            for( size_t subscriptionNumber = 0; subscriptionNumber < NUM_SUBS_AT_ONCE; ++subscriptionNumber )
-            {
-                mqttProcessIncomingPacket( &fixedBuffer );
-            }
+            mqttProcessIncomingPacket( &fixedBuffer );
 
             /* Send an MQTT Disconnect packet over the already connected BLE channel.
              * There is no corresponding response for the disconnect packet. After sending
