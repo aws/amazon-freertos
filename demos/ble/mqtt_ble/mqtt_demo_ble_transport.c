@@ -204,6 +204,7 @@ static uint8_t fixedBufferBuf[ SINGLE_INCOMING_PACKET_MAX_SIZE ];
  */
 static SemaphoreHandle_t channelSemaphore;
 
+static void mqttProcessIncomingPacket( MQTTFixedBuffer_t * buf );
 
 /*-----------------------------------------------------------*/
 
@@ -432,97 +433,118 @@ static MQTTStatus_t createMQTTConnectionWithBroker( const MQTTFixedBuffer_t * bu
 }
 
 
-static void mqttSubscribeToTopics( const MQTTFixedBuffer_t * buf )
+static void mqttSubscribeToTopics( MQTTFixedBuffer_t * const buf )
 {
     MQTTStatus_t result = MQTTSuccess;
-    MQTTSubscribeInfo_t mqttSubscription[ NUM_SUBS_AT_ONCE ];
+    MQTTSubscribeInfo_t mqttSubscription;
     size_t remainingLength = 0;
     size_t packetSize = 0;
     size_t status = 0;
 
-    LogInfo( ( "Trying to send a subscribe packet to the broker" ) );
-
-    /***
-     * For readability, error handling in this function is restricted to the use of
-     * configASSERTs().
-     ***/
-
-    /* Some fields not used by this demo so start with everything as 0. */
-    ( void ) memset( ( void * ) &mqttSubscription, 0x00, sizeof( mqttSubscription ) );
-
-    /* Populate the topic filter names with user defined strings. */
-    for( size_t i = 0; i < NUM_SUBS_AT_ONCE; ++i )
+    /* When possible, it is recommended to send multiple topics in a single SUBSCRIBE packet.
+     * However, for improved compatibility with our iOS and Android companion mobile apps,
+     * we send one SUBSCRIBE packet per topic. */
+    for( size_t topic_i = 0; topic_i < NUM_SUBS_AT_ONCE; topic_i++ )
     {
-        mqttSubscription[ i ].pTopicFilter = subscriptionArray[ i ];
-        mqttSubscription[ i ].topicFilterLength = ( uint16_t ) strlen( subscriptionArray[ i ] );
+        LogInfo( ( "Trying to send a subscribe packet to the broker" ) );
+
+        /***
+         * For readability, error handling in this function is restricted to the use of
+         * configASSERTs().
+         ***/
+
+        /* Some fields not used by this demo so start with everything as 0. */
+        remainingLength = 0u;
+        packetSize = 0u;
+        status = 0;
+        ( void ) memset( ( void * ) &mqttSubscription, 0x00, sizeof( mqttSubscription ) );
+
+        /* Populate the topic filter names with user defined strings. */
+        mqttSubscription.pTopicFilter = subscriptionArray[ topic_i ];
+        mqttSubscription.topicFilterLength = ( uint16_t ) strlen( subscriptionArray[ topic_i ] );
+
+        result = MQTT_GetSubscribePacketSize( &mqttSubscription,
+                                              1u,
+                                              &remainingLength,
+                                              &packetSize );
+        configASSERT( result == MQTTSuccess );
+
+
+        /* Serialize subscribe into statically allocated buffer. */
+        subscribePacketIdentifier = getNextPacketIdentifier();
+        result = MQTT_SerializeSubscribe( &mqttSubscription,
+                                          1u,
+                                          subscribePacketIdentifier,
+                                          remainingLength,
+                                          buf );
+        configASSERT( result == MQTTSuccess );
+
+        /* Send Subscribe request to the broker. */
+        status = ( size_t ) IotBleMqttTransportSend( &xContext, buf->pBuffer, packetSize );
+
+        configASSERT( status == packetSize );
+
+        /* Process incoming packets from the broker. Recall, we specifically sent a
+         * distinct SUBSCRIBE per topic, to improve compatibility with our
+         * Android and iOS companion mobile apps. So we expect one SUBACK per topic.
+         * There remains the possiblity that another
+         * person will publish to the topic before the SUBACK is received, but since
+         * we are the only ones using this topic filter name, here that chance is zero.
+         * However, one should use a generic incoming packet function for higher use
+         * topic filters in case a PUBLISH arrives before the SUBACK. */
+        mqttProcessIncomingPacket( buf );
+
+        LogInfo( ( "Successfully sent subscribe packet to the broker" ) );
     }
-
-    result = MQTT_GetSubscribePacketSize( mqttSubscription,
-                                          sizeof( mqttSubscription ) / sizeof( MQTTSubscribeInfo_t ),
-                                          &remainingLength, &packetSize );
-
-    configASSERT( result == MQTTSuccess );
-
-    subscribePacketIdentifier = getNextPacketIdentifier();
-
-    /* Serialize subscribe into statically allocated buffer. */
-    result = MQTT_SerializeSubscribe( mqttSubscription,
-                                      sizeof( mqttSubscription ) / sizeof( MQTTSubscribeInfo_t ),
-                                      subscribePacketIdentifier,
-                                      remainingLength,
-                                      buf );
-    configASSERT( result == MQTTSuccess );
-
-    /* Send Subscribe request to the broker. */
-    status = ( size_t ) IotBleMqttTransportSend( &xContext, buf->pBuffer, packetSize );
-
-    configASSERT( status == packetSize );
-
-    LogInfo( ( "Successfully sent subscribe packet to the broker" ) );
 }
 
 
-static void mqttUnsubscribeFromTopic( const MQTTFixedBuffer_t * buf )
+static void mqttUnsubscribeFromTopics( MQTTFixedBuffer_t * const buf )
 {
     MQTTStatus_t result = MQTTSuccess;
-    MQTTSubscribeInfo_t mqttUnsubscription[ NUM_SUBS_AT_ONCE ];
+    MQTTSubscribeInfo_t mqttUnsubscription;
     size_t remainingLength = 0;
     size_t packetSize = 0;
     size_t status = 0;
 
-    LogInfo( ( "Trying to send an unsubscribe packet to the broker" ) );
-
-    /* Some fields not used by this demo so start with everything at 0. */
-    ( void ) memset( ( void * ) &mqttUnsubscription, 0x00, sizeof( mqttUnsubscription ) );
-
-    /* Populate the topic filter names with user defined strings. */
-    for( size_t i = 0; i < NUM_SUBS_AT_ONCE; ++i )
+    for( size_t topic_i = 0; topic_i < NUM_SUBS_AT_ONCE; topic_i++ )
     {
-        mqttUnsubscription[ i ].pTopicFilter = subscriptionArray[ i ];
-        mqttUnsubscription[ i ].topicFilterLength = ( uint16_t ) strlen( subscriptionArray[ i ] );
+        LogInfo( ( "Trying to send an unsubscribe packet to the broker" ) );
+
+        /* Some fields not used by this demo so start with everything at 0. */
+        remainingLength = 0;
+        packetSize = 0;
+        status = 0;
+        ( void ) memset( ( void * ) &mqttUnsubscription, 0x00, sizeof( mqttUnsubscription ) );
+
+        /* Populate the topic filter names with user defined strings. */
+        mqttUnsubscription.pTopicFilter = subscriptionArray[ topic_i ];
+        mqttUnsubscription.topicFilterLength = ( uint16_t ) strlen( subscriptionArray[ topic_i ] );
+
+        result = MQTT_GetUnsubscribePacketSize( &mqttUnsubscription,
+                                                1u,
+                                                &remainingLength,
+                                                &packetSize );
+        configASSERT( result == MQTTSuccess );
+
+        /* Get next unique packet identifier */
+        unsubscribePacketIdentifier = getNextPacketIdentifier();
+        result = MQTT_SerializeUnsubscribe( &mqttUnsubscription,
+                                            1u,
+                                            unsubscribePacketIdentifier,
+                                            remainingLength,
+                                            buf );
+        configASSERT( result == MQTTSuccess );
+
+        /* Send Unsubscribe request to the broker. */
+        status = ( size_t ) IotBleMqttTransportSend( &xContext, buf->pBuffer, packetSize );
+        configASSERT( status == packetSize );
+
+        /* Handle the UNSUBACK */
+        mqttProcessIncomingPacket( buf );
+
+        LogInfo( ( "Successfully sent an unsubscribe packet to the broker" ) );
     }
-
-    result = MQTT_GetUnsubscribePacketSize( mqttUnsubscription,
-                                            sizeof( mqttUnsubscription ) / sizeof( MQTTSubscribeInfo_t ),
-                                            &remainingLength,
-                                            &packetSize );
-    configASSERT( result == MQTTSuccess );
-
-    /* Get next unique packet identifier */
-    unsubscribePacketIdentifier = getNextPacketIdentifier();
-
-    result = MQTT_SerializeUnsubscribe( mqttUnsubscription,
-                                        sizeof( mqttUnsubscription ) / sizeof( MQTTSubscribeInfo_t ),
-                                        unsubscribePacketIdentifier,
-                                        remainingLength,
-                                        buf );
-    configASSERT( result == MQTTSuccess );
-
-    /* Send Unsubscribe request to the broker. */
-    status = ( size_t ) IotBleMqttTransportSend( &xContext, buf->pBuffer, packetSize );
-    configASSERT( status == packetSize );
-
-    LogInfo( ( "Successfully sent an unsubscribe packet to the broker" ) );
 }
 
 
@@ -785,16 +807,7 @@ MQTTStatus_t RunMQTTBLETransportDemo( void )
              * will expect all the messages it sends to the broker to be sent back to it
              * from the broker. This demo uses QOS0 in subscribe, therefore, the Publish
              * messages received from the broker will have QOS0. */
-
             mqttSubscribeToTopics( &fixedBuffer );
-
-            /* Process incoming packets from the broker. Having just sent a single SUBSCRIBE
-             * for both topics, we should receive a single SUBACK. There remains the possiblity that another
-             * person will publish to the topic before the SUBACK is received, but since
-             * we are the only ones using this topic filter name, here that chance is zero.
-             * However, one should use a generic incoming packet function for higher use
-             * topic filters in case a PUBLISH arrives before the SUBACK. */
-            mqttProcessIncomingPacket( &fixedBuffer );
 
             /********************* Publish and Keep Alive Loop. ********************/
             /* Publish messages with QOS0, send and process Keep alive messages. */
@@ -849,8 +862,7 @@ MQTTStatus_t RunMQTTBLETransportDemo( void )
                 break;
             }
 
-            mqttUnsubscribeFromTopic( &fixedBuffer );
-            mqttProcessIncomingPacket( &fixedBuffer );
+            mqttUnsubscribeFromTopics( &fixedBuffer );
 
             /* Send an MQTT Disconnect packet over the already connected BLE channel.
              * There is no corresponding response for the disconnect packet. After sending
