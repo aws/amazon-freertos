@@ -534,6 +534,9 @@
 		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow_config_defaults.h">
 			<Filter>libraries\device_shadow_for_aws\source\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\demos\include\aws_iot_metrics.h">
+			<Filter>demos\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\device_defender_for_aws\source\include\defender.h">
 			<Filter>libraries\device_defender_for_aws\source\include</Filter>
 		</ClInclude>

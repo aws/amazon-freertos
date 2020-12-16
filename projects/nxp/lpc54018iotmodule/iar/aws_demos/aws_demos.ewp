@@ -1999,6 +1999,9 @@
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\iot_demo_runner.h</name>
 			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\aws_iot_metrics.h</name>
+			</file>
 		</group>
 		<group>
 			<name>dev_mode_key_provisioning</name>

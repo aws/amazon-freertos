@@ -1219,6 +1219,11 @@
 			<locationURI>AFR_HOME/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
 		</link>
 		<link>
+			<name>demos/include/aws_iot_metrics.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/include/aws_iot_metrics.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/device_defender_for_aws/source/defender.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/device_defender_for_aws/source/defender.c</locationURI>

@@ -1014,6 +1014,11 @@
 							<FileType>5</FileType>
 							<FilePath>../../../../../demos/include/iot_demo_runner.h</FilePath>
 						</File>
+						<File>
+							<FileName>aws_iot_metrics.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../demos/include/aws_iot_metrics.h</FilePath>
+						</File>
 					</Files>
 				</Group>
 				<Group>

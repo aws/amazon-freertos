@@ -25,6 +25,8 @@ afr_module_sources(
     PRIVATE
         ${MQTT_SOURCES}
         ${MQTT_SERIALIZER_SOURCES}
+        # Header files added to the target so that these are available
+        # in code downloaded from the FreeRTOS console.
         ${MQTT_HEADER_FILES}
 )
 
