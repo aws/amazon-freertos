@@ -582,6 +582,7 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
 
 
     pxNetworkContext->pParams = &xSecureSocketsTransportParams;
+
     if( prvConnectToServerWithBackoffRetries( pxNetworkContext ) != TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
         /* Log error to indicate connection failure after all

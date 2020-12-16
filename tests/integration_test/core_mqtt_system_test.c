@@ -1460,6 +1460,7 @@ void Connect_LWT()
     MQTTContext_t secondContext;
 
     secondNetworkContext.pParams = &secondSecureSocketsTransportParams;
+
     /* Establish a second TCP connection with the server endpoint, then
      * a TLS session. The server info and credentials can be reused. */
     TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &secondNetworkContext ) );

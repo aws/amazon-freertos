@@ -287,8 +287,8 @@
  */
 typedef struct MqttTransportParams
 {
-    void* pNetworkConnection;                       /**< @brief The network connection used for sending packets on the network. */
-    const IotNetworkInterface_t* pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
+    void * pNetworkConnection;                       /**< @brief The network connection used for sending packets on the network. */
+    const IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
 } MqttTransportParams_t;
 
 /**
