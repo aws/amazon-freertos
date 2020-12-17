@@ -17,7 +17,8 @@ endif
 
 # Configuration specific to BLE
 ifeq ($(BLE_SUPPORT),1)
-DEFINES+=BLE_SUPPORTED
+# BLE_SUPPORTED is defined in iot_config.h, comment this out to silence the "BLE_SUPPORTED" redefined warning.
+# DEFINES+=BLE_SUPPORTED
 COMPONENTS+=WICED_BLE
 endif
 
