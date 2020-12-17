@@ -272,6 +272,12 @@ function(cy_add_link_libraries)
         "${ARG_BSP_DIR}"
     )
 
+    target_link_libraries(
+        AFR::kernel::mcu_port
+        INTERFACE
+            3rdparty::tinycrypt
+    )
+
     add_library(CyObjStore INTERFACE)
     target_sources(CyObjStore INTERFACE
         "${cy_port_support_dir}/objstore/cyobjstore.c"
