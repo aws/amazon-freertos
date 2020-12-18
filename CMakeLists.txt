@@ -6,9 +6,9 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 endif()
 
 project(amazon-freertos)
-set(PROJECT_VERSION "202011.00")
+set(PROJECT_VERSION "202011.01")
 set(PROJECT_VERSION_MAJOR "202011")
-set(PROJECT_VERSION_MINOR "00")
+set(PROJECT_VERSION_MINOR "01")
 
 # Import global configurations.
 include("tools/cmake/afr.cmake")
