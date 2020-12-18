@@ -1678,11 +1678,6 @@
 			<locationURI>BASE_DIR/libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</locationURI>
 		</link>
 		<link>
-			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/device_defender_for_aws/source/defender.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/device_defender_for_aws/source/defender.c</locationURI>
