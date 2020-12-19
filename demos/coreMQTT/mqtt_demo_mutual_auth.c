@@ -232,6 +232,20 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Calculate and perform an exponential backoff with jitter delay for
  * the next retry attempt of a failed network operation with the server.
  *
@@ -474,6 +488,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
     uint32_t ulDemoRunCount = 0UL, ulDemoSuccessCount = 0UL;
     TransportSocketStatus_t xNetworkStatus;
     BaseType_t xIsConnectionEstablished = pdFALSE;
+    SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
     /* Upon return, pdPASS will indicate a successful demo execution.
     * pdFAIL will indicate some failures occurred during execution. The
@@ -492,6 +507,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
      * by the timer utility function that is provided to the MQTT library.
      */
     ulGlobalEntryTimeMs = prvGetTimeMs();
+    xNetworkContext.pParams = &secureSocketsTransportParams;
 
     for( ulDemoRunCount = 0UL; ( ulDemoRunCount < democonfigMQTT_MAX_DEMO_COUNT ); ulDemoRunCount++ )
     {

@@ -216,6 +216,22 @@
  */
 #define MILLISECONDS_PER_TICK                 ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/c_sdk/standard/ble/include/iot_ble_mqtt_transport.h.
+ */
+struct NetworkContext
+{
+    BleTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
  * it is used to match received Subscribe ACK to the transmitted subscribe.
@@ -239,8 +255,12 @@ static uint16_t globalPublishPacketIdentifier = 0U;
 /**
  * @brief Represents the BLE transport interface context used to send data over BLE channel.
  */
-static NetworkContext_t networkContext;
+static NetworkContext_t networkContext = { 0 };
 
+/**
+ * @brief Ble Transport Parameters structure to store the data channel.
+ */
+static BleTransportParams_t xBleTransportParams = { 0 };
 
 /**
  * @brief The context representing the MQTT connection with the broker for
@@ -781,13 +801,13 @@ static void setupBleTransportInterface( NetworkContext_t * pContext )
     TEST_ASSERT_TRUE_MESSAGE( status, "Failed to initialize transport interface for BLE" );
 
     /* Open is a handshake procedure, so we need to wait until it is ready to use. */
-    pContext->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
-    TEST_ASSERT_NOT_NULL_MESSAGE( pContext->pChannel, "Failed to create BLE data transfer channel." );
+    pContext->pParams->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
+    TEST_ASSERT_NOT_NULL_MESSAGE( pContext->pParams->pChannel, "Failed to create BLE data transfer channel." );
 
     bleChannelSem = xSemaphoreCreateBinary();
     TEST_ASSERT_NOT_NULL( bleChannelSem );
 
-    status = IotBleDataTransfer_SetCallback( pContext->pChannel, bleChannelCallback, NULL );
+    status = IotBleDataTransfer_SetCallback( pContext->pParams->pChannel, bleChannelCallback, NULL );
     TEST_ASSERT_TRUE( status );
 
     TEST_ASSERT_EQUAL_MESSAGE( pdTRUE, xSemaphoreTake( bleChannelSem, pdMS_TO_TICKS( TEST_BLE_CONNECTION_TIMEOUT_MS ) ), "Timed out to open BLE data transfer channel" );
@@ -796,8 +816,8 @@ static void setupBleTransportInterface( NetworkContext_t * pContext )
 static void teardownBleTransportInterface( NetworkContext_t * pContext )
 {
     IotBleMqttTransportCleanup( pContext );
-    IotBleDataTransfer_Close( pContext->pChannel );
-    IotBleDataTransfer_Reset( pContext->pChannel );
+    IotBleDataTransfer_Close( pContext->pParams->pChannel );
+    IotBleDataTransfer_Reset( pContext->pParams->pChannel );
     vSemaphoreDelete( bleChannelSem );
 }
 
@@ -813,6 +833,8 @@ static void testSetUp()
     receivedPubAck = false;
     packetTypeForDisconnection = MQTT_PACKET_TYPE_INVALID;
     memset( &incomingInfo, 0u, sizeof( MQTTPublishInfo_t ) );
+
+    networkContext.pParams = &xBleTransportParams;
 
     if( bleEnabled == pdFALSE )
     {

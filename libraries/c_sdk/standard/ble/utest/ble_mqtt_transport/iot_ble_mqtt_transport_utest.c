@@ -53,7 +53,28 @@
 #define _NUM_DISCONNECT_PARAMS      ( 1 )
 #define _NUM_PINGRESP_PARAMS        ( 1 )
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/c_sdk/standard/ble/include/iot_ble_mqtt_transport.h.
+ */
+struct NetworkContext
+{
+    BleTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 static NetworkContext_t context;
+
+/**
+ * @brief Ble Transport Parameters structure to store the data channel.
+ */
+static BleTransportParams_t xBleTransportParams = { 0 };
 static MQTTFixedBuffer_t fixedBuffer;
 static size_t bufferSize = 0;
 
@@ -64,12 +85,13 @@ void setUp( void )
 {
     fixedBuffer.pBuffer = buffer;
     fixedBuffer.size = 100;
+    context.pParams = &xBleTransportParams;
 }
 
 /* called before each testcase */
 void tearDown( void )
 {
-    context.pChannel = NULL;
+    context.pParams->pChannel = NULL;
 }
 
 /* called at the beginning of the whole suite */
@@ -418,8 +440,8 @@ void test_IotBleMqttTransportSend_PublishBasic( void )
 {
     size_t bytesSent = 0;
 
-    context.publishInfo.topicNameLength = 20;
-    char buffer[ context.publishInfo.topicNameLength ];
+    context.pParams->publishInfo.topicNameLength = 20;
+    char buffer[ context.pParams->publishInfo.topicNameLength ];
 
     uint8_t MQTTPacket[] =
     {
@@ -456,8 +478,8 @@ void test_IotBleMqttTransportSend_PublishBadDeserialize( void )
 {
     size_t bytesSent = 0;
 
-    context.publishInfo.topicNameLength = 20;
-    char buffer[ context.publishInfo.topicNameLength ];
+    context.pParams->publishInfo.topicNameLength = 20;
+    char buffer[ context.pParams->publishInfo.topicNameLength ];
     uint8_t MQTTPacket[] =
     {
         0x30, 0x24, 0x00, 0x11, 0x69, 0x6f, 0x74, 0x64, 0x65, 0x6d,
@@ -885,7 +907,7 @@ void test_IotBleMqttTransportSend_ChannelFails( void )
     IotBleMqtt_SerializePingreq_ReturnThruPtr_pPacketSize( &packetSize );
     IotBleDataTransfer_Send_ExpectAnyArgsAndReturn( 0U );
     vPortFree_Ignore();
-    context.publishInfo.pending = false;
+    context.pParams->publishInfo.pending = false;
 
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context,
                                                     ( void * ) MQTTPacket,
@@ -908,7 +930,7 @@ void test_IotBleMqttTransportSend_ChannelFails_packetSizeZero( void )
     IotBleMqtt_SerializePingreq_ReturnThruPtr_pPacketSize( &ret_packetSize );
     IotBleDataTransfer_Send_ExpectAnyArgsAndReturn( 0 );
     vPortFree_Ignore();
-    context.publishInfo.pending = false;
+    context.pParams->publishInfo.pending = false;
 
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context,
                                                     ( void * ) MQTTPacket,

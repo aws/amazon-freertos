@@ -194,6 +194,22 @@
  */
 #define httpexampleMAX_WAIT_ITERATIONS                       ( 10 )
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Represents the network context used for the TLS session with the
  * server.
@@ -936,12 +952,16 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
     /* The length of the Request-URI within string S3_PRESIGNED_GET_URL */
     size_t xRequestUriLen = 0;
 
+    SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
+
     /* Remove compiler warnings about unused parameters. */
     ( void ) awsIotMqttMode;
     ( void ) pIdentifier;
     ( void ) pNetworkServerInfo;
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
+
+    xNetworkContext.pParams = &secureSocketsTransportParams;
 
     xMainTask = xTaskGetCurrentTaskHandle();
 

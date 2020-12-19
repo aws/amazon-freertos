@@ -34,6 +34,19 @@
 /* TCP/IP abstraction includes. */
 #include "transport_secure_sockets.h"
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
 
 /*-----------------------------------------------------------*/
 
@@ -104,23 +117,26 @@ int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
                                      size_t bytesToSend )
 {
     int32_t bytesSent = 0;
+    SecureSocketsTransportParams_t * pSecureSocketsTransportParams = NULL;
 
     if( ( pMessage == NULL ) ||
         ( bytesToSend == 0UL ) ||
-        ( pNetworkContext == NULL ) )
+        ( pNetworkContext == NULL ) ||
+        ( pNetworkContext->pParams == NULL ) )
     {
         LogError( ( "Invalid parameter: pMessage=%p, bytesToSend=%lu, pNetworkContext=%p",
                     pMessage, bytesToSend, ( void * ) pNetworkContext ) );
         bytesSent = SOCKETS_EINVAL;
     }
-    else if( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET )
+    else if( pNetworkContext->pParams->tcpSocket == SOCKETS_INVALID_SOCKET )
     {
-        LogError( ( "Invalid parameter: pNetworkContext->tcpSocket cannot be SOCKETS_INVALID_SOCKET." ) );
+        LogError( ( "Invalid parameter: pNetworkContext->pParams->tcpSocket cannot be SOCKETS_INVALID_SOCKET." ) );
         bytesSent = SOCKETS_EINVAL;
     }
     else
     {
-        bytesSent = SOCKETS_Send( pNetworkContext->tcpSocket,
+        pSecureSocketsTransportParams = pNetworkContext->pParams;
+        bytesSent = SOCKETS_Send( pSecureSocketsTransportParams->tcpSocket,
                                   pMessage,
                                   bytesToSend,
                                   0 );
@@ -157,23 +173,26 @@ int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
 {
     int32_t bytesReceived = SOCKETS_SOCKET_ERROR;
     uint8_t * pRecvBuffer = ( uint8_t * ) pBuffer;
+    SecureSocketsTransportParams_t * pSecureSocketsTransportParams = NULL;
 
     if( ( pBuffer == NULL ) ||
         ( bytesToRecv == 0UL ) ||
-        ( pNetworkContext == NULL ) )
+        ( pNetworkContext == NULL ) ||
+        ( pNetworkContext->pParams == NULL ) )
     {
         LogError( ( "Invalid parameter: pBuffer=%p, bytesToRecv=%lu, pNetworkContext=%p",
                     pBuffer, bytesToRecv, ( void * ) pNetworkContext ) );
         bytesReceived = SOCKETS_EINVAL;
     }
-    else if( pNetworkContext->tcpSocket == SOCKETS_INVALID_SOCKET )
+    else if( pNetworkContext->pParams->tcpSocket == SOCKETS_INVALID_SOCKET )
     {
-        LogError( ( "Invalid parameter: pNetworkContext->tcpSocket cannot be SOCKETS_INVALID_SOCKET." ) );
+        LogError( ( "Invalid parameter: pNetworkContext->pParams->tcpSocket cannot be SOCKETS_INVALID_SOCKET." ) );
         bytesReceived = SOCKETS_EINVAL;
     }
     else
     {
-        bytesReceived = SOCKETS_Recv( pNetworkContext->tcpSocket,
+        pSecureSocketsTransportParams = pNetworkContext->pParams;
+        bytesReceived = SOCKETS_Recv( pSecureSocketsTransportParams->tcpSocket,
                                       pRecvBuffer,
                                       bytesToRecv,
                                       0 );
@@ -394,12 +413,15 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
     size_t hostnameLength = 0U;
+    SecureSocketsTransportParams_t * pSecureSocketsTransportParams = NULL;
 
     configASSERT( pNetworkContext != NULL );
+    configASSERT( pNetworkContext->pParams != NULL );
     configASSERT( pServerInfo != NULL );
     configASSERT( pSocketsConfig != NULL );
 
     hostnameLength = pServerInfo->hostNameLength;
+    pSecureSocketsTransportParams = pNetworkContext->pParams;
 
     if( ( hostnameLength > ( size_t ) securesocketsMAX_DNS_NAME_LENGTH ) )
     {
@@ -459,7 +481,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
         /* Set the socket in the network context. */
-        pNetworkContext->tcpSocket = tcpSocket;
+        pSecureSocketsTransportParams->tcpSocket = tcpSocket;
     }
     else
     {
@@ -490,6 +512,11 @@ TransportSocketStatus_t SecureSocketsTransport_Connect( NetworkContext_t * pNetw
     else if( pNetworkContext == NULL )
     {
         LogError( ( "Parameter check failed: pNetworkContext is NULL." ) );
+        returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
+    }
+    else if( pNetworkContext->pParams == NULL )
+    {
+        LogError( ( "Parameter check failed: pNetworkContext->pParams is NULL." ) );
         returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
     }
     else if( pServerInfo == NULL )
@@ -524,11 +551,14 @@ TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_
 {
     TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
     int32_t transportSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
+    SecureSocketsTransportParams_t * pSecureSocketsTransportParams = NULL;
 
-    if( pNetworkContext != NULL )
+    if( ( pNetworkContext != NULL ) &&
+        ( pNetworkContext->pParams != NULL ) )
     {
+        pSecureSocketsTransportParams = pNetworkContext->pParams;
         /* Call Secure Sockets shutdown function to close connection. */
-        transportSocketStatus = SOCKETS_Shutdown( pNetworkContext->tcpSocket, SOCKETS_SHUT_RDWR );
+        transportSocketStatus = SOCKETS_Shutdown( pSecureSocketsTransportParams->tcpSocket, SOCKETS_SHUT_RDWR );
 
         if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
@@ -538,7 +568,7 @@ TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_
         else
         {
             /* Call Secure Sockets close function to close socket. */
-            transportSocketStatus = SOCKETS_Close( pNetworkContext->tcpSocket );
+            transportSocketStatus = SOCKETS_Close( pSecureSocketsTransportParams->tcpSocket );
 
             if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
             {

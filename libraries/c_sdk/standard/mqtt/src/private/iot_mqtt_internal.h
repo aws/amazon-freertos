@@ -52,6 +52,9 @@
 /* FreeRTOS include. */
 #include "semphr.h"
 
+/* Transport interface include. */
+#include "transport_interface.h"
+
 /**
  * @def IotMqtt_Assert( expression )
  * @brief Assertion macro for the MQTT library.
@@ -279,6 +282,16 @@
 /*---------------------- MQTT internal data structures ----------------------*/
 
 /**
+ * @brief Defining the structure for network context used for sending the packets on the network.
+ * The declaration of the structure is mentioned in the transport_interface.h file.
+ */
+typedef struct MqttTransportParams
+{
+    void * pNetworkConnection;                       /**< @brief The network connection used for sending packets on the network. */
+    const IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
+} MqttTransportParams_t;
+
+/**
  * @brief Represents an MQTT connection.
  */
 typedef struct _mqttConnection
@@ -308,16 +321,6 @@ typedef struct _mqttConnection
     uint8_t * pPingreqPacket;                    /**< @brief An MQTT PINGREQ packet, allocated if keep-alive is active. */
     size_t pingreqPacketSize;                    /**< @brief The size of an allocated PINGREQ packet. */
 } _mqttConnection_t;
-
-/**
- * @brief Defining the structure for network context used for sending the packets on the network.
- * The declaration of the structure is mentioned in the transport_interface.h file.
- */
-struct NetworkContext
-{
-    void * pNetworkConnection;                       /**< @brief The network connection used for sending packets on the network. */
-    const IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
-};
 
 /**
  * @brief Represents a subscription stored in an MQTT connection.
@@ -450,10 +453,10 @@ typedef struct connContextMapping
     StaticSemaphore_t contextMutexStorage;                                 /**< @brief Static storage for Mutex for synchronization of MQTT Context. */
     SemaphoreHandle_t contextMutex;                                        /**< @brief Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
     uint8_t buffer[ NETWORK_BUFFER_SIZE ];                                 /**< @brief Network Buffer used to send packets on the network. This will be used by MQTT context defined above. */
-    NetworkContext_t networkContext;                                       /**< @brief Network Context used to send packets on the network. This will be used by MQTT context defined above. */
     _mqttSubscription_t subscriptionArray[ MAX_NO_OF_MQTT_SUBSCRIPTIONS ]; /**< @brief Holds subscriptions associated with this connection. */
     StaticSemaphore_t subscriptionMutexStorage;                            /**< @brief Static storage for Mutex for synchronization of subscription list. */
     SemaphoreHandle_t subscriptionMutex;                                   /**< @brief Grants exclusive access to the subscription list. */
+    MqttTransportParams_t mqttTransportParams;                             /**< @brief MQTT Transport Params holds the network interface and network connection. */
 } _connContext_t;
 
 /**

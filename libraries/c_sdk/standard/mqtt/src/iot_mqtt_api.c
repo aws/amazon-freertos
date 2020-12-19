@@ -64,11 +64,33 @@
     #error "IOT_MQTT_RETRY_MS_CEILING cannot be 0 or negative."
 #endif
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
+ */
+struct NetworkContext
+{
+    MqttTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Fixed Size Array to hold Mapping of MQTT Connection used in MQTT 201906.00 library to MQTT Context
  * used in calling MQTT LTS API from shim to send packets on the network.
  */
 _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
+
+/**
+ * @brief Represents the network context used for the TLS session with the
+ * server.
+ */
+static NetworkContext_t networkContext[ MAX_NO_OF_MQTT_CONNECTIONS ] = { 0 };
 
 /* Static storage for mutex used for synchronized access to #_connContext_t array. */
 static StaticSemaphore_t connContextMutexStorage;
@@ -860,7 +882,7 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
     IotMqtt_Assert( pMessage != NULL );
 
     /* Sending the bytes on the network using Network Interface. */
-    bytesSend = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
+    bytesSend = pNetworkContext->pParams->pNetworkInterface->send( pNetworkContext->pParams->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
 
     if( bytesSend <= 0 )
     {
@@ -1133,13 +1155,14 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         connToContext[ contextIndex ].mqttConnection = newMqttConnection;
 
         /* Assigning the Network Context to be used by this MQTT Context. */
-        connToContext[ contextIndex ].networkContext.pNetworkConnection = pNetworkConnection;
-        connToContext[ contextIndex ].networkContext.pNetworkInterface = pNetworkInfo->pNetworkInterface;
+        networkContext[ contextIndex ].pParams = &connToContext[ contextIndex ].mqttTransportParams;
+        connToContext[ contextIndex ].mqttTransportParams.pNetworkConnection = pNetworkConnection;
+        connToContext[ contextIndex ].mqttTransportParams.pNetworkInterface = pNetworkInfo->pNetworkInterface;
 
         /* Fill in TransportInterface send function pointer. We will not be implementing the
          * TransportInterface receive function pointer as receiving of packets is handled in shim by network
          * receive task. Only using MQTT LTS APIs for transmit path.*/
-        transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
+        transport.pNetworkContext = &networkContext[ contextIndex ];
         transport.send = transportSend;
         transport.recv = transportRecv;
 

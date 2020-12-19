@@ -134,6 +134,20 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/c_sdk/standard/ble/include/iot_ble_mqtt_transport.h.
+ */
+struct NetworkContext
+{
+    BleTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Callback for the demo, handles events when the data channel is first opened
  * and when data is received by the channel.
  */
@@ -180,9 +194,14 @@ static uint16_t subscribePacketIdentifier;
 static uint16_t unsubscribePacketIdentifier;
 
 /**
- * @brief Network context structure to store the data channel.
+ * @brief Network context structure to store the BleTransportParams_t pointer.
  */
 static NetworkContext_t xContext;
+
+/**
+ * @brief Ble Transport Parameters structure to store the data channel.
+ */
+static BleTransportParams_t xBleTransportParams;
 
 /**
  * @brief Flag to mark if the channel has been disconnected at all
@@ -254,15 +273,15 @@ static MQTTStatus_t demoInitChannel( void )
     IotBleMqttTransportInit( contextBuf, INCOMING_PACKET_QUEUE_SIZE, &xContext );
 
     /* Open is a handshake proceture, so we need to wait until it is ready to use. */
-    xContext.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
+    xContext.pParams->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
 
-    if( xContext.pChannel != NULL )
+    if( xContext.pParams->pChannel != NULL )
     {
         channelSemaphore = xSemaphoreCreateBinary();
 
         if( channelSemaphore != NULL )
         {
-            ( void ) IotBleDataTransfer_SetCallback( xContext.pChannel, demoCallback, NULL );
+            ( void ) IotBleDataTransfer_SetCallback( xContext.pParams->pChannel, demoCallback, NULL );
 
             if( xSemaphoreTake( channelSemaphore, pdMS_TO_TICKS( IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) ) == pdTRUE )
             {
@@ -778,6 +797,8 @@ MQTTStatus_t RunMQTTBLETransportDemo( void )
      ***/
     fixedBuffer.pBuffer = fixedBufferBuf;
     fixedBuffer.size = SINGLE_INCOMING_PACKET_MAX_SIZE;
+
+    xContext.pParams = &xBleTransportParams;
 
     status = demoInitChannel();
 

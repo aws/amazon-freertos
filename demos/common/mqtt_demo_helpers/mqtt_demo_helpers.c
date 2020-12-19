@@ -59,6 +59,9 @@
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
+/* Include the secure sockets implementation of the transport interface. */
+#include "transport_secure_sockets.h"
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -136,6 +139,20 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Structure to keep the MQTT publish packets until an ack is received
  * for QoS1 publishes.
  */
@@ -186,6 +203,11 @@ static PublishPackets_t outgoingPublishPackets[ MAX_OUTGOING_PUBLISHES ] = { 0 }
  * @brief The flag to indicate the mqtt session changed.
  */
 static bool mqttSessionEstablished = false;
+
+/**
+ * @brief The parameters for the network context using a TLS channel.
+ */
+static SecureSocketsTransportParams_t xSecureSocketsTransportParams;
 
 /*-----------------------------------------------------------*/
 
@@ -560,6 +582,9 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxMqttContext,
     /* Initialize the mqtt context and network context. */
     ( void ) memset( pxMqttContext, 0U, sizeof( MQTTContext_t ) );
     ( void ) memset( pxNetworkContext, 0U, sizeof( NetworkContext_t ) );
+
+
+    pxNetworkContext->pParams = &xSecureSocketsTransportParams;
 
     if( prvConnectToServerWithBackoffRetries( pxNetworkContext ) != TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
