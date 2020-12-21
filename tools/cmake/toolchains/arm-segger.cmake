@@ -30,15 +30,11 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 # Default flags and include paths.
 include_directories(${CMAKE_FIND_ROOT_PATH}/../../include)
 
-
 # Override the command to compile c files
 set(CMAKE_C_COMPILE_OBJECT
 	"<CMAKE_C_COMPILER> <DEFINES> <INCLUDES> <FLAGS> <SOURCE> -o <OBJECT>.asm"
 	"<CMAKE_ASM_COMPILER> --traditional-format -mcpu=cortex-m4 -mlittle-endian -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb <OBJECT>.asm -o <OBJECT>"
 )
-
-message("${CMAKE_C_COMPILE_OBJECT}")
-string(REPLACE "-MD" "-MD <OBJECT>.d" CMAKE_C_COMPILE_OBJECT "${CMAKE_C_COMPILE_OBJECT}")
 
 # Override the command to compile asm files
 set(CMAKE_ASM_COMPILE_OBJECT
