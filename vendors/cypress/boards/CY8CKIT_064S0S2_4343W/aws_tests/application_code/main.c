@@ -43,6 +43,7 @@
 
 /* Test includes */
 #include "aws_test_runner.h"
+#include "iot_config.h"
 
 /* AWS library includes. */
 #include "iot_system_init.h"

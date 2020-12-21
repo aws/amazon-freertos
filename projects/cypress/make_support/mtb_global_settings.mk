@@ -17,13 +17,14 @@ endif
 
 # Configuration specific to BLE
 ifeq ($(BLE_SUPPORT),1)
-DEFINES+=BLE_SUPPORTED
+# BLE_SUPPORTED is defined in iot_config.h, comment this out to silence the "BLE_SUPPORTED" redefined warning.
+# DEFINES+=BLE_SUPPORTED
 COMPONENTS+=WICED_BLE
 endif
 
 # Configuration specific to aws_tests project
 ifeq ($(CY_AFR_BUILD), aws_tests)
-DEFINES+=AMAZON_FREERTOS_ENABLE_UNIT_TESTS IOT_BUILD_TESTS=1 UNITY_INCLUDE_CONFIG_H
+DEFINES+=FREERTOS_ENABLE_UNIT_TESTS IOT_BUILD_TESTS=1 UNITY_INCLUDE_CONFIG_H 
 CY_AFR_IS_TESTING=1
 else
 CY_AFR_IS_TESTING=0

@@ -272,6 +272,12 @@ function(cy_add_link_libraries)
         "${ARG_BSP_DIR}"
     )
 
+    target_link_libraries(
+        AFR::kernel::mcu_port
+        INTERFACE
+            3rdparty::tinycrypt
+    )
+
     add_library(CyObjStore INTERFACE)
     target_sources(CyObjStore INTERFACE
         "${cy_port_support_dir}/objstore/cyobjstore.c"
@@ -291,6 +297,8 @@ function(cy_add_link_libraries)
         "${afr_ports_dir}/wifi/iot_wifi.c"
         "${afr_ports_dir}/wifi/iot_wifi_lwip.c"
         "${cy_port_support_dir}/wifi/cy_wifi_notify.c"
+        "${afr_ports_dir}/wifi/emac_eapol.h"
+        "${afr_ports_dir}/wifi/iot_wifi_common.h"
     )
     target_include_directories(AFR::wifi::mcu_port INTERFACE
         "${afr_ports_dir}/wifi"
@@ -321,6 +329,7 @@ function(cy_add_link_libraries)
             "${afr_ports_dir}/ble/wiced_bt_cfg.c"
             "${cy_port_support_dir}/bluetooth/platform_bt_nvram.c"
             "${cy_port_support_dir}/bluetooth/wiced_bt_dynamic_gattdb.c"
+            "${afr_ports_dir}/ble/bt_hal_internal.h"
         )
 
         target_include_directories(AFR::ble_hal::mcu_port INTERFACE
