@@ -193,6 +193,8 @@ target_sources(
     INTERFACE 
         "${afr_ports_dir}/wifi/iot_wifi.c"
         "${afr_ports_dir}/wifi/iot_softap_wifi_provisioning.c"
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c"
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h"
 )
 
 # BLE
