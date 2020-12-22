@@ -110,12 +110,12 @@
  * @brief Defines the numeric value for the WIFI security type exchanged between
  * the FreeRTOS device and companion mobile SDK.
  */
-#define IOT_BLE_WIFI_SECURITY_TYPE_OPEN               ( 0UL )
-#define IOT_BLE_WIFI_SECURITY_TYPE_WEP                ( 1UL )
-#define IOT_BLE_WIFI_SECURITY_TYPE_WPA                ( 2UL )
-#define IOT_BLE_WIFI_SECURITY_TYPE_WPA2               ( 3UL )
-#define IOT_BLE_WIFI_SECURITY_TYPE_WPA2_ENT           ( 4UL )
-#define IOT_BLE_WIFI_SECURITY_TYPE_WPA3               ( 5UL )
+#define IOT_BLE_WIFI_SECURITY_TYPE_OPEN        ( 0UL )
+#define IOT_BLE_WIFI_SECURITY_TYPE_WEP         ( 1UL )
+#define IOT_BLE_WIFI_SECURITY_TYPE_WPA         ( 2UL )
+#define IOT_BLE_WIFI_SECURITY_TYPE_WPA2        ( 3UL )
+#define IOT_BLE_WIFI_SECURITY_TYPE_WPA2_ENT    ( 4UL )
+#define IOT_BLE_WIFI_SECURITY_TYPE_WPA3        ( 5UL )
 
 /*---------------------------------------------------------------------------------------------------------*/
 
@@ -556,26 +556,32 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
             switch( value.u.value.u.signedInt )
             {
                 case IOT_BLE_WIFI_SECURITY_TYPE_OPEN:
-                pAddNetworkRequest->network.xSecurity = eWiFiSecurityOpen;
-                break;
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityOpen;
+                    break;
+
                 case IOT_BLE_WIFI_SECURITY_TYPE_WEP:
-                 pAddNetworkRequest->network.xSecurity = eWiFiSecurityWEP;
-                 break;
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityWEP;
+                    break;
+
                 case IOT_BLE_WIFI_SECURITY_TYPE_WPA:
-                 pAddNetworkRequest->network.xSecurity = eWiFiSecurityWPA;
-                 break;
-                 case IOT_BLE_WIFI_SECURITY_TYPE_WPA2:
-                 pAddNetworkRequest->network.xSecurity = eWiFiSecurityWPA2;
-                 break;
-                  case IOT_BLE_WIFI_SECURITY_TYPE_WPA2_ENT:
-                 pAddNetworkRequest->network.xSecurity = eWiFiSecurityWPA2;
-                 break;
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityWPA;
+                    break;
+
+                case IOT_BLE_WIFI_SECURITY_TYPE_WPA2:
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityWPA2;
+                    break;
+
+                case IOT_BLE_WIFI_SECURITY_TYPE_WPA2_ENT:
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityWPA2;
+                    break;
+
                 case IOT_BLE_WIFI_SECURITY_TYPE_WPA3:
-                 pAddNetworkRequest->network.xSecurity = eWiFiSecurityWPA2;
-                 break;
-                  default:
-                 pAddNetworkRequest->network.xSecurity = eWiFiSecurityNotSupported;
-                 break;
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityWPA2;
+                    break;
+
+                default:
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityNotSupported;
+                    break;
             }
         }
     }
