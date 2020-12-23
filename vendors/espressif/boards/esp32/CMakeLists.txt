@@ -185,6 +185,7 @@ target_include_directories(
         "${esp_idf_dir}/components/protocomm/include/security"
         "${esp_idf_dir}/components/protocomm/include/transports"
         "${esp_idf_dir}/components/wifi_provisioning/include"
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser"
 )
 endif()
 
@@ -193,6 +194,10 @@ target_sources(
     INTERFACE 
         "${afr_ports_dir}/wifi/iot_wifi.c"
         "${afr_ports_dir}/wifi/iot_softap_wifi_provisioning.c"
+        # Due to nghttp's dependency on it, http_parser is added to generate metadata
+        # so that it is present in the code downloaded from the FreeRTOS console.
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c"
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h"
 )
 
 # BLE
