@@ -365,7 +365,7 @@ function(afr_write_metadata)
 endfunction()
 
 # This function is used for any additional files that need
-# be included into the OCW build combo
+# be included in the ZIP downloaded from FreeRTOS console.
 function(afr_files_to_console_metadata)
     set(prop_var AFR_FILES_TO_CONSOLE_METADATA)
     set(${prop_var} "" CACHE INTERNAL "")
