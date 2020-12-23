@@ -63,6 +63,8 @@
 
 #define STORAGE_INDEX( priority )    ( wifiProvisioning.numNetworks - priority - 1 )
 #define NETWORK_INFO_DEFAULT_PARAMS    { .status = eWiFiSuccess, .RSSI = IOT_BLE_WIFI_PROV_INVALID_NETWORK_RSSI, .connected = false, .savedIdx = IOT_BLE_WIFI_PROV_INVALID_NETWORK_INDEX }
+
+
 /** @endcond */
 
 /**
@@ -103,6 +105,17 @@
 #define IOT_BLE_WIFI_PROV_NUM_STATUS_MESG_PARAMS          ( 2 )
 #define IOT_BLE_WIFI_PROV_DEFAULT_ALWAYS_CONNECT          ( true )
 
+
+/**
+ * @brief Defines the numeric value for the WIFI security type exchanged between
+ * the FreeRTOS device and companion mobile SDK.
+ */
+#define IOT_BLE_WIFI_SECURITY_TYPE_OPEN        ( 0UL )
+#define IOT_BLE_WIFI_SECURITY_TYPE_WEP         ( 1UL )
+#define IOT_BLE_WIFI_SECURITY_TYPE_WPA         ( 2UL )
+#define IOT_BLE_WIFI_SECURITY_TYPE_WPA2        ( 3UL )
+#define IOT_BLE_WIFI_SECURITY_TYPE_WPA2_ENT    ( 4UL )
+#define IOT_BLE_WIFI_SECURITY_TYPE_WPA3        ( 5UL )
 
 /*---------------------------------------------------------------------------------------------------------*/
 
@@ -249,7 +262,8 @@ static bool _getRequestType( const uint8_t * pRequest,
                              size_t requestLength,
                              int32_t * pType )
 {
-    IotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
+    IotSerializerDecoderObject_t decoderObj = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+    IotSerializerDecoderObject_t value = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
     IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     bool result = true;
 
@@ -330,7 +344,8 @@ static bool _deserializeListNetworkRequest( const uint8_t * pData,
                                             size_t length,
                                             IotBleListNetworkRequest_t * pListNetworkRequest )
 {
-    IotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
+    IotSerializerDecoderObject_t decoderObj = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+    IotSerializerDecoderObject_t value = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
     IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     bool result = true;
 
@@ -453,7 +468,8 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
                                            size_t length,
                                            IotBleAddNetworkRequest_t * pAddNetworkRequest )
 {
-    IotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
+    IotSerializerDecoderObject_t decoderObj = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+    IotSerializerDecoderObject_t value = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
     IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     bool result = true;
 
@@ -537,7 +553,36 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
         }
         else
         {
-            pAddNetworkRequest->network.xSecurity = value.u.value.u.signedInt;
+            switch( value.u.value.u.signedInt )
+            {
+                case IOT_BLE_WIFI_SECURITY_TYPE_OPEN:
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityOpen;
+                    break;
+
+                case IOT_BLE_WIFI_SECURITY_TYPE_WEP:
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityWEP;
+                    break;
+
+                case IOT_BLE_WIFI_SECURITY_TYPE_WPA:
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityWPA;
+                    break;
+
+                case IOT_BLE_WIFI_SECURITY_TYPE_WPA2:
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityWPA2;
+                    break;
+
+                case IOT_BLE_WIFI_SECURITY_TYPE_WPA2_ENT:
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityWPA2;
+                    break;
+
+                case IOT_BLE_WIFI_SECURITY_TYPE_WPA3:
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityWPA2;
+                    break;
+
+                default:
+                    pAddNetworkRequest->network.xSecurity = eWiFiSecurityNotSupported;
+                    break;
+            }
         }
     }
 
@@ -685,7 +730,8 @@ static bool _deserializeEditNetworkRequest( const uint8_t * pData,
                                             size_t length,
                                             IotBleEditNetworkRequest_t * pEditNetworkRequest )
 {
-    IotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
+    IotSerializerDecoderObject_t decoderObj = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+    IotSerializerDecoderObject_t value = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
     IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     bool result = true;
 
@@ -814,7 +860,8 @@ static bool _deserializeDeleteNetworkRequest( const uint8_t * pData,
                                               size_t length,
                                               IotBleDeleteNetworkRequest_t * pDeleteNetworkRequest )
 {
-    IotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
+    IotSerializerDecoderObject_t decoderObj = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+    IotSerializerDecoderObject_t value = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
     IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     bool result = true;
 
@@ -921,7 +968,7 @@ static IotSerializerError_t _serializeNetwork( int32_t responseType,
 {
     IotSerializerEncoderObject_t container = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
     IotSerializerEncoderObject_t networkMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t value = { 0 };
+    IotSerializerScalarData_t value = IOT_SERIALIZER_SCALAR_DATA_INITIALIZER;
     IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     size_t length = *plength;
 
@@ -1027,7 +1074,7 @@ static IotSerializerError_t _serializeStatusResponse( int32_t responseType,
 {
     IotSerializerEncoderObject_t container = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
     IotSerializerEncoderObject_t responseMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t value = { 0 };
+    IotSerializerScalarData_t value = IOT_SERIALIZER_SCALAR_DATA_INITIALIZER;
     IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     size_t length = *plength;
 

@@ -106,8 +106,6 @@ void userInputTask( void * pvParameters )
             }
         }
     }
-
-    vTaskDelete( NULL );
 }
 
 void NumericComparisonInit( void )
