@@ -1074,7 +1074,7 @@ static BaseType_t prvCheckTimeout( TickType_t xStartTime,
     if( ( int32_t ) ( xEndTime - xStartTime ) < ( int32_t ) ( xTimeout - integrationtestportableTIMEOUT_UNDER_TOLERANCE ) )
     {
         xResult = pdFAIL;
-        tcptestFAILUREPRINTF( ( "Start Time: %d, End Time: %d, Timeout: %d \n", xStartTime, xEndTime, xTimeout ) );
+        tcptestFAILUREPRINTF( ( "UNDER TOLERANCE failure Start Time: %d, End Time: %d, Timeout: %d \n", xStartTime, xEndTime, xTimeout ) );
     }
 
     /* Did the function exit after a reasonable amount of time?
@@ -1082,7 +1082,7 @@ static BaseType_t prvCheckTimeout( TickType_t xStartTime,
     if( ( xEndTime - xStartTime ) > ( xTimeout + integrationtestportableTIMEOUT_OVER_TOLERANCE ) )
     {
         xResult = pdFAIL;
-        tcptestFAILUREPRINTF( ( "Start Time: %d, End Time: %d, Timeout: %d \n", xStartTime, xEndTime, xTimeout ) );
+        tcptestFAILUREPRINTF( ( "OVER TOLERANCE failure Start Time: %d, End Time: %d, Timeout: %d \n", xStartTime, xEndTime, xTimeout ) );
     }
 
     return xResult;
