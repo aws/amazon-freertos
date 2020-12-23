@@ -1108,11 +1108,11 @@ WIFIReturnCode_t WIFI_NetworkDelete( uint16_t usIndex )
 			{
 				xRet = nvs_commit( xNvsHandle );
 			}
-		}
 
-		if( xRet == ESP_OK )
-		{
-			xWiFiRet = eWiFiSuccess;
+			if( xRet == ESP_OK )
+			{
+				xWiFiRet = eWiFiSuccess;
+			}
 		}
 
 		// Close
