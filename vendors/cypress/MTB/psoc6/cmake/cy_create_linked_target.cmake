@@ -188,6 +188,17 @@ function(cy_add_link_libraries)
     cy_get_libs(mtb_libs ITEMS "${mtb_files}")
     target_link_libraries(psoc6_core INTERFACE "${mtb_libs}")
     target_sources(psoc6_core INTERFACE "${cy_port_support_dir}/FreeRTOS-openocd.c")
+    
+    # Add the project makefiles
+    afr_files_to_console_metadata(
+        "${AFR_ROOT_DIR}/projects/cypress/make_support/afr.mk"
+        "${AFR_ROOT_DIR}/projects/cypress/make_support/mtb_afr_source.mk"
+        "${AFR_ROOT_DIR}/projects/cypress/make_support/mtb_cypress_source.mk"
+        "${AFR_ROOT_DIR}/projects/cypress/make_support/mtb_feature_ble.mk"
+        "${AFR_ROOT_DIR}/projects/cypress/make_support/mtb_feature_ota.mk"
+        "${AFR_ROOT_DIR}/projects/cypress/make_support/mtb_global_settings.mk"
+        "${AFR_ROOT_DIR}/projects/cypress/make_support/mtb_secure_sign.mk"
+    )
 
     # -------------------------------------------------------------------------------------------------
     # Compiler settings

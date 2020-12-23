@@ -11,6 +11,7 @@ foreach(module IN LISTS AFR_MODULES)
         unset(AFR_MODULE_${module}_${prop}_ALL CACHE)
     endforeach()
 endforeach()
+unset(AFR_FILES_TO_CONSOLE_METADATA CACHE)
 
 # Global variables.
 set(AFR_MODULES                 "" CACHE INTERNAL "List of FreeRTOS modules.")
@@ -199,6 +200,8 @@ function(afr_module_cmake_files module_name)
     set(${prop_var} "" CACHE INTERNAL "")
     afr_cache_append(${prop_var} ${ARGN})
 endfunction()
+
+
 
 # -------------------------------------------------------------------------------------------------
 # Dependency resolver.

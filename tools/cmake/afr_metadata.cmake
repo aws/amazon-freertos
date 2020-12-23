@@ -337,6 +337,12 @@ function(afr_write_metadata)
         "${AFR_TESTS_DIR}"
     )
 
+    # Add any addtional files to ${console_dir}/source_paths.txt
+    list(
+        APPEND src_console
+        ${AFR_FILES_TO_CONSOLE_METADATA}
+    )
+
     # Write all sources and include dirs.
     file(WRITE "${console_dir}/source_paths.txt" "${src_console}")
     file(WRITE "${ide_dir}/source_paths.txt" "${src_all}")
@@ -357,6 +363,15 @@ function(afr_write_metadata)
         INPUT "${ide_dir}/include_paths.txt"
     )
 endfunction()
+
+# This function is used for any additional files that need
+# be included into the OCW build combo
+function(afr_files_to_console_metadata)
+    set(prop_var AFR_FILES_TO_CONSOLE_METADATA)
+    set(${prop_var} "" CACHE INTERNAL "")
+    afr_cache_append(${prop_var} ${ARGN})
+endfunction()
+
 
 # =============== Metadata definition ===============
 set(AFR_METADATA_BOARD "" CACHE INTERNAL "List of CMake property names for hardware metadata.")
