@@ -1484,7 +1484,6 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
     TickType_t xStartTime;
     TickType_t xEndTime;
     TickType_t xTimeout = 0;
-    TickType_t xWaitTime = 1000;
     uint8_t * pucTxBuffer = ( uint8_t * ) pcTxBuffer;
     uint8_t * pucRxBuffer = ( uint8_t * ) pcRxBuffer;
     size_t xMessageLength = 1200;
@@ -1552,7 +1551,7 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
             xEndTime = xTaskGetTickCount();
         }
         while( xMessageLength > xNumBytesReceived );
-        xResult = prvCheckTimeout( xStartTime, xEndTime, xWaitTime );
+        xResult = prvCheckTimeout( xStartTime, xEndTime, xTimeout );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Receive timeout was outside of acceptable range" );
 
         xResult = prvCheckRxTxBuffers( pucTxBuffer, pucRxBuffer, xMessageLength );
