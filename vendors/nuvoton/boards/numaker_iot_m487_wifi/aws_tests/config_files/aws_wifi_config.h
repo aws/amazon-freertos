@@ -117,7 +117,7 @@
 /**
  * @brief Maximum size of WiFi receive buffer
  */
-#define wificonfigMAX_RECV_BUF_SIZE           ( 1024 * 3 )
+#define wificonfigMAX_RECV_BUF_SIZE           ( 1024 * 4 )
 
 /**
  * @brief Enable WiFi H/W reset
