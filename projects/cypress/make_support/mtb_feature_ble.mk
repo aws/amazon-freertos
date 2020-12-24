@@ -36,5 +36,8 @@ INCLUDES+=\
 else
 #Demo code
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/demos/ble/*.c)
+	$(wildcard $(CY_AFR_ROOT)/demos/ble/mqtt_ble/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/ble/gatt_server/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/ble/numeric_comparison/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/ble/shadow_ble/*.c)
 endif
