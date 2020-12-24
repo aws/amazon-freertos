@@ -368,7 +368,9 @@ endfunction()
 # be included in the ZIP downloaded from FreeRTOS console.
 function(afr_files_to_console_metadata)
     set(prop_var AFR_FILES_TO_CONSOLE_METADATA)
-    set(${prop_var} "" CACHE INTERNAL "")
+    if( NOT DEFINED ${prop_var} )
+       set(${prop_var} "" CACHE INTERNAL "")
+    endif()
     afr_cache_append(${prop_var} ${ARGN})
 endfunction()
 
