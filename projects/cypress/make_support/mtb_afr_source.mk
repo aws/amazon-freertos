@@ -36,7 +36,10 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c\
 	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers/pkcs11_helpers.c\
 	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/defender/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/freertos_plus_tcp/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/lwip/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/stub/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)\
@@ -55,7 +58,9 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/demos/tcp\
 	$(CY_AFR_ROOT)/demos/common/http_demo_helpers\
 	$(CY_AFR_ROOT)/demos/common/mqtt_demo_helpers\
-	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers
+	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers\
+	$(CY_AFR_ROOT)/demos/device_defender_for_aws\
+	$(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/lwip
 else
 
 SOURCES+=\
