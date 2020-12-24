@@ -369,3 +369,14 @@ SOURCES+=\
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/device_shadow_for_aws/source/include
+
+
+################################################################################
+# Defender
+################################################################################
+
+SOURCES+=\
+	$(wildcard $(CY_AFR_ROOT)/libraries/device_defender_for_aws/source/*.c)
+
+INCLUDES+=\
+	$(CY_AFR_ROOT)/libraries/device_defender_for_aws/source/include
