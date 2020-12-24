@@ -37,9 +37,7 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers/pkcs11_helpers.c\
 	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/freertos_plus_tcp/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/lwip/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/stub/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)\
