@@ -127,8 +127,8 @@ static volatile EventGroupHandle_t xSyncEventGroup = NULL;
 /* Bit definitions used with the xSyncEventGroup event group to allow the
  * prvEchoClientTxTask() and prvEchoClientRxTask() tasks to synchronize before
  * commencing a new cycle with a different socket. */
-#define tcptestTX_TASK_BIT    ( 0x01 << 1 )
-#define tcptestRX_TASK_BIT    ( 0x01 << 2 )
+#define tcptestTX_TASK_BIT                                  ( 0x01 << 1 )
+#define tcptestRX_TASK_BIT                                  ( 0x01 << 2 )
 
 #ifndef Threadsafe_SameSocketDifferentTasksFrameSize
     #define Threadsafe_SameSocketDifferentTasksFrameSize    ( 2 * 1500 )
@@ -1543,6 +1543,7 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
                  */
                 xNumBytesReceived += lNumBytes;
             }
+
             if( lNumBytes < 0 )
             {
                 break;
@@ -1551,6 +1552,7 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
             xEndTime = xTaskGetTickCount();
         }
         while( xMessageLength > xNumBytesReceived );
+
         xResult = prvCheckTimeout( xStartTime, xEndTime, xTimeout );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Receive timeout was outside of acceptable range" );
 
@@ -1940,7 +1942,6 @@ static void prvSOCKETS_SendRecv_VaryLength( Server_t xConn )
         /* Send each message length ulMaxLoopCount times. */
         for( ulI = 0; ulI < ulMaxLoopCount; ulI++ )
         {
-
             memset( pucTxBuffer, tcptestTX_BUFFER_FILLER, tcptestBUFFER_SIZE );
 
             prvCreateTxData( ( char * ) pucTxBuffer,
