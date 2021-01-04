@@ -82,6 +82,10 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 - Fixes for compiler warnings by removing unused functions and variables.
 
+## 202011.01 December 2020
+
+This release does not change any source files compared to 202011.00. It only fixes an issue with `checksums.json` file used by AWS IoT Device Tester to verify the integrity of FreeRTOS source files during the qualification process. This issue was present only on Windows while Linux and MacOS were unaffected.
+
 ## 202011.00 November 2020
 
 ### New Features
