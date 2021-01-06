@@ -1178,7 +1178,7 @@ ESP_WIFI_Status_t ESP_WIFI_Recv_TCP_PASSIVE( ESP_WIFI_Object_t * pxObj, uint8_t 
         pxObj->ActiveSocket = -1;
     } else {
         // Try to get the +IPD message
-        xRet = ESP_IO_Recv(pxObj, pxObj->CmdData, sizeof(pxObj->CmdData), ucLinkID, ESP_WIFI_SHORT_RECV_TO);
+        xRet = ESP_IO_Recv(pxObj, pxObj->CmdData, sizeof(pxObj->CmdData), ucLinkID, pdMS_TO_TICKS(ESP_WIFI_SHORT_RECV_TO));
         // To avoid upper layer receive unknown status
         if (xRet == ESP_WIFI_STATUS_RECV)
             xRet = ESP_WIFI_STATUS_TIMEOUT;
