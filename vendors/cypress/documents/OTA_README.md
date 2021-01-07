@@ -56,7 +56,7 @@ This example uses the board's default configuration. See the kit user guide to e
 ## Software Setup
 
 - Install a terminal emulator if you don't have one. Instructions in this document use [Tera Term](https://ttssh2.osdn.jp/index.html.en).
-- Python Interpreter. The supplied publisher.py is tested with [Python 3.8.1](https://www.python.org/downloads/release/python-381/).
+- Python Interpreter. The supplied publisher.py is tested with [Python 3.8.1](https://www.python.org/downloads/release/python-381/). Note that ModusToolbox Windows installations include a Python Interpreter which can be accessed by using the ModusToolbox shell; Mac OS and Linux installations will have their own Python installations. You can check your Python installation version by running "python --version".
 
 ## Clone MCUBoot (PSoC® 62 MCU kits)
 
@@ -71,7 +71,8 @@ We need to first build and program the bootloader app *MCUBootApp* that is avail
 4. We need to pull in mcuboot sub-modules to build mcuboot: `git submodule update --init --recursive`
 
 5. Install the required python packages mentioned in *mcuboot\scripts\requirements.txt*.
-
+   Note this step is required on all operating systems, Windows, Mac OS, and Linux.
+   
    i. cd `mcuboot/scripts` 
 
    ii. `pip install -r requirements.txt`
@@ -194,6 +195,8 @@ Make the following changes in *mcuboot/boot/cypress/MCUBootApp/config/mcuboot_co
 
 ## Prepare for Building your OTA Application (PSoC® 62 MCU kits)
 
+Ensure that the OTA_SUPPORT flag is set to 1. Depending on your flow this could be with "set(OTA_SUPPORT 1)" in your cmake list, or by defining this on a command line build with "-DOTA_SUPPORT=1"
+
 The Makefile and cmake flows both look for this environment variable to determine how to build the application:
 
 `OTA_USE_EXTERNAL_FLASH`
@@ -240,6 +243,8 @@ For PSoC 6 MCU devices, see [How to Design with PSoC 6 MCU - KBA223067](https://
 
 | Document Version | Description of Change                                      |
 | ---------------- | ---------------------------------------------------------- |
+| 1.2.0            | Added information on Python installations; added comment   |
+|                  | regarding setting OTA_SUPPORT flag to 1                    |
 | 1.1.0            | Added info for ARM and IAR builds                          |
 |                  | Updated for external FLASH support and CY8CKIT_062S2_43012 |
 | 1.0.0            | New Document                                               |
