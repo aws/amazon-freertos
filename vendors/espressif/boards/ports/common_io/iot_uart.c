@@ -375,16 +375,17 @@ int32_t iot_uart_read_async(IotUARTHandle_t const pxUartPeripheral, uint8_t * co
     }
 
     uart_ctx_t *uart_ctx = (uart_ctx_t *) pxUartPeripheral;
-    uart_ctx->read_buf = (char *) pvBuffer;
-    uart_ctx->bytes_to_read = xBytes;
-    uart_ctx->async_bytes_read = 0;
-
     //Read from another task to make async
     if (!xSemaphoreTake(uart_ctx->uart_rd_cb_wait, SEM_WAIT_TIME)) {
         ESP_LOGE(TAG, "%s: failed to acquire read sem", __func__);
         return IOT_UART_READ_FAILED;
     }
-    uart_enable_rx_intr(uart_ctx->uart_port_num);
+
+    uart_ctx->read_buf = (char *) pvBuffer;
+    uart_ctx->bytes_to_read = xBytes;
+    uart_ctx->async_bytes_read = 0;
+
+    esp_timer_start_once(uart_ctx->uart_timer_rd_hdl, 0);
     uart_ctx->rd_op_in_progress = true;
     return IOT_UART_SUCCESS;
 }
