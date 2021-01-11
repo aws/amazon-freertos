@@ -1,4 +1,5 @@
 /*
+ * FreeRTOS BLE V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -125,6 +126,20 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/c_sdk/standard/ble/include/iot_ble_mqtt_transport.h.
+ */
+struct NetworkContext
+{
+    BleTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Returns the integer represented by two length bytes.
  *
  * @param[in] buf A pointer to the MSB of the integer.
@@ -182,10 +197,6 @@ static MQTTBLEStatus_t parseSubscribe( size_t * subscriptionCount,
  */
 static MQTTBLESubscribeInfo_t _subscriptions[ MQTT_MAX_SUBS_PER_PACKET ];
 
-/**
- * @brief Data structure to hold received data before user makes a request for it.
- */
-
 /*-----------------------------------------------------------*/
 
 
@@ -194,10 +205,12 @@ bool IotBleMqttTransportInit( void * pBuffer,
                               NetworkContext_t * pContext )
 {
     bool status = true;
+    BleTransportParams_t * pBleTransportParams = NULL;
 
-    pContext->xStreamBuffer = xStreamBufferCreateStatic( bufSize, 1, pBuffer, &( pContext->xStreamBufferStruct ) );
+    pBleTransportParams = pContext->pParams;
+    pBleTransportParams->xStreamBuffer = xStreamBufferCreateStatic( bufSize, 1, pBuffer, &( pBleTransportParams->xStreamBufferStruct ) );
 
-    if( pContext->xStreamBuffer == NULL )
+    if( pBleTransportParams->xStreamBuffer == NULL )
     {
         LogError( ( "BLE teransport layer buffer could not be created.  Check the buffer and buffer size passed to network context." ) );
         status = false;
@@ -209,7 +222,10 @@ bool IotBleMqttTransportInit( void * pBuffer,
 
 void IotBleMqttTransportCleanup( const NetworkContext_t * pContext )
 {
-    vStreamBufferDelete( pContext->xStreamBuffer );
+    BleTransportParams_t * pBleTransportParams = NULL;
+
+    pBleTransportParams = pContext->pParams;
+    vStreamBufferDelete( pBleTransportParams->xStreamBuffer );
 }
 
 
@@ -684,7 +700,6 @@ static MQTTBLEStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t * pPublishInf
                                               size_t * pSerializedBufLength )
 {
     MQTTBLEStatus_t status = MQTTBLESuccess;
-    uint16_t packetIdentifier = 0;
 
     LogDebug( ( "Processing outgoing PUBLISH." ) );
 
@@ -699,7 +714,7 @@ static MQTTBLEStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t * pPublishInf
         pPublishInfo->pending = parsePublish( buf,
                                               bytesToSend,
                                               pPublishInfo,
-                                              &packetIdentifier );
+                                              &pPublishInfo->packetIdentifier );
     }
 
     LogDebug( ( "IotBleMqtt_SerializePublish before if" ) );
@@ -709,7 +724,7 @@ static MQTTBLEStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t * pPublishInf
         status = IotBleMqtt_SerializePublish( pPublishInfo,
                                               pSerializedBuf,
                                               pSerializedBufLength,
-                                              packetIdentifier );
+                                              pPublishInfo->packetIdentifier );
 
         if( pPublishInfo->pTopicName != NULL )
         {
@@ -995,6 +1010,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     uint8_t * pSerializedPacket = NULL;
     size_t serializedLength = 0;
     uint8_t packetType;
+    BleTransportParams_t * pBleTransportParams = NULL;
 
     /* The send function returns the CBOR bytes written, so need to return 0 or full amount of bytes sent. */
     int32_t bytesWritten = ( int32_t ) bytesToWrite;
@@ -1003,10 +1019,11 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
      * The payload of publish can be send as a separate packet from the header. The flag is used to check for pending publish
      * payload information and process the payload part of the publish.
      */
+    pBleTransportParams = pContext->pParams;
 
-    if( pContext->publishInfo.pending == true )
+    if( pBleTransportParams->publishInfo.pending == true )
     {
-        status = handleOutgoingPublish( ( MQTTBLEPublishInfo_t * ) &pContext->publishInfo,
+        status = handleOutgoingPublish( ( MQTTBLEPublishInfo_t * ) &pBleTransportParams->publishInfo,
                                         pBuffer,
                                         bytesToWrite,
                                         &pSerializedPacket,
@@ -1016,7 +1033,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     {
         packetType = DECODE_PACKET_TYPE( pBuf[ 0 ] );
 
-        LogError( ( "packet type is %d ", packetType ) );
+        LogDebug( ( "Outgoing packet type is %d ", packetType ) );
 
         switch( packetType )
         {
@@ -1027,7 +1044,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
                 break;
 
             case IOT_BLE_MQTT_MSG_TYPE_PUBLISH:
-                status = handleOutgoingPublish( ( MQTTBLEPublishInfo_t * ) &pContext->publishInfo,
+                status = handleOutgoingPublish( ( MQTTBLEPublishInfo_t * ) &pBleTransportParams->publishInfo,
                                                 pBuffer,
                                                 bytesToWrite,
                                                 &pSerializedPacket,
@@ -1083,7 +1100,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     {
         if( serializedLength > 0 )
         {
-            bytesSent = IotBleDataTransfer_Send( pContext->pChannel,
+            bytesSent = IotBleDataTransfer_Send( pBleTransportParams->pChannel,
                                                  pSerializedPacket,
                                                  serializedLength );
 
@@ -1101,10 +1118,6 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
 
             IotMqtt_FreeMessage( pSerializedPacket );
         }
-        else
-        {
-            bytesWritten = 0;
-        }
     }
     else
     {
@@ -1121,10 +1134,13 @@ MQTTBLEStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext
     uint8_t packetType;
     uint8_t * pPacket;
     size_t packetLength;
+    BleTransportParams_t * pBleTransportParams = NULL;
 
     configASSERT( pContext != NULL );
+    pBleTransportParams = pContext->pParams;
+    configASSERT( pBleTransportParams != NULL );
 
-    IotBleDataTransfer_PeekReceiveBuffer( pContext->pChannel,
+    IotBleDataTransfer_PeekReceiveBuffer( pBleTransportParams->pChannel,
                                           ( const uint8_t ** ) &pPacket,
                                           &packetLength );
 
@@ -1133,27 +1149,27 @@ MQTTBLEStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext
     switch( packetType )
     {
         case IOT_BLE_MQTT_MSG_TYPE_CONNACK:
-            status = handleIncomingConnack( pContext->xStreamBuffer, pPacket, packetLength );
+            status = handleIncomingConnack( pBleTransportParams->xStreamBuffer, pPacket, packetLength );
             break;
 
         case IOT_BLE_MQTT_MSG_TYPE_PUBLISH:
-            status = handleIncomingPublish( pContext->xStreamBuffer, pPacket, packetLength );
+            status = handleIncomingPublish( pBleTransportParams->xStreamBuffer, pPacket, packetLength );
             break;
 
         case IOT_BLE_MQTT_MSG_TYPE_PUBACK:
-            status = handleIncomingPuback( pContext->xStreamBuffer, pPacket, packetLength );
+            status = handleIncomingPuback( pBleTransportParams->xStreamBuffer, pPacket, packetLength );
             break;
 
         case IOT_BLE_MQTT_MSG_TYPE_SUBACK:
-            status = handleIncomingSuback( pContext->xStreamBuffer, pPacket, packetLength );
+            status = handleIncomingSuback( pBleTransportParams->xStreamBuffer, pPacket, packetLength );
             break;
 
         case IOT_BLE_MQTT_MSG_TYPE_UNSUBACK:
-            status = handleIncomingUnsuback( pContext->xStreamBuffer, pPacket, packetLength );
+            status = handleIncomingUnsuback( pBleTransportParams->xStreamBuffer, pPacket, packetLength );
             break;
 
         case IOT_BLE_MQTT_MSG_TYPE_PINGRESP:
-            status = handleIncomingPingresp( pContext->xStreamBuffer, pPacket, packetLength );
+            status = handleIncomingPingresp( pBleTransportParams->xStreamBuffer, pPacket, packetLength );
             break;
 
         /* QoS 2 cases, currently not supported by BLE */
@@ -1179,7 +1195,7 @@ MQTTBLEStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext
     else
     {
         /* Flush the data from the channel */
-        ( void ) IotBleDataTransfer_Receive( pContext->pChannel, NULL, packetLength );
+        ( void ) IotBleDataTransfer_Receive( pBleTransportParams->pChannel, NULL, packetLength );
     }
 
     return status;
@@ -1197,5 +1213,8 @@ int32_t IotBleMqttTransportReceive( NetworkContext_t * pContext,
                                     void * pBuffer,
                                     size_t bytesToRead )
 {
-    return ( int32_t ) xStreamBufferReceive( pContext->xStreamBuffer, pBuffer, bytesToRead, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
+    BleTransportParams_t * pBleTransportParams = NULL;
+
+    pBleTransportParams = pContext->pParams;
+    return ( int32_t ) xStreamBufferReceive( pBleTransportParams->xStreamBuffer, pBuffer, bytesToRead, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
 }

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -93,14 +93,5 @@ int vGattDemoSvcInit( bool awsIotMqttMode,
                       void * pNetworkCredentialInfo,
                       const IotNetworkInterface_t * pNetworkInterface );
 
-/**
- * @brief Starts the GATT demo service.
- */
-void vGattDemoSvcStart( void );
-
-/**
- * @brief Stops the GATT demo service.
- */
-void vGattDemoSvcStop( void );
 
 #endif /* AWS_BLE_GATT_SERVER_DEMO_H_ */

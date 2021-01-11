@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,6 +37,11 @@
  * @brief Host name.
  *
  * @todo Set this to the unique name of your IoT Thing.
+ * Please note that for convenience of demonstration only we
+ * are using a #define here. In production scenarios the thing
+ * name can be something unique to the device that can be read
+ * by software, such as a production serial number, rather
+ * than a hard coded constant.
  */
 #define clientcredentialIOT_THING_NAME               ""
 

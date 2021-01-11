@@ -1,5 +1,5 @@
 /*
- * FreeRTOS
+ * FreeRTOS BLE V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -216,6 +216,22 @@
  */
 #define MILLISECONDS_PER_TICK                 ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/c_sdk/standard/ble/include/iot_ble_mqtt_transport.h.
+ */
+struct NetworkContext
+{
+    BleTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
  * it is used to match received Subscribe ACK to the transmitted subscribe.
@@ -239,8 +255,12 @@ static uint16_t globalPublishPacketIdentifier = 0U;
 /**
  * @brief Represents the BLE transport interface context used to send data over BLE channel.
  */
-static NetworkContext_t networkContext;
+static NetworkContext_t networkContext = { 0 };
 
+/**
+ * @brief Ble Transport Parameters structure to store the data channel.
+ */
+static BleTransportParams_t xBleTransportParams = { 0 };
 
 /**
  * @brief The context representing the MQTT connection with the broker for
@@ -313,6 +333,11 @@ static SemaphoreHandle_t bleChannelSem;
  * @return Time in milliseconds.
  */
 static uint32_t getTimeMs();
+
+/**
+ * @brief Global variable to keep track of BLE status and enable only once.
+ */
+static BaseType_t bleEnabled = pdFALSE;
 
 /**
  * @brief Sends an MQTT CONNECT packet over connected BLE Channel.
@@ -776,13 +801,13 @@ static void setupBleTransportInterface( NetworkContext_t * pContext )
     TEST_ASSERT_TRUE_MESSAGE( status, "Failed to initialize transport interface for BLE" );
 
     /* Open is a handshake procedure, so we need to wait until it is ready to use. */
-    pContext->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
-    TEST_ASSERT_NOT_NULL_MESSAGE( pContext->pChannel, "Failed to create BLE data transfer channel." );
+    pContext->pParams->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
+    TEST_ASSERT_NOT_NULL_MESSAGE( pContext->pParams->pChannel, "Failed to create BLE data transfer channel." );
 
     bleChannelSem = xSemaphoreCreateBinary();
     TEST_ASSERT_NOT_NULL( bleChannelSem );
 
-    status = IotBleDataTransfer_SetCallback( pContext->pChannel, bleChannelCallback, NULL );
+    status = IotBleDataTransfer_SetCallback( pContext->pParams->pChannel, bleChannelCallback, NULL );
     TEST_ASSERT_TRUE( status );
 
     TEST_ASSERT_EQUAL_MESSAGE( pdTRUE, xSemaphoreTake( bleChannelSem, pdMS_TO_TICKS( TEST_BLE_CONNECTION_TIMEOUT_MS ) ), "Timed out to open BLE data transfer channel" );
@@ -791,8 +816,8 @@ static void setupBleTransportInterface( NetworkContext_t * pContext )
 static void teardownBleTransportInterface( NetworkContext_t * pContext )
 {
     IotBleMqttTransportCleanup( pContext );
-    IotBleDataTransfer_Close( pContext->pChannel );
-    IotBleDataTransfer_Reset( pContext->pChannel );
+    IotBleDataTransfer_Close( pContext->pParams->pChannel );
+    IotBleDataTransfer_Reset( pContext->pParams->pChannel );
     vSemaphoreDelete( bleChannelSem );
 }
 
@@ -808,6 +833,14 @@ static void testSetUp()
     receivedPubAck = false;
     packetTypeForDisconnection = MQTT_PACKET_TYPE_INVALID;
     memset( &incomingInfo, 0u, sizeof( MQTTPublishInfo_t ) );
+
+    networkContext.pParams = &xBleTransportParams;
+
+    if( bleEnabled == pdFALSE )
+    {
+        bleEnable();
+        bleEnabled = pdTRUE;
+    }
 
     /* setup BLE transport interface. */
     setupBleTransportInterface( &networkContext );
@@ -852,15 +885,15 @@ TEST_TEAR_DOWN( coreMQTT_Integration_BLE )
  */
 TEST_GROUP_RUNNER( coreMQTT_Integration_BLE )
 {
-    /* Enable BLE middleware and GATT services only once for all tests in the group. */
-    bleEnable();
-
     RUN_TEST_CASE( coreMQTT_Integration_BLE, Subscribe_Publish_With_Qos_0 );
     RUN_TEST_CASE( coreMQTT_Integration_BLE, Subscribe_Publish_With_Qos_1 );
     RUN_TEST_CASE( coreMQTT_Integration_BLE, ProcessLoop_KeepAlive );
 
     /* Disconnect and turn off BLE after all tests in the group. */
-    bleDisable();
+    if( bleEnabled == pdTRUE )
+    {
+        bleDisable();
+    }
 }
 
 /* ========================== Test Cases ============================ */

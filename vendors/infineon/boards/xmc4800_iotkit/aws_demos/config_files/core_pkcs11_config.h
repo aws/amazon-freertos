@@ -55,21 +55,23 @@
 
 #include "logging_stack.h"
 
+/************ End of logging configuration ****************/
+
 /**
  * @brief Malloc API used by core_pkkcs11.h
  */
-#define PKCS11_MALLOC pvPortMalloc
+#define PKCS11_MALLOC                                      pvPortMalloc
 
 /**
  * @brief Free API used by core_pkkcs11.h
  */
-#define PKCS11_FREE vPortFree
+#define PKCS11_FREE                                        vPortFree
 
 /**
  * @brief File storage location definitions.
  */
-#define pkcs11configFILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"
-#define pkcs11configFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
+#define pkcs11configFILE_NAME_CLIENT_CERTIFICATE           "FreeRTOS_P11_Certificate.dat"
+#define pkcs11configFILE_NAME_KEY                          "FreeRTOS_P11_Key.dat"
 
 /**
  * @brief PKCS #11 default user PIN.
@@ -83,19 +85,19 @@
  * Note: Do not cast this to a pointer! The library calls sizeof to get the length
  * of this string.
  */
-#define configPKCS11_DEFAULT_USER_PIN    "0000"
+#define configPKCS11_DEFAULT_USER_PIN                      "0000"
 
 /**
  * @brief Maximum length (in characters) for a PKCS #11 CKA_LABEL
  * attribute.
  */
-#define pkcs11configMAX_LABEL_LENGTH     32
+#define pkcs11configMAX_LABEL_LENGTH                       32
 
 /**
  * @brief Maximum number of token objects that can be stored
  * by the PKCS #11 module.
  */
-#define pkcs11configMAX_NUM_OBJECTS      6
+#define pkcs11configMAX_NUM_OBJECTS                        6
 
 /**
  * @brief Maximum number of sessions that can be stored

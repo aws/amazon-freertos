@@ -1,9 +1,9 @@
 afr_module()
 
 afr_set_lib_metadata(ID "ota")
-afr_set_lib_metadata(DESCRIPTION "This library provides the interface to the over-the-air update agent, which allows devices to receive software updates securely via MQTT.")
+afr_set_lib_metadata(DESCRIPTION "This library provides the interface to the over-the-air update agent, which allows devices to receive software updates securely via MQTT or HTTP.")
 afr_set_lib_metadata(DISPLAY_NAME "OTA Updates")
-afr_set_lib_metadata(CATEGORY "Update")
+afr_set_lib_metadata(CATEGORY "Amazon Services")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 

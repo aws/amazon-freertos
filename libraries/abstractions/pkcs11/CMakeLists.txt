@@ -161,7 +161,7 @@ else()
         pkcs11_mbedtls 
         INTERFACE
             "${src_dir}/core_pkcs11_mbedtls.c"
-            "${src_dir}/include/threading_alt.h"
+            "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls_config/threading_alt.h"
             "${inc_dir}/core_pkcs11_pal.h"
     )
 

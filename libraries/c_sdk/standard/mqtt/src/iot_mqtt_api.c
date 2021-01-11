@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.2.0
+ * FreeRTOS MQTT V2.3.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -64,33 +64,41 @@
     #error "IOT_MQTT_RETRY_MS_CEILING cannot be 0 or negative."
 #endif
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
+ */
+struct NetworkContext
+{
+    MqttTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Fixed Size Array to hold Mapping of MQTT Connection used in MQTT 201906.00 library to MQTT Context
  * used in calling MQTT LTS API from shim to send packets on the network.
  */
 _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
+/**
+ * @brief Represents the network context used for the TLS session with the
+ * server.
+ */
+static NetworkContext_t networkContext[ MAX_NO_OF_MQTT_CONNECTIONS ] = { 0 };
+
+/* Static storage for mutex used for synchronized access to #_connContext_t array. */
+static StaticSemaphore_t connContextMutexStorage;
+
+/* Handle for mutex used for synchronized access to #_connContext_t array. */
+static SemaphoreHandle_t connContextMutex;
+
 /*-----------------------------------------------------------*/
-
-/**
- * @brief Set the unsubscribed flag of an MQTT subscription.
- *
- * @param[in] pSubscriptionLink Pointer to the link member of an #_mqttSubscription_t.
- * @param[in] pMatch Not used.
- *
- * @return Always returns `true`.
- */
-static bool _mqttSubscription_setUnsubscribe( const IotLink_t * pSubscriptionLink,
-                                              void * pMatch );
-
-/**
- * @brief Destroy an MQTT subscription if its reference count is 0.
- *
- * @param[in] pData The subscription to destroy. This parameter is of type
- * `void*` for compatibility with [free]
- * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
- */
-static void _mqttSubscription_tryDestroy( void * pData );
 
 /**
  * @brief Decrement the reference count of an MQTT operation and attempt to
@@ -209,51 +217,6 @@ static int32_t transportRecv( NetworkContext_t * pNetworkContext,
 static int32_t transportSend( NetworkContext_t * pNetworkContext,
                               const void * pMessage,
                               size_t bytesToSend );
-
-/*-----------------------------------------------------------*/
-
-static bool _mqttSubscription_setUnsubscribe( const IotLink_t * pSubscriptionLink,
-                                              void * pMatch )
-{
-    /* Because this function is called from a container function, the given link
-     * must never be NULL. */
-    IotMqtt_Assert( pSubscriptionLink != NULL );
-
-    _mqttSubscription_t * pSubscription = IotLink_Container( _mqttSubscription_t,
-                                                             pSubscriptionLink,
-                                                             link );
-
-    /* Silence warnings about unused parameters. */
-    ( void ) pMatch;
-
-    /* Set the unsubscribed flag. */
-    pSubscription->unsubscribed = true;
-
-    return true;
-}
-
-/*-----------------------------------------------------------*/
-
-static void _mqttSubscription_tryDestroy( void * pData )
-{
-    _mqttSubscription_t * pSubscription = ( _mqttSubscription_t * ) pData;
-
-    /* Reference count must not be negative. */
-    IotMqtt_Assert( pSubscription->references >= 0 );
-
-    /* Unsubscribed flag should be set. */
-    IotMqtt_Assert( pSubscription->unsubscribed == true );
-
-    /* Free the subscription if it has no references. */
-    if( pSubscription->references == 0 )
-    {
-        IotMqtt_FreeSubscription( pSubscription );
-    }
-    else
-    {
-        EMPTY_ELSE_MARKER;
-    }
-}
 
 /*-----------------------------------------------------------*/
 
@@ -520,6 +483,7 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
     int8_t contextIndex = -1;
     bool mutexStatus = true;
+    bool connContextMutexStatus = false;
 
     IotMqtt_Assert( pMqttConnection != NULL );
 
@@ -606,8 +570,19 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     {
         IotMutex_Delete( &( connToContext[ contextIndex ].contextMutex ) );
         IotMutex_Delete( &( connToContext[ contextIndex ].subscriptionMutex ) );
-        /* Free the MQTT Context for the MQTT connection to be destroyed. */
-        _IotMqtt_removeContext( pMqttConnection );
+        /* Lock mutex before updating the #connToContext array. */
+        connContextMutexStatus = IotMutex_TakeRecursive( &connContextMutex );
+
+        if( connContextMutexStatus == true )
+        {
+            /* Free the MQTT Context for the MQTT connection to be destroyed. */
+            _IotMqtt_removeContext( pMqttConnection );
+
+            /* Release mutex. */
+            connContextMutexStatus = IotMutex_GiveRecursive( &connContextMutex );
+        }
+
+        IotMqtt_Assert( connContextMutexStatus == true );
     }
 
     IotLogDebug( "(MQTT connection %p) Connection destroyed.", pMqttConnection );
@@ -907,7 +882,7 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
     IotMqtt_Assert( pMessage != NULL );
 
     /* Sending the bytes on the network using Network Interface. */
-    bytesSend = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
+    bytesSend = pNetworkContext->pParams->pNetworkInterface->send( pNetworkContext->pParams->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
 
     if( bytesSend <= 0 )
     {
@@ -944,6 +919,16 @@ static int32_t transportRecv( NetworkContext_t * pNetworkContext,
 IotMqttError_t IotMqtt_Init( void )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
+    bool mutexCreated = false;
+
+    /* Create a recursive mutex for synchronized access to #_connContext_t array. */
+    mutexCreated = IotMutex_CreateRecursiveMutex( &connContextMutex, &connContextMutexStorage );
+
+    /* Check mutex creation failed. */
+    if( mutexCreated == false )
+    {
+        status = IOT_MQTT_INIT_FAILED;
+    }
 
     /* Log initialization status. */
     if( status != IOT_MQTT_SUCCESS )
@@ -962,6 +947,9 @@ IotMqttError_t IotMqtt_Init( void )
 
 void IotMqtt_Cleanup( void )
 {
+    /* Delete the recursive mutex for synchronized access to #_connContext_t array. */
+    IotMutex_Delete( &connContextMutex );
+
     IotLogInfo( "MQTT library cleanup done." );
 }
 
@@ -985,6 +973,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     bool subscriptionMutexCreated = false;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     bool contextMutexCreated = false;
+    bool connContextMutexStatus = false;
 
     /* Default CONNECT serializer function. */
     IotMqttError_t ( * serializeConnect )( const IotMqttConnectInfo_t *,
@@ -1130,6 +1119,15 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         EMPTY_ELSE_MARKER;
     }
 
+    /* Lock mutex before updating the #connToContext array. */
+    connContextMutexStatus = IotMutex_TakeRecursive( &connContextMutex );
+
+    if( connContextMutexStatus == false )
+    {
+        IotLogError( "Failed to lock connContextMutex." );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+    }
+
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
 
@@ -1157,13 +1155,14 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         connToContext[ contextIndex ].mqttConnection = newMqttConnection;
 
         /* Assigning the Network Context to be used by this MQTT Context. */
-        connToContext[ contextIndex ].networkContext.pNetworkConnection = pNetworkConnection;
-        connToContext[ contextIndex ].networkContext.pNetworkInterface = pNetworkInfo->pNetworkInterface;
+        networkContext[ contextIndex ].pParams = &connToContext[ contextIndex ].mqttTransportParams;
+        connToContext[ contextIndex ].mqttTransportParams.pNetworkConnection = pNetworkConnection;
+        connToContext[ contextIndex ].mqttTransportParams.pNetworkInterface = pNetworkInfo->pNetworkInterface;
 
         /* Fill in TransportInterface send function pointer. We will not be implementing the
          * TransportInterface receive function pointer as receiving of packets is handled in shim by network
          * receive task. Only using MQTT LTS APIs for transmit path.*/
-        transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
+        transport.pNetworkContext = &networkContext[ contextIndex ];
         transport.send = transportSend;
         transport.recv = transportRecv;
 
@@ -1193,6 +1192,15 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     }
     else
     {
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+    }
+
+    /* Release the connContextMutex mutex. */
+    connContextMutexStatus = IotMutex_GiveRecursive( &connContextMutex );
+
+    if( connContextMutexStatus == false )
+    {
+        IotLogError( "Failed to release connContextMutex." );
         IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
 
@@ -1616,7 +1624,6 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     _mqttOperation_t * pOperation = NULL;
-    uint8_t ** pPacketIdentifierHigh = NULL;
 
     /* Check that the PUBLISH information is valid. */
     if( _IotMqtt_ValidatePublish( mqttConnection->awsIotMqttMode,
@@ -1700,16 +1707,6 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
     /* Check the PUBLISH operation data and set the operation type. */
     IotMqtt_Assert( pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING );
     pOperation->u.operation.type = IOT_MQTT_PUBLISH_TO_SERVER;
-
-    /* In AWS IoT MQTT mode, a pointer to the packet identifier must be saved. */
-    if( mqttConnection->awsIotMqttMode == true )
-    {
-        pPacketIdentifierHigh = &( pOperation->u.operation.pPacketIdentifierHigh );
-    }
-    else
-    {
-        EMPTY_ELSE_MARKER;
-    }
 
     /* Initialize PUBLISH retry if retryLimit is set. */
     if( pPublishInfo->retryLimit > 0 )

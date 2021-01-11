@@ -1,3 +1,28 @@
+/*
+ * FreeRTOS BLE V2.2.0
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
+ */
+
 #include <stdbool.h>
 #include <unity.h>
 
@@ -28,7 +53,28 @@
 #define _NUM_DISCONNECT_PARAMS      ( 1 )
 #define _NUM_PINGRESP_PARAMS        ( 1 )
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/c_sdk/standard/ble/include/iot_ble_mqtt_transport.h.
+ */
+struct NetworkContext
+{
+    BleTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 static NetworkContext_t context;
+
+/**
+ * @brief Ble Transport Parameters structure to store the data channel.
+ */
+static BleTransportParams_t xBleTransportParams = { 0 };
 static MQTTFixedBuffer_t fixedBuffer;
 static size_t bufferSize = 0;
 
@@ -39,12 +85,13 @@ void setUp( void )
 {
     fixedBuffer.pBuffer = buffer;
     fixedBuffer.size = 100;
+    context.pParams = &xBleTransportParams;
 }
 
 /* called before each testcase */
 void tearDown( void )
 {
-    context.pChannel = NULL;
+    context.pParams->pChannel = NULL;
 }
 
 /* called at the beginning of the whole suite */
@@ -331,7 +378,7 @@ void test_IotBleMqttTransportSend_ConnectBadParameters2( void )
         0x00, 0x00
     };
 
-    IotBleMqtt_SerializeConnect_IgnoreAndReturn( MQTTBLESuccess );
+    IotBleMqtt_SerializeConnect_IgnoreAndReturn( MQTTBLEBadParameter );
 
     packetSize = 12U;
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context,
@@ -393,8 +440,8 @@ void test_IotBleMqttTransportSend_PublishBasic( void )
 {
     size_t bytesSent = 0;
 
-    context.publishInfo.topicNameLength = 20;
-    char buffer[ context.publishInfo.topicNameLength ];
+    context.pParams->publishInfo.topicNameLength = 20;
+    char buffer[ context.pParams->publishInfo.topicNameLength ];
 
     uint8_t MQTTPacket[] =
     {
@@ -431,8 +478,8 @@ void test_IotBleMqttTransportSend_PublishBadDeserialize( void )
 {
     size_t bytesSent = 0;
 
-    context.publishInfo.topicNameLength = 20;
-    char buffer[ context.publishInfo.topicNameLength ];
+    context.pParams->publishInfo.topicNameLength = 20;
+    char buffer[ context.pParams->publishInfo.topicNameLength ];
     uint8_t MQTTPacket[] =
     {
         0x30, 0x24, 0x00, 0x11, 0x69, 0x6f, 0x74, 0x64, 0x65, 0x6d,
@@ -443,7 +490,7 @@ void test_IotBleMqttTransportSend_PublishBadDeserialize( void )
     size_t packetSize = 38U;
 
     MQTT_DeserializePublish_IgnoreAndReturn( MQTTBadParameter );
-    IotBleMqtt_SerializePublish_IgnoreAndReturn( MQTTBLESuccess );
+    IotBleMqtt_SerializePublish_IgnoreAndReturn( MQTTBLEBadParameter );
     vPortFree_Ignore();
     pvPortMalloc_IgnoreAndReturn( buffer );
 
@@ -498,7 +545,7 @@ void test_IotBleMqttTransportSend_PubackBadDeserialize( void )
 
     MQTT_DeserializeAck_IgnoreAndReturn( MQTTBadParameter );
     /* IotBleMqtt_DeserializePuback_Stub( forgePacketIdentifierGood ); */
-    IotBleMqtt_SerializePuback_IgnoreAndReturn( MQTTBLESuccess );
+    IotBleMqtt_SerializePuback_IgnoreAndReturn( MQTTBLEBadParameter );
 
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context,
                                                     ( void * ) MQTTPacket,
@@ -860,7 +907,7 @@ void test_IotBleMqttTransportSend_ChannelFails( void )
     IotBleMqtt_SerializePingreq_ReturnThruPtr_pPacketSize( &packetSize );
     IotBleDataTransfer_Send_ExpectAnyArgsAndReturn( 0U );
     vPortFree_Ignore();
-    context.publishInfo.pending = false;
+    context.pParams->publishInfo.pending = false;
 
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context,
                                                     ( void * ) MQTTPacket,
@@ -877,12 +924,13 @@ void test_IotBleMqttTransportSend_ChannelFails_packetSizeZero( void )
     size_t bytesSent = 0;
     uint8_t MQTTPacket[] = { 0xc0, 0x00 }; /* IOT_BLE_MQTT_MSG_TYPE_PINGREQ */
     size_t packetSize = 2U;
-    size_t ret_packetSize = 0U;
+    size_t ret_packetSize = 2U;
 
     IotBleMqtt_SerializePingreq_ExpectAnyArgsAndReturn( MQTTBLESuccess );
     IotBleMqtt_SerializePingreq_ReturnThruPtr_pPacketSize( &ret_packetSize );
+    IotBleDataTransfer_Send_ExpectAnyArgsAndReturn( 0 );
     vPortFree_Ignore();
-    context.publishInfo.pending = false;
+    context.pParams->publishInfo.pending = false;
 
     bytesSent = ( size_t ) IotBleMqttTransportSend( &context,
                                                     ( void * ) MQTTPacket,

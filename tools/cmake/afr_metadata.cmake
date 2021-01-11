@@ -200,6 +200,14 @@ function(afr_write_metadata)
         if("${module}" STREQUAL "kernel")
             continue()
         endif()
+
+        # Check if module contains module-specifc cmake files.
+        set(prop_var AFR_MODULE_${module}_CMAKE_FILES)
+        if(DEFINED ${prop_var})
+            # Add cmake files associated with this module to the metadata file 
+            # containing list of all cmake files.
+            file(APPEND "${cmake_files_file}" ";${${prop_var}}")
+        endif()
         string(FIND ${module} ::mcu_port __idx)
         if(__idx EQUAL -1)
             set(dependencies_list ${AFR_MODULE_${module}_DEPENDS_ALL})
@@ -329,6 +337,12 @@ function(afr_write_metadata)
         "${AFR_TESTS_DIR}"
     )
 
+    # Add any addtional files to ${console_dir}/source_paths.txt
+    list(
+        APPEND src_console
+        ${AFR_FILES_TO_CONSOLE_METADATA}
+    )
+
     # Write all sources and include dirs.
     file(WRITE "${console_dir}/source_paths.txt" "${src_console}")
     file(WRITE "${ide_dir}/source_paths.txt" "${src_all}")
@@ -349,6 +363,17 @@ function(afr_write_metadata)
         INPUT "${ide_dir}/include_paths.txt"
     )
 endfunction()
+
+# This function is used for any additional files that need
+# be included in the ZIP downloaded from FreeRTOS console.
+function(afr_files_to_console_metadata)
+    set(prop_var AFR_FILES_TO_CONSOLE_METADATA)
+    if( NOT DEFINED ${prop_var} )
+       set(${prop_var} "" CACHE INTERNAL "")
+    endif()
+    afr_cache_append(${prop_var} ${ARGN})
+endfunction()
+
 
 # =============== Metadata definition ===============
 set(AFR_METADATA_BOARD "" CACHE INTERNAL "List of CMake property names for hardware metadata.")

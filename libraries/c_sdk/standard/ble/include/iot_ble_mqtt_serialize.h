@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE V2.1.0
+ * FreeRTOS BLE V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -233,6 +233,11 @@ typedef struct MQTTBLEPublishInfo
      * @brief Pending flag for continuation of publish packet.
      */
     bool pending;
+
+    /**
+     * @brief Packet Identifier for QoS1, QoS2 publish packet.
+     */
+    uint16_t packetIdentifier;
 } MQTTBLEPublishInfo_t;
 /** @} */
 

@@ -117,7 +117,9 @@ static void prvCreatePrintSocket( void * pvParameter1,
  * Write a messages to stdout, either with or without a time-stamp.
  * A Windows thread will finally call printf() and fflush().
  */
-static void prvLoggingPrintf( BaseType_t xFormatted, const char *pcFormat, va_list xArgs );
+static void prvLoggingPrintf( BaseType_t xFormatted,
+                              const char * pcFormat,
+                              va_list xArgs );
 
 /*-----------------------------------------------------------*/
 
@@ -280,6 +282,7 @@ void vLoggingPrintf( const char * pcFormat,
                      ... )
 {
     va_list xArgs;
+
     va_start( xArgs, pcFormat );
     prvLoggingPrintf( pdTRUE, pcFormat, xArgs );
     va_end( xArgs );
@@ -293,14 +296,15 @@ void vLoggingPrint( const char * pcFormat )
 /*-----------------------------------------------------------*/
 
 static void prvLoggingPrintf( BaseType_t xFormatted,
-                              const char *pcFormat,
+                              const char * pcFormat,
                               va_list xArgs )
 {
     char cPrintString[ dlMAX_PRINT_STRING_LENGTH ];
     char cOutputString[ dlMAX_PRINT_STRING_LENGTH ];
-    char * pcSource, *pcTarget, *pcBegin;
+    char * pcSource, * pcTarget, * pcBegin;
     size_t xLength, xLength2, rc;
     static BaseType_t xMessageNumber = 0;
+    static BaseType_t xAfterLineBreak = pdTRUE;
     uint32_t ulIPAddress;
     const char * pcTaskName;
     const char * pcNoTask = "None";
@@ -321,20 +325,25 @@ static void prvLoggingPrintf( BaseType_t xFormatted,
             pcTaskName = pcNoTask;
         }
 
-        if( ( strcmp( pcFormat, "\n" ) != 0 ) && ( xFormatted != pdFALSE ) )
+        if( ( xAfterLineBreak == pdTRUE ) &&
+            ( strcmp( pcFormat, "\r\n" ) != 0 ) &&
+            ( xFormatted != pdFALSE ) )
         {
-            xLength = snprintf( cPrintString, 
-                                dlMAX_PRINT_STRING_LENGTH, 
+            xLength = snprintf( cPrintString,
+                                dlMAX_PRINT_STRING_LENGTH,
                                 "%lu %lu [%s] ",
                                 xMessageNumber++,
-                                ( unsigned long )xTaskGetTickCount(),
+                                ( unsigned long ) xTaskGetTickCount(),
                                 pcTaskName );
+            xAfterLineBreak = pdFALSE;
         }
         else
         {
             xLength = 0;
             memset( cPrintString, 0x00, dlMAX_PRINT_STRING_LENGTH );
+            xAfterLineBreak = pdTRUE;
         }
+
         if( xArgs != NULL )
         {
             xLength2 = vsnprintf( cPrintString + xLength,
@@ -386,19 +395,19 @@ static void prvLoggingPrintf( BaseType_t xFormatted,
                 }
 
                 sscanf( pcTarget, "%8X", &ulIPAddress );
-                rc = sprintf( pcTarget, 
+                rc = sprintf( pcTarget,
                               "%lu.%lu.%lu.%lu",
-                              ( unsigned long )( ulIPAddress >> 24UL ),
-                              ( unsigned long )( ( ulIPAddress >> 16UL ) & 0xffUL ),
-                              ( unsigned long )( ( ulIPAddress >> 8UL ) & 0xffUL ),
-                              ( unsigned long )( ulIPAddress & 0xffUL ) );
+                              ( unsigned long ) ( ulIPAddress >> 24UL ),
+                              ( unsigned long ) ( ( ulIPAddress >> 16UL ) & 0xffUL ),
+                              ( unsigned long ) ( ( ulIPAddress >> 8UL ) & 0xffUL ),
+                              ( unsigned long ) ( ulIPAddress & 0xffUL ) );
                 pcTarget += rc;
                 pcSource += 3; /* skip "<n>ip" */
             }
         }
 
         /* How far through the buffer was written? */
-        xLength = ( BaseType_t )( pcTarget - cOutputString );
+        xLength = ( BaseType_t ) ( pcTarget - cOutputString );
 
         /* If the message is to be logged to a UDP port then it can be sent directly
          * because it only uses FreeRTOS function (not Win32 functions). */
@@ -464,7 +473,7 @@ static void prvLoggingPrintf( BaseType_t xFormatted,
                                    sizeof( xLength ) );
                 uxStreamBufferAdd( xLogStreamBuffer,
                                    0,
-                                   ( const uint8_t * )cOutputString,
+                                   ( const uint8_t * ) cOutputString,
                                    xLength );
                 SetThreadPriority( GetCurrentThread(), iOriginalPriority );
             }

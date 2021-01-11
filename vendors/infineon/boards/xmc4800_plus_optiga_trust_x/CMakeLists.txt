@@ -187,6 +187,7 @@ set(compiler_includes
 set( board_includes
      "${xmclib_dir}/CMSIS/Include"
      "${xmclib_dir}/drivers/inc"
+     "${AFR_ROOT_DIR}/libraries/logging/include"
      "${xmclib_dir}/third_party/ESP_AT_Lib/src/include"
      "${xmclib_dir}/CMSIS/Infineon/XMC4800_series/Include"
 	 "${xmclib_dir}/DAVE_Generated/XMC4800"

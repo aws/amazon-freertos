@@ -1,5 +1,5 @@
 /*
- * FreeRTOS POSIX V1.2.0
+ * FreeRTOS POSIX V1.2.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -127,6 +127,9 @@
 #endif
 #ifndef posixconfigENABLE_USECONDS_T
     #define posixconfigENABLE_USECONDS_T             1 /**< useconds_t in sys/types.h */
+#endif
+#ifndef posixconfigENABLE_TM
+    #define posixconfigENABLE_TM                     1 /**< struct tm in time.h */
 #endif
 #ifndef posixconfigENABLE_TIMESPEC
     #define posixconfigENABLE_TIMESPEC               1 /**< struct timespec in time.h */

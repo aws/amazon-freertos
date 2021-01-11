@@ -36,6 +36,8 @@
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface\WinPCap"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler"/>
 		<Filter Include="libraries\freertos_plus\standard\tls\src"/>
 		<Filter Include="libraries\freertos_plus\standard\tls"/>
 		<Filter Include="libraries\freertos_plus\standard\tls\include"/>
@@ -54,7 +56,8 @@
 		<Filter Include="vendors"/>
 		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls"/>
 		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\portable"/>
-		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include"/>
+		<Filter Include="libraries\3rdparty\mbedtls_config"/>
+		<Filter Include="libraries\3rdparty"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\src"/>
 		<Filter Include="libraries\freertos_plus\standard\utils"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
@@ -74,7 +77,14 @@
 		<Filter Include="libraries\coreMQTT\source"/>
 		<Filter Include="libraries\coreMQTT"/>
 		<Filter Include="libraries\coreMQTT\source\include"/>
-		<Filter Include="libraries\coreMQTT\source\portable"/>
+		<Filter Include="libraries\coreMQTT\source\interface"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm\source"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm\source\include"/>
+		<Filter Include="demos\common\pkcs11_helpers"/>
+		<Filter Include="demos\common"/>
+		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
+		<Filter Include="libraries\abstractions\transport"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src"/>
 		<Filter Include="libraries\c_sdk\standard\serializer"/>
@@ -85,6 +95,14 @@
 		<Filter Include="libraries\c_sdk\aws\shadow\include"/>
 		<Filter Include="libraries\c_sdk\standard\https\src"/>
 		<Filter Include="libraries\c_sdk\standard\https"/>
+		<Filter Include="libraries\coreHTTP\source"/>
+		<Filter Include="libraries\coreHTTP"/>
+		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty\http_parser"/>
+		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty"/>
+		<Filter Include="libraries\coreHTTP\source\dependency"/>
+		<Filter Include="libraries\coreHTTP\source\include"/>
+		<Filter Include="libraries\coreHTTP\source\interface"/>
+		<Filter Include="demos\common\http_demo_helpers"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass\src"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass"/>
 		<Filter Include="libraries\freertos_plus\aws"/>
@@ -94,7 +112,6 @@
 		<Filter Include="libraries\freertos_plus\aws\ota\src"/>
 		<Filter Include="libraries\3rdparty\mbedtls\library"/>
 		<Filter Include="libraries\3rdparty\mbedtls"/>
-		<Filter Include="libraries\3rdparty"/>
 		<Filter Include="vendors\pc\boards\windows\ports\ota"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\src\mqtt"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\src\http"/>
@@ -108,14 +125,23 @@
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
-		<Filter Include="libraries\abstractions\retry_utils\freertos"/>
-		<Filter Include="libraries\abstractions\retry_utils"/>
-		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
-		<Filter Include="libraries\abstractions\transport"/>
 		<Filter Include="libraries\coreJSON\source"/>
 		<Filter Include="libraries\coreJSON"/>
-		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk\source"/>
-		<Filter Include="libraries\device_shadow_for_aws_iot_embedded_sdk"/>
+		<Filter Include="libraries\coreJSON\source\include"/>
+		<Filter Include="libraries\device_shadow_for_aws\source"/>
+		<Filter Include="libraries\device_shadow_for_aws"/>
+		<Filter Include="libraries\device_shadow_for_aws\source\include"/>
+		<Filter Include="demos\common\mqtt_demo_helpers"/>
+		<Filter Include="demos\include"/>
+		<Filter Include="libraries\device_defender_for_aws\source"/>
+		<Filter Include="libraries\device_defender_for_aws"/>
+		<Filter Include="libraries\device_defender_for_aws\source\include"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include"/>
+		<Filter Include="libraries\jobs_for_aws\source"/>
+		<Filter Include="libraries\jobs_for_aws"/>
+		<Filter Include="libraries\jobs_for_aws\source\include"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\unit"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\system"/>
@@ -154,7 +180,6 @@
 		<Filter Include="libraries\3rdparty\unity\extras"/>
 		<Filter Include="libraries\3rdparty\tinycbor\src"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
-		<Filter Include="libraries\3rdparty\http_parser"/>
 		<Filter Include="libraries\3rdparty\jsmn"/>
 	</ItemGroup>
 	<ItemGroup>
@@ -272,9 +297,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h">
 			<Filter>libraries\abstractions\platform\include\platform</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\transport_interface.h">
-			<Filter>libraries\abstractions\platform\include\platform</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\types\iot_platform_types.h">
 			<Filter>libraries\abstractions\platform\include\types</Filter>
 		</ClInclude>
@@ -296,6 +318,9 @@
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_wrapper_metrics.h">
 			<Filter>libraries\abstractions\secure_sockets\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOSIPConfigDefaults.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_ARP.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
 		</ClInclude>
@@ -303,12 +328,6 @@
 			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_DNS.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_errno_TCP.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOSIPConfigDefaults.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_IP.h">
@@ -332,6 +351,9 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_UDP_IP.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_errno_TCP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\IPTraceMacroDefaults.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
 		</ClInclude>
@@ -340,6 +362,12 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\NetworkInterface.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC\pack_struct_end.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC\pack_struct_start.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\include\iot_tls.h">
 			<Filter>libraries\freertos_plus\standard\tls\include</Filter>
@@ -350,8 +378,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pkcs11.h">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include\threading_alt.h">
-			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls_config\threading_alt.h">
+			<Filter>libraries\3rdparty\mbedtls_config</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pkcs11_pal.h">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
@@ -380,9 +408,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\include\aws_iot_defender.h">
 			<Filter>libraries\c_sdk\aws\defender\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\mqttFilePaths.cmake">
-			<Filter>libraries\coreMQTT</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt.h">
 			<Filter>libraries\coreMQTT\source\include</Filter>
 		</ClInclude>
@@ -395,8 +420,14 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt_state.h">
 			<Filter>libraries\coreMQTT\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\portable\transport_interface.h">
-			<Filter>libraries\coreMQTT\source\portable</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h">
+			<Filter>libraries\coreMQTT\source\interface</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include\backoff_algorithm.h">
+			<Filter>libraries\abstractions\backoff_algorithm\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
+			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_serializer.h">
 			<Filter>libraries\c_sdk\standard\serializer\include</Filter>
@@ -412,6 +443,21 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_shadow.h">
 			<Filter>libraries\c_sdk\aws\shadow\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client.h">
+			<Filter>libraries\coreHTTP\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client_private.h">
+			<Filter>libraries\coreHTTP\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_config_defaults.h">
+			<Filter>libraries\coreHTTP\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h">
+			<Filter>libraries\coreHTTP\source\interface</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.h">
+			<Filter>libraries\coreHTTP\source\dependency\3rdparty\http_parser</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h">
 			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
@@ -497,14 +543,35 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\core_mqtt_demo_dependencies.cmake">
-			<Filter>libraries</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h">
+			<Filter>libraries\coreJSON\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\retry_utils\retry_utils.h">
-			<Filter>libraries\abstractions\retry_utils</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow.h">
+			<Filter>libraries\device_shadow_for_aws\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
-			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow_config_defaults.h">
+			<Filter>libraries\device_shadow_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\demos\include\aws_iot_metrics.h">
+			<Filter>demos\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\device_defender_for_aws\source\include\defender.h">
+			<Filter>libraries\device_defender_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\device_defender_for_aws\source\include\defender_config_defaults.h">
+			<Filter>libraries\device_defender_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_dump_packets.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_mem_stats.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include\tcp_netstat.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\jobs_for_aws\source\include\jobs.h">
+			<Filter>libraries\jobs_for_aws\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.h">
 			<Filter>libraries\abstractions\pkcs11\test</Filter>
@@ -773,9 +840,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h">
 			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h">
-			<Filter>libraries\3rdparty\http_parser</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
 			<Filter>libraries\3rdparty\jsmn</Filter>
 		</ClInclude>
@@ -970,6 +1034,15 @@
 		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c">
 			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\backoff_algorithm.c">
+			<Filter>libraries\abstractions\backoff_algorithm\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\pkcs11_helpers\pkcs11_helpers.c">
+			<Filter>demos\common\pkcs11_helpers</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
+			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_decoder.c">
 			<Filter>libraries\c_sdk\standard\serializer\src\cbor</Filter>
 		</ClCompile>
@@ -1011,6 +1084,15 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_utils.c">
 			<Filter>libraries\c_sdk\standard\https\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c">
+			<Filter>libraries\coreHTTP\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.c">
+			<Filter>libraries\coreHTTP\source\dependency\3rdparty\http_parser</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\http_demo_helpers\http_demo_utils.c">
+			<Filter>demos\common\http_demo_helpers</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c">
 			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
@@ -1078,17 +1160,29 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c">
-			<Filter>libraries\abstractions\retry_utils\freertos</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
-			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
 			<Filter>libraries\coreJSON\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\device_shadow_for_aws_iot_embedded_sdk\source\shadow.c">
-			<Filter>libraries\device_shadow_for_aws_iot_embedded_sdk\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\shadow.c">
+			<Filter>libraries\device_shadow_for_aws\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c">
+			<Filter>demos\common\mqtt_demo_helpers</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\device_defender_for_aws\source\defender.c">
+			<Filter>libraries\device_defender_for_aws\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_dump_packets.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_mem_stats.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\tcp_netstat.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\jobs_for_aws\source\jobs.c">
+			<Filter>libraries\jobs_for_aws\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">
 			<Filter>libraries\c_sdk\aws\defender\test\unit</Filter>
@@ -1304,6 +1398,9 @@
 			<Filter>tests\integration_test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\tests\integration_test\shadow_system_test.c">
+			<Filter>tests\integration_test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\tests\integration_test\core_http_system_test.c">
 			<Filter>tests\integration_test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\tests\integration_test\test_freertos_tcp.c">
@@ -1593,9 +1690,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c">
 			<Filter>libraries\3rdparty\tinycbor\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c">
-			<Filter>libraries\3rdparty\http_parser</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
 			<Filter>libraries\3rdparty\jsmn</Filter>

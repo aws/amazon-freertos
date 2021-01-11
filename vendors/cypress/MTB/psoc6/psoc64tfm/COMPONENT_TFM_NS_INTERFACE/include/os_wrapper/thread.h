@@ -96,17 +96,6 @@ uint32_t os_wrapper_thread_set_flag_isr(void *handle, uint32_t flags);
  */
 uint32_t os_wrapper_thread_wait_flag(uint32_t flags, uint32_t timeout);
 
-/**
- * \brief Trigger OS scheduling
- *
- * \param[in] yield re-schedule status
- *         \ref 1 if re-schedule is requried
- *         \ref 0, otherwise
- *
- * \return no
- */
-void  os_wrapper_isr_yield(uint32_t yield);
-
 #ifdef __cplusplus
 }
 #endif

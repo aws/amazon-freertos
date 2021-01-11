@@ -20,6 +20,7 @@
         ${AFR_ROOT_DIR}/freertos_kernel/include/
         ${AFR_ROOT_DIR}/libraries/coreMQTT/source/include
         ${AFR_ROOT_DIR}/tests/include
+        "${AFR_ROOT_DIR}/libraries/coreMQTT/source/interface"
         ${abstraction_dir}/platform/include
         ${abstraction_dir}/platform/include/platform
         ${abstraction_dir}/platform/include/types

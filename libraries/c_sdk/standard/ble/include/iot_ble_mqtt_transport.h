@@ -1,5 +1,5 @@
 /*
- * IoT Platform V1.1.0
+ * FreeRTOS BLE V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,17 +32,24 @@
 #include "FreeRTOS.h"
 #include "stream_buffer.h"
 
+/* Transport interface include. */
+#include "transport_interface.h"
+
 #include "iot_ble_mqtt_transport_config.h"
 #include "iot_ble_mqtt_serialize.h"
 #include "iot_ble_data_transfer.h"
 
-typedef struct NetworkContext
+/**
+ * @brief Definition of the transport parameters for the transport interface
+ * implementation that uses MQTT over BLE.
+ */
+typedef struct BleTransportParams
 {
     IotBleDataTransferChannel_t * pChannel;
     StreamBufferHandle_t xStreamBuffer;
     StaticStreamBuffer_t xStreamBufferStruct;
     MQTTBLEPublishInfo_t publishInfo;
-} NetworkContext_t;
+} BleTransportParams_t;
 
 /**
  * @brief Initiailzes the Circular buffer to store the received data

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,17 @@
  *
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
+ */
+
+/*
+ ****************************************************************************
+ * NOTE!
+ * This file is for ease of demonstration only.  Secret information should not
+ * be pasted into the header file in production devices.  Do not paste
+ * production secrets here!  Production devices should store secrets such as
+ * private keys securely, such as within a secure element.  See our examples that
+ * demonstrate how to use the PKCS #11 API for secure keys access.
+ ****************************************************************************
  */
 
 #ifndef AWS_CLIENT_CREDENTIAL_KEYS_H
@@ -65,6 +76,12 @@
  *
  * @todo If you are running one of the FreeRTOS demo projects, set this
  * to the private key that will be used for TLS client authentication.
+ * Please note pasting a key into the header file in this manner is for
+ * convenience of demonstration only and should not be done in production.
+ * Never past a production private key here!.  Production devices should
+ * store keys securely, such as within a secure element.  Additionally,
+ * we provide the corePKCS library that further enhances security by
+ * enabling keys to be used without exposing them to software.
  *
  * @note Must include the PEM header and footer:
  * "-----BEGIN RSA PRIVATE KEY-----\n"\

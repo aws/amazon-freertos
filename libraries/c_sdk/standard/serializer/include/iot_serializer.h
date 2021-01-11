@@ -152,6 +152,8 @@
 
 #define IOT_SERIALIZER_DECODER_ITERATOR_INITIALIZER            NULL
 
+#define IOT_SERIALIZER_SCALAR_DATA_INITIALIZER                 { .type = IOT_SERIALIZER_UNDEFINED }
+
 /* helper macro to create scalar data */
 #define IotSerializer_ScalarSignedInt( signedIntValue )                                                                        \
     ( IotSerializerScalarData_t ) { .value = { .u.signedInt = ( signedIntValue ) }, .type = IOT_SERIALIZER_SCALAR_SIGNED_INT } \
