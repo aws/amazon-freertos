@@ -127,8 +127,8 @@ static volatile EventGroupHandle_t xSyncEventGroup = NULL;
 /* Bit definitions used with the xSyncEventGroup event group to allow the
  * prvEchoClientTxTask() and prvEchoClientRxTask() tasks to synchronize before
  * commencing a new cycle with a different socket. */
-#define tcptestTX_TASK_BIT                                  ( 0x01 << 1 )
-#define tcptestRX_TASK_BIT                                  ( 0x01 << 2 )
+#define tcptestTX_TASK_BIT                                               ( 0x01 << 1 )
+#define tcptestRX_TASK_BIT                                               ( 0x01 << 2 )
 
 #ifndef tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE
     #define tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE    tcptestTWICE_MAX_FRAME_SIZE
