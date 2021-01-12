@@ -154,11 +154,9 @@ const BTGattServerCallbacks_t _BTGattServerCb =
 
 void _serviceClean( BLEServiceListElement_t * pServiceElem )
 {
-    if( pServiceElem != NULL )
-    {
-        IotListDouble_Remove( &pServiceElem->serviceList );
-        IotBle_Free( pServiceElem );
-    }
+    IotBle_Assert( pServiceElem != NULL );
+    IotListDouble_Remove( &pServiceElem->serviceList );
+    IotBle_Free( pServiceElem );
 }
 
 /*-----------------------------------------------------------*/
@@ -322,12 +320,11 @@ BLEServiceListElement_t * _getLastAddedServiceElem( void )
 {
     BLEServiceListElement_t * pServiceElem = NULL;
 
+    /* At least one service should be added in the list. So list should never be empty. */
+    IotBle_Assert( IotListDouble_IsEmpty( &_BTInterface.serviceListHead ) != pdTRUE );
+    
     /* The service that was just added is the first in the list */
-    if( !IotListDouble_IsEmpty( &_BTInterface.serviceListHead ) )
-
-    {
-        pServiceElem = IotLink_Container( BLEServiceListElement_t, _BTInterface.serviceListHead.pNext, serviceList );
-    }
+    pServiceElem = IotLink_Container( BLEServiceListElement_t, _BTInterface.serviceListHead.pNext, serviceList );
 
     return pServiceElem;
 }
@@ -745,6 +742,7 @@ BTStatus_t IotBle_CreateService( BTService_t * pService,
 {
     BTStatus_t status = eBTStatusParamInvalid;
     BLEServiceListElement_t * pServiceElem;
+    bool serviceAdded = false;
 
     IotMutex_Lock( &_BTInterface.waitCbMutex );
 
@@ -757,6 +755,7 @@ BTStatus_t IotBle_CreateService( BTService_t * pService,
 
     if( status == eBTStatusSuccess )
     {
+        serviceAdded = true;
         status = _BTInterface.pGattServerInterface->pxAddServiceBlob( _BTInterface.serverIf, pService );
     }
 
@@ -782,16 +781,13 @@ BTStatus_t IotBle_CreateService( BTService_t * pService,
     else if( status == eBTStatusSuccess )
     {
         pServiceElem = _getLastAddedServiceElem();
+        IotBle_Assert( pServiceElem != NULL );
+        pServiceElem->endHandle = pService->pusHandlesBuffer[ pService->xNumberOfAttributes - 1 ];
+    }
 
-        if( pServiceElem != NULL )
-        {
-            pServiceElem->endHandle = pService->pusHandlesBuffer[ pService->xNumberOfAttributes - 1 ];
-        }
-        else
-        {
-            status = eBTStatusFail;
-            IotLogError( "Could not get last created service." );
-        }
+    if( ( status != eBTStatusSuccess ) && ( serviceAdded == true ) ) {
+        pServiceElem = _getLastAddedServiceElem();
+        _serviceClean( pServiceElem );
     }
 
     IotMutex_Unlock( &_BTInterface.waitCbMutex );
