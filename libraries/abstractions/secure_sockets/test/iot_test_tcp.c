@@ -130,8 +130,8 @@ static volatile EventGroupHandle_t xSyncEventGroup = NULL;
 #define tcptestTX_TASK_BIT                                  ( 0x01 << 1 )
 #define tcptestRX_TASK_BIT                                  ( 0x01 << 2 )
 
-#ifndef Threadsafe_SameSocketDifferentTasksFrameSize
-    #define Threadsafe_SameSocketDifferentTasksFrameSize    ( 2 * 1500 )
+#ifndef tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE
+    #define tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE    tcptestTWICE_MAX_FRAME_SIZE
 #endif
 
 /* Array setup for 2x an Ethernet II data section */
@@ -2727,7 +2727,7 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
                 xRecvLen = 1;
             }
 
-            while( xTotalReceived < Threadsafe_SameSocketDifferentTasksFrameSize )
+            while( xTotalReceived < tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE )
             {
                 xReturned = SOCKETS_Recv( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0 );
 
@@ -2822,7 +2822,7 @@ static void prvEchoClientTxTask( void * pvParameters )
                                                                                        /* Using % to avoid bug in case a new state is unknowingly added. */
 
         vTaskPrioritySet( NULL, tcptestECHO_TEST_HIGH_PRIORITY );
-        xMaxBufferSize = Threadsafe_SameSocketDifferentTasksFrameSize;
+        xMaxBufferSize = tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE;
 
         /* Set low priority if requested . */
         if( ( xMode == LARGE_BUFFER_LOW_PRIORITY ) || ( xMode == SMALL_BUFFER_LOW_PRIORITY ) )
@@ -2849,12 +2849,12 @@ static void prvEchoClientTxTask( void * pvParameters )
         xStatus = pdTRUE;
 
         /* Keep sending until the entire buffer has been sent. */
-        while( xTransmitted < Threadsafe_SameSocketDifferentTasksFrameSize )
+        while( xTransmitted < tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE )
         {
             /* How many bytes are left to send?  Attempt to send them
              * all at once (so the length is potentially greater than the
              * MSS). */
-            xLenToSend = Threadsafe_SameSocketDifferentTasksFrameSize - xTransmitted;
+            xLenToSend = tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE - xTransmitted;
 
             /* Every loop switch the size of the packet from maximum to smallest. */
             if( xLenToSend > xMaxBufferSize )
