@@ -239,11 +239,13 @@ target_include_directories(
         "${afr_ports_dir}/ble/nimble"
 )
 
-target_link_libraries(
-    AFR::ble_hal::mcu_port
-    INTERFACE
-        idf::bt
-)
+if (NOT AFR_METADATA_MODE)
+    target_link_libraries(
+        AFR::ble_hal::mcu_port
+        INTERFACE
+            idf::bt
+    )
+endif()
 
 # PKCS11
 if(ECC608_IN_USE)
@@ -397,6 +399,11 @@ target_link_libraries(
         AFR::pkcs11
         AFR::ota_mqtt
         AFR::ota_http
+)
+
+# Add extra components to metadata
+afr_files_to_console_metadata(
+    "${extra_components_dir}"
 )
 
 # -------------------------------------------------------------------------------------------------
