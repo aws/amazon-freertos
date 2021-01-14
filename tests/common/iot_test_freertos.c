@@ -49,6 +49,7 @@
  */
     void vApplicationMallocFailedHook()
     {
+        configPRINT_STRING( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
         taskDISABLE_INTERRUPTS();
 
         /* Loop forever */
@@ -76,6 +77,7 @@
         ( void ) xTask;
         ( void ) pcTaskName;
 
+        configPRINT_STRING( ( "ERROR: stack overflow with task \r\n" ) );
         portDISABLE_INTERRUPTS();
 
         /* Loop forever */

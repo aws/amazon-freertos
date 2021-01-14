@@ -148,39 +148,49 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/CC3220SF.ccxml</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/ClockP_freertos.c</name>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/ClockP_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/ClockP_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/ClockP_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/DebugP_freertos.c</name>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/DebugP_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/DebugP_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/DebugP_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/HwiPCC32XX_freertos.c</name>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/HwiPCC32XX_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/HwiPCC32XX_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/HwiPCC32XX_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/MutexP_freertos.c</name>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/MutexP_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/MutexP_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/MutexP_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/PowerCC32XX_freertos.c</name>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/PowerCC32XX_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/PowerCC32XX_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/PowerCC32XX_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/SemaphoreP_freertos.c</name>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/QueueP_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/SemaphoreP_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/QueueP_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/SystemP_freertos.c</name>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/SemaphoreP_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/SystemP_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/SemaphoreP_freertos.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/SwiP_freertos.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/SwiP_freertos.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/SystemP_freertos.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/dpl/SystemP_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/portable/MemMang/heap_4.c</name>
@@ -188,9 +198,9 @@
 			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/MemMang/heap_4.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup/startup_cc32xx_ccs.c</name>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/startup/startup_cc32xx_ccs.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup/startup_cc32xx_ccs.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/kernel/freertos/startup/startup_cc32xx_ccs.c</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/portable/CCS/ARM_CM3/port.c</name>
@@ -208,139 +218,9 @@
 			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/CCS/ARM_CM3/portmacro.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/errno.h</name>
+			<name>vendors/ti/boards/cc3220_launchpad/CC3220SF_LAUNCHXL_FREERTOS.cmd</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/errno.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/fcntl.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/fcntl.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/mqueue.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/mqueue.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/pthread.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/pthread.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/sched.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/sched.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/semaphore.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/semaphore.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/signal.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/signal.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/sys/types.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/sys/types.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/time.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/time.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/unistd.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/unistd.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/utils.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/utils.h</locationURI>
-		</link>
-		<link>
-			<name>vendors/ti/boards/cc3220_launchpad/ports/posix/FreeRTOS_POSIX_portable.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/posix/FreeRTOS_POSIX_portable.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_clock.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_clock.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_mqueue.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_mqueue.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_barrier.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_barrier.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_cond.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_cond.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_mutex.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_mutex.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_sched.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_sched.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_semaphore.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_semaphore.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_timer.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_timer.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_unistd.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_unistd.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_utils.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_types.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_types.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_internal.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_internal.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/CC3220SF_LAUNCHXL_FREERTOS.cmd</locationURI>
 		</link>
 		<link>
 			<name>demos/demo_runner/aws_demo_version.c</name>
@@ -661,6 +541,76 @@
 			<name>vendors/ti/boards/cc3220_launchpad/ports/wifi/iot_wifi.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/wifi/iot_wifi.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/simplelink_common/utils/network_if/cc3220_launchpad/network_if.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/simplelink_common/utils/network_if/cc3220_launchpad/network_if.c</locationURI>
+		</link>
+		<link>
+			<name>application_code/ti_code/ccs/ti_drivers_net_wifi_config.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/ccs/ti_drivers_net_wifi_config.c</locationURI>
+		</link>
+		<link>
+			<name>application_code/ti_code/ccs/ti_net_config.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/ccs/ti_net_config.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/clock.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/clock.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/mqueue.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/mqueue.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/pthread.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/pthread.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/pthread_barrier.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/pthread_barrier.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/pthread_cond.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/pthread_cond.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/pthread_mutex.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/pthread_mutex.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/pthread_rwlock.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/pthread_rwlock.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/sched.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/sched.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/sleep.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/sleep.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/semaphore.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/semaphore.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/timer.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/timer.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</name>
@@ -1083,6 +1033,16 @@
 			<locationURI>BASE_DIR_ROOT/libraries/coreJSON/source/include/core_json.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/coreJSON/source/include/stdbool.readme</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/coreJSON/source/include/stdbool.readme</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreJSON/source/include/stdint.readme</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/coreJSON/source/include/stdint.readme</locationURI>
+		</link>
+		<link>
 			<name>libraries/device_shadow_for_aws/source/shadow.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/device_shadow_for_aws/source/shadow.c</locationURI>
@@ -1218,39 +1178,9 @@
 			<locationURI>BASE_DIR_ROOT/demos/tcp/aws_tcp_echo_client_single_tasks.h</locationURI>
 		</link>
 		<link>
-			<name>application_code/ti_code/CC3220SF_LAUNCHXL.c</name>
+			<name>application_code/ti_code/ccs/ti_drivers_config.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/CC3220SF_LAUNCHXL.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/network_if.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/network_if.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/uart_term.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/uart_term.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/Board.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/Board.h</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/CC3220SF_LAUNCHXL.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/CC3220SF_LAUNCHXL.h</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/network_if.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/network_if.h</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/uart_term.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/uart_term.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/ccs/ti_drivers_config.c</locationURI>
 		</link>
 		<link>
 			<name>config_files/FreeRTOSConfig.h</name>
@@ -1261,11 +1191,6 @@
 			<name>config_files/FreeRTOSIPConfig.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/FreeRTOSIPConfig.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/iot_bufferpool_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_bufferpool_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_demo_config.h</name>
@@ -1283,19 +1208,9 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/aws_iot_network_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/iot_mqtt_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_mqtt_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_ota_agent_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/aws_ota_agent_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/iot_secure_sockets_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_shadow_config.h</name>
@@ -1353,6 +1268,11 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/http_demo_s3_upload_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/iot_bufferpool_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_bufferpool_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/iot_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_config.h</locationURI>
@@ -1361,6 +1281,16 @@
 			<name>config_files/iot_mqtt_agent_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_mqtt_agent_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_mqtt_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_mqtt_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_secure_sockets_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/jobs_demo_config.h</name>
@@ -1393,14 +1323,19 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/shadow_demo_config.h</locationURI>
 		</link>
 		<link>
+			<name>vendors/ti/simplelink_common/utils/uart_term/uart_term.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/simplelink_common/utils/uart_term/uart_term.c</locationURI>
+		</link>
+		<link>
 			<name>application_code/main.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/main.c</locationURI>
 		</link>
 		<link>
-			<name>application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd</name>
+			<name>vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/memory.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v4_30_00_06/source/ti/posix/freertos/memory.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/aes.c</name>
@@ -2258,7 +2193,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/jsmn/jsmn.c</locationURI>
 		</link>
 	</linkedResources>
-	<filteredResources/>
 	<variableList>
 		<variable>
 			<name>BASE_DIR_ROOT</name>

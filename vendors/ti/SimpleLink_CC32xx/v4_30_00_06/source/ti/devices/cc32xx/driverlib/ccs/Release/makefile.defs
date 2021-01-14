@@ -1,0 +1,72 @@
+
+SIMPLELINK_CC32XX_SDK_INSTALL_DIR ?= $(abspath ../../../../../../..)
+
+include $(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/imports.mak
+
+ROOT=$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/devices/cc32xx
+
+#
+# Source path
+#
+VPATH = $(ROOT)/driverlib
+
+CC = "$(CCS_ARMCOMPILER)/bin/armcl"
+AR = "$(CCS_ARMCOMPILER)/bin/armar"
+
+STDINC = "$(CCS_ARMCOMPILER)/include"
+
+#
+# Include path
+#
+IPATH  = -I$(ROOT)/
+IPATH += -I$(ROOT)/driverlib
+IPATH += -I$(ROOT)/inc
+ifdef COM_TI_SIMPLELINK_MSP432_SDK_INSTALL_DIR
+IPATH += -I$(COM_TI_SIMPLELINK_MSP432_SDK_INSTALL_DIR)/source
+endif
+IPATH += -I$(STDINC)
+
+CFLAGS = -mv7M4 --code_state=16 --float_support=vfplib --abi=eabi -me -Ooff -g --gcc --define=ccs --define=DRIVERLIB_APPS --define=cc3200 --display_error_number --diag_warning=225 --diag_wrap=off --gen_func_subsections=on --printf_support=full --ual
+CFLAGS += $(IPATH)
+
+CFILES = \
+    adc.c \
+    aes.c \
+    camera.c \
+    cpu.c \
+    crc.c \
+    des.c \
+    flash.c \
+    gpio.c \
+    hwspinlock.c \
+    i2c.c \
+    interrupt.c \
+    i2s.c \
+    pin.c \
+    prcm.c \
+    sdhost.c \
+    shamd5.c \
+    spi.c \
+    systick.c \
+    timer.c \
+    uart.c \
+    udma.c \
+    utils.c \
+    wdt.c
+
+
+OBJCFILES = $(CFILES:.c=.obj)
+
+driverlib.a: $(OBJCFILES)
+	@ echo ar $@ ...
+	@ $(RM) $@ > $(DEVNULL) 2>&1
+	@ $(AR) rq $@ $(OBJCFILES)
+
+%.obj:%.c
+	@ echo cc $@ ...
+	@ $(CC) $(CFLAGS) $<
+
+clean:
+	@ echo cleaning ...
+	@ $(RM) *.obj > $(DEVNULL) 2>&1
+	@ $(RM) *.a > $(DEVNULL) 2>&1

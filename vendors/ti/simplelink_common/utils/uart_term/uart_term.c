@@ -18,7 +18,6 @@ extern int vsnprintf (char * s, size_t n, const char * format, va_list arg );
 //                          LOCAL DEFINES
 //*****************************************************************************
 #define IS_SPACE(x)       (x == 32 ? 1 : 0)
-#define UART_NONPOLLING
 
 //*****************************************************************************
 //                 GLOBAL VARIABLES
