@@ -1,0 +1,189 @@
+/*
+ * Copyright (c) 2019 Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== LPSTK-SENSORS.syscfg.json ========
+ */
+
+{
+    "name": "LPSTK-CC1352R SENSORS",
+    "displayName": "LPSTK-CC1352R Sensors",
+    "description": "LaunchPad SensorTag (LPSTK-CC1352R) Sensors and Hardware",
+    "longDescription": "The [__LaunchPad SensorTag__](http://www.ti.com/tool/LPSTK-CC1352R)",
+
+    "headerType": "BoosterPack 40 pin",
+    "components": {
+        "LPSTK_I2C": {
+            "displayName": "LaunchPad SensorTag I2C bus",
+            "description": "LaunchPad SensorTag I2C bus",
+            "longDescription": "LaunchPad SensorTag I2C bus",
+            "definition": "/ti/boards/components/i2c.json",
+            "connections": {
+                "SDA": 10,
+                "SCL": 9
+            }
+        },
+
+        "LPSTK_SPI": {
+            "displayName": "LaunchPad SensorTag SPI Bus",
+            "description": "LaunchPad SensorTag SPI Bus",
+            "longDescription": "LaunchPad SensorTag SPI Bus",
+            "definition"  : "/ti/boards/components/spiBus.json",
+            "connections": {
+                /* 7:  BoosterPack standard: SPI CLK */
+                "SCLK"    : 7,
+                /* 15: BoosterPack standard: SPI MOSI */
+                "MOSI"   : 15,
+                /* 14: BoosterPack standard: SPI MISO */
+                "MISO"   : 14
+            }
+        },
+
+        "LED_B": {
+            "displayName": "Blue LED",
+            "definition": "/ti/boards/components/led_dimmable.json",
+            "connections": { "OUTPUT": 8 }
+        },
+
+        "OPT3001": {
+            "type": "OPT3001",
+            "displayName": "OPT3001 Sensor",
+            "description": "Digital ambient light sensor (ALS) with high-precision human-eye response",
+            "longDescription": "The [__OPT3001__](http://www.ti.com/product/OPT3001) is a sensor that measures the intensity of visible light. The spectral response of the sensor tightly matches the photopic response of the human eye and includes significant infrared rejection.",
+            "settings": {
+                "address":  68,   /* 0x44 */
+                "maxSpeed": 2600  /* 2600 kbit/s */
+            },
+            "subComponents": {
+                "I2C": {
+                    "link": "LPSTK_I2C"
+                },
+                "ALERT": {
+                    "type": "SENSOR_INT",
+                    "displayName": "OPT3001 Interrupt",
+                    "description": "OPT3001 interrupt pin",
+                    "longDescription": "OPT3001 interrupt pin",
+                    "signals": {
+                        "INTERRUPT": {
+                            "type": "DIN",
+                            "settings": {
+                                "pull": "Pull Up"
+                            },
+                            "connection": 25
+                        }
+                    }
+                }
+            }
+        },
+
+        "HDC2080": {
+            "type": "HDC2080",
+            "displayName": "HDC2080 Humidity & Temperature Sensor",
+            "description": "Ultra-low-power, digital humidity sensor with temperature sensor in WCSP",
+            "longDescription": "The [__HDC2080__](http://www.ti.com/product/HDC2080) is an integrated humidity and temperature sensor that provides high accuracy measurements with very low power consumption, in a smal DFN package.",
+            "settings": {
+                "address":  65,  /* 0x41 */
+                "maxSpeed": 400  /* 400 kbit/s */
+            },
+            "subComponents": {
+                "I2C": {
+                    "link": "LPSTK_I2C"
+                },
+                "ALERT": {
+                    "type": "SENSOR_INT",
+                    "displayName": "HDC2080 Interrupt",
+                    "description": "HDC20180 interrupt pin",
+                    "longDescription": "HDC2080 interrupt pin",
+                    "signals": {
+                        "INTERRUPT": {
+                            "type": "DIN",
+                            "settings": {
+                                "pull": "None"
+                            },
+                            "connection": 23
+                        }
+                    }
+                }
+            }
+        },
+
+        "DRV5055": {
+            "type": "DRV5055",
+            "displayName": "DRV5055 Analog Hall Effect Sensor",
+            "description": "High accuracy 3.3 V or 5 V ratio-metric bipolar hall effect sensor",
+            "longDescription": "The [__DRV5055__](http://www.ti.com/product/DRV5055) device is a high accuracy 3.3 V or 5 V ratio-metric bipolar hall effect sensor that responds proportionally to magnetic flux density. The device can be used for accurate position sensing in a  wide range of applications.",
+            "subComponents": {
+                "OUTPUT": {
+                    "definition": "/ti/boards/components/analogInput.json",
+                    "displayName": "DRV5055 Analog Output",
+                    "description": "DRV5055 analog output",
+                    "longDescription": "DRV5055 analog output",
+                    "connections" : { "INPUT": 2 }
+                }
+            }
+        },
+        "ADXL362": {
+            "type": "ADXL362",
+            "displayName": "ADXL362 Accelerometer",
+            "description": "ADXL362 Digital Output MEMS Accelerometer",
+            "longDescription": "The [__ADXL362__](https://www.analog.com/en/products/adxl362.html) is an ultralow power, 3-axis MEMS accelerometer that consumes less than 2 μA at a 100 Hz output data rate and 270 nA when in motion triggered wake-up mode.",
+            "subComponents": {
+                "SPI": {
+                    "link": "LPSTK_SPI"
+                },
+                "SELECT": {
+                    "displayName": "ADXL362 Accelerometer SPI Chip Select",
+                    "description": "ADXL362 Accelerometer SPI chip select",
+                    "longDescription": "ADXL362 Accelerometer SPI chip select",
+                    "definition"  : "/ti/boards/components/spiSelect.json",
+                    "connections" : { "SS": 18 }
+                },
+                "ACC_INT1": {
+                    "type": "SENSOR_INT",
+                    "displayName": "ADXL362 Interrupt 1",
+                    "description": "ADXL362 interrupt 1 pin",
+                    "longDescription": "ADXL362 interrupt 1 pin ",
+                    "signals": {
+                        "INTERRUPT": {
+                            "type": "DIN",
+                            "settings": {
+                                "pull": "None"
+                            },
+                            "connection": 28
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

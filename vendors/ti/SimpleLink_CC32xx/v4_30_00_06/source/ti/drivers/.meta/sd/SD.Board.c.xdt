@@ -1,0 +1,143 @@
+%%{
+/*
+ * Copyright (c) 2019-2020 Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== SD.Board.c.xdt ========
+ */
+
+    let SD  = args[0];
+    let instances = SD.$instances;
+    let fatIndex = 0;
+
+    if (instances.length == 0) return;
+
+    /* Reorder instances such that FATFS indices are first */
+    if (instances[0].useFatFS === true) {
+        fatIndex = 1;
+    }
+    for (let index = 1; index < instances.length; index++) {
+
+        if (instances[index].useFatFS === true) {
+            if (index != fatIndex) {
+                let copy = instances[index];
+                instances[index] = instances[fatIndex];
+                instances[fatIndex] = copy;
+            }
+            fatIndex++;
+        }
+    }
+
+    /* get Common /ti/drivers utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+    let declarations = Common.genBoardDeclarations(instances);
+
+    let countDef = SD.defaultInstanceName + "COUNT";
+    let SDFatFSCount = SD.defaultInstanceName + "FATFS_COUNT";
+
+    /* Determine includes and count definitions needed */
+    let includes = [], defines = [];
+    includes.push("#include <ti/drivers/SD.h>");
+    includes.push("#include <ti/drivers/sd/SDSPI.h>");
+    defines.push("#define " + countDef + " " + instances.length);
+
+    if (fatIndex > 0) {
+        includes.push("#include <ti/drivers/SDFatFS.h>");
+        defines.push("#define " + SDFatFSCount + " " + fatIndex);
+    }
+
+    /* Form single string delimited with newlines */
+    defines = defines.join("\n");
+    includes = includes.join("\n");
+%%}
+/*
+ *  =============================== SD ===============================
+ */
+`includes`
+
+`defines`
+
+% if (fatIndex > 0) {
+
+SDFatFS_Object sdfatfsObjects[`SDFatFSCount`];
+
+const SDFatFS_Config SDFatFS_config[`SDFatFSCount`] = {
+% for (let i = 0; i < fatIndex; i++) {
+    % let inst = instances[i];
+    /* `inst.$name` */
+    {
+        .object = &sdfatfsObjects[`inst.$name`]
+    },
+% }
+};
+
+const uint_least8_t SDFatFS_count = `SDFatFSCount`;
+% }
+
+SDSPI_Object sdspiObjects[`countDef`];
+
+static const SDSPI_HWAttrs sdspiHWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+%     let inst = instances[i];
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .spiIndex = `inst.spiInstance.$name`,
+        .spiCsGpioIndex = `inst.slaveSelect.$name`
+    },
+% }
+};
+
+const SD_Config SD_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .fxnTablePtr = &SDSPI_fxnTable,
+        .object = &sdspiObjects[`inst.$name`],
+        .hwAttrs = &sdspiHWAttrs[`inst.$name`]
+    },
+% }
+};
+
+`declarations`
+const uint_least8_t SD_count = `countDef`;

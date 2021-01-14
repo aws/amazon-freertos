@@ -1,10 +1,7 @@
 set(
     AFR_MANIFEST_SUPPORTED_BOARDS
-    CC3220SF_LAUNCHXL
-    CC1352P1_LAUNCHXL
-    CC1352R1_LAUNCHXL
+    cc3220_launchpad
     CACHE INTERNAL "Supported boards list."
 )
 
 set(AFR_MANIFEST_BOARD_DIR "boards")
-

@@ -1,0 +1,322 @@
+/*
+ * Copyright (c) 2020 Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== BP-BASSENSORSMKII.syscfg.json ========
+ */
+
+{
+    "name": "BP-BASSENSORSMKII",
+    "displayName": "BAS Sensors BoosterPack Mark II",
+    "description": "Building Automation Sensors BoosterPack Mark II",
+    "longDescription": "The [__BP-BASSENSORSMKII__](http://www.ti.com/tool/BP-BASSENSORSMKII) BoosterPack&trade; plug-in module is an easy way to add digital sensors to your LaunchPad&trade; development kit. MCU Launchpad developers can use this BoosterPack module to start developing sensor applications using the on-board temperature, humidity, ambient light, hall-effect, and accelerometer, gyroscope, and geomagnetic sensors.",
+
+    "headerType": "BoosterPack 40 pin",
+    "components": {
+        "BP_BASSENSORSMKII_I2C": {
+            "displayName": "BAS Sensors Mark II I2C",
+            "description": "BAS Sensors Mark II BoosterPack I2C bus",
+            "longDescription": "BAS Sensors Mark II BoosterPack I2C bus",
+            "definition": "/ti/boards/components/i2c.json",
+            "connections": {
+                "SDA": 10,
+                "SCL": 9
+            }
+        },
+
+        "LED_G": {
+            "displayName": "Green LED",
+            "definition": "/ti/boards/components/led_dimmable.json",
+            "connections": { "OUTPUT": 40 }
+        },
+
+        "LED_R": {
+            "displayName": "Red LED",
+            "definition": "/ti/boards/components/led_dimmable.json",
+            "connections": { "OUTPUT": 39 }
+        },
+
+        "TMP117": {
+            "type": "TMP117",
+            "partNum": "TI-TMP117",
+            "displayName": "TMP117 Temperature Sensor",
+            "description": "Accurate Digital Temperature Sensor With NV Memory",
+            "longDescription": "The [__TMP117__](http://www.ti.com/product/TMP117) family consist of low-power, high-precision temperature sensors with integrated EEPROM memory. The TMP117 provides a 16-bit temperature result with a resolution of 0.0078&deg;C and an accuracy of up to &plusmn;0.1&deg;C with no calibration. The TMP117 is compatible with the I2C- and SMBus interface, has programmable alert functionality, and supports up to four devices on a single bus.",
+            "settings": {
+                "address":  72,  /* 0x48 */
+                "maxSpeed": 400  /* 400 kbit/s */
+            },
+            "subComponents": {
+                "I2C": {
+                    "link": "BP_BASSENSORSMKII_I2C"
+                },
+
+                "ALERT": {
+                    "type": "SENSOR_INT",
+                    "displayName": "TMP117 Interrupt",
+                    "description": "TMP117 interrupt pin",
+                    "longDescription": "TMP117 interrupt pin",
+                    "signals": {
+                        "INTERRUPT": {
+                            "type": "DIN",
+                            "settings": {
+                                "pull": "Pull Up"
+                            },
+                            "connection": 26
+                        }
+                    }
+                },
+
+                "POWER": {
+                    "type": "SENSOR_POWER",
+                    "displayName": "TMP117 Power",
+                    "description": "TMP117 power pin",
+                    "longDescription": "TMP117 power pin",
+                    "signals": {
+                        "POWER": {
+                            "type": "DOUT",
+                            "settings": {
+                                "mode": "Output",
+                                "initialOutputState": "High",
+                                "outputStrength": "High"
+                            },
+                            "connection": 28
+                        }
+                    }
+                }
+            }
+        },
+
+        "OPT3001": {
+            "type": "OPT3001",
+            "displayName": "OPT3001 Ambient Light Sensor",
+            "description": "Digital ambient light sensor (ALS) with high-precision human-eye response",
+            "longDescription": "The [__OPT3001__](http://www.ti.com/product/OPT3001) is a sensor that measures the intensity of visible light. The spectral response of the sensor tightly matches the photopic response of the human eye and includes significant infrared rejection.",
+            "settings": {
+                "address":  68,   /* 0x44 */
+                "maxSpeed": 2600  /* 2600 kbit/s */
+            },
+            "subComponents": {
+                "I2C": {
+                    "link": "BP_BASSENSORSMKII_I2C"
+                },
+
+                "ALERT": {
+                    "type": "SENSOR_INT",
+                    "displayName": "OPT3001 Interrupt",
+                    "description": "OPT3001 interrupt pin",
+                    "longDescription": "OPT3001 interrupt pin",
+                    "signals": {
+                        "INTERRUPT": {
+                            "type": "DIN",
+                            "settings": {
+                                "pull": "Pull Up"
+                            },
+                            "connection": 25
+                        }
+                    }
+                },
+
+                "POWER": {
+                    "type": "SENSOR_POWER",
+                    "displayName": "OPT3001 Power",
+                    "description": "OPT3001 power pin",
+                    "longDescription": "OPT3001 power pin",
+                    "signals": {
+                        "POWER": {
+                            "type": "DOUT",
+                            "settings": {
+                                "mode": "Output",
+                                "initialOutputState": "High",
+                                "outputStrength": "High"
+                            },
+                            "connection": 27
+                        }
+                    }
+                }
+            }
+        },
+
+        "HDC2080": {
+            "type": "HDC2080",
+            "displayName": "HDC2080 Humidity & Temperature Sensor",
+            "description": "Ultra-low-power, digital humidity sensor with temperature sensor in WCSP",
+            "longDescription": "The [__HDC2080__](http://www.ti.com/product/HDC2080) is an integrated humidity and temperature sensor that provides high accuracy measurements with very low power consumption, in a small DFN package.",
+            "settings": {
+                "address":  64,  /* 0x40 */
+                "maxSpeed": 400  /* 400 kbit/s */
+            },
+            "subComponents": {
+                "I2C": {
+                    "link": "BP_BASSENSORSMKII_I2C"
+                },
+
+                "ALERT": {
+                    "type": "SENSOR_INT",
+                    "displayName": "HDC2080 Interrupt",
+                    "description": "HDC2080 interrupt pin",
+                    "longDescription": "HDC2080 interrupt pin",
+                    "signals": {
+                        "INTERRUPT": {
+                            "type": "DIN",
+                            "settings": {
+                                "pull": "None"
+                            },
+                            "connection": 23
+                        }
+                    }
+                },
+
+                "POWER": {
+                    "type": "SENSOR_POWER",
+                    "displayName": "HDC2080 Power",
+                    "description": "HDC2080 power pin",
+                    "longDescription": "HDC2080 power pin",
+                    "signals": {
+                        "POWER": {
+                            "type": "DOUT",
+                            "settings": {
+                                "mode": "Output",
+                                "initialOutputState": "Low",
+                                "outputStrength": "High"
+                            },
+                            "connection": 6
+                        }
+                    }
+                }
+            }
+        },
+
+        "BMI160_BMM150": {
+            "type": "BMI160_BMM150",
+            "displayName": "Inertial Measurement Unit",
+            "description": "BMI160 6-axis accelerometer and gyroscope and BMM150 3-axis magnetometer",
+            "longDescription": "The BMI160 is a small low power, low noise 16-bit inertial measurement unit with an accelerometer and gyroscope in a 14-pin LGA package.  The BMM150 is a low power, low noise 3-axis digital geomagnetic sensor in a 12-pin wafer level chip scale package.",
+            "settings": {
+                "address":  105, /* 0x69 */
+                "maxSpeed": 1000 /* 1 Mbps */
+            },
+
+            "subComponents": {
+                "I2C": {
+                    "link": "BP_BASSENSORSMKII_I2C"
+                },
+
+                "INTERRUPT1": {
+                    "type": "SENSOR_INT",
+                    "displayName": "Acc/Gyro Interrupt 1",
+                    "description": "Acc/Gyro interrupt 1 pin",
+                    "longDescription": "Acc/Gyro interrupt 1 pin",
+                    "signals": {
+                        "INTERRUPT1": {
+                            "type": "DIN",
+                            "settings": {
+                                "interruptTrigger": "Rising Edge",
+                                "callbackFunction" : "NULL"
+                            },
+                            "connection": 5
+                        }
+                    }
+                },
+
+                "INTERRUPT2": {
+                    "type": "SENSOR_INT",
+                    "displayName": "Acc/Gyro Interrupt 2",
+                    "description": "Acc/Gyro interrupt 2 pin",
+                    "longDescription": "Acc/Gyro interrupt 2 pin",
+                    "signals": {
+                        "INTERRUPT2": {
+                            "type": "DIN",
+                            "settings": {
+                                "interruptTrigger": "Rising Edge",
+                                "callbackFunction" : "NULL"
+                            },
+                            "connection": 13
+                        }
+                    }
+                },
+
+                "INTERRUPT_MAG": {
+                    "type": "SENSOR_INT",
+                    "displayName": "Magnetometer Interrupt",
+                    "description": "Magnetometer interrupt pin",
+                    "longDescription": "Magnetometer interrupt pin",
+                    "signals": {
+                        "INTERRUPT_MAG": {
+                            "type": "DIN",
+                            "settings": {
+                                "interruptTrigger": "Rising Edge",
+                                "callbackFunction" : "NULL"
+                            },
+                            "connection": 8
+                        }
+                    }
+                }
+            }
+        },
+
+        "DRV5055": {
+            "type": "DRV5055",
+            "displayName": "DRV5055 Analog Hall Effect Sensor",
+            "description": "High accuracy 3.3 V or 5 V ratio-metric bipolar hall effect sensor",
+            "longDescription": "The [__DRV5055__](http://www.ti.com/product/DRV5055) device is a high accuracy 3.3 V or 5 V ratio-metric bipolar hall effect sensor that responds proportionally to magnetic flux density. The device can be used for accurate position sensing in a  wide range of applications.",
+            "subComponents": {
+                "OUTPUT": {
+                    "definition": "/ti/boards/components/analogInput.json",
+                    "displayName": "DRV5055 Analog Output",
+                    "description": "DRV5055 analog output",
+                    "longDescription": "DRV5055 analog output",
+                    "connections" : { "INPUT": 2 }
+                },
+
+                "POWER": {
+                    "type": "SENSOR_POWER",
+                    "displayName": "DRV5055 Power",
+                    "description": "DRV5055 power enable pin",
+                    "longDescription": "DRV5055 power enable pin",
+                    "signals": {
+                        "POWER": {
+                            "type": "DOUT",
+                            "settings": {
+                                "mode": "Output",
+                                "initialOutputState": "Low",
+                                "outputStrength": "High"
+                            },
+                            "connection": 24
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

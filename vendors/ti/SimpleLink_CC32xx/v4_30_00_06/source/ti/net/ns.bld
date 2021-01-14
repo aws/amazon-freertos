@@ -1,0 +1,348 @@
+/*
+ * Copyright (c) 2015-2020, Texas Instruments Incorporated
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/*
+ * Generally there is no need to edit this file!
+ *
+ * This file controls which libraries are built, as well as compiler options
+ * to use.
+ */
+
+/*
+ *  ======== ns.bld ========
+ *  This script is run prior to all build scripts. It sets host-system-
+ *  independent values for targets and platforms, then it attempts to
+ *  find the host-system-specific user.bld script that sets rootDirs.
+ *
+ *  These settings may be a function of the following global variables:
+ *
+ *      environment a hash table of environment strings
+ *
+ *      arguments   an array of string arguments to the script
+ *                  initialized as follows:
+ *                      arguments[0] - the file name of the script
+ *                      arguments[1] - the first argument specified in XDCARGS
+ *                          :
+ *                      arguments[n] - the n'th argument in XDCARGS
+ *
+ *      Build       an alias for xdc.om.xdc.bld.BuildEnvironment
+ */
+
+var Build = xdc.useModule('xdc.bld.BuildEnvironment');
+var Pkg = xdc.useModule('xdc.bld.PackageContents');
+var loc = environment['loc'] ? environment['loc'] : "";
+
+/*
+ * Enabled options:
+ *    -mi10   : don't generate code that disables interrupts for > 10 cycles
+ *    -mo     : put each function in a separate subsection
+ *    -pden   : enable diagnostic numbers
+ *    -ms2    : optimize for space, level 2
+ *
+ * Sometimes interesting to throw, but not by default:
+ *    -pdr    : enable remarks
+ */
+var c6xOpts = " -mi10 -mo -pden -ms2 ";
+
+/*
+ * Linux86 => -std=c99 for (at least sscanf() and strtof())
+ */
+var ccOpts = {
+    "ti.targets.elf.C66"              : c6xOpts,
+    "ti.targets.elf.C674"             : c6xOpts,
+    "ti.targets.arm.elf.M3"           : " -ms -g --c99 ",
+    "ti.targets.arm.elf.M4"           : " -ms -g --c99 ",
+    "ti.targets.arm.elf.M4F"          : " -ms -g --c99 ",
+    "ti.targets.arm.elf.R5F"          : " -ms -g --c99 ",
+    "ti.targets.arm.elf.R5Ft"         : " -ms -g --c99 ",
+    "ti.targets.arm.elf.Arm9"         : " -ms -g --c99 ",
+    "ti.targets.arm.clang.M33"        : "",
+    "ti.targets.arm.clang.M33F"       : "",
+    "ti.targets.arm.clang.M4"         : "",
+    "ti.targets.arm.clang.M4F"        : "",
+    "iar.targets.arm.M3"              : "",
+    "iar.targets.arm.M4"              : "",
+    "iar.targets.arm.M4F"             : "",
+    "gnu.targets.Linux86_64"          : " -Wall ",
+    "gnu.targets.arm.M3"              : " -std=c99 ",
+    "gnu.targets.arm.M4"              : " -std=c99 ",
+    "gnu.targets.arm.M4F"             : " -std=c99 ",
+    "gnu.targets.arm.A8F"             : " -std=c99 ",
+    "gnu.targets.arm.A9F"             : " -std=c99 ",
+    "gnu.targets.arm.A15F"            : " -std=c99 ",
+    "gnu.targets.arm.A53F"            : " -std=c99 ",
+    "gnu.targets.arm.GCArmv7AF"       : " -Wall "
+};
+
+var lnkOpts = {
+};
+
+var profile = "";
+var posixIncs = "";
+
+/* initialize local vars with those set in products.mak (via XDCARGS) */
+for (arg = 1; arg < arguments.length; arg++) {
+//    print("arg " + arg + ": " + arguments[arg]);
+    /* split each arg into its ';' separated parts */
+    var configParts = arguments[arg].split(";");
+
+    /* if "known args come in, filter them... else they're targets */
+    if (configParts[0].split("=")[0] == "PROFILE") {
+        profile = configParts[0].split("=")[1];
+        continue;
+    }
+    else if (configParts[0].split("=")[0] == "TIPOSIX_INSTALL_DIR") {
+        posixIncs = configParts[0].split("=")[1];
+        posixIncs = " -I" + posixIncs + "/source/ti/posix";
+
+        continue;
+    }
+    else if (configParts[0].split("=")[0] == "TARGETFS_v7AF") {
+        var targetfs = configParts[0].split("=")[1];
+        ccOpts["gnu.targets.arm.GCArmv7AF"] += " --sysroot=" + targetfs;
+        lnkOpts["gnu.targets.arm.GCArmv7AF"] += " --sysroot=" + targetfs;
+        continue;
+    }
+    else if (ccOpts[configParts[0].split("=")[0]] === undefined) {
+        continue;
+    }
+
+    /*
+     * Get the compiler's installation directory.
+     * For "ti.targets.elf.C674=/vendors/c6x/7.2.0", we get "/vendors/c6x/7.2.0"
+     */
+    var targetName = configParts[0].split("=")[0];
+    var rootDir = configParts[0].split("=")[1];
+
+    /* only build for the specified compilers */
+    if (rootDir == "" || rootDir == undefined) {
+        continue;
+    }
+
+    var target = xdc.useModule(targetName);
+    target.rootDir = rootDir;
+
+    if (ccOpts[targetName] != undefined) {
+        target.ccOpts.suffix += ccOpts[targetName];
+    }
+
+    if (lnkOpts[targetName] != undefined) {
+        target.lnkOpts.suffix += lnkOpts[targetName];
+    }
+
+    /* for all the other parts, assign target.<left> = <right> */
+    for (var i = 1; i < configParts.length; i++) {
+        var modCfgParam = configParts[i].split("=")[0];
+        var modCfgValue =
+                configParts[i].substring(configParts[i].indexOf("=") + 1);
+        var modCfgIndex = modCfgParam.split(".");
+        var element = target;
+
+        for (j = 0; j < (modCfgIndex.length -1); j++) {
+                element = element[modCfgIndex[j]];
+        }
+        element[modCfgIndex[j]] = modCfgValue;
+    }
+
+    /* and finally add this target to the Build.targets array */
+    Build.targets.$add(target);
+}
+
+/* lib/ is a generated directory that 'xdc clean' should remove */
+Pkg.generatedFiles.$add("lib/");
+
+/*
+ * Packages build for 'all profiles' - but we tune the list of profiles here.
+ * If the user set PROFILE= (i.e. the profile var is set), remove all profiles
+ * except what they set.  Else, remove everything except 'release' and 'debug'.
+ */
+for (var t = 0; t < Build.targets.length; t++) {
+    if ((profile == "") && (loc == "dev") &&
+            (Build.targets[t].$name.split(".")[3] == "clang")) {
+        continue;
+    }
+    for (prof in Build.targets[t].profiles) {
+        if (((profile != "") && (prof != profile)) ||
+                ((profile == "") &&
+                    ((prof != 'release') && (prof != 'debug')))) {
+            delete Build.targets[t].profiles[prof];
+        }
+    }
+}
+
+/* -----------------------------------------------------------------------*/
+/* make release files '.tar.gz' files (.tar is default) */
+Pkg.attrs.compress = true;
+Pkg.attrs.archiver = "zip";
+
+/* Set release prefix to "../"*N + "/exports", N = num of levels in pkg name */
+Pkg.releasePrefix = ("." + Pkg.name).replace(/[^\.]+/g, "./") + "../exports/";
+
+/* Utility fxns used by various ti.net pkgs */
+function getLibDirectory(suffix) {
+    var libdir = "";
+
+    switch (suffix) {
+        case "e66":
+            libdir = "lib/ccs/c66";
+            break;
+
+        case "e674":
+            libdir = "lib/ccs/c674";
+            break;
+
+        case "em4":
+            libdir = "lib/ccs/m4";
+            break;
+
+        case "em4f":
+            libdir = "lib/ccs/m4f";
+            break;
+
+        case "e9":
+            libdir = "lib/ccs/arm9";
+            break;
+
+        case "m33":
+            libdir = "lib/ticlang/m33";
+            break;
+
+        case "m33f":
+            libdir = "lib/ticlang/m33f";
+            break;
+
+        case "m4":
+            libdir = "lib/ticlang/m4";
+            break;
+
+        case "m4f":
+            libdir = "lib/ticlang/m4f";
+            break;
+
+        case "rm4":
+            libdir = "lib/iar/m4";
+            break;
+
+        case "rm4f":
+            libdir = "lib/iar/m4f";
+            break;
+
+        case "m4g":
+            libdir = "lib/gcc/m4";
+            break;
+
+        case "m4fg":
+            libdir = "lib/gcc/m4f";
+            break;
+
+        case "a8fg":
+            libdir = "lib/gcc/a8fg";
+            break;
+
+        case "a9fg":
+            libdir = "lib/gcc/a9fg";
+            break;
+
+        case "a15fg":
+            libdir = "lib/gcc/a15fg";
+            break;
+
+        case "a53fg":
+            libdir = "lib/gcc/a53fg";
+            break;
+
+        case "er5f":
+            libdir = "lib/ccs/r5f";
+            break;
+
+        case "er5ft":
+            libdir = "lib/ccs/r5ft";
+            break;
+
+        case "v7AF":
+            libdir = "lib/gcc/v7AF";
+            break;
+
+        case "86_64U":
+            libdir = "lib/gcc/86_64U";
+            break;
+
+        default:
+            throw("Unhandled target suffix: '" + suffix + "'");
+            break;
+    }
+
+    return (libdir);
+}
+
+function getPosixIncDirectory(suffix) {
+    var incdir = "";
+
+    switch (suffix) {
+        case "em4":
+        case "em4f":
+        case "e66":
+        case "e674":
+        case "e9":
+        case "er5f":
+        case "er5ft":
+            incdir = "ccs";
+            break;
+
+        case "m33":
+        case "m33f":
+        case "m4":
+        case "m4f":
+            incdir = "ticlang";
+            break;
+
+        case "rm4":
+        case "rm4f":
+            incdir = "iar";
+            break;
+
+        case "m4g":
+        case "m4fg":
+        case "a8fg":
+        case "a9fg":
+        case "a15fg":
+        case "a53fg":
+            incdir = "gcc";
+            break;
+
+        default:
+            throw("Unhandled target suffix: '" + suffix + "'");
+            break;
+    }
+
+    return (incdir);
+}

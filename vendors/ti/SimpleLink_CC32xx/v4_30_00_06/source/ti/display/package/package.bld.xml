@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  This file conforms to the DTD xdc/bld/build.dtd -->
+<package name="ti.display" version="" producerId="undefined">
+    <units>
+    </units>
+    <sources>
+        <srcFile name="package/package_ti.display.c"/>
+        <srcFile name="Display.c"/>
+        <srcFile name="DisplayExt.c"/>
+        <srcFile name="DisplayHost.c"/>
+        <srcFile name="DisplaySharp.c"/>
+        <srcFile name="DisplayUart.c"/>
+        <srcFile name="DisplayUart2.c"/>
+        <srcFile name="lcd/SharpGrLib.c"/>
+    </sources>
+    <configscripts>
+    </configscripts>
+    <makefiles>
+        <srcFile name="package.mak" src="package.bld"/>
+        <srcFile name="package/package.xdc.dep" src="package.xdc"/>
+        <srcFile name="package/package.cfg.dep" src="package.xdc"/>
+        <srcFile name="lib/ccs/m4/display.a.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/ccs/m4/display/package/package_ti.display.oem4.dep" src="package/package_ti.display.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/display/Display.oem4.dep" src="Display.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/display/DisplayExt.oem4.dep" src="DisplayExt.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/display/DisplayHost.oem4.dep" src="DisplayHost.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/display/DisplaySharp.oem4.dep" src="DisplaySharp.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/display/DisplayUart.oem4.dep" src="DisplayUart.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/display/DisplayUart2.oem4.dep" src="DisplayUart2.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/display/lcd/SharpGrLib.oem4.dep" src="lcd/SharpGrLib.c"/>
+        <srcFile name="lib/display.aem4.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/display/package/package_ti.display.oem4.dep" src="package/package_ti.display.c"/>
+        <srcFile name="package/lib/lib/display/Display.oem4.dep" src="Display.c"/>
+        <srcFile name="package/lib/lib/display/DisplayExt.oem4.dep" src="DisplayExt.c"/>
+        <srcFile name="package/lib/lib/display/DisplayHost.oem4.dep" src="DisplayHost.c"/>
+        <srcFile name="package/lib/lib/display/DisplaySharp.oem4.dep" src="DisplaySharp.c"/>
+        <srcFile name="package/lib/lib/display/DisplayUart.oem4.dep" src="DisplayUart.c"/>
+        <srcFile name="package/lib/lib/display/DisplayUart2.oem4.dep" src="DisplayUart2.c"/>
+        <srcFile name="package/lib/lib/display/lcd/SharpGrLib.oem4.dep" src="lcd/SharpGrLib.c"/>
+        <srcFile name="lib/ticlang/m4/display.a.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/ticlang/m4/display/package/package_ti.display.om4.dep" src="package/package_ti.display.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/display/Display.om4.dep" src="Display.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/display/DisplayExt.om4.dep" src="DisplayExt.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/display/DisplayHost.om4.dep" src="DisplayHost.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/display/DisplaySharp.om4.dep" src="DisplaySharp.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/display/DisplayUart.om4.dep" src="DisplayUart.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/display/DisplayUart2.om4.dep" src="DisplayUart2.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/display/lcd/SharpGrLib.om4.dep" src="lcd/SharpGrLib.c"/>
+        <srcFile name="lib/display.am4.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/display/package/package_ti.display.om4.dep" src="package/package_ti.display.c"/>
+        <srcFile name="package/lib/lib/display/Display.om4.dep" src="Display.c"/>
+        <srcFile name="package/lib/lib/display/DisplayExt.om4.dep" src="DisplayExt.c"/>
+        <srcFile name="package/lib/lib/display/DisplayHost.om4.dep" src="DisplayHost.c"/>
+        <srcFile name="package/lib/lib/display/DisplaySharp.om4.dep" src="DisplaySharp.c"/>
+        <srcFile name="package/lib/lib/display/DisplayUart.om4.dep" src="DisplayUart.c"/>
+        <srcFile name="package/lib/lib/display/DisplayUart2.om4.dep" src="DisplayUart2.c"/>
+        <srcFile name="package/lib/lib/display/lcd/SharpGrLib.om4.dep" src="lcd/SharpGrLib.c"/>
+        <srcFile name="lib/gcc/m4/display.a.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/gcc/m4/display/package/package_ti.display.om4g.dep" src="package/package_ti.display.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/display/Display.om4g.dep" src="Display.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/display/DisplayExt.om4g.dep" src="DisplayExt.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/display/DisplayHost.om4g.dep" src="DisplayHost.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/display/DisplaySharp.om4g.dep" src="DisplaySharp.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/display/DisplayUart.om4g.dep" src="DisplayUart.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/display/DisplayUart2.om4g.dep" src="DisplayUart2.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/display/lcd/SharpGrLib.om4g.dep" src="lcd/SharpGrLib.c"/>
+        <srcFile name="lib/display.am4g.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/display/package/package_ti.display.om4g.dep" src="package/package_ti.display.c"/>
+        <srcFile name="package/lib/lib/display/Display.om4g.dep" src="Display.c"/>
+        <srcFile name="package/lib/lib/display/DisplayExt.om4g.dep" src="DisplayExt.c"/>
+        <srcFile name="package/lib/lib/display/DisplayHost.om4g.dep" src="DisplayHost.c"/>
+        <srcFile name="package/lib/lib/display/DisplaySharp.om4g.dep" src="DisplaySharp.c"/>
+        <srcFile name="package/lib/lib/display/DisplayUart.om4g.dep" src="DisplayUart.c"/>
+        <srcFile name="package/lib/lib/display/DisplayUart2.om4g.dep" src="DisplayUart2.c"/>
+        <srcFile name="package/lib/lib/display/lcd/SharpGrLib.om4g.dep" src="lcd/SharpGrLib.c"/>
+        <srcFile name="lib/iar/m4/display.a.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/iar/m4/display/package/package_ti.display.orm4.dep" src="package/package_ti.display.c"/>
+        <srcFile name="package/lib/lib/iar/m4/display/Display.orm4.dep" src="Display.c"/>
+        <srcFile name="package/lib/lib/iar/m4/display/DisplayExt.orm4.dep" src="DisplayExt.c"/>
+        <srcFile name="package/lib/lib/iar/m4/display/DisplayHost.orm4.dep" src="DisplayHost.c"/>
+        <srcFile name="package/lib/lib/iar/m4/display/DisplaySharp.orm4.dep" src="DisplaySharp.c"/>
+        <srcFile name="package/lib/lib/iar/m4/display/DisplayUart.orm4.dep" src="DisplayUart.c"/>
+        <srcFile name="package/lib/lib/iar/m4/display/DisplayUart2.orm4.dep" src="DisplayUart2.c"/>
+        <srcFile name="package/lib/lib/iar/m4/display/lcd/SharpGrLib.orm4.dep" src="lcd/SharpGrLib.c"/>
+        <srcFile name="lib/display.arm4.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/display/package/package_ti.display.orm4.dep" src="package/package_ti.display.c"/>
+        <srcFile name="package/lib/lib/display/Display.orm4.dep" src="Display.c"/>
+        <srcFile name="package/lib/lib/display/DisplayExt.orm4.dep" src="DisplayExt.c"/>
+        <srcFile name="package/lib/lib/display/DisplayHost.orm4.dep" src="DisplayHost.c"/>
+        <srcFile name="package/lib/lib/display/DisplaySharp.orm4.dep" src="DisplaySharp.c"/>
+        <srcFile name="package/lib/lib/display/DisplayUart.orm4.dep" src="DisplayUart.c"/>
+        <srcFile name="package/lib/lib/display/DisplayUart2.orm4.dep" src="DisplayUart2.c"/>
+        <srcFile name="package/lib/lib/display/lcd/SharpGrLib.orm4.dep" src="lcd/SharpGrLib.c"/>
+        <srcFile name="package/rel/ti_display.tar.dep" src="package/rel/ti_display.xdc.inc"/>
+    </makefiles>
+    <targets>
+        <target name="ti.targets.arm.elf.M4"
+            version="ti.targets.arm.elf.M4{1,0,20.2,1"
+            rawVersion="20.2.1"
+            platform="ti.platforms.tiva:TM4C1294NCPDT:1"
+            isa="v7M4"
+            suffix="em4"
+            rootDir="/scratch/xlibrary/.conan/data/ticodegen/20.2.1.LTS-0/library-msp/ga/package/be241241e9d4718e5bab4eb33935bbb69606bb0c"
+            os="undefined"
+            rts="ti.targets.arm.rtsarm">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+        <target name="ti.targets.arm.clang.M4"
+            version="ti.targets.arm.clang.M4{1,0,1.0,0"
+            rawVersion="TI Arm Clang Compiler 1.0.0+STSTarget: arm-ti-none-eabi
+Thread model: posix
+InstalledDir: /scratch/xlibrary/.conan/data/tiarmllvm/1.0.0.STS-0/library-msp/ga/package/be241241e9d4718e5bab4eb33935bbb69606bb0c/bin
+"
+            platform="ti.platforms.tiva:TM4C1294NCPDT:1"
+            isa="v7M4"
+            suffix="m4"
+            rootDir="/scratch/xlibrary/.conan/data/tiarmllvm/1.0.0.STS-0/library-msp/ga/package/be241241e9d4718e5bab4eb33935bbb69606bb0c"
+            os="undefined"
+            rts="ti.targets.arm.rtsarm">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+        <target name="gnu.targets.arm.M4"
+            version="gnu.targets.arm.M4{1,0,9.2,1"
+            rawVersion="9.2.1"
+            platform="ti.platforms.tiva:TM4C1294NCPDT"
+            isa="v7M4"
+            suffix="m4g"
+            rootDir="/scratch/xlibrary/.conan/data/arm-none-eabi-gcc/9.2019.q4.major-0/library-msp/ga/package/44fcf6b9a7fb86b2586303e3db40189d3b511830"
+            os="undefined"
+            rts="gnu.targets.arm.rtsv7M">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+        <target name="iar.targets.arm.M4"
+            version="iar.targets.arm.M4{1,0,8.50,1"
+            rawVersion="8.50.1.245"
+            platform="ti.platforms.tiva:TM4C1294NCPDT:1"
+            isa="v7M4"
+            suffix="rm4"
+            rootDir="/scratch/xlibrary/.conan/data/iarcodegen/8.50.1.245-0/library-msp/ga/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9"
+            os="undefined"
+            rts="iar.targets.arm.rts">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+    </targets>
+    <libraries>
+    <library name="lib/ccs/m4/display"
+        pname="lib/ccs/m4/display.a"
+        profile="release"
+        target="ti.targets.arm.elf.M4"/>
+    <library name="lib/display"
+        pname="lib/display.aem4"
+        profile="release"
+        target="ti.targets.arm.elf.M4"/>
+    <library name="lib/ticlang/m4/display"
+        pname="lib/ticlang/m4/display.a"
+        profile="release"
+        target="ti.targets.arm.clang.M4"/>
+    <library name="lib/display"
+        pname="lib/display.am4"
+        profile="release"
+        target="ti.targets.arm.clang.M4"/>
+    <library name="lib/gcc/m4/display"
+        pname="lib/gcc/m4/display.a"
+        profile="release"
+        target="gnu.targets.arm.M4"/>
+    <library name="lib/display"
+        pname="lib/display.am4g"
+        profile="release"
+        target="gnu.targets.arm.M4"/>
+    <library name="lib/iar/m4/display"
+        pname="lib/iar/m4/display.a"
+        profile="release"
+        target="iar.targets.arm.M4"/>
+    <library name="lib/display"
+        pname="lib/display.arm4"
+        profile="release"
+        target="iar.targets.arm.M4"/>
+    </libraries>
+    <configurations>
+    </configurations>
+    <executables>
+    </executables>
+    <tests>
+    </tests>
+    <releases relDir="package/rel/">
+    <release name="ti_display"
+        pname="ti_display.tar"
+        label="default"
+    >
+        <file name="package/package.bld.xml"/>
+        <file name="package/build.cfg"/>
+        <file name="package/package.xdc.inc"/>
+        <file name="AnsiColor.h"/>
+        <file name="Display.h"/>
+        <file name="DisplayExt.h"/>
+        <file name="DisplayHost.h"/>
+        <file name="DisplaySharp.h"/>
+        <file name="DisplayUart.h"/>
+        <file name="DisplayUart2.h"/>
+        <file name="lcd/SharpGrLib.h"/>
+        <file name="package.bld"/>
+        <file name="package/package.cfg.xdc.inc"/>
+        <file name="lib/ccs/m4/display.a"/>
+        <file name="package/package_ti.display.c"/>
+        <file name="Display.c"/>
+        <file name="DisplayExt.c"/>
+        <file name="DisplayHost.c"/>
+        <file name="DisplaySharp.c"/>
+        <file name="DisplayUart.c"/>
+        <file name="DisplayUart2.c"/>
+        <file name="lcd/SharpGrLib.c"/>
+        <file name="lib/display.aem4"/>
+        <file name="lib/ticlang/m4/display.a"/>
+        <file name="lib/display.am4"/>
+        <file name="lib/gcc/m4/display.a"/>
+        <file name="lib/display.am4g"/>
+        <file name="lib/iar/m4/display.a"/>
+        <file name="lib/display.arm4"/>
+    </release>
+    </releases>
+    <repositories>
+    </repositories>
+</package>

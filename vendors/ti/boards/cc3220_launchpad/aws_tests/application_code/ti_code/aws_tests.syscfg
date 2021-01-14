@@ -1,0 +1,141 @@
+/*
+ * Copyright (c) 2020, Texas Instruments Incorporated
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+// @cliArgs --board "/ti/boards/CC3220SF_LAUNCHXL"
+
+
+/**
+ * Import the modules used in this configuration.
+ */
+const GPIO      = scripting.addModule("/ti/drivers/GPIO", {}, false);
+const GPIO1     = GPIO.addInstance();
+const GPIO2     = GPIO.addInstance();
+const GPIO3     = GPIO.addInstance();
+const I2C       = scripting.addModule("/ti/drivers/I2C", {}, false);
+const I2C1      = I2C.addInstance();
+const NVS       = scripting.addModule("/ti/drivers/NVS", {}, false);
+const NVS1      = NVS.addInstance();
+const PWM       = scripting.addModule("/ti/drivers/PWM", {}, false);
+const PWM1      = PWM.addInstance();
+const SPI       = scripting.addModule("/ti/drivers/SPI");
+const SPI1      = SPI.addInstance();
+const UART      = scripting.addModule("/ti/drivers/UART", {}, false);
+const UART1     = UART.addInstance();
+const UART2     = UART.addInstance();
+const Watchdog  = scripting.addModule("/ti/drivers/Watchdog", {}, false);
+const Watchdog1 = Watchdog.addInstance();
+
+/**
+ * Write custom configuration values to the imported modules.
+ */
+GPIO1.$name           = "CONFIG_GPIO_0";
+GPIO1.gpioPin.$assign = "boosterpack.28";
+
+GPIO2.$name           = "CONFIG_GPIO_1";
+GPIO2.gpioPin.$assign = "boosterpack.27";
+
+GPIO3.$name           = "CONFIG_GPIO_2";
+GPIO3.gpioPin.$assign = "boosterpack.30";
+
+I2C1.$name     = "CONFIG_I2C_0";
+I2C1.$hardware = system.deviceData.board.components.LP_I2C;
+
+NVS1.$name                    = "CONFIG_NVS_0";
+NVS1.externalFlash.$name      = "ti_drivers_nvs_NVSSPI25X0";
+NVS1.externalFlash.regionSize = 0x4000;
+
+PWM1.$name     = "CONFIG_PWM_0";
+PWM1.$hardware = system.deviceData.board.components.LED_RED;
+
+const Power          = scripting.addModule("/ti/drivers/Power", {}, false);
+Power.parkPins.$name = "ti_drivers_power_PowerCC32XXPins0";
+
+UART1.$name     = "CONFIG_UART_0";
+UART1.$hardware = system.deviceData.board.components.XDS110UART;
+
+UART2.$name              = "CONFIG_UART_1";
+UART2.uart.txPin.$assign = "boosterpack.4";
+UART2.uart.rxPin.$assign = "boosterpack.3";
+
+Watchdog1.$name = "CONFIG_WATCHDOG_0";
+
+const NVSSPI25XDevice                          = scripting.addModule("/ti/drivers/nvs/NVSSPI25XDevice", {}, false);
+const NVSSPI25XDevice1                         = NVSSPI25XDevice.addInstance({}, false);
+NVSSPI25XDevice1.$name                         = "CONFIG_NVS_SPI_0";
+NVS1.externalFlash.spiFlashDevice              = NVSSPI25XDevice1;
+NVSSPI25XDevice1.slaveSelectGpioInstance.$name = "CONFIG_GPIO_3";
+
+SPI1.$name                         = "CONFIG_SPI_0";
+NVSSPI25XDevice1.sharedSpiInstance = SPI1;
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+I2C1.i2c.$suggestSolution                                         = "I2C0";
+I2C1.i2c.sdaPin.$suggestSolution                                  = "boosterpack.10";
+I2C1.i2c.sclPin.$suggestSolution                                  = "boosterpack.9";
+PWM1.timer.$suggestSolution                                       = "Timer2";
+PWM1.timer.pwmPin.$suggestSolution                                = "boosterpack.29";
+UART1.uart.$suggestSolution                                       = "UART1";
+UART1.uart.txPin.$suggestSolution                                 = "GP01";
+UART1.uart.rxPin.$suggestSolution                                 = "GP02";
+UART2.uart.$suggestSolution                                       = "UART0";
+Watchdog1.watchdog.$suggestSolution                               = "WATCHDOG0";
+NVSSPI25XDevice1.slaveSelectGpioInstance.gpioPin.$suggestSolution = "boosterpack.18";
+SPI1.spi.$suggestSolution                                         = "SPI0";
+SPI1.spi.sclkPin.$suggestSolution                                 = "boosterpack.7";
+SPI1.spi.misoPin.$suggestSolution                                 = "boosterpack.14";
+SPI1.spi.mosiPin.$suggestSolution                                 = "boosterpack.15";
+SPI1.spi.dmaRxChannel.$suggestSolution                            = "UDMA_CH30";
+SPI1.spi.dmaTxChannel.$suggestSolution                            = "UDMA_CH31";
+
+/**
+ * Import the modules used in this configuration.
+ */
+const SimpleLinkWifi = scripting.addModule("/ti/drivers/net/wifi/SimpleLinkWifi");
+const atcmd          = scripting.addModule("/ti/drivers/net/wifi/atcmd", {}, false);
+const atcmd1         = atcmd.addInstance();
+const SlNet          = scripting.addModule("/ti/net/SlNet", {}, false);
+const SlNet1         = SlNet.addInstance();
+const SlNetConn      = scripting.addModule("/ti/net/SlNetConn");
+
+/**
+ * Write custom configuration values to the imported modules.
+ */
+SimpleLinkWifi.ipv4Config = "DHCP";
+
+atcmd1.$name = "CONFIG_ATCMD_0";
+
+SlNet1.$name = "CONFIG_SLNET_0";
+
+SlNetConn.generateEventThread = true;

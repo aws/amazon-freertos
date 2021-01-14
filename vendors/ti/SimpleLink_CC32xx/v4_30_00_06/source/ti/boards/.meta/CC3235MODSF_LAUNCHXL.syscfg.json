@@ -1,0 +1,595 @@
+/*
+ * Copyright (c) 2020 Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== CC3235MODSF_LAUNCHXL.syscfg.json ========
+ *  Board schematic: http://www.ti.com/lit/zip/swra633
+ */
+
+{
+    "name"        : "CC3235MODSF-LAUNCHXL",
+    "displayName" : "CC3235MODSF LaunchPad",
+    "device"      : "CC3235SF",
+    "part"        : "Default",
+    "package"     : "Mod",
+    "headers"     : [
+        {
+            "type": "BoosterPack 40 pin",
+            "default": true,
+            "name": "boosterpack",
+            "displayName": "BoosterPack Standard Header",
+            "dimensions": {
+                "columns": [
+                    { "top":  1, "bottom": 10 },
+                    { "top": 21, "bottom": 30 },
+
+                    { "blank": true },
+
+                    { "top": 40, "bottom": 31 },
+                    { "top": 20, "bottom": 11 }
+                ]
+            },
+            "pins": [
+                {
+                    "number" : 1,
+                    "name"   : "3V3"
+                },
+
+                // Header pin 2 is not connected by default. modification of
+                // the LaunchPad is required to get the mapping to device pin
+                //  below.
+                //
+                // Header pin 2 is aliased to the same device pin as Header
+                // Pin 25.
+                {
+                    "number" : 2,
+                    "ball"   : "48",
+                    "name"   : "P58*"
+                },
+
+                // Header pin 3 is aliased to the Button 1.
+                {
+                    "number" : 3,
+                    "ball"   : "10",
+                    "name"   : "P04"
+                },
+                {
+                    "number" : 4,
+                    "ball"   : "9",
+                    "name"   : "P03"
+                },
+                {
+                    "number" : 5,
+                    "ball"   : "51",
+                    "name"   : "P61"
+                },
+
+                // Header pin 6 is not connected by default. modification of the
+                // LaunchPad is required to get the mapping to device pin below.
+                // Uncomment the "ball" member to connect this header pin.
+                //
+                // Header Pin 6 is an alias of Header Pin 26
+                {
+                    "number" : 6,
+                    //"ball"   : "49",
+                    "name"   : "P59*"
+                },
+                {
+                    "number" : 7,
+                    "ball"   : "5",
+                    "name"   : "P05",
+                    "preferredType": ["SPI_SCLK"]
+                },
+                {
+                    "number" : 8,
+                    "ball"   : "52",
+                    "name"   : "P62"
+                },
+
+                // Header pin 9 is aliased to the Red LED.
+                {
+                    "number" : 9,
+                    "ball"   : "3",
+                    "name"   : "P01",
+                    "preferredType": ["I2C_SCL"]
+                },
+
+                // Header pin 10 is aliased to the Green LED.
+                {
+                    "number" : 10,
+                    "ball"   : "4",
+                    "name"   : "P02",
+                    "preferredType": ["I2C_SDA"]
+                },
+
+
+                {
+                    "number" : 21,
+                    "name"   : "5V"
+                },
+                {
+                    "number" : 22,
+                    "name"   : "GND"
+                },
+
+                // Header pin 23 does not work as GPIO output. It is not
+                // connected here as a result.
+                // Uncomment the "ball" member to connect this header pin.
+                //
+                // Header pin 23 is aliased to the usb UART RX pin.
+                {
+                    "number" : 23,
+                    // "ball"   : "47",
+                    "name"   : "P57"
+                },
+                {
+                    "number" : 24,
+                    "ball"   : "50",
+                    "name"   : "P60",
+                    "preferredType" : ["AIN"]
+                },
+                {
+                    "number" : 25,
+                    "ball"   : "48",
+                    "name"   : "P58"
+                },
+                {
+                    "number" : 26,
+                    "ball"   : "49",
+                    "name"   : "P59",
+                    "preferredType" : ["AIN"]
+                },
+                {
+                    "number" : 27,
+                    "ball"   : "53",
+                    "name"   : "P63"
+                },
+                {
+                    "number" : 28,
+                    "ball"   : "42",
+                    "name"   : "P53"
+                },
+
+                // Header pin 29 is aliased to the Blue LED.
+                {
+                    "number" : 29,
+                    "ball"   : "54",
+                    "name"   : "P64"
+                },
+                {
+                    "number" : 30,
+                    "ball"   : "44",
+                    "name"   : "P50"
+                },
+
+                // Header pin 40 is not connected by default. modification of
+                // the LaunchPad is required to get the mapping to device pin
+                // below.  Uncomment the "ball" member to connect this header
+                // pin.
+                //
+                // Header Pin 40 is an alias of Header Pin 10 and the Green LED
+                {
+                    "number" : 40,
+                    // "ball"  : "4",
+                    "name"   : "P02*"
+                },
+
+                // Header pin 39 is not connected by default. modification of
+                // the LaunchPad is required to get the mapping to device pin
+                // below.  Uncomment the "ball" member to connect this header
+                // pin.
+                //
+                // Header Pin 39 is an alias of Header Pin 9 and the Red LED
+                {
+                    "number" : 39,
+                    // "ball"  : "3",
+                    "name"   : "P01*"
+                },
+
+                // Header pin 38 is not connected by default. modification of
+                // the LaunchPad is required to get the mapping to device pin
+                // below.  Uncomment the "ball" member to connect this header
+                // pin.
+                //
+                // Header Pin 38 is an alias of Header Pin 31
+                {
+                    "number" : 38,
+                    // "ball"  : "18",
+                    "name"   : "P17*"
+                },
+
+                // Header pin 37 is not connected by default. modification of
+                // the LaunchPad is required to get the mapping to device pin
+                // below.  Uncomment the "ball" member to connect this header
+                // pin.
+                //
+                // Header Pin 37 is an alias of Header Pin 29 and the Red LED
+                {
+                    "number" : 37,
+                    // "ball"  : "54",
+                    "name"   : "P64*"
+                },
+
+                // Header pin 36 is not connected by default. modification of
+                // the LaunchPad is required to get the mapping to device pin
+                // below.  Uncomment the "ball" member to connect this header
+                // pin.
+                //
+                // Header Pin 36 is an alias of Header Pin 13
+                {
+                    "number" : 36,
+                    // "ball"  : "23",
+                    "name"   : "P21*"
+                },
+
+                // Header pin 35 is not connected by default. modification of
+                // the LaunchPad is required to get the mapping to device pin
+                // below.  Uncomment the "ball" member to connect this header
+                // pin.
+                //
+                // Header Pin 35 is an alias of Header Pin 19
+                {
+                    "number" : 35,
+                    // "ball"  : "19",
+                    "name"   : "P18*"
+                },
+
+                // Header pin 34 is not connected by default. modification of
+                // the LaunchPad is required to get the mapping to device pin
+                // below.  Uncomment the "ball" member to connect this header
+                // pin.
+                {
+                    "number" : 34,
+                    // "ball"  : "52",
+                    "name"   : "P62*"
+                },
+
+                // Header pin 33 is not connected by default. modification of
+                // the LaunchPad is required to get the mapping to device pin
+                // below.  Uncomment the "ball" member to connect this header
+                // pin.
+                //
+                // Header Pin 33 is an alias of Header Pin 24
+                {
+                    "number" : 33,
+                    // "ball"  : "50",
+                    "name"   : "P60*"
+                },
+
+                // Header pin 32 is an alias of the JTAG TDI pin.
+                // Do not use unless JTAG jumpers removed"
+                // Uncomment the "ball" member to connect this header pin.
+                {
+                    "number" : 32,
+                    // "ball"   : "12",
+                    "name"   : "P16"
+                },
+
+                // Header pin 31 is an alias of the JTAG TDO pin.
+                // Do not use unless JTAG jumpers removed"
+                // Uncomment the "ball" member to connect this header pin.
+                {
+                    "number" : 31,
+                    // "ball"   : "18",
+                    "name"   : "P17"
+                },
+
+
+                {
+                    "number" : 20,
+                    "name"   : "GND"
+                },
+                {
+                    "number" : 19,
+                    "ball"   : "19",
+                    "name"   : "P18"
+                },
+                {
+                    "number" : 18,
+                    "ball"   : "8",
+                    "name"   : "P08"
+                },
+                {
+                    "number" : 17,
+                    "name"   : "TEST"
+                },
+                {
+                    "number" : 16,
+                    "name"   : "RST"
+                },
+                {
+                    "number" : 15,
+                    "ball"   : "7",
+                    "name"   : "P07",
+                    "preferredType" : ["SPI_MOSI"]
+                },
+                {
+                    "number" : 14,
+                    "ball"   : "6",
+                    "name"   : "P06",
+                    "preferredType" : ["SPI_MISO"]
+                },
+
+                // Header pin 13 is an alias of the device Pin Sense of
+                // Power 2 (SOP2).
+                {
+                    "number" : 13,
+                    "ball"   : "23",
+                    "name"   : "P21"
+                },
+
+                // Header pin 24 does not work as GPIO output. It is not
+                // connected here as a result.
+                // Uncomment the "ball" member to connect this header pin.
+                //
+                // Header pin 12 is aliased to the usb UART TX pin.
+                {
+                    "number" : 12,
+                    // "ball"   : "46",
+                    "name"   : "P55"
+                },
+                {
+                    "number" : 11,
+                    "ball"   : "11",
+                    "name"   : "P15"
+                }
+            ]
+        }
+    ],
+
+    "components": {
+        "LED_RED": {
+            "displayName" : "LaunchPad LED D10 (Red)",
+            "definition"  : "/ti/boards/components/led_dimmable.json",
+            "connections" : {
+                "OUTPUT": "3" /* device pin number */
+            }
+        },
+        "LED_GREEN": {
+            "displayName" : "LaunchPad LED D8 (Green)",
+            "definition"  : "/ti/boards/components/led_dimmable.json",
+            "connections" : {
+                "OUTPUT": "4" /* device pin number */
+            }
+        },
+        "LED_BLUE": {
+            "displayName" : "LaunchPad LED D9 (Blue)",
+            "definition"  : "/ti/boards/components/led_dimmable.json",
+            "connections" : {
+                "OUTPUT": "54" /* device pin number */
+            }
+        },
+
+        /* symbolic links/aliases for LED portability between LaunchPads */
+        "LED": {
+            "link" : "LED_RED"
+        },
+        "LED_DIMMABLE": {
+            "link" : "LED_GREEN"
+        },
+        "LED0": {
+            "link": "LED_RED"
+        },
+        "LED1": {
+            "link": "LED_GREEN"
+        },
+        "LED2": {
+            "link": "LED_BLUE"
+        },
+        "LED0_PWM" : {
+            "link" : "LED2"
+        },
+        "LED1_PWM" : {
+            "link" : "LED1"
+        },
+        "LED2_PWM" : {
+            "link" : "LED0"
+        },
+
+        "OPA4342" : {
+            "displayName" : "OPA4342 Operational Amplifier",
+            "type": "OP_AMP",
+            "description" : "LaunchPad analog input protection OP-AMP",
+            "longDescription" : "The [_OPA4342_](https://www.ti.com/product/OPA4342) series rail-to-rail CMOS operational amplifiers are designed for low-cost, low-power, miniature applications. This operational amplifier is used to protect the CC32xx analog input pins.",
+            "subComponents": {
+                "AIN1": {
+                    "definition"  : "/ti/boards/components/analogInput.json",
+                    "displayName": "Analog Input 1",
+                    "connections" : {
+                        "INPUT": "47"
+                    }
+                },
+                "AIN2": {
+                    "definition"  : "/ti/boards/components/analogInput.json",
+                    "displayName": "Analog Input 2",
+                    "connections": {
+                        "INPUT": "48"
+                    }
+                },
+                "AIN3": {
+                    "definition"  : "/ti/boards/components/analogInput.json",
+                    "displayName": "Analog Input 3",
+                    "connections": {
+                        "INPUT": "49"
+                    }
+                },
+                "AIN4": {
+                    "definition"  : "/ti/boards/components/analogInput.json",
+                    "displayName": "Analog Input 4",
+                    "connections": {
+                        "INPUT": "50"
+                    }
+                }
+            }
+        },
+        "OP_AMP" : {
+            "link": "OPA4342"
+        },
+
+        "SW2": {
+            "displayName" : "LaunchPad User Button SW2 (left)",
+            "definition"  : "/ti/boards/components/button.json",
+            "longDescription" : "SW2 (Left) LaunchPad button with an external pull-down.",
+            /* See schematic linked at top of file */
+            "settings": {
+                "DIN": {
+                    "pull": "None",
+                    "interruptTrigger": "Rising Edge"
+                }
+            },
+            "connections" : {
+                "INPUT": "10" /* device pin number */
+            }
+        },
+        "SW3": {
+            "displayName" : "LaunchPad User Button SW3 (right)",
+            "definition"  : "/ti/boards/components/button.json",
+            "longDescription" : "SW3 (Right) LaunchPad button with an external pull-down.",
+            /* See schematic linked at top of file */
+            "settings": {
+                "DIN": {
+                    "pull": "None",
+                    "interruptTrigger": "Rising Edge"
+                }
+            },
+            "connections" : {
+                "INPUT": "11" /* device pin number */
+            }
+        },
+
+        /* symbolic links/aliases for BUTTON portability between LaunchPads */
+        "BUTTON0": {
+            "link": "SW2"
+        },
+        "BUTTON1": {
+            "link": "SW3"
+        },
+
+        "XDS110UART": {
+            "definition"  : "/ti/boards/components/xds110Uart.json",
+            "connections" : {
+                "RXD" : "47", /* device pin number */
+                "TXD" : "46"  /* device pin number */
+            }
+        },
+
+        "LP_I2C": {
+            "displayName" : "LaunchPad I2C",
+            "description" : "Standard BoosterPack header I2C",
+            "longDescription": "Standard BoosterPack header I2C",
+            "definition"  : "/ti/boards/components/i2c.json",
+            "connections" : {
+                "SCL" : "3", /* device pin number */
+                "SDA" : "4"  /* device pin number */
+            }
+        },
+
+        /*
+         * From https://www.bosch-sensortec.com/media/boschsensortec/downloads
+         * /datasheets/bst-bma280-ds000.pdf:
+         *     The default I2C address of the device is 0011000b (0x18). It
+         *     is used if the SDO pin is pulled to GND. The alternative
+         *     address 0011001b (0x19) is selected by pulling the SDO pin
+         *     to VDDIO
+         *
+         *     The BMA280 supports I2C standard mode and fast mode, only
+         *     7-bit address mode is supported.
+         */
+        "BMA280": {
+            "type": "I2C_SENSOR",
+            "displayName": "BMA280 Accelerometer",
+            "description": "BMA280 advanced, tri-axial, low-g acceleration sensor",
+            "longDescription" : "The [__BMA280__](https://www.bosch-sensortec.com/products/motion-sensors/accelerometers/bma280.html) is an advanced, ultra-small, triaxial, low-g acceleration sensor with digital interfaces, aiming for low-power consumer electronics applications. Featuring 8 bit digital resolution, the BMA280 allows low-noise measurement of accelerations in 3 perpendicular axes.",
+            "settings": {
+                "address":  24,   /* 0x18 = 16 + 8 = 24 */
+                "maxSpeed": "400" /* 400 Kbps (fast-mode) */
+            },
+            "subComponents": {
+                "I2C": {
+                    "link": "LP_I2C"
+                },
+
+                "INTERRUPT": {
+                    "type": "SENSOR_INT",
+                    "displayName": "BMA280 Interrupt 1",
+                    "description": "BMA280 Interrupt 1",
+                    "longDescription": "BMA280 'INT1' interrupt line.",
+                    "signals": {
+                        "INTERRUPT": {
+                            "type": "DIN",
+                            "settings": {
+                                "interruptTrigger": "Rising Edge",
+                                "callbackFunction": "NULL"
+                            },
+                            "connection": "10" /* device pin number */
+                        }
+                    }
+                }
+            }
+        },
+
+        /* From http://www.ti.com/ww/eu/sensampbook/tmp006.pdf:
+         *     Serial Interface
+         *     The TMP006 and TMP006B support the transmission protocol for
+         *     fast (1 kHz to 400 kHz) and high-speed (1 kHz to 3.4 MHz) modes.
+         *
+         *     Serial Bus Address
+         *     ADR1 ADR0 address
+         *     ---- ---- -------
+         *       0    0  1000000 (0x40)
+         *       0    1  1000001 (0x41)
+         *       0   SDA 1000010 (0x42)
+         *       0   SCL 1000011 (0x43)
+         *       1    0  1000100 (0x44)
+         *       1    0  1000101 (0x45)
+         *       1   SDA 1000110 (0x46)
+         *       1   SCL 1000111 (0x47)
+         */
+        "TMP006": {
+            "type": "I2C_SENSOR",
+            "displayName": "TMP006 Temperature Sensor",
+            "description" : "TMP006 Infrared Thermopile Sensor",
+            "longDescription": "The [__TMP006__](http://www.ti.com/ww/eu/sensampbook/tmp006.pdf) measures the temperature of an object without the need to make contact with the object. This sensor uses a thermopile to absorb the infrared energy emitted from the object being measured and uses the corresponding change in thermopile voltage to determine the object's temperature.",
+            "partNum" : "TI-TMP006",
+            "settings": {
+                "address":  65,    /* 0x41 = 65 */
+                "maxSpeed": "3400" /* 3400 Kbps (high-speed mode) */
+            },
+            "subComponents": {
+                "I2C": {
+                    "link": "LP_I2C"
+                }
+            }
+        }
+    }
+}

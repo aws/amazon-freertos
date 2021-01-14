@@ -1,0 +1,125 @@
+%%{
+/*
+ * Copyright (c) 2018-2020, Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== Board.h.xdt ========
+ */
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    /* localize the object names with this device ID */
+    let devId = system.deviceData.deviceId;
+    let part = system.deviceData.part;
+    let devFamily = Common.device2DeviceFamily(devId, part);
+    let boardName = Common.boardName();
+    if (devFamily == null || devFamily == "") {
+        throw new Error("unknown device family for device Id '" + devId + "'");
+    }
+%%}
+/*
+ *  ======== ti_drivers_config.h ========
+ *  Configured TI-Drivers module declarations
+ *
+ *  The macros defines herein are intended for use by applications which
+ *  directly include this header. These macros should NOT be hard coded or
+ *  copied into library source code.
+ *
+ *  Symbols declared as const are intended for use with libraries.
+ *  Library source code must extern the correct symbol--which is resolved
+ *  when the application is linked.
+ *
+ *  DO NOT EDIT - This file is generated for the `boardName`
+ *  by the SysConfig tool.
+ */
+#ifndef ti_drivers_config_h
+#define ti_drivers_config_h
+
+#define CONFIG_SYSCONFIG_PREVIEW
+
+#define CONFIG_`boardName`
+#ifndef `devFamily`
+#define `devFamily`
+#endif
+
+#include <ti/devices/DeviceFamily.h>
+
+#include <stdint.h>
+
+/* support C++ sources */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+% /* compute a canonical order for the used modules */
+% let keys = Object.keys(system.modules).sort();
+%
+% /* loop over all modules in the current configuration */
+% for (let i = 0; i < keys.length; i++) {
+    % let mod = system.modules[keys[i]];
+    % if (mod.templates && mod.templates.boardh) {
+        % /* load its template and expand it */
+        % let gen = system.getTemplate(mod.templates.boardh);
+
+`gen(mod)`
+    % }
+% }
+
+/*
+ *  ======== Board_init ========
+ *  Perform all required TI-Drivers initialization
+ *
+ *  This function should be called once at a point before any use of
+ *  TI-Drivers.
+ */
+extern void Board_init(void);
+
+/*
+ *  ======== Board_initGeneral ========
+ *  (deprecated)
+ *
+ *  Board_initGeneral() is defined purely for backward compatibility.
+ *
+ *  All new code should use Board_init() to do any required TI-Drivers
+ *  initialization _and_ use <Driver>_init() for only where specific drivers
+ *  are explicitly referenced by the application.  <Driver>_init() functions
+ *  are idempotent.
+ */
+#define Board_initGeneral Board_init
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* include guard */

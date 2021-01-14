@@ -1,0 +1,162 @@
+%%{
+/*
+ * Copyright (c) 2018 Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */ 
+/*
+ *  ======== Config.c.xdt ========
+ */
+
+    //let simplelink  = args[0];
+    let simplelink  = system.modules["/ti/drivers/net/wifi/SimpleLinkWifi"];
+    let sim         = simplelink.$static;
+    
+    function ConnectionPolicyMask()
+    {
+      let mask = sim.connectionPolicy;
+      let CP = [0,0,0,0];
+      if (mask.length == 0) {
+        return "" +  CP.join(",");
+      }
+      for (let i = 0; i < mask.length; i++) {
+        if (mask[i] == "(1,0,0,0)") {
+            CP[0] = 1;
+        }
+        else if (mask[i] == "(0,1,0,0)") {
+            CP[1] = 1;
+        }
+        else if (mask[i] == "(0,0,1,0)") {
+            CP[2] = 1;
+        }
+        else if (mask[i] == "(0,0,0,1)") {
+            CP[3] = 1;
+        }
+       }
+       return "" +  CP.join(",");
+    }
+    
+    function SplitIP(ip)
+    {
+      let dots = ip.split('.');
+      return "" +  dots.join(",");
+
+    }
+
+%%}
+/*
+ *  ======== ti_drivers_net_wifi_Config.c ========
+ *  Configured SimpleLink Wifi module definitions
+ *
+ *  DO NOT EDIT - This file is generated for the CC32XX
+ *  by the SysConfig tool.
+ */
+
+/* TI-DRIVERS Header files */
+#include <ti/drivers/net/wifi/simplelink.h>
+
+/*
+ *  =============================== SimpleLink Wifi ===============================
+ */
+
+/*
+ *  ======== SimpleLinkWifi_config ========
+ */
+const SlWifiCC32XXConfig_t SimpleLinkWifiCC32XX_config = {
+
+% if (sim.startRole == "AS_CONFIGURED") {
+        .Mode = SL_DEVICE_SYSCONFIG_AS_CONFIGURED,
+% } else {
+        .Mode = ROLE_`sim.startRole`,
+        .Ipv4Mode = SL_NETCFG_IPV4_`sim.startRole`_ADDR_MODE,
+% }
+% if (sim.connectionPolicy[0] == "AS_CONFIGURED") {
+        .ConnectionPolicy = SL_DEVICE_SYSCONFIG_AS_CONFIGURED,
+% } else {
+        .ConnectionPolicy = SL_WLAN_CONNECTION_POLICY(`ConnectionPolicyMask()`),
+% }
+% if (sim.powerManagementPolicy == "AS_CONFIGURED") {
+        .PMPolicy = SL_DEVICE_SYSCONFIG_AS_CONFIGURED,
+% } else {
+        .PMPolicy = SL_WLAN_`sim.powerManagementPolicy`_POLICY,
+% }
+% if (sim.powerManagementPolicy == "LONG_SLEEP_INTERVAL") {
+        .MaxSleepTimeMS = `sim.maxSleepTime`,
+% } else {
+        .MaxSleepTimeMS = 0,
+% }
+% if (sim.scanPolicy == "AS_CONFIGURED") {
+        .ScanPolicy = SL_DEVICE_SYSCONFIG_AS_CONFIGURED,
+% } else {
+        .ScanPolicy = SL_WLAN_SCAN_POLICY`sim.scanPolicy`,
+% }
+% if (sim.scanPolicy == "AS_CONFIGURED" || sim.scanPolicy == "(0,0)" ) {
+        .ScanIntervalInSeconds = 0,
+% } else {
+        .ScanIntervalInSeconds = `sim.scanIntervalInSeconds`,
+% }
+% if (sim.ipv4Config == "AS_CONFIGURED") {
+        .Ipv4Config = SL_DEVICE_SYSCONFIG_AS_CONFIGURED,
+% } else {
+        .Ipv4Config = SL_NETCFG_ADDR_`sim.ipv4Config`,
+% }
+% if (sim.ipv4Config == "STATIC" ) {
+        .Ipv4 = (_u32)SL_IPV4_VAL(`SplitIP(sim.ipv4Address)`),
+        .IpMask = (_u32)SL_IPV4_VAL(`SplitIP(sim.subnetMask)`),
+        .IpGateway = (_u32)SL_IPV4_VAL(`SplitIP(sim.defaultGateway)`),
+        .IpDnsServer = (_u32)SL_IPV4_VAL(`SplitIP(sim.dnsServer)`),
+% } else {
+        .Ipv4 = 0,
+        .IpMask = 0,
+        .IpGateway = 0,
+        .IpDnsServer = 0,
+% }
+% if (sim.dhcpServer) {
+        .DHCPServer = 1,
+        .StartAddress = (_u32)SL_IPV4_VAL(`SplitIP(sim.startAddress)`),
+        .LastAddress = (_u32)SL_IPV4_VAL(`SplitIP(sim.lastAddress)`),
+        .LeaseTime = `sim.leaseTime`,
+% } else {
+        .DHCPServer = 0,
+        .StartAddress = 0,
+        .LastAddress = 0,
+        .LeaseTime = 0,
+% }
+% if (sim.provisioningStop) {
+        .ProvisioningStop = 1,
+% } else {
+        .ProvisioningStop = 0,
+% }
+% if (sim.deleteAllProfile) {
+        .DeleteAllProfile = 1
+% } else {
+        .DeleteAllProfile = 0
+% }
+};

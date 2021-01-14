@@ -1,0 +1,238 @@
+%%{
+/*
+ * Copyright (c) 2018-2020, Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== SPICC32XXDMA.Board.c.xdt ========
+ */
+
+    /* passed by /ti/drivers/templates/Board.c.xdt */
+    let SPI = args[0];
+    let instances = SPI.$instances;
+
+    if (SPI.$static.includeNWP == false && instances.length == 0) {
+        return;
+    }
+
+    let configCount = instances.length;
+
+    /* If NWP present */
+    if (SPI.$static.includeNWP) {
+        configCount += 1;
+    }
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    let declarations = Common.genBoardDeclarations(instances);
+    let convertPinName = Common.cc32xxPackage2DevicePin;
+
+    let localInstance = [];
+    if (SPI.$static.includeNWP && SPI.$static.networkProcessorSPI) {
+        localInstance.push(SPI.$static.networkProcessorSPI);
+        declarations += "\n" + Common.genBoardDeclarations(localInstance);
+    }
+
+    /* CONFIG_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = SPI.defaultInstanceName + "COUNT";
+%%}
+/*
+ *  =============================== SPI ===============================
+ */
+
+#include <ti/drivers/SPI.h>
+#include <ti/drivers/spi/SPICC32XXDMA.h>
+
+#include <ti/devices/cc32xx/inc/hw_ints.h>
+#include <ti/devices/cc32xx/inc/hw_memmap.h>
+#include <ti/devices/cc32xx/inc/hw_types.h>
+#include <ti/devices/cc32xx/driverlib/prcm.h>
+#include <ti/devices/cc32xx/driverlib/spi.h>
+#include <ti/devices/cc32xx/driverlib/udma.h>
+
+#define `countDef` `configCount`
+
+/*
+ *  ======== spiCC32XXDMAObjects ========
+ */
+SPICC32XXDMA_Object spiCC32XXDMAObjects[`countDef`];
+
+uint32_t spiCC32XXSDMAscratchBuf[`countDef`];
+
+/*
+ *  ======== spiCC32XXDMAHWAttrs ========
+ */
+const SPICC32XXDMA_HWAttrsV1 spiCC32XXDMAHWAttrs[`countDef`] = {
+    % if (SPI.$static.includeNWP) {
+    /* `SPI.$static.networkProcessorSPI.$name` */
+    /* Network Processor SPI Bus */
+    {
+        .baseAddr = LSPI_BASE,
+        .intNum = INT_LSPI,
+        .intPriority = (~0),
+        .spiPRCM = PRCM_LSPI,
+        .csControl = SPI_SW_CTRL_CS,
+        .csPolarity = SPI_CS_ACTIVEHIGH,
+        .pinMode = SPI_4PIN_MODE,
+        .turboMode = SPI_TURBO_OFF,
+        .scratchBufPtr = &spiCC32XXSDMAscratchBuf[`SPI.$static.networkProcessorSPI.$name`],
+        .defaultTxBufValue = 0,
+        .rxChannelIndex = UDMA_CH12_LSPI_RX,
+        .txChannelIndex = UDMA_CH13_LSPI_TX,
+        .minDmaTransferSize = 100,
+        .mosiPin = SPICC32XXDMA_PIN_NO_CONFIG,
+        .misoPin = SPICC32XXDMA_PIN_NO_CONFIG,
+        .clkPin  = SPICC32XXDMA_PIN_NO_CONFIG,
+        .csPin  = SPICC32XXDMA_PIN_NO_CONFIG
+    },
+    % }
+    % for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    %
+    % /* resources is a hash of resources assigned to inst: CLK, MISO, MOSI ... */
+    % let spi = inst.spi;
+    % let name = spi.sclkPin.$solution.peripheralPinName.substring(0,4); /* GSPI, LSPI */
+    % let mode = inst.mode === "Three Pin" ? "3PIN" : "4PIN";
+    % let ctl = inst.ssControl;
+    % let csPol = inst.mode.match("High") ? "HIGH" : "LOW";
+    % let trbo = inst.turboMode ? "ON" : "OFF";
+    % let rdmach = "NULL";
+    % let tdmach = "NULL";
+    % let mosiPin = "SPICC32XXDMA_PIN_";
+    % let misoPin = "SPICC32XXDMA_PIN_";
+    % let sclkPin = "SPICC32XXDMA_PIN_";
+    % sclkPin += convertPinName(spi.sclkPin.$solution.packagePinName) + "_CLK";
+    % if (inst.duplex == "Full") {
+    %     mosiPin += convertPinName(spi.mosiPin.$solution.packagePinName);
+    %     mosiPin += "_MOSI";
+    %     misoPin += convertPinName(spi.misoPin.$solution.packagePinName);
+    %     misoPin += "_MISO";
+    %     rdmach = spi.dmaRxChannel.$solution.devicePinName.substring(7);
+    %     rdmach = "UDMA_CH" + rdmach + "_" + name + "_RX";
+    %     tdmach = spi.dmaTxChannel.$solution.devicePinName.substring(7);
+    %     tdmach = "UDMA_CH" + tdmach + "_" + name + "_TX";
+    % }
+    % else if (inst.duplex == "Master RX Only") {
+    %     misoPin += convertPinName(spi.misoPin.$solution.packagePinName);
+    %     misoPin += "_MISO";
+    %     rdmach = spi.dmaRxChannel.$solution.devicePinName.substring(7);
+    %     rdmach = "UDMA_CH" + rdmach + "_" + name + "_RX";
+    %     mosiPin += "NO_CONFIG";
+    % }
+    % else if (inst.duplex == "Master TX Only") {
+    %     mosiPin += convertPinName(spi.mosiPin.$solution.packagePinName);
+    %     mosiPin += "_MOSI";
+    %     tdmach = spi.dmaTxChannel.$solution.devicePinName.substring(7);
+    %     tdmach = "UDMA_CH" + tdmach + "_" + name + "_TX";
+    %     misoPin += "NO_CONFIG";
+    % }
+    % else if (inst.duplex == "Slave TX Only") {
+    %     misoPin += convertPinName(spi.misoPin.$solution.packagePinName);
+    %     misoPin += "_MISO";
+    %     tdmach = spi.dmaTxChannel.$solution.devicePinName.substring(7);
+    %     tdmach = "UDMA_CH" + tdmach + "_" + name + "_TX";
+    %     mosiPin += "NO_CONFIG";
+    % }
+    % else if (inst.duplex == "Slave RX Only") {
+    %     mosiPin += convertPinName(spi.mosiPin.$solution.packagePinName);
+    %     mosiPin += "_MOSI";
+    %     rdmach = spi.dmaRxChannel.$solution.devicePinName.substring(7);
+    %     rdmach = "UDMA_CH" + rdmach + "_" + name + "_RX";
+    %     misoPin += "NO_CONFIG";
+    % }
+    %
+    % let ssPin = "SPICC32XXDMA_PIN_";
+    % if (inst.mode !== "Three Pin") {
+    %     ssPin += convertPinName(spi.ssPin.$solution.packagePinName) + "_CS";
+    % }
+    % else {
+    %     ssPin += "NO_CONFIG";
+    % }
+    /* `name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .baseAddr = `name`_BASE,
+        .intNum = INT_`name`,
+        .intPriority = `Common.intPriority2Hex(inst.dmaInterruptPriority)`,
+        .spiPRCM = PRCM_`name`,
+        .csControl = SPI_`ctl`_CTRL_CS,
+        .csPolarity = SPI_CS_ACTIVE`csPol`,
+        .pinMode = SPI_`mode`_MODE,
+        .turboMode = SPI_TURBO_`trbo`,
+        .scratchBufPtr = &spiCC32XXSDMAscratchBuf[`inst.$name`],
+        .defaultTxBufValue = `inst.defaultTxBufferValue`,
+        .rxChannelIndex = `rdmach`,
+        .txChannelIndex = `tdmach`,
+        .minDmaTransferSize = `inst.minDmaTransferSize`,
+        .mosiPin = `mosiPin`,
+        .misoPin = `misoPin`,
+        .clkPin  = `sclkPin`,
+        .csPin  = `ssPin`
+    },
+    % }
+};
+
+/*
+ *  ======== SPI_config ========
+ */
+const SPI_Config SPI_config[`countDef`] = {
+    % if (SPI.$static.includeNWP) {
+    /* `SPI.$static.networkProcessorSPI.$name` */
+    {
+        .fxnTablePtr = &SPICC32XXDMA_fxnTable,
+        .object = &spiCC32XXDMAObjects[`SPI.$static.networkProcessorSPI.$name`],
+        .hwAttrs = &spiCC32XXDMAHWAttrs[`SPI.$static.networkProcessorSPI.$name`]
+    },
+    %}
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .fxnTablePtr = &SPICC32XXDMA_fxnTable,
+        .object = &spiCC32XXDMAObjects[`inst.$name`],
+        .hwAttrs = &spiCC32XXDMAHWAttrs[`inst.$name`]
+    },
+% }
+};
+
+`declarations`
+const uint_least8_t SPI_count = `countDef`;

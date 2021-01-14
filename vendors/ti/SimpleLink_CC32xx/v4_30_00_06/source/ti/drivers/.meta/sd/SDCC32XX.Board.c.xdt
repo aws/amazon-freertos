@@ -1,0 +1,227 @@
+%%{
+/*
+ * Copyright (c) 2018-2020 Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== SDCC32XX.Board.c.xdt ========
+ */
+
+    let SD  = args[0];
+
+    let instances = SD.$instances;
+    let fatIndex = 0;
+    let hostCount = 0;
+    let sdSPICount = 0;
+
+    if (instances.length == 0) return;
+
+    /* Reorder instances such that FATFS indices are first.
+       Count the number of SDHost and SDSPI instances. */
+    if (instances[0].useFatFS === true) {
+        fatIndex = 1;
+    }
+
+    if (instances[0].interfaceType === "SD Host") {
+        hostCount++;
+    }
+    else {
+        sdSPICount++;
+    }
+
+    for (let index = 1; index < instances.length; index++) {
+
+        if (instances[index].useFatFS === true) {
+            if (index != fatIndex) {
+                let copy = instances[index];
+                instances[index] = instances[fatIndex];
+                instances[fatIndex] = copy;
+            }
+            fatIndex++;
+        }
+
+        if (instances[index].interfaceType === "SD Host") {
+            hostCount++;
+        }
+        else {
+            sdSPICount++;
+        }
+    }
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    let declarations = Common.genBoardDeclarations(instances);
+    let convertPinName = Common.cc32xxPackage2DevicePin;
+
+    let countDef = SD.defaultInstanceName + "COUNT";
+    let SDFatFSCount = SD.defaultInstanceName + "FATFS_COUNT";
+    let SDHostCount = SD.defaultInstanceName + "HOST_COUNT";
+    let SDSPICount = SD.defaultInstanceName + "SPI_COUNT";
+
+    /* Determine includes and count definitions needed */
+    let includes = [], defines = [];
+    includes.push("#include <ti/drivers/SD.h>");
+    defines.push("#define " + countDef + " " + instances.length);
+
+    if (fatIndex > 0) {
+        includes.push("#include <ti/drivers/SDFatFS.h>");
+        defines.push("#define " + SDFatFSCount + " " + fatIndex);
+    }
+    if (sdSPICount > 0) {
+        includes.push("#include <ti/drivers/sd/SDSPI.h>");
+        defines.push("#define " + SDSPICount + " " + sdSPICount);
+    }
+    if (hostCount > 0) {
+        includes.push("#include <ti/drivers/sd/SDHostCC32XX.h>");
+        includes.push("#include <ti/devices/cc32xx/inc/hw_ints.h>");
+        includes.push("#include <ti/devices/cc32xx/inc/hw_memmap.h>");
+        defines.push("#define " + SDHostCount + " " + hostCount);
+    }
+
+    /* Form single string delimited with newlines */
+    defines = defines.join("\n");
+    includes = includes.join("\n");
+
+%%}
+/*
+ *  =============================== SD ===============================
+ */
+`includes`
+
+`defines`
+
+% if (fatIndex > 0) {
+SDFatFS_Object sdfatfsObjects[`SDFatFSCount`];
+% }
+% if (hostCount > 0) {
+SDHostCC32XX_Object sdhostObjects[`SDHostCount`];
+% }
+% if (sdSPICount > 0) {
+SDSPI_Object sdspiObjects[`SDSPICount`];
+% }
+% if (fatIndex > 0) {
+
+const SDFatFS_Config SDFatFS_config[`SDFatFSCount`] = {
+% for (let i = 0; i < fatIndex; i++) {
+    % let inst = instances[i];
+    /* `inst.$name` */
+    {
+        .object = &sdfatfsObjects[`inst.$name`]
+    },
+% }
+};
+
+const uint_least8_t SDFatFS_count = `SDFatFSCount`;
+% } // if (fatIndex > 0)
+% if (hostCount > 0) {
+
+const SDHostCC32XX_HWAttrsV1 sdhostHWattrs[`SDHostCount`] = {
+% let i = 0;
+% while (i < hostCount) {
+    % if (instances[i].interfaceType != "SD Host") {
+    %    i++;
+    %    continue;
+    % }
+    % let inst = instances[i];
+    % i++;
+    % let sdHost = inst.sdHost;
+    % let clkPin = convertPinName(sdHost.clkPin.$solution.packagePinName);
+    % let cmdPin = convertPinName(sdHost.cmdPin.$solution.packagePinName);
+    % let dataPin = convertPinName(sdHost.dataPin.$solution.packagePinName);
+    % let rdmach = sdHost.dmaRxChannel.$solution.devicePinName.substring(7); /* UDMA_CHXX */
+    % let tdmach = sdHost.dmaTxChannel.$solution.devicePinName.substring(7); /* UDMA_CHXX */
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .clkRate = `inst.clockRate`,
+        .intPriority = `Common.intPriority2Hex(inst.interruptPriority)`,
+        .baseAddr = SDHOST_BASE,
+        .rxChIdx = UDMA_CH`rdmach`_SDHOST_RX,
+        .txChIdx = UDMA_CH`tdmach`_SDHOST_TX,
+        .dataPin = SDHostCC32XX_PIN_`dataPin`_SDCARD_DATA,
+        .cmdPin = SDHostCC32XX_PIN_`cmdPin`_SDCARD_CMD,
+        .clkPin  = SDHostCC32XX_PIN_`clkPin`_SDCARD_CLK
+    },
+% }
+};
+% } // if (hostCount > 0)
+% if (sdSPICount > 0) {
+
+const SDSPI_HWAttrs sdspiHWattrs[`SDSPICount`] = {
+% let i = 0;
+% while (i < sdSPICount) {
+    % if (instances[i].interfaceType != "SD SPI") {
+    %    i++;
+    %    continue;
+    % }
+    % let inst = instances[i];
+    % i++;
+    /* `inst.$name` */
+    {
+        .spiIndex = `inst.spiInstance.$name`,
+        .spiCsGpioIndex = `inst.slaveSelect.$name`
+    },
+% }
+};
+% } // if (sdSPICount > 0)
+
+const SD_Config SD_config[`instances.length`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+    % if (inst.interfaceType == "SD Host") {
+        .fxnTablePtr = &sdHostCC32XX_fxnTable,
+        .object = &sdhostObjects[`inst.$name`],
+        .hwAttrs = &sdhostHWattrs[`inst.$name`]
+    % }
+    % else {
+        .fxnTablePtr = &SDSPI_fxnTable,
+        .object = &sdspiObjects[`inst.$name`],
+        .hwAttrs = &sdspiHWattrs[`inst.$name`]
+    % }
+    },
+% }
+};
+
+`declarations`
+const uint_least8_t SD_count = `countDef`;

@@ -1,0 +1,84 @@
+%%{
+/*
+ * Copyright (c) 2018-2020 Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== UDMACC32XX.Board.c.xdt ========
+ */
+
+    let DMA       = args[0];
+    let Common    = system.getScript("/ti/drivers/Common.js");
+%%}
+/*
+ *  =============================== DMA ===============================
+ */
+
+#include <ti/drivers/dma/UDMACC32XX.h>
+#include <ti/devices/cc32xx/inc/hw_ints.h>
+#include <ti/devices/cc32xx/inc/hw_types.h>
+#include <ti/devices/cc32xx/driverlib/rom_map.h>
+#include <ti/devices/cc32xx/driverlib/udma.h>
+
+/* Ensure DMA control table is aligned as required by the uDMA Hardware */
+static tDMAControlTable dmaControlTable[64] __attribute__ ((aligned (1024)));
+
+% /* install default handler if no change to dmaErrorFxn */
+% if (DMA.$static.dmaErrorFunction == 'dmaErrorFxn') {
+/* This is the handler for the uDMA error interrupt. */
+static void dmaErrorFxn(uintptr_t arg)
+{
+    int status = MAP_uDMAErrorStatusGet();
+    MAP_uDMAErrorStatusClear();
+
+    /* Suppress unused variable warning */
+    (void)status;
+
+    while (1);
+}
+% } else {
+extern void `DMA.$static.dmaErrorFunction`(uintptr_t arg);
+% }
+
+UDMACC32XX_Object udmaCC3220SObject;
+
+const UDMACC32XX_HWAttrs udmaCC3220SHWAttrs = {
+    .controlBaseAddr = (void *)dmaControlTable,
+    .dmaErrorFxn     = (UDMACC32XX_ErrorFxn)`DMA.$static.dmaErrorFunction`,
+    .intNum          = INT_UDMAERR,
+    .intPriority     = `Common.intPriority2Hex(DMA.$static.interruptPriority)`
+};
+
+const UDMACC32XX_Config UDMACC32XX_config = {
+    .object  = &udmaCC3220SObject,
+    .hwAttrs = &udmaCC3220SHWAttrs
+};

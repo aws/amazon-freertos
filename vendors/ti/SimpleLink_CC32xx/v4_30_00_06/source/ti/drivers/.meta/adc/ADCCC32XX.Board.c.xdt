@@ -1,0 +1,110 @@
+%%{
+/*
+ * Copyright (c) 2018-2020, Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== ADCCC32XX.Board.c.xdt ========
+ */
+
+    /* passed by /ti/drivers/templates/Board.c.xdt */
+    let ADC = args[0];
+    let instances = ADC.$instances;
+    if (instances.length == 0) return;
+
+    /* get Common /ti/drivers utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    let declarations = Common.genBoardDeclarations(instances);
+    let convertPinName = Common.cc32xxPackage2DevicePin;
+
+    /* CONFIG_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = ADC.defaultInstanceName + "COUNT";
+%%}
+/*
+ *  =============================== ADC ===============================
+ */
+
+#include <ti/drivers/ADC.h>
+#include <ti/drivers/adc/ADCCC32XX.h>
+
+#include <ti/devices/cc32xx/driverlib/adc.h>
+
+#define `countDef` `instances.length`
+
+/*
+ *  ======== adcCCC32XXObjects ========
+ */
+ADCCC32XX_Object adcCC32XXObjects[`countDef`];
+
+/*
+ *  ======== adcCC3220SHWAttrs ========
+ */
+const ADCCC32XX_HWAttrsV1 adcCC32XXHWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let pin = convertPinName(inst.adc.adcPin.$solution.packagePinName);
+    % let ch = inst.adc.adcPin.$solution.peripheralPinName.substring(6);
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .adcPin = ADCCC32XX_PIN_`pin`_CH_`ch`,
+    },
+% }
+};
+
+/*
+ *  ======== ADC_config ========
+ */
+const ADC_Config ADC_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .fxnTablePtr = &ADCCC32XX_fxnTable,
+        .object = &adcCC32XXObjects[`inst.$name`],
+        .hwAttrs = &adcCC32XXHWAttrs[`inst.$name`]
+    },
+% }
+};
+
+`declarations`
+const uint_least8_t ADC_count = `countDef`;

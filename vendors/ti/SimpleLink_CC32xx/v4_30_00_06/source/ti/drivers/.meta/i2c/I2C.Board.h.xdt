@@ -1,0 +1,139 @@
+%%{
+/*
+ * Copyright (c) 2018-2019, Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== I2C.Board.h.xdt ========
+ */
+
+    let I2C = args[0]; /* defined in /ti/drivers/templates/Board.c.xdt */
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    let instances = I2C.$instances;
+    let defs = Common.genBoardHeader(instances, I2C);
+
+    /* ======== genPrefix ======== */
+    function genPrefix(bname, cname, fmt)
+    {
+        if (fmt == null) {
+            fmt = "%b_%l";
+        }
+ 
+        /* generate a long & short C-name for the I2C component */
+        let sname = cname.substring(cname.lastIndexOf('/') + 1);
+        sname = sname.replace(/[/\-+. ]/g, '_');
+        let lname = cname.replace(/[/\-+. ]/g, '_');
+
+        /* generate unique C-name based on the specified format */
+        let name = fmt.replace(/%l/g, lname);
+        name = name.replace(/%s/g, sname);
+        name = name.replace(/%b/g, bname);
+        return (name);
+    }
+
+    /* ======== getBitRateEnum ======== */
+    function getBitRateEnum(maxSpeed)
+    {
+        /* convert a max speed into an I2C.h bit rate enum symbol */
+        let rates = [3400, 1000, 400];
+        for (let i = 0; i < rates.length; i++) {
+            if (maxSpeed >= rates[i]) {
+                return ("I2C_" + rates[i] + "kHz");
+            }
+        }
+        return ("I2C_100kHz");
+    }
+%%}
+`defs`
+
+/* ======== I2C Addresses and Speeds ======== */
+#include <ti/drivers/I2C.h>
+%
+%/* for each I2C bus, gen a symbol for each comp's address on the bus */
+%let i, j;
+%for (i = 0; i < instances.length; i++) {
+%    let bus = instances[i];
+%    let minSpeed = 5000; /* slowest speed of all comps connected to bus */
+
+/* ---- `bus.$name` I2C bus components ---- */
+%    if (bus.$hardware) {
+%        let components = bus.$hardware.$parents;
+%        for (j = 0; j < components.length; j++) {
+%            let comp = components[j];
+%            let comment = "Kbps";
+%            let addr = I2C.getCompAddress(comp);
+%            let speed = I2C.getCompSpeed(comp, 0);
+%            if (speed == 0) {
+%                comment = " speed unspecified, defaulting to 100 Kbps";
+%                speed = 100;
+%            }
+%            if (speed < minSpeed) {
+%                minSpeed = speed;
+%            }
+%            let prefix = genPrefix(bus.$name, comp.name);
+
+/* `comp.name` address and max speed */
+#define `prefix + "_ADDR"`     (0x`addr.toString(16)`)
+#define `prefix + "_MAXSPEED"` (`speed`U) /* `comment` */
+%        }
+%        let comment = "supported by all components";
+%        if (bus.maxBitRate > 0) {
+%            minSpeed = bus.maxBitRate;
+%            comment = "specified by the " + bus.$name
+%                + ".maxBitRate config setting";
+%        }
+%        let bitRateEnum = getBitRateEnum(minSpeed);
+
+/* `bus.$name` max speed (`comment`) */
+#define `bus.$name + "_MAXSPEED"`   (`minSpeed`U) /* Kbps */
+#define `bus.$name + "_MAXBITRATE"` ((I2C_BitRate)`bitRateEnum`)
+%    }
+%    else {
+
+/* no components connected to `bus.$name` */
+
+%        if (bus.maxBitRate > 0) {
+%            let bitRateEnum = getBitRateEnum(bus.maxBitRate);
+/* `bus.$name`.maxBitRate configuration specified `bus.maxBitRate` Kbps */
+#define `bus.$name + "_MAXSPEED"`   (`bus.maxBitRate`U) /* Kbps */
+#define `bus.$name + "_MAXBITRATE"` ((I2C_BitRate)`bitRateEnum`)
+%        }
+%        else {
+/* max speed unspecified, defaulting to 100 Kbps */
+#define `bus.$name + "_MAXSPEED"`   (100U) /* Kbps */
+#define `bus.$name + "_MAXBITRATE"` ((I2C_BitRate)I2C_100kHz)
+%        }
+%    }
+%}

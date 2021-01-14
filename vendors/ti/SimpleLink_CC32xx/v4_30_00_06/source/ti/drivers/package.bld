@@ -1,0 +1,103 @@
+/*
+ * Copyright (c) 2015-2020, Texas Instruments Incorporated
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/*
+ *  ======== package.bld ========
+ */
+
+/* Get deviceWare directories from XDCARGS */
+var xdcArgs = java.lang.System.getenv("XDCARGS");
+var xdcArgParser = xdc.loadCapsule("ti/drivers/xdcArgParser.xs");
+var deviceWareOpts = xdcArgParser.getDeviceWareOpts(xdcArgs);
+var libBuilder = xdc.loadCapsule("ti/drivers/libBuilder.xs");
+
+/* Get source and header file lists */
+var msp432e4Sources = xdc.loadCapsule("ti/drivers/sources_msp432e4.xs");
+var cc32xxSources = xdc.loadCapsule("ti/drivers/sources_cc32xx.xs");
+var cc26xxSources = xdc.loadCapsule("ti/drivers/sources_cc26xx.xs");
+
+/* List of files (besides *.c files) which need to be packaged with drivers */
+var packageFiles = [
+    "libBuilder.xs",
+    "package.bld",
+    "xdcArgParser.xs",
+    "sources_msp432e4.xs",
+    "sources_cc32xx.xs",
+    "sources_cc26xx.xs",
+    "sources_common.xs"
+];
+
+/* Generate libraries for products which have been defined */
+if (deviceWareOpts.cc26xxware) {
+
+    packageFiles = packageFiles.concat(cc26xxSources.cc26x2HdrList);
+    packageFiles = packageFiles.concat(cc26xxSources.cc26x1HdrList);
+
+    //libBuilder.makeLibs("drivers_cc13x1", libBuilder.cc26x1Targets,
+        //cc26xxSources.cc26x1SrcList, " -DDeviceFamily_CC13X1");
+
+    //libBuilder.makeLibs("drivers_cc26x1", libBuilder.cc26x1Targets,
+        //cc26xxSources.cc26x1SrcList, " -DDeviceFamily_CC26X1");
+
+    libBuilder.makeLibs("drivers_cc13x2", libBuilder.cc26xxTargets,
+        cc26xxSources.cc26x2SrcList, " -DDeviceFamily_CC13X2");
+
+    libBuilder.makeLibs("drivers_cc26x2", libBuilder.cc26xxTargets,
+        cc26xxSources.cc26x2SrcList, " -DDeviceFamily_CC26X2");
+
+    //libBuilder.makeLibs("drivers_cc13x2f6", libBuilder.cc26xxTargets,
+        //cc26xxSources.cc26x2SrcList, " -DDeviceFamily_CC13X2F6");
+
+    //libBuilder.makeLibs("drivers_cc26x2f6", libBuilder.cc26xxTargets,
+        //cc26xxSources.cc26x2SrcList, " -DDeviceFamily_CC26X2F6");
+}
+
+if (deviceWareOpts.cc32xxware) {
+    var copts = " -DUSE_CC3220_ROM_DRV_API -DDeviceFamily_CC3220";
+
+    packageFiles = packageFiles.concat(cc32xxSources.cc32xxHdrList);
+
+    libBuilder.makeLibs("drivers_cc32xx", libBuilder.cc32xxTargets,
+        cc32xxSources.cc32xxSrcList, copts);
+}
+
+if (deviceWareOpts.msp432e4DriverLib) {
+    var copts = " -D__MSP432E411Y__ -DDeviceFamily_MSP432E411Y";
+
+    packageFiles = packageFiles.concat(msp432e4Sources.msp432e4HdrList);
+
+    libBuilder.makeLibs("drivers_msp432e4", libBuilder.msp432e4Targets,
+        msp432e4Sources.msp432e4SrcList, copts);
+}
+
+Pkg.otherFiles = packageFiles;
+Pkg.attrs.exportSrc = true;

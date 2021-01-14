@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  This file conforms to the DTD xdc/bld/release.dtd -->
+<release name="ti_posix" label="default" date="1597775294799" buildCount="1" producerId="undefined">
+<package name="ti.posix"
+    version="1, 0, 0"/>
+<imports>
+</imports>
+<references>
+    <package name="xdc"
+        version="1, 1, 1, 1587160501449"
+        providerId="/scratch/xlibrary/.conan/data/xdctools/3.61.01.25/library-msp/ga/package/be241241e9d4718e5bab4eb33935bbb69606bb0c/packages">
+        <file name="IPackage.xdc"/>
+        <file name="IPackage.xs"/>
+        <file name="Warnings.xs"/>
+        <file name="om2.xs"/>
+        <file name="package.xs"/>
+        <file name="template.xs"/>
+        <file name="utils.js"/>
+        <file name="xdc.tci"/>
+        <file name="xmlgen.xs"/>
+        <file name="xmlgen2.xs"/>
+    </package>
+    <package name="xdc.services.global"
+        version="1, 0, 0, 1587160547577"
+        providerId="/scratch/xlibrary/.conan/data/xdctools/3.61.01.25/library-msp/ga/package/be241241e9d4718e5bab4eb33935bbb69606bb0c/packages">
+        <file name="Clock.xs"/>
+        <file name="Trace.xs"/>
+        <file name="java/package.jar"/>
+    </package>
+    <package name="xdc.bld"
+        version="1, 0, 2, 1587160506007"
+        providerId="/scratch/xlibrary/.conan/data/xdctools/3.61.01.25/library-msp/ga/package/be241241e9d4718e5bab4eb33935bbb69606bb0c/packages">
+        <file name="BuildEnvironment.xs"/>
+        <file name="Configuration.xs"/>
+        <file name="Executable.xs"/>
+        <file name="ITarget.xs"/>
+        <file name="ITarget2.xs"/>
+        <file name="ITarget3.xs"/>
+        <file name="ITargetFilter.xs"/>
+        <file name="Library.xs"/>
+        <file name="Manifest.xs"/>
+        <file name="PackageContents.xs"/>
+        <file name="Repository.xs"/>
+        <file name="Script.xs"/>
+        <file name="Utils.xs"/>
+        <file name="_gen.xs"/>
+        <file name="bld.js"/>
+        <file name="package.xs"/>
+    </package>
+    <package name="xdc.shelf"
+        version="1, 0, 0, 1587160591196"
+        providerId="/scratch/xlibrary/.conan/data/xdctools/3.61.01.25/library-msp/ga/package/be241241e9d4718e5bab4eb33935bbb69606bb0c/packages">
+        <file name="java/antlr.jar"/>
+        <file name="java/ecj.jar"/>
+        <file name="java/js.jar"/>
+        <file name="java/tar.jar"/>
+    </package>
+    <package name="xdc.services.intern.xsr"
+        version="1, 0, 0, 1587160564758"
+        providerId="/scratch/xlibrary/.conan/data/xdctools/3.61.01.25/library-msp/ga/package/be241241e9d4718e5bab4eb33935bbb69606bb0c/packages">
+        <file name="java/package.jar"/>
+    </package>
+    <package name="xdc.services.intern.gen"
+        version="1, 0, 0, 1587160562719"
+        providerId="/scratch/xlibrary/.conan/data/xdctools/3.61.01.25/library-msp/ga/package/be241241e9d4718e5bab4eb33935bbb69606bb0c/packages">
+        <file name="java/package.jar"/>
+    </package>
+    <package name="xdc.services.spec"
+        version="1, 0, 0, 1587160575107"
+        providerId="/scratch/xlibrary/.conan/data/xdctools/3.61.01.25/library-msp/ga/package/be241241e9d4718e5bab4eb33935bbb69606bb0c/packages">
+        <file name="java/package.jar"/>
+    </package>
+    <package name="xdc.services.intern.cmd"
+        version="1, 0, 0, 1587160559985"
+        providerId="/scratch/xlibrary/.conan/data/xdctools/3.61.01.25/library-msp/ga/package/be241241e9d4718e5bab4eb33935bbb69606bb0c/packages">
+        <file name="java/package.jar"/>
+    </package>
+    <xdcRoot base="/scratch/xlibrary/.conan/data/xdctools/3.61.01.25/library-msp/ga/package/be241241e9d4718e5bab4eb33935bbb69606bb0c/">
+        <file name="/packages/xdc/package.xdc"/>
+        <xdcCorePkg version="16, 0, 2, 1587160516307" producerId="/db/ztree/library/trees/xdc/xdc-I11/src/packages" buildCount="1" releaseName="xdc_corevers" label="default" date="1587160516307"/>
+    </xdcRoot>
+</references>
+<orphans>
+    <file name="/scratch/xlibrary/.conan/data/tiposix/1.35.00.11/library-sb/ga/build/8dfc7015255f14fb3b2719db05a7818ea9cb3c7c/posix.bld"/>
+</orphans>
+</release>

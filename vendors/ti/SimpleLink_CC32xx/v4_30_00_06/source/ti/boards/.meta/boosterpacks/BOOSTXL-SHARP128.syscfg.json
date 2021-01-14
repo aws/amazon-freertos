@@ -1,0 +1,128 @@
+/*
+ * Copyright (c) 2018-2019 Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== BOOSTXL-SHARP128.syscfg.json ========
+ */
+
+{
+    "name": "BOOSTXL_SHARP128",
+    "displayName": "BOOSTXL-SHARP128",
+    "description": "Sharp 128x128 Memory LCD and microSD Card TI BoosterPack",
+    "longDescription": "The [__BOOSTXL-SHARP128__](http://www.ti.com/tool/BOOSTXL-SHARP128) BoosterPack&trade; is based on the LS013B7DH03 super low power TFT display panel from Sharp&reg; Electronics and also features a microSD card expansion slot.",
+    "headerType": "BoosterPack 40 pin",
+    "components": {
+
+        "BOOSTXL_SHARP128_SPI": {
+            "displayName": "BOOSTXL-SHARP128 SPI Bus",
+            "description": "BOOSTXL-SHARP128 SPI bus",
+            "longDescription": "BOOSTXL-SHARP128 SPI bus",
+            "definition"  : "/ti/boards/components/spiBus.json",
+            "connections": {
+                /* 7:  BoosterPack standard: SPI CLK */
+                "SCLK"    : 7,
+                /* 15: BoosterPack standard: SPI MOSI */
+                "MOSI"   : 15,
+                /* 14: BoosterPack standard: SPI MISO */
+                "MISO"   : 14
+            }
+        },
+
+        "LS013B7DH03" : {
+            "type": ["SHARP_LCD", "SPI_DEVICE", "SPI_LCD"],
+            "displayName" : "Sharp 128x128 LCD Display",
+            "description": "Sharp 128x128 LS013B7DH03 LCD Display",
+            "longDescription": "Sharp&reg; 128x128 [__LS013B7DH03__](https://www.sharpsma.com/products?sharpCategory=Memory%20LCD&sharpProductRecordId=1504572) LCD Display",
+            "settings": {
+                "Display" : { "size": 128 }
+            },
+            "subComponents": {
+                "SPI": {
+                    "link": "BOOSTXL_SHARP128_SPI"
+                },
+                "SELECT": {
+                    "displayName": "Sharp128 LCD SPI Slave Select",
+                    "description": "Sharp 128x128 LCD SPI slave select pin",
+                    "longDescription": "Sharp 128x128 LCD SPI slave select pin",
+                    "definition"  : "/ti/boards/components/spiSelect.json",
+                    "connections" : {
+                        "SS": 6
+                    }
+                },
+                "POWER": {
+                    "definition"  : "/ti/boards/components/digitalOutput.json",
+                    "displayName": "Sharp128 LCD Power",
+                    "description": "Sharp 128x128 LCD power pin",
+                    "longDescription": "Sharp 128x128 LCD power pin",
+                    "connections": {
+                        "OUTPUT": 2
+                    }
+                },
+                "ENABLE": {
+                    "definition"  : "/ti/boards/components/digitalOutput.json",
+                    "displayName": "Sharp128 LCD Enable",
+                    "description": "Sharp 128x128 LCD enable pin",
+                    "longDescription": "Sharp 128x128 LCD enable pin",
+                    "connections": {
+                        "OUTPUT": 5
+                    }
+                }
+            }
+        },
+
+        "SHARP_LCD_DISPLAY" : {
+            "link": "LS013B7DH03"
+        },
+
+        "SD_CARD": {
+            "displayName": "BOOSTXL-SHARP128 SD Card",
+            "description": "BOOSTXL-SHARP128 SD Card",
+            "longDescription": "BOOSTXL-SHARP128 SD Card",
+            "type": ["SD_SPI_FLASH", "SPI_DEVICE"],
+            "subComponents": {
+                "SPI": {
+                    "link": "BOOSTXL_SHARP128_SPI"
+                },
+                "SELECT": {
+                    "displayName": "BOOSTXL-SHARP128 SD SPI Slave Select",
+                    "description": "BOOSTXL-SHARP128 SD Card SPI slave select",
+                    "longDescription": "BOOSTXL-SHARP128 SD Card SPI slave select",
+                    "definition"  : "/ti/boards/components/spiSelect.json",
+                    "connections" : {
+                        "SS": 8
+                    }
+                }
+            }
+        }
+    }
+}

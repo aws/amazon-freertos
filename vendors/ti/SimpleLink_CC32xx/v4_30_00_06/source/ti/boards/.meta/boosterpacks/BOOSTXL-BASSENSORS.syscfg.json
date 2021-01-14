@@ -1,0 +1,254 @@
+/*
+ * Copyright (c) 2018-2020 Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== BOOSTXL-BASSENSORS.syscfg.json ========
+ */
+
+{
+    "name": "BOOSTXL_BASSENSORS",
+    "displayName": "BAS Sensors BoosterPack",
+    "description": "Building Automation Sensors BoosterPack",
+    "longDescription": "The [__BOOSTXL-BASSENSORS__](http://www.ti.com/tool/BOOSTXL-BASSENSORS) BoosterPack&trade; plug-in module is an easy way to add digital sensors to your LaunchPad&trade; development kit. MCU Launchpad developers can use this BoosterPack module to start developing sensor applications using the on-board temperature, humidity, ambient light, and hall-effect sensors.",
+
+    "headerType": "BoosterPack 40 pin",
+    "components": {
+        "BOOSTXL_BASSENSORS_I2C": {
+            "displayName": "BAS Sensors I2C",
+            "description": "BAS Sensors BoosterPack I2C bus",
+            "longDescription": "BAS Sensors BoosterPack I2C bus",
+            "definition": "/ti/boards/components/i2c.json",
+            "connections": {
+                "SDA": 10,
+                "SCL": 9
+            }
+        },
+
+        "LED_G": {
+            "displayName": "Green LED",
+            "definition": "/ti/boards/components/led_dimmable.json",
+            "connections": { "OUTPUT": 40 }
+        },
+
+        "LED_R": {
+            "displayName": "Red LED",
+            "definition": "/ti/boards/components/led_dimmable.json",
+            "connections": { "OUTPUT": 39 }
+        },
+
+        "TMP116": {
+            "type": "TMP116",
+            "partNum": "TI-TMP116",
+            "displayName": "TMP116 Temperature Sensor",
+            "description": "Accurate Digital Temperature Sensor With NV Memory",
+            "longDescription": "The [__TMP116__](http://www.ti.com/product/TMP116) family (TMP116, TMP116N) consist of low-power, high-precision temperature sensors with integrated EEPROM memory. The TMP116 provides a 16-bit temperature result with a resolution of 0.0078&deg;C and an accuracy of up to &plusmn;0.2&deg;C with no calibration. The TMP116 is compatible with the I2C and SMBus interface, has programmable alert functionality, and supports up to four devices on a single bus.",
+            "settings": {
+                "address":  72,  /* 0x48 */
+                "maxSpeed": 400  /* 400 kbit/s */
+            },
+            "subComponents": {
+                "I2C": {
+                    "link": "BOOSTXL_BASSENSORS_I2C"
+                },
+
+                "ALERT": {
+                    "type": "SENSOR_INT",
+                    "displayName": "TMP116 Interrupt",
+                    "description": "TMP116 interrupt pin",
+                    "longDescription": "TMP116 interrupt pin",
+                    "signals": {
+                        "INTERRUPT": {
+                            "type": "DIN",
+                            "settings": {
+                                "pull": "Pull Up"
+                            },
+                            "connection": 26
+                        }
+                    }
+                },
+
+                "POWER": {
+                    "type": "SENSOR_POWER",
+                    "displayName": "TMP116 Power",
+                    "description": "TMP116 power pin",
+                    "longDescription": "TMP116 power pin",
+                    "signals": {
+                        "POWER": {
+                            "type": "DOUT",
+                            "settings": {
+                                "mode": "Output",
+                                "initialOutputState": "High",
+                                "outputStrength": "High"
+                            },
+                            "connection": 28
+                        }
+                    }
+                }
+            }
+        },
+
+        "OPT3001": {
+            "type": "OPT3001",
+            "displayName": "OPT3001 Ambient Light Sensor",
+            "description": "Digital ambient light sensor (ALS) with high-precision human-eye response",
+            "longDescription": "The [__OPT3001__](http://www.ti.com/product/OPT3001) is a sensor that measures the intensity of visible light. The spectral response of the sensor tightly matches the photopic response of the human eye and includes significant infrared rejection.",
+            "settings": {
+                "address":  68,   /* 0x44 */
+                "maxSpeed": 2600  /* 2600 kbit/s */
+            },
+            "subComponents": {
+                "I2C": {
+                    "link": "BOOSTXL_BASSENSORS_I2C"
+                },
+
+                "ALERT": {
+                    "type": "SENSOR_INT",
+                    "displayName": "OPT3001 Interrupt",
+                    "description": "OPT3001 interrupt pin",
+                    "longDescription": "OPT3001 interrupt pin",
+                    "signals": {
+                        "INTERRUPT": {
+                            "type": "DIN",
+                            "settings": {
+                                "pull": "Pull Up"
+                            },
+                            "connection": 25
+                        }
+                    }
+                },
+
+                "POWER": {
+                    "type": "SENSOR_POWER",
+                    "displayName": "OPT3001 Power",
+                    "description": "OPT3001 power pin",
+                    "longDescription": "OPT3001 power pin",
+                    "signals": {
+                        "POWER": {
+                            "type": "DOUT",
+                            "settings": {
+                                "mode": "Output",
+                                "initialOutputState": "High",
+                                "outputStrength": "High"
+                            },
+                            "connection": 27
+                        }
+                    }
+                }
+            }
+        },
+
+        "HDC2010": {
+            "type": "HDC2010",
+            "displayName": "HDC2010 Humidity & Temperature Sensor",
+            "description": "Ultra-low-power, digital humidity sensor with temperature sensor in WCSP",
+            "longDescription": "The [__HDC2010__](http://www.ti.com/product/HDC2010) is an integrated humidity and temperature sensor that provides high accuracy measurements with very low power consumption, in an ultra-compact Wafer Level Chip Scale Package.",
+            "settings": {
+                "address":  64,  /* 0x40 */
+                "maxSpeed": 400  /* 400 kbit/s */
+            },
+            "subComponents": {
+                "I2C": {
+                    "link": "BOOSTXL_BASSENSORS_I2C"
+                },
+
+                "ALERT": {
+                    "type": "SENSOR_INT",
+                    "displayName": "HDC2010 Interrupt",
+                    "description": "HDC1010 interrupt pin",
+                    "longDescription": "HDC2010 interrupt pin",
+                    "signals": {
+                        "INTERRUPT": {
+                            "type": "DIN",
+                            "settings": {
+                                "pull": "None"
+                            },
+                            "connection": 23
+                        }
+                    }
+                },
+
+                "POWER": {
+                    "type": "SENSOR_POWER",
+                    "displayName": "HDC2010 Power",
+                    "description": "HDC2010 power pin",
+                    "longDescription": "HDC2010 power pin",
+                    "signals": {
+                        "POWER": {
+                            "type": "DOUT",
+                            "settings": {
+                                "mode": "Output",
+                                "initialOutputState": "Low",
+                                "outputStrength": "High"
+                            },
+                            "connection": 6
+                        }
+                    }
+                }
+            }
+        },
+
+        "DRV5055": {
+            "type": "DRV5055",
+            "displayName": "DRV5055 Analog Hall Effect Sensor",
+            "description": "High accuracy 3.3 V or 5 V ratio-metric bipolar hall effect sensor",
+            "longDescription": "The [__DRV5055__](http://www.ti.com/product/DRV5055) device is a high accuracy 3.3 V or 5 V ratio-metric bipolar hall effect sensor that responds proportionally to magnetic flux density. The device can be used for accurate position sensing in a  wide range of applications.",
+            "subComponents": {
+                "OUTPUT": {
+                    "definition": "/ti/boards/components/analogInput.json",
+                    "displayName": "DRV5055 Analog Output",
+                    "description": "DRV5055 analog output",
+                    "longDescription": "DRV5055 analog output",
+                    "connections" : { "INPUT": 2 }
+                },
+
+                "POWER": {
+                    "type": "SENSOR_POWER",
+                    "displayName": "DRV5055 Power",
+                    "description": "DRV5055 power enable pin",
+                    "longDescription": "DRV5055 power enable pin",
+                    "signals": {
+                        "POWER": {
+                            "type": "DOUT",
+                            "settings": {
+                                "mode": "Output",
+                                "initialOutputState": "Low",
+                                "outputStrength": "High"
+                            },
+                            "connection": 24
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

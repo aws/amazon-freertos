@@ -1,0 +1,663 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  This file conforms to the DTD xdc/bld/build.dtd -->
+<package name="ti.drivers" version="1, 0, 0" producerId="undefined">
+    <units>
+    </units>
+    <sources>
+        <srcFile name="package/package_ti.drivers.c"/>
+        <srcFile name="ADC.c"/>
+        <srcFile name="I2C.c"/>
+        <srcFile name="NVS.c"/>
+        <srcFile name="./nvs/NVSRAM.c"/>
+        <srcFile name="./nvs/NVSSPI25X.c"/>
+        <srcFile name="PWM.c"/>
+        <srcFile name="SD.c"/>
+        <srcFile name="./sd/SDSPI.c"/>
+        <srcFile name="SDFatFS.c"/>
+        <srcFile name="SPI.c"/>
+        <srcFile name="Timer.c"/>
+        <srcFile name="UART.c"/>
+        <srcFile name="UART2.c"/>
+        <srcFile name="Watchdog.c"/>
+        <srcFile name="./utils/List.c"/>
+        <srcFile name="./utils/RingBuf.c"/>
+        <srcFile name="./utils/Random.c"/>
+        <srcFile name="./utils/StructRingBuf.c"/>
+        <srcFile name="./apps/LED.c"/>
+        <srcFile name="./apps/Button.c"/>
+        <srcFile name="./adc/ADCCC32XX.c"/>
+        <srcFile name="Camera.c"/>
+        <srcFile name="./camera/CameraCC32XXDMA.c"/>
+        <srcFile name="Capture.c"/>
+        <srcFile name="./capture/CaptureCC32XX.c"/>
+        <srcFile name="./crypto/CryptoCC32XX.c"/>
+        <srcFile name="./cryptoutils/utils/CryptoUtils.c"/>
+        <srcFile name="./dma/UDMACC32XX.c"/>
+        <srcFile name="./gpio/GPIOCC32XX.c"/>
+        <srcFile name="./i2c/I2CCC32XX.c"/>
+        <srcFile name="I2S.c"/>
+        <srcFile name="./i2s/I2SCC32XX.c"/>
+        <srcFile name="ITM.c"/>
+        <srcFile name="./itm/ITMCC32XX.c"/>
+        <srcFile name="./power/PowerCC32XX.c"/>
+        <srcFile name="./power/PowerCC32XX_asm.sm4"/>
+        <srcFile name="./pwm/PWMTimerCC32XX.c"/>
+        <srcFile name="./sd/SDHostCC32XX.c"/>
+        <srcFile name="./spi/SPICC32XXDMA.c"/>
+        <srcFile name="./timer/TimerCC32XX.c"/>
+        <srcFile name="./uart2/UART2CC32XX.c"/>
+        <srcFile name="./uart/UARTCC32XX.c"/>
+        <srcFile name="./uart/UARTCC32XXDMA.c"/>
+        <srcFile name="./watchdog/WatchdogCC32XX.c"/>
+        <srcFile name="./power/PowerCC32XX_asm.sem4"/>
+        <srcFile name="./power/PowerCC32XX_asm.sm4g"/>
+        <srcFile name="./power/PowerCC32XX_asm.asm"/>
+    </sources>
+    <configscripts>
+    </configscripts>
+    <makefiles>
+        <srcFile name="package.mak" src="package.bld"/>
+        <srcFile name="package/package.xdc.dep" src="package.xdc"/>
+        <srcFile name="package/package.cfg.dep" src="package.xdc"/>
+        <srcFile name="lib/ticlang/m4/drivers_cc32xx.a.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/package/package_ti.drivers.om4.dep" src="package/package_ti.drivers.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/ADC.om4.dep" src="ADC.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/I2C.om4.dep" src="I2C.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/NVS.om4.dep" src="NVS.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./nvs/NVSRAM.om4.dep" src="./nvs/NVSRAM.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./nvs/NVSSPI25X.om4.dep" src="./nvs/NVSSPI25X.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/PWM.om4.dep" src="PWM.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/SD.om4.dep" src="SD.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./sd/SDSPI.om4.dep" src="./sd/SDSPI.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/SDFatFS.om4.dep" src="SDFatFS.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/SPI.om4.dep" src="SPI.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/Timer.om4.dep" src="Timer.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/UART.om4.dep" src="UART.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/UART2.om4.dep" src="UART2.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/Watchdog.om4.dep" src="Watchdog.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./utils/List.om4.dep" src="./utils/List.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./utils/RingBuf.om4.dep" src="./utils/RingBuf.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./utils/Random.om4.dep" src="./utils/Random.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./utils/StructRingBuf.om4.dep" src="./utils/StructRingBuf.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./apps/LED.om4.dep" src="./apps/LED.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./apps/Button.om4.dep" src="./apps/Button.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./adc/ADCCC32XX.om4.dep" src="./adc/ADCCC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/Camera.om4.dep" src="Camera.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./camera/CameraCC32XXDMA.om4.dep" src="./camera/CameraCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/Capture.om4.dep" src="Capture.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./capture/CaptureCC32XX.om4.dep" src="./capture/CaptureCC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./crypto/CryptoCC32XX.om4.dep" src="./crypto/CryptoCC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./cryptoutils/utils/CryptoUtils.om4.dep" src="./cryptoutils/utils/CryptoUtils.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./dma/UDMACC32XX.om4.dep" src="./dma/UDMACC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./gpio/GPIOCC32XX.om4.dep" src="./gpio/GPIOCC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./i2c/I2CCC32XX.om4.dep" src="./i2c/I2CCC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/I2S.om4.dep" src="I2S.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./i2s/I2SCC32XX.om4.dep" src="./i2s/I2SCC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/ITM.om4.dep" src="ITM.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./itm/ITMCC32XX.om4.dep" src="./itm/ITMCC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./power/PowerCC32XX.om4.dep" src="./power/PowerCC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./power/PowerCC32XX_asm.om4.dep" src="./power/PowerCC32XX_asm.sm4"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./pwm/PWMTimerCC32XX.om4.dep" src="./pwm/PWMTimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./sd/SDHostCC32XX.om4.dep" src="./sd/SDHostCC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./spi/SPICC32XXDMA.om4.dep" src="./spi/SPICC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./timer/TimerCC32XX.om4.dep" src="./timer/TimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./uart2/UART2CC32XX.om4.dep" src="./uart2/UART2CC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./uart/UARTCC32XX.om4.dep" src="./uart/UARTCC32XX.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./uart/UARTCC32XXDMA.om4.dep" src="./uart/UARTCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/ticlang/m4/drivers_cc32xx/./watchdog/WatchdogCC32XX.om4.dep" src="./watchdog/WatchdogCC32XX.c"/>
+        <srcFile name="lib/drivers_cc32xx.am4.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/package/package_ti.drivers.om4.dep" src="package/package_ti.drivers.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/ADC.om4.dep" src="ADC.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/I2C.om4.dep" src="I2C.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/NVS.om4.dep" src="NVS.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./nvs/NVSRAM.om4.dep" src="./nvs/NVSRAM.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./nvs/NVSSPI25X.om4.dep" src="./nvs/NVSSPI25X.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/PWM.om4.dep" src="PWM.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/SD.om4.dep" src="SD.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./sd/SDSPI.om4.dep" src="./sd/SDSPI.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/SDFatFS.om4.dep" src="SDFatFS.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/SPI.om4.dep" src="SPI.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Timer.om4.dep" src="Timer.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/UART.om4.dep" src="UART.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/UART2.om4.dep" src="UART2.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Watchdog.om4.dep" src="Watchdog.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/List.om4.dep" src="./utils/List.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/RingBuf.om4.dep" src="./utils/RingBuf.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/Random.om4.dep" src="./utils/Random.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/StructRingBuf.om4.dep" src="./utils/StructRingBuf.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./apps/LED.om4.dep" src="./apps/LED.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./apps/Button.om4.dep" src="./apps/Button.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./adc/ADCCC32XX.om4.dep" src="./adc/ADCCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Camera.om4.dep" src="Camera.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./camera/CameraCC32XXDMA.om4.dep" src="./camera/CameraCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Capture.om4.dep" src="Capture.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./capture/CaptureCC32XX.om4.dep" src="./capture/CaptureCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./crypto/CryptoCC32XX.om4.dep" src="./crypto/CryptoCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./cryptoutils/utils/CryptoUtils.om4.dep" src="./cryptoutils/utils/CryptoUtils.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./dma/UDMACC32XX.om4.dep" src="./dma/UDMACC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./gpio/GPIOCC32XX.om4.dep" src="./gpio/GPIOCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./i2c/I2CCC32XX.om4.dep" src="./i2c/I2CCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/I2S.om4.dep" src="I2S.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./i2s/I2SCC32XX.om4.dep" src="./i2s/I2SCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/ITM.om4.dep" src="ITM.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./itm/ITMCC32XX.om4.dep" src="./itm/ITMCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./power/PowerCC32XX.om4.dep" src="./power/PowerCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./power/PowerCC32XX_asm.om4.dep" src="./power/PowerCC32XX_asm.sm4"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./pwm/PWMTimerCC32XX.om4.dep" src="./pwm/PWMTimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./sd/SDHostCC32XX.om4.dep" src="./sd/SDHostCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./spi/SPICC32XXDMA.om4.dep" src="./spi/SPICC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./timer/TimerCC32XX.om4.dep" src="./timer/TimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./uart2/UART2CC32XX.om4.dep" src="./uart2/UART2CC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./uart/UARTCC32XX.om4.dep" src="./uart/UARTCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./uart/UARTCC32XXDMA.om4.dep" src="./uart/UARTCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./watchdog/WatchdogCC32XX.om4.dep" src="./watchdog/WatchdogCC32XX.c"/>
+        <srcFile name="lib/ccs/m4/drivers_cc32xx.a.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/package/package_ti.drivers.oem4.dep" src="package/package_ti.drivers.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/ADC.oem4.dep" src="ADC.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/I2C.oem4.dep" src="I2C.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/NVS.oem4.dep" src="NVS.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./nvs/NVSRAM.oem4.dep" src="./nvs/NVSRAM.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./nvs/NVSSPI25X.oem4.dep" src="./nvs/NVSSPI25X.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/PWM.oem4.dep" src="PWM.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/SD.oem4.dep" src="SD.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./sd/SDSPI.oem4.dep" src="./sd/SDSPI.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/SDFatFS.oem4.dep" src="SDFatFS.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/SPI.oem4.dep" src="SPI.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/Timer.oem4.dep" src="Timer.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/UART.oem4.dep" src="UART.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/UART2.oem4.dep" src="UART2.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/Watchdog.oem4.dep" src="Watchdog.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./utils/List.oem4.dep" src="./utils/List.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./utils/RingBuf.oem4.dep" src="./utils/RingBuf.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./utils/Random.oem4.dep" src="./utils/Random.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./utils/StructRingBuf.oem4.dep" src="./utils/StructRingBuf.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./apps/LED.oem4.dep" src="./apps/LED.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./apps/Button.oem4.dep" src="./apps/Button.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./adc/ADCCC32XX.oem4.dep" src="./adc/ADCCC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/Camera.oem4.dep" src="Camera.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./camera/CameraCC32XXDMA.oem4.dep" src="./camera/CameraCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/Capture.oem4.dep" src="Capture.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./capture/CaptureCC32XX.oem4.dep" src="./capture/CaptureCC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./crypto/CryptoCC32XX.oem4.dep" src="./crypto/CryptoCC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./cryptoutils/utils/CryptoUtils.oem4.dep" src="./cryptoutils/utils/CryptoUtils.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./dma/UDMACC32XX.oem4.dep" src="./dma/UDMACC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./gpio/GPIOCC32XX.oem4.dep" src="./gpio/GPIOCC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./i2c/I2CCC32XX.oem4.dep" src="./i2c/I2CCC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/I2S.oem4.dep" src="I2S.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./i2s/I2SCC32XX.oem4.dep" src="./i2s/I2SCC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/ITM.oem4.dep" src="ITM.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./itm/ITMCC32XX.oem4.dep" src="./itm/ITMCC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./power/PowerCC32XX.oem4.dep" src="./power/PowerCC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./power/PowerCC32XX_asm.oem4.dep" src="./power/PowerCC32XX_asm.sem4"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./pwm/PWMTimerCC32XX.oem4.dep" src="./pwm/PWMTimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./sd/SDHostCC32XX.oem4.dep" src="./sd/SDHostCC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./spi/SPICC32XXDMA.oem4.dep" src="./spi/SPICC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./timer/TimerCC32XX.oem4.dep" src="./timer/TimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./uart2/UART2CC32XX.oem4.dep" src="./uart2/UART2CC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./uart/UARTCC32XX.oem4.dep" src="./uart/UARTCC32XX.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./uart/UARTCC32XXDMA.oem4.dep" src="./uart/UARTCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/ccs/m4/drivers_cc32xx/./watchdog/WatchdogCC32XX.oem4.dep" src="./watchdog/WatchdogCC32XX.c"/>
+        <srcFile name="lib/drivers_cc32xx.aem4.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/package/package_ti.drivers.oem4.dep" src="package/package_ti.drivers.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/ADC.oem4.dep" src="ADC.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/I2C.oem4.dep" src="I2C.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/NVS.oem4.dep" src="NVS.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./nvs/NVSRAM.oem4.dep" src="./nvs/NVSRAM.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./nvs/NVSSPI25X.oem4.dep" src="./nvs/NVSSPI25X.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/PWM.oem4.dep" src="PWM.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/SD.oem4.dep" src="SD.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./sd/SDSPI.oem4.dep" src="./sd/SDSPI.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/SDFatFS.oem4.dep" src="SDFatFS.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/SPI.oem4.dep" src="SPI.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Timer.oem4.dep" src="Timer.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/UART.oem4.dep" src="UART.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/UART2.oem4.dep" src="UART2.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Watchdog.oem4.dep" src="Watchdog.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/List.oem4.dep" src="./utils/List.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/RingBuf.oem4.dep" src="./utils/RingBuf.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/Random.oem4.dep" src="./utils/Random.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/StructRingBuf.oem4.dep" src="./utils/StructRingBuf.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./apps/LED.oem4.dep" src="./apps/LED.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./apps/Button.oem4.dep" src="./apps/Button.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./adc/ADCCC32XX.oem4.dep" src="./adc/ADCCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Camera.oem4.dep" src="Camera.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./camera/CameraCC32XXDMA.oem4.dep" src="./camera/CameraCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Capture.oem4.dep" src="Capture.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./capture/CaptureCC32XX.oem4.dep" src="./capture/CaptureCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./crypto/CryptoCC32XX.oem4.dep" src="./crypto/CryptoCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./cryptoutils/utils/CryptoUtils.oem4.dep" src="./cryptoutils/utils/CryptoUtils.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./dma/UDMACC32XX.oem4.dep" src="./dma/UDMACC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./gpio/GPIOCC32XX.oem4.dep" src="./gpio/GPIOCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./i2c/I2CCC32XX.oem4.dep" src="./i2c/I2CCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/I2S.oem4.dep" src="I2S.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./i2s/I2SCC32XX.oem4.dep" src="./i2s/I2SCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/ITM.oem4.dep" src="ITM.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./itm/ITMCC32XX.oem4.dep" src="./itm/ITMCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./power/PowerCC32XX.oem4.dep" src="./power/PowerCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./power/PowerCC32XX_asm.oem4.dep" src="./power/PowerCC32XX_asm.sem4"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./pwm/PWMTimerCC32XX.oem4.dep" src="./pwm/PWMTimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./sd/SDHostCC32XX.oem4.dep" src="./sd/SDHostCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./spi/SPICC32XXDMA.oem4.dep" src="./spi/SPICC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./timer/TimerCC32XX.oem4.dep" src="./timer/TimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./uart2/UART2CC32XX.oem4.dep" src="./uart2/UART2CC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./uart/UARTCC32XX.oem4.dep" src="./uart/UARTCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./uart/UARTCC32XXDMA.oem4.dep" src="./uart/UARTCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./watchdog/WatchdogCC32XX.oem4.dep" src="./watchdog/WatchdogCC32XX.c"/>
+        <srcFile name="lib/gcc/m4/drivers_cc32xx.a.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/package/package_ti.drivers.om4g.dep" src="package/package_ti.drivers.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/ADC.om4g.dep" src="ADC.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/I2C.om4g.dep" src="I2C.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/NVS.om4g.dep" src="NVS.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./nvs/NVSRAM.om4g.dep" src="./nvs/NVSRAM.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./nvs/NVSSPI25X.om4g.dep" src="./nvs/NVSSPI25X.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/PWM.om4g.dep" src="PWM.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/SD.om4g.dep" src="SD.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./sd/SDSPI.om4g.dep" src="./sd/SDSPI.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/SDFatFS.om4g.dep" src="SDFatFS.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/SPI.om4g.dep" src="SPI.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/Timer.om4g.dep" src="Timer.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/UART.om4g.dep" src="UART.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/UART2.om4g.dep" src="UART2.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/Watchdog.om4g.dep" src="Watchdog.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./utils/List.om4g.dep" src="./utils/List.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./utils/RingBuf.om4g.dep" src="./utils/RingBuf.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./utils/Random.om4g.dep" src="./utils/Random.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./utils/StructRingBuf.om4g.dep" src="./utils/StructRingBuf.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./apps/LED.om4g.dep" src="./apps/LED.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./apps/Button.om4g.dep" src="./apps/Button.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./adc/ADCCC32XX.om4g.dep" src="./adc/ADCCC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/Camera.om4g.dep" src="Camera.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./camera/CameraCC32XXDMA.om4g.dep" src="./camera/CameraCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/Capture.om4g.dep" src="Capture.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./capture/CaptureCC32XX.om4g.dep" src="./capture/CaptureCC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./crypto/CryptoCC32XX.om4g.dep" src="./crypto/CryptoCC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./cryptoutils/utils/CryptoUtils.om4g.dep" src="./cryptoutils/utils/CryptoUtils.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./dma/UDMACC32XX.om4g.dep" src="./dma/UDMACC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./gpio/GPIOCC32XX.om4g.dep" src="./gpio/GPIOCC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./i2c/I2CCC32XX.om4g.dep" src="./i2c/I2CCC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/I2S.om4g.dep" src="I2S.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./i2s/I2SCC32XX.om4g.dep" src="./i2s/I2SCC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/ITM.om4g.dep" src="ITM.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./itm/ITMCC32XX.om4g.dep" src="./itm/ITMCC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./power/PowerCC32XX.om4g.dep" src="./power/PowerCC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./power/PowerCC32XX_asm.om4g.dep" src="./power/PowerCC32XX_asm.sm4g"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./pwm/PWMTimerCC32XX.om4g.dep" src="./pwm/PWMTimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./sd/SDHostCC32XX.om4g.dep" src="./sd/SDHostCC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./spi/SPICC32XXDMA.om4g.dep" src="./spi/SPICC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./timer/TimerCC32XX.om4g.dep" src="./timer/TimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./uart2/UART2CC32XX.om4g.dep" src="./uart2/UART2CC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./uart/UARTCC32XX.om4g.dep" src="./uart/UARTCC32XX.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./uart/UARTCC32XXDMA.om4g.dep" src="./uart/UARTCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/gcc/m4/drivers_cc32xx/./watchdog/WatchdogCC32XX.om4g.dep" src="./watchdog/WatchdogCC32XX.c"/>
+        <srcFile name="lib/drivers_cc32xx.am4g.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/package/package_ti.drivers.om4g.dep" src="package/package_ti.drivers.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/ADC.om4g.dep" src="ADC.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/I2C.om4g.dep" src="I2C.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/NVS.om4g.dep" src="NVS.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./nvs/NVSRAM.om4g.dep" src="./nvs/NVSRAM.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./nvs/NVSSPI25X.om4g.dep" src="./nvs/NVSSPI25X.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/PWM.om4g.dep" src="PWM.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/SD.om4g.dep" src="SD.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./sd/SDSPI.om4g.dep" src="./sd/SDSPI.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/SDFatFS.om4g.dep" src="SDFatFS.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/SPI.om4g.dep" src="SPI.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Timer.om4g.dep" src="Timer.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/UART.om4g.dep" src="UART.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/UART2.om4g.dep" src="UART2.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Watchdog.om4g.dep" src="Watchdog.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/List.om4g.dep" src="./utils/List.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/RingBuf.om4g.dep" src="./utils/RingBuf.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/Random.om4g.dep" src="./utils/Random.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/StructRingBuf.om4g.dep" src="./utils/StructRingBuf.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./apps/LED.om4g.dep" src="./apps/LED.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./apps/Button.om4g.dep" src="./apps/Button.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./adc/ADCCC32XX.om4g.dep" src="./adc/ADCCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Camera.om4g.dep" src="Camera.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./camera/CameraCC32XXDMA.om4g.dep" src="./camera/CameraCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Capture.om4g.dep" src="Capture.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./capture/CaptureCC32XX.om4g.dep" src="./capture/CaptureCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./crypto/CryptoCC32XX.om4g.dep" src="./crypto/CryptoCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./cryptoutils/utils/CryptoUtils.om4g.dep" src="./cryptoutils/utils/CryptoUtils.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./dma/UDMACC32XX.om4g.dep" src="./dma/UDMACC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./gpio/GPIOCC32XX.om4g.dep" src="./gpio/GPIOCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./i2c/I2CCC32XX.om4g.dep" src="./i2c/I2CCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/I2S.om4g.dep" src="I2S.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./i2s/I2SCC32XX.om4g.dep" src="./i2s/I2SCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/ITM.om4g.dep" src="ITM.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./itm/ITMCC32XX.om4g.dep" src="./itm/ITMCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./power/PowerCC32XX.om4g.dep" src="./power/PowerCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./power/PowerCC32XX_asm.om4g.dep" src="./power/PowerCC32XX_asm.sm4g"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./pwm/PWMTimerCC32XX.om4g.dep" src="./pwm/PWMTimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./sd/SDHostCC32XX.om4g.dep" src="./sd/SDHostCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./spi/SPICC32XXDMA.om4g.dep" src="./spi/SPICC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./timer/TimerCC32XX.om4g.dep" src="./timer/TimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./uart2/UART2CC32XX.om4g.dep" src="./uart2/UART2CC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./uart/UARTCC32XX.om4g.dep" src="./uart/UARTCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./uart/UARTCC32XXDMA.om4g.dep" src="./uart/UARTCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./watchdog/WatchdogCC32XX.om4g.dep" src="./watchdog/WatchdogCC32XX.c"/>
+        <srcFile name="lib/iar/m4/drivers_cc32xx.a.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/package/package_ti.drivers.orm4.dep" src="package/package_ti.drivers.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/ADC.orm4.dep" src="ADC.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/I2C.orm4.dep" src="I2C.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/NVS.orm4.dep" src="NVS.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./nvs/NVSRAM.orm4.dep" src="./nvs/NVSRAM.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./nvs/NVSSPI25X.orm4.dep" src="./nvs/NVSSPI25X.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/PWM.orm4.dep" src="PWM.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/SD.orm4.dep" src="SD.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./sd/SDSPI.orm4.dep" src="./sd/SDSPI.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/SDFatFS.orm4.dep" src="SDFatFS.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/SPI.orm4.dep" src="SPI.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/Timer.orm4.dep" src="Timer.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/UART.orm4.dep" src="UART.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/UART2.orm4.dep" src="UART2.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/Watchdog.orm4.dep" src="Watchdog.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./utils/List.orm4.dep" src="./utils/List.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./utils/RingBuf.orm4.dep" src="./utils/RingBuf.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./utils/Random.orm4.dep" src="./utils/Random.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./utils/StructRingBuf.orm4.dep" src="./utils/StructRingBuf.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./apps/LED.orm4.dep" src="./apps/LED.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./apps/Button.orm4.dep" src="./apps/Button.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./adc/ADCCC32XX.orm4.dep" src="./adc/ADCCC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/Camera.orm4.dep" src="Camera.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./camera/CameraCC32XXDMA.orm4.dep" src="./camera/CameraCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/Capture.orm4.dep" src="Capture.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./capture/CaptureCC32XX.orm4.dep" src="./capture/CaptureCC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./crypto/CryptoCC32XX.orm4.dep" src="./crypto/CryptoCC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./cryptoutils/utils/CryptoUtils.orm4.dep" src="./cryptoutils/utils/CryptoUtils.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./dma/UDMACC32XX.orm4.dep" src="./dma/UDMACC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./gpio/GPIOCC32XX.orm4.dep" src="./gpio/GPIOCC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./i2c/I2CCC32XX.orm4.dep" src="./i2c/I2CCC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/I2S.orm4.dep" src="I2S.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./i2s/I2SCC32XX.orm4.dep" src="./i2s/I2SCC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/ITM.orm4.dep" src="ITM.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./itm/ITMCC32XX.orm4.dep" src="./itm/ITMCC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./power/PowerCC32XX.orm4.dep" src="./power/PowerCC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./power/PowerCC32XX_asm.orm4.dep" src="./power/PowerCC32XX_asm.asm"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./pwm/PWMTimerCC32XX.orm4.dep" src="./pwm/PWMTimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./sd/SDHostCC32XX.orm4.dep" src="./sd/SDHostCC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./spi/SPICC32XXDMA.orm4.dep" src="./spi/SPICC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./timer/TimerCC32XX.orm4.dep" src="./timer/TimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./uart2/UART2CC32XX.orm4.dep" src="./uart2/UART2CC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./uart/UARTCC32XX.orm4.dep" src="./uart/UARTCC32XX.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./uart/UARTCC32XXDMA.orm4.dep" src="./uart/UARTCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/iar/m4/drivers_cc32xx/./watchdog/WatchdogCC32XX.orm4.dep" src="./watchdog/WatchdogCC32XX.c"/>
+        <srcFile name="lib/drivers_cc32xx.arm4.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/package/package_ti.drivers.orm4.dep" src="package/package_ti.drivers.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/ADC.orm4.dep" src="ADC.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/I2C.orm4.dep" src="I2C.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/NVS.orm4.dep" src="NVS.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./nvs/NVSRAM.orm4.dep" src="./nvs/NVSRAM.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./nvs/NVSSPI25X.orm4.dep" src="./nvs/NVSSPI25X.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/PWM.orm4.dep" src="PWM.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/SD.orm4.dep" src="SD.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./sd/SDSPI.orm4.dep" src="./sd/SDSPI.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/SDFatFS.orm4.dep" src="SDFatFS.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/SPI.orm4.dep" src="SPI.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Timer.orm4.dep" src="Timer.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/UART.orm4.dep" src="UART.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/UART2.orm4.dep" src="UART2.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Watchdog.orm4.dep" src="Watchdog.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/List.orm4.dep" src="./utils/List.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/RingBuf.orm4.dep" src="./utils/RingBuf.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/Random.orm4.dep" src="./utils/Random.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./utils/StructRingBuf.orm4.dep" src="./utils/StructRingBuf.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./apps/LED.orm4.dep" src="./apps/LED.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./apps/Button.orm4.dep" src="./apps/Button.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./adc/ADCCC32XX.orm4.dep" src="./adc/ADCCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Camera.orm4.dep" src="Camera.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./camera/CameraCC32XXDMA.orm4.dep" src="./camera/CameraCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/Capture.orm4.dep" src="Capture.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./capture/CaptureCC32XX.orm4.dep" src="./capture/CaptureCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./crypto/CryptoCC32XX.orm4.dep" src="./crypto/CryptoCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./cryptoutils/utils/CryptoUtils.orm4.dep" src="./cryptoutils/utils/CryptoUtils.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./dma/UDMACC32XX.orm4.dep" src="./dma/UDMACC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./gpio/GPIOCC32XX.orm4.dep" src="./gpio/GPIOCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./i2c/I2CCC32XX.orm4.dep" src="./i2c/I2CCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/I2S.orm4.dep" src="I2S.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./i2s/I2SCC32XX.orm4.dep" src="./i2s/I2SCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/ITM.orm4.dep" src="ITM.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./itm/ITMCC32XX.orm4.dep" src="./itm/ITMCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./power/PowerCC32XX.orm4.dep" src="./power/PowerCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./power/PowerCC32XX_asm.orm4.dep" src="./power/PowerCC32XX_asm.asm"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./pwm/PWMTimerCC32XX.orm4.dep" src="./pwm/PWMTimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./sd/SDHostCC32XX.orm4.dep" src="./sd/SDHostCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./spi/SPICC32XXDMA.orm4.dep" src="./spi/SPICC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./timer/TimerCC32XX.orm4.dep" src="./timer/TimerCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./uart2/UART2CC32XX.orm4.dep" src="./uart2/UART2CC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./uart/UARTCC32XX.orm4.dep" src="./uart/UARTCC32XX.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./uart/UARTCC32XXDMA.orm4.dep" src="./uart/UARTCC32XXDMA.c"/>
+        <srcFile name="package/lib/lib/drivers_cc32xx/./watchdog/WatchdogCC32XX.orm4.dep" src="./watchdog/WatchdogCC32XX.c"/>
+        <srcFile name="package/rel/ti_drivers.tar.dep" src="package/rel/ti_drivers.xdc.inc"/>
+    </makefiles>
+    <targets>
+        <target name="ti.targets.arm.clang.M4"
+            version="ti.targets.arm.clang.M4{1,0,1.0,0"
+            rawVersion="TI Arm Clang Compiler 1.0.0+STSTarget: arm-ti-none-eabi
+Thread model: posix
+InstalledDir: /opt/ti/cgtools-dragon/latest/bin
+"
+            platform="ti.platforms.tiva:TM4C1294NCPDT:1"
+            isa="v7M4"
+            suffix="m4"
+            rootDir="/opt/ti/cgtools-dragon/latest"
+            os="undefined"
+            rts="ti.targets.arm.rtsarm">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+        <target name="ti.targets.arm.elf.M4"
+            version="ti.targets.arm.elf.M4{1,0,20.2,1"
+            rawVersion="20.2.1"
+            platform="ti.platforms.tiva:TM4C1294NCPDT:1"
+            isa="v7M4"
+            suffix="em4"
+            rootDir="/opt/ti/ccs-latest/ccs/tools/compiler/ti-cgt-arm_20.2.1.LTS"
+            os="undefined"
+            rts="ti.targets.arm.rtsarm">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+        <target name="gnu.targets.arm.M4"
+            version="gnu.targets.arm.M4{1,0,9.2,1"
+            rawVersion="9.2.1"
+            platform="ti.platforms.tiva:TM4C1294NCPDT"
+            isa="v7M4"
+            suffix="m4g"
+            rootDir="/opt/ti/ccs-latest/ccs/tools/compiler/gcc-arm-none-eabi-9-2019-q4-major"
+            os="undefined"
+            rts="gnu.targets.arm.rtsv7M">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+        <target name="iar.targets.arm.M4"
+            version="iar.targets.arm.M4{1,0,8.50,1"
+            rawVersion="8.50.1.245"
+            platform="ti.platforms.tiva:TM4C1294NCPDT:1"
+            isa="v7M4"
+            suffix="rm4"
+            rootDir="/opt/iar/arm/latest"
+            os="undefined"
+            rts="iar.targets.arm.rts">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+    </targets>
+    <libraries>
+    <library name="lib/ticlang/m4/drivers_cc32xx"
+        pname="lib/ticlang/m4/drivers_cc32xx.a"
+        profile="release"
+        target="ti.targets.arm.clang.M4"/>
+    <library name="lib/drivers_cc32xx"
+        pname="lib/drivers_cc32xx.am4"
+        profile="release"
+        target="ti.targets.arm.clang.M4"/>
+    <library name="lib/ccs/m4/drivers_cc32xx"
+        pname="lib/ccs/m4/drivers_cc32xx.a"
+        profile="release"
+        target="ti.targets.arm.elf.M4"/>
+    <library name="lib/drivers_cc32xx"
+        pname="lib/drivers_cc32xx.aem4"
+        profile="release"
+        target="ti.targets.arm.elf.M4"/>
+    <library name="lib/gcc/m4/drivers_cc32xx"
+        pname="lib/gcc/m4/drivers_cc32xx.a"
+        profile="release"
+        target="gnu.targets.arm.M4"/>
+    <library name="lib/drivers_cc32xx"
+        pname="lib/drivers_cc32xx.am4g"
+        profile="release"
+        target="gnu.targets.arm.M4"/>
+    <library name="lib/iar/m4/drivers_cc32xx"
+        pname="lib/iar/m4/drivers_cc32xx.a"
+        profile="release"
+        target="iar.targets.arm.M4"/>
+    <library name="lib/drivers_cc32xx"
+        pname="lib/drivers_cc32xx.arm4"
+        profile="release"
+        target="iar.targets.arm.M4"/>
+    </libraries>
+    <configurations>
+    </configurations>
+    <executables>
+    </executables>
+    <tests>
+    </tests>
+    <releases relDir="package/rel/">
+    <release name="ti_drivers"
+        pname="ti_drivers.tar"
+        label="default"
+    >
+        <file name="package/package.bld.xml"/>
+        <file name="package/build.cfg"/>
+        <file name="package/package.xdc.inc"/>
+        <file name="libBuilder.xs"/>
+        <file name="package.bld"/>
+        <file name="xdcArgParser.xs"/>
+        <file name="sources_msp432e4.xs"/>
+        <file name="sources_cc32xx.xs"/>
+        <file name="sources_cc26xx.xs"/>
+        <file name="sources_common.xs"/>
+        <file name="ADC.h"/>
+        <file name="Board.h"/>
+        <file name="GPIO.h"/>
+        <file name="I2C.h"/>
+        <file name="./i2c/I2CSupport.h"/>
+        <file name="itm/hw_cpu_dwt.h"/>
+        <file name="itm/hw_cpu_scs.h"/>
+        <file name="itm/hw_cpu_tpiu.h"/>
+        <file name="itm/hw_cpu_itm.h"/>
+        <file name="NVS.h"/>
+        <file name="./nvs/NVSRAM.h"/>
+        <file name="./nvs/NVSSPI25X.h"/>
+        <file name="Power.h"/>
+        <file name="PWM.h"/>
+        <file name="SD.h"/>
+        <file name="./sd/SDSPI.h"/>
+        <file name="SDFatFS.h"/>
+        <file name="SPI.h"/>
+        <file name="Timer.h"/>
+        <file name="UART.h"/>
+        <file name="UART2.h"/>
+        <file name="./uart2/UART2Support.h"/>
+        <file name="Watchdog.h"/>
+        <file name="./dpl/ClockP.h"/>
+        <file name="./dpl/DebugP.h"/>
+        <file name="./dpl/HwiP.h"/>
+        <file name="./dpl/MutexP.h"/>
+        <file name="./dpl/SemaphoreP.h"/>
+        <file name="./dpl/SwiP.h"/>
+        <file name="./dpl/SystemP.h"/>
+        <file name="./utils/List.h"/>
+        <file name="./utils/RingBuf.h"/>
+        <file name="./utils/Random.h"/>
+        <file name="./utils/StructRingBuf.h"/>
+        <file name="./apps/LED.h"/>
+        <file name="./apps/Button.h"/>
+        <file name="./adc/ADCCC32XX.h"/>
+        <file name="Camera.h"/>
+        <file name="./camera/CameraCC32XXDMA.h"/>
+        <file name="Capture.h"/>
+        <file name="./capture/CaptureCC32XX.h"/>
+        <file name="./crypto/CryptoCC32XX.h"/>
+        <file name="./cryptoutils/utils/CryptoUtils.h"/>
+        <file name="./dma/UDMACC32XX.h"/>
+        <file name="./gpio/GPIOCC32XX.h"/>
+        <file name="./i2c/I2CCC32XX.h"/>
+        <file name="I2S.h"/>
+        <file name="./i2s/I2SCC32XX.h"/>
+        <file name="ITM.h"/>
+        <file name="./power/PowerCC32XX.h"/>
+        <file name="./pwm/PWMTimerCC32XX.h"/>
+        <file name="./sd/SDHostCC32XX.h"/>
+        <file name="./spi/SPICC32XXDMA.h"/>
+        <file name="./timer/TimerCC32XX.h"/>
+        <file name="./uart2/UART2CC32XX.h"/>
+        <file name="./uart/UARTCC32XX.h"/>
+        <file name="./uart/UARTCC32XXDMA.h"/>
+        <file name="./watchdog/WatchdogCC32XX.h"/>
+        <file name="package/package.cfg.xdc.inc"/>
+        <file name="lib/ticlang/m4/drivers_cc32xx.a"/>
+        <file name="package/package_ti.drivers.c"/>
+        <file name="ADC.c"/>
+        <file name="I2C.c"/>
+        <file name="NVS.c"/>
+        <file name="./nvs/NVSRAM.c"/>
+        <file name="./nvs/NVSSPI25X.c"/>
+        <file name="PWM.c"/>
+        <file name="SD.c"/>
+        <file name="./sd/SDSPI.c"/>
+        <file name="SDFatFS.c"/>
+        <file name="SPI.c"/>
+        <file name="Timer.c"/>
+        <file name="UART.c"/>
+        <file name="UART2.c"/>
+        <file name="Watchdog.c"/>
+        <file name="./utils/List.c"/>
+        <file name="./utils/RingBuf.c"/>
+        <file name="./utils/Random.c"/>
+        <file name="./utils/StructRingBuf.c"/>
+        <file name="./apps/LED.c"/>
+        <file name="./apps/Button.c"/>
+        <file name="./adc/ADCCC32XX.c"/>
+        <file name="Camera.c"/>
+        <file name="./camera/CameraCC32XXDMA.c"/>
+        <file name="Capture.c"/>
+        <file name="./capture/CaptureCC32XX.c"/>
+        <file name="./crypto/CryptoCC32XX.c"/>
+        <file name="./cryptoutils/utils/CryptoUtils.c"/>
+        <file name="./dma/UDMACC32XX.c"/>
+        <file name="./gpio/GPIOCC32XX.c"/>
+        <file name="./i2c/I2CCC32XX.c"/>
+        <file name="I2S.c"/>
+        <file name="./i2s/I2SCC32XX.c"/>
+        <file name="ITM.c"/>
+        <file name="./itm/ITMCC32XX.c"/>
+        <file name="./power/PowerCC32XX.c"/>
+        <file name="./power/PowerCC32XX_asm.sm4"/>
+        <file name="./pwm/PWMTimerCC32XX.c"/>
+        <file name="./sd/SDHostCC32XX.c"/>
+        <file name="./spi/SPICC32XXDMA.c"/>
+        <file name="./timer/TimerCC32XX.c"/>
+        <file name="./uart2/UART2CC32XX.c"/>
+        <file name="./uart/UARTCC32XX.c"/>
+        <file name="./uart/UARTCC32XXDMA.c"/>
+        <file name="./watchdog/WatchdogCC32XX.c"/>
+        <file name="lib/drivers_cc32xx.am4"/>
+        <file name="lib/ccs/m4/drivers_cc32xx.a"/>
+        <file name="./power/PowerCC32XX_asm.sem4"/>
+        <file name="lib/drivers_cc32xx.aem4"/>
+        <file name="lib/gcc/m4/drivers_cc32xx.a"/>
+        <file name="./power/PowerCC32XX_asm.sm4g"/>
+        <file name="lib/drivers_cc32xx.am4g"/>
+        <file name="lib/iar/m4/drivers_cc32xx.a"/>
+        <file name="./power/PowerCC32XX_asm.asm"/>
+        <file name="lib/drivers_cc32xx.arm4"/>
+    </release>
+    </releases>
+    <repositories>
+    </repositories>
+</package>

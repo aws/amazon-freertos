@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  This file conforms to the DTD xdc/bld/build.dtd -->
+<package name="ti.posix" version="1, 0, 0" producerId="undefined">
+    <units>
+        <module name="Util"/>
+    </units>
+    <sources>
+    </sources>
+    <configscripts>
+    </configscripts>
+    <makefiles>
+        <srcFile name="package.mak" src="package.bld"/>
+        <srcFile name="package/package.xdc.dep" src="package.xdc"/>
+        <srcFile name="package/package.cfg.dep" src="package.xdc"/>
+        <srcFile name="package/rel/ti_posix.zip.dep" src="package/rel/ti_posix.xdc.inc"/>
+    </makefiles>
+    <targets>
+    </targets>
+    <libraries>
+    </libraries>
+    <configurations>
+    </configurations>
+    <executables>
+    </executables>
+    <tests>
+    </tests>
+    <releases relDir="package/rel/">
+    <release name="ti_posix"
+        pname="../..//../exports/ti_posix.zip"
+        label="default"
+    >
+        <file name="package/package.bld.xml"/>
+        <file name="package/build.cfg"/>
+        <file name="package/package.xdc.inc"/>
+        <file name="ccs/errno.h"/>
+        <file name="ccs/mqueue.h"/>
+        <file name="ccs/pthread.h"/>
+        <file name="ccs/sched.h"/>
+        <file name="ccs/semaphore.h"/>
+        <file name="ccs/signal.h"/>
+        <file name="ccs/time.h"/>
+        <file name="ccs/unistd.h"/>
+        <file name="ccs/sys/_internal.h"/>
+        <file name="ccs/sys/time.h"/>
+        <file name="ccs/sys/types.h"/>
+        <file name="ticlang/errno.h"/>
+        <file name="ticlang/mqueue.h"/>
+        <file name="ticlang/pthread.h"/>
+        <file name="ticlang/sched.h"/>
+        <file name="ticlang/semaphore.h"/>
+        <file name="ticlang/signal.h"/>
+        <file name="ticlang/time.h"/>
+        <file name="ticlang/unistd.h"/>
+        <file name="ticlang/sys/_internal.h"/>
+        <file name="ticlang/sys/time.h"/>
+        <file name="ticlang/sys/types.h"/>
+        <file name="gcc/errno.h"/>
+        <file name="gcc/mqueue.h"/>
+        <file name="gcc/pthread.h"/>
+        <file name="gcc/sched.h"/>
+        <file name="gcc/semaphore.h"/>
+        <file name="gcc/signal.h"/>
+        <file name="gcc/time.h"/>
+        <file name="gcc/unistd.h"/>
+        <file name="gcc/sys/_internal.h"/>
+        <file name="gcc/sys/types.h"/>
+        <file name="iar/errno.h"/>
+        <file name="iar/mqueue.h"/>
+        <file name="iar/pthread.h"/>
+        <file name="iar/sched.h"/>
+        <file name="iar/semaphore.h"/>
+        <file name="iar/signal.h"/>
+        <file name="iar/time.h"/>
+        <file name="iar/unistd.h"/>
+        <file name="iar/sys/_internal.h"/>
+        <file name="iar/sys/time.h"/>
+        <file name="iar/sys/types.h"/>
+        <file name="docs/tiposix/Users_Guide.html"/>
+        <file name="package.bld"/>
+        <file name="package/package.cfg.xdc.inc"/>
+    </release>
+    </releases>
+    <repositories>
+    </repositories>
+</package>

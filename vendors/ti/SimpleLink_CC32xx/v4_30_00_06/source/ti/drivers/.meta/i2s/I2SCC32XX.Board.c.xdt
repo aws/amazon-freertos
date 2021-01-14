@@ -1,0 +1,166 @@
+%%{
+/*
+ * Copyright (c) 2019-2020 Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== I2SCC32XX.Board.c.xdt ========
+ */
+
+     /* passed by /ti/drivers/templates/Board.c.xdt */
+    let I2S = args[0];
+    let instances = I2S.$instances;
+    if (instances.length == 0) return;
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    let declarations = Common.genBoardDeclarations(instances);
+    let convertPinName = Common.cc32xxPackage2DevicePin;
+
+    /* CONFIG_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = I2S.defaultInstanceName + "COUNT";
+%%}
+/*
+ *  =============================== I2S ===============================
+ */
+#include <ti/drivers/I2S.h>
+#include <ti/drivers/i2s/I2SCC32XX.h>
+
+#include <ti/devices/cc32xx/inc/hw_types.h>
+#include <ti/devices/cc32xx/inc/hw_ints.h>
+#include <ti/devices/cc32xx/inc/hw_memmap.h>
+#include <ti/devices/cc32xx/driverlib/udma.h>
+
+#define `countDef` `instances.length`
+
+/*
+ *  ======== i2sCC32XXObjects ========
+ */
+I2SCC32XX_Object i2sCC32XXObjects[`countDef`];
+
+/*
+ *  ======== i2sCC32XXHWAttrs ========
+ */
+const I2SCC32XX_HWAttrs i2sCC32XXHWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let i2s = inst.i2s;
+    %
+    % /* aclkPin cannot be unactivated */
+    % let aclkPin = convertPinName(i2s.SCKPin.$solution.packagePinName);
+    % aclkPin = "I2SCC32XX_PIN_" + aclkPin + "_SCK";
+    %
+    % /* aclkxPin might be unactivated */
+    % let aclkxPin = "I2SCC32XX_PIN_UNUSED";
+    % let aclkxPinActivated = (inst.enableSCKX == true)? true : false;
+    % if(aclkxPinActivated) {
+    %     aclkxPin = convertPinName(i2s.SCKXPin.$solution.packagePinName);
+    %     aclkxPin = "I2SCC32XX_PIN_" +  aclkxPin + "_SCKX";
+    % }
+    %
+    % /* afsxPin cannot be unactivated */
+    % let afsxPin = convertPinName(i2s.WSPin.$solution.packagePinName);
+    % afsxPin = "I2SCC32XX_PIN_" + afsxPin + "_WS";
+    %
+    % /* axr0Pin might be unactivated */
+    % let axr0Pin = "I2SCC32XX_PIN_UNUSED";
+    % let axr0PinActivated = (inst.sd0DataDirection != "Disabled")? true : false;
+    % if(axr0PinActivated) {
+    %     axr0Pin = convertPinName(i2s.SD0Pin.$solution.packagePinName);
+    %     axr0Pin = "I2SCC32XX_PIN_" +  axr0Pin + "_SD0";
+    % }
+    %
+    % /* axr1Pin might be unactivated */
+    % let axr1Pin = "I2SCC32XX_PIN_UNUSED";
+    % let axr1PinActivated = (inst.sd1DataDirection != "Disabled")? true : false;
+    % if(axr1PinActivated) {
+    %     axr1Pin = convertPinName(i2s.SD1Pin.$solution.packagePinName);
+    %     axr1Pin = "I2SCC32XX_PIN_" +  axr1Pin + "_SD1";
+    % }
+    %
+    % /* The Read DMA channel might be unactivated */
+    % let rdmach = "0xFF /* This DMA channel will not be activated */";
+    % let rdmachActivated = (((inst.sd0DataDirection == "Input") || (inst.sd1DataDirection == "Input")) && (inst.enableDMA))? true : false;
+    % if(rdmachActivated){
+    %     rdmach = i2s.dmaRxChannel.$solution.devicePinName.substring(7); /* UDMA_CHXX */
+    %     rdmach = "UDMA_CH" + rdmach + "_I2S_RX";
+    % }
+    %
+    % /* The Write DMA channel might be unactivated */
+    % let tdmach = "0xFF /* This DMA channel will not be activated */";
+    % let tdmachActivated = (((inst.sd0DataDirection == "Output") || (inst.sd1DataDirection == "Output")) && (inst.enableDMA))? true : false;
+    % if(tdmachActivated){
+    %     tdmach = i2s.dmaTxChannel.$solution.devicePinName.substring(7); /* UDMA_CHXX */
+    %     tdmach = "UDMA_CH" + tdmach + "_I2S_TX";
+    % }
+    %
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .pinSD1           =  `axr1Pin`,
+        .pinSD0           =  `axr0Pin`,
+        .pinSCK           =  `aclkPin`,
+        .pinSCKX          =  `aclkxPin`,
+        .pinWS            =  `afsxPin`,
+        .rxChannelIndex   =  `rdmach`,
+        .txChannelIndex   =  `tdmach`,
+        .intPriority      =  `Common.intPriority2Hex(inst.interruptPriority)`
+    },
+% }
+};
+
+/*
+ *  ======== I2S_config ========
+ */
+const I2S_Config I2S_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .object = &i2sCC32XXObjects[`inst.$name`],
+        .hwAttrs = &i2sCC32XXHWAttrs[`inst.$name`]
+    },
+% }
+};
+
+`declarations`
+const uint_least8_t I2S_count = `countDef`;

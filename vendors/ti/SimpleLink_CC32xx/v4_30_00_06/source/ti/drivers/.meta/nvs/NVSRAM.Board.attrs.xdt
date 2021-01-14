@@ -1,0 +1,132 @@
+%%{
+/*
+ * Copyright (c) 2018 Texas Instruments Incorporated - http://www.ti.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ *  ======== NVSRAM.Board.attrs.xdt ========
+ */
+
+    /* passed by /ti/drivers/templates/Board.c.xdt */
+    let NVS = args[0];
+    let instances = NVS.$instances;
+
+    /* collect RAM instances */
+    let localInstances = [];
+    for (let i = 0; i < instances.length; i++) {
+        if (instances[i].nvsType == "RAM") {
+            localInstances[localInstances.length] = instances[i];
+        }
+    }
+
+    if (localInstances.length == 0) return;
+%%}
+
+#include <ti/drivers/nvs/NVSRAM.h>
+
+/*
+ *  NVSRAM Internal RAM region definitions
+ */
+
+/*
+ * Place 'ramBuf' char arrays at addresses
+ * corresponding to the 'regionBase' addresses defined in
+ * the configured NVS regions. These arrays are used as
+ * place holders so that the linker will not place other
+ * content there.
+ *
+ * For GCC targets with explicitly placed regions,
+ * the 'ramBuf' arrays are each placed into
+ * the shared ".nvs" section. The user must add content to
+ * their GCC linker command file to place the .nvs section
+ * at the lowest 'regionbase' address specified in their NVS
+ * regions.
+ */
+#if defined(__TI_COMPILER_VERSION__)
+
+% for (let i = 0; i < localInstances.length; i++) {
+%     let inst = localInstances[i];
+%     if (inst.internalRAM.regionBase == 0) {
+#pragma DATA_ALIGN(ramBuf`i`, 0x`inst.internalRAM.sectorSize.toString(16)`)
+%     }
+%     else {
+#pragma LOCATION(ramBuf`i`, 0x`inst.internalRAM.regionBase.toString(16)`)
+%     }
+static char ramBuf`i`[0x`inst.internalRAM.regionSize.toString(16)`];
+
+% }
+#elif defined(__IAR_SYSTEMS_ICC__)
+
+% for (let i = 0; i < localInstances.length; i++) {
+%     let inst = localInstances[i];
+%     if (inst.internalRAM.regionBase == 0) {
+#pragma data_alignment=0x`inst.internalRAM.sectorSize.toString(16)`
+static char ramBuf`i`[0x`inst.internalRAM.regionSize.toString(16)`];
+%     }
+%     else {
+static char ramBuf`i`[0x`inst.internalRAM.regionSize.toString(16)`] @ 0x`inst.internalRAM.regionBase.toString(16)`;
+%     }
+% }
+
+#elif defined(__GNUC__)
+
+/*
+ * placement of these buffers per the .regionBase settings
+ * requires corresponding linker command file content.
+ */
+% for (let i = 0; i < localInstances.length; i++) {
+%     let inst = localInstances[i];
+%     if (inst.internalRAM.regionBase == 0) {
+__attribute__ ((aligned (0x`inst.internalRAM.sectorSize.toString(16)`)))
+static char ramBuf`i`[0x`inst.internalRAM.regionSize.toString(16)`];
+%     }
+%     else {
+/* place at 0x`inst.internalRAM.regionBase.toString(16)` */
+__attribute__ ((section (".nvs")))
+static char ramBuf`i`[0x`inst.internalRAM.regionSize.toString(16)`];
+%     }
+% }
+#endif
+
+NVSRAM_Object nvsRAMObjects[`localInstances.length`];
+
+static const NVSRAM_HWAttrs nvsRAMHWAttrs[`localInstances.length`] = {
+% for (let i = 0; i < localInstances.length; i++) {
+    % let inst = localInstances[i];
+    /* `inst.$name` */
+    {
+        .regionBase = ramBuf`i`,
+        .regionSize = 0x`inst.internalRAM.regionSize.toString(16)`,
+        .sectorSize = 0x`inst.internalRAM.sectorSize.toString(16)`
+    },
+% }
+};

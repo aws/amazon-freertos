@@ -1,0 +1,6 @@
+%%{
+    /* global global __coverage__ */
+%%}
+%if (global.__coverage__) {
+`JSON.stringify(__coverage__, null, 2)`
+%}
