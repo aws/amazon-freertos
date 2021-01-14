@@ -259,12 +259,21 @@ target_include_directories(
         "${esp_idf_dir}/components/lwip/include"
 )
 
+set(secure_sockets_libraries
+    AFR::tls
+    AFR::wifi
+)
+
+if (NOT AFR_METADATA_MODE)
+    list(APPEND secure_sockets_libraries
+        idf::newlib
+    )
+endif()
+
 target_link_libraries(
     AFR::secure_sockets::mcu_port
     INTERFACE
-        AFR::tls
-        AFR::wifi
-        idf::newlib
+        ${secure_sockets_libraries}
 )
 
 endif()
