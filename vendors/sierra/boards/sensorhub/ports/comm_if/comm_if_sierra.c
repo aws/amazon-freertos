@@ -39,7 +39,7 @@
 #include "driver/uart.h"
 #include "driver/gpio.h"
 
-#define COMM_IF_DEBUG 1
+#define COMM_IF_DEBUG 0
 
 #if COMM_IF_DEBUG
 
@@ -48,8 +48,7 @@
 #define ESP_LOGE(tag, format, ...)      ESP_LOG_LEVEL_LOCAL(ESP_LOG_ERROR, tag, format, ##__VA_ARGS__)
 #define COMM_IF_LOGE(tag, format, ...)  ESP_LOGE(tag, format, ##__VA_ARGS__)
 #define COMM_IF_LOGW(tag, format, ...)  ESP_LOGW(tag, format, ##__VA_ARGS__)
-// #define COMM_IF_LOGI(tag, format, ...)  ESP_LOGI(tag, format, ##__VA_ARGS__)
-#define COMM_IF_LOGI(tag, format, ...)
+#define COMM_IF_LOGI(tag, format, ...)  ESP_LOGI(tag, format, ##__VA_ARGS__)
 #define COMM_IF_LOGD(tag, format, ...)  ESP_LOGD(tag, format, ##__VA_ARGS__)
 #define COMM_IF_LOGV(tag, format, ...)  ESP_LOGV(tag, format, ##__VA_ARGS__)
 #define COMM_IF_LOG_BUFFER_HEX(tag, buffer, buff_len) ESP_LOG_BUFFER_HEX(tag, buffer, buff_len)
