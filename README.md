@@ -58,11 +58,12 @@ where
 * **MQTT_Library_name** is the MQTT Client library being used.
 * **MQTT_Library_version** is the version of the MQTT Client library being used.
 
-## FreeRTOS Build Integration Supported
+## FreeRTOS Qualified Boards
 
-For additional boards that are supported for FreeRTOS, please visit the [AWS Partner Device Catalog](https://devices.amazonaws.com/search?page=1&sv=freertos)
+For a complete list of boards that have been qualified for FreeRTOS by AWS Partners, please visit the [AWS Partner Device Catalog](https://devices.amazonaws.com/search?page=1&sv=freertos)
 
-The following MCU boards are supported for FreeRTOS:
+In addition, AWS supports the following boards with FreeRTOS Build Integration and maintains them with each release:
+
 1. **Texas Instruments** - [CC3220SF-LAUNCHXL](https://devices.amazonaws.com/detail/a3G0L00000AANtaUAH/SimpleLink-Wi-Fi%C2%AE-CC3220SF-Wireless-Microcontroller-LaunchPad-Development-Kit).
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_ti.html)
     * IDEs: [Code Composer Studio](http://www.ti.com/tools-software/ccs.html), [IAR Embedded Workbench](https://www.iar.com/iar-embedded-workbench/partners/texas-instruments)
