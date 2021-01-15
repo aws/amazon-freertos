@@ -32,9 +32,6 @@
 #include "FreeRTOS.h"
 #include "stream_buffer.h"
 
-/* Transport interface include. */
-#include "transport_interface.h"
-
 #include "iot_ble_mqtt_transport_config.h"
 #include "iot_ble_mqtt_serialize.h"
 #include "iot_ble_data_transfer.h"
@@ -50,6 +47,14 @@ typedef struct BleTransportParams
     StaticStreamBuffer_t xStreamBufferStruct;
     MQTTBLEPublishInfo_t publishInfo;
 } BleTransportParams_t;
+
+/**
+ * Forward declaration of NetworkContext.
+ * Note: Do not directly include transport_interface.h header file, since in OCW console user may
+ * chooes BLE without coreMQTT and coreHTTP. This can avoid the build error.
+ */
+struct NetworkContext;
+typedef struct NetworkContext NetworkContext_t;
 
 /**
  * @brief Initiailzes the Circular buffer to store the received data
