@@ -222,6 +222,7 @@ static const BTBleAdapterCallbacks_t _BTBleAdapterCb =
 
 void _deviceStateChangedCb( BTState_t state )
 {
+    ( void ) state;
     IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
 
@@ -231,6 +232,8 @@ void _adapterPropertiesCb( BTStatus_t status,
                            uint32_t numProperties,
                            BTProperty_t * pProperties )
 {
+    ( void ) numProperties;
+    ( void ) pProperties;
     _BTInterface.cbStatus = status;
     IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
@@ -245,6 +248,9 @@ void _sspRequestCb( BTBdaddr_t * pRemoteBdAddr,
 {
     IotLink_t * pEventListIndex;
     _bleSubscrEventListElement_t * pEventIndex;
+
+    ( void ) pRemoteBdName;
+    ( void ) cod;
 
     if( pairingVariant == eBTsspVariantPasskeyConfirmation )
     {
@@ -295,6 +301,8 @@ void _registerBleAdapterCb( BTStatus_t status,
 {
     _BTInterface.cbStatus = status;
     _BTInterface.adapterIf = adapter_if;
+
+    ( void ) pAppUuid;
 
     IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
@@ -526,6 +534,9 @@ BTStatus_t IotBle_ConnParameterUpdateRequest( const BTBdaddr_t * pBdAddr,
 {
     BTStatus_t status = eBTStatusSuccess;
 
+    ( void ) pBdAddr;
+    ( void ) pConnectionParam;
+
     /*pxConnParameterUpdateRequest */
     return status;
 }
@@ -663,6 +674,8 @@ static void _disconnectCallback( BTStatus_t status,
                                  bool isConnected,
                                  BTBdaddr_t * pRemoteAddress )
 {
+    ( void ) connectionID;
+    ( void ) pRemoteAddress;
     if( !isConnected )
     {
         _BTInterface.cbStatus = status;

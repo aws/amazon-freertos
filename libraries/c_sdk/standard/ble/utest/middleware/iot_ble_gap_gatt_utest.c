@@ -242,6 +242,7 @@ static void prvDummyAtttibuteCallback( IotBleAttributeEvent_t * pEventParam )
 
         case eBLEExecWrite:
             handle = pEventParam->pParamExecWrite->transId - 100;
+            TEST_ASSERT_TRUE( pEventParam->pParamExecWrite->execWrite );
             attributeInvokedCount[ handle ][ 3 ]++;
             break;
 

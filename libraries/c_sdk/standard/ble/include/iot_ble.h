@@ -162,7 +162,7 @@ typedef struct
     uint32_t transId;           /**< Transaction ID. */
     BTBdaddr_t * pRemoteBdAddr; /**< Remote device address. */
     uint16_t connId;            /**< Connection ID. */
-    bool execWrite;             /**< Execute Write command. */
+    bool execWrite;             /**< Execute (true) or Cancel(false) the Write transaction. */
 } IotBleExecWriteEventParams_t;
 
 /**
