@@ -753,14 +753,10 @@ BTStatus_t _createAttributes( BTService_t * pService )
         if( status == eBTStatusSuccess )
         {
             IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
-
-            if( _BTInterface.cbStatus != eBTStatusSuccess )
-            {
-                status = _BTInterface.cbStatus;
-                break;
-            }
+            status = _BTInterface.cbStatus;
         }
-        else
+
+        if( status != eBTStatusSuccess )
         {
             break;
         }
@@ -809,6 +805,7 @@ BTStatus_t IotBle_CreateService( BTService_t * pService,
             if( status == eBTStatusSuccess )
             {
                 IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+                status = _BTInterface.cbStatus;
             }
         }
     }
@@ -846,17 +843,22 @@ BTStatus_t IotBle_DeleteService( BTService_t * pService )
 
         if( status == eBTStatusSuccess )
         {
+              /* To DO remove service from the list ?*/
             IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
-            /* To DO remove service from the list */
+            status = _BTInterface.cbStatus;
+        }
 
-
+        if( status == eBTStatusSuccess )
+        {
+          
             status = _BTInterface.pGattServerInterface->pxDeleteService( _BTInterface.serverIf,
-                                                                         pService->pusHandlesBuffer[ 0 ] );
+                                                                        pService->pusHandlesBuffer[ 0 ] );
         }
 
         if( status == eBTStatusSuccess )
         {
             IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+            status = _BTInterface.cbStatus;
         }
     }
     else
