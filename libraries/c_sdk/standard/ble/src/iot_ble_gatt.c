@@ -322,7 +322,7 @@ BLEServiceListElement_t * _getLastAddedServiceElem( void )
 
     /* At least one service should be added in the list. So list should never be empty. */
     IotBle_Assert( IotListDouble_IsEmpty( &_BTInterface.serviceListHead ) != pdTRUE );
-    
+
     /* The service that was just added is the first in the list */
     pServiceElem = IotLink_Container( BLEServiceListElement_t, _BTInterface.serviceListHead.pNext, serviceList );
 
@@ -785,7 +785,8 @@ BTStatus_t IotBle_CreateService( BTService_t * pService,
         pServiceElem->endHandle = pService->pusHandlesBuffer[ pService->xNumberOfAttributes - 1 ];
     }
 
-    if( ( status != eBTStatusSuccess ) && ( serviceAdded == true ) ) {
+    if( ( status != eBTStatusSuccess ) && ( serviceAdded == true ) )
+    {
         pServiceElem = _getLastAddedServiceElem();
         _serviceClean( pServiceElem );
     }
