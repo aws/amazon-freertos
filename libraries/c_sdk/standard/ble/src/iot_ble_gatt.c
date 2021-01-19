@@ -843,16 +843,15 @@ BTStatus_t IotBle_DeleteService( BTService_t * pService )
 
         if( status == eBTStatusSuccess )
         {
-              /* To DO remove service from the list ?*/
+            /* To DO remove service from the list ?*/
             IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
             status = _BTInterface.cbStatus;
         }
 
         if( status == eBTStatusSuccess )
         {
-          
             status = _BTInterface.pGattServerInterface->pxDeleteService( _BTInterface.serverIf,
-                                                                        pService->pusHandlesBuffer[ 0 ] );
+                                                                         pService->pusHandlesBuffer[ 0 ] );
         }
 
         if( status == eBTStatusSuccess )

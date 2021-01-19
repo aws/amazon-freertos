@@ -226,37 +226,37 @@ static void prvDummyAtttibuteCallback( IotBleAttributeEvent_t * pEventParam )
     switch( pEventParam->xEventType )
     {
         case eBLEWrite:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamWrite->attrHandle);
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamWrite->attrHandle);
+            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamWrite->attrHandle );
+            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamWrite->attrHandle );
             handle = pEventParam->pParamWrite->attrHandle - 100;
             attributeInvokedCount[ handle ][ 0 ]++;
             break;
 
         case eBLEWriteNoResponse:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamWrite->attrHandle);
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamWrite->attrHandle);
+            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamWrite->attrHandle );
+            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamWrite->attrHandle );
             handle = pEventParam->pParamWrite->attrHandle - 100;
             attributeInvokedCount[ handle ][ 1 ]++;
             break;
 
         case eBLERead:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamRead->attrHandle);
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamRead->attrHandle);
+            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamRead->attrHandle );
+            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamRead->attrHandle );
             handle = pEventParam->pParamRead->attrHandle - 100;
             attributeInvokedCount[ handle ][ 2 ]++;
             break;
 
         case eBLEExecWrite:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamExecWrite->transId);
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamExecWrite->transId);
+            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamExecWrite->transId );
+            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamExecWrite->transId );
             TEST_ASSERT_TRUE( pEventParam->pParamExecWrite->execWrite );
             handle = pEventParam->pParamExecWrite->transId - 100;
             attributeInvokedCount[ handle ][ 3 ]++;
             break;
 
         case eBLEResponseConfirmation:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamRespConfirm->handle);
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamRespConfirm->handle);
+            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamRespConfirm->handle );
+            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamRespConfirm->handle );
             handle = pEventParam->pParamRespConfirm->handle - 100;
             attributeInvokedCount[ handle ][ 4 ]++;
             break;
@@ -1169,20 +1169,20 @@ void test_IotBleCreateServiceBlob_ReturnFailure( void )
 
 
 static BTStatus_t prvAddServiceFailureStub( uint8_t ucServerIf,
-                                     BTGattSrvcId_t * prvBleTestSrvcId,
-                                     uint16_t usNumHandles,
-                                     int cmock_num_calls )
+                                            BTGattSrvcId_t * prvBleTestSrvcId,
+                                            uint16_t usNumHandles,
+                                            int cmock_num_calls )
 {
     middlewareGATTCallback.pxServiceAddedCb( eBTStatusFail, 0, prvBleTestSrvcId, 100 );
     return eBTStatusSuccess;
 }
 
 static BTStatus_t prvAddCharFailureStub( uint8_t ucServerIf,
-                                  uint16_t usServiceHandle,
-                                  BTUuid_t * prvBleTestUuid,
-                                  BTCharProperties_t xProperties,
-                                  BTCharPermissions_t xPermissions,
-                                  int cmock_num_calls )
+                                         uint16_t usServiceHandle,
+                                         BTUuid_t * prvBleTestUuid,
+                                         BTCharProperties_t xProperties,
+                                         BTCharPermissions_t xPermissions,
+                                         int cmock_num_calls )
 {
     TEST_ASSERT_EQUAL( 100, usServiceHandle );
     middlewareGATTCallback.pxCharacteristicAddedCb( eBTStatusFail, 0, prvBleTestUuid, usServiceHandle, 101 );
@@ -1190,19 +1190,19 @@ static BTStatus_t prvAddCharFailureStub( uint8_t ucServerIf,
 }
 
 static BTStatus_t prvAddDescrFailureStub( uint8_t ucServerIf,
-                                   uint16_t usServiceHandle,
-                                   BTUuid_t * prvBleTestUuid,
-                                   BTCharPermissions_t ulPermissions,
-                                   int cmock_num_calls )
+                                          uint16_t usServiceHandle,
+                                          BTUuid_t * prvBleTestUuid,
+                                          BTCharPermissions_t ulPermissions,
+                                          int cmock_num_calls )
 {
     TEST_ASSERT_EQUAL( 100, usServiceHandle );
     middlewareGATTCallback.pxDescriptorAddedCb( eBTStatusFail, 0, prvBleTestUuid, usServiceHandle, 102 );
     return eBTStatusSuccess;
 }
 static BTStatus_t prvAddIncludedServiceFailureStub( uint8_t ucServerIf,
-                                             uint16_t usServiceHandle,
-                                             uint16_t usIncludedHandle,
-                                             int cmock_num_calls )
+                                                    uint16_t usServiceHandle,
+                                                    uint16_t usIncludedHandle,
+                                                    int cmock_num_calls )
 
 {
     TEST_ASSERT_EQUAL( 100, usServiceHandle );
@@ -1212,9 +1212,9 @@ static BTStatus_t prvAddIncludedServiceFailureStub( uint8_t ucServerIf,
 }
 
 static BTStatus_t prvStartServiceFailureStub( uint8_t ucServerIf,
-                                       uint16_t usServiceHandle,
-                                       BTTransport_t xTransport,
-                                       int cmock_num_calls )
+                                              uint16_t usServiceHandle,
+                                              BTTransport_t xTransport,
+                                              int cmock_num_calls )
 {
     middlewareGATTCallback.pxServiceStartedCb( eBTStatusFail, 0, usServiceHandle );
     return eBTStatusSuccess;
@@ -1288,16 +1288,16 @@ void test_IotBleCreateService_FailureCases( void )
     /* Malloc failed. */
     pvPortMalloc_IgnoreAndReturn( NULL );
     TEST_ASSERT_EQUAL( eBTStatusNoMem, IotBle_CreateService( &service, attributeCallbacks ) );
-    
-    pvPortMalloc_Stub(pvPortMalloc_Callback);
+
+    pvPortMalloc_Stub( pvPortMalloc_Callback );
     prvTestTurnOffBLE();
 }
 
 
 
 static BTStatus_t prvStopServiceFailureStub( uint8_t ucServerIf,
-                                      uint16_t usServiceHandle,
-                                      int cmock_num_calls )
+                                             uint16_t usServiceHandle,
+                                             int cmock_num_calls )
 {
     middlewareGATTCallback.pxServiceStoppedCb( eBTStatusFail, 0, usServiceHandle );
     return eBTStatusSuccess;
@@ -1390,12 +1390,12 @@ void test_ServiceAttributeInteractions( void )
     middlewareGATTCallback.pxRequestWriteCb( 0, 0, &dummyAddr, 101, 0, 1, false, false, &value );
     TEST_ASSERT_EQUAL( 1, attributeInvokedCount[ 1 ][ 1 ] );
     TEST_ASSERT_EQUAL( 2, attributeInvokedCount[ 0 ][ 0 ] );
-    
+
     /* Read request on characteristic with a response required. */
     middlewareGATTCallback.pxRequestReadCb( 0, 0, &dummyAddr, 101, 0 );
     TEST_ASSERT_EQUAL( 1, attributeInvokedCount[ 1 ][ 2 ] );
     TEST_ASSERT_EQUAL( 3, attributeInvokedCount[ 0 ][ 0 ] );
-    
+
     /* Write request on descriptor. */
     middlewareGATTCallback.pxRequestWriteCb( 0, 0, &dummyAddr, 102, 0, 1, true, false, &value );
     TEST_ASSERT_EQUAL( 1, attributeInvokedCount[ 2 ][ 0 ] );
@@ -1405,12 +1405,12 @@ void test_ServiceAttributeInteractions( void )
     middlewareGATTCallback.pxRequestExecWriteCb( 0, 101, &dummyAddr, true );
     TEST_ASSERT_EQUAL( 1, attributeInvokedCount[ 1 ][ 0 ] );
     TEST_ASSERT_EQUAL( 4, attributeInvokedCount[ 0 ][ 0 ] );
-    
+
     /* Prepare Write request on characteristic. */
     middlewareGATTCallback.pxRequestWriteCb( 0, 0, &dummyAddr, 101, 0, 1, true, true, &value );
     TEST_ASSERT_EQUAL( 2, attributeInvokedCount[ 1 ][ 0 ] );
     TEST_ASSERT_EQUAL( 5, attributeInvokedCount[ 0 ][ 0 ] );
-    
+
     /* Execute Write request on characteristic. */
     middlewareGATTCallback.pxRequestExecWriteCb( 0, 101, &dummyAddr, true );
     TEST_ASSERT_EQUAL( 1, attributeInvokedCount[ 1 ][ 3 ] );
@@ -1429,16 +1429,16 @@ void test_ServiceAttributeInteractions( void )
     middlewareGATTCallback.pxIndicationSentCb( 0, eBTStatusSuccess );
     TEST_ASSERT_EQUAL( 7, attributeInvokedCount[ 0 ][ 0 ] );
 
-    
+
     /* Send indication with a response for a characteristic. */
     prvBleTestSendIndication_IgnoreAndReturn( eBTStatusSuccess );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_SendIndication( &response, 0, true ) );
     middlewareGATTCallback.pxIndicationSentCb( 0, eBTStatusSuccess );
     TEST_ASSERT_EQUAL( 8, attributeInvokedCount[ 0 ][ 0 ] );
 
-   /* 
-    * Test for out of range handles. Callbacks should be handled gracefully
-    *  and should not invoke user level callback.
+    /*
+     * Test for out of range handles. Callbacks should be handled gracefully
+     *  and should not invoke user level callback.
      */
     middlewareGATTCallback.pxRequestWriteCb( 0, 0, &dummyAddr, 107, 0, 1, true, false, &value );
     middlewareGATTCallback.pxRequestWriteCb( 0, 0, &dummyAddr, 108, 0, 1, false, true, &value );
