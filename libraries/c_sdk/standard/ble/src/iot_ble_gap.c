@@ -676,6 +676,7 @@ static void _disconnectCallback( BTStatus_t status,
 {
     ( void ) connectionID;
     ( void ) pRemoteAddress;
+
     if( !isConnected )
     {
         _BTInterface.cbStatus = status;

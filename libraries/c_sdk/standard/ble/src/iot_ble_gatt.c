@@ -220,7 +220,7 @@ void _serverRegisteredCb( BTStatus_t status,
                           uint8_t serverIf,
                           BTUuid_t * pAppUuid )
 {
-     ( void ) pAppUuid;
+    ( void ) pAppUuid;
     _BTInterface.serverIf = serverIf;
     _BTInterface.cbStatus = status;
     IotSemaphore_Post( &_BTInterface.callbackSemaphore );
@@ -362,6 +362,7 @@ void _serviceAddedCb( BTStatus_t status,
 {
     ( void ) serverIf;
     ( void ) pSrvcId;
+
     if( status == eBTStatusSuccess )
     {
         _attributeAdded( srvcHandle );
@@ -382,6 +383,7 @@ void _charAddedCb( BTStatus_t status,
     ( void ) serverIf;
     ( void ) srvcHandle;
     ( void ) pUuid;
+
     if( status == eBTStatusSuccess )
     {
         _attributeAdded( handle );
@@ -402,7 +404,7 @@ void _charDescrAddedCb( BTStatus_t status,
     ( void ) serverIf;
     ( void ) srvcHandle;
     ( void ) pUuid;
-    
+
     if( status == eBTStatusSuccess )
     {
         _attributeAdded( handle );
@@ -422,6 +424,7 @@ void _includedServiceAdded( BTStatus_t status,
 {
     ( void ) serverIf;
     ( void ) srvcHandle;
+
     if( status == eBTStatusSuccess )
     {
         _attributeAdded( inclSrvcHandle );
