@@ -89,8 +89,8 @@
  * maximum number of sockets is redefined. */
 /* coverity[misra_c_2012_rule_20_5_violation] */
         #undef CELLULAR_NUM_SOCKET_MAX
-        #define CELLULAR_NUM_SOCKET_MAX    ( 4U )
     #endif
+    #define CELLULAR_NUM_SOCKET_MAX    ( 6U )
 #endif /* if ( CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT == 1U ) */
 
 #endif /* _AWS_CELLULAR_CONFIG_H_ */
