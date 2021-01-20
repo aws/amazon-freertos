@@ -421,20 +421,20 @@ static const uint8_t _testEncodedNestedMap[] =
  */
 static const uint8_t _testEncodedIndefiniteLengthNestedArray[] =
 {
-    0x9F,                           /*# array(*)        <---- Indefinite length array */
-        0x63,                       /*# text(3) */
-        0x45, 0x6C, 0x31,           /*# "El1" */
+    0x9F,                   /*# array(*)        <---- Indefinite length array */
+    0x63,                   /*# text(3) */
+    0x45, 0x6C, 0x31,       /*# "El1" */
 
-        0x01,                       /*# unsigned(1) */
+    0x01,                   /*# unsigned(1) */
 
-        0x63,                       /*# text(3) */
-        0x45, 0x6C, 0x33,           /*# "El3" */
+    0x63,                   /*# text(3) */
+    0x45, 0x6C, 0x33,       /*# "El3" */
 
-        0x9F,                       /*# array(*)        <---- Indefinite length nested array */
-            0x64,                   /*# text(4) */
-            0x4C, 0x61, 0x73, 0x74, /*# "Last" */
-        0xFF,                       /*# primitive(*)    <---- "break" */
-    0xFF,                           /*# primitive(*)    <---- "break" */
+    0x9F,                   /*# array(*)        <---- Indefinite length nested array */
+    0x64,                   /*# text(4) */
+    0x4C, 0x61, 0x73, 0x74, /*# "Last" */
+    0xFF,                   /*# primitive(*)    <---- "break" */
+    0xFF,                   /*# primitive(*)    <---- "break" */
 };
 
 /* CBOR Diagnostic notation:
@@ -446,25 +446,25 @@ static const uint8_t _testEncodedIndefiniteLengthNestedArray[] =
  */
 static const uint8_t _testEncodedIndefiniteLengthMap[] =
 {
-    0xBF,                                                                       /* # map(*) */
+    0xBF,                                                       /* # map(*) */
 
-        0x6A,                                                                   /* # text(10) */
-        0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6F, 0x64, 0x65,             /* # "statusCode" */
-        0x19, 0x01, 0x90,                                                       /* # unsigned(400) */
+    0x6A,                                                       /* # text(10) */
+    0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6F, 0x64, 0x65, /* # "statusCode" */
+    0x19, 0x01, 0x90,                                           /* # unsigned(400) */
 
-        0x69,                                                                   /* # text(9) */
-        0x65, 0x72, 0x72, 0x6F, 0x72, 0x43, 0x6F, 0x64, 0x65,                   /* # "errorCode" */
-        0x6E,                                                                   /* # text(14) */
-        0x49, 0x6E, 0x76, 0x61, 0x6C, 0x69, 0x64, 0x50, 0x61, 0x79,             /* # "InvalidPayload" */
-        0x6C, 0x6F, 0x61, 0x64,
+    0x69,                                                       /* # text(9) */
+    0x65, 0x72, 0x72, 0x6F, 0x72, 0x43, 0x6F, 0x64, 0x65,       /* # "errorCode" */
+    0x6E,                                                       /* # text(14) */
+    0x49, 0x6E, 0x76, 0x61, 0x6C, 0x69, 0x64, 0x50, 0x61, 0x79, /* # "InvalidPayload" */
+    0x6C, 0x6F, 0x61, 0x64,
 
-        0x6C,                                                                   /* # text(12) */
-        0x65, 0x72, 0x72, 0x6F, 0x72, 0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, /* # "errorMessage" */
-        0x78, 0x18,                                                             /* # text(24) */
-        0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x63, 0x61, 0x6E, 0x6E, /* # "Message cannot be parsed" */
-        0x6F, 0x74, 0x20, 0x62, 0x65, 0x20, 0x70, 0x61, 0x72, 0x73, 0x65, 0x64,
+    0x6C,                                                                   /* # text(12) */
+    0x65, 0x72, 0x72, 0x6F, 0x72, 0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, /* # "errorMessage" */
+    0x78, 0x18,                                                             /* # text(24) */
+    0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x63, 0x61, 0x6E, 0x6E, /* # "Message cannot be parsed" */
+    0x6F, 0x74, 0x20, 0x62, 0x65, 0x20, 0x70, 0x61, 0x72, 0x73, 0x65, 0x64,
 
-    0xFF,                                                                       /* # primitive(*) */
+    0xFF, /* # primitive(*) */
 };
 
 /* CBOR Diagnostic notation:
@@ -476,23 +476,23 @@ static const uint8_t _testEncodedIndefiniteLengthMap[] =
  */
 static const uint8_t _testEncodedDefiniteLengthMap[] =
 {
-    0xA3,                                                                       /* # map(3) */
+    0xA3,                                                                   /* # map(3) */
 
-        0x6A,                                                                   /* # text(10) */
-        0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6F, 0x64, 0x65,             /* # "statusCode" */
-        0x19, 0x01, 0x90,                                                       /* # unsigned(400) */
+    0x6A,                                                                   /* # text(10) */
+    0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6F, 0x64, 0x65,             /* # "statusCode" */
+    0x19, 0x01, 0x90,                                                       /* # unsigned(400) */
 
-        0x69,                                                                   /* # text(9) */
-        0x65, 0x72, 0x72, 0x6F, 0x72, 0x43, 0x6F, 0x64, 0x65,                   /* # "errorCode" */
-        0x6E,                                                                   /* # text(14) */
-        0x49, 0x6E, 0x76, 0x61, 0x6C, 0x69, 0x64, 0x50, 0x61, 0x79, 0x6C, 0x6F, /* # "InvalidPayload" */
-        0x61, 0x64,
+    0x69,                                                                   /* # text(9) */
+    0x65, 0x72, 0x72, 0x6F, 0x72, 0x43, 0x6F, 0x64, 0x65,                   /* # "errorCode" */
+    0x6E,                                                                   /* # text(14) */
+    0x49, 0x6E, 0x76, 0x61, 0x6C, 0x69, 0x64, 0x50, 0x61, 0x79, 0x6C, 0x6F, /* # "InvalidPayload" */
+    0x61, 0x64,
 
-        0x6C,                                                                   /* # text(12) */
-        0x65, 0x72, 0x72, 0x6F, 0x72, 0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, /* # "errorMessage" */
-        0x78, 0x18,                                                             /* # text(24) */
-        0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x63, 0x61, 0x6E, 0x6E, /* # "Message cannot be parsed" */
-        0x6F, 0x74, 0x20, 0x62, 0x65, 0x20, 0x70, 0x61, 0x72, 0x73, 0x65, 0x64,
+    0x6C,                                                                   /* # text(12) */
+    0x65, 0x72, 0x72, 0x6F, 0x72, 0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, /* # "errorMessage" */
+    0x78, 0x18,                                                             /* # text(24) */
+    0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x63, 0x61, 0x6E, 0x6E, /* # "Message cannot be parsed" */
+    0x6F, 0x74, 0x20, 0x62, 0x65, 0x20, 0x70, 0x61, 0x72, 0x73, 0x65, 0x64,
 };
 
 /* CBOR Diagnostic notation:
@@ -507,36 +507,36 @@ static const uint8_t _testEncodedDefiniteLengthMap[] =
  */
 static const uint8_t _testEncodedIndefiniteLengthNestedMap[] =
 {
-    0xBF,                                                                       /* # map(*) */
-        0x66,                                                                   /* # text(6) */
-        0x72, 0x65, 0x73, 0x75, 0x6C, 0x74,                                     /* # "result" */
-        0xBF,                                                                   /* # map(*) */
-            0x6A,                                                               /* # text(10) */
-            0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6F, 0x64, 0x65,         /* # "statusCode" */
-            0x19, 0x01, 0x90,                                                   /* # unsigned(400) */
+    0xBF,                                                             /* # map(*) */
+    0x66,                                                             /* # text(6) */
+    0x72, 0x65, 0x73, 0x75, 0x6C, 0x74,                               /* # "result" */
+    0xBF,                                                             /* # map(*) */
+    0x6A,                                                             /* # text(10) */
+    0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6F, 0x64, 0x65,       /* # "statusCode" */
+    0x19, 0x01, 0x90,                                                 /* # unsigned(400) */
 
-            0x69,                                                               /* # text(9) */
-            0x65, 0x72, 0x72, 0x6F, 0x72, 0x43, 0x6F, 0x64, 0x65,               /* # "errorCode" */
-            0x6E,                                                               /* # text(14) */
-            0x49, 0x6E, 0x76, 0x61, 0x6C, 0x69, 0x64, 0x50, 0x61, 0x79, 0x6C,   /* # "InvalidPayload" */
-            0x6F, 0x61, 0x64,
+    0x69,                                                             /* # text(9) */
+    0x65, 0x72, 0x72, 0x6F, 0x72, 0x43, 0x6F, 0x64, 0x65,             /* # "errorCode" */
+    0x6E,                                                             /* # text(14) */
+    0x49, 0x6E, 0x76, 0x61, 0x6C, 0x69, 0x64, 0x50, 0x61, 0x79, 0x6C, /* # "InvalidPayload" */
+    0x6F, 0x61, 0x64,
 
-            0x6C,                                                               /* # text(12) */
-            0x65, 0x72, 0x72, 0x6F, 0x72, 0x4D, 0x65, 0x73, 0x73, 0x61, 0x67,   /* # "errorMessage" */
-            0x65,
+    0x6C,                                                             /* # text(12) */
+    0x65, 0x72, 0x72, 0x6F, 0x72, 0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, /* # "errorMessage" */
+    0x65,
 
-            0x78, 0x18,                                                         /* # text(24) */
-            0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x63, 0x61, 0x6E,   /* # "Message cannot be parsed" */
-            0x6E, 0x6F, 0x74, 0x20, 0x62, 0x65, 0x20, 0x70, 0x61, 0x72, 0x73,
-            0x65, 0x64,
-        0xFF,                                                                   /* # primitive(*) */
+    0x78, 0x18,                                                       /* # text(24) */
+    0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x63, 0x61, 0x6E, /* # "Message cannot be parsed" */
+    0x6E, 0x6F, 0x74, 0x20, 0x62, 0x65, 0x20, 0x70, 0x61, 0x72, 0x73,
+    0x65, 0x64,
+    0xFF,                                                                   /* # primitive(*) */
 
-        0x67,                                                                   /* # text(7) */
-        0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73,                               /* # "success" */
-        0x6E,                                                                   /* # text(14) */
-        0x4E, 0x6F, 0x74, 0x20, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x66, /* # "Not successful" */
-        0x75, 0x6C,
-    0xFF,                                                                       /* # primitive(*) */
+    0x67,                                                                   /* # text(7) */
+    0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73,                               /* # "success" */
+    0x6E,                                                                   /* # text(14) */
+    0x4E, 0x6F, 0x74, 0x20, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x66, /* # "Not successful" */
+    0x75, 0x6C,
+    0xFF,                                                                   /* # primitive(*) */
 };
 
 /* CBOR Diagnostic notation:
@@ -550,29 +550,29 @@ static const uint8_t _testEncodedIndefiniteLengthNestedMap[] =
  */
 static const uint8_t _testEncodedIndefiniteLengthNestedMapWith2BreakChars[] =
 {
-    0xBF,                                                                       /* # map(*) */
-        0x66,                                                                   /* # text(6) */
-        0x72, 0x65, 0x73, 0x75, 0x6C, 0x74,                                     /* # "result" */
-        0xBF,                                                                   /* # map(*) */
-            0x6A,                                                               /* # text(10) */
-            0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6F, 0x64, 0x65,         /* # "statusCode" */
-            0x19, 0x01, 0x90,                                                   /* # unsigned(400) */
+    0xBF,                                                             /* # map(*) */
+    0x66,                                                             /* # text(6) */
+    0x72, 0x65, 0x73, 0x75, 0x6C, 0x74,                               /* # "result" */
+    0xBF,                                                             /* # map(*) */
+    0x6A,                                                             /* # text(10) */
+    0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6F, 0x64, 0x65,       /* # "statusCode" */
+    0x19, 0x01, 0x90,                                                 /* # unsigned(400) */
 
-            0x69,                                                               /* # text(9) */
-            0x65, 0x72, 0x72, 0x6F, 0x72, 0x43, 0x6F, 0x64, 0x65,               /* # "errorCode" */
-            0x6E,                                                               /* # text(14) */
-            0x49, 0x6E, 0x76, 0x61, 0x6C, 0x69, 0x64, 0x50, 0x61, 0x79, 0x6C,   /* # "InvalidPayload" */
-            0x6F, 0x61, 0x64,
+    0x69,                                                             /* # text(9) */
+    0x65, 0x72, 0x72, 0x6F, 0x72, 0x43, 0x6F, 0x64, 0x65,             /* # "errorCode" */
+    0x6E,                                                             /* # text(14) */
+    0x49, 0x6E, 0x76, 0x61, 0x6C, 0x69, 0x64, 0x50, 0x61, 0x79, 0x6C, /* # "InvalidPayload" */
+    0x6F, 0x61, 0x64,
 
-            0x6C,                                                               /* # text(12) */
-            0x65, 0x72, 0x72, 0x6F, 0x72, 0x4D, 0x65, 0x73, 0x73, 0x61, 0x67,   /* # "errorMessage"*/
-            0x65,
-            0x78, 0x18,                                                         /* # text(24) */
-            0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x63, 0x61, 0x6E,   /* # "Message cannot be parsed" */
-            0x6E, 0x6F, 0x74, 0x20, 0x62, 0x65, 0x20, 0x70, 0x61, 0x72, 0x73,
-            0x65, 0x64,
-        0xFF,                                                                   /* # primitive(*) */
-    0xFF,                                                                       /* # primitive(*) */
+    0x6C,                                                             /* # text(12) */
+    0x65, 0x72, 0x72, 0x6F, 0x72, 0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, /* # "errorMessage"*/
+    0x65,
+    0x78, 0x18,                                                       /* # text(24) */
+    0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x63, 0x61, 0x6E, /* # "Message cannot be parsed" */
+    0x6E, 0x6F, 0x74, 0x20, 0x62, 0x65, 0x20, 0x70, 0x61, 0x72, 0x73,
+    0x65, 0x64,
+    0xFF, /* # primitive(*) */
+    0xFF, /* # primitive(*) */
 };
 
 /* CBOR Diagnostic notation:
@@ -582,13 +582,13 @@ static const uint8_t _testEncodedIndefiniteLengthNestedMapWith2BreakChars[] =
  */
 static const uint8_t _testEncodedIndefiniteLengthMapWithFFatTheEnd[] =
 {
-    0xBF,                                       /* # map(*) */
-        0x66,                                   /* # text(6) */
-        0x72, 0x65, 0x73, 0x75, 0x6C, 0x74,     /* # "result" */
+    0xBF,                               /* # map(*) */
+    0x66,                               /* # text(6) */
+    0x72, 0x65, 0x73, 0x75, 0x6C, 0x74, /* # "result" */
 
-        0x44,                                   /* # bytes(4) */
-        0xAA, 0xBB, 0xCC, 0xFF,                 /* # "\xAA\xBB\xCC\xFF" */
-    0xFF,                                       /* # primitive(*) */
+    0x44,                               /* # bytes(4) */
+    0xAA, 0xBB, 0xCC, 0xFF,             /* # "\xAA\xBB\xCC\xFF" */
+    0xFF,                               /* # primitive(*) */
 };
 
 /* CBOR Diagnostic notation:
@@ -598,12 +598,12 @@ static const uint8_t _testEncodedIndefiniteLengthMapWithFFatTheEnd[] =
  */
 static const uint8_t _testEncodedDefiniteLengthMapWithFFatTheEnd[] =
 {
-    0xA1,                                       /* # map(1) */
-        0x66,                                   /* # text(6) */
-        0x72, 0x65, 0x73, 0x75, 0x6C, 0x74,     /* # "result" */
+    0xA1,                               /* # map(1) */
+    0x66,                               /* # text(6) */
+    0x72, 0x65, 0x73, 0x75, 0x6C, 0x74, /* # "result" */
 
-        0x44,                                   /* # bytes(4) */
-        0xAA, 0xBB, 0xCC, 0xFF,                 /* # "\xAA\xBB\xCC\xFF" */
+    0x44,                               /* # bytes(4) */
+    0xAA, 0xBB, 0xCC, 0xFF,             /* # "\xAA\xBB\xCC\xFF" */
 };
 
 /* CBOR Diagnostic notation:
@@ -614,13 +614,13 @@ static const uint8_t _testEncodedDefiniteLengthMapWithFFatTheEnd[] =
  */
 static const uint8_t _testEncodedIndefiniteLengthArrayWithFFatTheEnd[] =
 {
-    0x9F,                                       /* # array(*) */
-        0x66,                                   /* # text(6) */
-        0x72, 0x65, 0x73, 0x75, 0x6C, 0x74,     /* # "result" */
+    0x9F,                               /* # array(*) */
+    0x66,                               /* # text(6) */
+    0x72, 0x65, 0x73, 0x75, 0x6C, 0x74, /* # "result" */
 
-        0x44,                                   /* # bytes(4) */
-        0xAA, 0xBB, 0xCC, 0xFF,                 /* # "\xAA\xBB\xCC\xFF" */
-    0xFF,                                       /* # primitive(*) */
+    0x44,                               /* # bytes(4) */
+    0xAA, 0xBB, 0xCC, 0xFF,             /* # "\xAA\xBB\xCC\xFF" */
+    0xFF,                               /* # primitive(*) */
 };
 
 /* CBOR Diagnostic notation:
@@ -631,26 +631,25 @@ static const uint8_t _testEncodedIndefiniteLengthArrayWithFFatTheEnd[] =
  */
 static const uint8_t _testEncodedDefiniteLengthArrayWithFFatTheEnd[] =
 {
-    0x82,                                       /* # array(2) */
-        0x66,                                   /* # text(6) */
-        0x72, 0x65, 0x73, 0x75, 0x6C, 0x74,     /* # "result" */
+    0x82,                               /* # array(2) */
+    0x66,                               /* # text(6) */
+    0x72, 0x65, 0x73, 0x75, 0x6C, 0x74, /* # "result" */
 
-        0x44,                                   /* # bytes(4) */
-        0xAA, 0xBB, 0xCC, 0xFF,                 /* # "\xAA\xBB\xCC\xFF" */
+    0x44,                               /* # bytes(4) */
+    0xAA, 0xBB, 0xCC, 0xFF,             /* # "\xAA\xBB\xCC\xFF" */
 };
 
 /*----------------------------------------------------------------------------------------------*/
 TEST_GROUP( Serializer_Unit_CBOR_Decoder );
 
 TEST_SETUP( Serializer_Unit_CBOR_Decoder )
-{    
+{
     /* Reset buffer to zero. */
     memset( _buffer, 0, _BUFFER_SIZE );
 
     /* Init decoder object with buffer. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.init( &_decoderObject, _buffer, _BUFFER_SIZE ) );
-
 }
 
 TEST_TEAR_DOWN( Serializer_Unit_CBOR_Decoder )
@@ -695,8 +694,8 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithNestedMap )
     size_t unsupportedTypeDecoderObjectLength = 0;
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.init( &outermostDecoder,
-                                                                    _testEncodedNestedMap,
-                                                                    sizeof( _testEncodedNestedMap ) ) );
+                                                              _testEncodedNestedMap,
+                                                              sizeof( _testEncodedNestedMap ) ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, outermostDecoder.type );
 
 
@@ -708,7 +707,7 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithNestedMap )
      * outermost decoder object.*/
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.getBufferAddress( &outermostDecoder,
-                                                        &pDecoderObjectStartAddr ) );
+                                                  &pDecoderObjectStartAddr ) );
     TEST_ASSERT_EQUAL_PTR( &_testEncodedNestedMap[ 0 ], pDecoderObjectStartAddr );
 
     /* Verify that the getSizeOfEncodedData() correctly calculates the length of the outermost decoder
@@ -718,7 +717,7 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithNestedMap )
     TEST_ASSERT_EQUAL( sizeof( _testEncodedNestedMap ), decoderDataLength );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.find( &outermostDecoder, "1",
-                                                                    &outerMapDecoder1 ) );
+                                                              &outerMapDecoder1 ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, outerMapDecoder1.type );
 
     /* Verify the functionality of getSizeOf() API on the inner map. */
@@ -729,7 +728,7 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithNestedMap )
      * for the entry keyed by "1".*/
     TEST_ASSERT_EQUAL_PTR( IOT_SERIALIZER_SUCCESS,
                            _decoder.getBufferAddress( &outerMapDecoder1,
-                                                            &pDecoderObjectStartAddr ) );
+                                                      &pDecoderObjectStartAddr ) );
     TEST_ASSERT_EQUAL_PTR( &_testEncodedNestedMap[ 3 ], pDecoderObjectStartAddr );
 
     /* Verify that the getSizeOfEncodedData() correctly calculates the length of the container type
@@ -739,14 +738,14 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithNestedMap )
     TEST_ASSERT_EQUAL( 4u, decoderDataLength );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.find( &outerMapDecoder1, "A",
-                                                                    &innerMapDecoder ) );
+                                                              &innerMapDecoder ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, innerMapDecoder.type );
 
     /* Make sure that the getBufferAddress() API does not support getting buffer address of value in the
      * the nested entry keyed by "A".*/
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_NOT_SUPPORTED,
                        _decoder.getBufferAddress( &innerMapDecoder,
-                                                        &pDecoderObjectStartAddr ) );
+                                                  &pDecoderObjectStartAddr ) );
 
     /* Verify that the getSizeOfEncodedData() does not support calculation of non-container type data.*/
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_NOT_SUPPORTED,
@@ -754,14 +753,14 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithNestedMap )
                            &innerMapDecoder, &unsupportedTypeDecoderObjectLength ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.find( &outermostDecoder, "3",
-                                                                    &outerMapDecoder2 ) );
+                                                              &outerMapDecoder2 ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_BOOL, outerMapDecoder2.type );
 
     /* Make sure that the getBufferAddress() API does not give the buffer address of the value data
      * in the entry keyed by "3".*/
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_NOT_SUPPORTED,
                        _decoder.getBufferAddress( &outerMapDecoder2,
-                                                        &pDecoderObjectStartAddr ) );
+                                                  &pDecoderObjectStartAddr ) );
 
     /* Verify that the getSizeOfEncodedData() does not support calculation of non-container type data.*/
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_NOT_SUPPORTED,
@@ -786,14 +785,14 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderIteratorWithNestedMap )
     IotSerializerDecoderIterator_t nestedMapIter = IOT_SERIALIZER_DECODER_ITERATOR_INITIALIZER;
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.init( &outerDecoder1,
-                                                                    _testEncodedNestedMap,
-                                                                    sizeof( _testEncodedNestedMap ) ) );
+                                                              _testEncodedNestedMap,
+                                                              sizeof( _testEncodedNestedMap ) ) );
 
     /* Obtain an iterator to the contents of the map. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.stepIn( &outerDecoder1,
-                                                                      &outerIter ) );
+                                                                &outerIter ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.get( outerIter,
-                                                                   &iterToDecoderObject ) );
+                                                             &iterToDecoderObject ) );
     /* Validate that we can obtain the key data of the first entry in the outer map. */
     TEST_ASSERT_EQUAL_STRING_LEN( "1", iterToDecoderObject.u.value.u.string.pString,
                                   iterToDecoderObject.u.value.u.string.length );
@@ -801,7 +800,7 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderIteratorWithNestedMap )
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.next( outerIter ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.get( outerIter,
-                                                                   &iterToDecoderObject ) );
+                                                             &iterToDecoderObject ) );
     /* Validate that we can obtain the value data (i.e. nested map) of the first entry in the parent/outer map. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.getBufferAddress(
                            &iterToDecoderObject, &pDecoderObjectStartAddr ) );
@@ -811,7 +810,7 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderIteratorWithNestedMap )
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.next( outerIter ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.get( outerIter,
-                                                                   &iterToDecoderObject2 ) );
+                                                             &iterToDecoderObject2 ) );
     /* Validate that we can obtain the key data of the second entry in the outer map. */
     TEST_ASSERT_EQUAL_STRING_LEN( "3", iterToDecoderObject2.u.value.u.string.pString,
                                   iterToDecoderObject2.u.value.u.string.length );
@@ -819,7 +818,7 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderIteratorWithNestedMap )
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.next( outerIter ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.get( outerIter,
-                                                                   &iterToDecoderObject2 ) );
+                                                             &iterToDecoderObject2 ) );
     /* Validate that we can obtain the boolean value data of the second entry in the outer map. */
     TEST_ASSERT_EQUAL( false, iterToDecoderObject2.u.value.u.booleanValue );
     _decoder.destroy( &iterToDecoderObject2 );
@@ -827,25 +826,25 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderIteratorWithNestedMap )
     /* Iterate to the end of the outer map container. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.next( outerIter ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.stepOut( outerIter,
-                                                                       &outerDecoder1 ) );
+                                                                 &outerDecoder1 ) );
     _decoder.destroy( &outerDecoder1 );
 
 
     /* Test with iterating in the nested map in the entry keyed by "1" */
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.init( &outerDecoder2,
-                                                                    _testEncodedNestedMap,
-                                                                    sizeof( _testEncodedNestedMap ) ) );
+                                                              _testEncodedNestedMap,
+                                                              sizeof( _testEncodedNestedMap ) ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.find( &outerDecoder2, "1",
-                                                                    &nestedMapDecoder ) );
+                                                              &nestedMapDecoder ) );
 
     /* Obtain an iterator to the contents of the nested map. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.stepIn( &nestedMapDecoder,
-                                                                      &nestedMapIter ) );
+                                                                &nestedMapIter ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.get( nestedMapIter,
-                                                                   &iterToDecoderObject3 ) );
+                                                             &iterToDecoderObject3 ) );
     /* Validate that we can obtain the key data of the only entry in the nested map. */
     TEST_ASSERT_EQUAL_STRING_LEN( "A", iterToDecoderObject3.u.value.u.string.pString,
                                   iterToDecoderObject3.u.value.u.string.length );
@@ -853,7 +852,7 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderIteratorWithNestedMap )
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.next( nestedMapIter ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.get( nestedMapIter,
-                                                                   &iterToDecoderObject3 ) );
+                                                             &iterToDecoderObject3 ) );
     /* Validate that we can obtain the integer value of the only entry in the nested map. */
     TEST_ASSERT_EQUAL_INT( 10, iterToDecoderObject3.u.value.u.signedInt );
 
@@ -861,7 +860,7 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderIteratorWithNestedMap )
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.next( nestedMapIter ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.stepOut( nestedMapIter,
-                                                                       &nestedMapDecoder ) );
+                                                                 &nestedMapDecoder ) );
     _decoder.destroy( &nestedMapDecoder );
     _decoder.destroy( &outerDecoder2 );
 }
@@ -877,8 +876,8 @@ TEST( Serializer_Unit_CBOR_Decoder, TestGetSizeOfForIndefiniteLengthMap )
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.init( &mapDecoder,
-                                            _testEncodedIndefiniteLengthMap,
-                                            sizeof( _testEncodedIndefiniteLengthMap ) ) );
+                                      _testEncodedIndefiniteLengthMap,
+                                      sizeof( _testEncodedIndefiniteLengthMap ) ) );
 
     /* Test that size of an indefinite length map can be calculated. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.getSizeOf( &mapDecoder, &mapSize ) );
@@ -912,8 +911,8 @@ TEST( Serializer_Unit_CBOR_Decoder, TestGetSizeOfForIndefiniteLengthMap )
     /* Make sure that we can obtain the same value entry from the "find()" API */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &mapDecoder,
-                                            "errorMessage",
-                                            &valueObject2 ) );
+                                      "errorMessage",
+                                      &valueObject2 ) );
     TEST_ASSERT_EQUAL_STRING_LEN( "Message cannot be parsed",
                                   valueObject2.u.value.u.string.pString,
                                   valueObject2.u.value.u.string.length );
@@ -939,8 +938,8 @@ TEST( Serializer_Unit_CBOR_Decoder, TestGetSizeOfForIndefiniteLengthNestedArray 
 
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.init( &arrayDecoder,
-                                                                    _testEncodedIndefiniteLengthNestedArray,
-                                                                    sizeof( _testEncodedIndefiniteLengthNestedArray ) ) );
+                                                              _testEncodedIndefiniteLengthNestedArray,
+                                                              sizeof( _testEncodedIndefiniteLengthNestedArray ) ) );
 
     /* Test that size of an indefinite length map can be calculated. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.getSizeOf( &arrayDecoder, &arraySize ) );
@@ -991,12 +990,12 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectReuseAfterIteration )
     IotSerializerDecoderIterator_t iterator2 = IOT_SERIALIZER_DECODER_ITERATOR_INITIALIZER;
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.init( &mapDecoder,
-                                                                    _testEncodedNestedMap,
-                                                                    sizeof( _testEncodedNestedMap ) ) );
+                                                              _testEncodedNestedMap,
+                                                              sizeof( _testEncodedNestedMap ) ) );
 
     /* Obtain an iterator to the contents of the map. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.stepIn( &mapDecoder,
-                                                                      &iterator1 ) );
+                                                                &iterator1 ) );
 
 
     /* Undergo one round of iteration through the map */
@@ -1015,7 +1014,7 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectReuseAfterIteration )
 
     /* Sanity check with another round of iteration! */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.stepIn( &mapDecoder,
-                                                                      &iterator2 ) );
+                                                                &iterator2 ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.next( iterator2 ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.next( iterator2 ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.next( iterator2 ) );
@@ -1038,23 +1037,23 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithIndefiniteLengthMap )
     /* Initialize the decoder. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.init( &outermostMap,
-                                            _testEncodedIndefiniteLengthMap,
-                                            sizeof( _testEncodedIndefiniteLengthMap ) ) );
+                                      _testEncodedIndefiniteLengthMap,
+                                      sizeof( _testEncodedIndefiniteLengthMap ) ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, outermostMap.type );
 
     /* Find the status code. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &outermostMap,
-                                            "statusCode",
-                                            &statusCode ) );
+                                      "statusCode",
+                                      &statusCode ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, statusCode.type );
     TEST_ASSERT_EQUAL( 400, statusCode.u.value.u.signedInt );
 
     /* Find the error code. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &outermostMap,
-                                            "errorCode",
-                                            &errorCode ) );
+                                      "errorCode",
+                                      &errorCode ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, errorCode.type );
     TEST_ASSERT_EQUAL_STRING_LEN( "InvalidPayload",
                                   errorCode.u.value.u.string.pString,
@@ -1063,8 +1062,8 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithIndefiniteLengthMap )
     /* Find the error message. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &outermostMap,
-                                            "errorMessage",
-                                            &errorMessage ) );
+                                      "errorMessage",
+                                      &errorMessage ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, errorMessage.type );
     TEST_ASSERT_EQUAL_STRING_LEN( "Message cannot be parsed",
                                   errorMessage.u.value.u.string.pString,
@@ -1086,23 +1085,23 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithDefiniteLengthMap )
     /* Initialize the decoder. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.init( &outermostMap,
-                                            _testEncodedDefiniteLengthMap,
-                                            sizeof( _testEncodedDefiniteLengthMap ) ) );
+                                      _testEncodedDefiniteLengthMap,
+                                      sizeof( _testEncodedDefiniteLengthMap ) ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, outermostMap.type );
 
     /* Find the status code. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &outermostMap,
-                                            "statusCode",
-                                            &statusCode ) );
+                                      "statusCode",
+                                      &statusCode ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, statusCode.type );
     TEST_ASSERT_EQUAL( 400, statusCode.u.value.u.signedInt );
 
     /* Find the error code. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &outermostMap,
-                                            "errorCode",
-                                            &errorCode ) );
+                                      "errorCode",
+                                      &errorCode ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, errorCode.type );
     TEST_ASSERT_EQUAL_STRING_LEN( "InvalidPayload",
                                   errorCode.u.value.u.string.pString,
@@ -1111,8 +1110,8 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithDefiniteLengthMap )
     /* Find the error message. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &outermostMap,
-                                            "errorMessage",
-                                            &errorMessage ) );
+                                      "errorMessage",
+                                      &errorMessage ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, errorMessage.type );
     TEST_ASSERT_EQUAL_STRING_LEN( "Message cannot be parsed",
                                   errorMessage.u.value.u.string.pString,
@@ -1136,30 +1135,30 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithIndefiniteLengthNestedM
     /* Initialize the decoder. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.init( &outermostMap,
-                                            _testEncodedIndefiniteLengthNestedMap,
-                                            sizeof( _testEncodedIndefiniteLengthNestedMap ) ) );
+                                      _testEncodedIndefiniteLengthNestedMap,
+                                      sizeof( _testEncodedIndefiniteLengthNestedMap ) ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, outermostMap.type );
 
     /* Find the result map. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &outermostMap,
-                                            "result",
-                                            &resultMap ) );
+                                      "result",
+                                      &resultMap ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, resultMap.type );
 
     /* Find the status code. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &resultMap,
-                                            "statusCode",
-                                            &statusCode ) );
+                                      "statusCode",
+                                      &statusCode ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, statusCode.type );
     TEST_ASSERT_EQUAL( 400, statusCode.u.value.u.signedInt );
 
     /* Find the error code. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &resultMap,
-                                            "errorCode",
-                                            &errorCode ) );
+                                      "errorCode",
+                                      &errorCode ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, errorCode.type );
     TEST_ASSERT_EQUAL_STRING_LEN( "InvalidPayload",
                                   errorCode.u.value.u.string.pString,
@@ -1168,8 +1167,8 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithIndefiniteLengthNestedM
     /* Find the error message. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &resultMap,
-                                            "errorMessage",
-                                            &errorMessage ) );
+                                      "errorMessage",
+                                      &errorMessage ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, errorMessage.type );
     TEST_ASSERT_EQUAL_STRING_LEN( "Message cannot be parsed",
                                   errorMessage.u.value.u.string.pString,
@@ -1178,8 +1177,8 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithIndefiniteLengthNestedM
     /* Find the success message. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &outermostMap,
-                                            "success",
-                                            &success ) );
+                                      "success",
+                                      &success ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, success.type );
     TEST_ASSERT_EQUAL_STRING_LEN( "Not successful",
                                   success.u.value.u.string.pString,
@@ -1204,30 +1203,30 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithIndefiniteLengthNestedM
     /* Initialize the decoder. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.init( &outermostMap,
-                                            _testEncodedIndefiniteLengthNestedMapWith2BreakChars,
-                                            sizeof( _testEncodedIndefiniteLengthNestedMapWith2BreakChars ) ) );
+                                      _testEncodedIndefiniteLengthNestedMapWith2BreakChars,
+                                      sizeof( _testEncodedIndefiniteLengthNestedMapWith2BreakChars ) ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, outermostMap.type );
 
     /* Find the result map. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &outermostMap,
-                                            "result",
-                                            &resultMap ) );
+                                      "result",
+                                      &resultMap ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, resultMap.type );
 
     /* Find the status code. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &resultMap,
-                                            "statusCode",
-                                            &statusCode ) );
+                                      "statusCode",
+                                      &statusCode ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, statusCode.type );
     TEST_ASSERT_EQUAL( 400, statusCode.u.value.u.signedInt );
 
     /* Find the error code. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &resultMap,
-                                            "errorCode",
-                                            &errorCode ) );
+                                      "errorCode",
+                                      &errorCode ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, errorCode.type );
     TEST_ASSERT_EQUAL_STRING_LEN( "InvalidPayload",
                                   errorCode.u.value.u.string.pString,
@@ -1236,8 +1235,8 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithIndefiniteLengthNestedM
     /* Find the error message. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &resultMap,
-                                            "errorMessage",
-                                            &errorMessage ) );
+                                      "errorMessage",
+                                      &errorMessage ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, errorMessage.type );
     TEST_ASSERT_EQUAL_STRING_LEN( "Message cannot be parsed",
                                   errorMessage.u.value.u.string.pString,
@@ -1259,15 +1258,15 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithIndefiniteLengthMapWith
     /* Initialize the decoder. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.init( &outermostMap,
-                                            _testEncodedIndefiniteLengthMapWithFFatTheEnd,
-                                            sizeof( _testEncodedIndefiniteLengthMapWithFFatTheEnd ) ) );
+                                      _testEncodedIndefiniteLengthMapWithFFatTheEnd,
+                                      sizeof( _testEncodedIndefiniteLengthMapWithFFatTheEnd ) ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, outermostMap.type );
 
     /* Find the result. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &outermostMap,
-                                            "result",
-                                            &result ) );
+                                      "result",
+                                      &result ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_BYTE_STRING, result.type );
     TEST_ASSERT_EQUAL( sizeof( expectedResult ), result.u.value.u.string.length );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expectedResult,
@@ -1287,15 +1286,15 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithDefiniteLengthMapWithFF
     /* Initialize the decoder. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.init( &outermostMap,
-                                            _testEncodedDefiniteLengthMapWithFFatTheEnd,
-                                            sizeof( _testEncodedDefiniteLengthMapWithFFatTheEnd ) ) );
+                                      _testEncodedDefiniteLengthMapWithFFatTheEnd,
+                                      sizeof( _testEncodedDefiniteLengthMapWithFFatTheEnd ) ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, outermostMap.type );
 
     /* Find the result. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.find( &outermostMap,
-                                            "result",
-                                            &result ) );
+                                      "result",
+                                      &result ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_BYTE_STRING, result.type );
     TEST_ASSERT_EQUAL( sizeof( expectedResult ), result.u.value.u.string.length );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expectedResult,
@@ -1317,8 +1316,8 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithIndefiniteLengthArrayWi
     /* Initialize the decoder. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.init( &outermostArray,
-                                            _testEncodedIndefiniteLengthArrayWithFFatTheEnd,
-                                            sizeof( _testEncodedIndefiniteLengthArrayWithFFatTheEnd ) ) );
+                                      _testEncodedIndefiniteLengthArrayWithFFatTheEnd,
+                                      sizeof( _testEncodedIndefiniteLengthArrayWithFFatTheEnd ) ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_ARRAY, outermostArray.type );
 
     /* Start iterating the array. */
@@ -1343,7 +1342,7 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithIndefiniteLengthArrayWi
     /* Stop iterating the array and destroy the iterator. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.next( iter ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.stepOut( iter,
-                                                                       &outermostArray ) );
+                                                                 &outermostArray ) );
 
     _decoder.destroy( &byteString );
     _decoder.destroy( &result );
@@ -1361,8 +1360,8 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithDefiniteLengthArrayWith
     /* Initialize the decoder. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _decoder.init( &outermostArray,
-                                            _testEncodedDefiniteLengthArrayWithFFatTheEnd,
-                                            sizeof( _testEncodedDefiniteLengthArrayWithFFatTheEnd ) ) );
+                                      _testEncodedDefiniteLengthArrayWithFFatTheEnd,
+                                      sizeof( _testEncodedDefiniteLengthArrayWithFFatTheEnd ) ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_ARRAY, outermostArray.type );
 
     /* Start iterating the array. */
@@ -1387,7 +1386,7 @@ TEST( Serializer_Unit_CBOR_Decoder, TestDecoderObjectWithDefiniteLengthArrayWith
     /* Stop iterating the array and destroy the iterator. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.next( iter ) );
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, _decoder.stepOut( iter,
-                                                                       &outermostArray ) );
+                                                                 &outermostArray ) );
 
     _decoder.destroy( &byteString );
     _decoder.destroy( &result );

@@ -71,11 +71,13 @@ static IotSerializerError_t _getSizeOfEncodedData( const IotSerializerDecoderObj
 static IotSerializerError_t _getSizeOf( const IotSerializerDecoderObject_t * pDecoderObject,
                                         size_t * pLength );
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Utility to calculates the length of the raw encoded data represented by the
  * passed `pValue` object.
  */
 static size_t _calculateSizeOfCborObject( CborValue * pValue );
+
 /**
  * @brief Calculates the number of elements in an indefinite-length container
  * in O(N) time by iterating through the container.
@@ -659,7 +661,7 @@ IotSerializerError_t _getSizeOf( const IotSerializerDecoderObject_t * pDecoderOb
                     /* This is an indefinite length map. Calculate its length by
                      * traversing it. */
                     cborError = _calculateSizeOfIndefiniteLengthContainer(
-                                             &pCborValueWrapper->cborValue, pLength );
+                        &pCborValueWrapper->cborValue, pLength );
 
                     _translateErrorCode( cborError, &status );
 
@@ -679,7 +681,7 @@ IotSerializerError_t _getSizeOf( const IotSerializerDecoderObject_t * pDecoderOb
                     /* This is an indefinite length array. Calculate its length
                      * by traversing it. */
                     cborError = _calculateSizeOfIndefiniteLengthContainer(
-                                             &pCborValueWrapper->cborValue, pLength );
+                        &pCborValueWrapper->cborValue, pLength );
 
                     _translateErrorCode( cborError, &status );
                 }
