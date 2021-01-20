@@ -216,6 +216,7 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
         RUN_TEST_GROUP( Serializer_Unit_CBOR );
+        RUN_TEST_GROUP( Serializer_Unit_CBOR_Decoder );
         RUN_TEST_GROUP( Serializer_Unit_JSON );
         RUN_TEST_GROUP( Serializer_Unit_JSON_deserialize );
     #endif
