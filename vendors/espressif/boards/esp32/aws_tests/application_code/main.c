@@ -215,6 +215,21 @@ static void prvMiscInitialization( void )
 
     ESP_ERROR_CHECK( ret );
 }
+
+/*-----------------------------------------------------------*/
+extern void esp_vApplicationTickHook();
+void IRAM_ATTR vApplicationTickHook()
+{
+    esp_vApplicationTickHook();
+}
+
+/*-----------------------------------------------------------*/
+extern void esp_vApplicationIdleHook();
+void vApplicationIdleHook()
+{
+    esp_vApplicationIdleHook();
+}
+
 /*-----------------------------------------------------------*/
 
 void vApplicationDaemonTaskStartupHook( void )
