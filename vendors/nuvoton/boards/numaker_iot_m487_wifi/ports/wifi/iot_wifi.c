@@ -116,7 +116,9 @@ WIFIReturnCode_t WIFI_On( void )
         xNuWiFi.xWifiObject.UartBaudRate = ESP_UART_BAUDRATE;
         xNuWiFi.xWifiObject.Timeout = ESP_TIMEOUT_IN_MS;
         xNuWiFi.xWifiObject.IsMultiConn = pdFALSE;
-        xNuWiFi.xWifiObject.ActiveCmd = CMD_NONE;
+        xNuWiFi.xWifiObject.HeapUsage = 0;
+        xNuWiFi.xWifiObject.IsPassiveMode = pdFALSE;
+        xNuWiFi.xWifiObject.ActiveSocket = 0;
 
         xWIFI_IsInitialized = pdTRUE;
     }

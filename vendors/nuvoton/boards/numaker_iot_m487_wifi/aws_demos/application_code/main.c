@@ -71,6 +71,7 @@ extern uint8_t ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ];
  * 1 but a DHCP server could not be contacted.  See the online documentation for
  * more information.  In both cases the node can be discovered using
  * "ping RTOSDemo". */
+#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH )
 static const uint8_t ucIPAddress[ 4 ] =
 {
     configIP_ADDR0,
@@ -99,7 +100,7 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
     configDNS_SERVER_ADDR2,
     configDNS_SERVER_ADDR3
 };
-
+#endif
 
 /**
  * @brief Application task startup hook.
@@ -484,7 +485,6 @@ void vAssertCalled( const char * pcFile,
 
 void vApplicationIdleHook( void )
 {
-    const uint32_t ulMSToSleep = 1;
     const TickType_t xIdleCheckPeriod = pdMS_TO_TICKS( 1000UL );
     static TickType_t xTimeNow, xLastTimeCheck = 0;
 
