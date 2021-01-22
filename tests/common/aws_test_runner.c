@@ -42,6 +42,13 @@
 /* Application version info. */
 #include "aws_application_version.h"
 
+/**
+ * Default value of delay period before the execution of tests on device.
+ */
+#ifndef AWS_TEST_RUNNER_DELAY_MS
+    #define AWS_TEST_RUNNER_DELAY_MS    5000
+#endif
+
 const AppVersion32_t xAppFirmwareVersion =
 {
     .u.x.ucMajor = APP_VERSION_MAJOR,
@@ -270,6 +277,12 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
     UnityFixture.GroupFilter = 0;
     UnityFixture.NameFilter = testrunnerTEST_FILTER;
     UnityFixture.RepeatCount = 1;
+
+    /* Add sufficient delay before starting tests on device to allow
+     * device to be available as serial port connection to the host machine
+     * OS.
+     * The serial console is used by host machine to view device logs. */
+    vTaskDelay( pdMS_TO_TICKS( AWS_TEST_RUNNER_DELAY_MS ) );
 
     UNITY_BEGIN();
 
