@@ -28,10 +28,6 @@
 
 #include "string.h"
 #include "esp_wifi.h"
-
-#define LOG_LOCAL_LEVEL    ESP_LOG_DEBUG
-
-
 #include "esp_log.h"
 #include "esp_event.h"
 #include "event_groups.h"
