@@ -182,40 +182,37 @@ target_sources(
         "${afr_ports_dir}/wifi/iot_wifi.c"
 )
 
-# SoftAP Provisioning - The add functionality is part of the wifi lib when usig LWIP
+# SoftAP Provisioning - Available ONLY when using LWIP stack
 if( NOT AFR_ESP_FREERTOS_TCP )
     target_include_directories(
         AFR::wifi::mcu_port
         INTERFACE
             "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser"
             "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/include"
+            "${esp_idf_dir}/components/protobuf-c/protobuf-c"
             "${esp_idf_dir}/components/protocomm/proto-c"
             "${esp_idf_dir}/components/protocomm/src/common"
-            "${esp_idf_dir}/components/protobuf-c/protobuf-c"
-            "${esp_idf_dir}/components/esp_http_server/include"
             "${esp_idf_dir}/components/wifi_provisioning/proto-c"
+            "${esp_idf_dir}/components/esp_http_server/include"
     )
-
     target_sources(
         AFR::wifi::mcu_port
         INTERFACE
             "${afr_ports_dir}/wifi/iot_softap_wifi_provisioning.c"
             "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c"
             "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h"
-            "${afr_ports_dir}/wifi/iot_softap_wifi_provisioning.c"
+            "${esp_idf_dir}/components/protobuf-c/protobuf-c/protobuf-c/protobuf-c.c"
+            "${esp_idf_dir}/components/protocomm/proto-c/session.pb-c.c"
+            "${esp_idf_dir}/components/protocomm/proto-c/sec0.pb-c.c"
+            "${esp_idf_dir}/components/protocomm/proto-c/sec1.pb-c.c"
+            "${esp_idf_dir}/components/protocomm/proto-c/constants.pb-c.c"
             "${esp_idf_dir}/components/protocomm/src/common/protocomm.c"
             "${esp_idf_dir}/components/protocomm/src/security/security1.c"
             "${esp_idf_dir}/components/protocomm/src/transports/protocomm_httpd.c"
-            "${esp_idf_dir}/components/protocomm/proto-c/session.pb-c.c"
-            "${esp_idf_dir}/components/protocomm/proto-c/sec1.pb-c.c"
-            "${esp_idf_dir}/components/protobuf-c/protobuf-c/protobuf-c/protobuf-c.c"
-            "${esp_idf_dir}/components/wifi_provisioning/src/wifi_config.c"
             "${esp_idf_dir}/components/wifi_provisioning/proto-c/wifi_config.pb-c.c"
             "${esp_idf_dir}/components/wifi_provisioning/proto-c/wifi_constants.pb-c.c"
-            "${esp_idf_dir}/components/protocomm/proto-c/constants.pb-c.c"
-            "${esp_idf_dir}/components/protocomm/proto-c/sec0.pb-c.c"
+            "${esp_idf_dir}/components/wifi_provisioning/src/wifi_config.c"
     )
-
     target_link_libraries(
         AFR::wifi::mcu_port
         INTERFACE

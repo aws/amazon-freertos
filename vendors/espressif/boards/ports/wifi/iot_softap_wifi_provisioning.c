@@ -175,16 +175,17 @@ static esp_err_t prvSetProvisionConfig( const wifi_prov_config_set_data_t * pxRe
 static esp_err_t prvApplyProvisionConfig( wifi_prov_ctx_t ** ppxUserContext )
 {
     esp_err_t xReturnCode = ESP_FAIL;
-    wifi_mode_t mode_wifi = WIFI_MODE_NULL;
+    wifi_mode_t xMode_Wifi = WIFI_MODE_NULL;
 
-    /* Maintain AP for connection to mobile provisioning app, and verify the 
+    /* Maintain AP for connection to mobile provisioning app, and verify the
      * credentials before storing to flash --> Use dual AP+STA mode */
-    esp_wifi_get_mode(&mode_wifi);
-    if( mode_wifi != WIFI_MODE_APSTA && esp_wifi_set_mode( WIFI_MODE_APSTA ) == ESP_OK)
+    esp_wifi_get_mode( &xMode_Wifi );
+
+    if( ( xMode_Wifi != WIFI_MODE_APSTA ) && ( esp_wifi_set_mode( WIFI_MODE_APSTA ) == ESP_OK ) )
     {
-        esp_wifi_get_mode(&mode_wifi);
+        esp_wifi_get_mode( &xMode_Wifi );
     }
-    else 
+    else
     {
         ESP_LOGE( TAG, "Failed to switch to AP+STA mode" );
     }
@@ -192,7 +193,8 @@ static esp_err_t prvApplyProvisionConfig( wifi_prov_ctx_t ** ppxUserContext )
     /* Try to connect using provisioned SSID/password */
     WIFINetworkParams_t xAttemptParams;
     prvNetworkProfile2Params( &xProvisionedParams, &xAttemptParams );
-    if( mode_wifi == WIFI_MODE_APSTA && eWiFiSuccess == WIFI_ConnectAP( &xAttemptParams ) )
+
+    if( ( xMode_Wifi == WIFI_MODE_APSTA ) && ( eWiFiSuccess == WIFI_ConnectAP( &xAttemptParams ) ) )
     {
         ESP_LOGI( TAG, "Successfully connected to %s", xAttemptParams.ucSSID );
 
@@ -299,10 +301,10 @@ uint32_t IotWifiSoftAPProv_Connect( uint32_t ulNetworkIndex )
         if( eWiFiSuccess == WIFI_ConnectAP( &xAttemptParams ) )
         {
             ulReturnCode = pdPASS;
-            ESP_LOGI( TAG, "Successfully connected to saved network profile[%d] SSID:%.*s", 
-                ulNetworkIndex, 
-                xSavedNetworkProfile.ucSSIDLength,
-                xSavedNetworkProfile.ucSSID);
+            ESP_LOGI( TAG, "Successfully connected to saved network profile[%d] SSID:%.*s",
+                      ulNetworkIndex,
+                      xSavedNetworkProfile.ucSSIDLength,
+                      xSavedNetworkProfile.ucSSID );
         }
         else
         {
