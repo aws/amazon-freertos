@@ -52,13 +52,6 @@ static char cErrorString[ cmdMAX_ERROR_SIZE ] = "";
 
 static uint8_t ucCommandIndex = 0;
 
-static void processInputBuffer( xConsoleIO_t consoleIO,
-                                int32_t inputSize,
-                                char * pCommandBuffer,
-                                size_t commandBufferLength,
-                                char * pOutputBuffer,
-                                size_t outpuBufferLength );
-
 void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
                                    char * pCommandBuffer,
                                    size_t commandBufferLength,
@@ -107,7 +100,7 @@ void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
     }
 }
 
-static void processInputBuffer( xConsoleIO_t consoleIO,
+void processInputBuffer( xConsoleIO_t consoleIO,
                                 int32_t inputSize,
                                 char * pCommandBuffer,
                                 size_t commandBufferLength,

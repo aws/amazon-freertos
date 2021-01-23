@@ -28,6 +28,8 @@
  * @brief The function to be called to run all the tests.
  */
 
+#include <string.h>
+
 /* Test runner interface includes. */
 #include "aws_test_runner.h"
 
@@ -41,6 +43,11 @@
 
 /* Application version info. */
 #include "aws_application_version.h"
+
+#include "FreeRTOS_CLI.h"
+#include "FreeRTOS_CLI_UART.h"
+#include "iot_uart.h"
+#include <stdbool.h>
 
 const AppVersion32_t xAppFirmwareVersion =
 {
@@ -259,6 +266,92 @@ static void RunTests( void )
 }
 /*-----------------------------------------------------------*/
 
+static BaseType_t prvRunTestsCommand( int8_t *pcWriteBuffer,
+                                          size_t xWriteBufferLen,
+                                          const int8_t *pcCommandString )
+{
+    (void)pcWriteBuffer;
+    (void)xWriteBufferLen;
+    (void)pcCommandString;
+
+    RunTests();
+
+    return pdFALSE;
+}
+
+static const CLI_Command_Definition_t xStartCommand =
+{
+    "start",
+    "start : Instructs test runner to start executing tests on the board.",
+    prvRunTestsCommand,
+    1
+};
+
+void prvRegisterStartCommand()
+{
+
+FreeRTOS_CLIRegisterCommand( &xStartCommand );
+
+}
+
+void prvTestRunnerConsole()
+{
+    // iot_uart_init();
+    prvRegisterStartCommand();
+
+    static const char * const pcWelcomeMessage =
+  "Test Runner has started. Waiting for board to be available on host machine.";
+    /* Send a welcome message to the user knows they are connected. */
+    uartConsoleIO.write( pcWelcomeMessage, strlen( pcWelcomeMessage ) );
+
+    /* The input and output buffers are declared static to keep them off the stack. */
+    static int8_t pOutputBuffer[ 10 ], pInputBuffer[ 50 ];
+    BaseType_t xReceivedCommand = pdFALSE;
+    BaseType_t xErrorEncountered = pdFALSE;
+     
+    //while( (xReceivedCommand == pdFALSE) && (xErrorEncountered == pdFALSE))
+    for(;;)
+    {
+        BaseType_t xMoreDataToFollow;
+        int32_t bytesRead;
+
+        /* This implementation reads a single character at a time.  Wait in the
+        Blocked state until a character is received. */
+ /* Read characters to input buffer. */
+        bytesRead = uartConsoleIO.read( pInputBuffer, sizeof(pInputBuffer) - 1 );
+
+        uartConsoleIO.write( "Received Input\r\n", strlen( "Received Input\r\n" ));
+        uartConsoleIO.write( pInputBuffer, bytesRead );
+
+        if( bytesRead > 0 )
+        {
+            // uartConsoleIO.write("Received Input", strlen("Received Input"));
+            // uartConsoleIO.write( pInputBuffer, sizeof(pInputBuffer));
+
+            /* Check if an expected command has been received. */
+            if(memcmp(pInputBuffer, "start", strlen("start") == 0))
+            {
+
+                xReceivedCommand = pdTRUE;
+
+                processInputBuffer( uartConsoleIO,
+                                bytesRead,
+                                pInputBuffer,
+                                sizeof(pInputBuffer),
+                                pOutputBuffer,
+                                sizeof(pOutputBuffer) );
+
+            }
+            else
+            {
+                /* Received an invalid command. */
+                xErrorEncountered = pdTRUE;
+            }
+        }
+    }
+}
+
+
 void TEST_RUNNER_RunTests_task( void * pvParameters )
 {
     /* Disable unused parameter warning. */
@@ -270,6 +363,8 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
     UnityFixture.NameFilter = testrunnerTEST_FILTER;
     UnityFixture.RepeatCount = 1;
 
+    prvTestRunnerConsole();
+
     UNITY_BEGIN();
 
     /* Give the print buffer time to empty */
@@ -279,7 +374,6 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
         xHeapBefore = xPortGetFreeHeapSize();
     #endif
 
-    RunTests();
 
     #if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 )
 
