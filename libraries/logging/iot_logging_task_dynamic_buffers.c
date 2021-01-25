@@ -199,7 +199,7 @@ void vLoggingPrintf( const char * pcFormat,
         }
         else
         {
-            xEndOfMessage = pfFALSE;
+            xEndOfMessage = pdFALSE;
         }
 
         xLength2 = vsnprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, pcFormat, args );
