@@ -193,7 +193,7 @@ void vLoggingPrintf( const char * pcFormat,
         ulFormatStrLen = strlen( pcFormat );
 
         /* Look for new line character in message to detect if the log message has ended. */
-        if( ( ulFormatStrLen >= 2UL ) && ( strcmp( pcFormat + ulFormatStrLen - 2, "\r\n" ) ) )
+        if( ( ulFormatStrLen >= 2UL ) && ( strcmp( pcFormat + ulFormatStrLen - 2, "\r\n" ) == 0U ) )
         {
             xEndOfMessage = pdTRUE;
         }
