@@ -153,10 +153,13 @@ void vLoggingPrintf( const char * pcFormat,
 
     if( pcPrintString != NULL )
     {
+        static BaseType_t xEndOfMessage = pdFALSE;
+        size_t ulFormatStrLen = 0UL;
+
         /* There are a variable number of parameters. */
         va_start( args, pcFormat );
 
-        if( strcmp( pcFormat, "\n" ) != 0 )
+        if( ( strcmp( pcFormat, "\n" ) != 0 ) && ( xEndOfMessage == pdTRUE ) )
         {
             #if ( configLOGGING_INCLUDE_TIME_AND_TASK_NAME == 1 )
                 {
@@ -185,6 +188,18 @@ void vLoggingPrintf( const char * pcFormat,
                     xLength = 0;
                 }
             #endif /* if ( configLOGGING_INCLUDE_TIME_AND_TASK_NAME == 1 ) */
+        }
+
+        ulFormatStrLen = strlen( pcFormat );
+
+        /* Look for new line character in message to detect if the log message has ended. */
+        if( ( ulFormatStrLen >= 2UL ) && ( strcmp( pcFormat + ulFormatStrLen - 2, "\r\n" ) ) )
+        {
+            xEndOfMessage = pdTRUE;
+        }
+        else
+        {
+            xEndOfMessage = pfFALSE;
         }
 
         xLength2 = vsnprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, pcFormat, args );
