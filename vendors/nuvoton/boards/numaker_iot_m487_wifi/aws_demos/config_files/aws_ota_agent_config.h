@@ -33,8 +33,9 @@
 
 /**
  * @brief The number of words allocated to the stack for the OTA agent.
+ * For M487 paltform, Stack size 1500 words is enough for OTA demo & test.
  */
-#define otaconfigSTACK_SIZE                     1500U //3584U
+#define otaconfigSTACK_SIZE                     1500U
 
 /**
  * @brief Log base 2 of the size of the file data block message (excluding the header).
@@ -81,9 +82,11 @@
  *  request is 128/1 = 128 blocks. Configure this parameter to this maximum limit or lower based on
  *  how many data blocks response is expected for each data requests.
  *  Please note that this must be set larger than zero.
+ *  For M487 paltform + freertos_plus_tcp, M487 memory footprint can't afford number > 2 .
  *
  */
-#define otaconfigMAX_NUM_BLOCKS_REQUEST         4U
+
+#define otaconfigMAX_NUM_BLOCKS_REQUEST         2U
 
 /**
  * @brief The maximum number of requests allowed to send without a response before we abort.
@@ -99,6 +102,7 @@
  *
  * This configurations parameter sets the maximum number of static data buffers used by
  * the OTA agent for job and file data blocks received.
+ * For M487 paltform + freertos_plus_tcp, M487 memory footprint can't afford number > 2 .
  */
 #define otaconfigMAX_NUM_OTA_DATA_BUFFERS       2U
 
@@ -133,8 +137,9 @@
  * Enable data over MQTT - ( OTA_DATA_OVER_MQTT )
  * Enable data over HTTP - ( OTA_DATA_OVER_HTTP)
  * Enable data over both MQTT & HTTP ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
+ * For M487 paltform + freertos_plus_tcp, M487 memory footprint can't afford OTA_DATA_OVER_HTTP.
  */
-#define configENABLED_DATA_PROTOCOLS         ( OTA_DATA_OVER_MQTT )//( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
+#define configENABLED_DATA_PROTOCOLS         ( OTA_DATA_OVER_MQTT )
 
  /**
   * @brief The preferred protocol selected for OTA data operations.
