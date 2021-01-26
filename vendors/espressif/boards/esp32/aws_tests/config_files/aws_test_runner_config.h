@@ -42,6 +42,15 @@
  */
 /* #define AWS_TEST_RUNNER_DELAY_MS                       ( 1000 )*/
 
+/* Uncomment this line to enable serial console mode for the FreeRTOS test runner.
+ * In the serial console mode, the test runner will wait for a command to be received
+ * from the serial prompt to start executing tests.
+ * This is useful in synchronizing the execution of tests on the device with the
+ * availability of device after flashing on the serial port of the host machine OS.
+ * The serial console is used by IDT to detect state of test execution on device.
+ */
+/* #define AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE          ( 1 ) */
+
 /* Unsupported tests */
 #define testrunnerFULL_OTA_CBOR_ENABLED                testrunnerUNSUPPORTED
 #define testrunnerFULL_POSIX_ENABLED                   testrunnerUNSUPPORTED
