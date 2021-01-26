@@ -76,11 +76,22 @@ void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
                                    size_t outputBufferLength );
 
 
-void processInputBuffer( xConsoleIO_t consoleIO,
-                                char * cInputBuffer,
+/**
+ * @brief Adds incoming data from console input interface (@p pConsoleInput)
+ * to the input command buffer (@pCommandBuffer), and if the input command is
+ * complete, it checks against commands registered with FreeRTOS+CLI and calls
+ * the matching command's handler for processing the input command.
+ * 
+ * @param[in] consoleIO The console interface object for read/write operations.
+ * @param[in] pConsoleInput The buffer containing the data read from the console.
+ * 
+ */
+void FreeRTOS_CLI_ProcessInputBuffer( xConsoleIO_t consoleIO,
+                                char * pConsoleInput,
                                 int32_t inputSize,
                                 char * pCommandBuffer,
                                 size_t commandBufferLength,
+                                size_t *pCommandBufferIndex,
                                 char * pOutputBuffer,
                                 size_t outpuBufferLength );
 

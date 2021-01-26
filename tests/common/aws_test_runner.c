@@ -28,8 +28,6 @@
  * @brief The function to be called to run all the tests.
  */
 
-#include <string.h>
-
 /* Test runner interface includes. */
 #include "aws_test_runner.h"
 
@@ -44,10 +42,16 @@
 /* Application version info. */
 #include "aws_application_version.h"
 
-#include "FreeRTOS_CLI.h"
-#include "FreeRTOS_CLI_UART.h"
-#include "iot_uart.h"
-#include <stdbool.h>
+#define AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE   (1)
+
+/* Include files for UART based FreeRTOS+CLI support of test runner. 
+   Note: This adds a dependency on Common IO for UART communication .*/
+#if defined( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE) && ( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE == 1 )
+    #include <string.h>
+    #include "FreeRTOS_CLI.h"
+    #include "FreeRTOS_CLI_UART.h"
+    #include "iot_uart.h"
+#endif
 
 const AppVersion32_t xAppFirmwareVersion =
 {
@@ -235,9 +239,9 @@ static void RunTests( void )
         RUN_TEST_GROUP( HTTPS_Client_System );
     #endif
 
-    //#if ( testrunnerFULL_COMMON_IO_ENABLED == 1 )
+    #if ( testrunnerFULL_COMMON_IO_ENABLED == 1 )
         RUN_TEST_GROUP( Common_IO );
-    //#endif
+    #endif
 
     #if ( testrunnerFULL_CORE_MQTT_ENABLED == 1 )
         RUN_TEST_GROUP( coreMQTT_Integration );
@@ -265,92 +269,107 @@ static void RunTests( void )
     #endif
 }
 /*-----------------------------------------------------------*/
+#if defined( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE) && ( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE == 1 )
+    /* Global flag that represents whether a "start" command is received 
+    on the serial console. */
+    static BaseType_t xReceivedCommand = pdFALSE;
 
-static BaseType_t xReceivedCommand = pdFALSE;
+    /**
+     * @brief The command handler for the "start" command recognized by the
+     * serial console of the FreeRTOS test runner. On receiving the command,
+     * the test runner begins executing tests on the device. 
+     * 
+     * @return Returns pdFALSE to indicate completion of execution of tests.
+     */
+    static BaseType_t prvRunTestsCommand( int8_t *pcWriteBuffer,
+                                            size_t xWriteBufferLen,
+                                            const int8_t *pcCommandString )
+    {
+        (void)pcWriteBuffer;
+        (void)xWriteBufferLen;
+        (void)pcCommandString;
 
-static BaseType_t prvRunTestsCommand( int8_t *pcWriteBuffer,
-                                          size_t xWriteBufferLen,
-                                          const int8_t *pcCommandString )
-{
-    (void)pcWriteBuffer;
-    (void)xWriteBufferLen;
-    (void)pcCommandString;
+        // Set flag to indicate reception of command from serial console to start 
+        // executing tests.
+        xReceivedCommand = pdTRUE;
 
-    // Set flag to indicate reception of command from serial console to start 
-    // executing tests.
-    xReceivedCommand = pdTRUE;
+        UNITY_BEGIN();
 
-    uartConsoleIO.write("In command handler", strlen("In command handler"));
-    //configPRINTF(("Reached command handler"));
+        RunTests();
 
-    RunTests();
+        return pdFALSE;
+    }
 
-    return pdFALSE;
-}
+    /* Definition of a FreeRTOS+CLI command to instruct the test runner start executing commands.
+    The command takes no parameters. */
+    static const CLI_Command_Definition_t xStartCommand =
+    {
+        "start",
+        "start : Instructs test runner to start executing tests on the board.",
+        prvRunTestsCommand,    /* The handler for the command. */
+        0                      /* Zero number of parameters. */
+    };
 
-static const CLI_Command_Definition_t xStartCommand =
-{
-    "start",
-    "start : Instructs test runner to start executing tests on the board.",
-    prvRunTestsCommand,
-    0
-};
+    /* Size of the buffer fot storing input command from serial console. */
+    #define cmdMAX_INPUT_SIZE     20
 
-void prvRegisterStartCommand()
-{
+    /* Size of buffer for storing output string for the serial console of test runner. */
+    #define cmdMAX_OUTPUT_SIZE    100
 
-FreeRTOS_CLIRegisterCommand( &xStartCommand );
-
-}
-
-void prvTestRunnerConsole()
-{
-    // iot_uart_init();
-    prvRegisterStartCommand();
-
-    static const char * const pcWelcomeMessage =
-  "Test Runner has started. Waiting for board to be available on host machine.\n";
-    /* Send a welcome message to the user knows they are connected. */
-    uartConsoleIO.write( pcWelcomeMessage, strlen( pcWelcomeMessage ) );
-
-    /* The input and output buffers are declared static to keep them off the stack. */
-    static int8_t pOutputBuffer[ 10 ], pInputBuffer[ 50 ], cErrorString[30];
-    BaseType_t xErrorEncountered = pdFALSE;
-     
-    while( (xReceivedCommand == pdFALSE) && (xErrorEncountered == pdFALSE))
+    void prvTestRunnerConsole()
     {
         int32_t bytesRead;
-        uint8_t inputChar;
+        int8_t serialInputChar;
 
-        /* This implementation reads a single character at a time.  Wait in the
-        Blocked state until a character is received. */
-        /* Read characters to input buffer. */
-        bytesRead = uartConsoleIO.read( &inputChar, 1 );
+        static const char * const pcWelcomeMessage =
+        "Welcome to the Test Runner console.\r\n[Type the \"start\" command to beging executing tests]\r\n>";
+        
+        /* Register the "start" command that will allow user to signal from the serial console
+        about when to start execution of tests by the test runner. */
+        FreeRTOS_CLIRegisterCommand( &xStartCommand );
+        
+        /* Print welcome message on serial console to indicate prompt for entering command. */
+        uartConsoleIO.write( pcWelcomeMessage, strlen( pcWelcomeMessage ) );
 
-        if( bytesRead > 0 )
+        /* The input and output buffers are declared static to keep them off the stack. */
+        static int8_t pOutputBuffer[ cmdMAX_OUTPUT_SIZE ], pInputBuffer[ cmdMAX_INPUT_SIZE ], pErrorBuffer[30];
+        BaseType_t xErrorEncountered = pdFALSE;
+        
+        while( (xReceivedCommand == pdFALSE) && (xErrorEncountered == pdFALSE))
         {
-            //configPRINTF(("Read %d bytes with input as : %c!", bytesRead, inputChar));
-            uartConsoleIO.write(&inputChar, bytesRead);
+            static size_t inputBufferIndex = 0;
 
-            processInputBuffer( uartConsoleIO,
-                            &inputChar,
-                            bytesRead,
-                            pInputBuffer,
-                            sizeof(pInputBuffer),
-                            pOutputBuffer,
-                            sizeof(pOutputBuffer) );
+            /* Read characters to input buffer. */
+            bytesRead = uartConsoleIO.read( &serialInputChar, 1 );
 
-        }
-        else
-        {
-            snprintf( cErrorString, sizeof( cErrorString ), "Read failed with error %d\n", ( int ) bytesRead );
-            uartConsoleIO.write( cErrorString, strlen( cErrorString ) );
+            if( bytesRead > 0 )
+            {
+                /* Echo back to the console. */
+                uartConsoleIO.write(&serialInputChar, bytesRead);
 
-            xErrorEncountered = pdTRUE;
+                FreeRTOS_CLI_ProcessInputBuffer( uartConsoleIO,
+                                &serialInputChar,
+                                bytesRead,
+                                pInputBuffer,
+                                sizeof(pInputBuffer),
+                                &inputBufferIndex,
+                                pOutputBuffer,
+                                sizeof(pOutputBuffer) );
+
+            }
+            else
+            {
+                snprintf( pErrorBuffer, 
+                sizeof( pErrorBuffer ), 
+                "Read from serial console failed. Error=%d\n", 
+                ( int ) bytesRead );
+                uartConsoleIO.write( pErrorBuffer, strlen( pErrorBuffer ) );
+
+                xErrorEncountered = pdTRUE;
+            }
         }
     }
-}
-
+#endif
 
 void TEST_RUNNER_RunTests_task( void * pvParameters )
 {
@@ -363,9 +382,13 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
     UnityFixture.NameFilter = testrunnerTEST_FILTER;
     UnityFixture.RepeatCount = 1;
 
-    prvTestRunnerConsole();
+    #if defined( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE) && ( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE == 1 )
+        prvTestRunnerConsole();
+    #else
+        UNITY_BEGIN();
 
-    UNITY_BEGIN();
+        RunTests();
+    #endif
 
     /* Give the print buffer time to empty */
     vTaskDelay( pdMS_TO_TICKS( 500 ) );
