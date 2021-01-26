@@ -42,11 +42,9 @@
 /* Application version info. */
 #include "aws_application_version.h"
 
-#define AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE    ( 1 )
-
 /* Include files for UART based FreeRTOS+CLI support of test runner.
  *  Note: This adds a dependency on Common IO for UART communication .*/
-#if defined( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE ) && ( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE == 1 )
+#if defined( AWS_TEST_RUNNER_ENABLE_CLI_INPUT ) && ( AWS_TEST_RUNNER_ENABLE_CLI_INPUT == 1 )
     #include <string.h>
     #include "FreeRTOS_CLI.h"
     #include "FreeRTOS_CLI_UART.h"
@@ -277,7 +275,7 @@ static void RunTests( void )
     #endif
 }
 /*-----------------------------------------------------------*/
-#if defined( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE ) && ( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE == 1 )
+#if defined( AWS_TEST_RUNNER_ENABLE_CLI_INPUT ) && ( AWS_TEST_RUNNER_ENABLE_CLI_INPUT == 1 )
 
 /* Global flag that represents whether a "start" command is received
  * on the serial console. */
@@ -377,7 +375,7 @@ static void RunTests( void )
             }
         }
     }
-#endif /* if defined( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE ) && ( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE == 1 ) */
+#endif /* if defined( AWS_TEST_RUNNER_ENABLE_CLI_INPUT ) && ( AWS_TEST_RUNNER_ENABLE_CLI_INPUT == 1 ) */
 
 void TEST_RUNNER_RunTests_task( void * pvParameters )
 {
@@ -390,7 +388,7 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
     UnityFixture.NameFilter = testrunnerTEST_FILTER;
     UnityFixture.RepeatCount = 1;
 
-    #if defined( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE ) && ( AWS_TEST_RUNNER_ENABLE_SERIAL_CONSOLE == 1 )
+    #if defined( AWS_TEST_RUNNER_ENABLE_CLI_INPUT ) && ( AWS_TEST_RUNNER_ENABLE_CLI_INPUT == 1 )
         prvTestRunnerConsole();
     #else
 
