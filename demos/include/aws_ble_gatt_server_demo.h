@@ -93,14 +93,5 @@ int vGattDemoSvcInit( bool awsIotMqttMode,
                       void * pNetworkCredentialInfo,
                       const IotNetworkInterface_t * pNetworkInterface );
 
-/**
- * @brief Starts the GATT demo service.
- */
-void vGattDemoSvcStart( void );
-
-/**
- * @brief Stops the GATT demo service.
- */
-void vGattDemoSvcStop( void );
 
 #endif /* AWS_BLE_GATT_SERVER_DEMO_H_ */

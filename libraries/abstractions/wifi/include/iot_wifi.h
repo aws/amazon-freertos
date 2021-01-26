@@ -732,25 +732,6 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 /* @[declare_wifi_wifi_ping] */
 
 /**
- * @brief Get IP configuration (IP address, NetworkMask, Gateway and
- *        DNS server addresses).
- *
- * @param[out] pxIPInfo - Current IP configuration.
- *
- * @return @ref eWiFiSuccess if successful and IP Address buffer has the interface's IP address,
- * failure code otherwise.
- *
- * **Example**
- * @code
- * WIFIIPConfiguration_t xIPInfo;
- * WIFI_GetIPInfo( &xIPInfo );
- * @endcode
- */
-/* @[declare_wifi_wifi_getip] */
-WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * pxIPInfo );
-/* @[declare_wifi_wifi_getip] */
-
-/**
  * @brief Retrieves the Wi-Fi interface's MAC address.
  *
  * @param[out] pucMac MAC Address buffer sized 6 bytes.

@@ -28,8 +28,8 @@
  * @brief BLE GAP and GATT API.
  */
 
-#ifndef _AWS_BLE_H_
-#define _AWS_BLE_H_
+#ifndef IOT_BLE_H
+#define IOT_BLE_H
 
 #include <stddef.h>
 #include "bt_hal_manager_adapter_ble.h"
@@ -100,7 +100,6 @@ typedef enum
     eBLERead,                      /**< Read event. */
     eBLEWrite,                     /**< Write event. */
     eBLEWriteNoResponse,           /**< Write event, no response required. */
-    eBLEWritePrepare,              /**< Prepare Write event. */
     eBLEExecWrite,                 /**< Execute Write event. */
     eBLEResponseConfirmation,      /**< Confirmation from remote device. */
     eBLEIndicationConfirmReceived, /**< Received confirm to indication from remote device. */
@@ -163,7 +162,7 @@ typedef struct
     uint32_t transId;           /**< Transaction ID. */
     BTBdaddr_t * pRemoteBdAddr; /**< Remote device address. */
     uint16_t connId;            /**< Connection ID. */
-    bool execWrite;             /**< Execute Write command. */
+    bool execWrite;             /**< Execute (true) or Cancel(false) the Write transaction. */
 } IotBleExecWriteEventParams_t;
 
 /**
@@ -315,7 +314,7 @@ typedef void ( * IotBle_NumericComparisonCallback_t )( BTBdaddr_t * pRemoteBdAdd
  */
 typedef enum
 {
-    eBLEMtuChanged,                         /**< eBLEMtuChanged Event triggering BLEMtuChangedCallback_t. */
+    eBLEMtuChanged = 0,                     /**< eBLEMtuChanged Event triggering BLEMtuChangedCallback_t. */
     eBLEConnection,                         /**< eBLEConnection Event  triggering BLEConnectionCallback_t. */
     eBLEPairingStateChanged,                /**< eBLEPairingStateChanged Event triggering BLEPairingStateChanged_t. */
     eBLEConnParameterUpdateRequestCallback, /**< eBLEConnParameterUpdateRequestCallback Event triggering BLEConnParameterUpdateRequestCallback_t.  */
@@ -660,4 +659,4 @@ BTStatus_t IotBle_SetDeviceName( const char * pName,
                                  size_t length );
 /* @[declare_iotble_setdevicename] */
 
-#endif /* _AWS_BLE_H_*/
+#endif /* IOT_BLE_H*/

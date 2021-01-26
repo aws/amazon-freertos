@@ -27,6 +27,7 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "string.h"
 
 /* Test includes */
 #include "aws_test_runner.h"
@@ -45,7 +46,7 @@
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
 #endif
-#include "tcpip_adapter.h"
+#include "esp_netif.h"
 #include "aws_test_utils.h"
 #include "esp_bt.h"
 #include "esp_system.h"
@@ -181,7 +182,7 @@ int app_main( void )
 
 #if AFR_ESP_LWIP
     configPRINTF( ("Initializing lwIP TCP stack\r\n") );
-    tcpip_adapter_init();
+    esp_netif_init();
 #else /* AFR_ESP_LWIP */
     configPRINTF( ("Initializing FreeRTOS TCP stack\r\n") );
     FreeRTOS_IPInit( ucIPAddress,
@@ -242,6 +243,21 @@ static void prvMiscInitialization( void )
 
     ESP_ERROR_CHECK( ret );
 }
+
+/*-----------------------------------------------------------*/
+extern void esp_vApplicationTickHook();
+void IRAM_ATTR vApplicationTickHook()
+{
+    esp_vApplicationTickHook();
+}
+
+/*-----------------------------------------------------------*/
+extern void esp_vApplicationIdleHook();
+void vApplicationIdleHook()
+{
+    esp_vApplicationIdleHook();
+}
+
 /*-----------------------------------------------------------*/
 
 void vApplicationDaemonTaskStartupHook( void )

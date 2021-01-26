@@ -127,9 +127,12 @@ static volatile EventGroupHandle_t xSyncEventGroup = NULL;
 /* Bit definitions used with the xSyncEventGroup event group to allow the
  * prvEchoClientTxTask() and prvEchoClientRxTask() tasks to synchronize before
  * commencing a new cycle with a different socket. */
-#define tcptestTX_TASK_BIT    ( 0x01 << 1 )
-#define tcptestRX_TASK_BIT    ( 0x01 << 2 )
+#define tcptestTX_TASK_BIT                                               ( 0x01 << 1 )
+#define tcptestRX_TASK_BIT                                               ( 0x01 << 2 )
 
+#ifndef tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE
+    #define tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE    tcptestTWICE_MAX_FRAME_SIZE
+#endif
 
 /* Array setup for 2x an Ethernet II data section */
 #define tcptestTWICE_MAX_FRAME_SIZE    ( 2 * 1500 )
@@ -423,7 +426,7 @@ typedef struct
 #define tcptestMAX_LOOPS_ECHO_TEST            tcptestMAX_ECHO_TEST_MODES
 
 #define tcptestECHO_TEST_LOW_PRIORITY         tskIDLE_PRIORITY
-#define tcptestECHO_TEST_HIGH_PRIORITY        ( configMAX_PRIORITIES - 1 )
+#define tcptestECHO_TEST_HIGH_PRIORITY        ( configMAX_PRIORITIES - 2 )
 
 #ifndef ipconfigTCP_MSS
     #define ipconfigTCP_MSS                   ( 256 )
@@ -898,9 +901,7 @@ static BaseType_t prvRecvHelper( Socket_t xSocket,
 
         if( xNumBytes == 0 )
         {
-            tcptestFAILUREPRINTF( ( "Timed out receiving from echo server \r\n" ) );
-            xResult = pdFAIL;
-            break;
+            tcptestFAILUREPRINTF( ( "Warning Timed out receiving from echo server \r\n" ) );
         }
         else if( xNumBytes < 0 )
         {
@@ -1073,7 +1074,7 @@ static BaseType_t prvCheckTimeout( TickType_t xStartTime,
     if( ( int32_t ) ( xEndTime - xStartTime ) < ( int32_t ) ( xTimeout - integrationtestportableTIMEOUT_UNDER_TOLERANCE ) )
     {
         xResult = pdFAIL;
-        tcptestFAILUREPRINTF( ( "Start Time: %d, End Time: %d, Timeout: %d \n", xStartTime, xEndTime, xTimeout ) );
+        tcptestFAILUREPRINTF( ( "UNDER TOLERANCE failure Start Time: %d, End Time: %d, Timeout: %d \n", xStartTime, xEndTime, xTimeout ) );
     }
 
     /* Did the function exit after a reasonable amount of time?
@@ -1081,7 +1082,7 @@ static BaseType_t prvCheckTimeout( TickType_t xStartTime,
     if( ( xEndTime - xStartTime ) > ( xTimeout + integrationtestportableTIMEOUT_OVER_TOLERANCE ) )
     {
         xResult = pdFAIL;
-        tcptestFAILUREPRINTF( ( "Start Time: %d, End Time: %d, Timeout: %d \n", xStartTime, xEndTime, xTimeout ) );
+        tcptestFAILUREPRINTF( ( "OVER TOLERANCE failure Start Time: %d, End Time: %d, Timeout: %d \n", xStartTime, xEndTime, xTimeout ) );
     }
 
     return xResult;
@@ -1483,7 +1484,6 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
     TickType_t xStartTime;
     TickType_t xEndTime;
     TickType_t xTimeout = 0;
-    TickType_t xWaitTime = 1000;
     uint8_t * pucTxBuffer = ( uint8_t * ) pcTxBuffer;
     uint8_t * pucRxBuffer = ( uint8_t * ) pcRxBuffer;
     size_t xMessageLength = 1200;
@@ -1544,12 +1544,18 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
                 xNumBytesReceived += lNumBytes;
             }
 
+            if( lNumBytes < 0 )
+            {
+                break;
+            }
+
             xEndTime = xTaskGetTickCount();
         }
-        while( ( ( xEndTime - xStartTime ) < xWaitTime ) && ( xMessageLength > xNumBytesReceived ) );
+        while( xMessageLength > xNumBytesReceived );
 
+        xResult = prvCheckTimeout( xStartTime, xEndTime, xTimeout );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Receive timeout was outside of acceptable range" );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( xMessageLength, xNumBytesReceived, "Data was not received \r\n" );
-
         xResult = prvCheckRxTxBuffers( pucTxBuffer, pucRxBuffer, xMessageLength );
 
         xResult = prvShutdownHelper( xSocket );
@@ -1949,6 +1955,7 @@ static void prvSOCKETS_SendRecv_VaryLength( Server_t xConn )
 
             TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Data failed to send\r\n" );
             memset( pucRxBuffer, tcptestRX_BUFFER_FILLER, tcptestBUFFER_SIZE );
+
             xResult = prvRecvHelper( xSocket,
                                      pucRxBuffer,
                                      xMessageLengths[ ulIndex ] );
@@ -2720,11 +2727,10 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
                 xRecvLen = 1;
             }
 
-            while( xTotalReceived < tcptestTWICE_MAX_FRAME_SIZE )
+            while( xTotalReceived < tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE )
             {
                 xReturned = SOCKETS_Recv( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0 );
 
-                TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xReturned, "Timeout occurred" );
                 TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
 
                 /* Data was received. */
@@ -2816,7 +2822,7 @@ static void prvEchoClientTxTask( void * pvParameters )
                                                                                        /* Using % to avoid bug in case a new state is unknowingly added. */
 
         vTaskPrioritySet( NULL, tcptestECHO_TEST_HIGH_PRIORITY );
-        xMaxBufferSize = tcptestTWICE_MAX_FRAME_SIZE;
+        xMaxBufferSize = tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE;
 
         /* Set low priority if requested . */
         if( ( xMode == LARGE_BUFFER_LOW_PRIORITY ) || ( xMode == SMALL_BUFFER_LOW_PRIORITY ) )
@@ -2843,12 +2849,12 @@ static void prvEchoClientTxTask( void * pvParameters )
         xStatus = pdTRUE;
 
         /* Keep sending until the entire buffer has been sent. */
-        while( xTransmitted < tcptestTWICE_MAX_FRAME_SIZE )
+        while( xTransmitted < tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE )
         {
             /* How many bytes are left to send?  Attempt to send them
              * all at once (so the length is potentially greater than the
              * MSS). */
-            xLenToSend = tcptestTWICE_MAX_FRAME_SIZE - xTransmitted;
+            xLenToSend = tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE - xTransmitted;
 
             /* Every loop switch the size of the packet from maximum to smallest. */
             if( xLenToSend > xMaxBufferSize )
@@ -3053,7 +3059,7 @@ static void prvThreadSafeDifferentSocketsDifferentTasks( void * pvParameters )
                                           ipconfigTCP_MSS - xReceivedBytes,        /* The size of the buffer provided to receive the data. */
                                           0 );                                     /* No flags. */
 
-                if( xReturned <= 0 )
+                if( xReturned < 0 )
                 {
                     break;
                 }
