@@ -80,6 +80,7 @@ void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
             consoleIO.write( cInputBuffer, bytesRead );
 
             processInputBuffer( consoleIO,
+                                cInputBuffer,
                                 bytesRead,
                                 pCommandBuffer,
                                 commandBufferLength,
@@ -101,6 +102,7 @@ void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
 }
 
 void processInputBuffer( xConsoleIO_t consoleIO,
+                                char * cInputBuffer,
                                 int32_t inputSize,
                                 char * pCommandBuffer,
                                 size_t commandBufferLength,
@@ -121,6 +123,7 @@ void processInputBuffer( xConsoleIO_t consoleIO,
          * passed to the command interpreter. */
         if( ( cRxedChar >= ' ' ) && ( cRxedChar <= '~' ) )
         {
+             //consoleIO.write("Add\n", 4);
             if( ucCommandIndex < ( commandBufferLength - 1UL ) )
             {
                 pCommandBuffer[ ucCommandIndex ] = cRxedChar;
@@ -140,6 +143,8 @@ void processInputBuffer( xConsoleIO_t consoleIO,
         /* Was it the end of the line? */
         else if( ( cRxedChar == '\n' ) || ( cRxedChar == '\r' ) )
         {
+            //consoleIO.write("Detected new line", strlen("Detected new line"));
+
             /* Skip subsequent '\n', '\r' or '\n' of CRLF. */
             if( ( i > 0 ) &&
                 ( ( cInputBuffer[ i - 1 ] == '\r' ) || ( cInputBuffer[ i - 1 ] == '\n' ) ) )
@@ -156,6 +161,7 @@ void processInputBuffer( xConsoleIO_t consoleIO,
              * generate more than one string. */
             do
             {
+                 //consoleIO.write("Calling ProcessCommand", strlen("Calling ProcessCommand"));
                 /* Get the next output string from the command interpreter. */
                 xReturned = FreeRTOS_CLIProcessCommand( pCommandBuffer, pOutputBuffer, outpuBufferLength - 1 );
 

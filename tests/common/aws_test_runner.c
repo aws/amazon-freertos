@@ -235,9 +235,9 @@ static void RunTests( void )
         RUN_TEST_GROUP( HTTPS_Client_System );
     #endif
 
-    #if ( testrunnerFULL_COMMON_IO_ENABLED == 1 )
+    //#if ( testrunnerFULL_COMMON_IO_ENABLED == 1 )
         RUN_TEST_GROUP( Common_IO );
-    #endif
+    //#endif
 
     #if ( testrunnerFULL_CORE_MQTT_ENABLED == 1 )
         RUN_TEST_GROUP( coreMQTT_Integration );
@@ -266,6 +266,8 @@ static void RunTests( void )
 }
 /*-----------------------------------------------------------*/
 
+static BaseType_t xReceivedCommand = pdFALSE;
+
 static BaseType_t prvRunTestsCommand( int8_t *pcWriteBuffer,
                                           size_t xWriteBufferLen,
                                           const int8_t *pcCommandString )
@@ -273,6 +275,13 @@ static BaseType_t prvRunTestsCommand( int8_t *pcWriteBuffer,
     (void)pcWriteBuffer;
     (void)xWriteBufferLen;
     (void)pcCommandString;
+
+    // Set flag to indicate reception of command from serial console to start 
+    // executing tests.
+    xReceivedCommand = pdTRUE;
+
+    uartConsoleIO.write("In command handler", strlen("In command handler"));
+    //configPRINTF(("Reached command handler"));
 
     RunTests();
 
@@ -284,7 +293,7 @@ static const CLI_Command_Definition_t xStartCommand =
     "start",
     "start : Instructs test runner to start executing tests on the board.",
     prvRunTestsCommand,
-    1
+    0
 };
 
 void prvRegisterStartCommand()
@@ -300,53 +309,44 @@ void prvTestRunnerConsole()
     prvRegisterStartCommand();
 
     static const char * const pcWelcomeMessage =
-  "Test Runner has started. Waiting for board to be available on host machine.";
+  "Test Runner has started. Waiting for board to be available on host machine.\n";
     /* Send a welcome message to the user knows they are connected. */
     uartConsoleIO.write( pcWelcomeMessage, strlen( pcWelcomeMessage ) );
 
     /* The input and output buffers are declared static to keep them off the stack. */
-    static int8_t pOutputBuffer[ 10 ], pInputBuffer[ 50 ];
-    BaseType_t xReceivedCommand = pdFALSE;
+    static int8_t pOutputBuffer[ 10 ], pInputBuffer[ 50 ], cErrorString[30];
     BaseType_t xErrorEncountered = pdFALSE;
      
-    //while( (xReceivedCommand == pdFALSE) && (xErrorEncountered == pdFALSE))
-    for(;;)
+    while( (xReceivedCommand == pdFALSE) && (xErrorEncountered == pdFALSE))
     {
-        BaseType_t xMoreDataToFollow;
         int32_t bytesRead;
+        uint8_t inputChar;
 
         /* This implementation reads a single character at a time.  Wait in the
         Blocked state until a character is received. */
- /* Read characters to input buffer. */
-        bytesRead = uartConsoleIO.read( pInputBuffer, sizeof(pInputBuffer) - 1 );
-
-        uartConsoleIO.write( "Received Input\r\n", strlen( "Received Input\r\n" ));
-        uartConsoleIO.write( pInputBuffer, bytesRead );
+        /* Read characters to input buffer. */
+        bytesRead = uartConsoleIO.read( &inputChar, 1 );
 
         if( bytesRead > 0 )
         {
-            // uartConsoleIO.write("Received Input", strlen("Received Input"));
-            // uartConsoleIO.write( pInputBuffer, sizeof(pInputBuffer));
+            //configPRINTF(("Read %d bytes with input as : %c!", bytesRead, inputChar));
+            uartConsoleIO.write(&inputChar, bytesRead);
 
-            /* Check if an expected command has been received. */
-            if(memcmp(pInputBuffer, "start", strlen("start") == 0))
-            {
+            processInputBuffer( uartConsoleIO,
+                            &inputChar,
+                            bytesRead,
+                            pInputBuffer,
+                            sizeof(pInputBuffer),
+                            pOutputBuffer,
+                            sizeof(pOutputBuffer) );
 
-                xReceivedCommand = pdTRUE;
+        }
+        else
+        {
+            snprintf( cErrorString, sizeof( cErrorString ), "Read failed with error %d\n", ( int ) bytesRead );
+            uartConsoleIO.write( cErrorString, strlen( cErrorString ) );
 
-                processInputBuffer( uartConsoleIO,
-                                bytesRead,
-                                pInputBuffer,
-                                sizeof(pInputBuffer),
-                                pOutputBuffer,
-                                sizeof(pOutputBuffer) );
-
-            }
-            else
-            {
-                /* Received an invalid command. */
-                xErrorEncountered = pdTRUE;
-            }
+            xErrorEncountered = pdTRUE;
         }
     }
 }

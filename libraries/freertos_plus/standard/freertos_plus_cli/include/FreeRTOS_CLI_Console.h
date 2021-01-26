@@ -77,6 +77,7 @@ void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
 
 
 void processInputBuffer( xConsoleIO_t consoleIO,
+                                char * cInputBuffer,
                                 int32_t inputSize,
                                 char * pCommandBuffer,
                                 size_t commandBufferLength,
