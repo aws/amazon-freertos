@@ -80,13 +80,13 @@ void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
             consoleIO.write( cInputBuffer, bytesRead );
 
             FreeRTOS_CLI_ProcessInputBuffer( consoleIO,
-                                        cInputBuffer,
-                                        bytesRead,
-                                        pCommandBuffer,
-                                        commandBufferLength,
-                                        &ucCommandIndex,
-                                        pOutputBuffer,
-                                        outputBufferLength );
+                                             cInputBuffer,
+                                             bytesRead,
+                                             pCommandBuffer,
+                                             commandBufferLength,
+                                             &ucCommandIndex,
+                                             pOutputBuffer,
+                                             outputBufferLength );
 
             /* Reset input buffer for next iteration. */
             memset( cInputBuffer, 0x00, cmdMAX_INPUT_BUFFER_SIZE );
@@ -103,13 +103,13 @@ void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
 }
 
 void FreeRTOS_CLI_ProcessInputBuffer( xConsoleIO_t consoleIO,
-                                char * cInputBuffer,
-                                int32_t inputSize,
-                                char * pCommandBuffer,
-                                size_t commandBufferLength,
-                                size_t * pCommandBufferIndex,
-                                char * pOutputBuffer,
-                                size_t outpuBufferLength )
+                                      char * cInputBuffer,
+                                      int32_t inputSize,
+                                      char * pCommandBuffer,
+                                      size_t commandBufferLength,
+                                      size_t * pCommandBufferIndex,
+                                      char * pOutputBuffer,
+                                      size_t outpuBufferLength )
 {
     BaseType_t xReturned;
     uint8_t i;
