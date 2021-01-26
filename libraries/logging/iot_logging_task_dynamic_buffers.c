@@ -153,12 +153,16 @@ void vLoggingPrintf( const char * pcFormat,
 
     if( pcPrintString != NULL )
     {
-        static BaseType_t xEndOfMessage = pdFALSE;
+        /* Variable to track when a stream of log message is completed. */
+        /* Note: A log message may be sent over multiple calls to vLoggingPrintf, thus, */
+        /* this variable tracks when the log message ends. */
+        static BaseType_t xEndOfMessage = pdTRUE;
         size_t ulFormatStrLen = 0UL;
 
         /* There are a variable number of parameters. */
         va_start( args, pcFormat );
 
+        /* Add metadata of task name and tick time for a new log message. */
         if( ( strcmp( pcFormat, "\n" ) != 0 ) && ( xEndOfMessage == pdTRUE ) )
         {
             #if ( configLOGGING_INCLUDE_TIME_AND_TASK_NAME == 1 )
@@ -192,7 +196,8 @@ void vLoggingPrintf( const char * pcFormat,
 
         ulFormatStrLen = strlen( pcFormat );
 
-        /* Look for new line character in message to detect if the log message has ended. */
+        /* Look for new line character in message to detect if the log message has ended.
+        * This is done to ensure that the metadata is added only once per log message. */
         if( ( ulFormatStrLen >= 2UL ) && ( strcmp( pcFormat + ulFormatStrLen - 2, "\r\n" ) == 0U ) )
         {
             xEndOfMessage = pdTRUE;
