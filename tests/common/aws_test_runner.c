@@ -399,8 +399,9 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
         vTaskDelay( pdMS_TO_TICKS( AWS_TEST_RUNNER_DELAY_MS ) );
 
         UNITY_BEGIN();
-    #endif
 
+        RunTests();
+    #endif
 
     /* Give the print buffer time to empty */
     vTaskDelay( pdMS_TO_TICKS( 500 ) );
