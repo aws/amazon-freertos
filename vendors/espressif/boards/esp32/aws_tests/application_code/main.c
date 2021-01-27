@@ -32,6 +32,9 @@
 /* Test includes */
 #include "aws_test_runner.h"
 
+#include "iot_uart.h"
+#include "driver/uart.h"
+
 /* AWS library includes. */
 #include "iot_system_init.h"
 #include "iot_logging_task.h"
@@ -141,6 +144,28 @@ static void prvMiscInitialization( void );
 
 /*-----------------------------------------------------------*/
 
+IotUARTHandle_t xConsoleUart;
+
+static void iot_uart_init( void )
+{
+    IotUARTConfig_t xUartConfig;
+    int32_t status = IOT_UART_SUCCESS;
+    
+    xConsoleUart = iot_uart_open( UART_NUM_0 );
+    configASSERT( xConsoleUart );
+    
+    status = iot_uart_ioctl( xConsoleUart, eUartGetConfig, &xUartConfig );
+    configASSERT( status == IOT_UART_SUCCESS );
+    
+    xUartConfig.ulBaudrate = 115200;
+    xUartConfig.xParity = eUartParityNone;
+    xUartConfig.xStopbits = eUartStopBitsOne;
+    xUartConfig.ucFlowControl = true;
+
+    status = iot_uart_ioctl( xConsoleUart, eUartSetConfig, &xUartConfig );
+    configASSERT( status == IOT_UART_SUCCESS );
+}
+
 /**
  * @brief Application runtime entry point.
  */
@@ -198,6 +223,9 @@ int app_main( void )
 
 static void prvMiscInitialization( void )
 {
+    /* Initialize UART. */
+    iot_uart_init();
+
     /* Initialize NVS */
     esp_err_t ret = nvs_flash_init();
 

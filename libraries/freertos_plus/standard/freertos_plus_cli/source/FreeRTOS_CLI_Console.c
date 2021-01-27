@@ -50,14 +50,7 @@ static const char * const pcNewLine = "\r\n";
 static char cInputBuffer[ cmdMAX_INPUT_BUFFER_SIZE ] = "";
 static char cErrorString[ cmdMAX_ERROR_SIZE ] = "";
 
-static uint8_t ucCommandIndex = 0;
-
-static void processInputBuffer( xConsoleIO_t consoleIO,
-                                int32_t inputSize,
-                                char * pCommandBuffer,
-                                size_t commandBufferLength,
-                                char * pOutputBuffer,
-                                size_t outpuBufferLength );
+static size_t ucCommandIndex = 0;
 
 void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
                                    char * pCommandBuffer,
@@ -86,12 +79,14 @@ void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
             /* Echo back. */
             consoleIO.write( cInputBuffer, bytesRead );
 
-            processInputBuffer( consoleIO,
-                                bytesRead,
-                                pCommandBuffer,
-                                commandBufferLength,
-                                pOutputBuffer,
-                                outputBufferLength );
+            FreeRTOS_CLI_ProcessInputBuffer( consoleIO,
+                                             cInputBuffer,
+                                             bytesRead,
+                                             pCommandBuffer,
+                                             commandBufferLength,
+                                             &ucCommandIndex,
+                                             pOutputBuffer,
+                                             outputBufferLength );
 
             /* Reset input buffer for next iteration. */
             memset( cInputBuffer, 0x00, cmdMAX_INPUT_BUFFER_SIZE );
@@ -107,12 +102,14 @@ void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
     }
 }
 
-static void processInputBuffer( xConsoleIO_t consoleIO,
-                                int32_t inputSize,
-                                char * pCommandBuffer,
-                                size_t commandBufferLength,
-                                char * pOutputBuffer,
-                                size_t outpuBufferLength )
+void FreeRTOS_CLI_ProcessInputBuffer( xConsoleIO_t consoleIO,
+                                      char * cInputBuffer,
+                                      int32_t inputSize,
+                                      char * pCommandBuffer,
+                                      size_t commandBufferLength,
+                                      size_t * pCommandBufferIndex,
+                                      char * pOutputBuffer,
+                                      size_t outpuBufferLength )
 {
     BaseType_t xReturned;
     uint8_t i;
@@ -128,20 +125,20 @@ static void processInputBuffer( xConsoleIO_t consoleIO,
          * passed to the command interpreter. */
         if( ( cRxedChar >= ' ' ) && ( cRxedChar <= '~' ) )
         {
-            if( ucCommandIndex < ( commandBufferLength - 1UL ) )
+            if( *pCommandBufferIndex < ( commandBufferLength - 1UL ) )
             {
-                pCommandBuffer[ ucCommandIndex ] = cRxedChar;
-                ucCommandIndex++;
-                pCommandBuffer[ ucCommandIndex ] = '\0';
+                pCommandBuffer[ *pCommandBufferIndex ] = cRxedChar;
+                *pCommandBufferIndex = *pCommandBufferIndex + 1UL;
+                pCommandBuffer[ *pCommandBufferIndex ] = '\0';
             }
         }
         else if( ( cRxedChar == '\b' ) || ( cRxedChar == cmdASCII_DEL ) )
         {
             /* Backspace was pressed.  Erase the last character in the string - if any. */
-            if( ucCommandIndex > 0 )
+            if( *pCommandBufferIndex > 0 )
             {
-                ucCommandIndex--;
-                pCommandBuffer[ ucCommandIndex ] = '\0';
+                *pCommandBufferIndex = *pCommandBufferIndex - 1UL;
+                pCommandBuffer[ *pCommandBufferIndex ] = '\0';
             }
         }
         /* Was it the end of the line? */
@@ -178,7 +175,7 @@ static void processInputBuffer( xConsoleIO_t consoleIO,
              * sent.  Clear the command index to receive a new command.
              * Remember the command that was just processed first in case it is
              * to be processed again. */
-            ucCommandIndex = 0;
+            *pCommandBufferIndex = 0;
 
             consoleIO.write( pcEndOfOutputMessage, strlen( pcEndOfOutputMessage ) );
         }

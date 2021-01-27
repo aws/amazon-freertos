@@ -42,6 +42,16 @@
  */
 /* #define AWS_TEST_RUNNER_DELAY_MS                       ( 1000 )*/
 
+/* Uncomment this line to enable serial console input mode for the FreeRTOS test runner.
+ * When enabled, the test runner will wait for a "start" command input from the serial
+ * prompt to start executing tests on the device.
+ * This is useful in synchronizing the start of tests execution on device with when
+ * a host machine (to which the device is connected) is able to access logs from device
+ * on the serial console. The AWS IoT Device Tester uses the serial console logs from device
+ * to detect state of test execution on device.python
+ */
+/* #define AWS_TEST_RUNNER_ENABLE_CLI_INPUT          ( 1 ) */
+
 /* Unsupported tests */
 #define testrunnerFULL_OTA_CBOR_ENABLED                testrunnerUNSUPPORTED
 #define testrunnerFULL_POSIX_ENABLED                   testrunnerUNSUPPORTED
