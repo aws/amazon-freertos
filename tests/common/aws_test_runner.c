@@ -42,6 +42,8 @@
 /* Application version info. */
 #include "aws_application_version.h"
 
+#define AWS_TEST_RUNNER_ENABLE_CLI_INPUT    1
+
 /* Include files for UART based FreeRTOS+CLI support of test runner.
  *  Note: This adds a dependency on Common IO for UART communication .*/
 #if defined( AWS_TEST_RUNNER_ENABLE_CLI_INPUT ) && ( AWS_TEST_RUNNER_ENABLE_CLI_INPUT == 1 )
@@ -303,6 +305,8 @@ static void RunTests( void )
         UNITY_BEGIN();
 
         RunTests();
+
+        snprintf( pcWriteBuffer, xWriteBufferLen, "Ok. Starting Tests!" );
 
         return pdFALSE;
     }
