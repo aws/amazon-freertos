@@ -81,6 +81,7 @@ static SemaphoreHandle_t xLogBufferMutex = NULL;
 StaticSemaphore_t xMutexBuffer;
 static char logMessageBuffer[ configLOGGING_MAX_MESSAGE_LENGTH ];
 static uint8_t logBufferIndex = 0;
+static BaseType_t newLogMessage = pdTRUE;
 
 /*-----------------------------------------------------------*/
 
@@ -146,6 +147,31 @@ void releaseMutexOfLogBuffer()
     xSemaphoreGive( xLogBufferMutex );
 }
 
+
+size_t addTaskNameAndTickCountMetadata( char * pMessageBuffer,
+                                        size_t bufferLen )
+{
+    const char * pcTaskName;
+    const char * pcNoTask = "None";
+    static BaseType_t xMessageNumber = 0;
+
+    /* Add a time stamp and the name of the calling task to the
+     * start of the log. */
+    if( xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED )
+    {
+        pcTaskName = pcTaskGetName( NULL );
+    }
+    else
+    {
+        pcTaskName = pcNoTask;
+    }
+
+    return snprintf( pMessageBuffer, configLOGGING_MAX_MESSAGE_LENGTH, "%lu %lu [%s] ",
+                     ( unsigned long ) xMessageNumber++,
+                     ( unsigned long ) xTaskGetTickCount(),
+                     pcTaskName );
+}
+
 void createLogMessage( const char * pcFormat,
                        ... )
 {
@@ -157,12 +183,21 @@ void createLogMessage( const char * pcFormat,
      * endings to the buffer. */
     if( logBufferIndex >= sizeof( logMessageBuffer ) )
     {
-        logMessageBuffer[ sizeof( logMessageBuffer ) - 2 ] = '\r';
-        logMessageBuffer[ sizeof( logMessageBuffer ) - 1 ] = '\n';
-        logBufferIndex = sizeof( logMessageBuffer ) - 1;
+        snprintf( logMessageBuffer + sizeof( logMessageBuffer ) - 3, 3, "\r\n" );
     }
     else
     {
+        if( newLogMessage == pdTRUE )
+        {
+            /* Add metadata of task name and tick count if config is enabled. */
+            #if ( configLOGGING_INCLUDE_TIME_AND_TASK_NAME == 1 )
+                logBufferIndex += addTaskNameAndTickCountMetadata( logMessageBuffer,
+                                                                   sizeof( logMessageBuffer ) );
+            #endif
+
+            newLogMessage == pdFALSE;
+        }
+
         /* There are a variable number of parameters. */
         va_start( args, pcFormat );
 
@@ -173,10 +208,12 @@ void createLogMessage( const char * pcFormat,
     /* If input is line ending, then we are at the end of the log message. */
     if( ( strlen( pcFormat ) >= 2UL ) && ( strcmp( pcFormat + strlen( pcFormat ) - 2, "\r\n" ) == 0U ) )
     {
-        vLoggingPrintf( logMessageBuffer );
+        /* Send the generated string to the logging task for IO. */
+        ( void ) xQueueSend( xQueue, &logMessageBuffer, loggingDONT_BLOCK );
 
-        /* Reset the index. */
+        /* Reset the global variables. */
         logBufferIndex = 0;
+        newLogMessage = pdTRUE;
     }
 }
 
@@ -218,33 +255,11 @@ void vLoggingPrintf( const char * pcFormat,
         /* Add metadata of task name and tick time for a new log message. */
         if( ( strcmp( pcFormat, "\n" ) != 0 ) && ( xEndOfMessage == pdTRUE ) )
         {
+            /* Add metadata of task name and tick count if config is enabled. */
             #if ( configLOGGING_INCLUDE_TIME_AND_TASK_NAME == 1 )
-                {
-                    const char * pcTaskName;
-                    const char * pcNoTask = "None";
-                    static BaseType_t xMessageNumber = 0;
-
-                    /* Add a time stamp and the name of the calling task to the
-                     * start of the log. */
-                    if( xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED )
-                    {
-                        pcTaskName = pcTaskGetName( NULL );
-                    }
-                    else
-                    {
-                        pcTaskName = pcNoTask;
-                    }
-
-                    xLength = snprintf( pcPrintString, configLOGGING_MAX_MESSAGE_LENGTH, "%lu %lu [%s] ",
-                                        ( unsigned long ) xMessageNumber++,
-                                        ( unsigned long ) xTaskGetTickCount(),
-                                        pcTaskName );
-                }
-            #else /* if ( configLOGGING_INCLUDE_TIME_AND_TASK_NAME == 1 ) */
-                {
-                    xLength = 0;
-                }
-            #endif /* if ( configLOGGING_INCLUDE_TIME_AND_TASK_NAME == 1 ) */
+                xLength += addTaskNameAndTickCountMetadata( logMessageBuffer,
+                                                            sizeof( logMessageBuffer ) );
+            #endif
         }
 
         ulFormatStrLen = strlen( pcFormat );
