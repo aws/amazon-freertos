@@ -78,7 +78,7 @@ unsigned int xHeapAfter;
  * do not change the signature of it. You could, however, add or remove
  * RUN_TEST_GROUP statements.
  */
-static void RunTests( void )
+static void RunTestSuites( void )
 {
     /* Tests can be disabled in aws_test_runner_config.h */
 
@@ -276,6 +276,40 @@ static void RunTests( void )
         RUN_TEST_GROUP( deviceShadow_Integration );
     #endif
 }
+
+void RunTestsWrapper()
+{
+    UNITY_BEGIN();
+
+    /* Give the print buffer time to empty */
+    vTaskDelay( pdMS_TO_TICKS( 500 ) );
+    /* Measure the heap size before any tests are run. */
+    #if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 )
+        xHeapBefore = xPortGetFreeHeapSize();
+    #endif
+
+    RunTestSuites();
+
+    #if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 )
+
+        /* Measure the heap size after tests are done running.
+         * This test must run last. */
+
+        /* Perform any global resource cleanup necessary to avoid memory leaks. */
+        #ifdef testrunnerMEMORYLEAK_CLEANUP
+            testrunnerMEMORYLEAK_CLEANUP();
+        #endif
+
+        /* Give the print buffer time to empty */
+        vTaskDelay( pdMS_TO_TICKS( 500 ) );
+        xHeapAfter = xPortGetFreeHeapSize();
+        RUN_TEST_GROUP( Full_MemoryLeak );
+    #endif /* if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 ) */
+
+    /* Currently disabled. Will be enabled after cleanup. */
+    UNITY_END();
+}
+
 /*-----------------------------------------------------------*/
 #if defined( AWS_TEST_RUNNER_ENABLE_CLI_INPUT ) && ( AWS_TEST_RUNNER_ENABLE_CLI_INPUT == 1 )
 
@@ -302,9 +336,7 @@ static void RunTests( void )
         /* executing tests. */
         xReceivedCommand = pdTRUE;
 
-        UNITY_BEGIN();
-
-        RunTests();
+        RunTestsWrapper();
 
         snprintf( pcWriteBuffer, xWriteBufferLen, "Ok. Starting Tests!" );
 
@@ -402,37 +434,8 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
          * The serial console is used by host machine to view device logs. */
         vTaskDelay( pdMS_TO_TICKS( AWS_TEST_RUNNER_DELAY_MS ) );
 
-        UNITY_BEGIN();
-
-        RunTests();
+        RunTestsWrapper();
     #endif
-
-    /* Give the print buffer time to empty */
-    vTaskDelay( pdMS_TO_TICKS( 500 ) );
-    /* Measure the heap size before any tests are run. */
-    #if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 )
-        xHeapBefore = xPortGetFreeHeapSize();
-    #endif
-
-
-    #if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 )
-
-        /* Measure the heap size after tests are done running.
-         * This test must run last. */
-
-        /* Perform any global resource cleanup necessary to avoid memory leaks. */
-        #ifdef testrunnerMEMORYLEAK_CLEANUP
-            testrunnerMEMORYLEAK_CLEANUP();
-        #endif
-
-        /* Give the print buffer time to empty */
-        vTaskDelay( pdMS_TO_TICKS( 500 ) );
-        xHeapAfter = xPortGetFreeHeapSize();
-        RUN_TEST_GROUP( Full_MemoryLeak );
-    #endif /* if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 ) */
-
-    /* Currently disabled. Will be enabled after cleanup. */
-    UNITY_END();
 
     #ifdef CODE_COVERAGE
         exit( 0 );
