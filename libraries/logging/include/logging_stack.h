@@ -30,10 +30,10 @@
 
 /* Include header for logging level macros. */
 #include "logging_levels.h"
-#include "iot_logging_task.h"
 
 /* FreeRTOS Include. */
 #include "FreeRTOS.h"
+#include "iot_logging_task.h"
 
 /* Standard Include. */
 #include <stdint.h>
@@ -59,13 +59,13 @@
     #define SdkLog( string )
 #endif
 
-#define SdkAssembledAndLog( metadata, message )           \
-    do {                                                  \
-        xSemaphoreTake( xLogBufferMutex, portMAX_DELAY ); \
-        createLogMessage metadata;                        \
-        createLogMessage message;                         \
-        createLogMessage( "\r\n" );                       \
-        xSemaphoreGive( xLogBufferMutex );                \
+#define SdkAssembledAndLog( metadata, message ) \
+    do {                                        \
+        acquireMutexForLogBuffer();             \
+        createLogMessage metadata;              \
+        createLogMessage message;               \
+        createLogMessage( "\r\n" );             \
+        releaseMutexOfLogBuffer();              \
     } while( 0 )
 
 /* Check that LIBRARY_LOG_LEVEL is defined and has a valid value. */

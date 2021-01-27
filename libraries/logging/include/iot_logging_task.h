@@ -35,8 +35,6 @@
     #error "include FreeRTOS.h must appear in source files before include iot_logging_task.h"
 #endif
 
-#include "semphr.h"
-
 /**
  * @brief Initialization function for logging task.
  *
@@ -54,7 +52,9 @@ typedef struct LoggingBufferData
     size_t bufferLen;
 } LoggingBufferData_t;
 
-extern SemaphoreHandle_t xLogBufferMutex;
+void acquireMutexForLogBuffer();
+
+void releaseMutexOfLogBuffer();
 
 void createLogMessage( const char * pcFormat,
                        ... );

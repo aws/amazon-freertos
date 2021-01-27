@@ -77,7 +77,7 @@ static void prvLoggingTask( void * pvParameters );
  */
 static QueueHandle_t xQueue = NULL;
 
-SemaphoreHandle_t xLogBufferMutex = NULL;
+static SemaphoreHandle_t xLogBufferMutex = NULL;
 StaticSemaphore_t xMutexBuffer;
 static char logMessageBuffer[ configLOGGING_MAX_MESSAGE_LENGTH ];
 static uint8_t logBufferIndex = 0;
@@ -136,12 +136,23 @@ static void prvLoggingTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+void acquireMutexForLogBuffer()
+{
+    xSemaphoreTake( xLogBufferMutex, portMAX_DELAY );
+}
+
+void releaseMutexOfLogBuffer()
+{
+    xSemaphoreGive( xLogBufferMutex );
+}
+
 void createLogMessage( const char * pcFormat,
                        ... )
 {
     va_list args;
 
     configASSERT( pcFormat != NULL );
+    configASSERT( logBufferIndex < sizeof( logMessageBuffer ) );
 
     /* There are a variable number of parameters. */
     va_start( args, pcFormat );
@@ -153,6 +164,9 @@ void createLogMessage( const char * pcFormat,
     if( ( strlen( pcFormat ) >= 2UL ) && ( strcmp( pcFormat + strlen( pcFormat ) - 2, "\r\n" ) == 0U ) )
     {
         vLoggingPrintf( logMessageBuffer );
+
+        /* Reset the index. */
+        logBufferIndex = 0;
     }
 }
 
