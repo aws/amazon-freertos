@@ -336,8 +336,6 @@ void RunTestsWrapper()
 
         RunTestsWrapper();
 
-        snprintf( pcWriteBuffer, xWriteBufferLen, "Ok. Starting Tests!" );
-
         return pdFALSE;
     }
 
