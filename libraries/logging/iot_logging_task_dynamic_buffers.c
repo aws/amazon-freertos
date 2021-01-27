@@ -27,6 +27,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "semphr.h"
 
 /* Logging includes. */
 #include "iot_logging_task.h"
@@ -76,6 +77,11 @@ static void prvLoggingTask( void * pvParameters );
  */
 static QueueHandle_t xQueue = NULL;
 
+SemaphoreHandle_t xLogBufferMutex = NULL;
+StaticSemaphore_t xMutexBuffer;
+static char logMessageBuffer[ configLOGGING_MAX_MESSAGE_LENGTH ];
+static uint8_t logBufferIndex = 0;
+
 /*-----------------------------------------------------------*/
 
 BaseType_t xLoggingTaskInitialize( uint16_t usStackSize,
@@ -104,6 +110,9 @@ BaseType_t xLoggingTaskInitialize( uint16_t usStackSize,
         }
     }
 
+    xLogBufferMutex = xSemaphoreCreateMutexStatic( &xMutexBuffer );
+    configASSERT( xLogBufferMutex );
+
     return xReturn;
 }
 /*-----------------------------------------------------------*/
@@ -126,6 +135,26 @@ static void prvLoggingTask( void * pvParameters )
     }
 }
 /*-----------------------------------------------------------*/
+
+void createLogMessage( const char * pcFormat,
+                       ... )
+{
+    va_list args;
+
+    configASSERT( pcFormat != NULL );
+
+    /* There are a variable number of parameters. */
+    va_start( args, pcFormat );
+
+    /* Populate string into the log buffer. */
+    logBufferIndex += vsnprintf( logMessageBuffer + logBufferIndex, configLOGGING_MAX_MESSAGE_LENGTH - logBufferIndex, pcFormat, args );
+
+    /* If input is line ending, then we are at the end of the log message. */
+    if( ( strlen( pcFormat ) >= 2UL ) && ( strcmp( pcFormat + strlen( pcFormat ) - 2, "\r\n" ) == 0U ) )
+    {
+        vLoggingPrintf( logMessageBuffer );
+    }
+}
 
 /*!
  * \brief Formats a string to be printed and sends it
