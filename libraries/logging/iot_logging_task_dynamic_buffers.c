@@ -157,9 +157,9 @@ void createLogMessage( const char * pcFormat,
      * endings to the buffer. */
     if( logBufferIndex >= sizeof( logMessageBuffer ) )
     {
+        logMessageBuffer[ sizeof( logMessageBuffer ) - 2 ] = '\r';
+        logMessageBuffer[ sizeof( logMessageBuffer ) - 1 ] = '\n';
         logBufferIndex = sizeof( logMessageBuffer ) - 1;
-        logMessageBuffer[ logBufferIndex ] = '\r';
-        logMessageBuffer[ logBufferIndex ] = '\n';
     }
     else
     {
