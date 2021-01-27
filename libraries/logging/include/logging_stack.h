@@ -59,14 +59,12 @@
     #define SdkLog( string )
 #endif
 
-#define SdkAssembledAndLog( metadata, message ) \
-    do {                                        \
-        acquireMutexForLogBuffer();             \
-        createLogMessage metadata;              \
-        createLogMessage message;               \
-        createLogMessage( "\r\n" );             \
-        releaseMutexOfLogBuffer();              \
-    } while( 0 )
+/* @cond DOXYGEN_IGNORE */
+#define SdkAssembledAndLog( metadata, message )                 \
+    do { acquireMutexForLogBuffer(); createLogMessage metadata; \
+        createLogMessage message;  createLogMessage( "\r\n" );  \
+        releaseMutexOfLogBuffer(); } while( 0 )                 \
+/** @endcond */
 
 /* Check that LIBRARY_LOG_LEVEL is defined and has a valid value. */
 #if !defined( LIBRARY_LOG_LEVEL ) ||       \
