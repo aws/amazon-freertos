@@ -40,13 +40,13 @@ afr_module_dependencies(
         AFR::kernel
         AFR::common
         3rdparty::unity
-        AFR::freertos_cli_plus_uart
 )
 
 if(TARGET AFR::common_io::mcu_port)
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}
         INTERFACE
+            AFR::freertos_cli_plus_uart
             AFR::common_io
     )
 endif()
