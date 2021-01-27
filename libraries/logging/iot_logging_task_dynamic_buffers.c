@@ -152,13 +152,23 @@ void createLogMessage( const char * pcFormat,
     va_list args;
 
     configASSERT( pcFormat != NULL );
-    configASSERT( logBufferIndex < sizeof( logMessageBuffer ) );
 
-    /* There are a variable number of parameters. */
-    va_start( args, pcFormat );
+    /* If the buffer is completely filled with log message, we will just add new line
+     * endings to the buffer. */
+    if( logBufferIndex >= sizeof( logMessageBuffer ) )
+    {
+        logBufferIndex = sizeof( logMessageBuffer ) - 1;
+        logMessageBuffer[ logBufferIndex ] = '\r';
+        logMessageBuffer[ logBufferIndex ] = '\n';
+    }
+    else
+    {
+        /* There are a variable number of parameters. */
+        va_start( args, pcFormat );
 
-    /* Populate string into the log buffer. */
-    logBufferIndex += vsnprintf( logMessageBuffer + logBufferIndex, configLOGGING_MAX_MESSAGE_LENGTH - logBufferIndex, pcFormat, args );
+        /* Populate string into the log buffer. */
+        logBufferIndex += vsnprintf( logMessageBuffer + logBufferIndex, configLOGGING_MAX_MESSAGE_LENGTH - logBufferIndex, pcFormat, args );
+    }
 
     /* If input is line ending, then we are at the end of the log message. */
     if( ( strlen( pcFormat ) >= 2UL ) && ( strcmp( pcFormat + strlen( pcFormat ) - 2, "\r\n" ) == 0U ) )
