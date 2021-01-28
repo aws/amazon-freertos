@@ -195,7 +195,7 @@ void createLogMessage( const char * pcFormat,
                                                                    sizeof( logMessageBuffer ) );
             #endif
 
-            newLogMessage == pdFALSE;
+            newLogMessage = pdFALSE;
         }
 
         /* There are a variable number of parameters. */
