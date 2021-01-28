@@ -43,7 +43,7 @@
 
 /* Macro to extract only the file name from file path to use for metadata in
  * log messages. */
-#ifdef _MSC_VER
+#if defined( _MSC_VER_ ) || defined( __ARMCC_VERSION )
     #define FILENAME           ( strrchr( __FILE__, '\\' ) ? strrchr( __FILE__, '\\' ) + 1 : __FILE__ )
 #else
     #define FILENAME           ( strrchr( __FILE__, '/' ) ? strrchr( __FILE__, '/' ) + 1 : __FILE__ )
@@ -62,8 +62,8 @@
 /* @cond DOXYGEN_IGNORE */
 #define SdkAssembledAndLog( metadata, message )                 \
     do { acquireMutexForLogBuffer(); createLogMessage metadata; \
-        createLogMessage message;  createLogMessage( "\r\n" );  \
-        releaseMutexOfLogBuffer(); } while( 0 )                 \
+         createLogMessage message;  createLogMessage( "\r\n" ); \
+         releaseMutexOfLogBuffer(); } while( 0 )                \
 /** @endcond */
 
 /* Check that LIBRARY_LOG_LEVEL is defined and has a valid value. */

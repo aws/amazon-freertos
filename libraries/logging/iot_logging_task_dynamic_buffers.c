@@ -130,7 +130,7 @@ static void prvLoggingTask( void * pvParameters )
         if( xQueueReceive( xQueue, &pcReceivedString, portMAX_DELAY ) == pdPASS )
         {
             configPRINT_STRING( pcReceivedString );
-            
+
             vPortFree( ( void * ) pcReceivedString );
         }
     }
@@ -168,7 +168,7 @@ void createLogMessage( const char * pcFormat,
         /* Populate string into the log buffer. */
         logBufferIndex += vsnprintf( logMessageBuffer + logBufferIndex, configLOGGING_MAX_MESSAGE_LENGTH - logBufferIndex, pcFormat, args );
 
-        va_end(args);
+        va_end( args );
     }
 
     /* If input is line ending, the log message string has been completely generated. */
@@ -215,32 +215,32 @@ void vLoggingPrintf( const char * pcFormat,
         va_start( args, pcFormat );
 
         /* Add metadata of task name and tick time for a new log message. */
-        if ( strcmp( pcFormat, "\n" ) != 0 ) 
+        if( strcmp( pcFormat, "\n" ) != 0 )
         {
             /* Add metadata of task name and tick count if config is enabled. */
             #if ( configLOGGING_INCLUDE_TIME_AND_TASK_NAME == 1 )
-            {
-                const char * pcTaskName;
-                const char * pcNoTask = "None";
-                static BaseType_t xMessageNumber = 0;
-
-                /* Add a time stamp and the name of the calling task to the
-                * start of the log. */
-                if( xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED )
                 {
-                    pcTaskName = pcTaskGetName( NULL );
-                }
-                else
-                {
-                    pcTaskName = pcNoTask;
-                }
+                    const char * pcTaskName;
+                    const char * pcNoTask = "None";
+                    static BaseType_t xMessageNumber = 0;
 
-                xLength += snprintf( pcPrintString, configLOGGING_MAX_MESSAGE_LENGTH, "%lu %lu [%s] ",
-                                ( unsigned long ) xMessageNumber++,
-                                ( unsigned long ) xTaskGetTickCount(),
-                                pcTaskName );
-            }
-            #endif
+                    /* Add a time stamp and the name of the calling task to the
+                     * start of the log. */
+                    if( xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED )
+                    {
+                        pcTaskName = pcTaskGetName( NULL );
+                    }
+                    else
+                    {
+                        pcTaskName = pcNoTask;
+                    }
+
+                    xLength += snprintf( pcPrintString, configLOGGING_MAX_MESSAGE_LENGTH, "%lu %lu [%s] ",
+                                         ( unsigned long ) xMessageNumber++,
+                                         ( unsigned long ) xTaskGetTickCount(),
+                                         pcTaskName );
+                }
+            #endif /* if ( configLOGGING_INCLUDE_TIME_AND_TASK_NAME == 1 ) */
         }
 
         xLength2 = vsnprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, pcFormat, args );
