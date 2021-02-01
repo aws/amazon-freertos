@@ -161,9 +161,8 @@ target_sources(
 target_include_directories(
     AFR::ota::mcu_port
     INTERFACE
-            "${AFR_ROOT_DIR}/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include"
             "${AFR_ROOT_DIR}/libraries/abstractions/pkcs11/corePKCS11/source/include"
-            "${AFR_ROOT_DIR}//libraries/3rdparty/pkcs11"
+            "${AFR_ROOT_DIR}/libraries/3rdparty/pkcs11"
             "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/include"
             "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src"
 )
