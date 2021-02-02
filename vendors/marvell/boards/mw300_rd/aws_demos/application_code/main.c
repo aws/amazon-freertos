@@ -123,22 +123,6 @@ void wm_printf(const char *format, ...)
 		&format[0]);
     UART_WriteLine(UART0_ID, (uint8_t *) ll_msg_buf_);
 }
-/**
- * @brief Application task startup hook for applications using Wi-Fi. If you are not 
- * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
- * function. If you are not using Wi-Fi, this hook can be disabled by setting
- * configUSE_DAEMON_TASK_STARTUP_HOOK to 0.
- */
-//void vApplicationDaemonTaskStartupHook( void );
-void vStartupHook( void *pvParameters);
-
-/**
- * @brief Application IP network event hook called by the FreeRTOS+TCP stack for
- * applications using Ethernet. If you are not using Ethernet and the FreeRTOS+TCP stack,
- * start network dependent applications in vApplicationDaemonTaskStartupHook after the
- * network status is up.
- */
-void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent );
 
 /**
  * @brief Connects to Wi-Fi.
@@ -171,13 +155,13 @@ int main( void )
     /* FreeRTOS+TCP stack init */
     vApplicationIPInit();
 
-    /* Create the task to run unit tests. */
-    xTaskCreate( vStartupHook,
-                 "Startup Hook",
-		             mainSTARTUP_TASK_STACK_SIZE,
-                 NULL,
-                 tskIDLE_PRIORITY + 2,
-                 NULL );
+    /* A simple example to demonstrate key and certificate provisioning in
+     * flash using PKCS#11 interface. This should be replaced
+     * by production ready key provisioning mechanism. */
+    vDevModeKeyProvisioning();
+
+    /* Start the demo tasks. */
+    DEMO_RUNNER_RunDemos();
 
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the Wi-Fi initialization, is performed in the RTOS daemon task
@@ -243,28 +227,7 @@ static void prvMiscInitialization( void )
 
     configPRINT_STRING("FreeRTOS Started\r\n");
 }
-/*-----------------------------------------------------------*/
 
-//void vApplicationDaemonTaskStartupHook( void )
-void vStartupHook( void *pvParameters)
-{
-    configPRINT("\r\nApplication Daemon Startup \r\n");
-
-    // if( SYSTEM_Init() == pdPASS ) {
-    //     /* Connect to the Wi-Fi before running the tests. */
-    //     prvWifiConnect();
-    // } else {
-    //     configPRINT("\r\nSystem Init failed \r\n");
-    // }
-    /* A simple example to demonstrate key and certificate provisioning in
-     * flash using PKCS#11 interface. This should be replaced
-     * by production ready key provisioning mechanism. */
-    vDevModeKeyProvisioning();
-
-    /* Start the demo tasks. */
-    DEMO_RUNNER_RunDemos();
-    vTaskDelete(NULL);
-}
 /*-----------------------------------------------------------*/
 #include <FreeRTOS_Sockets.h>
 #include <FreeRTOS_DHCP.h>
