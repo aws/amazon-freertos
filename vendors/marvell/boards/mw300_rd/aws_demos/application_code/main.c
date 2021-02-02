@@ -250,12 +250,12 @@ void vStartupHook( void *pvParameters)
 {
     configPRINT("\r\nApplication Daemon Startup \r\n");
 
-    if( SYSTEM_Init() == pdPASS ) {
-        /* Connect to the Wi-Fi before running the tests. */
-        prvWifiConnect();
-    } else {
-        configPRINT("\r\nSystem Init failed \r\n");
-    }
+    // if( SYSTEM_Init() == pdPASS ) {
+    //     /* Connect to the Wi-Fi before running the tests. */
+    //     prvWifiConnect();
+    // } else {
+    //     configPRINT("\r\nSystem Init failed \r\n");
+    // }
     /* A simple example to demonstrate key and certificate provisioning in
      * flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
