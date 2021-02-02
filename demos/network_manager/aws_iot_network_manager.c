@@ -482,13 +482,11 @@ static IotNetworkManager_t networkManager =
                 {
                     if( WIFI_ConnectAP( &( xConnectParams ) ) == eWiFiSuccess )
                     {
-                        IotLogInfo("Successful WIFI_ConnectAP call from network manager");
                         wifiNetwork.state = eNetworkStateEnabled;
                         break;
                     }
                     else
                     {
-                        IotLogError("Failed WIFI_ConnectAP call from network manager");
                         if( numRetries > 0 )
                         {
                             IotClock_SleepMs( delayMilliseconds );
