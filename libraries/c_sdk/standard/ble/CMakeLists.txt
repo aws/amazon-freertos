@@ -18,14 +18,6 @@ afr_set_lib_metadata(IS_VISIBLE "true")
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
-if( EXISTS ${AFR_MODULES_DIR}/coreMQTT/source )
-    set(transport_interface_dir "${AFR_MODULES_DIR}/coreMQTT/source/interface")
-elseif( EXISTS ${AFR_MODULES_DIR}/coreHTTP/source )
-    set(transport_interface_dir "${AFR_MODULES_DIR}/coreHTTP/source/interface")
-else()
-    message( FATAL_ERROR "No transport_interface.h exists for this included interface.")
-endif()
-
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -53,7 +45,6 @@ afr_module_include_dirs(
     PUBLIC
         "${inc_dir}"
         "${AFR_MODULES_DIR}/logging/include"
-        "${transport_interface_dir}"
     PRIVATE
         "${test_dir}"
 )
