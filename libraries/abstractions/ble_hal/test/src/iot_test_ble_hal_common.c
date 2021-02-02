@@ -1851,27 +1851,18 @@ BLEHALEventsTypes_t IotTestBleHal_WaitForEvents( BLEHALEventsTypes_t xEventsToWa
 
     eventsSet = checkQueueForEvents( xEventsToWaitFor );
 
-    /* If event is not waiting then wait for it. */
-    if( eventsSet == eBLEHALEventNone )
+    /* There are no events currently, Wait for an event for timeout period. */
+    if( ( eventsSet == eBLEHALEventNone ) && ( timeoutMs > 0 ) )
     {
-        do
+        while( IotSemaphore_TimedWait( &eventSemaphore, timeoutMs ) == true )
         {
-            /* TODO check event list here */
-            if( IotSemaphore_TimedWait( &eventSemaphore, timeoutMs ) == true )
-            {
-                eventsSet = checkQueueForEvents( xEventsToWaitFor );
+            eventsSet = checkQueueForEvents( xEventsToWaitFor );
 
-                if( eventsSet != eBLEHALEventNone )
-                {
-                    break; /* If the any of the event is received, exit. */
-                }
-            }
-            else
+            if( eventsSet != eBLEHALEventNone )
             {
-                /* Timeout occurred. Exit. */
-                break;
+                break; /* If the any of the event is received, exit. */
             }
-        } while( 1 );
+        }
     }
 
     return eventsSet;
