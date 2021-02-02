@@ -288,7 +288,7 @@ static IotNetworkManager_t networkManager =
 
         if( status == eBTStatusSuccess )
         {
-            eventCallback.pGAPPairingStateChangedCb = &BLEGAPPairingStateChangedCb;
+            eventCallback.pGAPPairingStateChangedCb = &vDemoBLEGAPPairingStateChangedCb;
 
             if( unRegister == false )
             {
@@ -303,7 +303,7 @@ static IotNetworkManager_t networkManager =
         #if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
             if( status == eBTStatusSuccess )
             {
-                eventCallback.pNumericComparisonCb = &BLENumericComparisonCb;
+                eventCallback.pNumericComparisonCb = &vDemoBLENumericComparisonCb;
 
                 if( unRegister == false )
                 {
@@ -343,6 +343,19 @@ static IotNetworkManager_t networkManager =
                 IotLogError( "Failed to initialize BLE." );
                 ret = false;
             }
+
+            #if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
+                if( ret == true )
+                {
+                    vDemoBLENumericComparisonInit();
+                }
+            #endif
+        }
+
+        if( ret == true )
+        {
+            /* Register BLE Connection callback */
+            ret = _bleRegisterUnregisterCb( false );
         }
 
         if( ret == true )
@@ -354,12 +367,6 @@ static IotNetworkManager_t networkManager =
                 IotLogError( "Failed to toggle BLE on." );
                 ret = false;
             }
-        }
-
-        if( ret == true )
-        {
-            /* Register BLE Connection callback */
-            ret = _bleRegisterUnregisterCb( false );
         }
 
         if( ret == false )
