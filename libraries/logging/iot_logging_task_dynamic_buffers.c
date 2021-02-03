@@ -31,6 +31,7 @@
 
 /* Logging includes. */
 #include "iot_logging_task.h"
+#include "logging_levels.h"
 
 /* Standard includes. */
 #include <stdio.h>
@@ -77,11 +78,6 @@ static void prvLoggingTask( void * pvParameters );
  */
 static QueueHandle_t xQueue = NULL;
 
-static SemaphoreHandle_t xLogBufferMutex = NULL;
-StaticSemaphore_t xMutexBuffer;
-static char logMessageBuffer[ configLOGGING_MAX_MESSAGE_LENGTH ];
-static uint8_t logBufferIndex = 0;
-
 /*-----------------------------------------------------------*/
 
 BaseType_t xLoggingTaskInitialize( uint16_t usStackSize,
@@ -110,9 +106,6 @@ BaseType_t xLoggingTaskInitialize( uint16_t usStackSize,
         }
     }
 
-    xLogBufferMutex = xSemaphoreCreateMutexStatic( &xMutexBuffer );
-    configASSERT( xLogBufferMutex );
-
     return xReturn;
 }
 /*-----------------------------------------------------------*/
@@ -135,69 +128,19 @@ static void prvLoggingTask( void * pvParameters )
         }
     }
 }
+
 /*-----------------------------------------------------------*/
 
-void acquireMutexForLogBuffer()
-{
-    xSemaphoreTake( xLogBufferMutex, portMAX_DELAY );
-}
-
-void releaseMutexOfLogBuffer()
-{
-    xSemaphoreGive( xLogBufferMutex );
-}
-
-void createLogMessage( const char * pcFormat,
-                       ... )
-{
-    va_list args;
-
-    configASSERT( pcFormat != NULL );
-
-    /* If the buffer is completely filled with log message, we will just add new line
-     * endings to the buffer. */
-    if( logBufferIndex >= sizeof( logMessageBuffer ) )
-    {
-        snprintf( logMessageBuffer + sizeof( logMessageBuffer ) - 3, 3, "%s", "\r\n" );
-    }
-    else
-    {
-        /* There are a variable number of parameters. */
-        va_start( args, pcFormat );
-
-        /* Populate string into the log buffer. */
-        logBufferIndex += vsnprintf( logMessageBuffer + logBufferIndex, configLOGGING_MAX_MESSAGE_LENGTH - logBufferIndex, pcFormat, args );
-
-        va_end( args );
-    }
-
-    /* If input is line ending, the log message string has been completely generated. */
-    if( ( strlen( pcFormat ) >= 2UL ) && ( strcmp( pcFormat + strlen( pcFormat ) - 2, "\r\n" ) == 0U ) )
-    {
-        /* Send the generated string to the logging task for IO. */
-        vLoggingPrintf( logMessageBuffer );
-
-        /* Reset the global variables. */
-        logBufferIndex = 0;
-    }
-}
-
-/*!
- * \brief Formats a string to be printed and sends it
- * to the print queue.
- *
- * Appends the message number, time (in ticks), and task
- * that called vLoggingPrintf to the beginning of each
- * print statement.
- *
- */
-void vLoggingPrintf( const char * pcFormat,
-                     ... )
+static void vLoggingPrintfCommon( uint8_t usLoggingLevel,
+                                  const char * pcFormat,
+                                  va_list args )
 {
     size_t xLength = 0;
     int32_t xLength2 = 0;
-    va_list args;
     char * pcPrintString = NULL;
+
+    configASSERT( usLoggingLevel <= LOG_DEBUG );
+    configASSERT( pcFormat != NULL );
 
     /* The queue is created by xLoggingTaskInitialize().  Check
      * xLoggingTaskInitialize() has been called. */
@@ -210,9 +153,7 @@ void vLoggingPrintf( const char * pcFormat,
     {
         static BaseType_t xEndOfMessage = pdTRUE;
         size_t ulFormatStrLen = 0UL;
-
-        /* There are a variable number of parameters. */
-        va_start( args, pcFormat );
+        const char * pcLevelString = NULL;
 
         /* Add metadata of task name and tick time for a new log message. */
         if( strcmp( pcFormat, "\n" ) != 0 )
@@ -243,6 +184,29 @@ void vLoggingPrintf( const char * pcFormat,
             #endif /* if ( configLOGGING_INCLUDE_TIME_AND_TASK_NAME == 1 ) */
         }
 
+        switch( usLoggingLevel )
+        {
+            case LOG_ERROR:
+                pcLevelString = "ERROR ";
+                break;
+
+            case LOG_WARN:
+                pcLevelString = "WARN";
+                break;
+
+            case LOG_INFO:
+                pcLevelString = "INFO";
+                break;
+
+            case LOG_DEBUG:
+                pcLevelString = "DEBUG";
+        }
+
+        if( pcLevelString != NULL )
+        {
+            xLength += snprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "[%s] ", pcLevelString );
+        }
+
         xLength2 = vsnprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, pcFormat, args );
 
         if( xLength2 < 0 )
@@ -260,7 +224,6 @@ void vLoggingPrintf( const char * pcFormat,
         }
 
         xLength += ( size_t ) xLength2;
-        va_end( args );
 
         /* Only send the buffer to the logging task if it is
          * not empty. */
@@ -281,6 +244,73 @@ void vLoggingPrintf( const char * pcFormat,
         }
     }
 }
+
+/*-----------------------------------------------------------*/
+
+void vLoggingPrintfError( const char * pcFormat,
+                          ... )
+{
+    va_list args;
+
+    va_start( args, pcFormat );
+    vLoggingPrintfCommon( LOG_ERROR, pcFormat, args );
+
+    va_end( args );
+}
+
+void vLoggingPrintfWarn( const char * pcFormat,
+                         ... )
+{
+    va_list args;
+
+    va_start( args, pcFormat );
+    vLoggingPrintfCommon( LOG_WARN, pcFormat, args );
+
+    va_end( args );
+}
+
+void vLoggingPrintfInfo( const char * pcFormat,
+                         ... )
+{
+    va_list args;
+
+    va_start( args, pcFormat );
+    vLoggingPrintfCommon( LOG_INFO, pcFormat, args );
+}
+
+void vLoggingPrintfDebug( const char * pcFormat,
+                          ... )
+{
+    va_list args;
+
+    va_start( args, pcFormat );
+    vLoggingPrintfCommon( LOG_DEBUG, pcFormat, args );
+
+    va_end( args );
+}
+
+/*-----------------------------------------------------------*/
+
+/*!
+ * \brief Formats a string to be printed and sends it
+ * to the print queue.
+ *
+ * Appends the message number, time (in ticks), and task
+ * that called vLoggingPrintf to the beginning of each
+ * print statement.
+ *
+ */
+void vLoggingPrintf( const char * pcFormat,
+                     ... )
+{
+    va_list args;
+
+    va_start( args, pcFormat );
+    vLoggingPrintfCommon( LOG_NONE, pcFormat, args );
+
+    va_end( args );
+}
+
 /*-----------------------------------------------------------*/
 
 void vLoggingPrint( const char * pcMessage )

@@ -45,19 +45,41 @@ BaseType_t xLoggingTaskInitialize( uint16_t usStackSize,
                                    UBaseType_t uxPriority,
                                    UBaseType_t uxQueueLength );
 
-typedef struct LoggingBufferData
-{
-    char * logBuffer;
-    size_t maxBufferLen;
-    size_t bufferLen;
-} LoggingBufferData_t;
+/**
+ * @brief Interface for logging message at Error level.
+ *
+ * This function adds a "[ERROR]" prefix to the
+ * log message to label it as an error.
+ */
+void vLoggingPrintfError( const char * pcFormat,
+                          ... );
 
-void acquireMutexForLogBuffer();
+/**
+ * @brief Interface for logging message at Warn level.
+ *
+ * This function adds a "[WARN]" prefix to the
+ * log message to label it as a warning.
+ */
+void vLoggingPrintfWarn( const char * pcFormat,
+                         ... );
 
-void releaseMutexOfLogBuffer();
+/**
+ * @brief Interface for logging message at Info level.
+ *
+ * This function adds a "[INFO]" prefix to the
+ * log message to label it as an informational message.
+ */
+void vLoggingPrintfInfo( const char * pcFormat,
+                         ... );
 
-void createLogMessage( const char * pcFormat,
-                       ... );
+/**
+ * @brief Interface for logging message at Debug level.
+ *
+ * This function adds a "[DEBUG]" prefix to the
+ * log message to label it as a debug level message.
+ */
+void vLoggingPrintfDebug( const char * pcFormat,
+                          ... );
 
 /**
  * @brief Interface to print via the logging interface.
