@@ -262,7 +262,7 @@ void vStartupTask( void * pvParameters )
     /* Start the demo tasks. */
     DEMO_RUNNER_RunDemos();
 
-    vTaskDelete();
+    vTaskDelete(NULL);
 }
 
 /*-----------------------------------------------------------*/
