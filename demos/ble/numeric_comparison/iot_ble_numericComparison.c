@@ -70,6 +70,10 @@
  */
 #define IOT_BLE_NUMERIC_COMPARISON_QUEUE_SIZE         ( 1 )
 
+/**
+ * @brief Maximum number of tries for confirmation.
+ */
+#define IOT_BLE_MAX_NUMERIC_COMPARISON_TRIES    ( 5 )
 
 /**
  * @brief Structure defines each element of Numeric comparison queue.
@@ -112,31 +116,43 @@ static void prvNumericComparisonTask( void * pvParameters )
     char userInput;
     BLEPassKeyConfirm_t xPassKeyConfirm;
     TickType_t xAuthTimeout = pdMS_TO_TICKS( IOT_BLE_NUMERIC_COMPARISON_TIMEOUT_SEC * 1000 );
+    uint32_t ulTries;
 
     for( ; ; )
     {
         if( xQueueReceive( xNumericComparisonQueue, ( void * ) &xPassKeyConfirm, portMAX_DELAY ) )
         {
             configPRINTF( ( "Numeric comparison:%ld\n", xPassKeyConfirm.ulPassKey ) );
-            configPRINTF( ( "Press 'y' to confirm\n" ) );
+            configPRINTF( ( "Press 'y' to confirm, 'n' to reject\n" ) );
 
-            /* Waiting for UART event. */
-            if( xPortGetNumericComparisonReply( ( uint8_t * ) &userInput, sizeof( char ), xAuthTimeout ) > 0 )
+            for( ulTries = 0; ulTries < IOT_BLE_MAX_NUMERIC_COMPARISON_TRIES; ulTries++ )
             {
-                if( ( userInput == 'y' ) || ( userInput == 'Y' ) )
+                 /* Waiting for UART event. */
+                if( xPortGetUserInput( ( uint8_t * ) &userInput, 1, xAuthTimeout ) > 0 )
                 {
-                    configPRINTF( ( "Key accepted\n" ) );
-                    IotBle_ConfirmNumericComparisonKeys( &xPassKeyConfirm.xAddress, true );
+                    if( ( userInput == 'y' ) || ( userInput == 'Y' ) )
+                    {
+                        configPRINTF( ( "Key accepted\n" ) );
+                        IotBle_ConfirmNumericComparisonKeys( &xPassKeyConfirm.xAddress, true );
+                        break;
+                    }
+                    else if( ( userInput == 'n' ) || ( userInput == 'N' ) )
+                    {
+                        configPRINTF( ( "Key Rejected\n" ) );
+                        IotBle_ConfirmNumericComparisonKeys( &xPassKeyConfirm.xAddress, false );
+                        break;
+                    }
+                    else
+                    {
+                        configPRINTF( ( "Wrong key pressed.\n" ) );
+                        configPRINTF( ( "Press 'y' to confirm, 'n' to reject\n" ) );
+                    }
                 }
                 else
                 {
-                    configPRINTF( ( "Key Rejected\n" ) );
-                    IotBle_ConfirmNumericComparisonKeys( &xPassKeyConfirm.xAddress, false );
+                    configPRINTF( ( "Error reading user input for numeric comparison\r\n" ) );
+                    break;
                 }
-            }
-            else
-            {
-                configPRINTF( ( "Error reading user input for numeric comparison\r\n" ) );
             }
         }
     }

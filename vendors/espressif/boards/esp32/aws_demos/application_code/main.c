@@ -185,10 +185,6 @@ static void prvMiscInitialization( void )
 
     iot_uart_init();
 
-    #if BLE_ENABLED
-        NumericComparisonInit();
-    #endif
-
     /* Create tasks that are not dependent on the WiFi being initialized. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
                             tskIDLE_PRIORITY + 5,
@@ -287,28 +283,24 @@ static void prvMiscInitialization( void )
     }
 
   
-    BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage,
-                               TickType_t xAuthTimeout )
+    int32_t xPortGetUserInput( uint8_t * pMessage,
+                           uint32_t messageLength,
+                           TickType_t timeoutTicks )
     {
         BaseType_t xReturnMessage = pdFALSE;
         SemaphoreHandle_t xUartSem;
-        int32_t status, bytesRead = 0;
-        uint8_t *pucResponse;
+        int32_t status = 0;
 
         xUartSem = xSemaphoreCreateBinary();
+        configASSERT(( xUartSem != NULL ));
 
-        
-        /* BLE Numeric comparison response is one character (y/n). */
-        pucResponse = ( uint8_t * ) pvPortMalloc( sizeof( uint8_t ) );
+        iot_uart_set_callback( xConsoleUart, prvUartCallback, xUartSem );
+        status = iot_uart_read_async( xConsoleUart, pMessage, messageLength );
 
-        if( ( xUartSem != NULL ) && ( pucResponse != NULL ) )
+        if( status == IOT_UART_SUCCESS )
         {
-            iot_uart_set_callback( xConsoleUart, prvUartCallback, xUartSem );
-
-            status = iot_uart_read_async( xConsoleUart, pucResponse, 1 );
-
             /* Wait for  auth timeout to get the input character. */
-            xSemaphoreTake( xUartSem, xAuthTimeout );
+            xSemaphoreTake( xUartSem, timeoutTicks );
 
             /* Cancel the uart operation if the character is received or timeout occured. */
             iot_uart_cancel( xConsoleUart );
@@ -316,19 +308,16 @@ static void prvMiscInitialization( void )
             /* Reset the callback. */
             iot_uart_set_callback( xConsoleUart, NULL, NULL );
 
-            iot_uart_ioctl( xConsoleUart, eGetRxNoOfbytes, &bytesRead );
-
-            if( bytesRead == 1 )
-            {
-                pxINPUTmessage->pcData = pucResponse;
-                pxINPUTmessage->xDataSize = 1;
-                xReturnMessage = pdTRUE;
-            }
-
-            vSemaphoreDelete( xUartSem );
+            iot_uart_ioctl( xConsoleUart, eGetRxNoOfbytes, &status );
         }
+        else
+        {
+            status = ( 0 - status ); /* return negative error code. */
+        }
+        
+        vSemaphoreDelete( xUartSem );
 
-        return xReturnMessage;
+        return status;
     }
 #endif /* if BLE_ENABLED */
 

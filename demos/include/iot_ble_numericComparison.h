@@ -63,9 +63,9 @@ void vDemoBLENumericComparisonInit( void );
  * @param[in] timeoutTicks Ticks to wait for the entire message.
  * @return number of bytes read, or < 0 if there is an error.
  */
-int32_t xPortGetNumericComparisonReply( uint8_t * pMessage,
-                                        uint32_t messageLength,
-                                        TickType_t timeoutTicks );
+int32_t xPortGetUserInput( uint8_t * pMessage,
+                           uint32_t messageLength,
+                           TickType_t timeoutTicks );
 
 
 #endif /* _IOT_BLE_NUMERIC_COMPARISON_H_ */
