@@ -593,7 +593,7 @@ void vAssertCalled(const char * pcFile,
         xTimeOnEntering = xTaskGetTickCount();
 
         while( ( bytesRead < messageLength ) &&
-               ( (xTaskGetTickCount() - xTimeOnEntering) < xAuthTimeout ) )
+               ( (xTaskGetTickCount() - xTimeOnEntering) < timeoutTicks ) )
         {
             /* Check for data in the UART buffer with zero timeout. */
             numBytes = cyhal_uart_readable(&cy_retarget_io_uart_obj);
