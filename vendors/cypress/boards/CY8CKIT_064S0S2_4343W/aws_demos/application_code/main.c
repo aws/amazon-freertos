@@ -609,7 +609,7 @@ void vAssertCalled(const char * pcFile,
                 else
                 {
                     ptr++;
-                    bytesRead++
+                    bytesRead++;
                 }
             }
             /* Yield to other tasks while waiting for user data. */
