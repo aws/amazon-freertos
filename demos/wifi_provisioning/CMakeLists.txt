@@ -11,5 +11,12 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         AFR::wifi
-        AFR::ble
 )
+
+if( BLE_SUPPORTED )
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE
+            AFR::ble
+    )
+endif()
