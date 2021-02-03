@@ -261,10 +261,6 @@ void vApplicationDaemonTaskStartupHook( void )
         printf( "Retarget IO initialization failed \r\n" );
     }
 
-    #if BLE_ENABLED
-        NumericComparisonInit();
-    #endif
-
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
 #ifdef PDL_CODE
     if (qspi_init_sfdp(1) < 0)
