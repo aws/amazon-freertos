@@ -73,7 +73,7 @@
 /**
  * @brief Maximum number of tries for confirmation.
  */
-#define IOT_BLE_MAX_NUMERIC_COMPARISON_TRIES    ( 5 )
+#define IOT_BLE_MAX_NUMERIC_COMPARISON_TRIES          ( 5 )
 
 /**
  * @brief Structure defines each element of Numeric comparison queue.
@@ -127,7 +127,7 @@ static void prvNumericComparisonTask( void * pvParameters )
 
             for( ulTries = 0; ulTries < IOT_BLE_MAX_NUMERIC_COMPARISON_TRIES; ulTries++ )
             {
-                 /* Waiting for UART event. */
+                /* Waiting for UART event. */
                 if( xPortGetUserInput( ( uint8_t * ) &userInput, 1, xAuthTimeout ) > 0 )
                 {
                     if( ( userInput == 'y' ) || ( userInput == 'Y' ) )
