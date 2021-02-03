@@ -125,6 +125,20 @@ void wm_printf(const char *format, ...)
 }
 
 /**
+ * @brief Application startup task that provisions board with credentials and initiates demo run.
+ */
+//void vApplicationDaemonTaskStartupHook( void );
+void vStartupTask( void *pvParameters);
+
+/**
+ * @brief Application IP network event hook called by the FreeRTOS+TCP stack for
+ * applications using Ethernet. If you are not using Ethernet and the FreeRTOS+TCP stack,
+ * start network dependent applications in vApplicationDaemonTaskStartupHook after the
+ * network status is up.
+ */
+void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent );
+
+/**
  * @brief Connects to Wi-Fi.
  */
 static void prvWifiConnect( void );
@@ -154,14 +168,14 @@ int main( void )
 
     /* FreeRTOS+TCP stack init */
     vApplicationIPInit();
-
-    /* A simple example to demonstrate key and certificate provisioning in
-     * flash using PKCS#11 interface. This should be replaced
-     * by production ready key provisioning mechanism. */
-    vDevModeKeyProvisioning();
-
-    /* Start the demo tasks. */
-    DEMO_RUNNER_RunDemos();
+    
+    /* Create a task to initialize system and run demos. */
+    xTaskCreate( vStartupTask,
+                 "Startup Task",
+                 mainSTARTUP_TASK_STACK_SIZE,
+                 NULL,
+                 tskIDLE_PRIORITY + 2,
+                 NULL );
 
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the Wi-Fi initialization, is performed in the RTOS daemon task
@@ -226,6 +240,29 @@ static void prvMiscInitialization( void )
     }
 
     configPRINT_STRING("FreeRTOS Started\r\n");
+}
+
+/*-----------------------------------------------------------*/
+
+//void vApplicationDaemonTaskStartupHook( void )
+void vStartupTask( void * pvParameters )
+{
+    configPRINT( "\r\nApplication Daemon Startup \r\n" );
+
+    if( SYSTEM_Init() != pdPASS )
+    {
+        configPRINT( "\r\nSystem Init failed \r\n" );
+    }
+
+    /* A simple example to demonstrate key and certificate provisioning in
+     * flash using PKCS#11 interface. This should be replaced
+     * by production ready key provisioning mechanism. */
+    vDevModeKeyProvisioning();
+
+    /* Start the demo tasks. */
+    DEMO_RUNNER_RunDemos();
+
+    vTaskDelete();
 }
 
 /*-----------------------------------------------------------*/
