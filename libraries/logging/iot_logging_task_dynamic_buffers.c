@@ -152,8 +152,8 @@ static void vLoggingPrintfCommon( uint8_t usLoggingLevel,
     if( pcPrintString != NULL )
     {
         static BaseType_t xEndOfMessage = pdTRUE;
-        size_t ulFormatStrLen = 0UL;
         const char * pcLevelString = NULL;
+        size_t ulFormatLen = 0UL;
 
         /* Add metadata of task name and tick time for a new log message. */
         if( strcmp( pcFormat, "\n" ) != 0 )
@@ -184,6 +184,7 @@ static void vLoggingPrintfCommon( uint8_t usLoggingLevel,
             #endif /* if ( configLOGGING_INCLUDE_TIME_AND_TASK_NAME == 1 ) */
         }
 
+        /* Choose the string for the log level metadata for the log message. */
         switch( usLoggingLevel )
         {
             case LOG_ERROR:
@@ -202,6 +203,7 @@ static void vLoggingPrintfCommon( uint8_t usLoggingLevel,
                 pcLevelString = "DEBUG";
         }
 
+        /* Add the chosen log level information as prefix for the message. */
         if( pcLevelString != NULL )
         {
             xLength += snprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "[%s] ", pcLevelString );
@@ -224,6 +226,14 @@ static void vLoggingPrintfCommon( uint8_t usLoggingLevel,
         }
 
         xLength += ( size_t ) xLength2;
+
+        /* Add newline characters if the message does not end with them.*/
+        ulFormatLen = strlen( pcFormat );
+
+        if( ( ulFormatLen >= 2 ) && ( strncmp( pcFormat + ulFormatLen, 2, "\r\n" ) != 0 ) )
+        {
+            xLength += snprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "%s", "\r\n" );
+        }
 
         /* Only send the buffer to the logging task if it is
          * not empty. */
