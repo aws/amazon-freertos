@@ -352,10 +352,9 @@ int main( void )
     return 0;
 }
 /*-----------------------------------------------------------*/
-
-int32_t xPortGetNumericComparisonReply( uint8_t * pMessage,
-                                        uint32_t messageLength,
-                                        TickType_t timeoutTicks )
+int32_t xPortGetUserInput( uint8_t * pMessage,
+                           uint32_t messageLength,
+                           TickType_t timeoutTicks )
 {
       int32_t bytesRead = 0;
       configASSERT((messageLength == 1 ));
