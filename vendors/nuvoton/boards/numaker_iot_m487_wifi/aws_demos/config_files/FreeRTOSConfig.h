@@ -27,6 +27,10 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
+#if defined(__CC_ARM)
+#pragma anon_unions
+#endif
+
 /*-----------------------------------------------------------
 * Application specific definitions.
 *

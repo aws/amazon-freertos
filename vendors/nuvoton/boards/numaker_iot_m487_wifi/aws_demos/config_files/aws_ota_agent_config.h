@@ -31,6 +31,10 @@
 #ifndef _AWS_OTA_AGENT_CONFIG_H_
 #define _AWS_OTA_AGENT_CONFIG_H_
 
+#if defined(__CC_ARM)
+#pragma anon_unions
+#endif
+
 /**
  * @brief The number of words allocated to the stack for the OTA agent.
  * For M487 paltform, Stack size 1500 words is enough for OTA demo & test.

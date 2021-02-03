@@ -29,6 +29,11 @@
 #include "unity_internals.h"
 #include "aws_test_runner_config.h"
 
+
+#if defined(__CC_ARM)
+#pragma anon_unions
+#endif
+
 /*-----------------------------------------------------------
 * Application specific definitions.
 *

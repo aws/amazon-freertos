@@ -30,6 +30,10 @@
 #ifndef _AWS_TEST_OTA_CONFIG_H_
 #define _AWS_TEST_OTA_CONFIG_H_
 
+#if defined(__CC_ARM)
+#pragma anon_unions
+#endif
+
  /**
  * @brief Path to cert for OTA PAL test. Used to verify signature.
  * If applicable, the device must be pre-provisioned with this certificate. Please see
