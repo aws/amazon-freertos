@@ -196,14 +196,14 @@
 
 /**
  * @brief Utility macro to generate the PUBLISH topic string to the
- * DescribePendingJobExecution API of AWS IoT Jobs service for requesting
+ * DescribeJobExecution API of AWS IoT Jobs service for requesting
  * the next pending job information.
  *
  * @param[in] thingName The name of the Thing resource to query for the
  * next pending job.
  */
-#define START_NEXT_JOB_TOPIC( thingName ) \
-    ( JOBS_API_PREFIX thingName JOBS_API_BRIDGE JOBS_API_STARTNEXT )
+#define DESCRIBE_NEXT_JOB_TOPIC( thingName ) \
+    ( JOBS_API_PREFIX thingName JOBS_API_BRIDGE JOBS_API_JOBID_NEXT "/" JOBS_API_GETPENDING )
 
 /**
  * @brief Utility macro to generate the subscription topic string for the
@@ -330,7 +330,7 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
                               MQTTDeserializedInfo_t * pxDeserializedInfo );
 
 /**
- * @brief Process payload from NextJobExecutionChanged and StartNextPendingJobExecution
+ * @brief Process payload from NextJobExecutionChanged and DescribeJobExecution
  * API MQTT topics of AWS IoT Jobs service.
  *
  * This handler parses the payload received about the next pending job to identify
@@ -607,6 +607,10 @@ static void prvNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
             LogInfo( ( "Received a Job from AWS IoT Jobs service: JobId=%.*s",
                        ulJobIdLength, pcJobId ) );
 
+            /* Send a status update to AWS IoT Jobs service for the next pending job. */
+            LogInfo( ( "Updating status of Job to IN_PROGRESS: JobId=%.*s", ulJobIdLength, pcJobId ) );
+            prvSendUpdateForJob( pcJobId, usJobIdLength, MAKE_STATUS_REPORT( "IN_PROGRESS" ) );
+
             /* Process the Job document and execute the job. */
             prvProcessJobDocument( pxPublishInfo, pcJobId, ( uint16_t ) ulJobIdLength );
         }
@@ -659,7 +663,7 @@ static void prvEventCallback( MQTTContext_t * pxMqttContext,
         if( xStatus == JobsSuccess )
         {
             /* Upon successful return, the messageType has been filled in. */
-            if( ( topicType == JobsStartNextSuccess ) || ( topicType == JobsNextJobChanged ) )
+            if( ( topicType == JobsDescribeSuccess ) || ( topicType == JobsNextJobChanged ) )
             {
                 /* Handler function to process payload. */
                 prvNextJobHandler( pxDeserializedInfo->pPublishInfo );
@@ -811,23 +815,23 @@ int RunJobsDemo( bool awsIotMqttMode,
 
         if( xDemoStatus == pdPASS )
         {
-            /* Publish to AWS IoT Jobs on the StartNextPendingJobExecution API to request the next pending job.
+            /* Publish to AWS IoT Jobs on the DescribeJobExecution API to request the next pending job.
              *
              * Note: It is not required to make MQTT subscriptions to the response topics of the
-             * StartNextPendingJobExecution API because the AWS IoT Jobs service sends responses for
+             * DescribeJobExecution API because the AWS IoT Jobs service sends responses for
              * the PUBLISH commands on the same MQTT connection irrespective of whether the client has subscribed
              * to the response topics or not.
              * This demo processes incoming messages from the response topics of the API in the prvEventCallback()
              * handler that is supplied to the coreMQTT library. */
             if( PublishToTopic( &xMqttContext,
-                                START_NEXT_JOB_TOPIC( democonfigTHING_NAME ),
-                                sizeof( START_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) - 1,
+                                DESCRIBE_NEXT_JOB_TOPIC( democonfigTHING_NAME ),
+                                sizeof( DESCRIBE_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) - 1,
                                 NULL,
                                 0 ) != pdPASS )
             {
                 xDemoStatus = pdFAIL;
-                LogError( ( "Failed to publish to StartNextPendingJobExecution API of AWS IoT Jobs service: "
-                            "Topic=%s", START_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) );
+                LogError( ( "Failed to publish to DescribeJobExecution API of AWS IoT Jobs service: "
+                            "Topic=%s", DESCRIBE_NEXT_JOB_TOPIC( democonfigTHING_NAME ) ) );
             }
         }
 
