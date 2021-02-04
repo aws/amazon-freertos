@@ -261,10 +261,6 @@ void vApplicationDaemonTaskStartupHook( void )
         printf( "Retarget IO initialization failed \r\n" );
     }
 
-    #if BLE_ENABLED
-        NumericComparisonInit();
-    #endif
-
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
 #ifdef PDL_CODE
     if (qspi_init_sfdp(1) < 0)
@@ -575,35 +571,25 @@ void vAssertCalled(const char * pcFile,
 #endif
 
 #if BLE_SUPPORTED
-    /**
-     * @brief "Function to receive user input from a UART terminal. This function reads until a line feed or
-     * carriage return character is received and returns a null terminated string through a pointer to INPUTMessage_t.
-     *
-     * @note The line feed and carriage return characters are removed from the returned string.
-     *
-     * @param pxINPUTmessage Message structure using which the user input and the message size are returned.
-     * @param xAuthTimeout Time in ticks to be waited for the user input.
-     * @returns pdTrue if the user input was successfully captured, else pdFalse.
-     */
-    BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout )
+
+    int32_t xPortGetUserInput( uint8_t * pMessage,
+                           uint32_t messageLength,
+                           TickType_t timeoutTicks )
     {
-        BaseType_t xReturnMessage = pdFALSE;
         TickType_t xTimeOnEntering;
         uint8_t *ptr;
         uint32_t numBytes = 0;
-        uint8_t msgLength = 0;
+        uint8_t bytesRead = 0;
         cy_rslt_t result = CY_RSLT_SUCCESS;
 
-        /* Dynamically allocate memory to store user input. */
-        pxINPUTmessage->pcData = ( uint8_t * ) pvPortMalloc( sizeof( uint8_t ) * INPUT_MSG_ALLOC_SIZE );
-
         /* ptr points to the memory location where the next character is to be stored. */
-        ptr = pxINPUTmessage->pcData;
+        ptr = pMessage;
 
         /* Store the current tick value to implement a timeout. */
         xTimeOnEntering = xTaskGetTickCount();
 
-        do
+        while( ( bytesRead < messageLength ) &&
+               ( (xTaskGetTickCount() - xTimeOnEntering) < timeoutTicks ) )
         {
             /* Check for data in the UART buffer with zero timeout. */
             numBytes = cyhal_uart_readable(&cy_retarget_io_uart_obj);
@@ -613,49 +599,20 @@ void vAssertCalled(const char * pcFile,
                 result = cyhal_uart_getc(&cy_retarget_io_uart_obj, ptr, 0);
                 if (CY_RSLT_SUCCESS != result)
                 {
-                    xReturnMessage = pdFALSE;
+                    bytesRead = -1;
                     break;
                 }
                 else
                 {
-                    /* Stop checking for more characters when line feed or carriage return is received. */
-                    if((*ptr == '\n') || (*ptr == '\r'))
-                    {
-                        *ptr = '\0';
-                        xReturnMessage = pdTRUE;
-                        break;
-                    }
-                }
-
-                ptr++;
-                msgLength++;
-
-                /* Check if the allocated buffer for user input storage is full. */
-                if ((msgLength >= INPUT_MSG_ALLOC_SIZE) && (CY_RSLT_SUCCESS != result))
-                {
-                    break;
+                    ptr++;
+                    bytesRead++;
                 }
             }
-
             /* Yield to other tasks while waiting for user data. */
             vTaskDelay( DELAY_BETWEEN_GETC_IN_TICKS );
-
-        } while ((xTaskGetTickCount() - xTimeOnEntering) < xAuthTimeout); /* Wait for user data until timeout period is elapsed. */
-
-        if (xReturnMessage == pdTRUE)
-        {
-            pxINPUTmessage->xDataSize = msgLength;
-        }
-        else if (msgLength >= INPUT_MSG_ALLOC_SIZE)
-        {
-            configPRINTF( ( "User input exceeds buffer size !!\n" ) );
-        }
-        else
-        {
-            configPRINTF( ( "Timeout period elapsed !!\n" ) );
         }
 
-        return xReturnMessage;
+        return bytesRead;
     }
 
 #endif /* if BLE_ENABLED */

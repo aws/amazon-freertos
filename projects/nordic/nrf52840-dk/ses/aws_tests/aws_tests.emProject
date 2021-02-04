@@ -32,7 +32,6 @@
       gcc_debugging_level="Level 3"
       gcc_dwarf_version="dwarf-4" />
     <folder Name="application_code">
-      <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/application_code/aws_ble_numericComparison.c" />
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/application_code/fake_PKCS11.c" />
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/application_code/main.c" />
       <folder Name="nordic_code">
