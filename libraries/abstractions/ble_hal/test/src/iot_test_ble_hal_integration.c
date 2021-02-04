@@ -28,8 +28,7 @@
  * @brief Tests for ble.
  */
 
-
-
+#include "iot_ble_config.h"
 #include "iot_test_ble_hal_integration.h"
 extern BTCallbacks_t _xBTManagerCb;
 extern BTBleAdapterCallbacks_t _xBTBleAdapterCb;
@@ -58,7 +57,7 @@ extern BTUuid_t xAppUUID;
 extern bool bCharAddedComplete;
 extern uint16_t _bletestsMTU_SIZE;
 
-static uint8_t ucLargeBuffer[ bletestsMTU_SIZE1 + 2 ];
+static uint8_t ucLargeBuffer[ IOT_BLE_PREFERRED_MTU_SIZE + 2 ];
 
 TEST_GROUP( Full_BLE_Integration_Test );
 
@@ -198,7 +197,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
         BTStatus_t xStatus;
         BTProperty_t pxProperty;
         BLETESTMtuChangedCallback_t xMtuChangedEvent;
-        uint16_t usMTUsize = bletestsMTU_SIZE2;
+        uint16_t usMTUsize = IOT_BLE_PREFERRED_MTU_SIZE;
 
         IotTestBleHal_SetAdvProperty();
 
@@ -506,12 +505,12 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
 
         IotTestBleHal_checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
 
-        memset( ucLargeBuffer, 'a', ( bletestsMTU_SIZE1 + 2 ) * sizeof( char ) );
+        memset( ucLargeBuffer, 'a', ( IOT_BLE_PREFERRED_MTU_SIZE + 2 ) * sizeof( char ) );
 
         xStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
                                                             usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
                                                             _usBLEConnId,
-                                                            bletestsMTU_SIZE1 + 2,
+                                                            IOT_BLE_PREFERRED_MTU_SIZE + 2,
                                                             ucLargeBuffer,
                                                             false );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
@@ -673,7 +672,7 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
     void prvSetAdvPropertyWithNULLCb( void )
     {
         BTProperty_t pxProperty;
-        uint16_t usMTUsize = bletestsMTU_SIZE1;
+        uint16_t usMTUsize = IOT_BLE_PREFERRED_MTU_SIZE;
         BTStatus_t xStatus = eBTStatusSuccess;
 
         pxProperty.xType = eBTpropertyBdname;
