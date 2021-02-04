@@ -41,4 +41,66 @@ void vLoggingInit( BaseType_t xLogToStdout,
                    uint32_t ulRemoteIPAddress,
                    uint16_t usRemotePort );
 
+/**
+ * @brief Printf like logging interface for logging in
+ * from FreeRTOS tasks in the Windows platform.
+ *
+ * Depending on the configuration made through vLoggingInit(),
+ * this function will print to stdout, log to disk file OR
+ * transmit over a UDP port.
+ */
+void vLoggingPrint( const char * pcFormat );
+
+/**
+ * @brief Interface for logging message at Error level.
+ *
+ * This function adds a "[ERROR]" prefix to the
+ * log message to label it as an error.
+ *
+ * Depending on the configuration made through vLoggingInit(),
+ * this function will print to stdout, log to disk file OR
+ * transmit over a UDP port.
+ */
+void vLoggingPrintfError( const char * pcFormat,
+                          ... );
+
+/**
+ * @brief Interface for logging message at Warn level.
+ *
+ * This function adds a "[WARN]" prefix to the
+ * log message to label it as a warning.
+ *
+ * Depending on the configuration made through vLoggingInit(),
+ * this function will print to stdout, log to disk file OR
+ * transmit over a UDP port.
+ */
+void vLoggingPrintfWarn( const char * pcFormat,
+                         ... );
+
+/**
+ * @brief Interface for logging message at Info level.
+ *
+ * This function adds a "[INFO]" prefix to the
+ * log message to label it as an informational message.
+ *
+ * Depending on the configuration made through vLoggingInit(),
+ * this function will print to stdout, log to disk file OR
+ * transmit over a UDP port.
+ */
+void vLoggingPrintfInfo( const char * pcFormat,
+                         ... );
+
+/**
+ * @brief Interface for logging message at Debug level.
+ *
+ * This function adds a "[DEBUG]" prefix to the
+ * log message to label it as a debug level message.
+ *
+ * Depending on the configuration made through vLoggingInit(),
+ * this function will print to stdout, log to disk file OR
+ * transmit over a UDP port.
+ */
+void vLoggingPrintfDebug( const char * pcFormat,
+                          ... );
+
 #endif /* AWS_DEMO_LOGGING_H */

@@ -118,7 +118,8 @@ static void prvCreatePrintSocket( void * pvParameter1,
  * Write a messages to stdout, either with or without a time-stamp.
  * A Windows thread will finally call printf() and fflush().
  */
-static void prvLoggingPrintf( BaseType_t xFormatted,
+static void prvLoggingPrintf( uint8_t usLoggingLevel,
+                              BaseType_t xFormatted,
                               const char * pcFormat,
                               va_list xArgs );
 
@@ -301,7 +302,7 @@ void vLoggingPrintfError( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    prvLoggingPrintf( LOG_ERROR, pcFormat, args );
+    prvLoggingPrintf( LOG_ERROR, pdTRUE, pcFormat, args );
 
     va_end( args );
 }
@@ -312,7 +313,7 @@ void vLoggingPrintfWarn( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    prvLoggingPrintf( LOG_WARN, pcFormat, args );
+    prvLoggingPrintf( LOG_WARN, pdTRUE, pcFormat, args );
 
     va_end( args );
 }
@@ -323,7 +324,9 @@ void vLoggingPrintfInfo( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    prvLoggingPrintf( LOG_INFO, pcFormat, args );
+    prvLoggingPrintf( LOG_INFO, pdTRUE, pcFormat, args );
+
+    va_end( args );
 }
 
 void vLoggingPrintfDebug( const char * pcFormat,
@@ -332,7 +335,7 @@ void vLoggingPrintfDebug( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    prvLoggingPrintf( LOG_DEBUG, pcFormat, args );
+    prvLoggingPrintf( LOG_DEBUG, pdTRUE, pcFormat, args );
 
     va_end( args );
 }
