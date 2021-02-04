@@ -157,7 +157,7 @@
  * This demo program expects this key to be in the Job document. It is a key
  * specific to this demo.
  */
-#define jobsexampleQUERY_KEY_FOR_ACTION             jobsexampleQUERY_KEY_FOR_JOBS_DOC ".action"
+#define jobsexampleQUERY_KEY_FOR_ACTION             "tction"
 
 /**
  * @brief The length of #jobsexampleQUERY_KEY_FOR_ACTION.
@@ -172,7 +172,7 @@
  * is either "publish" or "print". It represents the message that should be
  * published or printed, respectively.
  */
-#define jobsexampleQUERY_KEY_FOR_MESSAGE            jobsexampleQUERY_KEY_FOR_JOBS_DOC ".message"
+#define jobsexampleQUERY_KEY_FOR_MESSAGE            "tessage"
 
 /**
  * @brief The length of #jobsexampleQUERY_KEY_FOR_MESSAGE.
@@ -187,7 +187,7 @@
  * is "publish". It represents the MQTT topic on which the message should be
  * published.
  */
-#define jobsexampleQUERY_KEY_FOR_TOPIC              jobsexampleQUERY_KEY_FOR_JOBS_DOC ".topic"
+#define jobsexampleQUERY_KEY_FOR_TOPIC              "topic"
 
 /**
  * @brief The length of #jobsexampleQUERY_KEY_FOR_TOPIC.
