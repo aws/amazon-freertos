@@ -151,7 +151,6 @@ static void prvLoggingPrintfCommon( uint8_t usLoggingLevel,
 
     if( pcPrintString != NULL )
     {
-        static BaseType_t xEndOfMessage = pdTRUE;
         const char * pcLevelString = NULL;
         size_t ulFormatLen = 0UL;
 
