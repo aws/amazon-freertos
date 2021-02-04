@@ -6,6 +6,8 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 ### New Features
 
 ### Updates
+- Update FreeRTOS Test Runner to support either a configurable delay (in [PR](#2950)) or a FreeRTOS+CLI based serial prompt input command (in [PR](#2955)) to being executing tests.
+- Upgrade of ESP-IDF SDK v4.2 for Espressif boards (in [PR](#2893)). Refer to the instructions in [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html#setup-espressif-idf42) for using ESP-IDF v4.2.
 
 ## 202012.00 December 2020
 
