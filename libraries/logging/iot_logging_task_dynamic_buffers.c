@@ -230,7 +230,7 @@ static void vLoggingPrintfCommon( uint8_t usLoggingLevel,
         /* Add newline characters if the message does not end with them.*/
         ulFormatLen = strlen( pcFormat );
 
-        if( ( ulFormatLen >= 2 ) && ( strncmp( pcFormat + ulFormatLen, 2, "\r\n" ) != 0 ) )
+        if( ( ulFormatLen >= 2 ) && ( strncmp( pcFormat + ulFormatLen, "\r\n", 2 ) != 0 ) )
         {
             xLength += snprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "%s", "\r\n" );
         }
