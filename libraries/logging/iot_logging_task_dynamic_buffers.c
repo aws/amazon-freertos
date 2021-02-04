@@ -285,6 +285,8 @@ void vLoggingPrintfInfo( const char * pcFormat,
 
     va_start( args, pcFormat );
     prvLoggingPrintfCommon( LOG_INFO, pcFormat, args );
+
+    va_end( args );
 }
 
 void vLoggingPrintfDebug( const char * pcFormat,

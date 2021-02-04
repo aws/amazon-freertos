@@ -46,6 +46,18 @@ BaseType_t xLoggingTaskInitialize( uint16_t usStackSize,
                                    UBaseType_t uxQueueLength );
 
 /**
+ * @brief Interface to print via the logging interface.
+ *
+ * Uses the same semantics as printf().  How the print is performed depends on
+ * which files are being built.  Some vLoggingPrintf() implementations will
+ * output directly, others will use a logging task to allow log message to be
+ * output in the background should the output device be too slow for output to
+ * be performed inline.
+ */
+void vLoggingPrintf( const char * pcFormat,
+                     ... );
+
+/**
  * @brief Interface for logging message at Error level.
  *
  * This function adds a "[ERROR]" prefix to the
@@ -80,17 +92,5 @@ void vLoggingPrintfInfo( const char * pcFormat,
  */
 void vLoggingPrintfDebug( const char * pcFormat,
                           ... );
-
-/**
- * @brief Interface to print via the logging interface.
- *
- * Uses the same semantics as printf().  How the print is performed depends on
- * which files are being built.  Some vLoggingPrintf() implementations will
- * output directly, others will use a logging task to allow log message to be
- * output in the background should the output device be too slow for output to
- * be performed inline.
- */
-void vLoggingPrintf( const char * pcFormat,
-                     ... );
 
 #endif /* AWS_LOGGING_TASK_H */
