@@ -609,7 +609,7 @@ static void prvNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
 
             /* Send a status update to AWS IoT Jobs service for the next pending job. */
             LogInfo( ( "Updating status of Job to IN_PROGRESS: JobId=%.*s", ulJobIdLength, pcJobId ) );
-            prvSendUpdateForJob( pcJobId, usJobIdLength, MAKE_STATUS_REPORT( "IN_PROGRESS" ) );
+            prvSendUpdateForJob( pcJobId, ulJobIdLength, MAKE_STATUS_REPORT( "IN_PROGRESS" ) );
 
             /* Process the Job document and execute the job. */
             prvProcessJobDocument( pxPublishInfo, pcJobId, ( uint16_t ) ulJobIdLength );
