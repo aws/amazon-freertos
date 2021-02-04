@@ -5,13 +5,17 @@ implementations for both ISO C90 standard and ISO C99 standard (with GNU extensi
 
 **Note**: Users can provide their own implementations of the logging interface to enable logging, if they choose to not use this implementation.
 
+To enable logging using the sample implementation for a FreeRTOS library and/or demo, 
+* The logging level can be configured with the [`LIBRARY_LOG_LEVEL`](#setting-the-verbosity-level) configuration. Additionally, if using the ISO C99 (with GNU extension) implementation, the [`LIBRARY_LOG_NAME`](#setting-the-library-text-name) macro can also be defined to configure the library name.
+* The [`logging_stack.h`](./include/logging_stack.h) file must be included _after_ the above macro configurations in the FreeRTOS library-specific config file (like `core_mqtt_config.h` for coreMQTT library).
+
 ### Logging Task 
 Logging messages from multiple tasks are serialized with a FreeRTOS queue that is serviced by a daemon logging task. The daemon task reads log message strings from the queue and forwards them to the vendor-specific function through the `configPRINT` macro.
 
 Each of the implementations (C90 and C99 with GNU extension) route the logging interface macros to a logging function (defined in [`iot_logging_task.h`](./include/iot_logging_task.h)) that pushes the message to the FreeRTOS queue, thereby serializing messages logged through the logging interfaces.
 
 ### Setting the Verbosity Level
-To configure the verbosity level of log messages from a FreeRTOS library, define the `LIBRARY_LOG_LEVEL` macro to one of the following values in the library-specific configuration file (like `core_mqtt_config.h` for the coreMQTT library). Valid values for LIBRARY_LOG_LEVEL are:
+To configure the verbosity level of log messages from a FreeRTOS library, define the `LIBRARY_LOG_LEVEL` macro to one of the following values in the library-specific configuration file (like `core_mqtt_config.h` for the coreMQTT library). Valid values for `LIBRARY_LOG_LEVEL` are:
 
 `LOG_NONE (turns logging off)`  
 `LOG_ERROR`  
@@ -58,19 +62,19 @@ on topic filter/sync/4
 #### ISO C99 Implementation (with GNU extension)
 
 This implementation uses variadic macros specified by the ISO C99 standard macros and [the GNU extension feature of comma elision](https://gcc.gnu.org/onlinedocs/gcc-4.8.5/cpp/Variadic-Macros.html) with the `##` operator.
-If your toolchain supports both ISO C99 and GNU extension, you can enabled this implementation by setting the `LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION` configuration.
+If your toolchain supports both ISO C99 standard and GNU extension, you can enabled this implementation by setting the `LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION` configuration to `1`.
 
 With the use of variadic macro feature of ISO C99, this implementation adds extra metadata information of the source library and file location of the log messages.
 **Note**: If you want to add/remove/change the metadata added, you can directly make changes in the [`logging_stack.h`](./include/logging_stack.h) file.
 
-#### Setting the Text Name
+#### Setting the Library Text Name
 To set the text name define the LIBRARY_LOG_NAME macro to a string within the same configuration file used to define SdkLog(). Each log message prints the name, so it is normal to set the name to the name of the library. For example:
 ```
 #define LIBRARY_LOG_NAME “MQTT”
 ```
 Setting the name to an empty string will save program space.
 
-Using this implementation. here is an example output of log messages for the MQTT Connection Sharing Demo:
+Using this implementation, following is an example output of log messages for the MQTT Connection Sharing Demo. Note that this additionally adds the library name (`[MQTT]`) and source file location (like `[core_mqtt.c:1175]`) in each log message.
 
 ```
 78 1950 [iot_thread] [INFO] [MQTT] [core_mqtt.c:886] Packet received. ReceivedBytes=2.
