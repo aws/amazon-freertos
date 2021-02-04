@@ -131,9 +131,9 @@ static void prvLoggingTask( void * pvParameters )
 
 /*-----------------------------------------------------------*/
 
-static void vLoggingPrintfCommon( uint8_t usLoggingLevel,
-                                  const char * pcFormat,
-                                  va_list args )
+static void prvLoggingPrintfCommon( uint8_t usLoggingLevel,
+                                    const char * pcFormat,
+                                    va_list args )
 {
     size_t xLength = 0;
     int32_t xLength2 = 0;
@@ -188,7 +188,7 @@ static void vLoggingPrintfCommon( uint8_t usLoggingLevel,
         switch( usLoggingLevel )
         {
             case LOG_ERROR:
-                pcLevelString = "ERROR ";
+                pcLevelString = "ERROR";
                 break;
 
             case LOG_WARN:
@@ -263,7 +263,7 @@ void vLoggingPrintfError( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    vLoggingPrintfCommon( LOG_ERROR, pcFormat, args );
+    prvLoggingPrintfCommon( LOG_ERROR, pcFormat, args );
 
     va_end( args );
 }
@@ -274,7 +274,7 @@ void vLoggingPrintfWarn( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    vLoggingPrintfCommon( LOG_WARN, pcFormat, args );
+    prvLoggingPrintfCommon( LOG_WARN, pcFormat, args );
 
     va_end( args );
 }
@@ -285,7 +285,7 @@ void vLoggingPrintfInfo( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    vLoggingPrintfCommon( LOG_INFO, pcFormat, args );
+    prvLoggingPrintfCommon( LOG_INFO, pcFormat, args );
 }
 
 void vLoggingPrintfDebug( const char * pcFormat,
@@ -294,7 +294,7 @@ void vLoggingPrintfDebug( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    vLoggingPrintfCommon( LOG_DEBUG, pcFormat, args );
+    prvLoggingPrintfCommon( LOG_DEBUG, pcFormat, args );
 
     va_end( args );
 }
@@ -316,7 +316,7 @@ void vLoggingPrintf( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    vLoggingPrintfCommon( LOG_NONE, pcFormat, args );
+    prvLoggingPrintfCommon( LOG_NONE, pcFormat, args );
 
     va_end( args );
 }
