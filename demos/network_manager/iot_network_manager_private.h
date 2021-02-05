@@ -31,16 +31,16 @@
 #define AWS_IOT_NETWORK_H_
 
 #include "types/iot_network_types.h"
-#include "aws_iot_network_config.h"
+#include "iot_network_config.h"
 
 #include "platform/iot_network.h"
 
 #ifndef configSUPPORTED_NETWORKS
-    #error "Flag 'configSUPPORTED_NETWORKS' is not defined. Please define the flag in aws_iot_network_config.h with the list of all networks supported by the board"
+    #error "Flag 'configSUPPORTED_NETWORKS' is not defined. Please define the flag in iot_network_config.h with the list of all networks supported by the board"
 #endif
 
 #ifndef configENABLED_NETWORKS
-    #error "Flag 'configENABLED_NETWORKS' not defined. Please define the flag in aws_iot_network_config.h with all the networks that needs to be enabled"
+    #error "Flag 'configENABLED_NETWORKS' not defined. Please define the flag in iot_network_config.h with all the networks that needs to be enabled"
 #endif
 
 

@@ -33,7 +33,7 @@
 /* Demo includes */
 #include "aws_demo.h"
 #include "types/iot_network_types.h"
-#include "aws_iot_network_config.h"
+#include "iot_network_config.h"
 
 /* AWS library includes. */
 #include "iot_system_init.h"

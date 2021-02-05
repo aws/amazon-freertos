@@ -26,7 +26,7 @@
 #include "aws_iot_ota_interface.h"
 #include "aws_ota_agent_config.h"
 #include "types/iot_network_types.h"
-#include "aws_iot_network_config.h"
+#include "iot_network_config.h"
 #include "iot_crypto.h"
 #include "core_pkcs11.h"
 #include "esp_system.h"

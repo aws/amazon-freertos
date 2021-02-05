@@ -27,7 +27,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "types/iot_network_types.h"
-#include "aws_iot_network_config.h"
+#include "iot_network_config.h"
 
 /* Check if BLE is among the enabled networks. */
 #define BLE_ENABLED                             ( ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )

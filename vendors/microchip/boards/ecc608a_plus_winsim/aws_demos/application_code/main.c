@@ -56,7 +56,7 @@
 #include "aws_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "iot_network_manager_private.h"
-#include "aws_iot_network_config.h"
+#include "iot_network_config.h"
 
 /* Define a name that will be used for LLMNR and NBNS searches. Once running,
  * you can "ping RTOSDemo" instead of pinging the IP address, which is useful when
