@@ -32,7 +32,7 @@
       <folder Name="common_demos">
         <folder Name="include">
           <file file_name="../../../../../demos/include/aws_application_version.h" />
-          <file file_name="../../../../../demos/include/aws_ble_gatt_server_demo.h" />
+          <file file_name="../../../../../demos/include/iot_ble_gatt_server_demo.h" />
           <file file_name="../../../../../demos/include/aws_clientcredential.h" />
           <file file_name="../../../../../demos/include/aws_clientcredential_keys.h" />
           <file file_name="../../../../../demos/include/aws_demo.h" />
