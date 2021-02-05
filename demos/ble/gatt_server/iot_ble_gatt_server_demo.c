@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ble_gatt_server_demo.c
+ * @file iot_ble_gatt_server_demo.c
  * @brief Sample demo for a BLE GATT server
  */
 #include "FreeRTOSConfig.h"
