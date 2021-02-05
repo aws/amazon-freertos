@@ -279,8 +279,17 @@ static NetworkContext_t xNetworkContext;
 static uint8_t usMqttConnectionBuffer[ democonfigNETWORK_BUFFER_SIZE ];
 
 /**
- * @brief Static buffer used to hold the job document received from AWS IoT
- * Jobs service.
+ * @brief Static buffer used to hold the job ID of the single job that
+ * is executed at a time in the demo. This buffer allows re-use of the MQTT
+ * connection context for sending status updates of a job while it is being
+ * processed.
+ */
+static uint8_t usJobIdBuffer[ democonfigNETWORK_BUFFER_SIZE ];
+
+/**
+ * @brief Static buffer used to hold the job document of the single job that
+ * is executed at a time in the demo. This buffer allows re-use of the MQTT
+ * connection context for sending status updates of a job while it is being processed.
  */
 static uint8_t usJobsDocumentBuffer[ democonfigNETWORK_BUFFER_SIZE ];
 
@@ -626,6 +635,11 @@ static void prvNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
             LogInfo( ( "Received a Job from AWS IoT Jobs service: JobId=%.*s",
                        ulJobIdLength, pcJobId ) );
 
+            /* Copy the Job ID in the global buffer. This is done so that
+             * the MQTT context's network buffer can be used for sending jobs
+             * status updates to the AWS IoT Jobs service. */
+            memcpy( usJobIdBuffer, pcJobId, ulJobIdLength );
+
             /* Search for the jobs document in the payload. */
             if( JSON_Search( ( char * ) pxPublishInfo->pPayload,
                              pxPublishInfo->payloadLength,
@@ -645,11 +659,10 @@ static void prvNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
                  * be used for sending jobs status updates to the AWS IoT Jobs service. */
                 memcpy( usJobsDocumentBuffer, pcJobDocLoc, ulJobDocLength );
 
-
                 LogInfo( ( "Document: %.*s", ulJobDocLength, usJobsDocumentBuffer ) );
 
                 /* Process the Job document and execute the job. */
-                prvProcessJobDocument( pcJobId,
+                prvProcessJobDocument( usJobIdBuffer,
                                        ( uint16_t ) ulJobIdLength,
                                        usJobsDocumentBuffer,
                                        ulJobDocLength );
