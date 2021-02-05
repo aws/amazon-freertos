@@ -157,7 +157,7 @@
  * This demo program expects this key to be in the Job document. It is a key
  * specific to this demo.
  */
-#define jobsexampleQUERY_KEY_FOR_ACTION             "tction"
+#define jobsexampleQUERY_KEY_FOR_ACTION             "action"
 
 /**
  * @brief The length of #jobsexampleQUERY_KEY_FOR_ACTION.
@@ -172,7 +172,7 @@
  * is either "publish" or "print". It represents the message that should be
  * published or printed, respectively.
  */
-#define jobsexampleQUERY_KEY_FOR_MESSAGE            "tessage"
+#define jobsexampleQUERY_KEY_FOR_MESSAGE            "message"
 
 /**
  * @brief The length of #jobsexampleQUERY_KEY_FOR_MESSAGE.
@@ -644,6 +644,9 @@ static void prvNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
                 /* Copy the Job document in buffer. This is done so that the MQTT connection buffer can
                  * be used for sending jobs status updates to the AWS IoT Jobs service. */
                 memcpy( usJobsDocumentBuffer, pcJobDocLoc, ulJobDocLength );
+
+
+                LogInfo( ( "Document: %.*s", ulJobDocLength, usJobsDocumentBuffer ) );
 
                 /* Process the Job document and execute the job. */
                 prvProcessJobDocument( pcJobId,
