@@ -27,7 +27,7 @@
  * @file iot_ble_numericComparison.h
  * @brief Header file for supporting user confirmation for BLE passkey.
  */
-#ifndef _AWS_BLE_NUMERIC_COMPARISON_H_
+#ifndef _IOT_BLE_NUMERIC_COMPARISON_H_
 #define _IOT_BLE_NUMERIC_COMPARISON_H_
 
 #include "FreeRTOS.h"
