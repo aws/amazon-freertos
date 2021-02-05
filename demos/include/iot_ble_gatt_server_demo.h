@@ -24,11 +24,11 @@
  */
 
 /**
- * @file aws_ble_gatt_server_demo.h
+ * @file iot_ble_gatt_server_demo.h
  * @brief Sample demo for a BLE GATT server
  */
-#ifndef AWS_BLE_GATT_SERVER_DEMO_H_
-#define AWS_BLE_GATT_SERVER_DEMO_H_
+#ifndef IOT_BLE_GATT_SERVER_DEMO_H_
+#define IOT_BLE_GATT_SERVER_DEMO_H_
 
 #include "FreeRTOS.h"
 /* The config header is always included first. */
@@ -94,4 +94,4 @@ int vGattDemoSvcInit( bool awsIotMqttMode,
                       const IotNetworkInterface_t * pNetworkInterface );
 
 
-#endif /* AWS_BLE_GATT_SERVER_DEMO_H_ */
+#endif /* IOT_BLE_GATT_SERVER_DEMO_H_ */
