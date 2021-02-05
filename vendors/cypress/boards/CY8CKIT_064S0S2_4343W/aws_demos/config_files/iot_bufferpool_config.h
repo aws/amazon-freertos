@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_bufferpool_config.h
+ * @file iot_bufferpool_config.h
  * @brief Buffer Pool config options.
  */
 

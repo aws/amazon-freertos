@@ -330,7 +330,7 @@
     <ClInclude Include="..\..\..\microchip\curiosity_pic32mzef\common\config_files\aws_wifi_config.h" />
     <ClInclude Include="..\common\application_code\stdbool.h" />
     <ClInclude Include="..\common\application_code\unistd.h" />
-    <ClInclude Include="..\common\config_files\aws_bufferpool_config.h" />
+    <ClInclude Include="..\common\config_files\iot_bufferpool_config.h" />
     <ClInclude Include="..\common\config_files\aws_demo_config.h" />
     <ClInclude Include="..\common\config_files\aws_ggd_config.h" />
     <ClInclude Include="..\common\config_files\iot_mqtt_agent_config.h" />

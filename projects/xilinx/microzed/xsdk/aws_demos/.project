@@ -1203,9 +1203,9 @@
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/FreeRTOSIPConfig.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_bufferpool_config.h</name>
+			<name>config_files/iot_bufferpool_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/aws_bufferpool_config.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/iot_bufferpool_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_demo_config.h</name>

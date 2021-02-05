@@ -798,9 +798,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/cypress/boards/CYW954907AEVAL1F/aws_tests/config_files/FreeRTOSIPConfig.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_bufferpool_config.h</name>
+			<name>config_files/iot_bufferpool_config.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/cypress/boards/CYW954907AEVAL1F/aws_tests/config_files/aws_bufferpool_config.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/cypress/boards/CYW954907AEVAL1F/aws_tests/config_files/iot_bufferpool_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_ggd_config.h</name>

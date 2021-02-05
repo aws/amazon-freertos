@@ -867,7 +867,7 @@
 							<logicalFolder name="config_files" displayName="config_files" projectFiles="true">
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/FreeRTOSConfig.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/FreeRTOSIPConfig.h</itemPath>
-								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_bufferpool_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/iot_bufferpool_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_ggd_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_iot_network_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_mqtt_config.h</itemPath>

@@ -210,7 +210,7 @@
     <ClInclude Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture_malloc_overrides.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\unity\src\unity.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\unity\src\unity_internals.h" />
-    <ClInclude Include="..\common\config_files\aws_bufferpool_config.h" />
+    <ClInclude Include="..\common\config_files\iot_bufferpool_config.h" />
     <ClInclude Include="..\common\config_files\aws_demo_config.h" />
     <ClInclude Include="..\common\config_files\aws_ggd_config.h" />
     <ClInclude Include="..\common\config_files\iot_mqtt_agent_config.h" />

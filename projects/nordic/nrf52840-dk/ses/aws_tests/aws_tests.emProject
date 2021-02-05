@@ -43,7 +43,7 @@
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/application_code/nordic_code/thumb_crt0.s" />
       </folder>
       <folder Name="config_files">
-        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_bufferpool_config.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_bufferpool_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_ggd_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_iot_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_iot_network_config.h" />
