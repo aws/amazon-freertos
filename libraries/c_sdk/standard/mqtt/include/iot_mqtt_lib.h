@@ -35,7 +35,7 @@
  * providing MQTTConfig.h. All the config values in this case are
  * taken from MQTTConfigDefaults.h. */
 #ifndef mqttDO_NOT_USE_CUSTOM_CONFIG
-    #include "aws_mqtt_config.h"
+    #include "iot_mqtt_config.h"
 #endif
 #include "iot_mqtt_config_defaults.h"
 

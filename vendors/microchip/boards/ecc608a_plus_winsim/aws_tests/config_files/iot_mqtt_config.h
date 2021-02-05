@@ -24,12 +24,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 /**
- * @file aws_mqtt_config.h
+ * @file iot_mqtt_config.h
  * @brief MQTT config options.
  */
 
-#ifndef _AWS_MQTT_CONFIG_H_
-#define _AWS_MQTT_CONFIG_H_
+#ifndef _IOT_MQTT_CONFIG_H_
+#define _IOT_MQTT_CONFIG_H_
 
 /* Standard includes. */
 #include <stdint.h>
@@ -60,4 +60,4 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #define mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT    ( 1 )
 
-#endif /* _AWS_MQTT_CONFIG_H_ */
+#endif /* _IOT_MQTT_CONFIG_H_ */

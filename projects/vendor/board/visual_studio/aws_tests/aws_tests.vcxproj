@@ -214,7 +214,7 @@
     <ClInclude Include="..\common\config_files\aws_demo_config.h" />
     <ClInclude Include="..\common\config_files\aws_ggd_config.h" />
     <ClInclude Include="..\common\config_files\iot_mqtt_agent_config.h" />
-    <ClInclude Include="..\common\config_files\aws_mqtt_config.h" />
+    <ClInclude Include="..\common\config_files\iot_mqtt_config.h" />
     <ClInclude Include="..\common\config_files\aws_ota_agent_config.h" />
     <ClInclude Include="..\common\config_files\aws_pkcs11_config.h" />
     <ClInclude Include="..\common\config_files\iot_secure_sockets_config.h" />

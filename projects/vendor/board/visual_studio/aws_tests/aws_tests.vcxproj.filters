@@ -384,7 +384,7 @@
     <ClInclude Include="..\common\config_files\aws_demo_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\config_files\aws_mqtt_config.h">
+    <ClInclude Include="..\common\config_files\iot_mqtt_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
     <ClInclude Include="..\common\config_files\iot_secure_sockets_config.h">

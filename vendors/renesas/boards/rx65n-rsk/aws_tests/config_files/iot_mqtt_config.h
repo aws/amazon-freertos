@@ -24,12 +24,12 @@
  */
 
 /**
- * @file aws_mqtt_config.h
+ * @file iot_mqtt_config.h
  * @brief MQTT config options.
  */
 
-#ifndef _AWS_MQTT_CONFIG_H_
-#define _AWS_MQTT_CONFIG_H_
+#ifndef _IOT_MQTT_CONFIG_H_
+#define _IOT_MQTT_CONFIG_H_
 
 /* Unity includes. */
 #include "unity_internals.h"
@@ -71,4 +71,4 @@ extern void vAssertCalled( void );
  */
 #define mqttconfigENABLE_DEBUG_LOGS    1
 
-#endif /* _AWS_MQTT_CONFIG_H_ */
+#endif /* _IOT_MQTT_CONFIG_H_ */
