@@ -25,11 +25,11 @@
 
 
 /**
- * @file aws_iot_network_config.h
+ * @file iot_network_config.h
  * @brief Configuration file which enables different network types.
  */
-#ifndef AWS_IOT_NETWORK_CONFIG_H_
-#define AWS_IOT_NETWORK_CONFIG_H_
+#ifndef IOT_NETWORK_CONFIG_H_
+#define IOT_NETWORK_CONFIG_H_
 
 /**
  * @brief Configuration flag used to specify all supported network types by the board.
@@ -57,4 +57,4 @@
 #define configENABLED_NETWORKS      ( AWSIOT_NETWORK_TYPE_ETH )
 #endif
 
-#endif /* CONFIG_FILES_AWS_IOT_NETWORK_CONFIG_H_ */
+#endif /* CONFIG_FILES_IOT_NETWORK_CONFIG_H_ */
