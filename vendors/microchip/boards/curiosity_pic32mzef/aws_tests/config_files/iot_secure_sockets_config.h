@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_secure_sockets_config.h
+ * @file iot_secure_sockets_config.h
  * @brief Sockets configuration options.
  */
 

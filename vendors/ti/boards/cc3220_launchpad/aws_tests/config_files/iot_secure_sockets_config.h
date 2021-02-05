@@ -25,7 +25,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 /**
- * @file aws_secure_sockets_config.h
+ * @file iot_secure_sockets_config.h
  * @brief Sockets configuration options.
  */
 

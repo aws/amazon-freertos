@@ -823,9 +823,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/cypress/boards/CYW943907AEVAL1F/aws_tests/config_files/aws_pkcs11_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_secure_sockets_config.h</name>
+			<name>config_files/iot_secure_sockets_config.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/cypress/boards/CYW943907AEVAL1F/aws_tests/config_files/aws_secure_sockets_config.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/cypress/boards/CYW943907AEVAL1F/aws_tests/config_files/iot_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_shadow_config.h</name>

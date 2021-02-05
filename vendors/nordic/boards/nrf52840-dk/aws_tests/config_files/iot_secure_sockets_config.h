@@ -25,12 +25,12 @@
 
 
 /**
- * @file aws_secure_sockets_config.h
+ * @file iot_secure_sockets_config.h
  * @brief Secure sockets configuration options.
  */
 
-#ifndef _AWS_SECURE_SOCKETS_CONFIG_H_
-#define _AWS_SECURE_SOCKETS_CONFIG_H_
+#ifndef _IOT_SECURE_SOCKETS_CONFIG_H_
+#define _IOT_SECURE_SOCKETS_CONFIG_H_
 
 /**
  * @brief Byte order of the target MCU.
@@ -49,4 +49,4 @@
  */
 #define socketsconfigDEFAULT_RECV_TIMEOUT    ( 10000 )
 
-#endif /* _AWS_SECURE_SOCKETS_CONFIG_H_ */
+#endif /* _IOT_SECURE_SOCKETS_CONFIG_H_ */

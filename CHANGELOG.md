@@ -750,7 +750,7 @@ Applications calling into PKCS #11 functions directly (rather than indirectly vi
 - Bug fix to support Amazon Trust Services endpoints. For more information, please see https://aws.amazon.com/blogs/iot/aws-iot-core-ats-endpoints/.
 
 #### Secure Sockets for CC3220SF-LAUNCHXL V1.0.5
-- Remove duplicate file name definitions.  See aws_secure_sockets_config.h for file name defines.
+- Remove duplicate file name definitions.  See iot_secure_sockets_config.h for file name defines.
 
 #### Shadow V1.0.5
 - Minor bug fixes.
