@@ -159,8 +159,9 @@ int main( void )
     prvMiscInitialization();
     configPRINTF( ( "FreeRTOS App Ver:%x\n", xAppFirmwareVersion));    
     configPRINTF( ( "FreeRTOS_IPInit\n" ) );	
+#ifndef CONFIG_OTA_UPDATE_DEMO_ENABLED
     xTaskCreate( vCheckTask, "Check", mainCHECK_TASK_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY, NULL );	
-
+#endif
     /* A simple example to demonstrate key and certificate provisioning in
      * microcontroller flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
