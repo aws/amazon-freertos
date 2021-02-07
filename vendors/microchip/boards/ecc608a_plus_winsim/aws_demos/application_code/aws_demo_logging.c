@@ -289,6 +289,7 @@ void vLoggingPrintf( const char * pcFormat,
     prvLoggingPrintf( LOG_NONE, pdTRUE, pcFormat, xArgs );
     va_end( xArgs );
 }
+
 /*-----------------------------------------------------------*/
 
 void vLoggingPrint( const char * pcFormat )
@@ -297,6 +298,7 @@ void vLoggingPrint( const char * pcFormat )
 }
 
 /*-----------------------------------------------------------*/
+
 void vLoggingPrintfError( const char * pcFormat,
                           ... )
 {
@@ -307,6 +309,8 @@ void vLoggingPrintfError( const char * pcFormat,
 
     va_end( args );
 }
+
+/*-----------------------------------------------------------*/
 
 void vLoggingPrintfWarn( const char * pcFormat,
                          ... )
@@ -319,6 +323,8 @@ void vLoggingPrintfWarn( const char * pcFormat,
     va_end( args );
 }
 
+/*-----------------------------------------------------------*/
+
 void vLoggingPrintfInfo( const char * pcFormat,
                          ... )
 {
@@ -327,6 +333,8 @@ void vLoggingPrintfInfo( const char * pcFormat,
     va_start( args, pcFormat );
     prvLoggingPrintf( LOG_INFO, pdTRUE, pcFormat, args );
 }
+
+/*-----------------------------------------------------------*/
 
 void vLoggingPrintfDebug( const char * pcFormat,
                           ... )

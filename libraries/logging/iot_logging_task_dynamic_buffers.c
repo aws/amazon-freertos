@@ -141,6 +141,7 @@ static void prvLoggingPrintfCommon( uint8_t usLoggingLevel,
 
     configASSERT( usLoggingLevel <= LOG_DEBUG );
     configASSERT( pcFormat != NULL );
+    configASSERT( configLOGGING_MAX_MESSAGE_LENGTH > 0 );
 
     /* The queue is created by xLoggingTaskInitialize().  Check
      * xLoggingTaskInitialize() has been called. */
@@ -206,6 +207,7 @@ static void prvLoggingPrintfCommon( uint8_t usLoggingLevel,
         if( pcLevelString != NULL )
         {
             xLength += snprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "[%s] ", pcLevelString );
+            configASSERT( xLength > 0 );
         }
 
         xLength2 = vsnprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, pcFormat, args );
@@ -232,6 +234,7 @@ static void prvLoggingPrintfCommon( uint8_t usLoggingLevel,
         if( ( ulFormatLen >= 2 ) && ( strncmp( pcFormat + ulFormatLen, "\r\n", 2 ) != 0 ) )
         {
             xLength += snprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "%s", "\r\n" );
+            configASSERT( xLength > 0 );
         }
 
         /* Only send the buffer to the logging task if it is
@@ -267,6 +270,8 @@ void vLoggingPrintfError( const char * pcFormat,
     va_end( args );
 }
 
+/*-----------------------------------------------------------*/
+
 void vLoggingPrintfWarn( const char * pcFormat,
                          ... )
 {
@@ -278,6 +283,8 @@ void vLoggingPrintfWarn( const char * pcFormat,
     va_end( args );
 }
 
+/*-----------------------------------------------------------*/
+
 void vLoggingPrintfInfo( const char * pcFormat,
                          ... )
 {
@@ -288,6 +295,8 @@ void vLoggingPrintfInfo( const char * pcFormat,
 
     va_end( args );
 }
+
+/*-----------------------------------------------------------*/
 
 void vLoggingPrintfDebug( const char * pcFormat,
                           ... )
