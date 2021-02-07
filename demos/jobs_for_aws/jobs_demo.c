@@ -659,8 +659,6 @@ static void prvNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
                  * be used for sending jobs status updates to the AWS IoT Jobs service. */
                 memcpy( usJobsDocumentBuffer, pcJobDocLoc, ulJobDocLength );
 
-                LogInfo( ( "Document: %.*s", ulJobDocLength, usJobsDocumentBuffer ) );
-
                 /* Process the Job document and execute the job. */
                 prvProcessJobDocument( usJobIdBuffer,
                                        ( uint16_t ) ulJobIdLength,
