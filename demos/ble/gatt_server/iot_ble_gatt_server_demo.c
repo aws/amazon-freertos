@@ -218,7 +218,7 @@ static const IotBleAttributeEventCallback_t pxCallBackArray[ egattDemoNbAttribut
 
 /*-----------------------------------------------------------*/
 
-int vGattDemoSvcInit( bool awsIotMqttMode,
+int vGattDemoSvcInit( bool iotMqttMode,
                       const char * pIdentifier,
                       void * pNetworkServerInfo,
                       void * pNetworkCredentialInfo,

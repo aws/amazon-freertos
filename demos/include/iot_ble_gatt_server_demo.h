@@ -87,7 +87,7 @@ typedef enum
  *
  * @return pdTRUE if the GATT Service is successfully initialized, pdFALSE otherwise
  */
-int vGattDemoSvcInit( bool awsIotMqttMode,
+int vGattDemoSvcInit( bool iotMqttMode,
                       const char * pIdentifier,
                       void * pNetworkServerInfo,
                       void * pNetworkCredentialInfo,
