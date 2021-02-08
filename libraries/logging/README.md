@@ -1,9 +1,9 @@
 ## Sample Implementation of Logging Interface
 
-This library provides reference implementations of the [logging interface](#using-your-custom-implementation-of-logging-interface) that is used by FreeRTOS libraries and demos to generate log messages. This sample provides
+This sample provides reference implementations of the [logging interface](#using-your-custom-implementation-of-logging-interface) that is used by FreeRTOS libraries and demos to generate log messages. This sample provides
 implementations of the logging interface for both the ISO C90 and ISO C99 (with GNU extension) standards.
 
-The sample implementations add add metadata information of **task name**, **FreeRTOS timer tick count** and **incrementing counter value** as prefixes to each log message. Additionally, the ISO C99 implementation adds metadata information of the **library name** and **source file location** to each log message.
+The sample implementations add metadata information of **task name**, **FreeRTOS timer tick count** and **incrementing counter value** as prefixes to each log message. Additionally, the ISO C99 implementation adds metadata information of the **library name** and **source file location** to each log message.
 
 **Note**: Users can provide their own implementations of the logging interface to enable logging, if they choose to not use this implementation. Please refer [here](#using-your-custom-implementation-of-logging-interface) for more information.
 
@@ -78,7 +78,7 @@ LogInfo( ( “This prints an integer %d”, 100 ) );
 ```
 
 Your custom implementation of the logging interface needs to define these macros to
-map them to their logging implementation, depending on the logging levels you want to enable.  
+map them to your logging implementation, depending on the logging levels you want to enable.  
 Logging macros use format specifier and variable number of arguments, just like standard function, `printf`, but they use double parenthesis to support ISO C90 standard which should be taken care while defining them.
 
 If you have a thread safe printf function, LogInfo should be defined like
