@@ -57,4 +57,40 @@ BaseType_t xLoggingTaskInitialize( uint16_t usStackSize,
 void vLoggingPrintf( const char * pcFormat,
                      ... );
 
+/**
+ * @brief Interface for logging message at Error level.
+ *
+ * This function adds a "[ERROR]" prefix to the
+ * log message to label it as an error.
+ */
+void vLoggingPrintfError( const char * pcFormat,
+                          ... );
+
+/**
+ * @brief Interface for logging message at Warn level.
+ *
+ * This function adds a "[WARN]" prefix to the
+ * log message to label it as a warning.
+ */
+void vLoggingPrintfWarn( const char * pcFormat,
+                         ... );
+
+/**
+ * @brief Interface for logging message at Info level.
+ *
+ * This function adds a "[INFO]" prefix to the
+ * log message to label it as an informational message.
+ */
+void vLoggingPrintfInfo( const char * pcFormat,
+                         ... );
+
+/**
+ * @brief Interface for logging message at Debug level.
+ *
+ * This function adds a "[DEBUG]" prefix to the
+ * log message to label it as a debug level message.
+ */
+void vLoggingPrintfDebug( const char * pcFormat,
+                          ... );
+
 #endif /* AWS_LOGGING_TASK_H */

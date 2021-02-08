@@ -422,4 +422,12 @@
     #define UNTESTED_FUNCTION()
 #endif
 
+/* This config enables extra verbosity in log messages with metadata information
+ * about the source library and location of the log message.
+ * This requires that the toolchain support C99 (for variadic macros) and the GNU
+ * extension for comma elision in variadic macros (with ##__VA_ARGS__).
+ * If this flag is enabled, you can change the metadata information from the logging_stack.h
+ * file.*/
+#define LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION    ( 1 )
+
 #endif /* #define FREERTOS_CONFIG_H */
