@@ -1,109 +1,90 @@
 ## Sample Implementation of Logging Interface
 
-This library provides reference implementations of the [logging interface](#the-logging-interface) that is used by FreeRTOS libraries and demos to generate log messages. This library provides
-implementations for both ISO C90 standard and ISO C99 standard (with GNU extension) of the logging interface.
+This library provides reference implementations of the [logging interface](#using-your-custom-implementation-of-logging-interface) that is used by FreeRTOS libraries and demos to generate log messages. This sample provides
+implementations of the logging interface for both the ISO C90 and ISO C99 (with GNU extension) standards.
 
-**Note**: Users can provide their own implementations of the logging interface to enable logging, if they choose to not use this implementation.
+The sample implementations add add metadata information of **task name**, **FreeRTOS timer tick count** and **incrementing counter value** as prefixes to each log message. Additionally, the ISO C99 implementation adds metadata information of the **library name** and **source file location** to each log message.
 
-To enable logging using the sample implementation for a FreeRTOS library and/or demo, 
-* The logging level can be configured with the [`LIBRARY_LOG_LEVEL`](#setting-the-verbosity-level) configuration. Additionally, if using the ISO C99 (with GNU extension) implementation, the [`LIBRARY_LOG_NAME`](#setting-the-library-text-name) macro can also be defined to configure the library name.
-* The [`logging_stack.h`](./include/logging_stack.h) file must be included _after_ the above macro configurations in the FreeRTOS library-specific config file (like `core_mqtt_config.h` for coreMQTT library).
+**Note**: Users can provide their own implementations of the logging interface to enable logging, if they choose to not use this implementation. Please refer [here](#using-your-custom-implementation-of-logging-interface) for more information.
 
 ### Logging Task 
-Logging messages from multiple tasks are serialized with a FreeRTOS queue that is serviced by a daemon logging task. The daemon task reads log message strings from the queue and forwards them to the vendor-specific function through the `configPRINT` macro.
+The sample implementation serializes logging messages from different tasks using a FreeRTOS queue that is serviced by a daemon logging task. The daemon task reads log message strings from the queue and forwards them to the vendor-specific function through the `configPRINT` macro.
 
-Each of the implementations (C90 and C99 with GNU extension) route the logging interface macros to a logging function (defined in [`iot_logging_task.h`](./include/iot_logging_task.h)) that pushes the message to the FreeRTOS queue, thereby serializing messages logged through the logging interfaces.
+Each of the implementations (ISO C90 and ISO C99 with GNU extension) route the logging interface macros to a logging function (defined in [`iot_logging_task.h`](./include/iot_logging_task.h)) that pushes the message to the FreeRTOS queue, thereby serializing messages logged through the logging interfaces.
 
-### Setting the Verbosity Level
-To configure the verbosity level of log messages from a FreeRTOS library, define the `LIBRARY_LOG_LEVEL` macro to one of the following values in the library-specific configuration file (like `core_mqtt_config.h` for the coreMQTT library). Valid values for `LIBRARY_LOG_LEVEL` are:
+### Using the Sample Implementation
 
-`LOG_NONE (turns logging off)`  
-`LOG_ERROR`  
-`LOG_WARN`  
-`LOG_INFO` 
-`LOG_DEBUG`
+To enable logging for a FreeRTOS library and/or demo using the sample implementation, 
+* Configure logging level by defining the `LIBRARY_LOG_LEVEL` macro to one of `LOG_NONE` (this disables logging), `LOG_ERROR`, `LOG_WARN`, `LOG_INFO` or `LOG_DEBUG` constants. 
+* By default, the ISO C90 implementation is enabled. If your compiler supports ISO C99 (with GNU extension), you can enable the ISO C99 implementation by setting the `LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION` macro to `1`. When using the ISO C99 implementation, define the `LIBRARY_LOG_NAME` macro to configure the library name which is prefixed in
+the log messages.
 
-For example:
-```
-#define LIBRARY_LOG_LEVEL  LOG_NONE
-```
+The above macro definitions should occur in the FreeRTOS library-specific config file (like `core_mqtt_config.h` file for the coreMQTT library) for which logging is being configured. 
 
-### Log Message Output
+The logging file include and macro definitions must follow the following order in the config file:
+* Include [`logging_levels.h`](./include/logging_levels.h).
+* Define the `LIBRARY_LOG_LEVEL`, `LIBRARY_LOG_NAME`, and `LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION` macros as mentioned above.
+* Include [`logging_stack.h`](./include/logging_stack.h).
 
-The sample implementation adds some metadata information for debugging aid as prefix to the log message strings passed by FreeRTOS libraries and demos. Both the C90 and C99 implementations
-add the **task name**, **FreeRTOS timer tick count** and **incrementing counter value** to each log message. 
-
-#### ISO C90 Implementation
-
-This is the default enabled implementation of the logging interface in the library.
-
-If your compiler only supports the ISO C90 standard, the C90 implementation can be used by setting the `LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION` configuration to `0`. (This is default implementation enabled in the library.)
-With the ISO C90 implementation, here is an example output of log messages for the MQTT Connection Sharing Demo:
+Here is a sample logging configuration for the coreMQTT library which is defined in
+`core_mqtt_config.h` file:
 
 ```
-83 2128 [SyncPublisher] [INFO] Publish operation complete. Sleeping for 100 ms.
-84 2140 [SyncPublisher] [INFO] Adding publish operation for message Hello World! Sync: 3
-on topic filter/sync/3
-85 2142 [SyncPublisher] [INFO] Waiting for publish 3 to complete.
-86 2168 [iot_thread] [INFO] Packet received. ReceivedBytes=2.
-87 2168 [iot_thread] [INFO] Ack packet deserialized with result: MQTTSuccess.
-88 2168 [iot_thread] [INFO] State record updated. New state=MQTTPublishDone.
-89 2170 [SyncPublisher] [INFO] Publish operation complete. Sleeping for 100 ms.
-90 2182 [SyncPublisher] [INFO] Adding publish operation for message Hello World! Sync: 4
-on topic filter/sync/4
-91 2184 [SyncPublisher] [INFO] Waiting for publish 4 to complete.
-92 2209 [iot_thread] [INFO] Packet received. ReceivedBytes=2.
-93 2209 [iot_thread] [INFO] Ack packet deserialized with result: MQTTSuccess.
-94 2209 [iot_thread] [INFO] State record updated. New state=MQTTPublishDone.
-95 2210 [SyncPublisher] [INFO] Publish operation complete. Sleeping for 100 ms.
+#include "logging_levels.h"
+
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME    "MQTT"
+#endif
+
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_INFO
+#endif
+
+#include "logging_stack.h"
 ```
 
+When using the ISO C90 implementation, the above configuration generates the following log messages for the coreMQTT library. 
 
-#### ISO C99 Implementation (with GNU extension)
-
-This implementation uses variadic macros specified by the ISO C99 standard macros and [the GNU extension feature of comma elision](https://gcc.gnu.org/onlinedocs/gcc-4.8.5/cpp/Variadic-Macros.html) with the `##` operator.
-If your toolchain supports both ISO C99 standard and GNU extension, you can enabled this implementation by setting the `LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION` configuration to `1`.
-
-With the use of variadic macro feature of ISO C99, this implementation adds extra metadata information of the source library and file location of the log messages.
-**Note**: If you want to add/remove/change the metadata added, you can directly make changes in the [`logging_stack.h`](./include/logging_stack.h) file.
-
-#### Setting the Library Text Name
-To set the text name define the LIBRARY_LOG_NAME macro to a string within the same configuration file used to define SdkLog(). Each log message prints the name, so it is normal to set the name to the name of the library. For example:
 ```
-#define LIBRARY_LOG_NAME “MQTT”
+78 1950 [iot_thread] [INFO] Packet received. ReceivedBytes=2.
+79 1950 [iot_thread] [INFO] Ack packet deserialized with result: MQTTSuccess.
+80 1951 [iot_thread] [INFO] State record updated. New state=MQTTPublishDone.
 ```
-Setting the name to an empty string will save program space.
 
-Using this implementation, following is an example output of log messages for the MQTT Connection Sharing Demo. Note that this additionally adds the library name (`[MQTT]`) and source file location (like `[core_mqtt.c:1175]`) in each log message.
+If using the ISO C99 implementation (i.e. when `LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION` macro is set to `1`), the log messages from coreMQTT library look like the following.  
+Note that the library name (`[MQTT]`) and source file location (`[core_mqtt.c:<line-number>]`)
+are present in each log message.
 
 ```
 78 1950 [iot_thread] [INFO] [MQTT] [core_mqtt.c:886] Packet received. ReceivedBytes=2.
 79 1950 [iot_thread] [INFO] [MQTT] [core_mqtt.c:1162] Ack packet deserialized with result: MQTTSuccess.
 80 1951 [iot_thread] [INFO] [MQTT] [core_mqtt.c:1175] State record updated. New state=MQTTPublishDone.
-81 1953 [SyncPublisher] [INFO] [MQTTDemo] [mqtt_demo_connection_sharing.c:1846] Publish operation complete. Sleeping for 100 ms.
-
-82 1953 [AsyncPublisher] [INFO] [MQTTDemo] [mqtt_demo_connection_sharing.c:1970] Deleting Async Publisher task.
-83 1965 [SyncPublisher] [INFO] [MQTTDemo] [mqtt_demo_connection_sharing.c:1820] Adding publish operation for message Hello World! Sync: 3
-on topic filter/sync/3
-84 1967 [SyncPublisher] [INFO] [MQTTDemo] [mqtt_demo_connection_sharing.c:1832] Waiting for publish 3 to complete.
-85 1981 [iot_thread] [INFO] [MQTT] [core_mqtt.c:886] Packet received. ReceivedBytes=2.
-86 1981 [iot_thread] [INFO] [MQTT] [core_mqtt.c:1162] Ack packet deserialized with result: MQTTSuccess.
-87 1982 [iot_thread] [INFO] [MQTT] [core_mqtt.c:1175] State record updated. New state=MQTTPublishDone.
-88 1983 [SyncPublisher] [INFO] [MQTTDemo] [mqtt_demo_connection_sharing.c:1846] Publish operation complete. Sleeping for 100 ms.
-
-89 1995 [SyncPublisher] [INFO] [MQTTDemo] [mqtt_demo_connection_sharing.c:1820] Adding publish operation for message Hello World! Sync: 4
 ```
 
+### Using your custom implementation of Logging Interface
+The logging interface comprises of the following 4 logging macros, listed in increasing order of verbosity:
 
-### The Logging Interface
-The FreeRTOS libraries use the following 4 logging macros, listed in increasing order of verbosity. For example, LogError() is only called when there is an error so is the least verbose, whereas LogDebug() is called more frequently to provide debug level information and is therefore the most verbose.
+1. LogError
+2. LogWarn
+3. LogInfo
+4. LogDebug
 
-LogError
-LogWarn
-LogInfo
-LogDebug
-Logging macros are used with a variable number of arguments, just like printf() (with the exception that they use double parenthesis). For example, the libraries call the logging macros in the following way:
+`LogError` is only called when there is an error, so is the least verbose, whereas `LogDebug` is called more frequently to provide debug level information and is therefore, the most verbose.
+
+An example call of the logging macros (in FreeRTOS libraries) is the following:
 
 ```
 LogInfo( ( “This prints an integer %d”, 100 ) );
+```
+
+Your custom implementation of the logging interface needs to define these macros to
+map them to their logging implementation, depending on the logging levels you want to enable.  
+Logging macros use format specifier and variable number of arguments, just like standard function, `printf`, but they use double parenthesis to support ISO C90 standard which should be taken care while defining them.
+
+If you have a thread safe printf function, LogInfo should be defined like
+the following. Notice how one set of parentheses are removed because X
+already contains a set of parentheses.
+
+```
+#define LogInfo( X )  printf X
 ```
