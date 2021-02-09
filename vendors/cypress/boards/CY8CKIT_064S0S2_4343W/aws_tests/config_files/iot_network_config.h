@@ -52,6 +52,6 @@
  *
  */
 
-#define configENABLED_NETWORKS      ( AWSIOT_NETWORK_TYPE_BLE )
+#define configENABLED_NETWORKS    ( AWSIOT_NETWORK_TYPE_BLE )
 
 #endif /* CONFIG_FILES_IOT_NETWORK_CONFIG_H_ */

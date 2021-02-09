@@ -1,5 +1,5 @@
 /*
-* FreeRTOS
+ * FreeRTOS
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -52,9 +52,9 @@
  *
  */
 #ifndef M487_ETH_DEMO
-#define configENABLED_NETWORKS      ( AWSIOT_NETWORK_TYPE_WIFI )
+    #define configENABLED_NETWORKS    ( AWSIOT_NETWORK_TYPE_WIFI )
 #else
-#define configENABLED_NETWORKS      ( AWSIOT_NETWORK_TYPE_ETH )
+    #define configENABLED_NETWORKS    ( AWSIOT_NETWORK_TYPE_ETH )
 #endif
 
 #endif /* CONFIG_FILES_IOT_NETWORK_CONFIG_H_ */

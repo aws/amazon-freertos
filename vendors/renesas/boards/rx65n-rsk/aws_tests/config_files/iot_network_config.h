@@ -52,6 +52,6 @@
  *
  */
 
-#define configENABLED_NETWORKS      ( AWSIOT_NETWORK_TYPE_ETH )
+#define configENABLED_NETWORKS    ( AWSIOT_NETWORK_TYPE_ETH )
 
 #endif /* CONFIG_FILES_IOT_NETWORK_CONFIG_H_ */
