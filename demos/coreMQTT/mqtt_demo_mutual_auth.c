@@ -297,7 +297,7 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
  * information from Subscribe ACK. Called by the event callback after processing
  * an incoming SUBACK packet.
  *
- * @param[in] Server response to the subscription request.
+ * @param[in] pxPacketInfo Server response to the subscription request.
  */
 static void prvUpdateSubAckStatus( MQTTPacketInfo_t * pxPacketInfo );
 

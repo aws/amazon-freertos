@@ -88,7 +88,9 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxContext,
                                  MQTTEventCallback_t eventCallback );
 
 /**
- * @brief Handle the incoming packet if it's not related to the device shadow.
+ * @brief Invoked by the event callback to handle packet type being received.
+ * This updates the variable, #globalPacketTypeReceived, so that #prvWaitForPacket
+ * can wait for any packet type.
  *
  * @param[in] pxPacketInfo Packet Info pointer for the incoming packet.
  * @param[in] usPacketIdentifier Packet identifier of the incoming packet.
