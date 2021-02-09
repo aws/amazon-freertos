@@ -42,7 +42,7 @@ void vLoggingInit( BaseType_t xLogToStdout,
                    uint16_t usRemotePort );
 
 /**
- * @brief Printf like logging interface for logging in
+ * @brief Interface for logging strings in
  * from FreeRTOS tasks in the Windows platform.
  *
  * Depending on the configuration made through vLoggingInit(),
@@ -50,6 +50,39 @@ void vLoggingInit( BaseType_t xLogToStdout,
  * transmit over a UDP port.
  */
 void vLoggingPrint( const char * pcFormat );
+
+/**
+ * @brief Printf like logging interface to log messages from FreeRTOS
+ * tasks in Windows platform.
+ *
+ * Depending on the configuration made through vLoggingInit(),
+ * this function will print to stdout, log to disk file OR
+ * transmit over a UDP port.
+ *
+ * @param[in] pcFormat The format string of the log message.
+ * @param[in] ... The variadic list of parameters for the format
+ * specifiers in the @p pcFormat.
+ */
+void vLoggingPrintf( const char * pcFormat,
+                     ... );
+
+/**
+ * @brief Same as vLoggingPrintf but additionally takes parameters
+ * of source file location of log to add as metadata in message.
+ *
+ * @param[in] pcFile The file name or file path containing the log
+ * message. If a file path is passed, only the filename is added to
+ * the log message.
+ * @param[in] fileLineNo The line number in the @p pcFile containing
+ * the message being logged.
+ * @param[in] pcFormat The format string of the log message.
+ * @param[in] ... The variadic list of parameters for the format
+ * specifiers in the @p pcFormat.
+ */
+void vLoggingPrintfWithFileAndLine( const char * pcFile,
+                                    size_t fileLineNo,
+                                    const char * pcFormat,
+                                    ... );
 
 /**
  * @brief Interface for logging message at Error level.
