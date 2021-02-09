@@ -537,7 +537,7 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
     /* Get a unique packet id. */
     globalSubscribePacketIdentifier = MQTT_GetPacketId( pxMqttContext );
 
-    /* Subscribe to the mqttexampleTOPIC topic filter. This example subscribes to
+    /* Subscribe to the pcTopicFilter topic filter. This example subscribes to
      * only one topic and uses QoS1. */
     xMQTTSubscription.qos = MQTTQoS1;
     xMQTTSubscription.pTopicFilter = pcTopicFilter;
@@ -552,13 +552,13 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
     do
     {
         /* The client is now connected to the broker. Subscribe to the topic
-         * as specified in mqttexampleTOPIC at the top of this file by sending a
+         * as specified in pcTopicFilter at the top of this file by sending a
          * subscribe packet then waiting for a subscribe acknowledgment (SUBACK).
          * This client will then publish to the same topic it subscribed to, so it
          * will expect all the messages it sends to the broker to be sent back to it
          * from the broker. This demo uses QOS0 in Subscribe, therefore, the Publish
          * messages received from the broker will have QOS0. */
-        LogInfo( ( "Attempt to subscribe to the MQTT topic %s.", mqttexampleTOPIC ) );
+        LogInfo( ( "Attempt to subscribe to the MQTT topic %s.", pcTopicFilter ) );
         xResult = MQTT_Subscribe( pxMqttContext,
                                   &xMQTTSubscription,
                                   sizeof( xMQTTSubscription ) / sizeof( MQTTSubscribeInfo_t ),
@@ -572,7 +572,7 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
         else
         {
             xStatus = pdPASS;
-            LogInfo( ( "SUBSCRIBE sent for topic %s to broker.", mqttexampleTOPIC ) );
+            LogInfo( ( "SUBSCRIBE sent for topic %s to broker.", pcTopicFilter ) );
 
             /* Process incoming packet from the broker. After sending the subscribe, the
              * client may receive a publish before it receives a subscribe ack. Therefore,
@@ -617,6 +617,7 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
 
     return xStatus;
 }
+
 /*-----------------------------------------------------------*/
 
 static BaseType_t prvGetNextFreeIndexForOutgoingPublishes( uint8_t * pucIndex )
@@ -643,6 +644,7 @@ static BaseType_t prvGetNextFreeIndexForOutgoingPublishes( uint8_t * pucIndex )
 
     return xReturnStatus;
 }
+
 /*-----------------------------------------------------------*/
 
 static void vCleanupOutgoingPublishAt( uint8_t ucIndex )
@@ -705,6 +707,7 @@ static void prvUpdateSubAckStatus( MQTTPacketInfo_t * pxPacketInfo )
 
     xTopicFilterContext.xSubAckStatus = *pucPayload;
 }
+
 /*-----------------------------------------------------------*/
 
 void vHandleOtherIncomingPacket( MQTTPacketInfo_t * pxPacketInfo,
@@ -1129,6 +1132,7 @@ BaseType_t PublishToTopic( MQTTContext_t * pxMqttContext,
 
     return xReturnStatus;
 }
+
 /*-----------------------------------------------------------*/
 
 BaseType_t ProcessLoop( MQTTContext_t * pxMqttContext,
