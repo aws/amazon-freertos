@@ -643,11 +643,11 @@ IotNetworkError_t IotNetworkAfr_Close( void * pConnection )
     ( void ) xEventGroupSetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
                                  _FLAG_SHUTDOWN );
 
-    /* If a receive task was created... */
     if( pNetworkConnection->receiveTask != NULL )
     {
         /* Wait for the network receive task to exit so that the socket can be shutdown safely
-         * without causing the socket to block forever. */
+         * without causing the socket to block forever if there are pending reads or writes
+         * from other tasks. */
         ( void ) xEventGroupWaitBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
                                       _FLAG_RECEIVE_TASK_EXITED,
                                       pdTRUE,
