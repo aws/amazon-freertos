@@ -1034,6 +1034,12 @@ BaseType_t UnsubscribeFromTopic( MQTTContext_t * pxMqttContext,
          * must be ready to receive any packet. This demo uses MQTT_ProcessLoop to
          * receive packet from network. */
         xReturnStatus = prvWaitForPacket( pxMqttContext, MQTT_PACKET_TYPE_UNSUBACK );
+
+        if(xReturnStatus == pdFAIL)
+        {
+            LogError( ( "UNSUBACK never arrived for subscription attempt to topic %s.",
+                        pcTopicFilter ) );
+        }
     }
 
     return xReturnStatus;
