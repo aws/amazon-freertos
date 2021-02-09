@@ -58,7 +58,18 @@ set(
     "${MBEDTLS_DIR}/port/esp_hardware.c"
     "${MBEDTLS_DIR}/port/mbedtls_debug.c"
     "${MBEDTLS_DIR}/port/esp_aes_xts.c"
+    "${MBEDTLS_DIR}/port/esp_sha.c"
+    "${MBEDTLS_DIR}/port/esp_timing.c"
 )
+
+if(CONFIG_MBEDTLS_DYNAMIC_BUFFER)
+    list(APPEND mbedtls_srcs
+    "${MBEDTLS_DIR}/port/dynamic/esp_mbedtls_dynamic_impl.c"
+    "${MBEDTLS_DIR}/port/dynamic/esp_ssl_cli.c"
+    "${MBEDTLS_DIR}/port/dynamic/esp_ssl_srv.c"
+    "${MBEDTLS_DIR}/port/dynamic/esp_ssl_tls.c"
+    )
+endif()
 
 if("${SOC_NAME}" STREQUAL "esp32s2")
     list(APPEND mbedtls_srcs
