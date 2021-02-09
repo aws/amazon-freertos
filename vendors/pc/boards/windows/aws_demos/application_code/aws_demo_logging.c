@@ -466,7 +466,7 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
                 pcFileName = pcFile;
             }
 
-            xLength += snprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "[%s:%d] ", pcFileName, fileLineNo );
+            xLength += snprintf( cPrintString + xLength, dlMAX_PRINT_STRING_LENGTH - xLength, "[%s:%d] ", pcFileName, fileLineNo );
             configASSERT( xLength > 0 );
         }
 
