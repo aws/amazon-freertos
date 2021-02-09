@@ -577,7 +577,7 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
         if( xStatus == pdPASS )
         {
             LogError( ( "SUBACK never arrived for subscription attempt to topic %s.",
-                        xTopicFilterContext.pcTopicFilter ) )
+                        xTopicFilterContext.pcTopicFilter ) );
         }
         else
         {
