@@ -58,6 +58,7 @@ static bool wifi_ap_state;
 static bool wifi_auth_failure;
 
 static esp_netif_t *esp_netif_info;
+static esp_netif_t *esp_softap_netif_info;
 
 #define WIFI_FLASH_NS     "WiFi"
 #define MAX_WIFI_KEY_WIDTH         ( 5 )
@@ -378,6 +379,7 @@ WIFIReturnCode_t WIFI_On( void )
     if (event_loop_inited == false) {
         ret = esp_event_loop_create_default();
         esp_netif_info = esp_netif_create_default_wifi_sta();
+        esp_softap_netif_info = esp_netif_create_default_wifi_ap();
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to init event loop %d", __func__, ret);
             goto err;
@@ -1309,6 +1311,14 @@ WIFIReturnCode_t WIFI_StartAP( void )
             xSemaphoreGive( xWiFiSem );
             return wifi_ret;
         }
+
+        /* Enable DHCP server, if it's not already enabled */
+        if ( ESP_ERR_ESP_NETIF_INVALID_PARAMS == esp_netif_dhcps_start(esp_softap_netif_info))
+        {
+            ESP_LOGE(TAG, "%s: Failed to start DHCP server", __func__);
+            return eWiFiFailure;
+        }
+
         // Wait for wifi started event
         xEventGroupWaitBits(wifi_event_group, AP_STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
         wifi_ret = eWiFiSuccess;
