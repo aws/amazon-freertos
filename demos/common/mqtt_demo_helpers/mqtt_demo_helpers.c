@@ -549,6 +549,8 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
 
     do
     {
+        xStatus = pdFAIL;
+
         /* The client should now be connected to the broker. Subscribe to the topic
          * as specified in #pcTopicFilter by sending a subscribe packet. */
         LogInfo( ( "Attempt to subscribe to the MQTT topic %s.", pcTopicFilter ) );
@@ -574,7 +576,7 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
             xStatus = prvWaitForPacket( pxMqttContext, MQTT_PACKET_TYPE_SUBACK );
         }
 
-        if( xStatus == pdPASS )
+        if( xStatus == pdFAIL )
         {
             LogError( ( "SUBACK never arrived for subscription attempt to topic %s.",
                         xTopicFilterContext.pcTopicFilter ) );
