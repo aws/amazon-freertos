@@ -286,7 +286,7 @@ void vLoggingPrintf( const char * pcFormat,
     va_list xArgs;
 
     va_start( xArgs, pcFormat );
-    prvLoggingPrintf( LOG_NONE, pdTRUE, pcFormat, xArgs );
+    prvLoggingPrintf( LOG_NONE, NULL, 0, pdTRUE, pcFormat, xArgs );
     va_end( xArgs );
 }
 
@@ -294,7 +294,7 @@ void vLoggingPrintf( const char * pcFormat,
 
 void vLoggingPrint( const char * pcFormat )
 {
-    prvLoggingPrintf( LOG_NONE, pdFALSE, pcFormat, NULL );
+    prvLoggingPrintf( LOG_NONE, NULL, 0, pdFALSE, pcFormat, NULL );
 }
 
 /*-----------------------------------------------------------*/
@@ -305,7 +305,7 @@ void vLoggingPrintfError( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    prvLoggingPrintf( LOG_ERROR, pdTRUE, pcFormat, args );
+    prvLoggingPrintf( LOG_ERROR, NULL, 0, pdTRUE, pcFormat, args );
 
     va_end( args );
 }
@@ -318,7 +318,7 @@ void vLoggingPrintfWarn( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    prvLoggingPrintf( LOG_WARN, pdTRUE, pcFormat, args );
+    prvLoggingPrintf( LOG_WARN, NULL, 0, pdTRUE, pcFormat, args );
 
     va_end( args );
 }
@@ -331,7 +331,7 @@ void vLoggingPrintfInfo( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    prvLoggingPrintf( LOG_INFO, pdTRUE, pcFormat, args );
+    prvLoggingPrintf( LOG_INFO, NULL, 0, pdTRUE, pcFormat, args );
 }
 
 /*-----------------------------------------------------------*/
@@ -342,13 +342,32 @@ void vLoggingPrintfDebug( const char * pcFormat,
     va_list args;
 
     va_start( args, pcFormat );
-    prvLoggingPrintf( LOG_DEBUG, pdTRUE, pcFormat, args );
+    prvLoggingPrintf( LOG_DEBUG, NULL, 0, pdTRUE, pcFormat, args );
 
     va_end( args );
 }
 /*-----------------------------------------------------------*/
 
+void vLoggingPrintfWithFileAndLine( const char * pcFile,
+                                    size_t fileLineNo,
+                                    const char * pcFormat,
+                                    ... )
+{
+    configASSERT( pcFile != NULL );
+
+    va_list args;
+
+    va_start( args, pcFormat );
+    prvLoggingPrintf( LOG_NONE, pcFile, fileLineNo, pcFormat, args );
+
+    va_end( args );
+}
+
+/*-----------------------------------------------------------*/
+
 static void prvLoggingPrintf( uint8_t usLoggingLevel,
+                              const char * pcFile,
+                              size_t fileLineNo,
                               BaseType_t xFormatted,
                               const char * pcFormat,
                               va_list xArgs )
@@ -419,6 +438,33 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
         if( pcLevelString != NULL )
         {
             xLength += snprintf( cPrintString + xLength, dlMAX_PRINT_STRING_LENGTH - xLength, "[%s] ", pcLevelString );
+        }
+
+        /* If provided, add the source file and line number metadata in the message. */
+        if( pcFile != NULL )
+        {
+            /* If a file path is provided, extract only the file name from the string
+             * by looking for '/' or '\' directory seperator. */
+            const char * pcFileName = NULL;
+
+            /* Check if file path contains "\" as the directory separator. */
+            if( strrchr( pcFile, '\\' ) != NULL )
+            {
+                pcFileName = strrchr( pcFile, '\\' ) + 1;
+            }
+            /* Check if file path contains "/" as the directory separator. */
+            else if( strrchr( pcFile, '/' ) != NULL )
+            {
+                pcFileName = strrchr( pcFile, '/' ) + 1;
+            }
+            else
+            {
+                /* File path contains only file name. */
+                pcFileName = pcFile;
+            }
+
+            xLength += snprintf( cPrintString + xLength, dlMAX_PRINT_STRING_LENGTH - xLength, "[%s:%d] ", pcFileName, fileLineNo );
+            configASSERT( xLength > 0 );
         }
 
         if( xArgs != NULL )

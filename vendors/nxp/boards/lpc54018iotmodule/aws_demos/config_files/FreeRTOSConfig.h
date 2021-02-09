@@ -213,12 +213,12 @@
  * take up unnecessary RAM. */
 #define configCOMMAND_INT_MAX_OUTPUT_SIZE    1
 
-/* This config enables extra verbosity in log messages with metadata information
- * about the source library and location of the log message.
- * This requires that the toolchain support C99 (for variadic macros) and the GNU
- * extension for comma elision in variadic macros (with ##__VA_ARGS__).
- * If this flag is enabled, you can change the metadata information from the logging_stack.h
- * file.*/
-#define LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION    ( 1 ) 
+/* This config enables extra metadata information of the source library and location
+ * in log messages.
+ * This config requires the toolchain to support ISO C99 and the GNU extension (for comma 
+ * elision in variadic macros i.e. with ##__VA_ARGS__).
+ * When using this flag, you can change the format or information of log messages in
+ * the logging_stack.h file.*/
+#define LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION    ( 1 )
 
 #endif /* FREERTOS_CONFIG_H */
