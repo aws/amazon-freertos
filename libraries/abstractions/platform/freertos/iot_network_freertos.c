@@ -664,10 +664,6 @@ IotNetworkError_t IotNetworkAfr_Close( void * pConnection )
         IotLogWarn( "Failed to close connection." );
     }
 
-    /* Set the shutdown flag. */
-    ( void ) xEventGroupSetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
-                                 _FLAG_SHUTDOWN );
-
     return IOT_NETWORK_SUCCESS;
 }
 
