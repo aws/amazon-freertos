@@ -40,7 +40,7 @@
 #include "aws_clientcredential.h"
 
 #include "iot_default_root_certificates.h"
-#include "aws_secure_sockets_config.h"
+#include "iot_secure_sockets_config.h"
 #include "core_pkcs11.h"
 #include "core_pkcs11_config.h"
 
