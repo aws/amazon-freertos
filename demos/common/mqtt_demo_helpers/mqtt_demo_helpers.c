@@ -304,7 +304,8 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
  * @param[in] pxMQTTContext MQTT context pointer.
  * @param[in] usPacketType Packet type to wait for.
  *
- * @return The return status from call to #MQTT_ProcessLoop API.
+ * @return pdFAIL if the expected packet from the broker never arrives;
+ * pdPASS if it arrives.
  */
 static BaseType_t prvWaitForPacket( MQTTContext_t * pxMQTTContext,
                                     uint16_t usPacketType );
