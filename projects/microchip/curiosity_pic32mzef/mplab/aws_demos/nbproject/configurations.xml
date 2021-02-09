@@ -55,7 +55,7 @@
 				<itemPath>../../../../../demos/network_manager/iot_network_manager_private.h</itemPath>
 			</logicalFolder>
 			<logicalFolder name="include" displayName="include" projectFiles="true">
-				<itemPath>../../../../../demos/include/aws_application_version.h</itemPath>
+				<itemPath>../../../../../demos/include/iot_application_version.h</itemPath>
 				<itemPath>../../../../../demos/include/aws_clientcredential.h</itemPath>
 				<itemPath>../../../../../demos/include/aws_clientcredential_keys.h</itemPath>
 				<itemPath>../../../../../demos/include/aws_demo.h</itemPath>

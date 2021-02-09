@@ -75,7 +75,7 @@
         <file file_name="../../../../../tests/common/iot_tests_network.c" />
       </folder>
       <folder Name="include">
-        <file file_name="../../../../../tests/include/aws_application_version.h" />
+        <file file_name="../../../../../tests/include/iot_application_version.h" />
         <file file_name="../../../../../tests/include/aws_clientcredential.h" />
         <file file_name="../../../../../tests/include/aws_clientcredential_keys.h" />
         <file file_name="../../../../../tests/include/aws_test_framework.h" />

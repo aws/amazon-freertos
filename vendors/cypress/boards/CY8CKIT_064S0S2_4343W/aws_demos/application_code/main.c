@@ -48,7 +48,7 @@
 #include "iot_logging_task.h"
 #include "iot_wifi.h"
 #include "aws_clientcredential.h"
-#include "aws_application_version.h"
+#include "iot_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
 
 /* BSP & Abstraction inclues */

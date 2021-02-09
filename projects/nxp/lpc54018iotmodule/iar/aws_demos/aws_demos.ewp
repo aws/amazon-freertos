@@ -1973,7 +1973,7 @@
 		<group>
 			<name>include</name>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\aws_application_version.h</name>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\iot_application_version.h</name>
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\aws_clientcredential.h</name>

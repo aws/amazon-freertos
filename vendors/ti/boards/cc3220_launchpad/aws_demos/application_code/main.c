@@ -73,7 +73,7 @@
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
 
 /* Application version info. */
-#include "aws_application_version.h"
+#include "iot_application_version.h"
 
 
 /* The length of the logging task's queue to hold messages. */

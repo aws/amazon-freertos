@@ -240,7 +240,7 @@
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\portmacro.h">
 			<Filter>freertos_kernel\portable\MSVC-MingW</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\tests\include\aws_application_version.h">
+		<ClInclude Include="..\..\..\..\..\tests\include\iot_application_version.h">
 			<Filter>tests\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\tests\include\aws_clientcredential.h">

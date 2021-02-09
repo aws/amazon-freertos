@@ -59,7 +59,7 @@
 
 /* Required for demo task stack and priority */
 #include "aws_demo_config.h"
-#include "aws_application_version.h"
+#include "iot_application_version.h"
 
 /**
  * @brief Timeout for MQTT connection, if the MQTT connection is not established within

@@ -27,7 +27,7 @@ is then linked in the bootloader.
     The OTA sequence number should be incremented for every new OTA image generated as the bootloader will determine 
     the application to boot from this sequence number.
     
-*  Update the application version number in `\demos\include\aws_application_version.h`  
+*  Update the application version number in `\demos\include\iot_application_version.h`  
 
 *  The ota_image_generator.py utility runs as the post-build step and generates the final OTA binary file 
     that should be uploaded when creating OTA job. The name of the binary has the extension of `ota.bin`.

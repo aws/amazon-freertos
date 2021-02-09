@@ -1107,9 +1107,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/iot_demo_runner.c</locationURI>
 		</link>
 		<link>
-			<name>demos/include/aws_application_version.h</name>
+			<name>demos/include/iot_application_version.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_application_version.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/iot_application_version.h</locationURI>
 		</link>
 		<link>
 			<name>demos/include/aws_clientcredential.h</name>

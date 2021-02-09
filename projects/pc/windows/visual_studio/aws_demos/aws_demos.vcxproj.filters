@@ -222,7 +222,7 @@
 		<ClInclude Include="..\..\..\..\..\demos\network_manager\iot_network_manager_private.h">
 			<Filter>demos\network_manager</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\demos\include\aws_application_version.h">
+		<ClInclude Include="..\..\..\..\..\demos\include\iot_application_version.h">
 			<Filter>demos\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_clientcredential.h">

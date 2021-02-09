@@ -54,7 +54,7 @@
 #include "mbedtls/base64.h"
 
 /* Application version includes. */
-#include "aws_application_version.h"
+#include "iot_application_version.h"
 
 /* OTA interface includes. */
 #include "aws_iot_ota_interface.h"

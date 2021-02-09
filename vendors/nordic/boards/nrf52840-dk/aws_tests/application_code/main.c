@@ -61,7 +61,7 @@
 
 #include <iot_ble.h>
 #include "SEGGER_RTT.h"
-#include "aws_application_version.h"
+#include "iot_application_version.h"
 #if defined( UART_PRESENT )
     #include "nrf_uart.h"
 #endif

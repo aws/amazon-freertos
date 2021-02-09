@@ -38,7 +38,7 @@
 /* OTA includes. */
 #include "aws_iot_ota_agent.h"
 #include "aws_iot_ota_agent_internal.h"
-#include "aws_application_version.h"
+#include "iot_application_version.h"
 #include "aws_iot_ota_cbor.h"
 
 /* General constants. */

@@ -1554,8 +1554,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../tests/include/aws_application_version.h</PathWithFileName>
-      <FilenameWithoutPath>aws_application_version.h</FilenameWithoutPath>
+      <PathWithFileName>../../../../../tests/include/iot_application_version.h</PathWithFileName>
+      <FilenameWithoutPath>iot_application_version.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

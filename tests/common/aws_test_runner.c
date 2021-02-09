@@ -40,7 +40,7 @@
 #include "unity_internals.h"
 
 /* Application version info. */
-#include "aws_application_version.h"
+#include "iot_application_version.h"
 
 /* Include files for UART based FreeRTOS+CLI support of test runner.
  *  Note: This adds a dependency on Common IO for UART communication .*/

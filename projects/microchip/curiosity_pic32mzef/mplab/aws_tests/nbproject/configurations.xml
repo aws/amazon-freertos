@@ -50,7 +50,7 @@
 				<itemPath>../../../../../tests/common/iot_tests_network.c</itemPath>
 			</logicalFolder>
 			<logicalFolder name="include" displayName="include" projectFiles="true">
-				<itemPath>../../../../../tests/include/aws_application_version.h</itemPath>
+				<itemPath>../../../../../tests/include/iot_application_version.h</itemPath>
 				<itemPath>../../../../../tests/include/aws_clientcredential.h</itemPath>
 				<itemPath>../../../../../tests/include/aws_clientcredential_keys.h</itemPath>
 				<itemPath>../../../../../tests/include/aws_test_runner.h</itemPath>

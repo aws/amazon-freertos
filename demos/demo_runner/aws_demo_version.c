@@ -23,7 +23,7 @@
  * http://www.FreeRTOS.org
  */
 
-#include "aws_application_version.h"
+#include "iot_application_version.h"
 
 
 /* Declare the firmware version structure for all to see. */

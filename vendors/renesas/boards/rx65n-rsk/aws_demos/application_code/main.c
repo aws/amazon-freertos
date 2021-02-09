@@ -28,7 +28,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "task.h"
 
 /* Version includes. */
-#include "aws_application_version.h"
+#include "iot_application_version.h"
 
 /* System init includes. */
 #include "iot_system_init.h"

@@ -669,9 +669,9 @@
 					<GroupName>demos/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_application_version.h</FileName>
+							<FileName>iot_application_version.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../demos/include/aws_application_version.h</FilePath>
+							<FilePath>../../../../../demos/include/iot_application_version.h</FilePath>
 						</File>
 						<File>
 							<FileName>aws_clientcredential.h</FileName>

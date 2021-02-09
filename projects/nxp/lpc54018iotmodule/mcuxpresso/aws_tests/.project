@@ -888,9 +888,9 @@
 			<locationURI>BASE_DIR/tests/common/iot_tests_network.c</locationURI>
 		</link>
 		<link>
-			<name>tests/include/aws_application_version.h</name>
+			<name>tests/include/iot_application_version.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/tests/include/aws_application_version.h</locationURI>
+			<locationURI>BASE_DIR/tests/include/iot_application_version.h</locationURI>
 		</link>
 		<link>
 			<name>tests/include/aws_clientcredential.h</name>

@@ -23,8 +23,8 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef _AWS_APPLICATION_VERSION_H_
-#define _AWS_APPLICATION_VERSION_H_
+#ifndef _IOT_APPLICATION_VERSION_H_
+#define _IOT_APPLICATION_VERSION_H_
 
 #include "iot_appversion32.h"
 extern const AppVersion32_t xAppFirmwareVersion;
