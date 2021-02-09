@@ -1026,18 +1026,13 @@ BaseType_t UnsubscribeFromTopic( MQTTContext_t * pxMqttContext,
                    usTopicFilterLength,
                    pcTopicFilter ) );
 
-        /* Process incoming packet from the broker. Acknowledgment for subscription
-         * ( UNSUBACK ) will be received here. However after sending the subscribe, the
-         * client may receive a publish before it receives a subscribe ack. Since this
-         * demo is subscribing to the topic to which no one is publishing, probability
-         * of receiving publish message before subscribe ack is zero; but application
-         * must be ready to receive any packet. This demo uses MQTT_ProcessLoop to
-         * receive packet from network. */
+        /* Process incoming packet from the broker. Acknowledgment for unsubscription
+         * ( UNSUBACK ) will be received here. */
         xReturnStatus = prvWaitForPacket( pxMqttContext, MQTT_PACKET_TYPE_UNSUBACK );
 
-        if(xReturnStatus == pdFAIL)
+        if( xReturnStatus == pdFAIL )
         {
-            LogError( ( "UNSUBACK never arrived for subscription attempt to topic %s.",
+            LogError( ( "UNSUBACK never arrived when unsubscribing to topic %s.",
                         pcTopicFilter ) );
         }
     }
