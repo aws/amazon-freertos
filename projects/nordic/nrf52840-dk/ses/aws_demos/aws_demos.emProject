@@ -32,7 +32,7 @@
       <folder Name="common_demos">
         <folder Name="include">
           <file file_name="../../../../../demos/include/aws_application_version.h" />
-          <file file_name="../../../../../demos/include/aws_ble_gatt_server_demo.h" />
+          <file file_name="../../../../../demos/include/iot_ble_gatt_server_demo.h" />
           <file file_name="../../../../../demos/include/aws_clientcredential.h" />
           <file file_name="../../../../../demos/include/aws_clientcredential_keys.h" />
           <file file_name="../../../../../demos/include/aws_demo.h" />
@@ -58,7 +58,7 @@
             <file file_name="../../../../../demos/ble/mqtt_ble/mqtt_demo_ble_transport.c" />
           </folder>
           <folder Name="gatt_server">
-            <file file_name="../../../../../demos/ble/gatt_server/aws_ble_gatt_server_demo.c" />
+            <file file_name="../../../../../demos/ble/gatt_server/iot_ble_gatt_server_demo.c" />
           </folder>
           <folder Name="numeric_comparison">
             <file file_name="../../../../../demos/ble/numeric_comparison/iot_ble_numericComparison.c" />

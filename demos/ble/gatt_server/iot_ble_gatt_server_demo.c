@@ -24,13 +24,13 @@
  */
 
 /**
- * @file aws_ble_gatt_server_demo.c
+ * @file iot_ble_gatt_server_demo.c
  * @brief Sample demo for a BLE GATT server
  */
 #include "FreeRTOSConfig.h"
 #include "iot_demo_logging.h"
 #include "iot_ble_config.h"
-#include "aws_ble_gatt_server_demo.h"
+#include "iot_ble_gatt_server_demo.h"
 #include "iot_ble.h"
 #include "task.h"
 #include "semphr.h"
@@ -218,7 +218,7 @@ static const IotBleAttributeEventCallback_t pxCallBackArray[ egattDemoNbAttribut
 
 /*-----------------------------------------------------------*/
 
-int vGattDemoSvcInit( bool awsIotMqttMode,
+int vGattDemoSvcInit( bool iotMqttMode,
                       const char * pIdentifier,
                       void * pNetworkServerInfo,
                       void * pNetworkCredentialInfo,
