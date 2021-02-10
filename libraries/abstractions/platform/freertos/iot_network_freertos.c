@@ -639,6 +639,22 @@ IotNetworkError_t IotNetworkAfr_Close( void * pConnection )
     /* Cast network connection to the correct type. */
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
 
+    /* Set the shutdown flag so that the network receive task can stop polling. */
+    ( void ) xEventGroupSetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
+                                 _FLAG_SHUTDOWN );
+
+    if( pNetworkConnection->receiveTask != NULL )
+    {
+        /* Wait for the network receive task to exit so that the socket can be shutdown safely
+         * without causing the socket to block forever if there are pending reads or writes
+         * from other tasks. */
+        ( void ) xEventGroupWaitBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
+                                      _FLAG_RECEIVE_TASK_EXITED,
+                                      pdTRUE,
+                                      pdTRUE,
+                                      portMAX_DELAY );
+    }
+
     /* Call Secure Sockets shutdown function to close connection. */
     socketStatus = SOCKETS_Shutdown( pNetworkConnection->socket,
                                      SOCKETS_SHUT_RDWR );
@@ -647,10 +663,6 @@ IotNetworkError_t IotNetworkAfr_Close( void * pConnection )
     {
         IotLogWarn( "Failed to close connection." );
     }
-
-    /* Set the shutdown flag. */
-    ( void ) xEventGroupSetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
-                                 _FLAG_SHUTDOWN );
 
     return IOT_NETWORK_SUCCESS;
 }
