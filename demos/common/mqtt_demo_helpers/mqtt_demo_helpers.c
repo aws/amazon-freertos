@@ -602,7 +602,7 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
         }
     } while( ( xSubscribeStatus == pdFAIL ) && ( xBackoffStatus == pdPASS ) );
 
-    return xStatus;
+    return xSubscribeStatus;
 }
 
 /*-----------------------------------------------------------*/
