@@ -518,9 +518,8 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
     MQTTStatus_t xMqttStatus = MQTTSuccess;
     BackoffAlgorithmContext_t xRetryParams;
     BaseType_t xBackoffStatus = pdFAIL;
-    MQTTSubscribeInfo_t xMQTTSubscription;
-    BaseType_t xFailedSubscribeToTopic = pdFALSE;
     BaseType_t xSubscribeStatus = pdFAIL;
+    MQTTSubscribeInfo_t xMQTTSubscription;
 
     assert( pxMqttContext != NULL );
     assert( pcTopicFilter != NULL );
