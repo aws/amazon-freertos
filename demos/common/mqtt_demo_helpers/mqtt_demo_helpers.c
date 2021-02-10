@@ -554,9 +554,9 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
          * as specified in #pcTopicFilter by sending a subscribe packet. */
         LogInfo( ( "Attempt to subscribe to the MQTT topic %s.", pcTopicFilter ) );
         xMqttStatus = MQTT_Subscribe( pxMqttContext,
-                                  &xMQTTSubscription,
-                                  sizeof( xMQTTSubscription ) / sizeof( MQTTSubscribeInfo_t ),
-                                  globalSubscribePacketIdentifier );
+                                      &xMQTTSubscription,
+                                      sizeof( xMQTTSubscription ) / sizeof( MQTTSubscribeInfo_t ),
+                                      globalSubscribePacketIdentifier );
 
         if( xMqttStatus != MQTTSuccess )
         {
