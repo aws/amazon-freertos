@@ -88,7 +88,8 @@ BaseType_t EstablishMqttSession( MQTTContext_t * pxContext,
                                  MQTTEventCallback_t eventCallback );
 
 /**
- * @brief Handle the incoming packet if it's not related to the device shadow.
+ * @brief Invoked by the event callback to handle SUBACK and UNSUBACK packets
+ * from the broker.
  *
  * @param[in] pxPacketInfo Packet Info pointer for the incoming packet.
  * @param[in] usPacketIdentifier Packet identifier of the incoming packet.
