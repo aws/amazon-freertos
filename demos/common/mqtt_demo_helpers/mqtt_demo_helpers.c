@@ -237,7 +237,7 @@ typedef struct topicFilterContext
 } topicFilterContext_t;
 
 /**
- * @brief An array containing the context of a SUBACK; the SUBACK status
+ * @brief A struct containing the context of a SUBACK; the SUBACK status
  * of a filter is updated when the event callback processes a SUBACK.
  */
 static topicFilterContext_t xTopicFilterContext;
