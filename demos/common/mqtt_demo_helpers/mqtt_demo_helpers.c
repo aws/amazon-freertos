@@ -80,7 +80,7 @@
 #define CONNECTION_RETRY_BACKOFF_BASE_MS             ( 500U )
 
 /**
- * @brief The maximum number of retries for connecting to server.
+ * @brief The maximum number of retries for subscribing to topic filter when broker rejects an attempt.
  */
 #define SUBSCRIBE_RETRY_MAX_ATTEMPTS                 ( 4U )
 
@@ -515,12 +515,11 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
                              const char * pcTopicFilter,
                              uint16_t usTopicFilterLength )
 {
-    MQTTStatus_t xResult = MQTTSuccess;
+    MQTTStatus_t xMqttStatus = MQTTSuccess;
     BackoffAlgorithmContext_t xRetryParams;
     BaseType_t xBackoffStatus = pdFAIL;
+    BaseType_t xSubscribeStatus = pdFAIL;
     MQTTSubscribeInfo_t xMQTTSubscription;
-    BaseType_t xFailedSubscribeToTopic = pdFALSE;
-    BaseType_t xStatus = pdFAIL;
 
     assert( pxMqttContext != NULL );
     assert( pcTopicFilter != NULL );
@@ -549,17 +548,17 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
 
     do
     {
-        xStatus = pdFAIL;
+        xSubscribeStatus = pdFAIL;
 
         /* The client should now be connected to the broker. Subscribe to the topic
          * as specified in #pcTopicFilter by sending a subscribe packet. */
         LogInfo( ( "Attempt to subscribe to the MQTT topic %s.", pcTopicFilter ) );
-        xResult = MQTT_Subscribe( pxMqttContext,
-                                  &xMQTTSubscription,
-                                  sizeof( xMQTTSubscription ) / sizeof( MQTTSubscribeInfo_t ),
-                                  globalSubscribePacketIdentifier );
+        xMqttStatus = MQTT_Subscribe( pxMqttContext,
+                                      &xMQTTSubscription,
+                                      sizeof( xMQTTSubscription ) / sizeof( MQTTSubscribeInfo_t ),
+                                      globalSubscribePacketIdentifier );
 
-        if( xResult != MQTTSuccess )
+        if( xMqttStatus != MQTTSuccess )
         {
             LogError( ( "Failed to SUBSCRIBE to MQTT topic %s. Error=%s",
                         pcTopicFilter, usTopicFilterLength ) );
@@ -573,26 +572,24 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
              * call generic incoming packet processing function. The application
              * must be ready to receive any packet. This demo uses the generic packet
              * processing function everywhere to highlight this fact. */
-            xStatus = prvWaitForPacket( pxMqttContext, MQTT_PACKET_TYPE_SUBACK );
+            xSubscribeStatus = prvWaitForPacket( pxMqttContext, MQTT_PACKET_TYPE_SUBACK );
         }
 
-        if( xStatus == pdFAIL )
+        if( xSubscribeStatus == pdFAIL )
         {
             LogError( ( "SUBACK never arrived for subscription attempt to topic %s.",
                         xTopicFilterContext.pcTopicFilter ) );
+            break;
         }
         else
         {
-            /* Reset flag before checking suback responses. */
-            xFailedSubscribeToTopic = pdFALSE;
-
             /* Check if recent subscription request has been rejected. #xTopicFilterContext is updated
              * in the event callback to reflect the status of the SUBACK sent by the broker. It represents
              * either the QoS level granted by the server upon subscription, or acknowledgement of
              * server rejection of the subscription request. */
             if( xTopicFilterContext.xSubAckStatus == MQTTSubAckFailure )
             {
-                xFailedSubscribeToTopic = pdTRUE;
+                xSubscribeStatus = pdFAIL;
 
                 /* As the subscribe attempt failed, we will retry the subscription request after an
                  * exponential backoff with jitter delay. */
@@ -604,9 +601,9 @@ BaseType_t SubscribeToTopic( MQTTContext_t * pxMqttContext,
                 xBackoffStatus = prvBackoffForRetry( &xRetryParams );
             }
         }
-    } while( ( xFailedSubscribeToTopic == pdTRUE ) && ( xBackoffStatus == pdPASS ) );
+    } while( ( xSubscribeStatus == pdFAIL ) && ( xBackoffStatus == pdPASS ) );
 
-    return xStatus;
+    return xSubscribeStatus;
 }
 
 /*-----------------------------------------------------------*/
@@ -679,12 +676,6 @@ static void vCleanupOutgoingPublishWithPacketID( uint16_t usPacketId )
             break;
         }
     }
-}
-
-/*-----------------------------------------------------------*/
-
-static void prvUpdateSubAckStatus( MQTTPacketInfo_t * pxPacketInfo )
-{
 }
 
 /*-----------------------------------------------------------*/
