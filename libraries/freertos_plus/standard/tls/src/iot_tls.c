@@ -797,6 +797,7 @@ BaseType_t TLS_Init( void ** ppvContext,
 BaseType_t TLS_Connect( void * pvContext )
 {
     BaseType_t xResult = 0;
+    CK_RV xPKCSResult = CKR_OK;
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
 
     /* Initialize mbedTLS structures. */
@@ -880,7 +881,7 @@ BaseType_t TLS_Connect( void * pvContext )
         mbedtls_ssl_conf_ca_chain( &pxCtx->xMbedSslConfig, &pxCtx->xMbedX509CA, NULL );
 
         /* Configure the SSL context for the device credentials. */
-        xResult = prvInitializeClientCredential( pxCtx );
+        xPKCSResult = prvInitializeClientCredential( pxCtx );
     }
 
     if( ( 0 == xResult ) && ( NULL != pxCtx->ppcAlpnProtocols ) )
@@ -893,7 +894,6 @@ BaseType_t TLS_Connect( void * pvContext )
     }
 
     #ifdef MBEDTLS_DEBUG_C
-
         /* If mbedTLS is being compiled with debug support, assume that the
          * runtime configuration should use verbose output. */
         mbedtls_ssl_conf_dbg( &pxCtx->xMbedSslConfig, prvTlsDebugPrint, NULL );
@@ -943,9 +943,19 @@ BaseType_t TLS_Connect( void * pvContext )
                  * ensure that upstream clean-up code doesn't accidentally use
                  * a context that failed the handshake. */
                 prvFreeContext( pxCtx );
-                TLS_PRINT( ( "ERROR: Handshake failed with error code %s : %s \r\n",
-                             mbedtlsHighLevelCodeOrDefault( xResult ),
-                             mbedtlsLowLevelCodeOrDefault( xResult ) ) );
+
+                if( xPKCSResult != CKR_OK )
+                {
+                    TLS_PRINT( ( "ERROR: Handshake failed, likely because of an "
+                                 "error setting up client credentials. PKCS #11 "
+                                 "failed with 0x(%0x). Handshake failed with error"
+                                 "code %d \r\n", xPKCSResult, xResult ) );
+                }
+                else
+                {
+                    TLS_PRINT( ( "ERROR: Handshake failed with error code %d \r\n", xResult ) );
+                }
+
                 break;
             }
         }
