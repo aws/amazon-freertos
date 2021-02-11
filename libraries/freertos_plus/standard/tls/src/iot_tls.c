@@ -946,14 +946,21 @@ BaseType_t TLS_Connect( void * pvContext )
 
                 if( xPKCSResult != CKR_OK )
                 {
-                    TLS_PRINT( ( "ERROR: Handshake failed, likely because of an "
-                                 "error setting up client credentials. PKCS #11 "
-                                 "failed with 0x(%0x). Handshake failed with error"
-                                 "code %d \r\n", xPKCSResult, xResult ) );
+                    TLS_PRINT( ( "ERROR: The handshake failed and it is likely "
+                                 "due to a failure in PKCS #11. Consider enabling "
+                                 "error logging in PKCS #11 or checking if your device "
+                                 "is properly provisioned with client credentials. "
+                                 "The PKCS #11 error code was 0x(%0X). TLS "
+                                 "handshake failed trying to connect. %s : %s \r\n",
+                                 xPKCSResult,
+                                 mbedtlsHighLevelCodeOrDefault( xResult ),
+                                 mbedtlsLowLevelCodeOrDefault( xResult ) ) );
                 }
                 else
                 {
-                    TLS_PRINT( ( "ERROR: Handshake failed with error code %d \r\n", xResult ) );
+                    TLS_PRINT( ( "ERROR: TLS handshake failed trying to connect. %s : %s \r\n",
+                                 mbedtlsHighLevelCodeOrDefault( xResult ),
+                                 mbedtlsLowLevelCodeOrDefault( xResult ) ) );
                 }
 
                 break;
