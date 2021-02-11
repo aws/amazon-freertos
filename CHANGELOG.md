@@ -10,6 +10,11 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 - Update FreeRTOS Test Runner to support either a configurable delay (in [PR](https://github.com/aws/amazon-freertos/pull/2950)) or a FreeRTOS+CLI based serial prompt input command (in [PR](https://github.com/aws/amazon-freertos/pull/2955)) to being executing tests.
 - Upgrade of ESP-IDF SDK v4.2 for Espressif boards (in [PR](https://github.com/aws/amazon-freertos/pull/2893)). Refer to the instructions in [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html#setup-espressif-idf42) for using ESP-IDF v4.2.
 
+#### TLS Shim Layer V1.3.0
+
+- Added logic to support connecting to a TLS server that does not require mutual verification.
+
+
 ## 202012.00 December 2020
 
 ### New Features
@@ -256,7 +261,7 @@ The MQTT library in this release, coreMQTT, supports backward compatibility with
 #### FreeRTOS+TCP V2.3.0
 
 - Added ability to cache multiple IP addresses per DNS entry.
-- Defensive security improvements: 
+- Defensive security improvements:
     - In compliance with the UDP protocol specification, prior versions of FreeRTOS+TCP accepted UDP packets that had their checksum set to 0. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS`, that enables users to opt to drop UDP packets that have their checksum set to 0. **Note:** This new setting defaults to 0, so it defaults to dropping UDP packets that have their checksum set to 0.
     - Prior versions of FreeRTOS+TCP accept IP packets that contain IP options, although those options are not processed. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS`, that enables users to opt to drop IP packets that contain IP options.
     - Setting configuration parameter, `ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM`, to 1 offloads IP checksum and length checking to the hardware. From FreeRTOS+TCP V2.3.0, the length is checked in software even when it has already been checked in hardware.
