@@ -880,7 +880,14 @@ BaseType_t TLS_Connect( void * pvContext )
         /* Set issuer certificate. */
         mbedtls_ssl_conf_ca_chain( &pxCtx->xMbedSslConfig, &pxCtx->xMbedX509CA, NULL );
 
-        /* Configure the SSL context for the device credentials. */
+        /* Configure the SSL context to contain device credentials (eg device cert
+         * and private key) obtained from the PKCS #11 layer.  The result of
+         * loading device key and certificate is placed in a separate variable
+         * (xPKCSResult instead of xResult). The reason is that we want to
+         * attempt TLS handshake, even if the device key and certificate
+         * are not loaded. This allows the TLS layer to still connect to servers
+         * that do not require mutual authentication. If the server does
+         * require mutual authentication, the handshake will fail. */
         xPKCSResult = prvInitializeClientCredential( pxCtx );
     }
 
@@ -894,7 +901,6 @@ BaseType_t TLS_Connect( void * pvContext )
     }
 
     #ifdef MBEDTLS_DEBUG_C
-
         /* If mbedTLS is being compiled with debug support, assume that the
          * runtime configuration should use verbose output. */
         mbedtls_ssl_conf_dbg( &pxCtx->xMbedSslConfig, prvTlsDebugPrint, NULL );
