@@ -186,7 +186,7 @@ The MQTT library in this release, coreMQTT, supports backward compatibility with
 
 #### Wi-Fi V2.0.0
 
-- Updated WiFi APIs to support more granular error codes, WEP encryption, SoftAP provisioning, optional asynchronous APIs, event handling and set country code.
+- Updated WiFi APIs to support more granular error codes, WEP encryption, SoftAP provisioning, optional asynchronous APIs, event handling and set country code. This is a breaking change to the WIFI API. See more details [here](https://docs.aws.amazon.com/freertos/latest/lib-ref/html2/wifi/index.html).
 
 #### OTA PAL for Espressif ESP32-DevKitC
 
