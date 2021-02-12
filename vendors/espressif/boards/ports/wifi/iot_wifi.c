@@ -130,15 +130,15 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
     WIFIEvent_t eventInfo = { 0 };
     if (event_base == WIFI_EVENT) {
         switch(event_id) {
-            case SYSTEM_EVENT_STA_START:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_STA_START");
+            case WIFI_EVENT_STA_START:
+                ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
                 xEventGroupSetBits(wifi_event_group, STARTED_BIT);
                 break;
-            case SYSTEM_EVENT_STA_CONNECTED:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_STA_CONNECTED");
+            case WIFI_EVENT_STA_CONNECTED:
+                ESP_LOGI(TAG, "WIFI_EVENT_STA_CONNECTED");
                 break;
-            case SYSTEM_EVENT_STA_DISCONNECTED:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED: %d", info->disconnected.reason);
+            case WIFI_EVENT_STA_DISCONNECTED:
+                ESP_LOGI(TAG, "WIFI_EVENT_STA_DISCONNECTED: %d", info->disconnected.reason);
                 wifi_auth_failure = false;
 
                 /* Set code corresponding to the reason for disconnection */
@@ -172,23 +172,23 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
                     xWifiEventHandlers[ eWiFiEventDisconnected ]( &eventInfo );
                 }
                 break;
-            case SYSTEM_EVENT_AP_START:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
+            case WIFI_EVENT_AP_START:
+                ESP_LOGI(TAG, "WIFI_EVENT_AP_START");
                 wifi_ap_state = true;
                 xEventGroupClearBits(wifi_event_group, AP_STOPPED_BIT);
                 xEventGroupSetBits(wifi_event_group, AP_STARTED_BIT);
                 break;
-            case SYSTEM_EVENT_AP_STOP:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STOP");
+            case WIFI_EVENT_AP_STOP:
+                ESP_LOGI(TAG, "WIFI_EVENT_AP_START");
                 wifi_ap_state = false;
                 xEventGroupClearBits(wifi_event_group, AP_STARTED_BIT);
                 xEventGroupSetBits(wifi_event_group, AP_STOPPED_BIT);
                 break;
-            case SYSTEM_EVENT_AP_STACONNECTED:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STACONNECTED");
+            case WIFI_EVENT_AP_STACONNECTED:
+                ESP_LOGI(TAG, "WIFI_EVENT_AP_STACONNECTED");
                 break;
-            case SYSTEM_EVENT_AP_STADISCONNECTED:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STADISCONNECTED");
+            case WIFI_EVENT_AP_STADISCONNECTED:
+                ESP_LOGI(TAG, "WIFI_EVENT_AP_STADISCONNECTED");
                 break;
             default:
                 break;
