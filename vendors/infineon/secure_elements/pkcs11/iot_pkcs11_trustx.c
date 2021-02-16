@@ -90,7 +90,7 @@ typedef struct P11Struct_t
     P11ObjectList_t xObjectList;
     uint16_t xCertOid;
     uint16_t xPrivKeyOid;
-} P11Struct_t, * P11Context_t;
+} P11Struct_t, *P11Context_t;
 
 static P11Struct_t xP11Context;
 
@@ -115,7 +115,7 @@ typedef struct P11Session
     CK_MECHANISM_TYPE xSignMechanism;
     uint16_t usSignKeyOid;
     OptigaSha256Ctx_t xSHA256Context;
-} P11Session_t, * P11SessionPtr_t;
+} P11Session_t, *P11SessionPtr_t;
 
 
 /**
@@ -545,9 +545,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
  * error.
  */
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      CK_BYTE_PTR * ppucData,
-                                      CK_ULONG_PTR pulDataSize,
-                                      CK_BBOOL * pIsPrivate )
+                                 CK_BYTE_PTR * ppucData,
+                                 CK_ULONG_PTR pulDataSize,
+                                 CK_BBOOL * pIsPrivate )
 {
     BaseType_t ulReturn = CKR_OK;
     optiga_lib_status_t xReturn;
@@ -962,134 +962,131 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
     return xResult;
 }
 
-#if ( pkcs11configPAL_DESTROY_SUPPORTED != 1 )
+CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xAppHandle )
+{
+    uint8_t * pcLabel = NULL;
+    char * pcTempLabel = NULL;
+    size_t xLabelLength = 0;
+    uint32_t ulObjectLength = 0;
+    CK_RV xResult = CKR_OK;
+    CK_BBOOL xFreeMemory = CK_FALSE;
+    CK_BYTE_PTR pxObject = NULL;
+    CK_OBJECT_HANDLE xPalHandle;
+    CK_OBJECT_HANDLE xAppHandle2;
+    CK_LONG lOptigaOid = 0;
+    char * xEnd = NULL;
 
-    CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xAppHandle )
+    prvFindObjectInListByHandle( xAppHandle, &xPalHandle, &pcLabel, &xLabelLength );
+
+    if( pcLabel != NULL )
     {
-        uint8_t * pcLabel = NULL;
-        char * pcTempLabel = NULL;
-        size_t xLabelLength = 0;
-        uint32_t ulObjectLength = 0;
-        CK_RV xResult = CKR_OK;
-        CK_BBOOL xFreeMemory = CK_FALSE;
-        CK_BYTE_PTR pxObject = NULL;
-        CK_OBJECT_HANDLE xPalHandle;
-        CK_OBJECT_HANDLE xAppHandle2;
-        CK_LONG lOptigaOid = 0;
-        char * xEnd = NULL;
-
-        prvFindObjectInListByHandle( xAppHandle, &xPalHandle, &pcLabel, &xLabelLength );
-
-        if( pcLabel != NULL )
+        if( ( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
+            #if FREERTOS_ENABLE_UNIT_TESTS
+                ||
+                ( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
+            #endif
+            )
         {
-            if( ( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
-                #if FREERTOS_ENABLE_UNIT_TESTS
-                    ||
-                    ( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
-                #endif
-                )
+            prvFindObjectInListByLabel( ( uint8_t * ) pcLabel, strlen( ( char * ) pcLabel ), &xPalHandle, &xAppHandle2 );
+
+            if( xPalHandle != CK_INVALID_HANDLE )
             {
-                prvFindObjectInListByLabel( ( uint8_t * ) pcLabel, strlen( ( char * ) pcLabel ), &xPalHandle, &xAppHandle2 );
-
-                if( xPalHandle != CK_INVALID_HANDLE )
-                {
-                    xResult = prvDeleteObjectFromList( xAppHandle2 );
-                }
-
-                lOptigaOid = strtol( ( char * ) pcLabel, &xEnd, 16 );
-
-                CK_BYTE pucDumbData[ 68 ];
-                uint16_t ucDumbDataLength = 68;
-
-                if( OPTIGA_LIB_SUCCESS != optiga_crypt_ecc_generate_keypair( OPTIGA_ECC_NIST_P_256,
-                                                                             ( uint8_t ) OPTIGA_KEY_USAGE_SIGN,
-                                                                             FALSE,
-                                                                             &lOptigaOid,
-                                                                             pucDumbData,
-                                                                             &ucDumbDataLength ) )
-                {
-                    PKCS11_PRINT( ( "ERROR: Failed to invalidate a keypair \r\n" ) );
-                    xResult = CKR_FUNCTION_FAILED;
-                }
-            }
-            else
-            {
-                if( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabelLength ) )
-                {
-                    pcTempLabel = pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
-                }
-
-                #if FREERTOS_ENABLE_UNIT_TESTS
-                    else if( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabelLength ) )
-                    {
-                        pcTempLabel = pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
-                    }
-                #endif
-                else if( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, xLabelLength ) )
-                {
-                    pcTempLabel = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
-                }
-                #if FREERTOS_ENABLE_UNIT_TESTS
-                    else if( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, xLabelLength ) )
-                    {
-                        pcTempLabel = pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS;
-                    }
-                #endif
-                else if( 0 == memcmp( pcLabel, pkcs11configLABEL_CODE_VERIFICATION_KEY, xLabelLength ) )
-                {
-                    pcTempLabel = pkcs11configLABEL_CODE_VERIFICATION_KEY;
-                }
-
-                if( pcTempLabel != NULL )
-                {
-                    lOptigaOid = strtol( pcTempLabel, &xEnd, 16 );
-
-                    if( ( 0 != lOptigaOid ) && ( USHRT_MAX >= lOptigaOid ) )
-                    {
-                        /* Erase the object */
-                        CK_BYTE pucData[] = { 0 };
-                        xResult = optiga_util_write_data( ( uint16_t ) lOptigaOid,
-                                                          OPTIGA_UTIL_ERASE_AND_WRITE,
-                                                          0, /* Offset */
-                                                          pucData,
-                                                          1 );
-
-                        if( OPTIGA_LIB_SUCCESS == xResult )
-                        {
-                            prvFindObjectInListByLabel( ( uint8_t * ) pcTempLabel, strlen( ( char * ) pcTempLabel ), &xPalHandle, &xAppHandle2 );
-
-                            if( xPalHandle != CK_INVALID_HANDLE )
-                            {
-                                xResult = prvDeleteObjectFromList( xAppHandle2 );
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    xResult = CKR_KEY_HANDLE_INVALID;
-                }
+                xResult = prvDeleteObjectFromList( xAppHandle2 );
             }
 
-            if( xAppHandle2 != xAppHandle )
+            lOptigaOid = strtol( ( char * ) pcLabel, &xEnd, 16 );
+
+            CK_BYTE pucDumbData[ 68 ];
+            uint16_t ucDumbDataLength = 68;
+
+            if( OPTIGA_LIB_SUCCESS != optiga_crypt_ecc_generate_keypair( OPTIGA_ECC_NIST_P_256,
+                                                                         ( uint8_t ) OPTIGA_KEY_USAGE_SIGN,
+                                                                         FALSE,
+                                                                         &lOptigaOid,
+                                                                         pucDumbData,
+                                                                         &ucDumbDataLength ) )
             {
-                xResult = prvDeleteObjectFromList( xAppHandle );
+                PKCS11_PRINT( ( "ERROR: Failed to invalidate a keypair \r\n" ) );
+                xResult = CKR_FUNCTION_FAILED;
             }
         }
         else
         {
-            xResult = CKR_KEY_HANDLE_INVALID;
+            if( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabelLength ) )
+            {
+                pcTempLabel = pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
+            }
+
+            #if FREERTOS_ENABLE_UNIT_TESTS
+                else if( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabelLength ) )
+                {
+                    pcTempLabel = pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
+                }
+            #endif
+            else if( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, xLabelLength ) )
+            {
+                pcTempLabel = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+            }
+            #if FREERTOS_ENABLE_UNIT_TESTS
+                else if( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, xLabelLength ) )
+                {
+                    pcTempLabel = pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+                }
+            #endif
+            else if( 0 == memcmp( pcLabel, pkcs11configLABEL_CODE_VERIFICATION_KEY, xLabelLength ) )
+            {
+                pcTempLabel = pkcs11configLABEL_CODE_VERIFICATION_KEY;
+            }
+
+            if( pcTempLabel != NULL )
+            {
+                lOptigaOid = strtol( pcTempLabel, &xEnd, 16 );
+
+                if( ( 0 != lOptigaOid ) && ( USHRT_MAX >= lOptigaOid ) )
+                {
+                    /* Erase the object */
+                    CK_BYTE pucData[] = { 0 };
+                    xResult = optiga_util_write_data( ( uint16_t ) lOptigaOid,
+                                                      OPTIGA_UTIL_ERASE_AND_WRITE,
+                                                      0,     /* Offset */
+                                                      pucData,
+                                                      1 );
+
+                    if( OPTIGA_LIB_SUCCESS == xResult )
+                    {
+                        prvFindObjectInListByLabel( ( uint8_t * ) pcTempLabel, strlen( ( char * ) pcTempLabel ), &xPalHandle, &xAppHandle2 );
+
+                        if( xPalHandle != CK_INVALID_HANDLE )
+                        {
+                            xResult = prvDeleteObjectFromList( xAppHandle2 );
+                        }
+                    }
+                }
+            }
+            else
+            {
+                xResult = CKR_KEY_HANDLE_INVALID;
+            }
         }
 
-        if( xFreeMemory == CK_TRUE )
+        if( xAppHandle2 != xAppHandle )
         {
-            PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
+            xResult = prvDeleteObjectFromList( xAppHandle );
         }
-
-        return xResult;
+    }
+    else
+    {
+        xResult = CKR_KEY_HANDLE_INVALID;
     }
 
-#endif /* if ( pkcs11configPAL_DESTROY_SUPPORTED != 1 ) */
+    if( xFreeMemory == CK_TRUE )
+    {
+        PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
+    }
+
+    return xResult;
+}
+
 
 /*-------------------------------------------------------------*/
 
