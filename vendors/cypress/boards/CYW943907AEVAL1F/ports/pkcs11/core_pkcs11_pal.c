@@ -4,7 +4,7 @@
  *
  * Copyright 2019, Cypress Semiconductor Corporation or a subsidiary of
  * Cypress Semiconductor Corporation. All Rights Reserved.
- * 
+ *
  * This software, associated documentation and materials ("Software")
  * is owned by Cypress Semiconductor Corporation,
  * or one of its subsidiaries ("Cypress") and is protected by and subject to
@@ -66,9 +66,9 @@ enum eObjectHandles
 };
 
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      CK_BYTE_PTR * ppucData,
-                                      CK_ULONG_PTR pulDataSize,
-                                      CK_BBOOL * pIsPrivate );
+                                 CK_BYTE_PTR * ppucData,
+                                 CK_ULONG_PTR pulDataSize,
+                                 CK_BBOOL * pIsPrivate );
 
 /* Converts a label to its respective filename and handle. */
 void prvLabelToFilenameHandle( uint8_t * pcLabel,
@@ -121,16 +121,16 @@ CK_RV PKCS11_PAL_Initialize( void )
 }
 
 /**
-* @brief Writes a file to local storage.
-*
-* Port-specific file write for crytographic information.
-*
-* @param[in] pxLabel       Label of the object to be saved.
-* @param[in] pucData       Data buffer to be written to file
-* @param[in] ulDataSize    Size (in bytes) of data to be saved.
-*
-* @return The file handle of the object that was stored.
-*/
+ * @brief Writes a file to local storage.
+ *
+ * Port-specific file write for crytographic information.
+ *
+ * @param[in] pxLabel       Label of the object to be saved.
+ * @param[in] pucData       Data buffer to be written to file
+ * @param[in] ulDataSize    Size (in bytes) of data to be saved.
+ *
+ * @return The file handle of the object that was stored.
+ */
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                         CK_BYTE_PTR pucData,
                                         CK_ULONG ulDataSize )
@@ -141,48 +141,58 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 
     /* Translate from the PKCS#11 label to local storage file name. */
     prvLabelToFilenameHandle( pxLabel->pValue, &pcFileName, &xHandle );
+
     if( xHandle != eInvalidHandle )
     {
         if( strcmp( pcFileName, pkcs11palFILE_NAME_CLIENT_CERTIFICATE ) == 0 )
         {
-            result = wiced_dct_write( (const void*) &ulDataSize, DCT_APP_SECTION, 0, 4 );
-            if ( result != WICED_SUCCESS)
+            result = wiced_dct_write( ( const void * ) &ulDataSize, DCT_APP_SECTION, 0, 4 );
+
+            if( result != WICED_SUCCESS )
             {
-                printf("wiced_dct_write failed for client certificate length %d \n", result );
-            }
-            wiced_dct_write( (const void*) pucData, DCT_APP_SECTION, 12, ulDataSize );
-            if ( result != WICED_SUCCESS)
-            {
-                printf("wiced_dct_write failed for client certificate %d \n", result );
+                printf( "wiced_dct_write failed for client certificate length %d \n", result );
             }
 
+            wiced_dct_write( ( const void * ) pucData, DCT_APP_SECTION, 12, ulDataSize );
+
+            if( result != WICED_SUCCESS )
+            {
+                printf( "wiced_dct_write failed for client certificate %d \n", result );
+            }
         }
         else if( strcmp( pcFileName, pkcs11palFILE_NAME_KEY ) == 0 )
         {
-            result = wiced_dct_write( (const void*) &ulDataSize, DCT_APP_SECTION, 4, 4 );
-            if ( result != WICED_SUCCESS)
+            result = wiced_dct_write( ( const void * ) &ulDataSize, DCT_APP_SECTION, 4, 4 );
+
+            if( result != WICED_SUCCESS )
             {
-                printf("wiced_dct_write failed for client key length %d \n", result );
+                printf( "wiced_dct_write failed for client key length %d \n", result );
             }
-            result = wiced_dct_write( (const void*) pucData, DCT_APP_SECTION, 12 + 2048, ulDataSize );
-            if ( result != WICED_SUCCESS)
+
+            result = wiced_dct_write( ( const void * ) pucData, DCT_APP_SECTION, 12 + 2048, ulDataSize );
+
+            if( result != WICED_SUCCESS )
             {
-                printf("wiced_dct_write failed for client key %d \n", result );
+                printf( "wiced_dct_write failed for client key %d \n", result );
             }
         }
         else if( strcmp( pcFileName, pkcs11palFILE_CODE_SIGN_PUBLIC_KEY ) == 0 )
         {
-            result = wiced_dct_write( (const void*) &ulDataSize, DCT_APP_SECTION, 8, 4 );
-            if ( result != WICED_SUCCESS)
+            result = wiced_dct_write( ( const void * ) &ulDataSize, DCT_APP_SECTION, 8, 4 );
+
+            if( result != WICED_SUCCESS )
             {
-                printf("wiced_dct_write failed for client key length %d \n", result );
+                printf( "wiced_dct_write failed for client key length %d \n", result );
             }
-            result = wiced_dct_write( (const void*) pucData, DCT_APP_SECTION, 12 + 4096, ulDataSize );
-            if ( result != WICED_SUCCESS)
+
+            result = wiced_dct_write( ( const void * ) pucData, DCT_APP_SECTION, 12 + 4096, ulDataSize );
+
+            if( result != WICED_SUCCESS )
             {
-                printf("wiced_dct_write failed for client key %d \n", result );
+                printf( "wiced_dct_write failed for client key %d \n", result );
             }
         }
+
         if( result != WICED_SUCCESS )
         {
             xHandle = eInvalidHandle;
@@ -193,18 +203,18 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 }
 
 /**
-* @brief Translates a PKCS #11 label into an object handle.
-*
-* Port-specific object handle retrieval.
-*
-*
-* @param[in] pxLabel         Pointer to the label of the object
-*                           who's handle should be found.
-* @param[in] usLength       The length of the label, in bytes.
-*
-* @return The object handle if operation was successful.
-* Returns eInvalidHandle if unsuccessful.
-*/
+ * @brief Translates a PKCS #11 label into an object handle.
+ *
+ * Port-specific object handle retrieval.
+ *
+ *
+ * @param[in] pxLabel         Pointer to the label of the object
+ *                           who's handle should be found.
+ * @param[in] usLength       The length of the label, in bytes.
+ *
+ * @return The object handle if operation was successful.
+ * Returns eInvalidHandle if unsuccessful.
+ */
 CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
                                         CK_ULONG usLength )
 {
@@ -218,12 +228,12 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
     /* Translate from the PKCS#11 label to local storage file name. */
     prvLabelToFilenameHandle( pxLabel, &pcFileName, &xHandle );
 
-    if (xHandle != CK_INVALID_HANDLE)
+    if( xHandle != CK_INVALID_HANDLE )
     {
         /* Attempt to read the object to see if something valid is there. */
-        xResult = PKCS11_PAL_GetObjectValue(xHandle, &pucData, &xDataSize, &xIsPrivate );
+        xResult = PKCS11_PAL_GetObjectValue( xHandle, &pucData, &xDataSize, &xIsPrivate );
 
-        if (xResult != CK_INVALID_HANDLE)
+        if( xResult != CK_INVALID_HANDLE )
         {
             xHandle = 0;
         }
@@ -256,11 +266,11 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
  * error.
  */
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      CK_BYTE_PTR * ppucData,
-                                      CK_ULONG_PTR pulDataSize,
-                                      CK_BBOOL * pIsPrivate )
+                                 CK_BYTE_PTR * ppucData,
+                                 CK_ULONG_PTR pulDataSize,
+                                 CK_BBOOL * pIsPrivate )
 {
-    uint32_t len=0;
+    uint32_t len = 0;
     wiced_result_t result = WICED_SUCCESS;
     char * pcFileName = NULL;
     CK_RV ulReturn = CKR_OK;
@@ -293,60 +303,71 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
     if( strcmp( pcFileName, pkcs11palFILE_NAME_CLIENT_CERTIFICATE ) == 0 )
     {
-        result = wiced_dct_read_with_copy( (void*) &len, DCT_APP_SECTION, 0, 4 );
-        if ( result != WICED_SUCCESS)
+        result = wiced_dct_read_with_copy( ( void * ) &len, DCT_APP_SECTION, 0, 4 );
+
+        if( result != WICED_SUCCESS )
         {
-            printf("wiced_dct_read_with_copy failed for client certificate length %d \n", result );
+            printf( "wiced_dct_read_with_copy failed for client certificate length %d \n", result );
         }
-        result = wiced_dct_read_lock( (void**) ppucData, WICED_TRUE, DCT_APP_SECTION, 12, len );
-        if ( result != WICED_SUCCESS)
+
+        result = wiced_dct_read_lock( ( void ** ) ppucData, WICED_TRUE, DCT_APP_SECTION, 12, len );
+
+        if( result != WICED_SUCCESS )
         {
-            printf("wiced_dct_read_lock failed for client certificate %d \n", result );
+            printf( "wiced_dct_read_lock failed for client certificate %d \n", result );
         }
     }
     else if( strcmp( pcFileName, pkcs11palFILE_NAME_KEY ) == 0 )
     {
-        result = wiced_dct_read_with_copy( (void*) &len, DCT_APP_SECTION, 4, 4 );
-        if ( result != WICED_SUCCESS)
+        result = wiced_dct_read_with_copy( ( void * ) &len, DCT_APP_SECTION, 4, 4 );
+
+        if( result != WICED_SUCCESS )
         {
-            printf("wiced_dct_read_with_copy failed for client key length %d \n", result );
+            printf( "wiced_dct_read_with_copy failed for client key length %d \n", result );
         }
-        result = wiced_dct_read_lock( (void**) ppucData, WICED_TRUE, DCT_APP_SECTION, 12 + 2048, len );
-        if ( result != WICED_SUCCESS)
+
+        result = wiced_dct_read_lock( ( void ** ) ppucData, WICED_TRUE, DCT_APP_SECTION, 12 + 2048, len );
+
+        if( result != WICED_SUCCESS )
         {
-            printf("wiced_dct_read_lock failed for client certificate %d \n", result );
+            printf( "wiced_dct_read_lock failed for client certificate %d \n", result );
         }
     }
     else if( strcmp( pcFileName, pkcs11palFILE_CODE_SIGN_PUBLIC_KEY ) == 0 )
     {
-        result = wiced_dct_read_with_copy( (void*) &len, DCT_APP_SECTION, 8, 4 );
-        if ( result != WICED_SUCCESS)
+        result = wiced_dct_read_with_copy( ( void * ) &len, DCT_APP_SECTION, 8, 4 );
+
+        if( result != WICED_SUCCESS )
         {
-            printf("wiced_dct_read_with_copy failed for client key length %d \n", result );
+            printf( "wiced_dct_read_with_copy failed for client key length %d \n", result );
         }
-        result = wiced_dct_read_lock( (void**) ppucData, WICED_TRUE, DCT_APP_SECTION, 12 + 4096, len );
-        if ( result != WICED_SUCCESS)
+
+        result = wiced_dct_read_lock( ( void ** ) ppucData, WICED_TRUE, DCT_APP_SECTION, 12 + 4096, len );
+
+        if( result != WICED_SUCCESS )
         {
-            printf("wiced_dct_read_lock failed for client certificate %d \n", result );
+            printf( "wiced_dct_read_lock failed for client certificate %d \n", result );
         }
     }
+
     *pulDataSize = len;
 
     if( ( result != WICED_SUCCESS ) || ( len == 0 ) )
     {
         ulReturn = CKR_FUNCTION_FAILED;
     }
+
     return ulReturn;
 }
 
 /**
-* @brief Cleanup after PKCS11_GetObjectValue().
-*
-* @param[in] pucData       The buffer to free.
-*                          (*ppucData from PKCS11_PAL_GetObjectValue())
-* @param[in] ulDataSize    The length of the buffer to free.
-*                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
-*/
+ * @brief Cleanup after PKCS11_GetObjectValue().
+ *
+ * @param[in] pucData       The buffer to free.
+ *                          (*ppucData from PKCS11_PAL_GetObjectValue())
+ * @param[in] ulDataSize    The length of the buffer to free.
+ *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
+ */
 void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
                                        CK_ULONG ulDataSize )
 {
@@ -357,3 +378,114 @@ void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
 }
 
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief Given a label delete the corresponding private or public key.
+ */
+static CK_RV prvOverwritePalObject( CK_OBJECT_HANDLE xPalHandle,
+                                    CK_ATTRIBUTE_PTR pxLabel )
+{
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
+    /* coverity[misra_c_2012_rule_10_5_violation] */
+    CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
+    CK_RV xResult = CKR_OK;
+    CK_BYTE_PTR pxZeroedData = NULL;
+    CK_BYTE_PTR pxObject = NULL;
+    CK_ULONG ulObjectLength = sizeof( CK_BYTE ); /* MISRA: Cannot initialize to 0, as the integer passed to memset must be positive. */
+    CK_OBJECT_HANDLE xPalHandle2 = CK_INVALID_HANDLE;
+
+    xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pxObject, &ulObjectLength, &xIsPrivate );
+
+    if( xResult == CKR_OK )
+    {
+        /* Some ports return a pointer to memory for which using memset directly won't work. */
+        pxZeroedData = mbedtls_calloc( 1, ulObjectLength );
+
+        if( NULL != pxZeroedData )
+        {
+            /* Zero out the object. */
+            ( void ) memset( pxZeroedData, 0x0, ulObjectLength );
+            /* Create an object label attribute. */
+            /* Overwrite the object in NVM with zeros. */
+            xPalHandle2 = PKCS11_PAL_SaveObject( pxLabel, pxZeroedData, ( size_t ) ulObjectLength );
+
+            if( xPalHandle2 != xPalHandle )
+            {
+                LogError( ( "Failed destroying object. Received a "
+                            "different handle from the PAL when writing "
+                            "to the same label." ) );
+                xResult = CKR_GENERAL_ERROR;
+            }
+        }
+        else
+        {
+            LogError( ( "Failed destroying object. Failed to allocated "
+                        "a buffer of length %lu bytes.", ulObjectLength ) );
+            xResult = CKR_HOST_MEMORY;
+        }
+
+        PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
+        mbedtls_free( pxZeroedData );
+    }
+
+    return xResult;
+}
+
+CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
+{
+    CK_BYTE_PTR pcLabel = NULL;
+    CK_ULONG xLabelLength = 0;
+    CK_RV xResult = CKR_OK;
+    CK_ATTRIBUTE xLabel = { 0 };
+    CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xAppHandle2 = CK_INVALID_HANDLE;
+    CK_BYTE pxPubKeyLabel[] = { pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS };
+    CK_BYTE pxPrivKeyLabel[] = { pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS };
+
+    prvFindObjectInListByHandle( xHandle, &xPalHandle, &pcLabel, &xLabelLength );
+
+    if( pcLabel != NULL )
+    {
+        xLabel.type = CKA_LABEL;
+        xLabel.pValue = pcLabel;
+        xLabel.ulValueLen = xLabelLength;
+        xResult = prvOverwritePalObject( xPalHandle, &xLabel );
+    }
+    else
+    {
+        LogError( ( "Failed destroying object. Could not found the object label." ) );
+        xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+    }
+
+    if( xResult == CKR_OK )
+    {
+        if( 0 == strncmp( xLabel.pValue, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabel.ulValueLen ) )
+        {
+            /* Remove NULL terminator in comparison. */
+            prvFindObjectInListByLabel( pxPubKeyLabel, sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+        }
+        else if( 0 == strncmp( xLabel.pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabel.ulValueLen ) )
+        {
+            /* Remove NULL terminator in comparison. */
+            prvFindObjectInListByLabel( pxPrivKeyLabel, sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+        }
+        else
+        {
+            LogWarn( ( "Trying to destroy an object with an unknown label." ) );
+        }
+
+        if( ( xPalHandle != CK_INVALID_HANDLE ) && ( xAppHandle2 != CK_INVALID_HANDLE ) )
+        {
+            xResult = prvDeleteObjectFromList( xAppHandle2 );
+        }
+
+        if( xResult != CKR_OK )
+        {
+            LogWarn( ( "Failed to remove xAppHandle2 from object list when destroying object memory." ) );
+        }
+
+        xResult = prvDeleteObjectFromList( xHandle );
+    }
+
+    return xResult;
+}

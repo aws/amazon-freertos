@@ -1,19 +1,19 @@
-// Copyright 2018 Espressif Systems (Shanghai) PTE LTD
-//
-// FreeRTOS PKCS #11 PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.3
-// Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/* Copyright 2018 Espressif Systems (Shanghai) PTE LTD */
+/* */
+/* FreeRTOS PKCS #11 PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.3 */
+/* Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved. */
+/* */
+/* Licensed under the Apache License, Version 2.0 (the "License"); */
+/* you may not use this file except in compliance with the License. */
+/* You may obtain a copy of the License at */
+/* */
+/*     http://www.apache.org/licenses/LICENSE-2.0 */
+/* */
+/* Unless required by applicable law or agreed to in writing, software */
+/* distributed under the License is distributed on an "AS IS" BASIS, */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. */
+/* See the License for the specific language governing permissions and */
+/* limitations under the License. */
 
 /**
  * @file core_pkcs11_pal.c
@@ -36,9 +36,9 @@
 #include "esp_flash_encrypt.h"
 #include "nvs_flash.h"
 
-#define NVS_PART_NAME                             pkcs11configSTORAGE_PARTITION
-#define NAMESPACE                                 pkcs11configSTORAGE_NS
-static const char *TAG = "PKCS11";
+#define NVS_PART_NAME                            pkcs11configSTORAGE_PARTITION
+#define NAMESPACE                                pkcs11configSTORAGE_NS
+static const char * TAG = "PKCS11";
 
 #define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "P11_Cert"
 #define pkcs11palFILE_NAME_KEY                   "P11_Key"
@@ -61,49 +61,64 @@ static void initialize_nvs_partition()
     static bool nvs_inited;
 
     portENTER_CRITICAL();
-    if (nvs_inited == true) {
+
+    if( nvs_inited == true )
+    {
         portEXIT_CRITICAL();
         return;
     }
 
-    ESP_EARLY_LOGI(TAG, "Initializing NVS partition: \"%s\"", NVS_PART_NAME);
+    ESP_EARLY_LOGI( TAG, "Initializing NVS partition: \"%s\"", NVS_PART_NAME );
 
 
 
-#if CONFIG_NVS_ENCRYPTION
-    if (esp_flash_encryption_enabled()) {
-        const esp_partition_t *key_part = esp_partition_find_first(
-                ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS_KEYS, NULL);
-        assert(key_part && "NVS key partition not found");
+    #if CONFIG_NVS_ENCRYPTION
+        if( esp_flash_encryption_enabled() )
+        {
+            const esp_partition_t * key_part = esp_partition_find_first(
+                ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS_KEYS, NULL );
+            assert( key_part && "NVS key partition not found" );
 
-        nvs_sec_cfg_t cfg;
-        esp_err_t err = nvs_flash_read_security_cfg(key_part, &cfg);
-        if (err == ESP_ERR_NVS_KEYS_NOT_INITIALIZED) {
-            ESP_EARLY_LOGI(TAG, "NVS key partition empty, generating keys");
-            nvs_flash_generate_keys(key_part, &cfg);
-        } else {
-            ESP_ERROR_CHECK(err);
+            nvs_sec_cfg_t cfg;
+            esp_err_t err = nvs_flash_read_security_cfg( key_part, &cfg );
+
+            if( err == ESP_ERR_NVS_KEYS_NOT_INITIALIZED )
+            {
+                ESP_EARLY_LOGI( TAG, "NVS key partition empty, generating keys" );
+                nvs_flash_generate_keys( key_part, &cfg );
+            }
+            else
+            {
+                ESP_ERROR_CHECK( err );
+            }
+
+            esp_err_t ret = nvs_flash_secure_init_partition( NVS_PART_NAME, &cfg );
+
+            if( ( ret == ESP_ERR_NVS_NO_FREE_PAGES ) || ( ret == ESP_ERR_NVS_NEW_VERSION_FOUND ) )
+            {
+                ESP_EARLY_LOGW( TAG, "Error initialising the NVS partition [%d]. Erasing the partition.", ret );
+                ESP_ERROR_CHECK( nvs_flash_erase_partition( NVS_PART_NAME ) );
+                ret = nvs_flash_secure_init_partition( NVS_PART_NAME, &cfg );
+            }
+
+            ESP_ERROR_CHECK( ret );
         }
+        else
+        {
+    #endif // CONFIG_NVS_ENCRYPTION
+    esp_err_t ret = nvs_flash_init_partition( NVS_PART_NAME );
 
-        esp_err_t ret = nvs_flash_secure_init_partition(NVS_PART_NAME, &cfg);
-        if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-            ESP_EARLY_LOGW(TAG, "Error initialising the NVS partition [%d]. Erasing the partition.", ret);
-            ESP_ERROR_CHECK(nvs_flash_erase_partition(NVS_PART_NAME));
-            ret = nvs_flash_secure_init_partition(NVS_PART_NAME, &cfg);
-        }
-        ESP_ERROR_CHECK(ret);
-    } else {
-#endif // CONFIG_NVS_ENCRYPTION
-        esp_err_t ret = nvs_flash_init_partition(NVS_PART_NAME);
-        if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-            ESP_EARLY_LOGW(TAG, "Error initialising the NVS partition [%d]. Erasing the partition.", ret);
-            ESP_ERROR_CHECK(nvs_flash_erase_partition(NVS_PART_NAME));
-            ret = nvs_flash_init_partition(NVS_PART_NAME);
-        }
-        ESP_ERROR_CHECK(ret);
-#if CONFIG_NVS_ENCRYPTION
+    if( ( ret == ESP_ERR_NVS_NO_FREE_PAGES ) || ( ret == ESP_ERR_NVS_NEW_VERSION_FOUND ) )
+    {
+        ESP_EARLY_LOGW( TAG, "Error initialising the NVS partition [%d]. Erasing the partition.", ret );
+        ESP_ERROR_CHECK( nvs_flash_erase_partition( NVS_PART_NAME ) );
+        ret = nvs_flash_init_partition( NVS_PART_NAME );
     }
-#endif // CONFIG_NVS_ENCRYPTION
+
+    ESP_ERROR_CHECK( ret );
+    #if CONFIG_NVS_ENCRYPTION
+}
+    #endif // CONFIG_NVS_ENCRYPTION
     nvs_inited = true;
     portEXIT_CRITICAL();
 
@@ -120,35 +135,35 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
         /* Translate from the PKCS#11 label to local storage file name. */
         if( 0 == memcmp( pcLabel,
                          pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                         strlen( (char*)pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+                         strlen( ( char * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
         {
             *pcFileName = pkcs11palFILE_NAME_CLIENT_CERTIFICATE;
             *pHandle = eAwsDeviceCertificate;
         }
         else if( 0 == memcmp( pcLabel,
                               pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                              strlen( (char*)pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+                              strlen( ( char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
         {
             *pcFileName = pkcs11palFILE_NAME_KEY;
             *pHandle = eAwsDevicePrivateKey;
         }
         else if( 0 == memcmp( pcLabel,
                               pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-                              strlen( (char*)pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
+                              strlen( ( char * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
         {
             *pcFileName = pkcs11palFILE_NAME_KEY;
             *pHandle = eAwsDevicePublicKey;
         }
         else if( 0 == memcmp( pcLabel,
                               pkcs11configLABEL_CODE_VERIFICATION_KEY,
-                              strlen( (char*)pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
+                              strlen( ( char * ) pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
         {
             *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
             *pHandle = eAwsCodeSigningKey;
         }
         else if( 0 == memcmp( pcLabel,
                               pkcs11configLABEL_JITP_CERTIFICATE,
-                              strlen( (char*)pkcs11configLABEL_JITP_CERTIFICATE ) ) )
+                              strlen( ( char * ) pkcs11configLABEL_JITP_CERTIFICATE ) ) )
         {
             *pcFileName = pkcs11palFILE_JITP_CERTIFICATE;
             *pHandle = eAwsJITPCertificate;
@@ -192,22 +207,26 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                               &pcFileName,
                               &xHandle );
 
-    ESP_LOGD(TAG, "Writing file %s, %d bytes", ( char * ) pcFileName, ( uint32_t ) ulDataSize);
+    ESP_LOGD( TAG, "Writing file %s, %d bytes", ( char * ) pcFileName, ( uint32_t ) ulDataSize );
     nvs_handle handle;
-    esp_err_t err = nvs_open_from_partition(NVS_PART_NAME, NAMESPACE, NVS_READWRITE, &handle);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "failed nvs open %d", err);
+    esp_err_t err = nvs_open_from_partition( NVS_PART_NAME, NAMESPACE, NVS_READWRITE, &handle );
+
+    if( err != ESP_OK )
+    {
+        ESP_LOGE( TAG, "failed nvs open %d", err );
         return eInvalidHandle;
     }
 
-    err = nvs_set_blob(handle, pcFileName, ( char * ) pucData, ( uint32_t ) ulDataSize);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "failed nvs set blob %d", err);
-        nvs_close(handle);
+    err = nvs_set_blob( handle, pcFileName, ( char * ) pucData, ( uint32_t ) ulDataSize );
+
+    if( err != ESP_OK )
+    {
+        ESP_LOGE( TAG, "failed nvs set blob %d", err );
+        nvs_close( handle );
         return eInvalidHandle;
     }
 
-    nvs_close(handle);
+    nvs_close( handle );
     return xHandle;
 }
 
@@ -241,20 +260,25 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
     {
         ESP_LOGD( TAG, "Finding file %s", pcFileName );
         nvs_handle handle;
-        esp_err_t err = nvs_open_from_partition(NVS_PART_NAME, NAMESPACE, NVS_READONLY, &handle);
-        if (err != ESP_OK) {
+        esp_err_t err = nvs_open_from_partition( NVS_PART_NAME, NAMESPACE, NVS_READONLY, &handle );
+
+        if( err != ESP_OK )
+        {
             /* This can happen if namespace doesn't exist yet, so no files stored */
-            ESP_LOGD(TAG, "failed nvs open %d", err);
+            ESP_LOGD( TAG, "failed nvs open %d", err );
             return eInvalidHandle;
         }
 
         size_t required_size = 0;
-        err = nvs_get_blob(handle, pcFileName, NULL, &required_size);
-        if (err != ESP_OK || required_size == 0) {
-            ESP_LOGE(TAG, "failed nvs get file size %d %d", err, required_size);
+        err = nvs_get_blob( handle, pcFileName, NULL, &required_size );
+
+        if( ( err != ESP_OK ) || ( required_size == 0 ) )
+        {
+            ESP_LOGE( TAG, "failed nvs get file size %d %d", err, required_size );
             xHandle = eInvalidHandle;
         }
-        nvs_close(handle);
+
+        nvs_close( handle );
     }
 
     return xHandle;
@@ -286,9 +310,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
  * error.
  */
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      CK_BYTE_PTR * ppucData,
-                                      CK_ULONG_PTR pulDataSize,
-                                      CK_BBOOL * pIsPrivate )
+                                 CK_BYTE_PTR * ppucData,
+                                 CK_ULONG_PTR pulDataSize,
+                                 CK_BBOOL * pIsPrivate )
 {
     initialize_nvs_partition();
 
@@ -326,44 +350,53 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         ulReturn = CKR_OBJECT_HANDLE_INVALID;
     }
 
-    if (ulReturn == CKR_OK)
+    if( ulReturn == CKR_OK )
     {
-        ESP_LOGD(TAG, "Reading file %s", pcFileName);
+        ESP_LOGD( TAG, "Reading file %s", pcFileName );
         nvs_handle handle;
-        esp_err_t err = nvs_open_from_partition(NVS_PART_NAME, NAMESPACE, NVS_READONLY, &handle);
-        if (err != ESP_OK) {
+        esp_err_t err = nvs_open_from_partition( NVS_PART_NAME, NAMESPACE, NVS_READONLY, &handle );
+
+        if( err != ESP_OK )
+        {
             /* This can happen if namespace doesn't exist yet, so no files stored */
-            ESP_LOGD(TAG, "failed nvs open %d", err);
+            ESP_LOGD( TAG, "failed nvs open %d", err );
             return CKR_OBJECT_HANDLE_INVALID;
         }
 
         size_t required_size = 0;
-        err = nvs_get_blob(handle, pcFileName, NULL, &required_size);
-        if (err != ESP_OK || required_size == 0) {
-            ESP_LOGE(TAG, "failed nvs get file size %d %d", err, required_size);
+        err = nvs_get_blob( handle, pcFileName, NULL, &required_size );
+
+        if( ( err != ESP_OK ) || ( required_size == 0 ) )
+        {
+            ESP_LOGE( TAG, "failed nvs get file size %d %d", err, required_size );
             ulReturn = CKR_OBJECT_HANDLE_INVALID;
             goto done;
         }
 
-        uint8_t *data = pvPortMalloc(required_size);
-        if (data == NULL) {
-            ESP_LOGE(TAG, "malloc failed");
+        uint8_t * data = pvPortMalloc( required_size );
+
+        if( data == NULL )
+        {
+            ESP_LOGE( TAG, "malloc failed" );
             ulReturn = CKR_HOST_MEMORY;
             goto done;
         }
+
         *ppucData = data;
 
-        err = nvs_get_blob(handle, pcFileName, data, &required_size);
-        if (err != ESP_OK) {
-            ESP_LOGE(TAG, "failed nvs get file %d", err);
-            vPortFree(data);
+        err = nvs_get_blob( handle, pcFileName, data, &required_size );
+
+        if( err != ESP_OK )
+        {
+            ESP_LOGE( TAG, "failed nvs get file %d", err );
+            vPortFree( data );
             ulReturn = CKR_FUNCTION_FAILED;
             goto done;
         }
 
         *pulDataSize = required_size;
 done:
-        nvs_close(handle);
+        nvs_close( handle );
     }
 
     return ulReturn;
@@ -387,4 +420,115 @@ void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
     {
         vPortFree( pucData );
     }
+}
+
+/**
+ * @brief Given a label delete the corresponding private or public key.
+ */
+static CK_RV prvOverwritePalObject( CK_OBJECT_HANDLE xPalHandle,
+                                    CK_ATTRIBUTE_PTR pxLabel )
+{
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
+    /* coverity[misra_c_2012_rule_10_5_violation] */
+    CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
+    CK_RV xResult = CKR_OK;
+    CK_BYTE_PTR pxZeroedData = NULL;
+    CK_BYTE_PTR pxObject = NULL;
+    CK_ULONG ulObjectLength = sizeof( CK_BYTE ); /* MISRA: Cannot initialize to 0, as the integer passed to memset must be positive. */
+    CK_OBJECT_HANDLE xPalHandle2 = CK_INVALID_HANDLE;
+
+    xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pxObject, &ulObjectLength, &xIsPrivate );
+
+    if( xResult == CKR_OK )
+    {
+        /* Some ports return a pointer to memory for which using memset directly won't work. */
+        pxZeroedData = mbedtls_calloc( 1, ulObjectLength );
+
+        if( NULL != pxZeroedData )
+        {
+            /* Zero out the object. */
+            ( void ) memset( pxZeroedData, 0x0, ulObjectLength );
+            /* Create an object label attribute. */
+            /* Overwrite the object in NVM with zeros. */
+            xPalHandle2 = PKCS11_PAL_SaveObject( pxLabel, pxZeroedData, ( size_t ) ulObjectLength );
+
+            if( xPalHandle2 != xPalHandle )
+            {
+                LogError( ( "Failed destroying object. Received a "
+                            "different handle from the PAL when writing "
+                            "to the same label." ) );
+                xResult = CKR_GENERAL_ERROR;
+            }
+        }
+        else
+        {
+            LogError( ( "Failed destroying object. Failed to allocated "
+                        "a buffer of length %lu bytes.", ulObjectLength ) );
+            xResult = CKR_HOST_MEMORY;
+        }
+
+        PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
+        mbedtls_free( pxZeroedData );
+    }
+
+    return xResult;
+}
+
+CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
+{
+    CK_BYTE_PTR pcLabel = NULL;
+    CK_ULONG xLabelLength = 0;
+    CK_RV xResult = CKR_OK;
+    CK_ATTRIBUTE xLabel = { 0 };
+    CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xAppHandle2 = CK_INVALID_HANDLE;
+    CK_BYTE pxPubKeyLabel[] = { pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS };
+    CK_BYTE pxPrivKeyLabel[] = { pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS };
+
+    prvFindObjectInListByHandle( xHandle, &xPalHandle, &pcLabel, &xLabelLength );
+
+    if( pcLabel != NULL )
+    {
+        xLabel.type = CKA_LABEL;
+        xLabel.pValue = pcLabel;
+        xLabel.ulValueLen = xLabelLength;
+        xResult = prvOverwritePalObject( xPalHandle, &xLabel );
+    }
+    else
+    {
+        LogError( ( "Failed destroying object. Could not found the object label." ) );
+        xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+    }
+
+    if( xResult == CKR_OK )
+    {
+        if( 0 == strncmp( xLabel.pValue, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabel.ulValueLen ) )
+        {
+            /* Remove NULL terminator in comparison. */
+            prvFindObjectInListByLabel( pxPubKeyLabel, sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+        }
+        else if( 0 == strncmp( xLabel.pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabel.ulValueLen ) )
+        {
+            /* Remove NULL terminator in comparison. */
+            prvFindObjectInListByLabel( pxPrivKeyLabel, sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+        }
+        else
+        {
+            LogWarn( ( "Trying to destroy an object with an unknown label." ) );
+        }
+
+        if( ( xPalHandle != CK_INVALID_HANDLE ) && ( xAppHandle2 != CK_INVALID_HANDLE ) )
+        {
+            xResult = prvDeleteObjectFromList( xAppHandle2 );
+        }
+
+        if( xResult != CKR_OK )
+        {
+            LogWarn( ( "Failed to remove xAppHandle2 from object list when destroying object memory." ) );
+        }
+
+        xResult = prvDeleteObjectFromList( xHandle );
+    }
+
+    return xResult;
 }
