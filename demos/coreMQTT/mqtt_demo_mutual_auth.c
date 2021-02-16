@@ -781,7 +781,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
 
     xStatus = ( xBackoffStatus == pdPASS ) ? pdPASS : pdFAIL;
 
-    return xStatus;
+    return ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS ) ? pdPASS : pdFAIL;
 }
 /*-----------------------------------------------------------*/
 
