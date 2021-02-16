@@ -723,6 +723,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
     ServerInfo_t xServerInfo = { 0 };
 
     SocketsConfig_t xSocketsConfig = { 0 };
+    BaseType_t xStatus = pdFAIL;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     BackoffAlgorithmContext_t xReconnectParams;
     BaseType_t xBackoffStatus = pdFALSE;
@@ -778,7 +779,9 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
         }
     } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xBackoffStatus == pdPASS ) );
 
-    return xBackoffStatus;
+    xStatus = ( xBackoffStatus == pdPASS ) ? pdPASS : pdFAIL;
+
+    return xStatus;
 }
 /*-----------------------------------------------------------*/
 
