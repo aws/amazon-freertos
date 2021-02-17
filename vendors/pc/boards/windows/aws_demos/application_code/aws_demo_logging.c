@@ -378,7 +378,8 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
     char cPrintString[ dlMAX_PRINT_STRING_LENGTH ];
     char cOutputString[ dlMAX_PRINT_STRING_LENGTH ];
     char * pcSource, * pcTarget, * pcBegin;
-    size_t xLength, xLength2, rc;
+    size_t xLength, rc;
+    size_t xLength2 = 0;
     static BaseType_t xMessageNumber = 0;
     uint32_t ulIPAddress;
     const char * pcTaskName;
