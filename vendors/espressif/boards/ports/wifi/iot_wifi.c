@@ -58,6 +58,7 @@ static bool wifi_ap_state;
 static bool wifi_auth_failure;
 
 static esp_netif_t *esp_netif_info;
+static esp_netif_t *esp_softap_netif_info;
 
 #define WIFI_FLASH_NS     "WiFi"
 #define MAX_WIFI_KEY_WIDTH         ( 5 )
@@ -129,15 +130,15 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
     WIFIEvent_t eventInfo = { 0 };
     if (event_base == WIFI_EVENT) {
         switch(event_id) {
-            case SYSTEM_EVENT_STA_START:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_STA_START");
+            case WIFI_EVENT_STA_START:
+                ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
                 xEventGroupSetBits(wifi_event_group, STARTED_BIT);
                 break;
-            case SYSTEM_EVENT_STA_CONNECTED:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_STA_CONNECTED");
+            case WIFI_EVENT_STA_CONNECTED:
+                ESP_LOGI(TAG, "WIFI_EVENT_STA_CONNECTED");
                 break;
-            case SYSTEM_EVENT_STA_DISCONNECTED:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED: %d", info->disconnected.reason);
+            case WIFI_EVENT_STA_DISCONNECTED:
+                ESP_LOGI(TAG, "WIFI_EVENT_STA_DISCONNECTED: %d", info->disconnected.reason);
                 wifi_auth_failure = false;
 
                 /* Set code corresponding to the reason for disconnection */
@@ -171,23 +172,23 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
                     xWifiEventHandlers[ eWiFiEventDisconnected ]( &eventInfo );
                 }
                 break;
-            case SYSTEM_EVENT_AP_START:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
+            case WIFI_EVENT_AP_START:
+                ESP_LOGI(TAG, "WIFI_EVENT_AP_START");
                 wifi_ap_state = true;
                 xEventGroupClearBits(wifi_event_group, AP_STOPPED_BIT);
                 xEventGroupSetBits(wifi_event_group, AP_STARTED_BIT);
                 break;
-            case SYSTEM_EVENT_AP_STOP:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
+            case WIFI_EVENT_AP_STOP:
+                ESP_LOGI(TAG, "WIFI_EVENT_AP_START");
                 wifi_ap_state = false;
                 xEventGroupClearBits(wifi_event_group, AP_STARTED_BIT);
                 xEventGroupSetBits(wifi_event_group, AP_STOPPED_BIT);
                 break;
-            case SYSTEM_EVENT_AP_STACONNECTED:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STACONNECTED");
+            case WIFI_EVENT_AP_STACONNECTED:
+                ESP_LOGI(TAG, "WIFI_EVENT_AP_STACONNECTED");
                 break;
-            case SYSTEM_EVENT_AP_STADISCONNECTED:
-                ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STADISCONNECTED");
+            case WIFI_EVENT_AP_STADISCONNECTED:
+                ESP_LOGI(TAG, "WIFI_EVENT_AP_STADISCONNECTED");
                 break;
             default:
                 break;
@@ -378,6 +379,7 @@ WIFIReturnCode_t WIFI_On( void )
     if (event_loop_inited == false) {
         ret = esp_event_loop_create_default();
         esp_netif_info = esp_netif_create_default_wifi_sta();
+        esp_softap_netif_info = esp_netif_create_default_wifi_ap();
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to init event loop %d", __func__, ret);
             goto err;
@@ -1309,6 +1311,14 @@ WIFIReturnCode_t WIFI_StartAP( void )
             xSemaphoreGive( xWiFiSem );
             return wifi_ret;
         }
+
+        /* Enable DHCP server, if it's not already enabled */
+        if ( ESP_ERR_ESP_NETIF_INVALID_PARAMS == esp_netif_dhcps_start(esp_softap_netif_info))
+        {
+            ESP_LOGE(TAG, "%s: Failed to start DHCP server", __func__);
+            return eWiFiFailure;
+        }
+
         // Wait for wifi started event
         xEventGroupWaitBits(wifi_event_group, AP_STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
         wifi_ret = eWiFiSuccess;

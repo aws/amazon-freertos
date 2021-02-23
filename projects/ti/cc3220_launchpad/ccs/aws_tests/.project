@@ -1418,9 +1418,9 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/FreeRTOSIPConfig.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_bufferpool_config.h</name>
+			<name>config_files/iot_bufferpool_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_bufferpool_config.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/iot_bufferpool_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_ggd_config.h</name>
@@ -1433,9 +1433,9 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_iot_network_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_mqtt_config.h</name>
+			<name>config_files/iot_mqtt_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_mqtt_config.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/iot_mqtt_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_ota_agent_config.h</name>
@@ -1443,9 +1443,9 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_ota_agent_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_secure_sockets_config.h</name>
+			<name>config_files/iot_secure_sockets_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_secure_sockets_config.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/iot_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_shadow_config.h</name>

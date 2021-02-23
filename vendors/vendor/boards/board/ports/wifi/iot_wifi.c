@@ -70,14 +70,7 @@ WIFIReturnCode_t WIFI_Reset( void )
     /* FIX ME. */
     return eWiFiFailure;
 }
-/*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
-                            uint8_t ucNumNetworks )
-{
-    /* FIX ME. */
-    return eWiFiFailure;
-}
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_SetMode( WIFIDeviceMode_t xDeviceMode )
@@ -126,13 +119,6 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * pxIPConfig )
-{
-    /* FIX ME. */
-    return eWiFiNotSupported;
-}
-/*-----------------------------------------------------------*/
-
 WIFIReturnCode_t WIFI_GetMAC( uint8_t * pucMac )
 {
     /* FIX ME. */
@@ -145,6 +131,14 @@ WIFIReturnCode_t WIFI_GetHostIP( char * pcHost,
 {
     /* FIX ME. */
     return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
+                            uint8_t ucNumNetworks )
+{
+    /* FIX ME. */
+    return eWiFiFailure;
 }
 /*-----------------------------------------------------------*/
 
@@ -185,8 +179,117 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 }
 /*-----------------------------------------------------------*/
 
+WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType,
+                                     WIFIEventHandler_t xHandler )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
 BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
 {
 	/* FIX ME. */
 	return pdFALSE;
 }
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StartScan( WIFIScanConfig_t * pxScanConfig )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetScanResults( const WIFIScanResult_t ** pxBuffer,
+                                      uint16_t * ucNumNetworks )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StartConnectAP( const WIFINetworkParams_t * pxNetworkParams )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StartDisconnect( void )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetConnectionInfo( WIFIConnectionInfo_t * pxConnectionInfo )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * pxIPConfig )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetRSSI( int8_t * pcRSSI )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetStationList( WIFIStationInfo_t * pxStationList,
+                                      uint8_t * pcStationListSize )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StartDisconnectStation( uint8_t * pucMac )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_SetMAC( uint8_t * pucMac )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_SetCountryCode( const char * pcCountryCode )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetCountryCode( char * pcCountryCode )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetStatistic( WIFIStatisticInfo_t * pxStats )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetCapability( WIFICapabilityInfo_t * pxCaps )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;    
+}
+/*-----------------------------------------------------------*/

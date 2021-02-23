@@ -2,6 +2,8 @@
 @mainpage
 
 The Wi-Fi interface API provides a common abstraction layer that enables applications to communicate with the lower-level wireless stack. Wi-Fi chip sets differ in features, driver implementations, and APIs. The common Wi-Fi interface simplifies application development and porting for all supported Wi-Fi chip sets. The interface provides a primary API for managing all aspects of Wi-Fi devices.
+
+Note, version 2.0 and above is not compatible with versions prior to 2.0. The changes in 2.0 are mostly additive and did not remove existing functionality. The incompatibility is trivial and limited to name changes and added or reformatted struct members. The incompatibility is most notably, but not exclusively, SSIDs are now represented as uint8_t arrays with associated length instead of c-strings. This is to support UTF8 SSIDs.
 */
 
 /**

@@ -529,6 +529,7 @@ void vESPBTGATTServerCleanup( void )
         for( index = 0; index < serviceCnt; index++ )
         {
             prvCleanupService( &espServices[ index ] );
+            vPortFree( ( void * ) afrServices[ index ]->pusHandlesBuffer );
             vPortFree( ( void * ) afrServices[ index ] );
         }
 
@@ -884,6 +885,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
     uint16_t handle = 0;
     uint16_t attributeCount = 0;
     BTService_t * afrFullService = NULL;
+    uint16_t * afrHandlesBuffer = NULL;
 
     if( ( pxService == 0 ) || ( pxService->xNumberOfAttributes == 0 ) )
     {
@@ -907,6 +909,16 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
             }
 
             afrServices[ serviceCnt ] = afrFullService;
+
+            afrHandlesBuffer = pvPortCalloc( pxService->xNumberOfAttributes, sizeof( uint16_t ) );
+            if ( afrHandlesBuffer == NULL )
+            {
+                xStatus = eBTStatusNoMem;
+            }
+            else
+            {
+                afrServices[ serviceCnt ]->pusHandlesBuffer = afrHandlesBuffer;
+            }
         }
         else
         {
@@ -931,6 +943,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
         }
 
         /* Fill in field for ESP service. */
+        afrHandlesBuffer[ attributeCount ] = handle;
         pxService->pusHandlesBuffer[ attributeCount++ ] = handle;
 
         if( pxService->pxBLEAttributes[ 0 ].xAttributeType == eBTDbPrimaryService )
@@ -1010,6 +1023,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
 
                     /* Update handle for AFR. */
                     handle += 2;
+                    afrHandlesBuffer[ attributeCount ] = handle;
                     pxService->pusHandlesBuffer[ attributeCount++ ] = handle;
 
                     charCount++;
@@ -1018,6 +1032,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
 
                 case eBTDbIncludedService:
                     handle += 1;
+                    afrHandlesBuffer[ attributeCount ] = handle;
                     pxService->pusHandlesBuffer[ attributeCount++ ] = handle;
                     pIncludedServices[ IncludedSvcCount ] = prvAFRtoESPIncludedServices( pxService->pxBLEAttributes[ index ].xIncludedService );
                     IncludedSvcCount++;
@@ -1026,6 +1041,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                 case eBTDbDescriptor:
                     uuid = prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xCharacteristicDescr.xUuid, NULL );
                     handle += 1;
+                    afrHandlesBuffer[ attributeCount ] = handle;
                     pxService->pusHandlesBuffer[ attributeCount++ ] = handle;
 
                     if( uuid == NULL )

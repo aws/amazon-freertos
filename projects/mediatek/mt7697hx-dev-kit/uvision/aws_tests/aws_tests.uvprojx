@@ -2400,9 +2400,9 @@
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/FreeRTOSIPConfig.h</FilePath>
 						</File>
 						<File>
-							<FileName>aws_bufferpool_config.h</FileName>
+							<FileName>iot_bufferpool_config.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/aws_bufferpool_config.h</FilePath>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/iot_bufferpool_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>aws_ggd_config.h</FileName>
@@ -2410,14 +2410,14 @@
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/aws_ggd_config.h</FilePath>
 						</File>
 						<File>
-							<FileName>aws_mqtt_config.h</FileName>
+							<FileName>iot_mqtt_config.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/aws_mqtt_config.h</FilePath>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/iot_mqtt_config.h</FilePath>
 						</File>
 						<File>
-							<FileName>aws_secure_sockets_config.h</FileName>
+							<FileName>iot_secure_sockets_config.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/aws_secure_sockets_config.h</FilePath>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/iot_secure_sockets_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>aws_shadow_config.h</FileName>

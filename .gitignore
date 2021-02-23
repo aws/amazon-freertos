@@ -19,3 +19,6 @@ RemoteSystemsTempFiles/*
 # Ignore top-level build dir
 /build*/
 
+# Ignore certificate files
+*.pem
+*.crt

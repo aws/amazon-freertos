@@ -297,7 +297,7 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
  * information from Subscribe ACK. Called by the event callback after processing
  * an incoming SUBACK packet.
  *
- * @param[in] Server response to the subscription request.
+ * @param[in] pxPacketInfo Server response to the subscription request.
  */
 static void prvUpdateSubAckStatus( MQTTPacketInfo_t * pxPacketInfo );
 
@@ -723,7 +723,6 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
     ServerInfo_t xServerInfo = { 0 };
 
     SocketsConfig_t xSocketsConfig = { 0 };
-    BaseType_t xStatus = pdPASS;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     BackoffAlgorithmContext_t xReconnectParams;
     BaseType_t xBackoffStatus = pdFALSE;
@@ -779,7 +778,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
         }
     } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xBackoffStatus == pdPASS ) );
 
-    return xStatus;
+    return ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS ) ? pdPASS : pdFAIL;
 }
 /*-----------------------------------------------------------*/
 

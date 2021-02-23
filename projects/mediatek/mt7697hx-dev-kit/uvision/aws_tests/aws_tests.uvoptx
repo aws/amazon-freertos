@@ -3834,8 +3834,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/aws_bufferpool_config.h</PathWithFileName>
-      <FilenameWithoutPath>aws_bufferpool_config.h</FilenameWithoutPath>
+      <PathWithFileName>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/iot_bufferpool_config.h</PathWithFileName>
+      <FilenameWithoutPath>iot_bufferpool_config.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -3858,8 +3858,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/aws_mqtt_config.h</PathWithFileName>
-      <FilenameWithoutPath>aws_mqtt_config.h</FilenameWithoutPath>
+      <PathWithFileName>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/iot_mqtt_config.h</PathWithFileName>
+      <FilenameWithoutPath>iot_mqtt_config.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -3870,8 +3870,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/aws_secure_sockets_config.h</PathWithFileName>
-      <FilenameWithoutPath>aws_secure_sockets_config.h</FilenameWithoutPath>
+      <PathWithFileName>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/iot_secure_sockets_config.h</PathWithFileName>
+      <FilenameWithoutPath>iot_secure_sockets_config.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

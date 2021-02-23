@@ -175,13 +175,26 @@ static esp_err_t prvSetProvisionConfig( const wifi_prov_config_set_data_t * pxRe
 static esp_err_t prvApplyProvisionConfig( wifi_prov_ctx_t ** ppxUserContext )
 {
     esp_err_t xReturnCode = ESP_FAIL;
+    wifi_mode_t xMode_Wifi = WIFI_MODE_NULL;
+
+    /* Maintain AP for connection to mobile provisioning app, and verify the
+     * credentials before storing to flash --> Use dual AP+STA mode */
+    esp_wifi_get_mode( &xMode_Wifi );
+
+    if( ( xMode_Wifi != WIFI_MODE_APSTA ) && ( esp_wifi_set_mode( WIFI_MODE_APSTA ) == ESP_OK ) )
+    {
+        esp_wifi_get_mode( &xMode_Wifi );
+    }
+    else
+    {
+        ESP_LOGE( TAG, "Failed to switch to AP+STA mode" );
+    }
 
     /* Try to connect using provisioned SSID/password */
     WIFINetworkParams_t xAttemptParams;
-
     prvNetworkProfile2Params( &xProvisionedParams, &xAttemptParams );
 
-    if( eWiFiSuccess == WIFI_ConnectAP( &xAttemptParams ) )
+    if( ( xMode_Wifi == WIFI_MODE_APSTA ) && ( eWiFiSuccess == WIFI_ConnectAP( &xAttemptParams ) ) )
     {
         ESP_LOGI( TAG, "Successfully connected to %s", xAttemptParams.ucSSID );
 
@@ -241,11 +254,6 @@ uint32_t IotWifiSoftAPProv_Init( void )
     {
         ESP_LOGE( TAG, "Failed to configure AP" );
     }
-    else if( ESP_OK != esp_wifi_set_mode( WIFI_MODE_APSTA ) )
-    {
-        /* Currently WIFI_ConfigureAP configures as AP only. So we tweak to APSTA */
-        ESP_LOGE( TAG, "Failed to switch to APSTA" );
-    }
     else if( eWiFiSuccess != WIFI_StartAP() )
     {
         ESP_LOGE( TAG, "Failed to start AP" );
@@ -256,7 +264,7 @@ uint32_t IotWifiSoftAPProv_Init( void )
     }
     else
     {
-        ESP_LOGI( TAG, "SoftAP Provisioning started with SSID '%s', Password '%s'", xAPConfig.ucSSID, xAPConfig.xPassword.xWPA.cPassphrase );
+        ESP_LOGI( TAG, "SoftAP Provisioning started with SSID:'%s', Password:'%s'", xAPConfig.ucSSID, xAPConfig.xPassword.xWPA.cPassphrase );
         ulReturnCode = pdPASS;
     }
 
@@ -293,7 +301,10 @@ uint32_t IotWifiSoftAPProv_Connect( uint32_t ulNetworkIndex )
         if( eWiFiSuccess == WIFI_ConnectAP( &xAttemptParams ) )
         {
             ulReturnCode = pdPASS;
-            ESP_LOGI( TAG, "Successfully connected to saved network profile[%d]", ulNetworkIndex );
+            ESP_LOGI( TAG, "Successfully connected to saved network profile[%d] SSID:%.*s",
+                      ulNetworkIndex,
+                      xSavedNetworkProfile.ucSSIDLength,
+                      xSavedNetworkProfile.ucSSID );
         }
         else
         {

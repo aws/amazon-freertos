@@ -6,6 +6,14 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 ### New Features
 
 ### Updates
+- Fixes issues of thread-safety and message readability in the sample logging implementation. (Related PRs are [#2982](https://github.com/aws/amazon-freertos/pull/2982) and [#2953](https://github.com/aws/amazon-freertos/pull/2953).)
+- Update FreeRTOS Test Runner to support either a configurable delay (in [PR](https://github.com/aws/amazon-freertos/pull/2950)) or a FreeRTOS+CLI based serial prompt input command (in [PR](https://github.com/aws/amazon-freertos/pull/2955)) to being executing tests.
+- Upgrade of ESP-IDF SDK v4.2 for Espressif boards (in [PR](https://github.com/aws/amazon-freertos/pull/2893)). Refer to the instructions in [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html#setup-espressif-idf42) for using ESP-IDF v4.2.
+
+#### TLS Shim Layer V1.3.0
+
+- Added logic to support connecting to a TLS server that does not require mutual verification.
+
 
 ## 202012.00 December 2020
 
@@ -178,7 +186,7 @@ The MQTT library in this release, coreMQTT, supports backward compatibility with
 
 #### Wi-Fi V2.0.0
 
-- Updated WiFi APIs to support more granular error codes, WEP encryption, SoftAP provisioning, optional asynchronous APIs, event handling and set country code.
+- Updated WiFi APIs to support more granular error codes, WEP encryption, SoftAP provisioning, optional asynchronous APIs, event handling and set country code. This is a breaking change to the WIFI API. See more details [here](https://docs.aws.amazon.com/freertos/latest/lib-ref/html2/wifi/index.html).
 
 #### OTA PAL for Espressif ESP32-DevKitC
 
@@ -253,7 +261,7 @@ The MQTT library in this release, coreMQTT, supports backward compatibility with
 #### FreeRTOS+TCP V2.3.0
 
 - Added ability to cache multiple IP addresses per DNS entry.
-- Defensive security improvements: 
+- Defensive security improvements:
     - In compliance with the UDP protocol specification, prior versions of FreeRTOS+TCP accepted UDP packets that had their checksum set to 0. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS`, that enables users to opt to drop UDP packets that have their checksum set to 0. **Note:** This new setting defaults to 0, so it defaults to dropping UDP packets that have their checksum set to 0.
     - Prior versions of FreeRTOS+TCP accept IP packets that contain IP options, although those options are not processed. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS`, that enables users to opt to drop IP packets that contain IP options.
     - Setting configuration parameter, `ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM`, to 1 offloads IP checksum and length checking to the hardware. From FreeRTOS+TCP V2.3.0, the length is checked in software even when it has already been checked in hardware.
@@ -750,7 +758,7 @@ Applications calling into PKCS #11 functions directly (rather than indirectly vi
 - Bug fix to support Amazon Trust Services endpoints. For more information, please see https://aws.amazon.com/blogs/iot/aws-iot-core-ats-endpoints/.
 
 #### Secure Sockets for CC3220SF-LAUNCHXL V1.0.5
-- Remove duplicate file name definitions.  See aws_secure_sockets_config.h for file name defines.
+- Remove duplicate file name definitions.  See iot_secure_sockets_config.h for file name defines.
 
 #### Shadow V1.0.5
 - Minor bug fixes.

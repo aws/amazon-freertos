@@ -33,30 +33,41 @@
 
 /* FreeRTOS Include. */
 #include "FreeRTOS.h"
+#include "iot_logging_task.h"
 
 /* Standard Include. */
 #include <stdint.h>
-#include <string.h>
 
-/* Metadata information to prepend to every log message. */
-
-/* Macro to extract only the file name from file path to use for metadata in
- * log messages. */
-#ifdef _MSC_VER
-    #define FILENAME           ( strrchr( __FILE__, '\\' ) ? strrchr( __FILE__, '\\' ) + 1 : __FILE__ )
-#else
-    #define FILENAME           ( strrchr( __FILE__, '/' ) ? strrchr( __FILE__, '/' ) + 1 : __FILE__ )
+/**
+ * @brief This config enables extra verbosity in log messages with metadata information
+ * about the source library and location of the log message.
+ * This requires that the toolchain support C99 (for variadic macros) and the GNU
+ * extension for comma elision in variadic macros (with ##__VA_ARGS__).
+ * If this flag is enabled, you can change the metadata information from the logging_stack.h
+ * file.
+ *
+ * @note By default, this configuration is disabled by
+ */
+#ifndef LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION
+    #define LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION    0
 #endif
 
-#define LOG_METADATA_FORMAT    "[%s:%d] "
-#define LOG_METADATA_ARGS      FILENAME, __LINE__
+#if LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION == 1
 
-/* Common macro for all logging interface macros. */
-#if !defined( DISABLE_LOGGING )
-    #define SdkLog( string )    vLoggingPrintf string
-#else
-    #define SdkLog( string )
-#endif
+    #define SdkLogError( message )           SdkLogErrorC99 message
+    #define SdkLogErrorC99( format, ... )    vLoggingPrintfWithFileAndLine( __FILE__, __LINE__, "[ERROR] [%s] " format "\r\n", LIBRARY_LOG_NAME, ## __VA_ARGS__ )
+    #define SdkLogWarn( message )            SdkLogWarnC99 message
+    #define SdkLogWarnC99( format, ... )     vLoggingPrintfWithFileAndLine( __FILE__, __LINE__, "[WARN] [%s] " format "\r\n", LIBRARY_LOG_NAME, ## __VA_ARGS__ )
+    #define SdkLogInfo( message )            SdkLogInfoC99 message
+    #define SdkLogInfoC99( format, ... )     vLoggingPrintfWithFileAndLine( __FILE__, __LINE__, "[INFO] [%s] " format "\r\n", LIBRARY_LOG_NAME, ## __VA_ARGS__ )
+    #define SdkLogDebug( message )           SdkLogDebugC99 message
+    #define SdkLogDebugC99( format, ... )    vLoggingPrintfWithFileAndLine( __FILE__, __LINE__, "[DEBUG] [%s] " format "\r\n", LIBRARY_LOG_NAME, ## __VA_ARGS__ )
+#else /* if LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION == 1 */
+    #define SdkLogError( message )           vLoggingPrintfError message
+    #define SdkLogWarn( message )            vLoggingPrintfWarn message
+    #define SdkLogInfo( message )            vLoggingPrintfInfo message
+    #define SdkLogDebug( message )           vLoggingPrintfDebug message
+#endif /* if defined( LOGGING_METADATA_WITH_C99_SUPPORT ) && ( LOGGING_METADATA_WITH_C99_SUPPORT == 1 ) */
 
 /* Check that LIBRARY_LOG_LEVEL is defined and has a valid value. */
 #if !defined( LIBRARY_LOG_LEVEL ) ||       \
@@ -71,28 +82,28 @@
 #else
     #if LIBRARY_LOG_LEVEL == LOG_DEBUG
         /* All log level messages will logged. */
-        #define LogError( message )    SdkLog( ( "[ERROR] [%s] "LOG_METADATA_FORMAT, LIBRARY_LOG_NAME, LOG_METADATA_ARGS ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
-        #define LogWarn( message )     SdkLog( ( "[WARN] [%s] "LOG_METADATA_FORMAT, LIBRARY_LOG_NAME, LOG_METADATA_ARGS ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
-        #define LogInfo( message )     SdkLog( ( "[INFO] [%s] "LOG_METADATA_FORMAT, LIBRARY_LOG_NAME, LOG_METADATA_ARGS ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
-        #define LogDebug( message )    SdkLog( ( "[DEBUG] [%s] "LOG_METADATA_FORMAT, LIBRARY_LOG_NAME, LOG_METADATA_ARGS ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
+        #define LogError( message )    SdkLogError( message )
+        #define LogWarn( message )     SdkLogWarn( message )
+        #define LogInfo( message )     SdkLogInfo( message )
+        #define LogDebug( message )    SdkLogDebug( message )
 
     #elif LIBRARY_LOG_LEVEL == LOG_INFO
         /* Only INFO, WARNING and ERROR messages will be logged. */
-        #define LogError( message )    SdkLog( ( "[ERROR] [%s] "LOG_METADATA_FORMAT, LIBRARY_LOG_NAME, LOG_METADATA_ARGS ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
-        #define LogWarn( message )     SdkLog( ( "[WARN] [%s] "LOG_METADATA_FORMAT, LIBRARY_LOG_NAME, LOG_METADATA_ARGS ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
-        #define LogInfo( message )     SdkLog( ( "[INFO] [%s] "LOG_METADATA_FORMAT, LIBRARY_LOG_NAME, LOG_METADATA_ARGS ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
+        #define LogError( message )    SdkLogError( message )
+        #define LogWarn( message )     SdkLogWarn( message )
+        #define LogInfo( message )     SdkLogInfo( message )
         #define LogDebug( message )
 
     #elif LIBRARY_LOG_LEVEL == LOG_WARN
         /* Only WARNING and ERROR messages will be logged.*/
-        #define LogError( message )    SdkLog( ( "[ERROR] [%s] "LOG_METADATA_FORMAT, LIBRARY_LOG_NAME, LOG_METADATA_ARGS ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
-        #define LogWarn( message )     SdkLog( ( "[WARN] [%s] "LOG_METADATA_FORMAT, LIBRARY_LOG_NAME, LOG_METADATA_ARGS ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
+        #define LogError( message )    SdkLogError( message )
+        #define LogWarn( message )     SdkLogWarn( message )
         #define LogInfo( message )
         #define LogDebug( message )
 
     #elif LIBRARY_LOG_LEVEL == LOG_ERROR
         /* Only ERROR messages will be logged. */
-        #define LogError( message )    SdkLog( ( "[ERROR] [%s] "LOG_METADATA_FORMAT, LIBRARY_LOG_NAME, LOG_METADATA_ARGS ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
+        #define LogError( message )    SdkLogError( message )
         #define LogWarn( message )
         #define LogInfo( message )
         #define LogDebug( message )

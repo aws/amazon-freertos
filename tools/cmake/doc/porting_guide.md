@@ -419,7 +419,7 @@ ROOT_DIR
 - `FreeRTOS module`: A library from FreeRTOS, e.g., Secure Sockets, MQTT and OTA.
   Note that FreeRTOS itself is also an independent module and it's part of the kernel module. The
   configuration of each module still has to be done through their config files as of now, e.g.,
-  `FreeRTOSConfig.h`, `aws_mqtt_config.h`.
+  `FreeRTOSConfig.h`, `iot_mqtt_config.h`.
 - `Kernel`: A special FreeRTOS module that consist of FreeRTOS, portable layer and the
   optional POSIX modules. Modules within the kernel can depends on each other but not from modules
   outside the kernel. Regular modules outside kernel implicitly depend on the kernel module.

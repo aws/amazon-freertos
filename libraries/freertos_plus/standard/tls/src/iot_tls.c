@@ -797,6 +797,7 @@ BaseType_t TLS_Init( void ** ppvContext,
 BaseType_t TLS_Connect( void * pvContext )
 {
     BaseType_t xResult = 0;
+    CK_RV xPKCSResult = CKR_OK;
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
 
     /* Initialize mbedTLS structures. */
@@ -879,8 +880,15 @@ BaseType_t TLS_Connect( void * pvContext )
         /* Set issuer certificate. */
         mbedtls_ssl_conf_ca_chain( &pxCtx->xMbedSslConfig, &pxCtx->xMbedX509CA, NULL );
 
-        /* Configure the SSL context for the device credentials. */
-        xResult = prvInitializeClientCredential( pxCtx );
+        /* Configure the SSL context to contain device credentials (eg device cert
+         * and private key) obtained from the PKCS #11 layer.  The result of
+         * loading device key and certificate is placed in a separate variable
+         * (xPKCSResult instead of xResult). The reason is that we want to
+         * attempt TLS handshake, even if the device key and certificate
+         * are not loaded. This allows the TLS layer to still connect to servers
+         * that do not require mutual authentication. If the server does
+         * require mutual authentication, the handshake will fail. */
+        xPKCSResult = prvInitializeClientCredential( pxCtx );
     }
 
     if( ( 0 == xResult ) && ( NULL != pxCtx->ppcAlpnProtocols ) )
@@ -943,9 +951,25 @@ BaseType_t TLS_Connect( void * pvContext )
                  * ensure that upstream clean-up code doesn't accidentally use
                  * a context that failed the handshake. */
                 prvFreeContext( pxCtx );
-                TLS_PRINT( ( "ERROR: Handshake failed with error code %s : %s \r\n",
-                             mbedtlsHighLevelCodeOrDefault( xResult ),
-                             mbedtlsLowLevelCodeOrDefault( xResult ) ) );
+
+                if( xPKCSResult != CKR_OK )
+                {
+                    TLS_PRINT( ( "ERROR: The handshake failed and it is likely "
+                                 "due to a failure in PKCS #11. Consider enabling "
+                                 "error logging in PKCS #11 or checking if your device "
+                                 "is properly provisioned with client credentials. "
+                                 "PKCS #11 error=0x(%0X). TLS handshake error=%s : %s \r\n",
+                                 xPKCSResult,
+                                 mbedtlsHighLevelCodeOrDefault( xResult ),
+                                 mbedtlsLowLevelCodeOrDefault( xResult ) ) );
+                }
+                else
+                {
+                    TLS_PRINT( ( "ERROR: TLS handshake failed trying to connect. %s : %s \r\n",
+                                 mbedtlsHighLevelCodeOrDefault( xResult ),
+                                 mbedtlsLowLevelCodeOrDefault( xResult ) ) );
+                }
+
                 break;
             }
         }
