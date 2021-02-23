@@ -547,11 +547,18 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
 
     prvHandleToLabel( &pcLabel, xHandle );
 
-    xLabel.type = CKA_LABEL;
-    xLabel.pValue = pcLabel;
-    xLabel.ulValueLen = strlen( pcLabel );
+    if( pcLabel != NULL )
+    {
+        xLabel.type = CKA_LABEL;
+        xLabel.pValue = pcLabel;
+        xLabel.ulValueLen = strlen( pcLabel );
 
-    xResult = PKCS11_PAL_GetObjectValue( xHandle, &pxObject, &ulObjectLength, &xIsPrivate );
+        xResult = PKCS11_PAL_GetObjectValue( xHandle, &pxObject, &ulObjectLength, &xIsPrivate );
+    }   
+    else
+    {
+        xResult = CKR_OBJECT_HANDLE_INVALID;
+    }   
 
     if( xResult == CKR_OK )
     {
