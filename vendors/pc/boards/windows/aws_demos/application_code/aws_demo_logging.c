@@ -599,11 +599,11 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
             SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
             {
                 /* How much space is in the buffer? */
-                xLength2 = uxStreamBufferGetSpace( xLogStreamBuffer );
+                size_t uxSpace = uxStreamBufferGetSpace( xLogStreamBuffer );
 
                 /* There must be enough space to write both the string and the length of
                  * the string. */
-                if( xLength2 >= ( xLength + sizeof( xLength ) ) )
+                if( uxSpace >= ( xLength + sizeof( xLength ) ) )
                 {
                     uxStreamBufferAdd( xLogStreamBuffer,
                                        0,
