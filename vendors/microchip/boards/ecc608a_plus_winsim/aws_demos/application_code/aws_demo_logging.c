@@ -119,6 +119,8 @@ static void prvCreatePrintSocket( void * pvParameter1,
  * A Windows thread will finally call printf() and fflush().
  */
 static void prvLoggingPrintf( uint8_t usLoggingLevel,
+                              const char * pcFile,
+                              size_t fileLineNo,
                               BaseType_t xFormatted,
                               const char * pcFormat,
                               va_list xArgs );
@@ -361,7 +363,7 @@ void vLoggingPrintfWithFileAndLine( const char * pcFile,
     va_list args;
 
     va_start( args, pcFormat );
-    prvLoggingPrintf( LOG_NONE, pcFile, fileLineNo, pcFormat, args );
+    prvLoggingPrintf( LOG_NONE, pcFile, fileLineNo, pdTRUE, pcFormat, args );
 
     va_end( args );
 }
@@ -597,11 +599,11 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
             SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
             {
                 /* How much space is in the buffer? */
-                xLength2 = uxStreamBufferGetSpace( xLogStreamBuffer );
+                size_t uxSpace = uxStreamBufferGetSpace( xLogStreamBuffer );
 
                 /* There must be enough space to write both the string and the length of
                  * the string. */
-                if( xLength2 >= ( xLength + sizeof( xLength ) ) )
+                if( uxSpace >= ( xLength + sizeof( xLength ) ) )
                 {
                     uxStreamBufferAdd( xLogStreamBuffer,
                                        0,
