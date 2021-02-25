@@ -386,24 +386,6 @@ CK_RV PKCS11_PAL_Initialize( void )
     return CKR_OK;
 }
 
-/* PKCS #11 PAL Implementation. */
-
-/**
- * @brief Delete an object from non-volatile storage.
- *
- * @param[in] xHandle    Handle of the object to be destroyed.
- *
- * @return CKR_OK if object was successfully destroyed.
- * Otherwise, PKCS #11-style error code.
- *
- */
-#if ( pkcs11configPAL_DESTROY_SUPPORTED == 1 )
-    CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
-    {
-        ( void ) xHandle;
-        return CKR_FUNCTION_NOT_SUPPORTED;
-    }
-#endif
 
 /*-----------------------------------------------------------*/
 
@@ -428,6 +410,11 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
     char * pcFileName = NULL;
     int16_t iStatus = 0;
     SlFsFileInfo_t FsFileInfo = { 0 };
+    CK_BYTE_PTR pxZeroedData = NULL;
+    CK_BYTE_PTR pxObject = NULL;
+    CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
+    CK_ULONG ulObjectLength = sizeof( CK_BYTE );
+    CK_RV xResult = CKR_OK;
 
     /* Converts a label to its respective filename and handle. */
     prvLabelToFilenameHandle( pxLabel,
@@ -443,6 +430,19 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
     if( SL_ERROR_FS_FILE_NOT_EXISTS == iStatus )
     {
         xHandle = eInvalidHandle;
+    }
+
+    if( xHandle != eInvalidHandle )
+    {
+        xResult = PKCS11_PAL_GetObjectValue( xHandle, &pxObject, &ulObjectLength, &xIsPrivate );
+
+        /* Zeroed out object means it has been destroyed. */
+        if( ( xResult != CKR_OK ) || ( pxObject[ 0 ] == 0x00 ) )
+        {
+            xHandle = eInvalidHandle;
+        }
+
+        PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
     }
 
     return xHandle;
@@ -474,9 +474,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
  * error.
  */
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      CK_BYTE_PTR * ppucData,
-                                      CK_ULONG_PTR pulDataSize,
-                                      CK_BBOOL * pIsPrivate )
+                                 CK_BYTE_PTR * ppucData,
+                                 CK_ULONG_PTR pulDataSize,
+                                 CK_BBOOL * pIsPrivate )
 {
     CK_RV ulReturn = CKR_OK;
     int32_t iReadBytes = 0;
@@ -649,7 +649,6 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
             {
                 xHandle = eInvalidHandle;
             }
-
         }
 
         if( NULL != pcPemBuffer )
@@ -687,3 +686,95 @@ int mbedtls_hardware_poll( void * data,
 }
 
 /*-----------------------------------------------------------*/
+
+/* Converts a handle to its respective label. */
+void prvHandleToLabel( char ** pcLabel,
+                       CK_OBJECT_HANDLE xHandle )
+{
+    if( pcLabel != NULL )
+    {
+        switch( xHandle )
+        {
+            case eAwsDeviceCertificate:
+                *pcLabel = ( char * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+                break;
+
+            case eAwsDevicePrivateKey:
+                *pcLabel = ( char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+                break;
+
+            case eAwsDevicePublicKey:
+                *pcLabel = ( char * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
+                break;
+
+            case eAwsCodeSigningKey:
+                *pcLabel = ( char * ) pkcs11configLABEL_CODE_VERIFICATION_KEY;
+                break;
+
+            default:
+                *pcLabel = NULL;
+                break;
+        }
+    }
+}
+
+CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
+{
+    CK_RV xResult = CKR_OK;
+    CK_BYTE_PTR pxZeroedData = NULL;
+    CK_BYTE_PTR pxObject = NULL;
+    CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
+    CK_OBJECT_HANDLE xPalHandle2 = CK_INVALID_HANDLE;
+    CK_ULONG ulObjectLength = sizeof( CK_BYTE );
+    char * pcLabel = NULL;
+    CK_ATTRIBUTE xLabel;
+
+    prvHandleToLabel( &pcLabel, xHandle );
+
+    if( pcLabel != NULL )
+    {
+        xLabel.type = CKA_LABEL;
+        xLabel.pValue = pcLabel;
+        xLabel.ulValueLen = strlen( pcLabel );
+
+        xResult = PKCS11_PAL_GetObjectValue( xHandle, &pxObject, &ulObjectLength, &xIsPrivate );
+    }   
+    else
+    {
+        xResult = CKR_OBJECT_HANDLE_INVALID;
+    }   
+
+    if( xResult == CKR_OK )
+    {
+        /* Some ports return a pointer to memory for which using memset directly won't work. */
+        pxZeroedData = pvPortMalloc( ulObjectLength );
+
+        if( NULL != pxZeroedData )
+        {
+            /* Zero out the object. */
+            ( void ) memset( pxZeroedData, 0x0, ulObjectLength );
+
+            /* Overwrite the object in NVM with zeros. */
+            xPalHandle2 = PKCS11_PAL_SaveObject( &xLabel, pxZeroedData, ( size_t ) ulObjectLength );
+
+            if( xPalHandle2 != xHandle )
+            {
+                xResult = CKR_GENERAL_ERROR;
+            }
+
+            vPortFree( pxZeroedData );
+        }
+        else
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
+
+        PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
+    }
+    else
+    {
+        xResult = CKR_GENERAL_ERROR;
+    }
+
+    return xResult;
+}
