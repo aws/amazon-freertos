@@ -817,13 +817,13 @@ static BaseType_t prvConnectHelperWithRetry( volatile Socket_t * pxSocket,
                 xIsConnected = pdTRUE;
             }
         }
-        
+
         /* If any step failed, do cleanup. */
         if( xResult != SOCKETS_ERROR_NONE )
         {
             /* Close socket regardless of the number of retries. A new socket
              * will be created if required. */
-            SOCKETS_Close( * pxSocket );
+            SOCKETS_Close( *pxSocket );
 
             /* Mark the socket as invalid. */
             *pxSocket = SOCKETS_INVALID_SOCKET;
