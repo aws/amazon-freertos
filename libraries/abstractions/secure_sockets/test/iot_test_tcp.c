@@ -816,23 +816,34 @@ static BaseType_t prvConnectHelperWithRetry( volatile Socket_t * pxSocket,
             {
                 xIsConnected = pdTRUE;
             }
+        }
+
+        /* If any step failed, do cleanup. */
+        if( xResult != SOCKETS_ERROR_NONE )
+        {
+            /* Close socket regardless of the number of retries. A new socket
+             * will be created if required. */
+            SOCKETS_Close( *pxSocket );
+
+            /* Mark the socket as invalid. */
+            *pxSocket = SOCKETS_INVALID_SOCKET;
+
+            if( xRetry < tcptestRETRY_CONNECTION_TIMES )
+            {
+                /* Reset the result. */
+                xResult = SOCKETS_ERROR_NONE;
+                xRetry++;
+
+                /* Delay the retry. */
+                vTaskDelay( xRetryTimeoutTicks );
+
+                /* Exponentially backoff the retry times */
+                xRetryTimeoutTicks *= 2; /*Arbitrarily chose 2*/
+            }
             else
             {
-                if( xRetry < tcptestRETRY_CONNECTION_TIMES )
-                {
-                    SOCKETS_Close( *pxSocket );
-                    *pxSocket = SOCKETS_INVALID_SOCKET;
-                    xResult = SOCKETS_ERROR_NONE;
-                    xRetry++;
-                    vTaskDelay( xRetryTimeoutTicks );
-                    /* Exponentially backoff the retry times */
-                    xRetryTimeoutTicks *= 2; /*Arbitrarily chose 2*/
-                }
-                else
-                {
-                    /* Too many failures. Give up. */
-                    break;
-                }
+                /* Maximum number of retires reached. Give up. */
+                break;
             }
         }
     }
