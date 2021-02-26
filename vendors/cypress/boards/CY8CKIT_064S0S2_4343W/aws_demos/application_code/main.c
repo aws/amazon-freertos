@@ -397,6 +397,10 @@ void prvWifiConnect( void )
                 configPRINTF( ( "IP Address acquired %d.%d.%d.%d.\r\n",
                         pucIPV4Byte[ 0 ], pucIPV4Byte[ 1 ], pucIPV4Byte[ 2 ], pucIPV4Byte[ 3 ] ) );
             }
+            else
+            {
+                configPRINTF( ( "Failed to acquire IP address.\r\n" ) );
+            }
         }
         else
         {
