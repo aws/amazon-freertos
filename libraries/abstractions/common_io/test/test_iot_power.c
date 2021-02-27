@@ -145,7 +145,7 @@ static void prvIotPowerCallback( bool bIdleState,
 {
     BaseType_t xHigherPriorityTaskWoken;
     IotPowerIdleMode_t xIdleModeEntered;
-    int lRetVal;
+    int8_t lRetVal;
 
     if( bIdleState == true )
     {
@@ -777,6 +777,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_PCWakeThresholdTest )
     uint8_t ucGetWakeupSources[ testIotPOWER_MAX_WAKEUP_SOURCES ] = { 0 };
     uint32_t ulMilliSeconds;
     int32_t lRetVal;
+    int8_t i;
 
     /* Open Power handle */
     xPowerHandle = iot_power_open();
@@ -831,7 +832,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_PCWakeThresholdTest )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
-        for( int i = 0; i < ustestIotPowerWakeupSourcesLength; i++ )
+        for( i = 0; i < ustestIotPowerWakeupSourcesLength; i++ )
         {
             if( ucGetWakeupSources[ i ] != puctestIotPowerWakeupSources[ i ] )
             {
@@ -910,6 +911,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ClkSrcOffWakeThresholdTest )
     uint8_t ucGetWakeupSources[ testIotPOWER_MAX_WAKEUP_SOURCES ] = { 0 };
     uint32_t ulMilliSeconds;
     int32_t lRetVal;
+    int8_t i;
 
     /* Open Power handle */
     xPowerHandle = iot_power_open();
@@ -974,7 +976,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ClkSrcOffWakeThresholdTest )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
-        for( int i = 0; i < ustestIotPowerWakeupSourcesLength; i++ )
+        for( i = 0; i < ustestIotPowerWakeupSourcesLength; i++ )
         {
             if( ucGetWakeupSources[ i ] != puctestIotPowerWakeupSources[ i ] )
             {

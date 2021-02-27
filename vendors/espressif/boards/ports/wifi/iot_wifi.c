@@ -477,7 +477,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
 
         ret = esp_wifi_get_mode( &xCurMode );
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
+            ESP_LOGE(TAG, "%s: Failed to get wifi mode %d", __func__, ret);
             xSemaphoreGive( xWiFiSem );
         	return eWiFiFailure;
         }
