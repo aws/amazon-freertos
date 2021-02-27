@@ -26,9 +26,14 @@
 /* Standard includes. */
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
-/* Demo config. */
-#include "defender_demo_config.h"
+/* Kernel includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+
+/* Device Defender Client Library. */
+#include "defender.h"
 
 /* Interface include. */
 #include "report_builder.h"
@@ -44,53 +49,68 @@
 /* Formats used to generate the JSON report. */
 #define JSON_PORT_OBJECT_FORMAT \
     "{"                         \
-    "\"port\": %u"              \
+    "\"%s\": %u"                \
     "},"
 
-#define JSON_CONNECTION_OBJECT_FORMAT     \
-    "{"                                   \
-    "\"local_port\": %u,"                 \
-    "\"remote_addr\": \"%u.%u.%u.%u:%u\"" \
+#define JSON_CONNECTION_OBJECT_FORMAT \
+    "{"                               \
+    "\"%s\": %u,"                     \
+    "\"%s\": \"%u.%u.%u.%u:%u\""      \
     "},"
 
 #define JSON_REPORT_FORMAT_PART1 \
     "{"                          \
-    "\"header\": {"              \
-    "\"report_id\": %u,"         \
-    "\"version\": \"%u.%u\""     \
+    "\"%s\": {"                  \
+    "\"%s\": %u,"                \
+    "\"%s\": \"%u.%u\""          \
     "},"                         \
-    "\"metrics\": {"             \
-    "\"listening_tcp_ports\": {" \
-    "\"ports\": "
+    "\"%s\": {"                  \
+    "\"%s\": {"                  \
+    "\"%s\": "
 
 #define JSON_REPORT_FORMAT_PART2 \
     ","                          \
-    "\"total\": %u"              \
+    "\"%s\": %u"                 \
     "},"                         \
-    "\"listening_udp_ports\": {" \
-    "\"ports\": "
+    "\"%s\": {"                  \
+    "\"%s\": "
 
-#define JSON_REPORT_FORMAT_PART3     \
-    ","                              \
-    "\"total\": %u"                  \
-    "},"                             \
-    "\"network_stats\": {"           \
-    "\"bytes_in\": %u,"              \
-    "\"bytes_out\": %u,"             \
-    "\"packets_in\": %u,"            \
-    "\"packets_out\": %u"            \
-    "},"                             \
-    "\"tcp_connections\": {"         \
-    "\"established_connections\": {" \
-    "\"connections\": "
-
-#define JSON_REPORT_FORMAT_PART4 \
+#define JSON_REPORT_FORMAT_PART3 \
     ","                          \
-    "\"total\": %u"              \
+    "\"%s\": %u"                 \
+    "},"                         \
+    "\"%s\": {"                  \
+    "\"%s\": %u,"                \
+    "\"%s\": %u,"                \
+    "\"%s\": %u,"                \
+    "\"%s\": %u"                 \
+    "},"                         \
+    "\"%s\": {"                  \
+    "\"%s\": {"                  \
+    "\"%s\": "
+
+#define JSON_REPORT_FORMAT_PART4   \
+    ","                            \
+    "\"%s\": %u"                   \
+    "}"                            \
+    "}"                            \
+    "},"                           \
+    "\"%s\": {"                    \
+    "\"stack_high_water_mark\": [" \
+    "{"                            \
+    "\"%s\": %u"                   \
+    "}"                            \
+    "],"                           \
+    "\"task_numbers\": ["          \
+    "{"                            \
+    "\"%s\": "
+
+#define JSON_REPORT_FORMAT_PART5 \
     "}"                          \
-    "}"                          \
+    "]"                          \
     "}"                          \
     "}"
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -152,6 +172,24 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
                                                     const Connection_t * pConnectionsArray,
                                                     uint32_t connectionsArrayLength,
                                                     uint32_t * pOutCharsWritten );
+
+/**
+ * @brief Write task ids array to the given buffer as a JSON array.
+ *
+ * @param[in] pBuffer The buffer to write the connections array.
+ * @param[in] bufferLength The length of the buffer.
+ * @param[in] pTaskIdsArray The array containing the task ids.
+ * @param[in] pTaskIdsArrayLength Length of the pTaskIdsArray array.
+ * @param[out] pOutCharsWritten Number of characters written to the buffer.
+ *
+ * @return #ReportBuilderSuccess if the array is successfully written;
+ * #ReportBuilderBufferTooSmall if the buffer cannot hold the full array.
+ */
+static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
+                                                uint32_t bufferLength,
+                                                const uint32_t * pTaskIdsArray,
+                                                uint32_t pTaskIdsArrayLength,
+                                                uint32_t * pOutCharsWritten );
 /*-----------------------------------------------------------*/
 
 static ReportBuilderStatus_t writePortsArray( char * pBuffer,
@@ -162,8 +200,12 @@ static ReportBuilderStatus_t writePortsArray( char * pBuffer,
 {
     char * pCurrentWritePos = pBuffer;
     uint32_t i, remainingBufferLength = bufferLength;
-    int charactersWritten;
+    int32_t charactersWritten;
     ReportBuilderStatus_t status = ReportBuilderSuccess;
+
+    configASSERT( pBuffer != NULL );
+    configASSERT( pOpenPortsArray != NULL );
+    configASSERT( pOutCharsWritten != NULL );
 
     /* Write the JSON array open marker. */
     if( remainingBufferLength > 1 )
@@ -183,6 +225,7 @@ static ReportBuilderStatus_t writePortsArray( char * pBuffer,
         charactersWritten = snprintf( pCurrentWritePos,
                                       remainingBufferLength,
                                       JSON_PORT_OBJECT_FORMAT,
+                                      DEFENDER_REPORT_PORT_KEY,
                                       pOpenPortsArray[ i ] );
 
         if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
@@ -236,9 +279,13 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
 {
     char * pCurrentWritePos = pBuffer;
     uint32_t i, remainingBufferLength = bufferLength;
-    int charactersWritten;
+    int32_t charactersWritten;
     ReportBuilderStatus_t status = ReportBuilderSuccess;
     const Connection_t * pConn;
+
+    configASSERT( pBuffer != NULL );
+    configASSERT( pConnectionsArray != NULL );
+    configASSERT( pOutCharsWritten != NULL );
 
     /* Write the JSON array open marker. */
     if( remainingBufferLength > 1 )
@@ -259,7 +306,9 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
         charactersWritten = snprintf( pCurrentWritePos,
                                       remainingBufferLength,
                                       JSON_CONNECTION_OBJECT_FORMAT,
+                                      DEFENDER_REPORT_LOCAL_PORT_KEY,
                                       pConn->localPort,
+                                      DEFENDER_REPORT_REMOTE_ADDR_KEY,
                                       ( pConn->remoteIp >> 24 ) & 0xFF,
                                       ( pConn->remoteIp >> 16 ) & 0xFF,
                                       ( pConn->remoteIp >> 8 ) & 0xFF,
@@ -309,30 +358,113 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
 }
 /*-----------------------------------------------------------*/
 
+static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
+                                                uint32_t bufferLength,
+                                                const uint32_t * pTaskIdsArray,
+                                                uint32_t pTaskIdsArrayLength,
+                                                uint32_t * pOutCharsWritten )
+{
+    char * pCurrentWritePos = pBuffer;
+    uint32_t i, remainingBufferLength = bufferLength;
+    int32_t charactersWritten;
+    ReportBuilderStatus_t status = ReportBuilderSuccess;
+
+    configASSERT( pBuffer != NULL );
+    configASSERT( pTaskIdsArray != NULL );
+    configASSERT( pOutCharsWritten != NULL );
+
+    /* Write the JSON array open marker. */
+    if( remainingBufferLength > 1 )
+    {
+        *pCurrentWritePos = JSON_ARRAY_OPEN_MARKER;
+        remainingBufferLength -= 1;
+        pCurrentWritePos += 1;
+    }
+    else
+    {
+        status = ReportBuilderBufferTooSmall;
+    }
+
+    /* Write the array elements. */
+    for( i = 0; ( ( i < pTaskIdsArrayLength ) && ( status == ReportBuilderSuccess ) ); i++ )
+    {
+        charactersWritten = snprintf( pCurrentWritePos,
+                                      remainingBufferLength,
+                                      "%u,",
+                                      pTaskIdsArray[ i ] );
+
+        if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
+        {
+            status = ReportBuilderBufferTooSmall;
+            break;
+        }
+        else
+        {
+            remainingBufferLength -= ( uint32_t ) charactersWritten;
+            pCurrentWritePos += charactersWritten;
+        }
+    }
+
+    if( status == ReportBuilderSuccess )
+    {
+        /* Discard the last comma. */
+        if( pTaskIdsArrayLength > 0 )
+        {
+            pCurrentWritePos -= 1;
+            remainingBufferLength += 1;
+        }
+
+        /* Write the JSON array close marker. */
+        if( remainingBufferLength > 1 )
+        {
+            *pCurrentWritePos = JSON_ARRAY_CLOSE_MARKER;
+            remainingBufferLength -= 1;
+            pCurrentWritePos += 1;
+        }
+        else
+        {
+            status = ReportBuilderBufferTooSmall;
+        }
+    }
+
+    if( status == ReportBuilderSuccess )
+    {
+        *pOutCharsWritten = bufferLength - remainingBufferLength;
+    }
+
+    return status;
+}
+/*-----------------------------------------------------------*/
+
 ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
                                           uint32_t bufferLength,
                                           const ReportMetrics_t * pMetrics,
                                           uint32_t majorReportVersion,
                                           uint32_t minorReportVersion,
                                           uint32_t reportId,
-                                          uint32_t * pOutReprotLength )
+                                          uint32_t * pOutReportLength )
 {
     char * pCurrentWritePos = pBuffer;
     uint32_t remainingBufferLength = bufferLength, bufferWritten;
     ReportBuilderStatus_t status = ReportBuilderSuccess;
-    int charactersWritten;
+    int32_t charactersWritten;
+
+    configASSERT( pBuffer != NULL );
+    configASSERT( pMetrics != NULL );
+    configASSERT( pOutReportLength != NULL );
+    configASSERT( bufferLength != 0 );
 
     if( ( pBuffer == NULL ) ||
         ( bufferLength == 0 ) ||
         ( pMetrics == NULL ) ||
-        ( pOutReprotLength == NULL ) )
+        ( pOutReportLength == NULL ) )
     {
         LogError( ( "Invalid parameters. pBuffer: %p, bufferLength: %u"
                     " pMetrics: %p, pOutReprotLength: %p.",
                     pBuffer,
                     bufferLength,
                     pMetrics,
-                    pOutReprotLength ) );
+                    pOutReportLength ) );
         status = ReportBuilderBadParameter;
     }
 
@@ -342,9 +474,16 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
         charactersWritten = snprintf( pCurrentWritePos,
                                       remainingBufferLength,
                                       JSON_REPORT_FORMAT_PART1,
+                                      DEFENDER_REPORT_HEADER_KEY,
+                                      DEFENDER_REPORT_ID_KEY,
                                       reportId,
+                                      DEFENDER_REPORT_VERSION_KEY,
                                       majorReportVersion,
-                                      minorReportVersion );
+                                      minorReportVersion,
+                                      DEFENDER_REPORT_METRICS_KEY,
+                                      DEFENDER_REPORT_TCP_LISTENING_PORTS_KEY,
+                                      DEFENDER_REPORT_PORTS_KEY
+                                      );
 
         if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
         {
@@ -384,7 +523,11 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
         charactersWritten = snprintf( pCurrentWritePos,
                                       remainingBufferLength,
                                       JSON_REPORT_FORMAT_PART2,
-                                      pMetrics->openTcpPortsArrayLength );
+                                      DEFENDER_REPORT_TOTAL_KEY,
+                                      pMetrics->openTcpPortsArrayLength,
+                                      DEFENDER_REPORT_UDP_LISTENING_PORTS_KEY,
+                                      DEFENDER_REPORT_PORTS_KEY
+                                      );
 
         if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
         {
@@ -424,11 +567,21 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
         charactersWritten = snprintf( pCurrentWritePos,
                                       remainingBufferLength,
                                       JSON_REPORT_FORMAT_PART3,
+                                      DEFENDER_REPORT_TOTAL_KEY,
                                       pMetrics->openUdpPortsArrayLength,
+                                      DEFENDER_REPORT_NETWORK_STATS_KEY,
+                                      DEFENDER_REPORT_BYTES_IN_KEY,
                                       pMetrics->pNetworkStats->bytesReceived,
+                                      DEFENDER_REPORT_BYTES_OUT_KEY,
                                       pMetrics->pNetworkStats->bytesSent,
+                                      DEFENDER_REPORT_PKTS_IN_KEY,
                                       pMetrics->pNetworkStats->packetsReceived,
-                                      pMetrics->pNetworkStats->packetsSent );
+                                      DEFENDER_REPORT_PKTS_OUT_KEY,
+                                      pMetrics->pNetworkStats->packetsSent,
+                                      DEFENDER_REPORT_TCP_CONNECTIONS_KEY,
+                                      DEFENDER_REPORT_ESTABLISHED_CONNECTIONS_KEY,
+                                      DEFENDER_REPORT_CONNECTIONS_KEY
+                                      );
 
         if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
         {
@@ -468,7 +621,13 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
         charactersWritten = snprintf( pCurrentWritePos,
                                       remainingBufferLength,
                                       JSON_REPORT_FORMAT_PART4,
-                                      pMetrics->establishedConnectionsArrayLength );
+                                      DEFENDER_REPORT_TOTAL_KEY,
+                                      pMetrics->establishedConnectionsArrayLength,
+                                      DEFENDER_REPORT_CUSTOM_METRICS_KEY,
+                                      DEFENDER_REPORT_NUMBER_KEY,
+                                      pMetrics->stackHighWaterMark,
+                                      DEFENDER_REPORT_NUMBER_LIST_KEY
+                                      );
 
         if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
         {
@@ -482,9 +641,48 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
         }
     }
 
+    /* Write task ids array. */
     if( status == ReportBuilderSuccess )
     {
-        *pOutReprotLength = bufferLength - remainingBufferLength;
+        status = writeTaskIdsArray( pCurrentWritePos,
+                                    remainingBufferLength,
+                                    pMetrics->pTaskIdsArray,
+                                    pMetrics->taskIdsArrayLength,
+                                    &( bufferWritten ) );
+
+        if( status == ReportBuilderSuccess )
+        {
+            pCurrentWritePos += bufferWritten;
+            remainingBufferLength -= bufferWritten;
+        }
+        else
+        {
+            LogError( ( "Failed to write task ids array." ) );
+        }
+    }
+
+    /* Write part5. */
+    if( status == ReportBuilderSuccess )
+    {
+        charactersWritten = snprintf( pCurrentWritePos,
+                                      remainingBufferLength,
+                                      JSON_REPORT_FORMAT_PART5 );
+
+        if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
+        {
+            LogError( ( "Failed to write part 5." ) );
+            status = ReportBuilderBufferTooSmall;
+        }
+        else
+        {
+            remainingBufferLength -= charactersWritten;
+            pCurrentWritePos += charactersWritten;
+        }
+    }
+
+    if( status == ReportBuilderSuccess )
+    {
+        *pOutReportLength = bufferLength - remainingBufferLength;
     }
 
     return status;

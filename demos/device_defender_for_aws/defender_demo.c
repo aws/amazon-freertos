@@ -77,6 +77,13 @@
 #define DELAY_BETWEEEN_DEMO_ATTEMPTS_TICKS    ( pdMS_TO_TICKS( 5000U ) )
 
 /**
+ * @brief Size of the task numbers array.
+ *
+ * This must be at least the number of tasks used.
+ */
+#define CUSTOM_METRICS_TASKS_ARRAY_SIZE       10
+
+/**
  * @brief Status values of the device defender report.
  */
 typedef enum
@@ -143,6 +150,17 @@ static uint16_t openUdpPorts[ OPEN_UDP_PORTS_ARRAY_SIZE ];
  * @brief Established connections array.
  */
 static Connection_t establishedConnections[ ESTABLISHED_CONNECTIONS_ARRAY_SIZE ];
+
+/**
+ * @brief Task status array which will store status information of tasks
+ * running in the system, which is used to generate custom metrics.
+ */
+static TaskStatus_t pTaskList[ CUSTOM_METRICS_TASKS_ARRAY_SIZE ];
+
+/**
+ * @brief Task numbers custom metric array.
+ */
+static uint32_t pCustomMetricsTaskNumbers[ CUSTOM_METRICS_TASKS_ARRAY_SIZE ];
 
 /**
  * @brief All the metrics sent in the device defender report.
@@ -374,7 +392,9 @@ static BaseType_t collectDeviceMetrics( void )
 {
     BaseType_t status = pdFAIL;
     MetricsCollectorStatus_t metricsCollectorStatus;
-    uint32_t numOpenTcpPorts, numOpenUdpPorts, numEstablishedConnections;
+    uint32_t numOpenTcpPorts, numOpenUdpPorts, numEstablishedConnections, i;
+    UBaseType_t tasksWritten = { 0 };
+    TaskStatus_t pTaskStatus = { 0 };
 
     /* Collect bytes and packets sent and received. */
     metricsCollectorStatus = GetNetworkStats( &( networkStats ) );
@@ -427,6 +447,36 @@ static BaseType_t collectDeviceMetrics( void )
         }
     }
 
+    /* Collect custom metrics. This demo sends this tasks stack high water mark
+     * as a number type custom metric and the current task ids as a list of
+     * numbers type custom metric. */
+    if( metricsCollectorStatus == MetricsCollectorSuccess )
+    {
+        vTaskGetInfo(
+            /* Query this task. */
+            NULL,
+            &pTaskStatus,
+            /* Include the stack high water mark value. */
+            pdTRUE,
+            /* Don't include the task state in the TaskStatus_t structure. */
+            0 );
+        tasksWritten = uxTaskGetSystemState( pTaskList, CUSTOM_METRICS_TASKS_ARRAY_SIZE, NULL );
+
+        if( tasksWritten == 0 )
+        {
+            metricsCollectorStatus = MetricsCollectorCollectionFailed;
+            LogError( ( "Failed to collect system state. uxTaskGetSystemState() failed due to insufficient buffer space.",
+                        metricsCollectorStatus ) );
+        }
+        else
+        {
+            for( i = 0; i < tasksWritten; i++ )
+            {
+                pCustomMetricsTaskNumbers[ i ] = pTaskList[ i ].xTaskNumber;
+            }
+        }
+    }
+
     /* Populate device metrics. */
     if( metricsCollectorStatus == MetricsCollectorSuccess )
     {
@@ -438,6 +488,9 @@ static BaseType_t collectDeviceMetrics( void )
         deviceMetrics.openUdpPortsArrayLength = numOpenUdpPorts;
         deviceMetrics.pEstablishedConnectionsArray = &( establishedConnections[ 0 ] );
         deviceMetrics.establishedConnectionsArrayLength = numEstablishedConnections;
+        deviceMetrics.stackHighWaterMark = pTaskStatus.usStackHighWaterMark;
+        deviceMetrics.pTaskIdsArray = pCustomMetricsTaskNumbers;
+        deviceMetrics.taskIdsArrayLength = tasksWritten;
     }
 
     return status;

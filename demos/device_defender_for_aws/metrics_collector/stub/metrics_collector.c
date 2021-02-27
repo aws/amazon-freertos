@@ -74,9 +74,6 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
 
     if( status == MetricsCollectorSuccess )
     {
-        /* Initialize everything to zero. */
-        memset( pOutNetworkStats, 0, sizeof( NetworkStats_t ) );
-
         /* Take a look at the comments at the top of this file. */
         LogError( ( "Using stub definition of GetNetworkStats! "
                     "Please implement for your network stack to get correct metrics." ) );
