@@ -81,7 +81,7 @@
  *
  * This must be at least the number of tasks used.
  */
-#define CUSTOM_METRICS_TASKS_ARRAY_SIZE       10
+#define CUSTOM_METRICS_TASKS_ARRAY_SIZE       20
 
 /**
  * @brief Status values of the device defender report.
