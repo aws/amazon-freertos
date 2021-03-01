@@ -119,6 +119,8 @@ static void prvCreatePrintSocket( void * pvParameter1,
  * A Windows thread will finally call printf() and fflush().
  */
 static void prvLoggingPrintf( uint8_t usLoggingLevel,
+                              const char * pcFile,
+                              size_t fileLineNo,
                               BaseType_t xFormatted,
                               const char * pcFormat,
                               va_list xArgs );
@@ -332,6 +334,8 @@ void vLoggingPrintfInfo( const char * pcFormat,
 
     va_start( args, pcFormat );
     prvLoggingPrintf( LOG_INFO, NULL, 0, pdTRUE, pcFormat, args );
+
+    va_end( args );
 }
 
 /*-----------------------------------------------------------*/
@@ -346,6 +350,7 @@ void vLoggingPrintfDebug( const char * pcFormat,
 
     va_end( args );
 }
+
 /*-----------------------------------------------------------*/
 
 void vLoggingPrintfWithFileAndLine( const char * pcFile,
@@ -358,7 +363,7 @@ void vLoggingPrintfWithFileAndLine( const char * pcFile,
     va_list args;
 
     va_start( args, pcFormat );
-    prvLoggingPrintf( LOG_NONE, pcFile, fileLineNo, pcFormat, args );
+    prvLoggingPrintf( LOG_NONE, pcFile, fileLineNo, pdTRUE, pcFormat, args );
 
     va_end( args );
 }
@@ -376,7 +381,7 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
     char cOutputString[ dlMAX_PRINT_STRING_LENGTH ];
     char * pcSource, * pcTarget, * pcBegin;
     size_t xLength, rc;
-    size_t xLength2 = 0;
+    size_t xLength2;
     static BaseType_t xMessageNumber = 0;
     uint32_t ulIPAddress;
     const char * pcTaskName;
@@ -474,6 +479,13 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
                                   dlMAX_PRINT_STRING_LENGTH - xLength,
                                   pcFormat,
                                   xArgs );
+        }
+        else
+        {
+            xLength2 = snprintf( cPrintString + xLength,
+                                 dlMAX_PRINT_STRING_LENGTH - xLength,
+                                 "%s",
+                                 pcFormat );
         }
 
         if( xLength2 < 0 )
@@ -577,31 +589,37 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
         {
             configASSERT( xLogStreamBuffer );
 
-            /* How much space is in the buffer? */
-            xLength2 = uxStreamBufferGetSpace( xLogStreamBuffer );
-
-            /* There must be enough space to write both the string and the length of
-             * the string. */
-            if( xLength2 >= ( xLength + sizeof( xLength ) ) )
+            /* First write in the length of the data, then write in the data
+             * itself.  Raising the thread priority is used as a critical section
+             * as there are potentially multiple writers.  The stream buffer is
+             * only thread safe when there is a single writer (likewise for
+             * reading from the buffer). */
+            xCurrentTask = GetCurrentThread();
+            iOriginalPriority = GetThreadPriority( xCurrentTask );
+            SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
             {
-                /* First write in the length of the data, then write in the data
-                 * itself.  Raising the thread priority is used as a critical section
-                 * as there are potentially multiple writers.  The stream buffer is
-                 * only thread safe when there is a single writer (likewise for
-                 * reading from the buffer). */
-                xCurrentTask = GetCurrentThread();
-                iOriginalPriority = GetThreadPriority( xCurrentTask );
-                SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
-                uxStreamBufferAdd( xLogStreamBuffer,
-                                   0,
-                                   ( const uint8_t * ) &( xLength ),
-                                   sizeof( xLength ) );
-                uxStreamBufferAdd( xLogStreamBuffer,
-                                   0,
-                                   ( const uint8_t * ) cOutputString,
-                                   xLength );
-                SetThreadPriority( GetCurrentThread(), iOriginalPriority );
+                /* How much space is in the buffer? */
+                size_t uxSpace = uxStreamBufferGetSpace( xLogStreamBuffer );
+
+                /* There must be enough space to write both the string and the length of
+                 * the string. */
+                if( uxSpace >= ( xLength + sizeof( xLength ) ) )
+                {
+                    uxStreamBufferAdd( xLogStreamBuffer,
+                                       0,
+                                       ( const uint8_t * ) &( xLength ),
+                                       sizeof( xLength ) );
+                    uxStreamBufferAdd( xLogStreamBuffer,
+                                       0,
+                                       ( const uint8_t * ) cOutputString,
+                                       xLength );
+                }
+                else
+                {
+                    /* Log line will be dropped, bad luck. */
+                }
             }
+            SetThreadPriority( GetCurrentThread(), iOriginalPriority );
 
             /* xDirectPrint is initialised to pdTRUE, and while it remains true the
              * logging output function is called directly.  When the system is running

@@ -935,12 +935,14 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncAssisted )
     uint8_t writeVal[ 16 ] = { uctestIotI2CDeviceRegister };
     char cMsg[ testIotI2C_MESSAGE_LENGTH ] = { 0 };
     size_t msgOffset = 0;
+    int8_t i;
+    size_t len;
 
     /* Generate bytes to write randomly */
     srand( xTaskGetTickCount() );
 
     /* Create a string with write bytes and print it to console later */
-    for( int i = 1, len = sizeof( writeVal ); i < len; i++ )
+    for( i = 1, len = sizeof( writeVal ); i < len; i++ )
     {
         writeVal[ i ] = ( uint8_t ) rand();
     }
@@ -1312,12 +1314,14 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteSyncAssisted )
     uint8_t writeVal[ 16 ] = { uctestIotI2CDeviceRegister };
     char cMsg[ testIotI2C_MESSAGE_LENGTH ] = { 0 };
     size_t msgOffset = 0;
+    int8_t i;
+    size_t len;
 
     /* Generate bytes to write randomly */
     srand( xTaskGetTickCount() );
 
     /* Create a string with write bytes and print it to console later */
-    for( int i = 1, len = sizeof( writeVal ); i < len; i++ )
+    for( i = 1, len = sizeof( writeVal ); i < len; i++ )
     {
         writeVal[ i ] = ( uint8_t ) rand();
     }
