@@ -830,11 +830,13 @@ BaseType_t TLS_Connect( void * pvContext )
             xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509CA,
                                               ( const unsigned char * ) tlsATS1_ROOT_CERTIFICATE_PEM,
                                               tlsATS1_ROOT_CERTIFICATE_LENGTH );
+
             if( 0 == xResult )
             {
                 xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509CA,
                                                   ( const unsigned char * ) tlsATS3_ROOT_CERTIFICATE_PEM,
-                                                  tlsATS3_ROOT_CERTIFICATE_PEM );
+                                                  tlsATS3_ROOT_CERTIFICATE_LENGTH );
+
                 if( 0 == xResult )
                 {
                     xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509CA,
@@ -906,7 +908,6 @@ BaseType_t TLS_Connect( void * pvContext )
     }
 
     #ifdef MBEDTLS_DEBUG_C
-
         /* If mbedTLS is being compiled with debug support, assume that the
          * runtime configuration should use verbose output. */
         mbedtls_ssl_conf_dbg( &pxCtx->xMbedSslConfig, prvTlsDebugPrint, NULL );
