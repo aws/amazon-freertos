@@ -553,8 +553,8 @@ TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_
     int32_t transportSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
     SecureSocketsTransportParams_t * pSecureSocketsTransportParams = NULL;
 
-    if( ( pNetworkContext != NULL ) &&
-        ( pNetworkContext->pParams != NULL ) )
+    if( ( pNetworkContext == NULL ) &&
+        ( pNetworkContext->pParams == NULL ) )
     {
         LogError( ( "Failed to close connection: pTransportInterface is NULL." ) );
         returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
