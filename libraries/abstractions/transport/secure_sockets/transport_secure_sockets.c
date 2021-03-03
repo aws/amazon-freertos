@@ -549,12 +549,17 @@ TransportSocketStatus_t SecureSocketsTransport_Connect( NetworkContext_t * pNetw
 
 TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkContext )
 {
-    TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
+    TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     int32_t transportSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
     SecureSocketsTransportParams_t * pSecureSocketsTransportParams = NULL;
 
     if( ( pNetworkContext != NULL ) &&
         ( pNetworkContext->pParams != NULL ) )
+    {
+        LogError( ( "Failed to close connection: pTransportInterface is NULL." ) );
+        returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
+    }
+    else
     {
         pSecureSocketsTransportParams = pNetworkContext->pParams;
         /* Call Secure Sockets shutdown function to close connection. */
@@ -565,25 +570,15 @@ TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_
             LogError( ( "Failed to close connection: SOCKETS_Shutdown call failed. %d", transportSocketStatus ) );
             returnStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
         }
-        else
-        {
-            /* Call Secure Sockets close function to close socket. */
-            transportSocketStatus = SOCKETS_Close( pSecureSocketsTransportParams->tcpSocket );
 
-            if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
-            {
-                LogError( ( "Failed to close connection: SOCKETS_Close call failed. transportSocketStatus %d", transportSocketStatus ) );
-                returnStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
-            }
-            else
-            {
-                returnStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
-            }
+        /* Call Secure Sockets close function to close socket. */
+        transportSocketStatus = SOCKETS_Close( pSecureSocketsTransportParams->tcpSocket );
+
+        if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        {
+            LogError( ( "Failed to close connection: SOCKETS_Close call failed. transportSocketStatus %d", transportSocketStatus ) );
+            returnStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
         }
-    }
-    else
-    {
-        LogError( ( "Failed to close connection: pTransportInterface is NULL." ) );
     }
 
     return returnStatus;
