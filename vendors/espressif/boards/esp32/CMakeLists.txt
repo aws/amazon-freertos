@@ -319,7 +319,7 @@ endif()
 target_include_directories(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${esp_idf_dir}/components/soc/soc/include"
+        "${esp_idf_dir}/components/soc/soc/include" 
 )
 
 if(AFR_ESP_FREERTOS_TCP)
@@ -424,6 +424,11 @@ target_include_directories(
     INTERFACE
         "${afr_ports_dir}/ota_pal_for_aws"
         "${afr_ports_dir}/ota"
+)
+target_include_directories(
+    AFR::ota::mcu_port
+    INTERFACE
+        "${esp_idf_dir}/components/soc/soc/include"
 )
 target_link_libraries(
     AFR::ota::mcu_port
