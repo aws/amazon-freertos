@@ -356,14 +356,15 @@ afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
     INTERFACE
-        "${afr_ports_dir}/ota/aws_ota_pal.c"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
         "${afr_ports_dir}/ota/aws_esp_ota_ops.c"
         "${afr_ports_dir}/ota/aws_esp_ota_ops.h"
 )
 target_include_directories(
     AFR::ota::mcu_port
     INTERFACE
-        "${esp_idf_dir}/components/soc/soc/include"
+        "${afr_ports_dir}/ota_pal_for_aws"
+        "${afr_ports_dir}/ota"
 )
 target_link_libraries(
     AFR::ota::mcu_port

@@ -107,3 +107,6 @@
 [submodule "vendors/cypress/MTB/libraries/lpa"]
 	path = vendors/cypress/MTB/libraries/lpa
 	url = https://github.com/cypresssemiconductorco/lpa.git
+[submodule "libraries/ota_for_aws"]
+	path = libraries/ota_for_aws
+	url = https://github.com/aws/ota-for-aws-iot-embedded-sdk.git
