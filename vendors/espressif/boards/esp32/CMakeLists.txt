@@ -439,26 +439,26 @@ endif()
 #         AFR::ota_http
 # )
 
-afr_mcu_port(ota_lts)
+afr_mcu_port(ota)
 target_sources(
-    AFR::ota_lts::mcu_port
+    AFR::ota::mcu_port
     INTERFACE
         "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
         "${afr_ports_dir}/ota_pal_for_aws/aws_esp_ota_ops.c"
         "${afr_ports_dir}/ota_pal_for_aws/aws_esp_ota_ops.h"
 )
 target_include_directories(
-    AFR::ota_lts::mcu_port
+    AFR::ota::mcu_port
     INTERFACE
         "${afr_ports_dir}/ota_pal_for_aws"
 )
 target_include_directories(
-    AFR::ota_lts::mcu_port
+    AFR::ota::mcu_port
     INTERFACE
         "${esp_idf_dir}/components/soc/soc/include"
 )
 target_link_libraries(
-    AFR::ota_lts::mcu_port
+    AFR::ota::mcu_port
     INTERFACE
         AFR::crypto
         AFR::pkcs11

@@ -85,7 +85,7 @@ afr_module_dependencies(
         AFR::core_mqtt_demo_dependencies
         AFR::core_http_demo_dependencies
         AFR::backoff_algorithm
-        AFR::ota_lts::mcu_port
+        AFR::ota::mcu_port
 )
 
 # Add dependency on PKCS11 Helpers module, that is required

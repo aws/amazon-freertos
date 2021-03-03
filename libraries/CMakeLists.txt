@@ -50,6 +50,10 @@ afr_module_include_dirs(
 # Add other modules.
 file(GLOB afr_modules_csdk "${AFR_MODULES_DIR}/c_sdk/*/*")
 file(GLOB afr_modules_freertos_plus "${AFR_MODULES_DIR}/freertos_plus/*/*")
+
+# Remove pre-lts OTA library.
+list(REMOVE_ITEM afr_modules_freertos_plus "${AFR_MODULES_DIR}/freertos_plus/aws/ota")
+
 file(GLOB afr_modules_abstractions "${AFR_MODULES_DIR}/abstractions/*")
 file(GLOB afr_modules_logging "${AFR_MODULES_DIR}/logging")
 foreach(module IN LISTS afr_modules_csdk afr_modules_freertos_plus afr_modules_abstractions afr_modules_logging)
