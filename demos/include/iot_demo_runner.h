@@ -108,15 +108,25 @@
     #endif
 #elif defined( CONFIG_POSIX_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              vStartPOSIXDemo
-#elif defined( CONFIG_OTA_UPDATE_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              vStartOTAUpdateDemoTask
-    #if defined( democonfigOTA_UPDATE_TASK_STACK_SIZE )
+#elif defined( CONFIG_OTA_MQTT_UPDATE_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunOtaCoreMqttDemo
+    #if defined( democonfigOTA_DEMO_TASK_STACK_SIZE )
         #undef democonfigDEMO_STACKSIZE
-        #define democonfigDEMO_STACKSIZE    democonfigOTA_UPDATE_TASK_STACK_SIZE
+        #define democonfigDEMO_STACKSIZE    democonfigOTA_DEMO_TASK_STACK_SIZE
     #endif
-    #if defined( democonfigOTA_UPDATE_TASK_TASK_PRIORITY )
+    #if defined( democonfigOTA_DEMO_TASK_PRIORITY )
+        #undef democonfigDEMO_PRIORITYxs
+        #define democonfigDEMO_PRIORITY     democonfigOTA_DEMO_TASK_PRIORITY
+    #endif
+#elif defined( CONFIG_OTA_HTTP_UPDATE_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunOtaCoreHttpDemo
+    #if defined( democonfigOTA_DEMO_TASK_STACK_SIZE )
+        #undef democonfigDEMO_STACKSIZE
+        #define democonfigDEMO_STACKSIZE    democonfigOTA_DEMO_TASK_STACK_SIZE
+    #endif
+    #if defined( democonfigOTA_DEMO_TASK_PRIORITY )
         #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY    democonfigOTA_UPDATE_TASK_TASK_PRIORITY
+        #define democonfigDEMO_PRIORITY     democonfigOTA_DEMO_TASK_PRIORITY
     #endif
 #elif defined( CONFIG_BLE_GATT_SERVER_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vGattDemoSvcInit
