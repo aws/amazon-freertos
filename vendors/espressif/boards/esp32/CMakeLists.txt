@@ -410,27 +410,55 @@ target_compile_definitions(
 endif()
 
 # OTA
-# Need to get this validated
-afr_mcu_port(ota)
+
+# Enable this for using pre_lts ota library
+# afr_mcu_port(ota)
+# target_sources(
+#     AFR::ota::mcu_port
+#     INTERFACE
+#         "${afr_ports_dir}/ota/aws_ota_pal.c"
+#         "${afr_ports_dir}/ota/aws_esp_ota_ops.c"
+#         "${afr_ports_dir}/ota/aws_esp_ota_ops.h"
+# )
+# target_include_directories(
+#     AFR::ota::mcu_port
+#     INTERFACE
+#         "${afr_ports_dir}/ota"
+# )
+# target_include_directories(
+#     AFR::ota::mcu_port
+#     INTERFACE
+#         "${esp_idf_dir}/components/soc/soc/include"
+# )
+# target_link_libraries(
+#     AFR::ota::mcu_port
+#     INTERFACE
+#         AFR::crypto
+#         AFR::pkcs11
+#         AFR::ota_mqtt
+#         AFR::ota_http
+# )
+
+afr_mcu_port(ota_lts)
 target_sources(
-    AFR::ota::mcu_port
+    AFR::ota_lts::mcu_port
     INTERFACE
         "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
         "${afr_ports_dir}/ota_pal_for_aws/aws_esp_ota_ops.c"
         "${afr_ports_dir}/ota_pal_for_aws/aws_esp_ota_ops.h"
 )
 target_include_directories(
-    AFR::ota::mcu_port
+    AFR::ota_lts::mcu_port
     INTERFACE
         "${afr_ports_dir}/ota_pal_for_aws"
 )
 target_include_directories(
-    AFR::ota::mcu_port
+    AFR::ota_lts::mcu_port
     INTERFACE
         "${esp_idf_dir}/components/soc/soc/include"
 )
 target_link_libraries(
-    AFR::ota::mcu_port
+    AFR::ota_lts::mcu_port
     INTERFACE
         AFR::crypto
         AFR::pkcs11
