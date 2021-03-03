@@ -1,0 +1,25 @@
+[
+  {
+    "id": "ble-test-raspberry-pi",
+    "features": [
+      {"name":"ble", "version":"4.2"}
+    ],
+    "devices": [
+      {
+        "id": "ble-test-raspberry-pi-1",
+        "connectivity": {
+          "protocol": "ssh",
+          "ip": "{cy_ble_pi_ip}",
+          "auth": {
+            "method": "pki",
+            "credentials": {
+                "user": "root",
+                "privKeyPath": "{cy_home_dir}/.ssh/id_rsa"
+            }
+          }
+        }
+      }
+    ]
+  }
+]
+

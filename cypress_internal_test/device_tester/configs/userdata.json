@@ -1,0 +1,56 @@
+{
+  "sourcePath": "{cy_afr_path}",
+  "vendorPath": "{cy_afr_path}/vendors/cypress/boards/{cy_board_name}",
+  "buildTool": {
+    "name": "mybuild",
+    "version": "1.0",
+    "command": [
+      "bash {cy_afr_path}/cypress_internal_test/device_tester/mybuild.sh {cy_afr_path} {{enableTests}} {cy_board_name} {cy_compiler} {cy_ota_en}"
+    ],
+    "buildImageInfo" : {
+      "testsImageName": "{cy_afr_path}/build/aws_tests",
+      "demosImageName": "{cy_afr_path}/build/aws_demos"
+    }
+  },
+  "flashTool": {
+    "name": "pyocd",
+    "version": "0.20.1",
+    "command": [
+      "bash {cy_afr_path}/cypress_internal_test/device_tester/myflash.sh {{device.identifiers[?(@.name == 'serialNo')].value}} {{buildImageName}} {cy_board_name} {cy_ota_en}"
+    ],
+    "buildImageInfo" : {
+      "testsImageName": "{cy_afr_path}/build/aws_tests",
+      "demosImageName": "{cy_afr_path}/build/aws_demos"
+    }
+  },
+  "clientWifiConfig": {
+    "wifiSSID": "{cy_wifi_ssid}",
+    "wifiPassword": "{cy_wifi_password}",
+    "wifiSecurityType": "{cy_wifi_security_type}"
+  },
+  "testWifiConfig": {
+    "wifiSSID": "{cy_wifi_ssid}",
+    "wifiPassword": "{cy_wifi_password}",
+    "wifiSecurityType": "{cy_wifi_security_type}"
+  },
+  "echoServerConfiguration": {
+    "securePortForSecureSocket": 33333,
+    "insecurePortForSecureSocket": 33334,
+    "insecurePortForWiFi": 33335
+  },
+  "otaConfiguration": {
+    "otaDemoConfigFilePath": "{cy_afr_path}/vendors/cypress/boards/{cy_board_name}/aws_demos/config_files/aws_demo_config.h",
+    "otaFirmwareFilePath": "{cy_afr_path}/build/aws_demos.bin",
+    "deviceFirmwareFileName": "{cy_afr_path}/build/cm4_signed.bin",
+    "codeSigningConfiguration": {
+      "signingMethod": "AWS",
+      "signerHashingAlgorithm": "SHA256",
+      "signerSigningAlgorithm": "ECDSA",
+      "signerCertificate": "arn:aws:acm:us-west-2:969910087511:certificate/4ec28329-90b1-43f0-89a0-4c2452d11347",
+      "signerCertificateFileName": "ecdsasigner.key",
+      "compileSignerCertificate": true,
+      "signerPlatform": "AmazonFreeRTOS-Default",
+      "untrustedSignerCertificate": "arn:aws:acm:us-west-2:969910087511:certificate/99c898ef-00de-498b-82c2-519f0a9db643"
+    }
+  }
+}

@@ -1,0 +1,2 @@
+Repo: http://git-ore.aus.cypress.com/repo/cy_mcuboot_project/cy_mcuboot
+Commit: 0c535e0d84c81c1ffd29a2d4ec8fd5d33d2b8b0d
