@@ -1,0 +1,475 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Schema of FreeRTOS userdata in command line.",
+  "type": "object",
+  "properties": {
+    "sourcePath": {
+      "type": "string",
+      "description": "path to the source. E.g. source/dir/abc",
+      "minLength": 1
+    },
+    "vendorPath": {
+      "type": "string",
+      "description": "path to the vendor code. E.g. source/vendors/<vendor-name>/boards/<board-name>"
+    },
+    "sdkConfiguration": {
+      "type": "object",
+      "description": "information about the SDK which contains FreeRTOS source code",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
+    },
+    "sdkConfiguration": {
+      "type": "object",
+      "description": "information about the SDK which contains FreeRTOS source code",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "sdkConfiguration": {
+      "type": "object",
+      "description": "information about the SDK which contains FreeRTOS source code",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      }
+    },
+    "buildTool": {
+      "type": "object",
+      "description": "build tool information (name, version, commands)",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "command": {
+          "type": "array",
+          "description": "commands to build the project",
+          "minItems": 1
+        }
+      },
+      "required": [
+        "command",
+        "name",
+        "version"
+      ]
+    },
+    "flashTool": {
+      "type": "object",
+      "description": "flash tool information (name, version, commands)",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "command": {
+          "type": "array",
+          "description": "commands to flash image to the board",
+          "minItems": 1
+        },
+        "buildImageInfo": {
+          "type": "object",
+          "properties": {
+            "testsImageName": {
+              "type": "string"
+            },
+            "demosImageName": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "command",
+        "name",
+        "version"
+      ]
+    },
+    "clientWifiConfig": {
+      "type": "object",
+      "description": "wifi configuration for tests",
+      "oneOf": [
+        {
+          "properties": {
+            "wifiSSID": {
+              "type": "string",
+              "minLength": 1
+            },
+            "wifiPassword": {
+              "type": "string",
+              "minLength": 1
+            },
+            "wifiSecurityType": {
+              "type": "string",
+              "enum": [
+                "eWiFiSecurityWPA",
+                "eWiFiSecurityWEP",
+                "eWiFiSecurityWPA2",
+                "eWiFiSecurityWPA3"
+              ]
+            }
+          },
+          "required": [
+            "wifiSSID",
+            "wifiPassword",
+            "wifiSecurityType"
+          ]
+        },
+        {
+          "properties": {
+            "wifiSSID": {
+              "type": "string",
+              "minLength": 1
+            },
+            "wifiSecurityType": {
+              "type": "string",
+              "enum": [
+                "eWiFiSecurityOpen"
+              ]
+            }
+          },
+          "required": [
+            "wifiSSID",
+            "wifiSecurityType"
+          ]
+        }
+      ]
+    },
+    "testWifiConfig": {
+      "type": "object",
+      "description": "wifi configuration for tests",
+      "oneOf": [
+        {
+          "properties": {
+            "wifiSSID": {
+              "type": "string",
+              "minLength": 1
+            },
+            "wifiPassword": {
+              "type": "string",
+              "minLength": 1
+            },
+            "wifiSecurityType": {
+              "type": "string",
+              "enum": [
+                "eWiFiSecurityWPA",
+                "eWiFiSecurityWEP",
+                "eWiFiSecurityWPA2",
+                "eWiFiSecurityWPA3"
+              ]
+            }
+          },
+          "required": [
+            "wifiSSID",
+            "wifiPassword",
+            "wifiSecurityType"
+          ]
+        },
+        {
+          "properties": {
+            "wifiSSID": {
+              "type": "string",
+              "minLength": 1
+            },
+            "wifiSecurityType": {
+              "type": "string",
+              "enum": [
+                "eWiFiSecurityOpen"
+              ]
+            }
+          },
+          "required": [
+            "wifiSSID",
+            "wifiSecurityType"
+          ]
+        }
+      ]
+    },
+    "echoServerConfiguration" : {
+      "type": "object",
+      "description": "configurable ports for echo server",
+      "properties": {
+        "securePortForSecureSocket": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 49151,
+          "description": "secure port for SecureSocket test"
+        },
+        "insecurePortForSecureSocket": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 49151,
+          "description": "insecure port for SecureSocket test"
+        },
+        "insecurePortForWiFi": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 49151,
+          "description": "insecure port for WiFi test"
+        }
+      },
+      "additionalProperties": false
+    },
+    "freertosFileConfiguration": {
+      "type": "object",
+      "description": "configuration for FreeRTOS files IDT modifies before running tests",
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "configName": {
+                "type": "string"
+              },
+              "filePath": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "optional": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "configName": {
+                "type": "string"
+              },
+              "filePath": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "otaConfiguration": {
+      "type": "object",
+      "description": "data needed for ota tests",
+      "properties": {
+        "otaDemoConfigFilePath": {
+          "type": "string",
+          "description": "The full path to the aws demo config header file",
+          "minLength": 1
+        },
+        "otaFirmwareFilePath": {
+          "type": "string",
+          "description": "The full path to the OTA image created after the build",
+          "minLength": 1
+        },
+        "deviceFirmwareFileName": {
+          "type": "string",
+          "description": "The full file path on the MCU device where the OTA firmware will download (not mandatory).",
+          "minLength": 1
+        },
+        "codeSigningConfiguration": {
+          "type": "object",
+          "description": "configuration for ota code signing",
+          "oneOf": [
+            {
+              "properties": {
+                "signingMethod": {
+                  "type": "string",
+                  "description": "Method of code signing either through aws or custom code signer",
+                  "enum": [
+                   "AWS"
+                  ]
+                },
+                "signerPlatform": {
+                 "type": "string",
+                 "description": "This decide the signing algorithm used by the AWS Code Signer."
+                },
+                "signerCertificate": {
+                  "type": "string",
+                  "description": "The ARN (Amazon Resource Name) for the certificate uploaded to ACM (AWS Certificate Manager) when following: https://docs.aws.amazon.com/freertos/latest/userguide/ota-prereqs.html . ACM has a yearly limit on number of certificates can be created (2000) https://docs.aws.amazon.com/acm/latest/userguide/acm-limits.html . Due to this limit we will not automate creation of these certificate. ",
+                  "minLength": 1
+                },
+                "untrustedSignerCertificate": {
+                  "type": "string",
+                  "description": "The ARN (Amazon Resource Name) for a certificate uploaded to ACM which your device should not trust - used to test invalid certificate cases.",
+                  "minLength": 1
+                },
+                "signerHashingAlgorithm": {
+                  "type": "string",
+                  "description": "The hashing algorithm of code signing. The value can be SHA1 or SHA256.",
+                  "enum": [
+                    "SHA1",
+                    "SHA256"
+                  ]
+                },
+                "signerSigningAlgorithm": {
+                  "type": "string",
+                  "description": "The signing algorithm of code signing. The value can be RSA or ECDSA.",
+                  "enum": [
+                    "RSA",
+                    "ECDSA"
+                  ]
+                },
+                "signerCertificateFileName": {
+                  "type": "string",
+                  "description": "The full path on the MCU device where the OTA code signer certificate lives. Some devices do not need this field, but it cannot be blank (not mandatory).",
+                  "minLength": 1
+                },
+                "compileSignerCertificate": {
+                  "type": "boolean",
+                  "description": "Set to 'true' if the codesigner signature verification certificate is not provisioned/flashed, so it must be compiled into the project in aws_codesigner_certifiate.h"
+                },
+                "signCommand": {
+                  "type": "array",
+                  "description": "custom commands to sign the OTA image",
+                  "minItems": 1
+                }
+              },
+              "required": [
+                "signingMethod",
+                "signerPlatform",
+                "signerCertificate",
+                "untrustedSignerCertificate",
+                "signerHashingAlgorithm",
+                "signerSigningAlgorithm",
+                "signerCertificateFileName",
+                "compileSignerCertificate"
+              ]
+            },
+            {
+              "properties": {
+                "signingMethod": {
+                  "type": "string",
+                  "description": "Method of code signing either through aws or custom code signer",
+                  "enum": [
+                    "Custom"
+                  ]
+                },
+                "signerHashingAlgorithm": {
+                  "type": "string",
+                  "description": "The hashing algorithm of code signing. The value can be SHA1 or SHA256.",
+                  "enum": [
+                    "SHA1",
+                    "SHA256"
+                  ]
+                },
+                "signerSigningAlgorithm": {
+                  "type": "string",
+                  "description": "The signing algorithm of code signing. The value can be RSA or ECDSA.",
+                  "enum": [
+                    "RSA",
+                    "ECDSA"
+                  ]
+                },
+                "signCommand": {
+                  "type": "array",
+                  "description": "custom commands to sign the OTA image",
+                  "minItems": 1
+                },
+                "signerCertificate": {
+                  "type": "string",
+                  "description": "The file path to the code signer certificate when following: https://docs.aws.amazon.com/freertos/latest/userguide/ota-prereqs.html",
+                  "minLength": 1
+                },
+                "untrustedSignerCertificate": {
+                  "type": "string",
+                  "description": "The ARN (Amazon Resource Name) for a certificate uploaded to ACM which your device should not trust - used to test invalid certificate cases.",
+                  "minLength": 1
+                },
+                "signerCertificateFileName": {
+                  "type": "string",
+                  "description": "The full path on the MCU device where the OTA code signer certificate lives. Some devices do not need this field, but it cannot be blank (not mandatory).",
+                  "minLength": 1
+                },
+                "compileSignerCertificate": {
+                  "type": "boolean",
+                  "description": "Set to 'true' if the codesigner signature verification certificate is not provisioned/flashed, so it must be compiled into the project in aws_codesigner_certifiate.h"
+                },
+                "signerPlatform": {
+                  "type": "string",
+                  "description": "This decide the signing algorithm used by the AWS Code Signer."
+                }
+              },
+              "required": [
+                "signingMethod",
+                "signerHashingAlgorithm",
+                "signerSigningAlgorithm",
+                "signCommand",
+                "signerCertificate",
+                "signerCertificateFileName",
+                "compileSignerCertificate"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "otaDemoConfigFilePath",
+        "otaFirmwareFilePath",
+        "codeSigningConfiguration"
+      ]
+    },
+    "cmakeConfiguration": {
+      "type": "object",
+      "description": "data needed for cmake tests",
+      "properties": {
+        "boardName": {
+          "type": "string",
+          "description": "Name of board",
+          "minLength": 1
+        },
+        "vendorName": {
+          "type": "string",
+          "description": "Name of vendor",
+          "minLength": 1
+        },
+        "frToolchainPath": {
+          "type": "string",
+          "description": "Path to FreeRTOS compiler tool chain if user didn't set compiler path into the PATH environment variable",
+          "minLength": 1
+        },
+        "compilerName": {
+          "type": "string",
+          "description": "Name of compiler",
+          "minLength": 1
+        },
+        "cmakeToolchainPath": {
+          "type": "string",
+          "description": "CMake tool chain file location if user uses customized tool chain file",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "boardName",
+        "vendorName"
+      ]
+    }
+  },
+  "required": [
+    "sourcePath",
+    "buildTool",
+    "flashTool"
+  ]
+}
