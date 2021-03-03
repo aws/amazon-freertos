@@ -302,21 +302,22 @@
  */
 #define OTA_DEFAULT_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( OTA_DEFAULT_TOPIC_FILTER ) - 1 ) )
 
+ /**
+  * @brief Stack size required for OTA agent task.
+  */
+#define OTA_AGENT_TASK_STACK_SIZE        ( 4000U )
 
-/**
- * @brief Stack size required for OTA agent task.
- */
-#define OTA_AGENT_TASK_STACK_SIZE        ( 6000U )
-
-/**
- * @brief Priority required for OTA agent task.
- */
+  /**
+   * @brief Priority required for OTA agent task.
+   */
 #define OTA_AGENT_TASK_PRIORITY          ( tskIDLE_PRIORITY )
 
-/**
- * @brief Stack size required for OTA statistics  task.
- */
-#define MQTT_AGENT_TASK_STACK_SIZE       ( 2048U )
+   /**
+    * @brief Stack size required for MQTT agent task.
+    * MQTT agent task takes care of TLS connection and reconnection, keeping task stack size
+    * to high enough required for TLS connection.
+    */
+#define MQTT_AGENT_TASK_STACK_SIZE       ( 6000U )
 
 /**
  * @brief Priority required for OTA statistics task.
@@ -347,6 +348,19 @@
  * @brief Milliseconds per FreeRTOS tick.
  */
 #define MILLISECONDS_PER_TICK                     ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+
+ /**
+  * @brief Each compilation unit that consumes the NetworkContext must define it.
+  * It should contain a single pointer to the type of your desired transport.
+  * When using multiple transports in the same compilation unit, define this pointer as void *.
+  *
+  * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
+  */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t* pParams;
+};
+
 
 /**
  * @brief Defines the structure to use as the agent IPC mechanism.
@@ -407,6 +421,11 @@ static AgentMessageContext_t xCommandQueue;
  * will be intialized to 0 by default.
  */
 static SubscriptionElement_t xGlobalSubscriptionList[ SUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ];
+
+/**
+ * @brief The parameters for the network context using a TLS channel.
+ */
+static SecureSocketsTransportParams_t xSecureSocketsTransportParams;
 
 /**
  * @brief Network connection context used in this demo for MQTT connection.
@@ -647,12 +666,29 @@ static BaseType_t prvResumeOTA( void );
  */
 static void setOtaInterfaces( OtaInterfaces_t * pOtaInterfaces );
 
+
 /**
- * @brief Random number to be used as a back-off value for retrying connection.
+ * @brief Calculate and perform an exponential backoff with jitter delay for
+ * the next retry attempt of a failed network operation with the server.
  *
- * @return uint32_t The generated random number.
+ * The function generates a random number, calculates the next backoff period
+ * with the generated random number, and performs the backoff delay operation if the
+ * number of retries have not exhausted.
+ *
+ * @note The PKCS11 module is used to generate the random number as it allows access
+ * to a True Random Number Generator (TRNG) if the vendor platform supports it.
+ * It is recommended to seed the random number generator with a device-specific entropy
+ * source so that probability of collisions from devices in connection retries is mitigated.
+ *
+ * @note The backoff period is calculated using the backoffAlgorithm library.
+ *
+ * @param[in, out] pxRetryAttempts The context to use for backoff period calculation
+ * with the backoffAlgorithm library.
+ *
+ * @return pdPASS if calculating the backoff period was successful; otherwise pdFAIL
+ * if there was failure in random number generation OR all retry attempts had exhausted.
  */
-static int32_t prvGenerateRandomNumber();
+static BaseType_t prvBackoffForRetry(BackoffAlgorithmContext_t* pxRetryParams);
 
 /* Callbacks used to handle different events. */
 
@@ -1124,22 +1160,54 @@ static void prvMQTTUnsubscribeCompleteCallback( CommandContext_t * pxCommandCont
     }
 }
 
-static int32_t prvGenerateRandomNumber()
+static BaseType_t prvBackoffForRetry(BackoffAlgorithmContext_t* pxRetryParams)
 {
-    uint32_t ulRandomNum;
+    BaseType_t xReturnStatus = pdFAIL;
+    uint16_t usNextRetryBackOff = 0U;
+    BackoffAlgorithmStatus_t xBackoffAlgStatus = BackoffAlgorithmSuccess;
 
-    /* Set the return value as negative to indicate failure. */
-    int32_t lOutput = -1;
+    /**
+     * To calculate the backoff period for the next retry attempt, we will
+     * generate a random number to provide to the backoffAlgorithm library.
+     *
+     * Note: The PKCS11 module is used to generate the random number as it allows access
+     * to a True Random Number Generator (TRNG) if the vendor platform supports it.
+     * It is recommended to use a random number generator seeded with a device-specific
+     * entropy source so that probability of collisions from devices in connection retries
+     * is mitigated.
+     */
+    uint32_t ulRandomNum = 0;
 
-    /* Use the PKCS11 module to generate a random number. */
-    if( xPkcs11GenerateRandomNumber( ( uint8_t * ) &ulRandomNum,
-                                     ( sizeof( ulRandomNum ) ) ) == pdPASS )
+    if (xPkcs11GenerateRandomNumber((uint8_t*)&ulRandomNum,
+        sizeof(ulRandomNum)) == pdPASS)
     {
-        lOutput = ( int32_t ) ( ulRandomNum & INT32_MAX );
+        /* Get back-off value (in milliseconds) for the next retry attempt. */
+        xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff(pxRetryParams, ulRandomNum, &usNextRetryBackOff);
+
+        if (xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted)
+        {
+            LogError(("All retry attempts have exhausted. Operation will not be retried"));
+        }
+        else if (xBackoffAlgStatus == BackoffAlgorithmSuccess)
+        {
+            /* Perform the backoff delay. */
+            vTaskDelay(pdMS_TO_TICKS(usNextRetryBackOff));
+
+            xReturnStatus = pdPASS;
+
+            LogInfo(("Retry attempt %lu out of maximum retry attempts %lu.",
+                (pxRetryParams->attemptsDone + 1),
+                pxRetryParams->maxRetryAttempts));
+        }
+    }
+    else
+    {
+        LogError(("Unable to retry operation with broker: Random number generation failed"));
     }
 
-    return lOutput;
+    return xReturnStatus;
 }
+
 /*-----------------------------------------------------------*/
 static uint32_t prvGetTimeMs( void )
 {
@@ -1202,9 +1270,7 @@ static BaseType_t prvCreateSocketConnectionToMQTTBroker( NetworkContext_t * pNet
     SocketsConfig_t xSocketsConfig = { 0 };
     BaseType_t xStatus = pdPASS;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
-    BackoffAlgorithmStatus_t xBackoffAlgStatus = BackoffAlgorithmSuccess;
     BackoffAlgorithmContext_t xReconnectParams;
-    uint16_t usNextRetryBackOff = 0U;
 
     /* Set the credentials for establishing a TLS connection. */
     /* Initializer server information. */
@@ -1226,8 +1292,7 @@ static BaseType_t prvCreateSocketConnectionToMQTTBroker( NetworkContext_t * pNet
     BackoffAlgorithm_InitializeParams( &xReconnectParams,
                                        RETRY_BACKOFF_BASE_MS,
                                        RETRY_MAX_BACKOFF_DELAY_MS,
-                                       RETRY_MAX_ATTEMPTS,
-                                       prvGenerateRandomNumber );
+                                       RETRY_MAX_ATTEMPTS );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase till maximum
@@ -1248,26 +1313,9 @@ static BaseType_t prvCreateSocketConnectionToMQTTBroker( NetworkContext_t * pNet
 
         if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            /* Get back-off value (in milliseconds) for the next connection retry. */
-            xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &xReconnectParams, &usNextRetryBackOff );
-            configASSERT( xBackoffAlgStatus != BackoffAlgorithmRngFailure );
-
-            if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
-            {
-                LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
-                xStatus = pdFAIL;
-            }
-            else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
-            {
-                LogWarn( ( "Connection to the broker failed. Retrying connection after backoff delay." ) );
-                vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
-
-                LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
-                           ( xReconnectParams.attemptsDone + 1 ),
-                           xReconnectParams.maxRetryAttempts ) );
-            }
+            xStatus = prvBackoffForRetry(&xReconnectParams);
         }
-    } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xBackoffAlgStatus == BackoffAlgorithmSuccess ) );
+    } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && (xStatus == pdPASS ) );
 
     return xStatus;
 }
@@ -1310,6 +1358,8 @@ static MQTTStatus_t prvMQTTConnect( void )
 static BaseType_t prvConnectToMQTTBroker( void )
 {
     BaseType_t xStatus = pdFAIL;
+
+    networkContextMqtt.pParams = &xSecureSocketsTransportParams;
 
     /* Attempt to connect to the MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will be exponentially increased till the maximum
