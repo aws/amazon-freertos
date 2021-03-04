@@ -122,7 +122,7 @@ extern void vAssertCalled(const char * pcFile,
 #endif
 
 /* The interrupt latency of TF-M image running on CM0 */
-#define configTFM_INTERRUPT_LATENCY                 (15UL)
+#define configTFM_INTERRUPT_LATENCY                 (25UL)
 /* Allow CPU to go into deepsleep only if idle time is longer than TF-M interrupt latency */
 #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP       (configTFM_INTERRUPT_LATENCY + 1)
 /* Subtract the TF-M interrupt latency to make sure actual sleep time is shorter than the expected idle time. */
