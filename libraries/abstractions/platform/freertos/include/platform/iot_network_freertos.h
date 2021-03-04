@@ -46,14 +46,6 @@
 #include "aws_clientcredential_keys.h"
 
 /**
- * @brief Represents a network connection that uses FreeRTOS Secure Sockets.
- *
- * This is an incomplete type. In application code, only pointers to this type
- * should be used.
- */
-typedef struct _networkConnection IotNetworkConnectionAfr_t;
-
-/**
  * @brief Provides a default value for an #IotNetworkConnectionAfr_t.
  *
  * All instances of #IotNetworkConnectionAfr_t should be initialized with

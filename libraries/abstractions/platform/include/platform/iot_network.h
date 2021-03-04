@@ -266,7 +266,7 @@ typedef struct IotNetworkInterface
     /**
      * @brief Free resources used by a network connection.
      *
-     * This function releases the resources of a closed connection. It should be
+     * This function releases the resources of a closed connection. It SHOULD be
      * called after @ref platform_network_function_close.
      *
      * @param[in] pConnection The network connection to destroy, defined by
