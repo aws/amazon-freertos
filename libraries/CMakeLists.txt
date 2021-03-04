@@ -51,7 +51,7 @@ afr_module_include_dirs(
 file(GLOB afr_modules_csdk "${AFR_MODULES_DIR}/c_sdk/*/*")
 file(GLOB afr_modules_freertos_plus "${AFR_MODULES_DIR}/freertos_plus/*/*")
 
-# Remove pre-lts OTA library.
+# To enable the pre-lts OTA library, remove the line below.
 list(REMOVE_ITEM afr_modules_freertos_plus "${AFR_MODULES_DIR}/freertos_plus/aws/ota")
 
 file(GLOB afr_modules_abstractions "${AFR_MODULES_DIR}/abstractions/*")
@@ -112,6 +112,8 @@ if(EXISTS ${AFR_MODULES_DIR}/abstractions/backoff_algorithm.cmake)
   include(${AFR_MODULES_DIR}/abstractions/backoff_algorithm.cmake)
 endif()
 
+# To enable the pre-lts OTA library, remove the lines below.
+# Add OTA module ONLY if present in FreeRTOS console download.
 if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/ota_demo_dependencies.cmake)
   include(ota_demo_dependencies.cmake)
 endif()

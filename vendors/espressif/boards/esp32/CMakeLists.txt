@@ -411,7 +411,7 @@ endif()
 
 # OTA
 
-# Enable this for using pre_lts ota library
+# Enable this for using pre-lts ota library and disable the module below.
 # afr_mcu_port(ota)
 # target_sources(
 #     AFR::ota::mcu_port
