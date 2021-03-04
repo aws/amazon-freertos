@@ -73,18 +73,38 @@
 #define otaconfigMAX_THINGNAME_LEN              64U
 
 /**
- * @brief The maximum number of data blocks requested from OTA streaming service.
+ * @brief The maximum number of data blocks requested per request from the OTA
+ * streaming service.
  *
- *  This configuration parameter is sent with data requests and represents the maximum number of
- *  data blocks the service will send in response. The maximum limit for this must be calculated
- *  from the maximum data response limit (128 KB from service) divided by the block size.
- *  For example if block size is set as 1 KB then the maximum number of data blocks that we can
- *  request is 128/1 = 128 blocks. Configure this parameter to this maximum limit or lower based on
- *  how many data blocks response is expected for each data requests.
- *  Please note that this must be set larger than zero.
+ * This configuration parameter is sent with data requests and represents the
+ * maximum number of data blocks the service will send in a single response.
+ * The amount of data requested and therefore received in a single response
+ * (in bytes) is equal to:
  *
+ * (otaconfigMAX_NUM_BLOCKS_REQUEST * ( pow(2,otaconfigLOG2_FILE_BLOCK_SIZE) )
+ *
+ * @note If the device has a incoming TLS I/O buffer set to be less than the
+ * standard default size of 16KB, then the amount of bytes being requested has
+ * to be less than the the size of the incoming TLS I/O buffer.
+ * <br><br>
+ *
+ * For example, if the device has otaconfigLOG2_FILE_BLOCK_SIZE set to '12',
+ * then each data block will be 4096 bytes large. If the device also has a
+ * incoming TLS I/O bufferthat is 8KB large, then the
+ * otaconfigMAX_NUM_BLOCKS_REQUEST must be set to '1' so that the data received
+ * in one response doesn't surpass the size of the incoming TLS I/O buffer.
+ *
+ * @note If the device has a incoming TLS I/O buffer set to be equal to the
+ * standard default size of 16Kb, then the maximum limit for this must be
+ * calculated from the maximum data response limit (128 KB from service)
+ * divided by the block size. For example if block size is set as 1 KB then the
+ * maximum number of data blocks that we can request is 128/1 = 128 blocks.
+ * Configure this parameter to this maximum limit or lower based on how many
+ * data blocks response is expected for each data requests.
+ *
+ * @note This must be set to a value larger than zero.
  */
-#define otaconfigMAX_NUM_BLOCKS_REQUEST        128U
+#define otaconfigMAX_NUM_BLOCKS_REQUEST        4U
 
 /**
  * @brief The maximum number of requests allowed to send without a response before we abort.

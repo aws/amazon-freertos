@@ -261,10 +261,6 @@ void vApplicationDaemonTaskStartupHook( void )
         printf( "Retarget IO initialization failed \r\n" );
     }
 
-    #if BLE_ENABLED
-        NumericComparisonInit();
-    #endif
-
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
 #ifdef PDL_CODE
     if (qspi_init_sfdp(1) < 0)
@@ -313,9 +309,11 @@ void vApplicationDaemonTaskStartupHook( void )
 
 void prvWifiConnect( void )
 {
-    WIFINetworkParams_t xNetworkParams;
-    WIFIReturnCode_t xWifiStatus;
-    uint8_t ucTempIp[4] = { 0 };
+    WIFINetworkParams_t xNetworkParams = { 0 };
+    WIFIReturnCode_t xWifiStatus = eWiFiSuccess;
+    WIFIIPConfiguration_t xIpConfig;
+    uint8_t *pucIPV4Byte;
+    size_t xSSIDLength, xPasswordLength;
 
     xWifiStatus = WIFI_On();
 
@@ -337,52 +335,132 @@ void prvWifiConnect( void )
         }
     }
 
-    /* Setup parameters. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID ) - 1;
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD ) - 1;
-    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    xNetworkParams.cChannel = 0;
+    /* Setup WiFi parameters to connect to access point. */
+    if( clientcredentialWIFI_SSID != NULL )
+    {
+        xSSIDLength = strlen( clientcredentialWIFI_SSID );
+        if( ( xSSIDLength > 0 ) && ( xSSIDLength <= wificonfigMAX_SSID_LEN ) )
+        {
+            xNetworkParams.ucSSIDLength = xSSIDLength;
+            memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
+        }
+        else
+        {
+            configPRINTF(( "Invalid WiFi SSID configured, empty or exceeds allowable length %d.\n", wificonfigMAX_SSID_LEN ));
+            xWifiStatus = eWiFiFailure;
+        }
+    }
+    else
+    {
+        configPRINTF(( "WiFi SSID is not configured.\n" ));
+        xWifiStatus = eWiFiFailure;
+    }
 
-    xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
+    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
+    if( clientcredentialWIFI_SECURITY == eWiFiSecurityWPA2 )
+    {
+        if( clientcredentialWIFI_PASSWORD != NULL )
+        {
+            xPasswordLength = strlen( clientcredentialWIFI_PASSWORD );
+            if( ( xPasswordLength > 0 ) && ( xSSIDLength <= wificonfigMAX_PASSPHRASE_LEN ) )
+            {
+                xNetworkParams.xPassword.xWPA.ucLength = xPasswordLength;
+                memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xPasswordLength );
+            }
+            else
+            {
+                configPRINTF(( "Invalid WiFi password configured, empty password or exceeds allowable password length %d.\n", wificonfigMAX_PASSPHRASE_LEN ));
+                xWifiStatus = eWiFiFailure;
+            }
+        }
+        else
+        {
+            configPRINTF(( "WiFi password is not configured.\n" ));
+            xWifiStatus = eWiFiFailure;
+        }
+    }
+    xNetworkParams.ucChannel = 0;
 
     if( xWifiStatus == eWiFiSuccess )
     {
         configPRINTF( ( "Wi-Fi Connected to AP %s. Creating tasks which use network...\r\n", clientcredentialWIFI_SSID) );
 
-        xWifiStatus = WIFI_GetIP( ucTempIp );
-        if ( eWiFiSuccess == xWifiStatus )
+        if( xWifiStatus == eWiFiSuccess )
         {
-            configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                            ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
+            configPRINTF( ( "WiFi connected to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID ) );
+
+            /* Get IP address of the device. */
+            xWifiStatus = WIFI_GetIPInfo( &xIpConfig );
+            if( xWifiStatus == eWiFiSuccess )
+            {
+                pucIPV4Byte = ( uint8_t * ) ( &xIpConfig.xIPAddress.ulAddress[0] );
+                configPRINTF( ( "IP Address acquired %d.%d.%d.%d.\r\n",
+                        pucIPV4Byte[ 0 ], pucIPV4Byte[ 1 ], pucIPV4Byte[ 2 ], pucIPV4Byte[ 3 ] ) );
+            }
+        }
+        else
+        {
+            /* Connection failed configure softAP to allow user to set wifi credentials. */
+            configPRINTF( ( "WiFi failed to connect to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID  ) );
         }
     }
-    else
+
+    if( xWifiStatus != eWiFiSuccess )
     {
-        /* Connection failed, configure SoftAP. */
-        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
-        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
-        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
-        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
-
-        configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
-                        xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-
-        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
+        /* Enter SOFT AP mode to provision access point credentials. */
+        configPRINTF(( "Entering soft access point WiFi provisioning mode.\n" ));
+        xWifiStatus = eWiFiSuccess;
+        if( wificonfigACCESS_POINT_SSID_PREFIX != NULL )
         {
-            configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
-                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+            xSSIDLength = strlen( wificonfigACCESS_POINT_SSID_PREFIX );
+            if( ( xSSIDLength > 0 ) && ( xSSIDLength <= wificonfigMAX_SSID_LEN ) )
+            {
+                xNetworkParams.ucSSIDLength = xSSIDLength;
+                memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
+            }
+            else
+            {
+                configPRINTF(( "Invalid AP SSID configured, empty or exceeds allowable length %d.\n", wificonfigMAX_SSID_LEN ));
+                xWifiStatus = eWiFiFailure;
+            }
+        }
+        else
+        {
+            configPRINTF(( "WiFi AP SSID is not configured.\n" ));
+            xWifiStatus = eWiFiFailure;
+        }
+
+        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
+        if( wificonfigACCESS_POINT_SECURITY == eWiFiSecurityWPA2 )
+        {
+            if( wificonfigACCESS_POINT_PASSKEY != NULL )
+            {
+                xPasswordLength = strlen( wificonfigACCESS_POINT_PASSKEY );
+                if( ( xPasswordLength > 0 ) && ( xSSIDLength <= wificonfigMAX_PASSPHRASE_LEN ) )
+                {
+                    xNetworkParams.xPassword.xWPA.ucLength = xPasswordLength;
+                    memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, wificonfigACCESS_POINT_PASSKEY, xPasswordLength );
+                }
+                else
+                {
+                    configPRINTF(( "Invalid WiFi AP password, empty or exceeds allowable password length %d.\n", wificonfigMAX_PASSPHRASE_LEN ));
+                    xWifiStatus = eWiFiFailure;
+                }
+            }
+            else
+            {
+                configPRINTF(( "WiFi AP password is not configured.\n" ));
+                xWifiStatus = eWiFiFailure;
+            }
         }
         if (WIFI_StartAP() != eWiFiSuccess)
         {
             configPRINTF( ( "SoftAP Start failed \r\n") );
         }
-
-        configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
+        while( ( xWifiStatus != eWiFiSuccess ) && ( xWifiStatus != eWiFiNotSupported ) );
     }
+
+    configASSERT( xWifiStatus == eWiFiSuccess );
 }
 
 /*-----------------------------------------------------------*/
@@ -493,35 +571,25 @@ void vAssertCalled(const char * pcFile,
 #endif
 
 #if BLE_SUPPORTED
-    /**
-     * @brief "Function to receive user input from a UART terminal. This function reads until a line feed or
-     * carriage return character is received and returns a null terminated string through a pointer to INPUTMessage_t.
-     *
-     * @note The line feed and carriage return characters are removed from the returned string.
-     *
-     * @param pxINPUTmessage Message structure using which the user input and the message size are returned.
-     * @param xAuthTimeout Time in ticks to be waited for the user input.
-     * @returns pdTrue if the user input was successfully captured, else pdFalse.
-     */
-    BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout )
+
+    int32_t xPortGetUserInput( uint8_t * pMessage,
+                           uint32_t messageLength,
+                           TickType_t timeoutTicks )
     {
-        BaseType_t xReturnMessage = pdFALSE;
         TickType_t xTimeOnEntering;
         uint8_t *ptr;
         uint32_t numBytes = 0;
-        uint8_t msgLength = 0;
+        uint8_t bytesRead = 0;
         cy_rslt_t result = CY_RSLT_SUCCESS;
 
-        /* Dynamically allocate memory to store user input. */
-        pxINPUTmessage->pcData = ( uint8_t * ) pvPortMalloc( sizeof( uint8_t ) * INPUT_MSG_ALLOC_SIZE );
-
         /* ptr points to the memory location where the next character is to be stored. */
-        ptr = pxINPUTmessage->pcData;
+        ptr = pMessage;
 
         /* Store the current tick value to implement a timeout. */
         xTimeOnEntering = xTaskGetTickCount();
 
-        do
+        while( ( bytesRead < messageLength ) &&
+               ( (xTaskGetTickCount() - xTimeOnEntering) < timeoutTicks ) )
         {
             /* Check for data in the UART buffer with zero timeout. */
             numBytes = cyhal_uart_readable(&cy_retarget_io_uart_obj);
@@ -531,49 +599,20 @@ void vAssertCalled(const char * pcFile,
                 result = cyhal_uart_getc(&cy_retarget_io_uart_obj, ptr, 0);
                 if (CY_RSLT_SUCCESS != result)
                 {
-                    xReturnMessage = pdFALSE;
+                    bytesRead = -1;
                     break;
                 }
                 else
                 {
-                    /* Stop checking for more characters when line feed or carriage return is received. */
-                    if((*ptr == '\n') || (*ptr == '\r'))
-                    {
-                        *ptr = '\0';
-                        xReturnMessage = pdTRUE;
-                        break;
-                    }
-                }
-
-                ptr++;
-                msgLength++;
-
-                /* Check if the allocated buffer for user input storage is full. */
-                if ((msgLength >= INPUT_MSG_ALLOC_SIZE) && (CY_RSLT_SUCCESS != result))
-                {
-                    break;
+                    ptr++;
+                    bytesRead++;
                 }
             }
-
             /* Yield to other tasks while waiting for user data. */
             vTaskDelay( DELAY_BETWEEN_GETC_IN_TICKS );
-
-        } while ((xTaskGetTickCount() - xTimeOnEntering) < xAuthTimeout); /* Wait for user data until timeout period is elapsed. */
-
-        if (xReturnMessage == pdTRUE)
-        {
-            pxINPUTmessage->xDataSize = msgLength;
-        }
-        else if (msgLength >= INPUT_MSG_ALLOC_SIZE)
-        {
-            configPRINTF( ( "User input exceeds buffer size !!\n" ) );
-        }
-        else
-        {
-            configPRINTF( ( "Timeout period elapsed !!\n" ) );
         }
 
-        return xReturnMessage;
+        return bytesRead;
     }
 
 #endif /* if BLE_ENABLED */
