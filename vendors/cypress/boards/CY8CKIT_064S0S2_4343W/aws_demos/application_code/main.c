@@ -383,7 +383,8 @@ void prvWifiConnect( void )
 
     if( xWifiStatus == eWiFiSuccess )
     {
-        configPRINTF( ( "Wi-Fi Connected to AP %s. Creating tasks which use network...\r\n", clientcredentialWIFI_SSID) );
+        /* Try connecting using provided wifi credentials. */
+        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
 
         if( xWifiStatus == eWiFiSuccess )
         {
