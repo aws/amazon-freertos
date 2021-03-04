@@ -1,8 +1,4 @@
 {
-    "policy": {
-        "platform": "psoc64",
-        "version": 1.0
-    },
     "debug" :
     {
         "m0p" : {
@@ -64,14 +60,11 @@
                 "id": 0,
                 "launch": 1,
                 "acq_win": 100,
-                "wdt_timeout": 4000,
-                "wdt_enable": true,
                 "monotonic": 0,
                 "smif_id": 0,
                 "clock_flags": 578,
                 "protect_flags": 1,
                 "upgrade": false,
-                "upgrade_mode": "swap",
                 "resources": [
                     {
                         "type": "FLASH_PC1_SPM",
@@ -87,11 +80,6 @@
                         "type": "SRAM_DAP",
                         "address": 135184384,
                         "size": 16384
-                    },
-                    {
-                        "type": "STATUS_PARTITION",
-                        "address": 270303232,
-                        "size": 32768
                     }
                 ]
             },
@@ -106,9 +94,6 @@
                 "monotonic": 0,
                 "smif_id": 0,
                 "acq_win": 100,
-                "wdt_timeout": 5000,
-                "wdt_enable": true,
-                "set_img_ok": true,
                 "multi_image": 1,
                 "upgrade": true,
                 "version": "0.1",

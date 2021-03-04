@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -22,6 +22,9 @@ extern "C" {
  */
 #define TFM_PLATFORM_API_VERSION_MAJOR (0)
 #define TFM_PLATFORM_API_VERSION_MINOR (3)
+
+#define TFM_PLATFORM_API_ID_NV_READ       (1010)
+#define TFM_PLATFORM_API_ID_NV_INCREMENT  (1011)
 
 /*!
  * \enum tfm_platform_err_t
@@ -62,6 +65,31 @@ enum tfm_platform_err_t tfm_platform_ioctl(tfm_platform_ioctl_req_t request,
                                            psa_invec *input,
                                            psa_outvec *output);
 
+/*!
+ * \brief Increments the given non-volatile (NV) counter by one
+ *
+ * \param[in]  counter_id  NV counter ID.
+ *
+ * \return  TFM_PLATFORM_ERR_SUCCESS if the value is read correctly. Otherwise,
+ *          it returns TFM_PLATFORM_ERR_SYSTEM_ERROR.
+ */
+enum tfm_platform_err_t
+tfm_platform_nv_counter_increment(uint32_t counter_id);
+
+/*!
+ * \brief Reads the given non-volatile (NV) counter
+ *
+ * \param[in]  counter_id  NV counter ID.
+ * \param[in]  size        Size of the buffer to store NV counter value
+ *                         in bytes.
+ * \param[out] val         Pointer to store the current NV counter value.
+ *
+ * \return  TFM_PLATFORM_ERR_SUCCESS if the value is read correctly. Otherwise,
+ *          it returns TFM_PLATFORM_ERR_SYSTEM_ERROR.
+ */
+enum tfm_platform_err_t
+tfm_platform_nv_counter_read(uint32_t counter_id,
+                             uint32_t size, uint8_t *val);
 
 #ifdef __cplusplus
 }
