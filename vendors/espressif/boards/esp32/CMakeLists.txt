@@ -580,7 +580,7 @@ endif()
 
 idf_build_process(esp32
                     SDKCONFIG ${CMAKE_BINARY_DIR}/sdkconfig
-                    SDKCONFIG_DEFAULTS ${CMAKE_BINARY_DIR}/sdkconfig.defaults
+                    SDKCONFIG_DEFAULTS ${IDF_SDKCONFIG_DEFAULTS}
                     BUILD_DIR ${CMAKE_BINARY_DIR})
 
 idf_build_get_property(idf_compile_options "COMPILE_OPTIONS")
