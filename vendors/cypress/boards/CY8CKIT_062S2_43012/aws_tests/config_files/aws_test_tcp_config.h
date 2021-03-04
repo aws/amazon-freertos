@@ -45,7 +45,7 @@
  * This value can be used to compensate for clock differences, and other
  * code overhead.
  */
-#define         integrationtestportableTIMEOUT_OVER_TOLERANCE      20    /* FIX ME. */
+#define         integrationtestportableTIMEOUT_OVER_TOLERANCE      200    /* FIX ME. */
 
 /**
  * @brief Indicates how much less time than the specified timeout is acceptable for

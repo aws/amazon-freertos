@@ -31,6 +31,7 @@
 #include <whd.h>
 #include <whd_wifi_api.h>
 #include <whd_network_types.h>
+#include "types/iot_network_types.h"
 
 /* Board and Abstraction layer includes */
 #include <cyabs_rtos.h>
