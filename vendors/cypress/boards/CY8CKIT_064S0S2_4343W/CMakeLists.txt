@@ -160,7 +160,7 @@ cy_add_link_libraries(
     BSP_DIR "${app_dir}/application_code/cy_code"
     CONFIG_DIRS "${include_dirs}"
     COMPONENTS "4343W;CAPSENSE;TFM_NS_FREERTOS_WRAPPER;TFM_NS_INTERFACE"
-    DEFINES "CY_USE_LWIP;CY_TFM_PSA_SUPPORTED;TFM_MULTI_CORE_MULTI_CLIENT_CALL;CY_TFM_VERSION_1_0"
+    DEFINES "CY_USE_LWIP;CY_TFM_PSA_SUPPORTED;TFM_MULTI_CORE_MULTI_CLIENT_CALL"
 )
 
 # TODO: remove this once whd is updated to new version
