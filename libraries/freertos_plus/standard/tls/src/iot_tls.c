@@ -834,8 +834,15 @@ BaseType_t TLS_Connect( void * pvContext )
             if( 0 == xResult )
             {
                 xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509CA,
-                                                  ( const unsigned char * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,
-                                                  tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH );
+                                                  ( const unsigned char * ) tlsATS3_ROOT_CERTIFICATE_PEM,
+                                                  tlsATS3_ROOT_CERTIFICATE_LENGTH );
+
+                if( 0 == xResult )
+                {
+                    xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509CA,
+                                                      ( const unsigned char * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,
+                                                      tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH );
+                }
             }
         }
 
