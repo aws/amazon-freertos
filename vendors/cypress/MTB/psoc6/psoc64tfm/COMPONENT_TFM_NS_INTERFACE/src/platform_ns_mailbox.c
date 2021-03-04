@@ -123,7 +123,7 @@ void tfm_ns_mailbox_hal_exit_critical(void)
 {
     IPC_STRUCT_Type* ipc_struct =
         Cy_IPC_Drv_GetIpcBaseAddress(IPC_PSA_MAILBOX_LOCK_CHAN);
-        Cy_IPC_Drv_LockRelease(ipc_struct, CY_IPC_NO_NOTIFICATION);
+    Cy_IPC_Drv_LockRelease(ipc_struct, CY_IPC_NO_NOTIFICATION);
     Cy_SysLib_ExitCriticalSection(saved_irq_state);
 }
 
@@ -140,7 +140,7 @@ void tfm_ns_mailbox_hal_exit_critical_isr(void)
 {
     IPC_STRUCT_Type* ipc_struct =
         Cy_IPC_Drv_GetIpcBaseAddress(IPC_PSA_MAILBOX_LOCK_CHAN);
-        Cy_IPC_Drv_LockRelease(ipc_struct, CY_IPC_NO_NOTIFICATION);
+    Cy_IPC_Drv_LockRelease(ipc_struct, CY_IPC_NO_NOTIFICATION);
 }
 
 static bool mailbox_clear_intr(void)
