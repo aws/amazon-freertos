@@ -125,6 +125,13 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
                               const char * pcFormat,
                               va_list xArgs );
 
+/* A simple locking mechanism to protect access to the logging
+stream buffer. */
+static void prvBitOpsAcquire( LONG volatile *plValue );
+
+/* Release the lock. */
+static void prvBitOpsRelease( LONG volatile *plValue );
+
 /*-----------------------------------------------------------*/
 
 /* Windows event used to wake the Win32 thread which performs any logging that
@@ -230,6 +237,7 @@ void vLoggingInit( BaseType_t xLogToStdout,
                     NULL );
 
                 /* Use the cores that are not used by the FreeRTOS tasks. */
+                configASSERT( Win32Thread != NULL );
                 SetThreadAffinityMask( Win32Thread, ~0x01u );
                 SetThreadPriorityBoost( Win32Thread, TRUE );
                 SetThreadPriority( Win32Thread, THREAD_PRIORITY_IDLE );
@@ -370,7 +378,7 @@ void vLoggingPrintfWithFileAndLine( const char * pcFile,
 
 /*-----------------------------------------------------------*/
 
-void vBitOpsAcquire( LONG volatile *plValue )
+static void prvBitOpsAcquire( LONG volatile *plValue )
 {
     /* Return the value of bit-0 before setting it, as an atomic operation. */
     while( _interlockedbittestandset( plValue, 0U ) == 1 )
@@ -382,7 +390,7 @@ void vBitOpsAcquire( LONG volatile *plValue )
 
 /*-----------------------------------------------------------*/
 
-void vBitOpsRelease( LONG volatile *plValue )
+static void prvBitOpsRelease( LONG volatile *plValue )
 {
     /* Return the value of bit-0 before clearing it, as an atomic operation. */
     BOOLEAN rc = _interlockedbittestandreset( plValue, 0U );
@@ -610,11 +618,11 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
          * actual output. */
         if( ( xStdoutLoggingUsed != pdFALSE ) || ( xDiskFileLoggingUsed != pdFALSE ) )
         {
-            LONG volatile ulBits;
+            static LONG volatile ulBits;
             size_t uxSpace;
             configASSERT( xLogStreamBuffer );
 
-            vBitOpsAcquire( &( ulBits ) );
+            prvBitOpsAcquire( &( ulBits ) );
             {
                 /* How much space is in the buffer? */
                 uxSpace = uxStreamBufferGetSpace( xLogStreamBuffer );
@@ -643,7 +651,7 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
                     /* Log line will be dropped, bad luck. */
                 }
             }
-            vBitOpsRelease( &( ulBits ) );
+            prvBitOpsRelease( &( ulBits ) );
 
             /* xDirectPrint is initialised to pdTRUE, and while it remains true the
              * logging output function is called directly.  When the system is running
@@ -676,6 +684,7 @@ static void prvLoggingFlushBuffer( void )
      * used to pass data from the FreeRTOS simulator into this Win32 thread? */
     while( uxStreamBufferGetSize( xLogStreamBuffer ) > sizeof( xLength ) )
     {
+        size_t xBytesRead;
         memset( cPrintString, 0x00, dlMAX_PRINT_STRING_LENGTH );
         uxStreamBufferGet(
             xLogStreamBuffer,
@@ -683,12 +692,17 @@ static void prvLoggingFlushBuffer( void )
             ( uint8_t * ) &xLength,
             sizeof( xLength ),
             pdFALSE );
-        uxStreamBufferGet(
+
+        configASSERT( xLength < cPrintString );
+
+        xBytesRead = uxStreamBufferGet(
             xLogStreamBuffer,
             0,
             ( uint8_t * ) cPrintString,
             xLength,
             pdFALSE );
+
+        configASSERT( xLength == xBytesRead );
 
         /* Write the message to standard out if requested to do so when
          * vLoggingInit() was called, or if the network is not yet up. */
