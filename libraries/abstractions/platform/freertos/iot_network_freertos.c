@@ -180,6 +180,10 @@ static void _networkReceiveTask( void * pArgument )
 
         pNetworkConnection->bufferedByteValid = true;
 
+        /* The network receive task is created ONLY when the receive callback is set. Thus, assert
+         * check that the callback is valid. */
+        configASSERT( pNetworkConnection->receiveCallback != NULL );
+
         /* Invoke the network callback. */
         pNetworkConnection->receiveCallback( pNetworkConnection,
                                              pNetworkConnection->pReceiveContext );
