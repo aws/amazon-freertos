@@ -47,7 +47,11 @@ set(ENV{LINKER_SCRIPT_NAME} "cyb06xxa_cm4_dual")
 
 # These must be in parent scope so the rest of the cmake flow sees them
 set(ENV{CY_TFM_HEX} "${cy_psoc6_dir}/psoc64tfm/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex")
+if (CY_TFM_POLICY_VER_ES100)
+set(ENV{CY_TFM_POLICY_FILE} "${cy_psoc6_dir}/psoc64tfm/security/policy/policy_multi_CM0_CM4_jitp_es100.json")
+else()
 set(ENV{CY_TFM_POLICY_FILE} "${cy_psoc6_dir}/psoc64tfm/security/policy/policy_multi_CM0_CM4_jitp.json")
+endif()
 set(ENV{CY_DEVICE_NAME} "cy8ckit-064s0s2-4343w")
 
 #Features
