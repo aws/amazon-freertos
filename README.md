@@ -40,8 +40,6 @@ For detailed documentation on FreeRTOS, refer to the [FreeRTOS User Guide](https
 To run the OTA demo over coreMQTT, set the demo to `CONFIG_OTA_MQTT_UPDATE_DEMO_ENABLED` in `aws_demo_config.h`. 
 
 To run the OTA demo over coreMQTT for control and coreHTTP for download, set the demo to `CONFIG_OTA_HTTP_UPDATE_DEMO_ENABLED` in `aws_demo_config.h`.
-
-To enable the [202011.00 OTA library](libraries/freertos_plus/aws/ota), enable the modules in the CMake files for the [libraries](libraries/CMakeLists.txt) and [vendor boards](vendors/espressif/boards/esp32/CMakeLists.txt). Please see the demo [here](https://github.com/aws/amazon-freertos/tree/master/demos/ota) for how to reference the APIs of the 202011.00bOTA library.
 ### AWS Collection of Metrics
 
 The demos that connect to AWS IoT report metrics to AWS about the operating system, and the MQTT client library used by sending a specially formatted string in the username field of the MQTT CONNECT packet. These metrics help AWS IoT improve security and provide better technical support. Providing these metrics is optional for users, and these can be disabled by updating the following configuration macros in the `demos/include/aws_iot_metrics.h` file:

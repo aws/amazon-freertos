@@ -410,35 +410,6 @@ target_compile_definitions(
 endif()
 
 # OTA
-
-# Enable this for using pre-lts ota library and disable the module below.
-# afr_mcu_port(ota)
-# target_sources(
-#     AFR::ota::mcu_port
-#     INTERFACE
-#         "${afr_ports_dir}/ota/aws_ota_pal.c"
-#         "${afr_ports_dir}/ota/aws_esp_ota_ops.c"
-#         "${afr_ports_dir}/ota/aws_esp_ota_ops.h"
-# )
-# target_include_directories(
-#     AFR::ota::mcu_port
-#     INTERFACE
-#         "${afr_ports_dir}/ota"
-# )
-# target_include_directories(
-#     AFR::ota::mcu_port
-#     INTERFACE
-#         "${esp_idf_dir}/components/soc/soc/include"
-# )
-# target_link_libraries(
-#     AFR::ota::mcu_port
-#     INTERFACE
-#         AFR::crypto
-#         AFR::pkcs11
-#         AFR::ota_mqtt
-#         AFR::ota_http
-# )
-
 afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
