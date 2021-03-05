@@ -274,8 +274,8 @@ typedef struct IotNetworkInterface
      *
      * @return Any #IotNetworkError_t, as defined by the network stack.
      *
-     * @attention Any function MUST NOT be called on the network connection after
-     * calling this function. This function must be safe to call from a
+     * @attention No function MAY be called on the network connection after
+     * calling this function. This function MUST be safe to call from a
      * [receive callback](@ref platform_network_function_receivecallback).
      */
     /* @[declare_platform_network_destroy] */
