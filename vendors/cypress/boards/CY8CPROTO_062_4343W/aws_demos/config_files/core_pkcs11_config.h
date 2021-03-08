@@ -180,12 +180,4 @@
     #define pkcs11configVENDOR_JITP_STATUS_UID             (01)
 #endif
 
-/**
- * @brief Set to 1 if the TFM version is V1.0
- *
- */
-#ifdef CY_TFM_VERSION_1_0
-#define pkcs11configTFM_VERSION_1_0                        1
-#endif
-
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */

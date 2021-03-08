@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.4.8
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V1.1.4
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -31,12 +31,18 @@
 #ifndef _AWS_MQTT_CONFIG_H_
 #define _AWS_MQTT_CONFIG_H_
 
-#include <stdint.h>
+/* Unity includes. */
+#include "unity_internals.h"
+
+/**
+ * @brief Define assert for test project.
+ */
+#define mqttconfigASSERT( x )    if( ( x ) == 0 ) TEST_ABORT()
 
 /**
  * @brief Enable subscription management.
  *
- * This gives the user flexibility of registering a callback per topic.
+ * This gives the user flexibility of registering a callback per subscription.
  */
 #define mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT            ( 1 )
 
@@ -61,6 +67,6 @@
 /**
  * @brief Set this macro to 1 for enabling debug logs.
  */
-#define mqttconfigENABLE_DEBUG_LOGS    0
+#define mqttconfigENABLE_DEBUG_LOGS                 ( 0 )
 
 #endif /* _AWS_MQTT_CONFIG_H_ */

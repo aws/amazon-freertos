@@ -40,10 +40,10 @@
  */
 
 /* Amazon FreeRTOS Includes. */
-#include "iot_pkcs11.h"
+#include "core_pkcs11.h"
 #include "FreeRTOS.h"
 #include "cyobjstore.h"
-#include "iot_pkcs11_config.h"
+#include "core_pkcs11_config.h"
 
 /* C runtime includes. */
 #include <stdio.h>
@@ -263,5 +263,39 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
 CK_RV PKCS11_PAL_Initialize( void )
 {
     return CKR_OK;
+}
+
+CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
+{
+    CK_RV xResult = CKR_OK;
+    CK_BYTE_PTR pxObject = NULL;
+    CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
+    CK_ULONG ulObjectLength = sizeof( CK_BYTE );
+    uint8_t * pcLabel = NULL;
+
+    prvLabelToFilenameHandle( pcLabel, &xHandle );
+
+    if( pcLabel != NULL )
+    {
+        xResult = PKCS11_PAL_GetObjectValue( xHandle, &pxObject, &ulObjectLength, &xIsPrivate );
+    }   
+    else
+    {
+        xResult = CKR_OBJECT_HANDLE_INVALID;
+    }   
+
+    if( xResult == CKR_OK )
+    {
+        if (cy_objstore_delete_object(xHandle) != CY_RSLT_SUCCESS)
+            xResult = CKR_GENERAL_ERROR;
+
+        PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
+    }
+    else
+    {
+        xResult = CKR_GENERAL_ERROR;
+    }
+
+    return xResult;
 }
 /*-----------------------------------------------------------*/
