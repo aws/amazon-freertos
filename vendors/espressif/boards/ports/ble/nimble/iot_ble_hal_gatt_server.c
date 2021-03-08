@@ -52,6 +52,8 @@ static SemaphoreHandle_t xSem;
 static bool semInited;
 bool xSemLock = 0;
 uint16_t gattOffset = 0;
+static bool long_read_flag;
+static size_t virtual_offset;/* Maintain offset for long read ops */
 
 void prvGattGetSemaphore()
 {
@@ -380,12 +382,12 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
     {
         case BLE_GATT_ACCESS_OP_READ_CHR:
         case BLE_GATT_ACCESS_OP_READ_DSC:
-            ESP_LOGD( TAG, "In read for handle %d", attr_handle );
+            ESP_LOGD( TAG, "In read for handle %d; offset = %d", attr_handle, virtual_offset );
 
             if( xGattServerCb.pxRequestReadCb != NULL )
             {
                 xSemLock = 1;
-                xGattServerCb.pxRequestReadCb( conn_handle, ( uint32_t ) ctxt, ( BTBdaddr_t * ) desc.peer_id_addr.val, attr_handle - gattOffset, 0 );
+                xGattServerCb.pxRequestReadCb( conn_handle, ( uint32_t ) ctxt, ( BTBdaddr_t * ) desc.peer_id_addr.val, attr_handle - gattOffset, virtual_offset );
                 prvGattGetSemaphore();
                 xSemLock = 0;
             }
@@ -726,6 +728,19 @@ static bool prvValidGattRequest()
     return false;
 }
 
+static void prvPrepareLongReadResponse( uint8_t * dst, uint8_t * pucValue, size_t xLen )
+{
+    if ( ( virtual_offset + xLen ) <= 512 )
+    {
+        memcpy(dst + virtual_offset, pucValue, xLen);
+        virtual_offset += xLen;
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Attempting to send more than 512 Bytes; it will result in failure");
+    }
+}
+
 BTStatus_t prvBTSendResponse( uint16_t usConnId,
                               uint32_t ulTransId,
                               BTStatus_t xStatus,
@@ -734,17 +749,39 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
     struct ble_gatt_access_ctxt * ctxt = ( struct ble_gatt_access_ctxt * ) ulTransId;
 
     BTStatus_t xReturnStatus = eBTStatusSuccess;
+    uint8_t dst_buf[ 512 ] = { 0 };
+    size_t mtu_value = ble_att_mtu(usConnId);
 
     if( prvValidGattRequest() )
     {
         if( ctxt && ( ( ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR ) || ( ctxt->op == BLE_GATT_ACCESS_OP_READ_DSC ) ) )
         {
+            ESP_LOGD(TAG, "Send response callback; long_read_flag = %d, xLen received = %d, offset = %d", long_read_flag, pxResponse->xAttrValue.xLen, virtual_offset);
+            if ( pxResponse->xAttrValue.xLen >= ( mtu_value - 1 ) )
+            {
+                /* Long read or blob request if data received is of ( MTU - 1 ) size and more */
+                long_read_flag = 1;
+                prvPrepareLongReadResponse( dst_buf, pxResponse->xAttrValue.pucValue, mtu_value - 1 );
+            }
+            else
+            {
+                /* Last long read request if data received is < ( MTU - 1 ) size */
+                long_read_flag = 0;
+                prvPrepareLongReadResponse( dst_buf, pxResponse->xAttrValue.pucValue, pxResponse->xAttrValue.xLen );
+            }
+
             /* Huge array allocate in the stack */
-            int rc = os_mbuf_append( ctxt->om, pxResponse->xAttrValue.pucValue, pxResponse->xAttrValue.xLen );
+            int rc = os_mbuf_append( ctxt->om, dst_buf, virtual_offset);
 
             if( rc != 0 )
             {
                 xReturnStatus = eBTStatusFail;
+            }
+
+            if ( !long_read_flag  )
+            {
+                /* Reset virtual_offset and long_length at every new read request start */
+                virtual_offset = 0;
             }
         }
 
