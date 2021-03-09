@@ -1,0 +1,689 @@
+# The smoke stage checks that a few things are mostly working to avoid wasting
+# a lot of runner time when there is an obvious problem.
+stages:
+  - smoke
+  - test
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  CY_DEP_DIR: $CI_PROJECT_DIR/cydep
+
+###############################################################################
+#############################  Acceptance Tests  ##############################
+###############################################################################
+# This covers the following
+# - GCC_ARM compiler build for all boards. make (All demos) + CMake (MQTT + OTA demo)
+# - ARM and IAR compiler build for secure and one non-secure board. make (MQTT + OTA demo) + CMake (MQTT + OTA demo)
+# - CMake unit tests
+# - Board files in sync test.
+# - Coverity tests for secure and one non-secure board.
+
+############################### Smoke Jobs ####################################
+test_cmake:
+  stage: smoke
+  tags:
+    - devops-linux
+  script:
+    - bash cypress_internal_test/cmake-test/comp_test.sh
+    - bash cypress_internal_test/cmake-test/ignore_test.sh
+    - bash cypress_internal_test/cmake-test/include_test.sh
+    - bash cypress_internal_test/cmake-test/file_type_test.sh
+
+test_afr-check_board_sync:
+  stage: smoke
+  tags:
+    - devops-linux
+  script:
+    - bash cypress_internal_test/board_sync/check_board_sync.sh
+
+############################### Test Jobs ####################################
+# GCC_ARM
+test_afr_build-CY8CKIT_064S0S2_4343W-GCC_ARM:
+  stage: test
+  tags:
+    - devops-mac
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W GCC_ARM
+
+test_afr_build-CY8CPROTO_062_4343W-GCC_ARM:
+  stage: test
+  tags:
+    - devops-mac
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W GCC_ARM
+
+test_afr_build-CY8CKIT_062S2_43012-GCC_ARM:
+  stage: test
+  tags:
+    - devops-mac
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012 GCC_ARM
+
+test_afr_build-CY8CKIT_062_WIFI_BT-GCC_ARM:
+  stage: test
+  tags:
+    - devops-mac
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT GCC_ARM
+
+# ARMC6
+test_afr_build-CY8CKIT_064S0S2_4343W-ARM:
+  stage: test
+  tags:
+    - devops-linux
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W ARM
+
+test_afr_build-CY8CKIT_062S2_43012-ARM:
+  stage: test
+  tags:
+    - devops-linux
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012 ARM
+
+# IAR
+test_afr_build-CY8CKIT_064S0S2_4343W-IAR:
+  stage: test
+  tags:
+    - devops-win
+    - IAR_8.50.4
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W IAR
+
+test_afr_build-CY8CKIT_062S2_43012-IAR:
+  stage: test
+  tags:
+    - devops-win
+    - IAR_8.50.4
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012 IAR
+
+# Coverity
+test_coverity_CY8CPROTO_062_4343W:
+  stage: test
+  tags:
+    - devops-linux
+  variables:
+    CY_DEP_DIR: $CI_PROJECT_DIR/cydep
+  script:
+    - bash cypress_internal_test/coverity/coverity_report_ubuntu.sh CY8CPROTO_062_4343W ubuntu
+  allow_failure: true
+  artifacts:
+    paths:
+      - cov-analyze-errorlist-afr_ota_CY8CPROTO_062_4343W.txt
+
+test_coverity_CY8CKIT_064S0S2_4343W:
+  stage: test
+  tags:
+    - devops-linux
+  variables:
+    CY_DEP_DIR: $CI_PROJECT_DIR/cydep
+  script:
+    - bash cypress_internal_test/coverity/coverity_report_ubuntu.sh CY8CKIT_064S0S2_4343W ubuntu
+  allow_failure: true
+  artifacts:
+    paths:
+      - cov-analyze-errorlist-afr_ota_CY8CKIT_064S0S2_4343W.txt
+
+###############################################################################
+#####################  Amazon-FREERtos device tester tests  ###################
+###############################################################################
+
+# Run AFR Device tester when $AFR_DEVICE_TESTER is specified
+afr_device_tester_auto_CY8CPROTO-062-4343W:
+  stage: test
+  tags:
+    - bsp_csp_afr
+    - device-tester
+    - CY8CPROTO-062-4343W
+  only:
+    variables:
+      - $AFR_DEVICE_TESTER
+      - $AFR_TEST_CY8CPROTO_062_4343W
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
+    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CPROTO_062_4343W arm-gcc '3.1.0' 'OTA_NO' $TEST_ARGS
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - cypress_internal_test/device_tester/test_results
+
+# Run AFR Device tester when $AFR_DEVICE_TESTER is specified
+afr_device_tester_auto_CY8CKIT-062-WIFI-BT:
+  stage: test
+  tags:
+    - bsp_csp_afr
+    - device-tester
+    - CY8CKIT-062-WIFI-BT
+  only:
+    variables:
+      - $AFR_DEVICE_TESTER
+      - $AFR_TEST_CY8CKIT_062_WIFI_BT
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
+    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CKIT_062_WIFI_BT arm-gcc '3.1.0' 'OTA_NO' $TEST_ARGS
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - cypress_internal_test/device_tester/test_results
+
+# Run AFR Device tester when $AFR_DEVICE_TESTER is specified
+afr_device_tester_auto_CY8CKIT-062S2-43012:
+  stage: test
+  tags:
+    - bsp_csp_afr
+    - device-tester
+    - CY8CKIT-062S2-43012
+  only:
+    variables:
+      - $AFR_DEVICE_TESTER
+      - $AFR_TEST_CY8CKIT_062S2_43012
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
+    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CKIT_062S2_43012 arm-gcc '3.1.0' 'OTA_NO' $TEST_ARGS
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - cypress_internal_test/device_tester/test_results
+
+# Run AFR Device tester when $AFR_DEVICE_TESTER is specified
+afr_device_tester_auto_CY8CKIT-064S0S2-4343W:
+  stage: test
+  tags:
+    - tfm-idt-afr
+  only:
+    variables:
+      - $AFR_DEVICE_TESTER_064S0S2
+  before_script:
+    - source cypress_internal_test/set_idt_env.sh
+    - setup_idt
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CKIT_064S0S2_4343W arm-gcc '3.1.0' 'OTA_NO' $TEST_ARGS
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - cypress_internal_test/device_tester/test_results
+  resource_group: afr_test
+  allow_failure: true
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+# Run AFR Device tester when AFR_TEST_OTA_CY8CKIT_064S0S2_4343W is specified
+afr_device_tester_auto_CY8CKIT-064S0S2-4343W_OTA:
+  stage: test
+  tags:
+    - tfm-idt-afr
+  only:
+    variables:
+      - $AFR_TEST_OTA_CY8CKIT_064S0S2_4343W
+  before_script:
+    - source cypress_internal_test/set_idt_env.sh
+    - setup_idt
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    # Enable OTA parameter should be: OTA_NO or OTA_YES
+    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CKIT_064S0S2_4343W arm-gcc '3.1.0' 'OTA_YES' $TEST_ARGS
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - cypress_internal_test/device_tester/test_results
+  resource_group: afr_test
+  allow_failure: true
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+# Run AFR Device tester when $AFR_DEVICE_TESTER and AFR_DEVICE_OTA is specified
+afr_device_tester_auto_CY8CPROTO-062-4343W_OTA:
+  stage: test
+  tags:
+    - bsp_csp_afr
+    - device-tester
+    - CY8CPROTO-062-4343W
+  only:
+    variables:
+      - $AFR_DEVICE_OTA
+      - $AFR_TEST_OTA_CY8CPROTO_062_4343W
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
+    - python3 cypress_internal_test/device_tester/run_test.py CY8CPROTO_062_4343W arm-gcc '3.1.0' 'OTA_YES' $TEST_ARGS
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - cypress_internal_test/device_tester/test_results
+
+# Run AFR Device tester when $AFR_DEVICE_TESTER and AFR_DEVICE_OTA is specified
+afr_device_tester_auto_CY8CKIT-062-WIFI-BT_OTA:
+  stage: test
+  tags:
+    - bsp_csp_afr
+    - device-tester
+    - CY8CKIT-062-WIFI-BT
+  only:
+    variables:
+      - $AFR_DEVICE_OTA
+      - $AFR_TEST_OTA_CY8CKIT_062_WIFI_BT
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
+    - python3 cypress_internal_test/device_tester/run_test.py CY8CKIT_062_WIFI_BT arm-gcc '3.1.0' 'OTA_YES' $TEST_ARGS
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - cypress_internal_test/device_tester/test_results
+
+# Run AFR Device tester when $AFR_DEVICE_TESTER and AFR_DEVICE_OTA is specified
+afr_device_tester_auto_CY8CKIT-062S2-43012_OTA:
+  stage: test
+  tags:
+    - bsp_csp_afr
+    - device-tester
+    - CY8CKIT-062S2-43012
+  only:
+    variables:
+      - $AFR_DEVICE_OTA
+      - $AFR_TEST_OTA_CY8CKIT_062S2_43012
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
+    - python3 cypress_internal_test/device_tester/run_test.py CY8CKIT_062S2_43012 arm-gcc '3.1.0' 'OTA_YES' $TEST_ARGS
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - cypress_internal_test/device_tester/test_results
+
+###############################################################################
+############################  Amazon-FREERtos demo tests  #####################
+###############################################################################
+
+# Run AFR demo test when $AFR_DEMO_TEST is specified
+afr_demo_test_auto_CY8CPROTO-062-4343W:
+  stage: test
+  tags:
+    - bsp_csp_afr
+    - device-tester
+    - CY8CPROTO-062-4343W
+  only:
+    variables:
+      - $AFR_DEMO_TEST
+      - $AFR_TEST_CY8CPROTO_062_4343W
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
+    - bash cypress_internal_test/demo_test/run_test.sh CY8CPROTO_062_4343W
+
+# Run AFR demo test when $AFR_DEMO_TEST is specified
+afr_demo_test_auto_CY8CKIT-062-WIFI-BT:
+  stage: test
+  tags:
+    - bsp_csp_afr
+    - device-tester
+    - CY8CKIT-062-WIFI-BT
+  only:
+    variables:
+      - $AFR_DEMO_TEST
+      - $AFR_TEST_CY8CKIT_062_WIFI_BT
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
+    - bash cypress_internal_test/demo_test/run_test.sh CY8CKIT_062_WIFI_BT
+
+# Run AFR demo test when $AFR_DEMO_TEST is specified
+afr_demo_test_auto_CY8CKIT-062S2-43012:
+  stage: test
+  tags:
+    - bsp_csp_afr
+    - device-tester
+    - CY8CKIT-062S2-43012
+  only:
+    variables:
+      - $AFR_DEMO_TEST
+      - $AFR_TEST_CY8CKIT_062S2_43012
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
+    - bash cypress_internal_test/demo_test/run_test.sh CY8CKIT_062S2_43012
+
+# Run AFR Device tester when $AFR_DEMO_TEST_CY8CKIT_064S0S2_4343W_GCC is specified
+afr_demo_test_auto_CY8CKIT_064S0S2_4343W_GCC:
+  stage: test
+  tags:
+    - tfm-idt-afr
+  only:
+    variables:
+      - $AFR_DEMO_TEST_CY8CKIT_064S0S2_4343W_GCC
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    - bash -e cypress_internal_test/demo_test/run_test_func.sh  CY8CKIT_064S0S2_4343W GCC_ARM
+  resource_group: afr_test
+
+# Run AFR Device tester when $AFR_DEMO_TEST_CY8CKIT_064S0S2_4343W_ARM is specified
+afr_demo_test_auto_CY8CKIT_064S0S2_4343W_ARM:
+  stage: test
+  tags:
+    - tfm-idt-afr
+  only:
+    variables:
+      - $AFR_DEMO_TEST_CY8CKIT_064S0S2_4343W_ARM
+  script:
+    # NOTE the board name below use '_' instead of '-'
+    - bash -e cypress_internal_test/demo_test/run_test_func.sh  CY8CKIT_064S0S2_4343W ARM
+  resource_group: afr_test
+
+###############################################################################
+###############  Amazon-FREERtos demo build tests (Regression)  ###############
+###############################################################################
+
+test_afr_build-CY8CPROTO_062_4343W-LIN:
+  stage: test
+  tags:
+    - devops-linux
+  only:
+    variables:
+      - $AFR_BUILD_LIN_CY8CPROTO_062_4343W
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W
+
+test_afr_build-CY8CPROTO-062-4343W-WIN:
+  stage: test
+  tags:
+    - devops-win
+    - IAR_8.50.4
+  only:
+    variables:
+      - $AFR_BUILD_WIN_CY8CPROTO_062_4343W
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W
+    
+test_afr_build-CY8CPROTO-062-4343W-MAC:
+  stage: test
+  tags:
+    - devops-mac
+  only:
+    variables:
+      - $AFR_BUILD_MAC_CY8CPROTO_062_4343W
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W
+
+test_afr_build-CY8CKIT-062-WIFI-BT-WIN:
+  stage: test
+  tags:
+    - devops-win
+    - IAR_8.50.4
+  only:
+    variables:
+      - $AFR_BUILD_WIN_CY8CKIT_062_WIFI_BT
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT
+
+test_afr_build-CY8CKIT-062-WIFI-BT-LIN:
+  stage: test
+  tags:
+    - devops-linux
+  only:
+    variables:
+      - $AFR_BUILD_LIN_CY8CKIT_062_WIFI_BT
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT
+    
+test_afr_build-CY8CKIT-062-WIFI-BT-MAC:
+  stage: test
+  tags:
+    - devops-mac
+  only:
+    variables:
+      - $AFR_BUILD_MAC_CY8CKIT_062_WIFI_BT
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT
+
+test_afr_build-CY8CKIT_064S0S2_4343W-LIN:
+  stage: test
+  tags:
+    - devops-linux
+  only:
+    variables:
+      - $AFR_BUILD_LIN_CY8CKIT_064S0S2_4343W
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W
+    
+test_afr_build-CY8CKIT_064S0S2_4343W-WIN:
+  stage: test
+  tags:
+    - devops-win
+    - IAR_8.50.4
+  only:
+    variables:
+      - $AFR_BUILD_WIN_CY8CKIT_064S0S2_4343W
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W   
+
+test_afr_build-CY8CKIT_064S0S2_4343W-MAC:
+  stage: test
+  tags:
+    - devops-mac
+  only:
+    variables:
+      - $AFR_BUILD_MAC_CY8CKIT_064S0S2_4343W
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W 
+
+test_afr_build-CY8CKIT-062S2-43012-LIN:
+  stage: test
+  tags:
+    - devops-linux
+  only:
+    variables:
+      - $AFR_BUILD_LIN_CY8CKIT_062S2_43012
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012
+    
+test_afr_build-CY8CKIT-062S2-43012-WIN:
+  stage: test
+  tags:
+    - devops-win
+    - IAR_8.50.4
+  only:
+    variables:
+      - $AFR_BUILD_WIN_CY8CKIT_062S2_43012
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012   
+
+test_afr_build-CY8CKIT-062S2-43012-MAC:
+  stage: test
+  tags:
+    - devops-mac
+  only:
+    variables:
+      - $AFR_BUILD_MAC_CY8CKIT_062S2_43012
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012 
+    
+###############################################################################
+###############  Amazon-FREERtos OTA IDT and Demo tests on UKR setup ##########
+###############################################################################
+# Run IDT
+afr_ota_idt_CY8CPROTO_062_4343W_TESTRAIL:
+  stage: test
+  tags:
+    - ubuntu-afr-ota
+  only:
+    variables:
+      - $AFR_OTA_IDT_CY8CPROTO_062_4343W_TESTRAIL
+  script:
+    - python3 cypress_internal_test/device_tester/run_test.py CY8CPROTO_062_4343W arm-gcc '3.1.0' 'OTA_YES'
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - cypress_internal_test/device_tester/test_results
+  allow_failure: true
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+afr_ota_idt_CY8CKIT_062S2_43012_TESTRAIL:
+  stage: test
+  tags:
+    - ubuntu-afr-ota
+  only:
+    variables:
+      - $AFR_OTA_IDT_CY8CKIT_062S2_43012_TESTRAIL
+  script:
+    - python3 cypress_internal_test/device_tester/run_test.py CY8CKIT_062S2_43012 arm-gcc '3.1.0' 'OTA_YES'
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - cypress_internal_test/device_tester/test_results
+  allow_failure: true
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+afr_ota_idt_CY8CKIT_064S0S2_4343W_TESTRAIL:
+  stage: test
+  tags:
+    - ubuntu-afr-ota
+  only:
+    variables:
+      - $AFR_OTA_IDT_CY8CKIT_064S0S2_4343W_TESTRAIL
+  script:
+    - python3 cypress_internal_test/device_tester/run_test.py CY8CKIT_064S0S2_4343W arm-gcc '3.1.0' 'OTA_YES'
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - cypress_internal_test/device_tester/test_results
+  allow_failure: true
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+# Run AFR OTA Demo tests for GCC_ARM
+afr_ota_demo_test_auto_CY8CKIT_062S2_43012_GCC:
+  stage: test
+  tags:
+    - ubuntu-afr-ota
+  only:
+    variables:
+      - $AFR_OTA_DEMO_GCC
+      - $AFR_OTA_DEMO_CY8CKIT_062S2_43012_GCC
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_062S2_43012 GCC_ARM
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+afr_ota_demo_test_auto_CY8CPROTO_062_4343W_GCC:
+  stage: test
+  tags:
+    - ubuntu-afr-ota
+  only:
+    variables:
+      - $AFR_OTA_DEMO_GCC    
+      - $AFR_OTA_DEMO_CY8CPROTO_062_4343W_GCC
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CPROTO_062_4343W GCC_ARM
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+afr_ota_demo_test_auto_CY8CKIT_064S0S2_4343W_GCC:
+  stage: test
+  tags:
+    - ubuntu-afr-ota
+  only:
+    variables:
+      - $AFR_OTA_DEMO_GCC    
+      - $AFR_OTA_DEMO_CY8CKIT_064S0S2_4343W_GCC
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_064S0S2_4343W GCC_ARM
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+# Run AFR OTA Demo tests for ARM
+afr_ota_demo_test_auto_CY8CKIT_062S2_43012_ARM:
+  stage: test
+  tags:
+    - ubuntu-afr-ota
+  only:
+    variables:
+      - $AFR_OTA_DEMO_ARM    
+      - $AFR_OTA_DEMO_CY8CKIT_062S2_43012_ARM
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_062S2_43012 ARM
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+afr_ota_demo_test_auto_CY8CPROTO_062_4343W_ARM:
+  stage: test
+  tags:
+    - ubuntu-afr-ota
+  only:
+    variables:
+      - $AFR_OTA_DEMO_ARM        
+      - $AFR_OTA_DEMO_CY8CPROTO_062_4343W_ARM
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CPROTO_062_4343W ARM
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+afr_ota_demo_test_auto_CY8CKIT_064S0S2_4343W_ARM:
+  stage: test
+  tags:
+    - ubuntu-afr-ota
+  only:
+    variables:
+      - $AFR_OTA_DEMO_ARM        
+      - $AFR_OTA_DEMO_CY8CKIT_064S0S2_4343W_ARM
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_064S0S2_4343W ARM
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+# Run AFR OTA Demo tests for IAR
+afr_ota_demo_test_auto_CY8CKIT_062S2_43012_IAR:
+  stage: test
+  tags:
+    - afr-ota-ukr
+  only:
+    variables:
+      - $AFR_OTA_DEMO_IAR    
+      - $AFR_OTA_DEMO_CY8CKIT_062S2_43012_IAR
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_062S2_43012 IAR
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+afr_ota_demo_test_auto_CY8CPROTO_062_4343W_IAR:
+  stage: test
+  tags:
+    - afr-ota-ukr
+  only:
+    variables:
+      - $AFR_OTA_DEMO_IAR        
+      - $AFR_OTA_DEMO_CY8CPROTO_062_4343W_IAR
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CPROTO_062_4343W IAR
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
+afr_ota_demo_test_auto_CY8CKIT_064S0S2_4343W_IAR:
+  stage: test
+  tags:
+    - afr-ota-ukr
+  only:
+    variables:
+      - $AFR_OTA_DEMO_IAR        
+      - $AFR_OTA_DEMO_CY8CKIT_064S0S2_4343W_IAR
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_064S0S2_4343W IAR
+  after_script:
+    - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
+
