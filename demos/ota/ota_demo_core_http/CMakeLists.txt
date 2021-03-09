@@ -26,8 +26,8 @@ afr_module_dependencies(
         AFR::secure_sockets
         AFR::pkcs11_helpers
         AFR::ota::mcu_port
-        # Add dependency on the core_mqtt_demo_dependencies metadata module
-        # so that FreeRTOS console shows this demo ONLY when the core MQTT library
-        # (or another library depending on coreMQTT) is selected on the console.
+        # Add dependency on the ota_demo_dependencies metadata module
+        # so that FreeRTOS console shows this demo ONLY when the OTA library
+        # (or another library depending on OTA) is selected on the console.
         AFR::ota_demo_dependencies
 )

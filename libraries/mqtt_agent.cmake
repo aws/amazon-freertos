@@ -3,7 +3,7 @@ afr_module(NAME mqtt_agent)
 # Include mqtt agent source and header path variables.
 include("${CMAKE_CURRENT_LIST_DIR}/coreMQTTAgent/mqttAgentFilePaths.cmake")
 
-# Create a list of all header files in the coreJSON library.
+# Create a list of all header files in the coreMQTTAgent library.
 # The list of header files will be added to metadata required
 # for the FreeRTOS console.
 set(MQTT_AGENT_HEADER_FILES "")

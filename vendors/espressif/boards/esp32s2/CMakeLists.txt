@@ -357,22 +357,26 @@ target_sources(
     AFR::ota::mcu_port
     INTERFACE
         "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
-        "${afr_ports_dir}/ota/aws_esp_ota_ops.c"
-        "${afr_ports_dir}/ota/aws_esp_ota_ops.h"
+        "${afr_ports_dir}/ota_pal_for_aws/aws_esp_ota_ops.c"
+        "${afr_ports_dir}/ota_pal_for_aws/aws_esp_ota_ops.h"
 )
 target_include_directories(
     AFR::ota::mcu_port
     INTERFACE
         "${afr_ports_dir}/ota_pal_for_aws"
-        "${afr_ports_dir}/ota"
+        "${esp_idf_dir}/components/soc/soc/include"
 )
 target_link_libraries(
     AFR::ota::mcu_port
     INTERFACE
         AFR::crypto
         AFR::pkcs11
-        AFR::ota_mqtt
-        AFR::ota_http
+        AFR::ota
+)
+
+# Add extra components to metadata
+afr_files_to_console_metadata(
+    "${extra_components_dir}"
 )
 
 # -------------------------------------------------------------------------------------------------

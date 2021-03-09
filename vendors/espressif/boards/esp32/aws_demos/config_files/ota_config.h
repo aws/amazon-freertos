@@ -62,7 +62,6 @@
 
  /**
   * @brief Size of the file data block message (excluding the header).
-  *
   */
 #define otaconfigFILE_BLOCK_SIZE                ( 1UL << otaconfigLOG2_FILE_BLOCK_SIZE )
 
@@ -99,7 +98,6 @@
  *  request is 128/1 = 128 blocks. Configure this parameter to this maximum limit or lower based on
  *  how many data blocks response is expected for each data requests.
  *  Please note that this must be set larger than zero.
- *
  */
 #define otaconfigMAX_NUM_BLOCKS_REQUEST        4U
 
@@ -108,7 +106,6 @@
  *
  * This configuration parameter sets the maximum number of times the requests are made over
  * the selected communication channel before aborting and returning error.
- *
  */
 #define otaconfigMAX_NUM_REQUEST_MOMENTUM      32U
 

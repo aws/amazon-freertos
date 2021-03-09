@@ -1,5 +1,5 @@
 /*
- * FreeRTOS OTA V1.2.0
+ * FreeRTOS OTA V3.0.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,8 +28,8 @@
  * @brief Function declarations for ota_ptal.c.
  */
 
-#ifndef _OTA_PAL_H_
-#define _OTA_PAL_H_
+#ifndef OTA_PAL_H_
+#define OTA_PAL_H_
 
 #include "ota.h"
 
@@ -204,4 +204,4 @@ OtaErr_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
  */
 OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const C );
 
-#endif /* ifndef _OTA_PAL_H_ */
+#endif /* ifndef OTA_PAL_H_ */

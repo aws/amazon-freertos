@@ -178,7 +178,7 @@ endif()
 
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE 
+    INTERFACE
         "${afr_ports_dir}/wifi/iot_wifi.c"
 )
 
@@ -319,7 +319,7 @@ endif()
 target_include_directories(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${esp_idf_dir}/components/soc/soc/include" 
+        "${esp_idf_dir}/components/soc/soc/include"
 )
 
 if(AFR_ESP_FREERTOS_TCP)
@@ -422,10 +422,6 @@ target_include_directories(
     AFR::ota::mcu_port
     INTERFACE
         "${afr_ports_dir}/ota_pal_for_aws"
-)
-target_include_directories(
-    AFR::ota::mcu_port
-    INTERFACE
         "${esp_idf_dir}/components/soc/soc/include"
 )
 target_link_libraries(

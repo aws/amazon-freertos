@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _AWS_ESP_OTA_OPS_H
-#define _AWS_ESP_OTA_OPS_H
+#ifndef AWS_ESP_OTA_OPS_H_
+#define AWS_ESP_OTA_OPS_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -132,4 +132,4 @@ esp_err_t aws_esp_ota_get_boot_flags(uint32_t *flags, bool active_part);
 }
 #endif
 
-#endif /* AWS_ESP_OTA_OPS_H */
+#endif /* AWS_ESP_OTA_OPS_H_ */
