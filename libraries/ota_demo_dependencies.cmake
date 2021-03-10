@@ -3,6 +3,11 @@ afr_module( NAME ota INTERNAL )
 # Include OTA library's source and header path variables.
 include("${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/otaFilePaths.cmake")
 
+# Remove the hardcoded coreJSON and TinyCBOR dependancies and add 
+# them manually later to enable them being used by other applications.
+remove( OTA_SOURCES ${JSON_SOURCES} ${TINYCBOR_SOURCES} )
+remove( OTA_INCLUDE_PRIVATE_DIRS ${JSON_INCLUDE_PUBLIC_DIRS} ${TINYCBOR_INCLUDE_DIRS} )
+
 # Add cmake files of module to metadata.
 afr_module_cmake_files(${AFR_CURRENT_MODULE}
     ${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/otaFilePaths.cmake
@@ -15,6 +20,8 @@ afr_module_sources(
         ${OTA_OS_FREERTOS_SOURCES} 
         ${OTA_MQTT_SOURCES}
         ${OTA_HTTP_SOURCES}
+        ${JSON_SOURCES}
+        ${TINYCBOR_SOURCES}
 )
 
 afr_module_include_dirs(
@@ -24,6 +31,8 @@ afr_module_include_dirs(
         ${OTA_INCLUDE_OS_FREERTOS_DIRS}
     PRIVATE
         ${OTA_INCLUDE_PRIVATE_DIRS}
+        ${JSON_INCLUDE_PUBLIC_DIRS}
+        ${TINYCBOR_INCLUDE_DIRS}
 )
 
 # Dependency of module on logging stack.
