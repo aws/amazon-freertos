@@ -748,7 +748,7 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioOperation )
 
     xtestIotGpioHandleA = iot_gpio_open( ucPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA );
-    
+
     iot_gpio_set_callback( xtestIotGpioHandleA, prvGpioCallback, &ucPort );
 
     if( TEST_PROTECT() )
