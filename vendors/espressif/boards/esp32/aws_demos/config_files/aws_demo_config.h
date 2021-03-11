@@ -40,7 +40,8 @@
  *          CONFIG_JOBS_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
- *          CONFIG_OTA_UPDATE_DEMO_ENABLED
+ *          CONFIG_OTA_MQTT_UPDATE_DEMO_ENABLED
+ *          CONFIG_OTA_HTTP_UPDATE_DEMO_ENABLED
  *          CONFIG_BLE_GATT_SERVER_DEMO_ENABLED
  *          CONFIG_MQTT_BLE_TRANSPORT_DEMO_ENABLED
  *          CONFIG_SHADOW_BLE_TRANSPORT_DEMO_ENABLED
@@ -48,7 +49,7 @@
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 
-#define CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
+#define CONFIG_OTA_HTTP_UPDATE_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE    ( configMINIMAL_STACK_SIZE * 8 )
