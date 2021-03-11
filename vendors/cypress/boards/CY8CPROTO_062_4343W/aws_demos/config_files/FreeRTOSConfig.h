@@ -212,6 +212,23 @@ file portable\IAR\CM4F\portasm.s in PendSV_Handler: routine
  * and a time stamp. */
 #define configLOGGING_INCLUDE_TIME_AND_TASK_NAME    1
 
+
+/* Application specific definitions follow. **********************************/
+
+/* If configINCLUDE_DEMO_DEBUG_STATS is set to one, then a few basic IP trace
+ * macros are defined to gather some UDP stack statistics that can then be viewed
+ * through the CLI interface. */
+#define configINCLUDE_DEMO_DEBUG_STATS       1
+
+/* The size of the global output buffer that is available for use when there
+ * are multiple command interpreters running at once (for example, one on a UART
+ * and one on TCP/IP).  This is done to prevent an output buffer being defined by
+ * each implementation - which would waste RAM.  In this case, there is only one
+ * command interpreter running, and it has its own local output buffer, so the
+ * global buffer is just set to be one byte long as it is not used and should not
+ * take up unnecessary RAM. */
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE    1
+
 /*
  * With retarget support enabled, printf gets redirected to the UART
  * that connects via USB to the developers machine.
