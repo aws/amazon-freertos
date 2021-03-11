@@ -467,7 +467,7 @@ static MQTTStatus_t processCommand( MQTTAgentContext_t * pMqttAgentContext,
     bool runProcessLoops = true;
     const uint32_t processLoopTimeoutMs = 0;
     MQTTAgentReturnInfo_t returnInfo = { 0 };
-    MQTTAgentConnectArgs_t* pConnectArgs = NULL;
+    MQTTAgentConnectArgs_t * pConnectArgs = NULL;
 
     assert( pMqttAgentContext != NULL );
 

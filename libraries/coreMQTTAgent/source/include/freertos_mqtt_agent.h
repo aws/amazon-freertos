@@ -34,7 +34,7 @@
 /* MQTT library includes. */
 #include "core_mqtt.h"
 #include "core_mqtt_state.h"
-#include "core_mqtt_agent_config.h"
+#include "core_mqtt_agent_config_defaults.h"
 
 /* Queue include. */
 #include "agent_message.h"

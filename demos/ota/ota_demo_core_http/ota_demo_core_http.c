@@ -401,11 +401,11 @@
  */
 #define OTA_AGENT_TASK_PRIORITY                   ( tskIDLE_PRIORITY )
 
- /**
-    * @brief Stack size required for MQTT agent task.
-    * MQTT agent task takes care of TLS connection and reconnection, keeping task stack size
-    * to high enough required for TLS connection.
-    */
+/**
+ * @brief Stack size required for MQTT agent task.
+ * MQTT agent task takes care of TLS connection and reconnection, keeping task stack size
+ * to high enough required for TLS connection.
+ */
 #define MQTT_AGENT_TASK_STACK_SIZE                ( 6000U )
 
 /**
@@ -446,15 +446,15 @@
 #define HTTP_RESPONSE_NOT_FOUND                   ( 404 )
 
 /**
-* @brief Each compilation unit that consumes the NetworkContext must define it.
-* It should contain a single pointer to the type of your desired transport.
-* When using multiple transports in the same compilation unit, define this pointer as void* .
-*
-* @note Transport stacks are defined in amazon - freertos / libraries / abstractions / transport / secure_sockets / transport_secure_sockets.h.
-*/
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void* .
+ *
+ * @note Transport stacks are defined in amazon - freertos / libraries / abstractions / transport / secure_sockets / transport_secure_sockets.h.
+ */
 struct NetworkContext
 {
-    SecureSocketsTransportParams_t* pParams;
+    SecureSocketsTransportParams_t * pParams;
 };
 
 
@@ -523,6 +523,7 @@ static SubscriptionElement_t xGlobalSubscriptionList[ SUBSCRIPTION_MANAGER_MAX_S
  * @brief The parameters for the network context using a TLS channel.
  */
 static SecureSocketsTransportParams_t xMQTTSecureSocketsTransportParams;
+
 /**
  * @brief Network connection context used in this demo for MQTT connection.
  */
@@ -849,6 +850,7 @@ static BaseType_t prvResumeOTA( void );
  * @return   None.
  */
 static void setOtaInterfaces( OtaInterfaces_t * pOtaInterfaces );
+
 /**
  * @brief Calculate and perform an exponential backoff with jitter delay for
  * the next retry attempt of a failed network operation with the server.
@@ -870,7 +872,7 @@ static void setOtaInterfaces( OtaInterfaces_t * pOtaInterfaces );
  * @return pdPASS if calculating the backoff period was successful; otherwise pdFAIL
  * if there was failure in random number generation OR all retry attempts had exhausted.
  */
-static BaseType_t prvBackoffForRetry(BackoffAlgorithmContext_t* pxRetryParams);
+static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams );
 
 /* Callbacks used to handle different events. */
 
@@ -1344,7 +1346,7 @@ static void prvMQTTUnsubscribeCompleteCallback( CommandContext_t * pxCommandCont
     }
 }
 
-static BaseType_t prvBackoffForRetry(BackoffAlgorithmContext_t* pxRetryParams)
+static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams )
 {
     BaseType_t xReturnStatus = pdFAIL;
     uint16_t usNextRetryBackOff = 0U;
@@ -1362,31 +1364,31 @@ static BaseType_t prvBackoffForRetry(BackoffAlgorithmContext_t* pxRetryParams)
      */
     uint32_t ulRandomNum = 0;
 
-    if (xPkcs11GenerateRandomNumber((uint8_t*)&ulRandomNum,
-        sizeof(ulRandomNum)) == pdPASS)
+    if( xPkcs11GenerateRandomNumber( ( uint8_t * ) &ulRandomNum,
+                                     sizeof( ulRandomNum ) ) == pdPASS )
     {
         /* Get back-off value (in milliseconds) for the next retry attempt. */
-        xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff(pxRetryParams, ulRandomNum, &usNextRetryBackOff);
+        xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( pxRetryParams, ulRandomNum, &usNextRetryBackOff );
 
-        if (xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted)
+        if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
         {
-            LogError(("All retry attempts have exhausted. Operation will not be retried"));
+            LogError( ( "All retry attempts have exhausted. Operation will not be retried" ) );
         }
-        else if (xBackoffAlgStatus == BackoffAlgorithmSuccess)
+        else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
         {
             /* Perform the backoff delay. */
-            vTaskDelay(pdMS_TO_TICKS(usNextRetryBackOff));
+            vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
 
             xReturnStatus = pdPASS;
 
-            LogInfo(("Retry attempt %lu out of maximum retry attempts %lu.",
-                (pxRetryParams->attemptsDone + 1),
-                pxRetryParams->maxRetryAttempts));
+            LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
+                       ( pxRetryParams->attemptsDone + 1 ),
+                       pxRetryParams->maxRetryAttempts ) );
         }
     }
     else
     {
-        LogError(("Unable to retry operation with broker: Random number generation failed"));
+        LogError( ( "Unable to retry operation with broker: Random number generation failed" ) );
     }
 
     return xReturnStatus;
@@ -1497,8 +1499,7 @@ static BaseType_t prvCreateSocketConnectionToMQTTBroker( NetworkContext_t * pNet
 
         if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            xStatus = prvBackoffForRetry(&xReconnectParams);
-             
+            xStatus = prvBackoffForRetry( &xReconnectParams );
         }
     } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xStatus == pdPASS ) );
 
