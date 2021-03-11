@@ -64,7 +64,7 @@
 /**
  * @brief The timeout for all TCP echo multi-task tests.
  */
-#define         tcptestECHO_TEST_SYNC_TIMEOUT                      80000
+#define         tcptestECHO_TEST_SYNC_TIMEOUT                      120000
 
 /**
  * @brief The stack size of the tasks created in all TCP echo multi-task tests.
