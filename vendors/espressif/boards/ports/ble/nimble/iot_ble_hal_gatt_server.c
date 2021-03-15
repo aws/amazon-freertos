@@ -45,6 +45,8 @@
 
 #define BLE_GATT_DSC_CLT_CFG_UUID128 0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x02, 0x29, 0x00, 0x00
 
+#define BLE_MAX_ATTR_LEN 512
+
 static struct ble_gatt_svc_def espServices[ MAX_SERVICES + 1 ];
 static BTService_t * afrServices[ MAX_SERVICES ];
 static uint16_t serviceCnt = 0;
@@ -374,7 +376,7 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
     int rc = 0;
     bool need_rsp = 1;
     uint16_t out_len = 0;
-    uint8_t dst_buf[ 512 ] = { 0 }; /* fixme: Check allocation on stack */
+    uint8_t dst_buf[ BLE_MAX_ATTR_LEN ] = { 0 }; /* fixme: Check allocation on stack */
 
     ble_gap_conn_find( conn_handle, &desc );
 
@@ -730,7 +732,7 @@ static bool prvValidGattRequest()
 
 static void prvPrepareLongReadResponse( uint8_t * dst, uint8_t * pucValue, size_t xLen )
 {
-    if ( ( virtual_offset + xLen ) <= 512 )
+    if ( ( virtual_offset + xLen ) <= BLE_MAX_ATTR_LEN )
     {
         memcpy(dst + virtual_offset, pucValue, xLen);
         virtual_offset += xLen;
@@ -738,6 +740,7 @@ static void prvPrepareLongReadResponse( uint8_t * dst, uint8_t * pucValue, size_
     else
     {
         ESP_LOGE(TAG, "Attempting to send more than 512 Bytes; it will result in failure");
+        assert( 0 );
     }
 }
 
@@ -749,7 +752,7 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
     struct ble_gatt_access_ctxt * ctxt = ( struct ble_gatt_access_ctxt * ) ulTransId;
 
     BTStatus_t xReturnStatus = eBTStatusSuccess;
-    uint8_t dst_buf[ 512 ] = { 0 };
+    uint8_t dst_buf[ BLE_MAX_ATTR_LEN ] = { 0 };
     size_t mtu_value = ble_att_mtu(usConnId);
 
     if( prvValidGattRequest() )
