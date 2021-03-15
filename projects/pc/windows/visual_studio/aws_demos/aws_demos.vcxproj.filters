@@ -135,10 +135,8 @@
     <Filter Include="demos\common\pkcs11_helpers" />
     <Filter Include="demos\coreHTTP" />
     <Filter Include="demos\coreMQTT" />
-    <Filter Include="demos\defender" />
     <Filter Include="demos\device_shadow_for_aws" />
     <Filter Include="demos\greengrass_connectivity" />
-    <Filter Include="demos\https" />
     <Filter Include="demos\jobs_for_aws" />
     <Filter Include="demos\ota" />
     <Filter Include="demos\tcp" />
@@ -792,43 +790,43 @@
     <ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
       <Filter>libraries\3rdparty\jsmn</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota_appversion32.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_appversion32.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota_base64_private.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_base64_private.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota_cbor_private.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_cbor_private.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota_config_defaults.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_config_defaults.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota_http_interface.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_interface.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota_http_private.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_private.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota_interface_private.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_interface_private.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota_mqtt_interface.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_mqtt_interface.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota_mqtt_private.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_mqtt_private.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota_os_interface.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_os_interface.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota_platform_interface.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_platform_interface.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\ota\source\include\ota_private.h">
+    <ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_private.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\coreMQTTAgent\source\include\agent_command_pool.h">
@@ -1178,29 +1176,11 @@
     <ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_connection_sharing.c">
       <Filter>demos\coreMQTT</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c">
-      <Filter>demos\defender</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\demos\device_shadow_for_aws\shadow_demo_main.c">
       <Filter>demos\device_shadow_for_aws</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c">
       <Filter>demos\greengrass_connectivity</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_sync.c">
-      <Filter>demos\https</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_async.c">
-      <Filter>demos\https</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_upload_sync.c">
-      <Filter>demos\https</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_upload_async.c">
-      <Filter>demos\https</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_common.c">
-      <Filter>demos\https</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\demos\jobs_for_aws\jobs_demo.c">
       <Filter>demos\jobs_for_aws</Filter>
@@ -1490,28 +1470,28 @@
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
       <Filter>libraries\3rdparty\jsmn</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\ota\source\ota.c">
+    <ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\ota.c">
       <Filter>libraries\freertos_plus\aws\ota</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\ota\source\ota_base64.c">
+    <ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\ota_base64.c">
       <Filter>libraries\freertos_plus\aws\ota</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\ota\source\ota_cbor.c">
+    <ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\ota_cbor.c">
       <Filter>libraries\freertos_plus\aws\ota</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\ota\source\ota_http.c">
+    <ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\ota_http.c">
       <Filter>libraries\freertos_plus\aws\ota</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\ota\source\ota_interface.c">
+    <ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\ota_interface.c">
       <Filter>libraries\freertos_plus\aws\ota</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\ota\source\ota_mqtt.c">
+    <ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\ota_mqtt.c">
       <Filter>libraries\freertos_plus\aws\ota</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\demos\ota\ota_demo_core_mqtt\ota_demo_core_mqtt.c">
       <Filter>demos\ota\ota_demo_core_mqtt</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\ota\source\portable\os\ota_os_freertos.c">
+    <ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\portable\os\ota_os_freertos.c">
       <Filter>libraries\freertos_plus\aws\ota</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_demo_helpers.c">
