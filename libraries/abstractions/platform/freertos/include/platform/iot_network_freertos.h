@@ -112,6 +112,14 @@
 #define IOT_NETWORK_INTERFACE_AFR    ( &( IotNetworkAfr ) )
 
 /**
+ * @brief Represents a network connection that uses FreeRTOS Secure Sockets.
+ *
+ * This is an incomplete type. In application code, only pointers to this type
+ * should be used.
+ */
+typedef void IotNetworkConnectionAfr_t;
+
+/**
  * @brief An implementation of #IotNetworkInterface_t::create for FreeRTOS
  * Secure Sockets.
  */
