@@ -37,6 +37,14 @@
     #include "aws_iot_demo_network.h"
     #include "private/iot_error.h"
 
+    /**
+     * @brief Represents a network connection that uses FreeRTOS Secure Sockets.
+     *
+     * This is an incomplete type. In application code, only pointers to this
+     * type should be used.
+     */
+    typedef struct _networkConnection IotNetworkConnectionAfr_t;
+
     #if TCPIP_NETWORK_ENABLED
         #include "platform/iot_network_freertos.h"
     #endif
