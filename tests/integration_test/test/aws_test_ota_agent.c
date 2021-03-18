@@ -240,7 +240,7 @@ TEST_GROUP_RUNNER( Full_OTA_AGENT )
 TEST( Full_OTA_AGENT, OTA_SetImageState_AbortBeforeInit )
 {
     /* Attempt to set image state aborted without initializing the OTA Agent. */
-    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( OtaImageStateAborted ) );
+    TEST_ASSERT_EQUAL_UINT32( OtaErrPanic, OTA_SetImageState( OtaImageStateAborted ) );
 }
 
 TEST( Full_OTA_AGENT, OTA_SetImageState_AbortAfterShutDown )
@@ -256,7 +256,7 @@ TEST( Full_OTA_AGENT, OTA_SetImageState_AbortAfterShutDown )
     TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, eOtaStatus );
 
     /* Attempt to set image state aborted. */
-    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( OtaImageStateAborted ) );
+    TEST_ASSERT_EQUAL_UINT32( OtaErrPanic, OTA_SetImageState( OtaImageStateAborted ) );
 }
 
 TEST( Full_OTA_AGENT, OTA_SetImageState_BadState )
@@ -317,7 +317,7 @@ TEST( Full_OTA_AGENT, OTA_AgentInit_BackToBack )
 TEST( Full_OTA_AGENT, OTA_CheckForUpdate_BeforeInit )
 {
     /* Attempt to call OTA_CheckForUpdate without initializing the agent. */
-    TEST_ASSERT_EQUAL( kOTA_Err_EventQueueSendFailed, OTA_CheckForUpdate() );
+    TEST_ASSERT_EQUAL( OtaErrSignalEventFailed, OTA_CheckForUpdate() );
 }
 
 TEST( Full_OTA_AGENT, OTA_GetStatistics_BeforeInit )
