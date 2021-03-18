@@ -570,7 +570,7 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngestStreamResponse )
     uint8_t ucCborWork[ CBOR_TEST_MESSAGE_BUFFER_SIZE ];
     size_t xChunkSize = 0;
     size_t xEncodedSize = 0;
-    OTA_FileContext_t xOTAFileContext = { 0 };
+    OtaFileContext_t xOTAFileContext = { 0 };
     Sig256_t xSig = { 0 };
     uint8_t * pucInFile = NULL;
     size_t xBlockBitmapSize = 0;
@@ -601,40 +601,40 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngestStreamResponse )
     xResultBool = prvReadCborTestFile(
         "payload.bin",
         &pucInFile,
-        &xOTAFileContext.ulFileSize );
+        &xOTAFileContext.fileSize );
 
     /* Test OTA agent data block handling internals. Needs to be read/write
      * since we read it back in order to ensure that the blocks are hashed in
      * order. */
-    xOTAFileContext.pxFile = fopen( "testOtaFile.bin", "w+b" );
-    TEST_ASSERT_NOT_NULL( xOTAFileContext.pxFile );
-    xOTAFileContext.ulBlocksRemaining =
-        xOTAFileContext.ulFileSize / OTA_FILE_BLOCK_SIZE;
+    xOTAFileContext.pFile = fopen( "testOtaFile.bin", "w+b" );
+    TEST_ASSERT_NOT_NULL( xOTAFileContext.pFile );
+    xOTAFileContext.blocksRemaining =
+        xOTAFileContext.fileSize / OTA_FILE_BLOCK_SIZE;
 
-    if( 0 != xOTAFileContext.ulFileSize % OTA_FILE_BLOCK_SIZE )
+    if( 0 != xOTAFileContext.fileSize % OTA_FILE_BLOCK_SIZE )
     {
-        xOTAFileContext.ulBlocksRemaining++;
+        xOTAFileContext.blocksRemaining++;
     }
 
-    xBlockBitmapSize = 1 + ( xOTAFileContext.ulFileSize / BITS_PER_BYTE );
-    xOTAFileContext.pucRxBlockBitmap = pvPortMalloc( xBlockBitmapSize );
-    TEST_ASSERT_NOT_NULL( xOTAFileContext.pucRxBlockBitmap );
-    memset( xOTAFileContext.pucRxBlockBitmap, 0xFF, xBlockBitmapSize );
+    xBlockBitmapSize = 1 + ( xOTAFileContext.fileSize / BITS_PER_BYTE );
+    xOTAFileContext.pRxBlockBitmap = pvPortMalloc( xBlockBitmapSize );
+    TEST_ASSERT_NOT_NULL( xOTAFileContext.pRxBlockBitmap );
+    memset( xOTAFileContext.pRxBlockBitmap, 0xFF, xBlockBitmapSize );
 
-    xOTAFileContext.pucCertFilepath = "rsasigner.crt";
-    xOTAFileContext.pxSignature = &xSig;
-    memcpy( xOTAFileContext.pxSignature->ucData, ucSignature, sizeof( ucSignature ) );
-    xOTAFileContext.pxSignature->usSize = sizeof( ucSignature );
+    xOTAFileContext.pCertFilepath = "rsasigner.crt";
+    xOTAFileContext.pSignature = &xSig;
+    memcpy( xOTAFileContext.pSignature->data, ucSignature, sizeof( ucSignature ) );
+    xOTAFileContext.pSignature->size = sizeof( ucSignature );
 
     /* Process the signed file by chunks. */
     for( size_t xBlock = 0;
-         ( xBlock * OTA_FILE_BLOCK_SIZE ) < xOTAFileContext.ulFileSize;
+         ( xBlock * OTA_FILE_BLOCK_SIZE ) < xOTAFileContext.fileSize;
          xBlock++ )
     {
         /* Create the encoded data block response. */
         xChunkSize = min(
             OTA_FILE_BLOCK_SIZE,
-            xOTAFileContext.ulFileSize - ( xBlock * OTA_FILE_BLOCK_SIZE ) );
+            xOTAFileContext.fileSize - ( xBlock * OTA_FILE_BLOCK_SIZE ) );
         xResultBool = prvCreateSampleGetStreamResponseMessage(
             ucCborWork,
             sizeof( ucCborWork ),
@@ -652,7 +652,7 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngestStreamResponse )
             xEncodedSize,
             &xCloseResult );
 
-        if( ( xBlock * OTA_FILE_BLOCK_SIZE ) + xChunkSize == xOTAFileContext.ulFileSize )
+        if( ( xBlock * OTA_FILE_BLOCK_SIZE ) + xChunkSize == xOTAFileContext.fileSize )
         {
             TEST_ASSERT_EQUAL_INT32( xResultIngest, eIngest_Result_FileComplete );
         }
@@ -668,9 +668,9 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngestStreamResponse )
     }
 
     /* Clean-up. */
-    if( NULL != xOTAFileContext.pxFile )
+    if( NULL != xOTAFileContext.pFile )
     {
-        fclose( xOTAFileContext.pxFile );
+        fclose( xOTAFileContext.pFile );
     }
 
     if( NULL != pucInFile )

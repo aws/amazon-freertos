@@ -332,7 +332,7 @@ TEST( Full_OTA_AGENT, OTA_GetStatistics_BeforeInit )
 TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
 {
     OTA_State_t eOtaStatus = eOTA_AgentState_Init;
-    OTA_FileContext_t * pxUpdateFile = NULL;
+    OtaFileContext_t * pxUpdateFile = NULL;
     uint32_t ulLoopIndex = 0;
     bool_t bUpdateJob = false;
 
@@ -352,15 +352,15 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
             TEST_ASSERT_TRUE( pxUpdateFile != NULL );
 
             /* Check the various document field conversions. */
-            TEST_ASSERT_EQUAL_STRING( otatestSTREAM_NAME, pxUpdateFile->pucStreamName );
-            TEST_ASSERT_EQUAL( otatestFILE_SIZE, pxUpdateFile->ulFileSize );
-            TEST_ASSERT_EQUAL_STRING( otatestFILE_PATH, pxUpdateFile->pucFilePath );
-            TEST_ASSERT_EQUAL_STRING( otatestCERT_FILE, pxUpdateFile->pucCertFilepath );
-            TEST_ASSERT_EQUAL( otatestATTRIBUTES, pxUpdateFile->ulFileAttributes );
-            TEST_ASSERT_EQUAL( otatestFILE_ID, pxUpdateFile->ulServerFileID );
-            TEST_ASSERT_EQUAL( sizeof( ucOtatestSIGNATURE ), pxUpdateFile->pxSignature->usSize );
+            TEST_ASSERT_EQUAL_STRING( otatestSTREAM_NAME, pxUpdateFile->pStreamName );
+            TEST_ASSERT_EQUAL( otatestFILE_SIZE, pxUpdateFile->fileSize );
+            TEST_ASSERT_EQUAL_STRING( otatestFILE_PATH, pxUpdateFile->pFilePath );
+            TEST_ASSERT_EQUAL_STRING( otatestCERT_FILE, pxUpdateFile->pCertFilepath );
+            TEST_ASSERT_EQUAL( otatestATTRIBUTES, pxUpdateFile->fileAttributes );
+            TEST_ASSERT_EQUAL( otatestFILE_ID, pxUpdateFile->serverFileID );
+            TEST_ASSERT_EQUAL( sizeof( ucOtatestSIGNATURE ), pxUpdateFile->pSignature->size );
             TEST_ASSERT_EQUAL_MEMORY( ucOtatestSIGNATURE,
-                                      pxUpdateFile->pxSignature->ucData,
+                                      pxUpdateFile->pSignature->data,
                                       sizeof( ucOtatestSIGNATURE ) );
 
             TEST_OTA_prvOTA_Close( pxUpdateFile );
@@ -419,14 +419,14 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
 
     if( pxUpdateFile != NULL )
     {
-        vPortFree( pxUpdateFile->pucFilePath );
-        pxUpdateFile->pucFilePath = NULL;
-        vPortFree( pxUpdateFile->pucCertFilepath );
-        pxUpdateFile->pucCertFilepath = NULL;
-        vPortFree( pxUpdateFile->pxSignature );
-        pxUpdateFile->pxSignature = NULL;
-        vPortFree( pxUpdateFile->pucStreamName );
-        pxUpdateFile->pucStreamName = NULL;
+        vPortFree( pxUpdateFile->pFilePath );
+        pxUpdateFile->pFilePath = NULL;
+        vPortFree( pxUpdateFile->pCertFilepath );
+        pxUpdateFile->pCertFilepath = NULL;
+        vPortFree( pxUpdateFile->pSignature );
+        pxUpdateFile->pSignature = NULL;
+        vPortFree( pxUpdateFile->pStreamName );
+        pxUpdateFile->pStreamName = NULL;
         TEST_OTA_prvOTA_Close( pxUpdateFile );
     }
 
