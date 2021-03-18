@@ -38,7 +38,7 @@
 IngestResult_t TEST_OTA_prvIngestDataBlock( OtaFileContext_t * C,
                                             uint8_t * pcRawMsg,
                                             u32 iMsgSize,
-                                            OTA_Err_t * pxCloseResult )
+                                            OtaPalStatus_t * pxCloseResult )
 {
     return prvIngestDataBlock( C, pcRawMsg, iMsgSize, pxCloseResult );
 }

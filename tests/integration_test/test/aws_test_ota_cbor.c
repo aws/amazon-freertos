@@ -645,7 +645,7 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngestStreamResponse )
         TEST_ASSERT_TRUE( xResultBool );
 
         /* Handle the encoded data block message. */
-        OTA_Err_t xCloseResult = kOTA_Err_None;
+        OtaPalStatus_t xCloseResult = OtaPalSuccess;
         xResultIngest = TEST_OTA_prvIngestDataBlock(
             &xOTAFileContext,
             ucCborWork,

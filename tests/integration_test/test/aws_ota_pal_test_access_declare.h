@@ -31,7 +31,7 @@
 #include "aws_test_ota_config.h"
 
 #if otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
-    OTA_Err_t test_prvPAL_CheckFileSignature( OtaFileContext_t * const C );
+    OtaPalStatus_t test_prvPAL_CheckFileSignature( OtaFileContext_t * const C );
 #endif
 
 #if otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED

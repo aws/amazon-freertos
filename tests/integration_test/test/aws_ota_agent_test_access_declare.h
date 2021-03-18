@@ -40,7 +40,7 @@
 IngestResult_t TEST_OTA_prvIngestDataBlock( OtaFileContext_t * C,
                                             uint8_t * pcRawMsg,
                                             u32 iMsgSize,
-                                            OTA_Err_t * pxCloseResult );
+                                            OtaPalStatus_t * pxCloseResult );
 
 OtaFileContext_t * TEST_OTA_prvParseJobDoc( const char * pacRawMsg,
                                              u32 iMsgLen,

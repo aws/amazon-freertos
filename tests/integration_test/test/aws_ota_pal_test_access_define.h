@@ -39,7 +39,7 @@
 /*-----------------------------------------------------------*/
 
 #if otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
-    OTA_Err_t test_prvPAL_CheckFileSignature( OtaFileContext_t * const C )
+    OtaPalStatus_t test_prvPAL_CheckFileSignature( OtaFileContext_t * const C )
     {
         return prvPAL_CheckFileSignature( C );
     }
