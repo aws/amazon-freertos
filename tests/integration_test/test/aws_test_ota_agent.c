@@ -240,7 +240,7 @@ TEST_GROUP_RUNNER( Full_OTA_AGENT )
 TEST( Full_OTA_AGENT, OTA_SetImageState_AbortBeforeInit )
 {
     /* Attempt to set image state aborted without initializing the OTA Agent. */
-    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( eOTA_ImageState_Aborted ) );
+    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( OtaImageStateAborted ) );
 }
 
 TEST( Full_OTA_AGENT, OTA_SetImageState_AbortAfterShutDown )
@@ -256,17 +256,17 @@ TEST( Full_OTA_AGENT, OTA_SetImageState_AbortAfterShutDown )
     TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, eOtaStatus );
 
     /* Attempt to set image state aborted. */
-    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( eOTA_ImageState_Aborted ) );
+    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( OtaImageStateAborted ) );
 }
 
 TEST( Full_OTA_AGENT, OTA_SetImageState_BadState )
 {
     /* Initial OTA image state. */
-    OTA_ImageState_t xOTAImageState = OTA_GetImageState();
+    OtaImageState_t xOTAImageState = OTA_GetImageState();
 
     /* Attempt to set bad image states. */
-    TEST_ASSERT_EQUAL_UINT32( OtaPalBadImageState, OTA_SetImageState( eOTA_ImageState_Unknown ) );
-    TEST_ASSERT_EQUAL_UINT32( OtaPalBadImageState, OTA_SetImageState( ( OTA_ImageState_t ) -1 ) );
+    TEST_ASSERT_EQUAL_UINT32( OtaPalBadImageState, OTA_SetImageState( OtaImageStateUnknown ) );
+    TEST_ASSERT_EQUAL_UINT32( OtaPalBadImageState, OTA_SetImageState( ( OtaImageState_t ) -1 ) );
 
     /* Ensure that the failed SetImageState calls didn't modify the image state. */
     TEST_ASSERT_EQUAL( xOTAImageState, OTA_GetImageState() );
