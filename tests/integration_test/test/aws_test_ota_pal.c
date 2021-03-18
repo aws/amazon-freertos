@@ -31,7 +31,6 @@
 
 #include "unity_fixture.h"
 #include "unity.h"
-#include "aws_ota_pal_test_access_declare.h"
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -86,6 +85,24 @@
 /* For the otaPal_WriteBlock_WriteManyBlocks test this the delay time in ms following
  * the block write loop. */
 #define testotapalWRITE_BLOCKS_DELAY_MS    5000
+
+#if otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
+    OtaPalStatus_t test_prvPAL_CheckFileSignature( OtaFileContext_t * const C )
+    {
+        return prvPAL_CheckFileSignature( C );
+    }
+#endif
+
+/*-----------------------------------------------------------*/
+
+#if otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED
+    u8 * test_prvPAL_ReadAndAssumeCertificate( const u8 * const pucCertName,
+                                               u32 * const ulSignerCertSize )
+
+    {
+        return prvPAL_ReadAndAssumeCertificate( pucCertName, ulSignerCertSize );
+    }
+#endif
 
 /*
  * @brief: This dummy data is prepended by a SHA1 hash generated from the rsa-sha1-signer
