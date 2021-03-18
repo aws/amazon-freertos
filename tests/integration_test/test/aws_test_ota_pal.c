@@ -71,6 +71,7 @@
 #include "aws_ota_codesigner_certificate.h"
 #include "aws_test_ota_config.h"
 
+#include "aws_test_ota_pal_rsa_sha1_signature.h"
 
 /* The Texas Instruments CC3220SF has special requirements on its file system security.
  * We enable code specially for testing the OTA PAL layer for this device. */
@@ -699,7 +700,7 @@ TEST( Full_OTA_PAL, otaPal_SetPlatformImageState_SelfTestImageState )
         TEST_ASSERT_EQUAL( sizeof( ucDummyData ), xOtaStatus );
 
         /* Set the image state. */
-        eImageState = eOtaImageState_testing;
+        eImageState = OtaImageStateTesting;
         xOtaStatus = otaPal_SetPlatformImageState( eImageState );
         TEST_ASSERT_EQUAL_INT( OtaPalSuccess, xOtaStatus );
 
