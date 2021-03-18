@@ -144,7 +144,7 @@ static OTA_State_t prvOTAAgentInit()
 
     if( eOtaStatus != eOTA_AgentState_Ready )
     {
-        configPRINTF( ( "Failed to initialize OTA agent" ) );
+        LogError( ( "Failed to initialize OTA agent." ) );
     }
     else
     {

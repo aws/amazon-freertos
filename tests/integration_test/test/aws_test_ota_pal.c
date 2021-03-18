@@ -129,7 +129,7 @@ static OtaFileContext_t xOtaFile;
             /*Pay attention, for this function the lResult is composed from Signed lRetVal & extended error */
             lRetVal = ( _i16 ) lResult >> 16;
             lExtendedError = ( _u16 ) lResult & 0xFFFF;
-            configPRINTF( ( "Error SL_FS_FACTORY_RET_TO_IMAGE, 5d, %d\r\n", lRetVal, lExtendedError ) );
+            LogError( ( "Error SL_FS_FACTORY_RET_TO_IMAGE, 5d, %d", lRetVal, lExtendedError ) );
             return;
         }
 
@@ -163,7 +163,7 @@ TEST_TEAR_DOWN( Full_OTA_PAL )
 
         if( OtaPalSuccess != xOtaStatus )
         {
-            configPRINTF( ( "Error aborting xOtaFile with code: %d", xOtaStatus ) );
+            LogError( ( "Failed to abort xOtaFile: OtaPalStatus_t=%d", xOtaStatus ) );
         }
     #endif /* ifdef CC3220sf */
 }
