@@ -34,8 +34,8 @@
 #define _AWS_OTA_AGENT_TEST_ACCESS_DECLARE_H_
 
 #include "aws_iot_ota_types.h"
-#include "aws_iot_ota_agent.h"
-#include "aws_iot_ota_agent_internal.h"
+#include "ota.h"
+#include "ota_private.h"
 
 IngestResult_t TEST_OTA_prvIngestDataBlock( OtaFileContext_t * C,
                                             uint8_t * pcRawMsg,
