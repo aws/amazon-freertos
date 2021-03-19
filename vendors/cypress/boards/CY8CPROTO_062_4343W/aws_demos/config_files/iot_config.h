@@ -66,7 +66,7 @@
 #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    1
 #define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
 
-#define BLE_SUPPORTED                           ( 1 )
+//#define BLE_SUPPORTED                           ( 1 )
 #define WIFI_SUPPORTED                          ( 1 )
 
 /* Include the common configuration file for FreeRTOS. */

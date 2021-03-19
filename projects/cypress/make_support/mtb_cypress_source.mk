@@ -15,7 +15,7 @@ CY_IGNORE+=\
 	$(CY_EXTAPP_PATH)/libraries/wifi-host-driver/External\
 	$(CY_EXTAPP_PATH)/libraries/lpa\
 
-ifneq ($(BLE_SUPPORT),1)
+ifneq ($(BLE_SUPPORTED),1)
 CY_IGNORE+=\
 	$(CY_EXTAPP_PATH)/libraries/bluetooth\
 	$(CY_EXTAPP_PATH)/port_support/bluetooth
