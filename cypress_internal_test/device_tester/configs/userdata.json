@@ -16,7 +16,7 @@
     "name": "pyocd",
     "version": "0.20.1",
     "command": [
-      "bash {cy_afr_path}/cypress_internal_test/device_tester/myflash.sh {{device.identifiers[?(@.name == 'serialNo')].value}} {{buildImageName}} {cy_board_name} {cy_ota_en}"
+      "bash {cy_afr_path}/cypress_internal_test/device_tester/myflash.sh {{device.identifiers[?(@.name == 'serialNo')].value[0]}} {{buildImageName}} {cy_board_name} {cy_ota_en}"
     ],
     "buildImageInfo" : {
       "testsImageName": "{cy_afr_path}/build/aws_tests",
