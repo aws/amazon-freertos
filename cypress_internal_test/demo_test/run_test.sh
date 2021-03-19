@@ -40,7 +40,7 @@ function compile_make()
 {
     pushd $AFR_DIR/projects/cypress/$board/mtb/aws_demos
 
-    make build -j4 BLE_SUPPORT=1
+    make build -j4 BLE_SUPPORTED=1
     test_error=$?
     popd
     return $test_error

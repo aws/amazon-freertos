@@ -297,7 +297,7 @@ if [[ $nightly -eq 0 ]]; then
     # for these demos is in a common file shared accross all demos so any changes to should caught in
     # tests for GCC.
     if [[ $toolchain == GCC_ARM ]]; then
-        run_make_test mqtt  BLE_SUPPORT=0
+        run_make_test mqtt  BLE_SUPPORTED=0
         run_make_test tcp_secure_echo
         run_make_test shadow
         run_make_test defender
@@ -320,7 +320,7 @@ else
         run_cmake_test green_grass
 
         run_make_test mqtt
-        run_make_test mqtt  BLE_SUPPORT=0
+        run_make_test mqtt  BLE_SUPPORTED=0
         if [[ $board != "CY8CKIT_062_WIFI_BT" ]]; then
             run_make_test ota OTA_SUPPORT=1
         fi
