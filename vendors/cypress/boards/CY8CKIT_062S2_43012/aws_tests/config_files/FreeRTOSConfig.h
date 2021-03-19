@@ -255,4 +255,10 @@ standard names. */
 #define configNET_MASK2                      255
 #define configNET_MASK3                      0
 
+/* The size of the output buffer is set to maximum length required by the tests,
+ * which is the length enough to accomodate largest error string written to
+ * console from CLI.
+ */
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE    120
+
 #endif /* FREERTOS_CONFIG_H */
