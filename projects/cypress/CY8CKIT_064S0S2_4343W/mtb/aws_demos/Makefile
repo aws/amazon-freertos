@@ -122,7 +122,7 @@ SOURCES=
 INCLUDES=$(CY_AFR_ROOT)/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/nvram/TARGET_CY8CKIT_064B0S2_4343W
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES=BLE_SUPPORTED=$(BLE_SUPPORTED)
+DEFINES=
 
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT=
