@@ -8,6 +8,10 @@
         "value": "Yes"
       },
       {
+          "name": "Cellular",
+          "value": "No"
+      },
+      {
         "name": "OTA",
         "value": "No"
       },
