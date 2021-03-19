@@ -62,6 +62,33 @@ CONFIG=Debug
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
+################################################################################
+# Feature Configuration
+################################################################################
+# Enable or disable BLE module
+BLE_SUPPORTED=1
+
+# Set to 1 to add OTA defines, sources, and libraries (must be used with MCUBoot)
+# NOTE: Extra code must be called from your app to initialize AFR OTA Agent
+OTA_SUPPORT=0
+
+# This platform always uses EXTERNAL_FLASH
+OTA_USE_EXTERNAL_FLASH:=1
+
+# Define CY_TEST_APP_VERSION_IN_TAR here to test application version
+#        in TAR archive at start of OTA image download.
+# NOTE: This requires that the version numbers here and in the header file match.
+# NOTE: This will create compile warnings such as
+#		'warning: "APP_VERSION_MAJOR" redefined'
+#
+# CY_TEST_APP_VERSION_IN_TAR=1
+#
+# APP_VERSION_MAJOR:=1
+# APP_VERSION_MINOR:=0
+# APP_VERSION_BUILD:=0
+
+# CY_TFM_PSA_SUPPORTED feature cannot be disabled on this platform.
+CY_TFM_PSA_SUPPORTED=1
 
 ################################################################################
 # Advanced Configuration
@@ -94,7 +121,7 @@ SOURCES=
 INCLUDES=$(CY_AFR_ROOT)/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/nvram/TARGET_CY8CKIT_064B0S2_4343W
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES=LWIP_ERRNO_STDINCLUDE LWIP_TIMEVAL_PRIVATE=0
+DEFINES=BLE_SUPPORTED=$(BLE_SUPPORTED) LWIP_ERRNO_STDINCLUDE LWIP_TIMEVAL_PRIVATE=0
 
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT=
@@ -131,36 +158,6 @@ PREBUILD=
 
 # Custom post-build commands to run.
 POSTBUILD=
-
-
-################################################################################
-# Feature Configuration
-################################################################################
-# Enable or disable BLE module
-BLE_SUPPORT=1
-
-# Set to 1 to add OTA defines, sources, and libraries (must be used with MCUBoot)
-# NOTE: Extra code must be called from your app to initialize AFR OTA Agent
-OTA_SUPPORT=0
-
-# This platform always uses EXTERNAL_FLASH
-OTA_USE_EXTERNAL_FLASH:=1
-
-# Define CY_TEST_APP_VERSION_IN_TAR here to test application version
-#        in TAR archive at start of OTA image download.
-# NOTE: This requires that the version numbers here and in the header file match.
-# NOTE: This will create compile warnings such as
-#		'warning: "APP_VERSION_MAJOR" redefined'
-#
-# CY_TEST_APP_VERSION_IN_TAR=1
-#
-# APP_VERSION_MAJOR:=1
-# APP_VERSION_MINOR:=0
-# APP_VERSION_BUILD:=0
-
-# CY_TFM_PSA_SUPPORTED feature cannot be disabled on this platform.
-CY_TFM_PSA_SUPPORTED=1
-
 
 ################################################################################
 # Paths
