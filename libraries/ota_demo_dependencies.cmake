@@ -3,6 +3,17 @@ afr_module( NAME ota INTERNAL )
 # Include OTA library's source and header path variables.
 include("${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/otaFilePaths.cmake")
 
+# Create a list of all header files in the OTA library.
+# The list of header files will be added to metadata required
+# for the FreeRTOS console.
+set(OTA_HEADER_FILES "")
+foreach(ota_public_include_dir ${OTA_INCLUDE_PUBLIC_DIRS})
+    file(GLOB ota_public_include_header_files
+              LIST_DIRECTORIES false
+              ${ota_public_include_dir}/*.h )
+    list(APPEND OTA_HEADER_FILES ${ota_public_include_header_files})
+endforeach()
+
 # Remove the hardcoded coreJSON and TinyCBOR dependancies and add 
 # them manually later to enable them being used by other applications.
 remove( OTA_SOURCES ${JSON_SOURCES} ${TINYCBOR_SOURCES} )
@@ -53,7 +64,7 @@ afr_module_dependencies(
 # coreMQTT demos can be downloaded.
 afr_module(NAME ota_demo_dependencies )
 
-afr_set_lib_metadata(ID "ota")
+afr_set_lib_metadata(ID "ota_demo_dependencies")
 afr_set_lib_metadata(DESCRIPTION "This library provides the interface to the over-the-air update agent, which allows devices to receive software updates securely via MQTT or HTTP.")
 afr_set_lib_metadata(DISPLAY_NAME "Over-the-air Update")
 afr_set_lib_metadata(CATEGORY "Amazon Services")

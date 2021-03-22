@@ -17,6 +17,5 @@ afr_module_include_dirs(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
-        AFR::core_mqtt
         AFR::mqtt_agent
 )

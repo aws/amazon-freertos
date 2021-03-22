@@ -243,23 +243,6 @@ target_link_libraries(
     INTERFACE AFR::freertos_plus_posix
 )
 
-
-# OTA
-afr_mcu_port(ota)
-target_sources(
-    AFR::ota::mcu_port
-    INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
-    INTERFACE "${afr_ports_dir}/ota/aws_nvm.c"
-    INTERFACE "${afr_ports_dir}/ota/aws_nvm.h"
-)
-target_link_libraries(
-    AFR::ota::mcu_port
-    INTERFACE
-        AFR::pkcs11
-        AFR::ota_mqtt
-        AFR::ota_http
-)
-
 # -------------------------------------------------------------------------------------------------
 # Additional build configurations
 # -------------------------------------------------------------------------------------------------
