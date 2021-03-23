@@ -75,11 +75,12 @@ afr_module_sources(
 )
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    PUBLIC
+    PRIVATE
         ${OTA_INCLUDE_PUBLIC_DIRS}
         ${OTA_INCLUDE_OS_FREERTOS_DIRS}
-    PRIVATE
         ${OTA_INCLUDE_PRIVATE_DIRS}
+        ${JSON_INCLUDE_PUBLIC_DIRS}
+        ${TINYCBOR_INCLUDE_DIRS}
 )
 
 # Add dependencies of the coreMQTT demos in this target

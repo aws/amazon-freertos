@@ -58,9 +58,8 @@
 /* The logging configuration macros are defined above to ensure they are not
  * superceded by definitions in the following header files. */
 
-#include "ota_pal.h"
+#include "ota_platform_interface.h"
 #include "ota.h"
-
 
 #if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 )
     #include "core_pkcs11_config.h"
@@ -69,9 +68,8 @@
 #endif
 
 #include "aws_ota_codesigner_certificate.h"
-#include "aws_test_ota_config.h"
 
-#include "aws_test_ota_pal_rsa_sha1_signature.h"
+//#include "aws_test_ota_pal_rsa_sha1_signature.h"
 
 /* The Texas Instruments CC3220SF has special requirements on its file system security.
  * We enable code specially for testing the OTA PAL layer for this device. */
@@ -95,13 +93,12 @@
 #endif
 
 /*-----------------------------------------------------------*/
-
 #if otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED
-    u8 * test_prvPAL_ReadAndAssumeCertificate( const u8 * const pucCertName,
-                                               u32 * const ulSignerCertSize )
+    uint8_t * test_prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
+                                                    uint32_t * const ulSignerCertSize )
 
     {
-        return prvPAL_ReadAndAssumeCertificate( pucCertName, ulSignerCertSize );
+        return otaPal_ReadAndAssumeCertificate( pucCertName, ulSignerCertSize );
     }
 #endif
 

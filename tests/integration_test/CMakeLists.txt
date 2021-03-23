@@ -75,4 +75,24 @@ if(AFR_ENABLE_TESTS)
         INTERFACE AFR::freertos_plus_tcp
     )
 
+    # OTA Test
+    afr_test_module(ota_pal_test)
+
+    afr_module_sources(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_pal.c"
+    )
+
+    afr_module_include_dirs(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/test_files"
+    )
+
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE AFR::ota
+    )
 endif()
