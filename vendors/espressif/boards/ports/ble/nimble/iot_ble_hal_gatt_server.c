@@ -54,8 +54,8 @@ static SemaphoreHandle_t xSem;
 static bool semInited;
 bool xSemLock = 0;
 uint16_t gattOffset = 0;
-static bool long_read_flag;
-static size_t virtual_offset;/* Maintain offset for long read ops */
+static bool long_read_flag = false;
+static size_t virtual_offset = 0;/* Maintain offset for long read ops */
 
 void prvGattGetSemaphore()
 {
@@ -763,13 +763,13 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
             if ( pxResponse->xAttrValue.xLen >= ( mtu_value - 1 ) )
             {
                 /* Long read or blob request if data received is of ( MTU - 1 ) size and more */
-                long_read_flag = 1;
+                long_read_flag = true;
                 prvPrepareLongReadResponse( dst_buf, pxResponse->xAttrValue.pucValue, mtu_value - 1 );
             }
             else
             {
                 /* Last long read request if data received is < ( MTU - 1 ) size */
-                long_read_flag = 0;
+                long_read_flag = false;
                 prvPrepareLongReadResponse( dst_buf, pxResponse->xAttrValue.pucValue, pxResponse->xAttrValue.xLen );
             }
 
