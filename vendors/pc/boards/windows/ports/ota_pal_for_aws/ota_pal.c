@@ -588,10 +588,3 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t* pFileContext 
 
     return ePalState; /*lint !e64 !e480 !e481 I/O calls and return type are used per design. */
 }
-
-/*-----------------------------------------------------------*/
-
-/* Provide access to private members for testing. */
-#ifdef FREERTOS_ENABLE_UNIT_TESTS
-#include "aws_ota_pal_test_access_define.h"
-#endif
