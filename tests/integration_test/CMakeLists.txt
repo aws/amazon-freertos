@@ -82,6 +82,15 @@ if(AFR_ENABLE_TESTS)
         ${AFR_CURRENT_MODULE}
         INTERFACE
             "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_pal.c"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_ota_agent_test_access_declare.h"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_ota_agent_test_access_define.h"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_ota_pal_test_access_declare.h"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_ota_pal_test_access_define.h"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_pal_ecdsa_sha256_signature.h"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_pal_rsa_sha1_signature.h"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_pal_rsa_sha256_signature.h"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_signature_methods.h"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/ota_pal_test.h"
     )
 
     afr_module_include_dirs(
