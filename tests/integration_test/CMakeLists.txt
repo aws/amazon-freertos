@@ -88,7 +88,6 @@ if(AFR_ENABLE_TESTS)
         ${AFR_CURRENT_MODULE}
         INTERFACE
             "${CMAKE_CURRENT_LIST_DIR}/ota_pal"
-            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/test_files"
     )
 
     afr_module_dependencies(

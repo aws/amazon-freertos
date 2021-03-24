@@ -23,7 +23,11 @@
  * http://www.FreeRTOS.org
  */
 
+#ifndef _AWS_TEST_OTA_PAL_RSA_SHA1_SIGNATURE_H_
+#define _AWS_TEST_OTA_PAL_RSA_SHA1_SIGNATURE_H_
+
 #include <stdint.h>
+#include "aws_test_ota_signature_methods.h"
 
 /**
  * @brief Invalid signature for OTA PAL testing.
@@ -90,3 +94,5 @@ static const int ucValidSignatureLength = 256;
  * @brief The type of signature method this file defines for the valid signature.
  */
 #define otatestSIG_METHOD    otatestSIG_SHA1_RSA
+
+#endif /* _AWS_TEST_OTA_PAL_RSA_SHA1_SIGNATURE_H_  */
