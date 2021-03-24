@@ -425,7 +425,7 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
     }
     else
     {
-		LogError( ( "No such certificate file: %s. Using aws_ota_codesigner_certificate.h.\r\n",
+		LogError( ( "No such certificate file: %s. Using ota_pal.h.\r\n",
                     ( const char * ) pucCertName ) );
 
         /* Allocate memory for the signer certificate plus a terminating zero so we can copy it and return to the caller. */
@@ -588,3 +588,8 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t* pFileContext 
 
     return ePalState; /*lint !e64 !e480 !e481 I/O calls and return type are used per design. */
 }
+
+/* Provide access to private members for testing. */
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
+    #include "aws_ota_pal_test_access_define.h"
+#endif

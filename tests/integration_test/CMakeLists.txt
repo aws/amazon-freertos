@@ -93,6 +93,8 @@ if(AFR_ENABLE_TESTS)
 
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}
-        INTERFACE AFR::ota
+        INTERFACE
+            AFR::ota
+            AFR::ota::mcu_port
     )
 endif()

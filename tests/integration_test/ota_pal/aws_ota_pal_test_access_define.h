@@ -39,20 +39,20 @@
 /*-----------------------------------------------------------*/
 
 #if otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
-    OtaPalStatus_t test_prvPAL_CheckFileSignature( OtaFileContext_t * const C )
+    OtaPalMainStatus_t test_otaPal_CheckFileSignature( OtaFileContext_t * const C )
     {
-        return prvPAL_CheckFileSignature( C );
+        return otaPal_CheckFileSignature( C );
     }
 #endif
 
 /*-----------------------------------------------------------*/
 
 #if otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED
-    u8 * test_prvPAL_ReadAndAssumeCertificate( const u8 * const pucCertName,
-                                               u32 * const ulSignerCertSize )
+    uint8_t * test_otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
+                                                    uint32_t * const ulSignerCertSize )
 
     {
-        return prvPAL_ReadAndAssumeCertificate( pucCertName, ulSignerCertSize );
+        return otaPal_ReadAndAssumeCertificate( pucCertName, ulSignerCertSize );
     }
 #endif
 

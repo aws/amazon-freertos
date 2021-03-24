@@ -58,16 +58,15 @@
 /* The logging configuration macros are defined above to ensure they are not
  * superceded by definitions in the following header files. */
 
-#include "ota_platform_interface.h"
 #include "ota.h"
+#include "aws_ota_pal_test_access_declare.h"
+#include "ota_pal_test.h"
 
 #if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 )
     #include "core_pkcs11_config.h"
     #include "core_pkcs11.h"
     #include "aws_dev_mode_key_provisioning.h"
 #endif
-
-#include "aws_ota_codesigner_certificate.h"
 
 //#include "aws_test_ota_pal_rsa_sha1_signature.h"
 
@@ -85,22 +84,6 @@
  * the block write loop. */
 #define testotapalWRITE_BLOCKS_DELAY_MS    5000
 
-#if otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
-    OtaPalStatus_t test_prvPAL_CheckFileSignature( OtaFileContext_t * const C )
-    {
-        return prvPAL_CheckFileSignature( C );
-    }
-#endif
-
-/*-----------------------------------------------------------*/
-#if otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED
-    uint8_t * test_prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
-                                                    uint32_t * const ulSignerCertSize )
-
-    {
-        return otaPal_ReadAndAssumeCertificate( pucCertName, ulSignerCertSize );
-    }
-#endif
 
 /*
  * @brief: This dummy data is prepended by a SHA1 hash generated from the rsa-sha1-signer
@@ -224,9 +207,9 @@ TEST_GROUP_RUNNER( Full_OTA_PAL )
 
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_GetPlatformImageState_InvalidImageStateFromFileCloseFailure );
 
-    RUN_TEST_CASE( Full_OTA_PAL, prvPAL_ReadAndAssumeCertificate_ExistingFile );
-    RUN_TEST_CASE( Full_OTA_PAL, prvPAL_ReadAndAssumeCertificate_NonexistentFile );
-    /* RUN_TEST_CASE( Full_OTA_PAL, prvPAL_ReadAndAssumeCertificate_NullParameters ); */ /* Not supported yet. */
+    RUN_TEST_CASE( Full_OTA_PAL, otaPal_ReadAndAssumeCertificate_ExistingFile );
+    RUN_TEST_CASE( Full_OTA_PAL, otaPal_ReadAndAssumeCertificate_NonexistentFile );
+    /* RUN_TEST_CASE( Full_OTA_PAL, otaPal_ReadAndAssumeCertificate_NullParameters ); */ /* Not supported yet. */
 
     RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CheckFileSignature_ValidSignature );
     RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CheckFileSignature_InvalidSignatureBlockWritten );
@@ -698,7 +681,7 @@ TEST( Full_OTA_PAL, otaPal_SetPlatformImageState_SelfTestImageState )
 
         /* Set the image state. */
         eImageState = OtaImageStateTesting;
-        xOtaStatus = otaPal_SetPlatformImageState( eImageState );
+        xOtaStatus = otaPal_SetPlatformImageState( &xOtaFile, eImageState );
         TEST_ASSERT_EQUAL_INT( OtaPalSuccess, xOtaStatus );
 
         /* Verify that image state was saved correctly. */
@@ -927,18 +910,18 @@ TEST( Full_OTA_PAL, otaPal_GetPlatformImageState_InvalidImageStateFromFileCloseF
 
 
 /**
- * @brief Call prvPAL_ReadAndAssumeCertificate with an existing certificate file
+ * @brief Call otaPal_ReadAndAssumeCertificate with an existing certificate file
  * path. Some OTA PAL implementations may use aws_codesigner_certificate.h, in
  * which case this test should still pass.
  */
-TEST( Full_OTA_PAL, prvPAL_ReadAndAssumeCertificate_ExistingFile )
+TEST( Full_OTA_PAL, otaPal_ReadAndAssumeCertificate_ExistingFile )
 {
     #if ( otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED == 1 )
         uint8_t * pucSignerCert = NULL;
         uint8_t * pucCertName = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
         uint32_t ulSignerCertSize = 0;
 
-        pucSignerCert = test_prvPAL_ReadAndAssumeCertificate( pucCertName, &ulSignerCertSize );
+        pucSignerCert = test_otaPal_ReadAndAssumeCertificate( pucCertName, &ulSignerCertSize );
 
         /* Verify that the signer certificate returned is not NULL. */
         TEST_ASSERT_MESSAGE( pucSignerCert != NULL, "The returned certificate is NULL." );
@@ -953,18 +936,18 @@ TEST( Full_OTA_PAL, prvPAL_ReadAndAssumeCertificate_ExistingFile )
 }
 
 /**
- * @brief Call test_prvPAL_ReadAndAssumeCertificate with a non existing certificate file
+ * @brief Call test_otaPal_ReadAndAssumeCertificate with a non existing certificate file
  * path. This test is valid only for devices that abstract their non-volatile memory
  * with a file system.
  */
-TEST( Full_OTA_PAL, prvPAL_ReadAndAssumeCertificate_NonexistentFile )
+TEST( Full_OTA_PAL, otaPal_ReadAndAssumeCertificate_NonexistentFile )
 {
     #if ( ( otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED == 1 ) && ( otatestpalUSE_FILE_SYSTEM == 1 ) )
         uint8_t * pucSignerCert = NULL;
         uint8_t * pucCertName = ( uint8_t * ) ( "non-existing-file.pem" );
         uint32_t ulSignerCertSize = 0;
 
-        pucSignerCert = test_prvPAL_ReadAndAssumeCertificate( pucCertName, &ulSignerCertSize );
+        pucSignerCert = test_otaPal_ReadAndAssumeCertificate( pucCertName, &ulSignerCertSize );
 
         /* Verify that the signer certificate returned is NULL. */
         TEST_ASSERT_MESSAGE( pucSignerCert == NULL, "The returned certificate is NULL." );
@@ -1006,7 +989,7 @@ TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_ValidSignature )
             memcpy( xOtaFile.pSignature->data, ucValidSignature, ucValidSignatureLength );
             xOtaFile.pCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
 
-            xOtaStatus = test_prvPAL_CheckFileSignature( &xOtaFile );
+            xOtaStatus = test_otaPal_CheckFileSignature( &xOtaFile );
             TEST_ASSERT_EQUAL_INT( OtaPalSuccess, xOtaStatus );
         }
     #endif /* if ( otatestpalCHECK_FILE_SIGNATURE_SUPPORTED == 1 ) */
@@ -1044,7 +1027,7 @@ TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_InvalidSignatureBlockWritten )
             xOtaFile.pCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
 
             /* Check the signature. */
-            xOtaStatus = test_prvPAL_CheckFileSignature( &xOtaFile );
+            xOtaStatus = test_otaPal_CheckFileSignature( &xOtaFile );
 
             if( ( OtaPalBadSignerCert != OTA_PAL_MAIN_ERR( xOtaStatus ) ) &&
                 ( OtaPalSignatureCheckFailed != OTA_PAL_MAIN_ERR( xOtaStatus ) ) )
@@ -1114,7 +1097,7 @@ TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_NonexistingCodeSignerCertificate )
             memcpy( xOtaFile.pSignature->data, ucValidSignature, ucValidSignatureLength );
             xOtaFile.pCertFilepath = ( uint8_t * ) ( "nonexistingfile.crt" );
 
-            xOtaStatus = test_prvPAL_CheckFileSignature( &xOtaFile );
+            xOtaStatus = test_otaPal_CheckFileSignature( &xOtaFile );
 
             if( ( OtaPalBadSignerCert != OTA_PAL_MAIN_ERR( xOtaStatus ) ) &&
                 ( OtaPalSignatureCheckFailed != OTA_PAL_MAIN_ERR( xOtaStatus ) ) )

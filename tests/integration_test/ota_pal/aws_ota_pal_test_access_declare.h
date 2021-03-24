@@ -26,17 +26,16 @@
 #ifndef _AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_
 #define _AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_
 
-#include "aws_iot_ota_types.h"
 #include "ota.h"
 #include "aws_test_ota_config.h"
 
 #if otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
-    OtaPalStatus_t test_prvPAL_CheckFileSignature( OtaFileContext_t * const C );
+    OtaPalMainStatus_t test_otaPal_CheckFileSignature( OtaFileContext_t * const C );
 #endif
 
 #if otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED
-    u8 * test_prvPAL_ReadAndAssumeCertificate( const u8 * const pucCertName,
-                                               u32 * const lSignerCertSize );
+    uint8_t * test_otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
+                                                    uint32_t * const ulSignerCertSize );
 #endif
 
 #endif /* ifndef _OTA_AGENT_TEST_ACCESS_DECLARE_H_ */
