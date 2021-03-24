@@ -53,6 +53,9 @@
 [submodule "libraries/abstractions/backoff_algorithm"]
 	path = libraries/abstractions/backoff_algorithm
 	url = https://github.com/FreeRTOS/backoffAlgorithm.git
+[submodule "libraries/coreMQTT-Agent"]
+	path = libraries/coreMQTT-Agent
+	url = https://github.com/FreeRTOS/coreMQTT-Agent.git
 [submodule "tools/litani"]
 	path = tools/litani
 	url = https://github.com/awslabs/aws-build-accumulator
