@@ -39,7 +39,10 @@
 #include "iot_network.h"
 
 /* Agent  APIS for running MQTT in a multithreaded environment. */
-#include "freertos_mqtt_agent.h"
+#include "mqtt_agent.h"
+
+/* Include coreMQTT-Agent configs. */
+#include "core_mqtt_agent_config.h"
 
 /* Includes helpers for managing MQTT subscriptions. */
 #include "subscription_manager.h"
