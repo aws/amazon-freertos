@@ -76,6 +76,8 @@
     #include <ti/drivers/net/wifi/simplelink.h>
 #endif
 
+#include "ota_appversion32.h"
+
 /* For the otaPal_WriteBlock_WriteManyBlocks test this is the number of blocks of
  * ucDummyData to write to the non-volatile memory. */
 #define testotapalNUM_WRITE_BLOCKS         10
@@ -101,6 +103,16 @@ static uint8_t ucDummyData[] =
     0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
     0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33,
     0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f
+};
+
+/* The actual version doesn't matter. This needs to be here because the OTA
+   library expects the application to define the version variable and set it.
+   This isn't being used, but it is required to build the OTA source code. */
+const AppVersion32_t appFirmwareVersion =
+{
+    .u.x.major = 0U,
+    .u.x.minor = 0U,
+    .u.x.build = 0U
 };
 
 /* Global static OTA file context used in every test. This context is reset to all zeros
