@@ -490,6 +490,9 @@ static IotNetworkManager_t networkManager =
                     /* Nothing to do. */
                     break;
 
+                case eWiFiSecurityWPA3:
+                case eWiFiSecurityWPA2_ent:
+                case eWiFiSecurityWEP:
                 default:
                     IotLogError( "The configured WiFi security option is not supported." );
                     status = false;
