@@ -142,7 +142,7 @@ afr_device_tester_auto_CY8CPROTO-062-4343W:
   script:
     # NOTE the board name below use '_' instead of '-'
     - source /home/tester/venv/afr/bin/activate
-    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CPROTO_062_4343W arm-gcc '3.1.0' 'OTA_NO' $TEST_ARGS
+    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CPROTO_062_4343W arm-gcc '4.0.1' 'OTA_NO' $TEST_ARGS
   artifacts:
     when: always
     expire_in: 1 day
@@ -163,7 +163,7 @@ afr_device_tester_auto_CY8CKIT-062-WIFI-BT:
   script:
     # NOTE the board name below use '_' instead of '-'
     - source /home/tester/venv/afr/bin/activate
-    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CKIT_062_WIFI_BT arm-gcc '3.1.0' 'OTA_NO' $TEST_ARGS
+    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CKIT_062_WIFI_BT arm-gcc '4.0.1' 'OTA_NO' $TEST_ARGS
   artifacts:
     when: always
     expire_in: 1 day
@@ -184,7 +184,7 @@ afr_device_tester_auto_CY8CKIT-062S2-43012:
   script:
     # NOTE the board name below use '_' instead of '-'
     - source /home/tester/venv/afr/bin/activate
-    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CKIT_062S2_43012 arm-gcc '3.1.0' 'OTA_NO' $TEST_ARGS
+    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CKIT_062S2_43012 arm-gcc '4.0.1' 'OTA_NO' $TEST_ARGS
   artifacts:
     when: always
     expire_in: 1 day
@@ -204,7 +204,7 @@ afr_device_tester_auto_CY8CKIT-064S0S2-4343W:
     - setup_idt
   script:
     # NOTE the board name below use '_' instead of '-'
-    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CKIT_064S0S2_4343W arm-gcc '3.1.0' 'OTA_NO' $TEST_ARGS
+    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CKIT_064S0S2_4343W arm-gcc '4.0.1' 'OTA_NO' $TEST_ARGS
   artifacts:
     when: always
     expire_in: 1 day
@@ -229,7 +229,7 @@ afr_device_tester_auto_CY8CKIT-064S0S2-4343W_OTA:
   script:
     # NOTE the board name below use '_' instead of '-'
     # Enable OTA parameter should be: OTA_NO or OTA_YES
-    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CKIT_064S0S2_4343W arm-gcc '3.1.0' 'OTA_YES' $TEST_ARGS
+    - python3.7 cypress_internal_test/device_tester/run_test.py CY8CKIT_064S0S2_4343W arm-gcc '4.0.1' 'OTA_YES' $TEST_ARGS
   artifacts:
     when: always
     expire_in: 1 day
@@ -254,7 +254,7 @@ afr_device_tester_auto_CY8CPROTO-062-4343W_OTA:
   script:
     # NOTE the board name below use '_' instead of '-'
     - source /home/tester/venv/afr/bin/activate
-    - python3 cypress_internal_test/device_tester/run_test.py CY8CPROTO_062_4343W arm-gcc '3.1.0' 'OTA_YES' $TEST_ARGS
+    - python3 cypress_internal_test/device_tester/run_test.py CY8CPROTO_062_4343W arm-gcc '4.0.1' 'OTA_YES' $TEST_ARGS
   artifacts:
     when: always
     expire_in: 1 day
@@ -275,7 +275,7 @@ afr_device_tester_auto_CY8CKIT-062-WIFI-BT_OTA:
   script:
     # NOTE the board name below use '_' instead of '-'
     - source /home/tester/venv/afr/bin/activate
-    - python3 cypress_internal_test/device_tester/run_test.py CY8CKIT_062_WIFI_BT arm-gcc '3.1.0' 'OTA_YES' $TEST_ARGS
+    - python3 cypress_internal_test/device_tester/run_test.py CY8CKIT_062_WIFI_BT arm-gcc '4.0.1' 'OTA_YES' $TEST_ARGS
   artifacts:
     when: always
     expire_in: 1 day
@@ -296,7 +296,7 @@ afr_device_tester_auto_CY8CKIT-062S2-43012_OTA:
   script:
     # NOTE the board name below use '_' instead of '-'
     - source /home/tester/venv/afr/bin/activate
-    - python3 cypress_internal_test/device_tester/run_test.py CY8CKIT_062S2_43012 arm-gcc '3.1.0' 'OTA_YES' $TEST_ARGS
+    - python3 cypress_internal_test/device_tester/run_test.py CY8CKIT_062S2_43012 arm-gcc '4.0.1' 'OTA_YES' $TEST_ARGS
   artifacts:
     when: always
     expire_in: 1 day
@@ -405,7 +405,7 @@ test_afr_build-CY8CPROTO-062-4343W-WIN:
       - $AFR_BUILD_WIN_CY8CPROTO_062_4343W
   script:
     - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W
-    
+
 test_afr_build-CY8CPROTO-062-4343W-MAC:
   stage: test
   tags:
@@ -436,7 +436,7 @@ test_afr_build-CY8CKIT-062-WIFI-BT-LIN:
       - $AFR_BUILD_LIN_CY8CKIT_062_WIFI_BT
   script:
     - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT
-    
+
 test_afr_build-CY8CKIT-062-WIFI-BT-MAC:
   stage: test
   tags:
@@ -456,7 +456,7 @@ test_afr_build-CY8CKIT_064S0S2_4343W-LIN:
       - $AFR_BUILD_LIN_CY8CKIT_064S0S2_4343W
   script:
     - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W
-    
+
 test_afr_build-CY8CKIT_064S0S2_4343W-WIN:
   stage: test
   tags:
@@ -466,7 +466,7 @@ test_afr_build-CY8CKIT_064S0S2_4343W-WIN:
     variables:
       - $AFR_BUILD_WIN_CY8CKIT_064S0S2_4343W
   script:
-    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W   
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W
 
 test_afr_build-CY8CKIT_064S0S2_4343W-MAC:
   stage: test
@@ -476,7 +476,7 @@ test_afr_build-CY8CKIT_064S0S2_4343W-MAC:
     variables:
       - $AFR_BUILD_MAC_CY8CKIT_064S0S2_4343W
   script:
-    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W 
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W
 
 test_afr_build-CY8CKIT-062S2-43012-LIN:
   stage: test
@@ -487,7 +487,7 @@ test_afr_build-CY8CKIT-062S2-43012-LIN:
       - $AFR_BUILD_LIN_CY8CKIT_062S2_43012
   script:
     - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012
-    
+
 test_afr_build-CY8CKIT-062S2-43012-WIN:
   stage: test
   tags:
@@ -497,7 +497,7 @@ test_afr_build-CY8CKIT-062S2-43012-WIN:
     variables:
       - $AFR_BUILD_WIN_CY8CKIT_062S2_43012
   script:
-    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012   
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012
 
 test_afr_build-CY8CKIT-062S2-43012-MAC:
   stage: test
@@ -507,8 +507,8 @@ test_afr_build-CY8CKIT-062S2-43012-MAC:
     variables:
       - $AFR_BUILD_MAC_CY8CKIT_062S2_43012
   script:
-    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012 
-    
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012
+
 ###############################################################################
 ###############  Amazon-FREERtos OTA IDT and Demo tests on UKR setup ##########
 ###############################################################################
@@ -521,7 +521,7 @@ afr_ota_idt_CY8CPROTO_062_4343W_TESTRAIL:
     variables:
       - $AFR_OTA_IDT_CY8CPROTO_062_4343W_TESTRAIL
   script:
-    - python3 cypress_internal_test/device_tester/run_test.py CY8CPROTO_062_4343W arm-gcc '3.1.0' 'OTA_YES'
+    - python3 cypress_internal_test/device_tester/run_test.py CY8CPROTO_062_4343W arm-gcc '4.0.1' 'OTA_YES'
   artifacts:
     when: always
     expire_in: 1 day
@@ -539,7 +539,7 @@ afr_ota_idt_CY8CKIT_062S2_43012_TESTRAIL:
     variables:
       - $AFR_OTA_IDT_CY8CKIT_062S2_43012_TESTRAIL
   script:
-    - python3 cypress_internal_test/device_tester/run_test.py CY8CKIT_062S2_43012 arm-gcc '3.1.0' 'OTA_YES'
+    - python3 cypress_internal_test/device_tester/run_test.py CY8CKIT_062S2_43012 arm-gcc '4.0.1' 'OTA_YES'
   artifacts:
     when: always
     expire_in: 1 day
@@ -557,7 +557,7 @@ afr_ota_idt_CY8CKIT_064S0S2_4343W_TESTRAIL:
     variables:
       - $AFR_OTA_IDT_CY8CKIT_064S0S2_4343W_TESTRAIL
   script:
-    - python3 cypress_internal_test/device_tester/run_test.py CY8CKIT_064S0S2_4343W arm-gcc '3.1.0' 'OTA_YES'
+    - python3 cypress_internal_test/device_tester/run_test.py CY8CKIT_064S0S2_4343W arm-gcc '4.0.1' 'OTA_YES'
   artifacts:
     when: always
     expire_in: 1 day
@@ -587,7 +587,7 @@ afr_ota_demo_test_auto_CY8CPROTO_062_4343W_GCC:
     - ubuntu-afr-ota
   only:
     variables:
-      - $AFR_OTA_DEMO_GCC    
+      - $AFR_OTA_DEMO_GCC
       - $AFR_OTA_DEMO_CY8CPROTO_062_4343W_GCC
   script:
     - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CPROTO_062_4343W GCC_ARM
@@ -600,7 +600,7 @@ afr_ota_demo_test_auto_CY8CKIT_064S0S2_4343W_GCC:
     - ubuntu-afr-ota
   only:
     variables:
-      - $AFR_OTA_DEMO_GCC    
+      - $AFR_OTA_DEMO_GCC
       - $AFR_OTA_DEMO_CY8CKIT_064S0S2_4343W_GCC
   script:
     - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_064S0S2_4343W GCC_ARM
@@ -614,7 +614,7 @@ afr_ota_demo_test_auto_CY8CKIT_062S2_43012_ARM:
     - ubuntu-afr-ota
   only:
     variables:
-      - $AFR_OTA_DEMO_ARM    
+      - $AFR_OTA_DEMO_ARM
       - $AFR_OTA_DEMO_CY8CKIT_062S2_43012_ARM
   script:
     - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_062S2_43012 ARM
@@ -627,7 +627,7 @@ afr_ota_demo_test_auto_CY8CPROTO_062_4343W_ARM:
     - ubuntu-afr-ota
   only:
     variables:
-      - $AFR_OTA_DEMO_ARM        
+      - $AFR_OTA_DEMO_ARM
       - $AFR_OTA_DEMO_CY8CPROTO_062_4343W_ARM
   script:
     - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CPROTO_062_4343W ARM
@@ -640,7 +640,7 @@ afr_ota_demo_test_auto_CY8CKIT_064S0S2_4343W_ARM:
     - ubuntu-afr-ota
   only:
     variables:
-      - $AFR_OTA_DEMO_ARM        
+      - $AFR_OTA_DEMO_ARM
       - $AFR_OTA_DEMO_CY8CKIT_064S0S2_4343W_ARM
   script:
     - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_064S0S2_4343W ARM
@@ -654,7 +654,7 @@ afr_ota_demo_test_auto_CY8CKIT_062S2_43012_IAR:
     - afr-ota-ukr
   only:
     variables:
-      - $AFR_OTA_DEMO_IAR    
+      - $AFR_OTA_DEMO_IAR
       - $AFR_OTA_DEMO_CY8CKIT_062S2_43012_IAR
   script:
     - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_062S2_43012 IAR
@@ -667,7 +667,7 @@ afr_ota_demo_test_auto_CY8CPROTO_062_4343W_IAR:
     - afr-ota-ukr
   only:
     variables:
-      - $AFR_OTA_DEMO_IAR        
+      - $AFR_OTA_DEMO_IAR
       - $AFR_OTA_DEMO_CY8CPROTO_062_4343W_IAR
   script:
     - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CPROTO_062_4343W IAR
@@ -680,7 +680,7 @@ afr_ota_demo_test_auto_CY8CKIT_064S0S2_4343W_IAR:
     - afr-ota-ukr
   only:
     variables:
-      - $AFR_OTA_DEMO_IAR        
+      - $AFR_OTA_DEMO_IAR
       - $AFR_OTA_DEMO_CY8CKIT_064S0S2_4343W_IAR
   script:
     - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_064S0S2_4343W IAR
