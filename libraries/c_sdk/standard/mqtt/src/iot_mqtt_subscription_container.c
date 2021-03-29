@@ -270,6 +270,10 @@ bool IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
     {
         /* Using topicFilterLength as a unique parameter to free index and make it available for other subscriptions. */
         pSubscriptionArray[ deleteIndex ].topicFilterLength = 0;
+
+        /* Free memory allocated for topic filter. */
+        IotMqtt_FreeMessage( pSubscriptionArray[ deleteIndex ].pTopicFilter );
+        pSubscriptionArray[ deleteIndex ].pTopicFilter = NULL;
         status = true;
     }
     else
@@ -299,6 +303,10 @@ void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
                 /* Using topicFilterLength as a unique parameter to free index and make it available for other subscriptions.
                  * As topicFilterLength will be non zero for the currently used subscriptions. */
                 pSubscriptionArray[ index ].topicFilterLength = 0;
+
+                /* Free memory allocated for topic filter. */
+                IotMqtt_FreeMessage( pSubscriptionArray[ index ].pTopicFilter );
+                pSubscriptionArray[ index ].pTopicFilter = NULL;
             }
         }
         else
@@ -306,6 +314,9 @@ void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
             pSubscriptionArray[ index ].topicFilterLength = 0;
 
             pSubscriptionArray[ index ].unsubscribed = true;
+
+            IotMqtt_FreeMessage( pSubscriptionArray[ index ].pTopicFilter );
+            pSubscriptionArray[ index ].pTopicFilter = NULL;
         }
 
         index++;
