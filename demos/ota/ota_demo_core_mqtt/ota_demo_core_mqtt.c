@@ -409,10 +409,15 @@ static MQTTAgentContext_t xGlobalMqttAgentContext;
 static uint8_t xNetworkBuffer[ MQTT_AGENT_NETWORK_BUFFER_SIZE ];
 
 /**
+ * @brief FreeRTOS blocking queue to be used as MQTT Agent context.
+ */
+static AgentMessageContext_t xCommandQueue;
+
+/**
  * @brief The interface context used to post commands to the agent.
  * For FreeRTOS its implemented using a FreeRTOS blocking queue.
  */
-static AgentMessageContext_t xCommandQueue;
+static AgentMessageInterface_t xMessageInterface;
 
 /**
  * @brief The global array of subscription elements.
@@ -1247,6 +1252,12 @@ static MQTTStatus_t prvMqttInit( void )
                                               sizeof( Command_t * ),
                                               staticQueueStorageArea,
                                               &staticQueueStructure );
+    xMessageInterface.pMsgCtx = &xCommandQueue;
+    xMessageInterface.recv = Agent_MessageReceive;
+    xMessageInterface.send = Agent_MessageSend;
+    xMessageInterface.getCommand = Agent_GetCommand;
+    xMessageInterface.releaseCommand = Agent_ReleaseCommand;
+
 
     /* Fill in Transport Interface send and receive function pointers. */
     xTransport.pNetworkContext = &networkContextMqtt;
@@ -1255,7 +1266,7 @@ static MQTTStatus_t prvMqttInit( void )
 
     /* Initialize MQTT library. */
     xReturn = MQTTAgent_Init( &xGlobalMqttAgentContext,
-                              &xCommandQueue,
+                              &xMessageInterface,
                               &xFixedBuffer,
                               &xTransport,
                               prvGetTimeMs,

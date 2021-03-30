@@ -23,6 +23,13 @@
 #ifndef OTA_DEMO_HELPERS_H_
 #define OTA_DEMO_HELPERS_H_
 
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "mqtt_agent.h"
+#include "core_mqtt_agent_config.h"
+
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
 /**************************************************/
@@ -133,5 +140,73 @@ SubscriptionManagerStatus_t SubscriptionManager_RegisterCallback( const char * p
 void SubscriptionManager_RemoveCallback( const char * pTopicFilter,
                                          uint16_t topicFilterLength );
 
+/**
+ * @brief Obtain a Command_t structure from the pool of structures managed by the agent.
+ *
+ * @note Command_t structures hold everything the MQTT agent needs to process a
+ * command that originates from application.  Examples of commands are PUBLISH and
+ * SUBSCRIBE.  The Command_t structure must persist for the duration of the command's
+ * operation so are obtained from a pool of statically allocated structures when a
+ * new command is created, and returned to the pool when the command is complete.
+ * The MQTT_COMMAND_CONTEXTS_POOL_SIZE configuration file constant defines how many
+ * structures the pool contains.
+ *
+ * @param[in] blockTimeMs The length of time the calling task should remain in the
+ * Blocked state (so not consuming any CPU time) to wait for a Command_t structure to
+ * become available should one not be immediately at the time of the call.
+ *
+ * @return A pointer to a Command_t structure if one becomes available before
+ * blockTimeMs time expired, otherwise NULL.
+ */
+Command_t * Agent_GetCommand( uint32_t blockTimeMs );
+
+/**
+ * @brief Give a Command_t structure back to the the pool of structures managed by
+ * the agent.
+ *
+ * @note Command_t structures hold everything the MQTT agent needs to process a
+ * command that originates from application.  Examples of commands are PUBLISH and
+ * SUBSCRIBE.  The Command_t structure must persist for the duration of the command's
+ * operation so are obtained from a pool of statically allocated structures when a
+ * new command is created, and returned to the pool when the command is complete.
+ * The MQTT_COMMAND_CONTEXTS_POOL_SIZE configuration file constant defines how many
+ * structures the pool contains.
+ *
+ * @param[in] pCommandToRelease A pointer to the Command_t structure to return to
+ * the pool.  The structure must first have been obtained by calling
+ * Agent_GetCommand(), otherwise Agent_ReleaseCommand() will
+ * have no effect.
+ *
+ * @return true if the Command_t structure was returned to the pool, otherwise false.
+ */
+bool Agent_ReleaseCommand( Command_t * pCommandToRelease );
+
+/**
+ * @brief Send a message to the specified context.
+ * Must be thread safe.
+ *
+ * @param[in] pMsgCtx An #AgentMessageContext_t.
+ * @param[in] data Pointer to element to send to queue.
+ * @param[in] blockTimeMs Block time to wait for a send.
+ *
+ * @return `true` if send was successful, else `false`.
+ */
+bool Agent_MessageSend( const AgentMessageContext_t * pMsgCtx,
+                        const void * pData,
+                        uint32_t blockTimeMs );
+
+/**
+ * @brief Receive a message from the specified context.
+ * Must be thread safe.
+ *
+ * @param[in] pMsgCtx An #AgentMessageContext_t.
+ * @param[in] pBuffer Pointer to buffer to write received data.
+ * @param[in] blockTimeMs Block time to wait for a receive.
+ *
+ * @return `true` if receive was successful, else `false`.
+ */
+bool Agent_MessageReceive( const AgentMessageContext_t * pMsgCtx,
+                           void * pBuffer,
+                           uint32_t blockTimeMs );
 
 #endif /* ifndef OTA_DEMO_HELPERS_H_ */
