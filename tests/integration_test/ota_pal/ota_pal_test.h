@@ -1,6 +1,6 @@
 /*
- * FreeRTOS OTA V3.0.0
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202012.00
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,7 +24,7 @@
  */
 
 /**
- * @file ota_pal_test.h
+ * @file  ota_pal_test.h
  * @brief Function declarations for the OTA PAL functions required for the
  *        qualification tests. Also includes example certificates that are
  *        used during testing. Which certificate is used depends on the

@@ -1,6 +1,6 @@
 /*
- * FreeRTOS OTA V1.2.1
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202012.00
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdio.h>
 
+/* Unity Test framework include. */
 #include "unity_fixture.h"
 #include "unity.h"
 
@@ -58,41 +59,45 @@
 /* The logging configuration macros are defined above to ensure they are not
  * superceded by definitions in the following header files. */
 
+/* Include OTA headers. */
 #include "ota.h"
+#include "ota_appversion32.h"
+
+/* Include functions for accessing static PAL functions. */
 #include "aws_ota_pal_test_access_declare.h"
+
+/* Include declarations of expected PAL functions under test and testing
+ * certificates. */
 #include "ota_pal_test.h"
 
+/* Include PKCS11 headers. */
 #if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 )
     #include "core_pkcs11_config.h"
     #include "core_pkcs11.h"
     #include "aws_dev_mode_key_provisioning.h"
 #endif
 
-//#include "aws_test_ota_pal_rsa_sha1_signature.h"
-
-/* The Texas Instruments CC3220SF has special requirements on its file system security.
- * We enable code specially for testing the OTA PAL layer for this device. */
+/* The Texas Instruments CC3220SF has special requirements on its file
+ * system security. We enable code specially for testing the OTA PAL layer for
+ * this device. */
 #ifdef CC3220sf
     #include <ti/drivers/net/wifi/simplelink.h>
 #endif
 
-#include "ota_appversion32.h"
-
-/* For the otaPal_WriteBlock_WriteManyBlocks test this is the number of blocks of
- * ucDummyData to write to the non-volatile memory. */
+/* For the otaPal_WriteBlock_WriteManyBlocks test this is the number of blocks
+ * of ucDummyData to write to the non-volatile memory. */
 #define testotapalNUM_WRITE_BLOCKS         10
 
 /* For the otaPal_WriteBlock_WriteManyBlocks test this the delay time in ms following
  * the block write loop. */
 #define testotapalWRITE_BLOCKS_DELAY_MS    5000
 
-
 /*
- * @brief: This dummy data is prepended by a SHA1 hash generated from the rsa-sha1-signer
- * certificate and keys in tests/common/ota/test_files.
+ * @brief: This dummy data is prepended by a SHA1 hash generated from the
+ * rsa-sha1-signer certificate and keys in tests/common/ota/test_files.
  *
- * The RSA SHA256 signature and ECDSA 256 signature are generated from this entire data
- * block as is.
+ * The RSA SHA256 signature and ECDSA 256 signature are generated from this
+ * entire data block as is.
  */
 static uint8_t ucDummyData[] =
 {
@@ -105,9 +110,8 @@ static uint8_t ucDummyData[] =
     0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f
 };
 
-/* The actual version doesn't matter. This needs to be here because the OTA
-   library expects the application to define the version variable and set it.
-   This isn't being used, but it is required to build the OTA source code. */
+/* This variable must be set to build the OTA library, but it is not being used
+ * in these tests. The value for the version is arbitrary. */
 const AppVersion32_t appFirmwareVersion =
 {
     .u.x.major = 0U,
@@ -115,8 +119,8 @@ const AppVersion32_t appFirmwareVersion =
     .u.x.build = 0U
 };
 
-/* Global static OTA file context used in every test. This context is reset to all zeros
- * before every test. */
+/* Global static OTA file context used in every test. This variable is reset to
+ * all zeros before every test. */
 static OtaFileContext_t xOtaFile;
 
 #ifdef CC3220sf
@@ -136,7 +140,7 @@ static OtaFileContext_t xOtaFile;
 
         if( ( _i32 ) lResult < 0 )
         {
-            /*Pay attention, for this function the lResult is composed from Signed lRetVal & extended error */
+            /* The lResult variable is composed of a signed lRetVal and an extended error. */
             lRetVal = ( _i16 ) lResult >> 16;
             lExtendedError = ( _u16 ) lResult & 0xFFFF;
             LogError( ( "Error SL_FS_FACTORY_RET_TO_IMAGE, 5d, %d", lRetVal, lExtendedError ) );
@@ -157,7 +161,7 @@ TEST_GROUP( Full_OTA_PAL );
 
 TEST_SETUP( Full_OTA_PAL )
 {
-    /* Always reset the OTA file context before each test. */
+    /* Reset the OTA file context before each test. */
     memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 }
 
@@ -168,7 +172,7 @@ TEST_TEAR_DOWN( Full_OTA_PAL )
     #else
         OtaPalStatus_t xOtaStatus;
 
-        /* We want to abort the OTA file after every test. This closes the OtaFile. */
+        /* Abort the OTA file after every test. This closes the OTA file. */
         xOtaStatus = otaPal_Abort( &xOtaFile );
 
         if( OtaPalSuccess != xOtaStatus )
@@ -180,57 +184,58 @@ TEST_TEAR_DOWN( Full_OTA_PAL )
 
 TEST_GROUP_RUNNER( Full_OTA_PAL )
 {
+    /************* otaPAL_CloseFile Tests *************/
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_CloseFile_ValidSignature );
-    /* RUN_TEST_CASE( Full_OTA_PAL, otaPal_CloseFile_NullParameters ); */ /* Not supported yet. */
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_CloseFile_InvalidSignatureBlockWritten );
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_CloseFile_InvalidSignatureNoBlockWritten );
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_CloseFile_NonexistingCodeSignerCertificate );
 
+    /********** otaPal_CreateFileForRx Tests **********/
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_CreateFileForRx_CreateAnyFile );
-    /* RUN_TEST_CASE( Full_OTA_PAL, otaPal_CreateFileForRx_NullParameters ) */ /* Not supported yet. */
 
     /* Other failure case testing for otaPal_CreateFileForRx() is not possible
      * because the MCU's underlying non-volatile memory will have to be mocked
      * to return failures for creating a new file. */
 
-    /* RUN_TEST_CASE( Full_OTA_PAL, otaPal_Abort_NullFileContext ); */ /* Not supported yet. */
+    /*************** otaPal_Abort Tests ***************/
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_Abort_OpenFile );
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_Abort_FileWithBlockWritten );
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_Abort_NullFileHandle );
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_Abort_NonExistentFile );
 
-    /* RUN_TEST_CASE( Full_OTA_PAL, otaPal_WriteBlock_NullParameters ); */ /* Not supported yet. */
+    /************* otaPal_WriteBlock Tests ************/
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_WriteBlock_WriteSingleByte );
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_WriteBlock_WriteManyBlocks );
 
+    /********** otaPal_ActivateNewImage Tests *********/
     /* This test resets the device so it is not valid for an MCU. */
-    RUN_TEST_CASE( Full_OTA_PAL, otaPal_ActivateNewImage );
+    RUN_TEST_CASE( Full_OTA_PAL, otaPal_ActivateNewImage_HappyPath );
 
+    /******** otaPal_SetPlatformImageState Tests ******/
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_SetPlatformImageState_SelfTestImageState );
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_SetPlatformImageState_InvalidImageState );
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_SetPlatformImageState_UnknownImageState );
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_SetPlatformImageState_RejectImageState );
-    /* This test is not supported on WinSim because we simply record the image state passed in into a file. */
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_SetPlatformImageState_AcceptedImageStateButImageNotClosed );
+    /* Setting the image with the accepted state is not supported because that
+     * requires an image that was written, verified, and rebooted. */
 
-    /* The successful setting of an image with the accepted state is not supported because that requires
-     * an image that was written, verified, and rebooted. */
-
-
+    /******* otaPal_GetPlatformImageState Tests *******/
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_GetPlatformImageState_InvalidImageStateFromFileCloseFailure );
 
+    /****** otaPal_ReadAndAssumeCertificate Tests *****/
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_ReadAndAssumeCertificate_ExistingFile );
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_ReadAndAssumeCertificate_NonexistentFile );
-    /* RUN_TEST_CASE( Full_OTA_PAL, otaPal_ReadAndAssumeCertificate_NullParameters ); */ /* Not supported yet. */
 
+    /******** prvPAL_CheckFileSignature Tests *********/
     RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CheckFileSignature_ValidSignature );
     RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CheckFileSignature_InvalidSignatureBlockWritten );
     RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CheckFileSignature_InvalidSignatureNoBlockWritten );
     RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CheckFileSignature_NonexistingCodeSignerCertificate );
-    /* RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CheckFileSignature_NullParameters ); */ /* Not supported yet. */
 
-    /* This test must run last.  It provisions the code sign certificate,
-     * and other tests exercise the non-flash version.*/
+    /******** otaPal_CloseFile Tests *********/
+    /* This test must run last. It provisions the code signing certificate, and
+     * other tests exercise the non-flash version.*/
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_CloseFile_ValidSignatureKeyInFlash );
 }
 
@@ -342,13 +347,12 @@ TEST( Full_OTA_PAL, otaPal_CloseFile_ValidSignatureKeyInFlash )
 
         /* We use a dummy file name here because closing the system designated bootable
          * image with content that is not runnable may cause issues. */
-        /* xOtaFile.pFilePath = otatestpalFIRMWARE_FILE; */
         xOtaFile.pFilePath = ( uint8_t * ) ( "test_happy_path_image.bin" );
         xOtaFile.fileSize = sizeof( ucDummyData );
         xOtaStatus = otaPal_CreateFileForRx( &xOtaFile );
         TEST_ASSERT_EQUAL( OtaPalSuccess, OTA_PAL_MAIN_ERR( xOtaStatus ) );
 
-        /* We still want to close the file if the test fails somewhere here. */
+        /* Close the file if the test fails somewhere here. */
         if( TEST_PROTECT() )
         {
             /* Write data to the file. */
@@ -661,7 +665,7 @@ TEST( Full_OTA_PAL, otaPal_WriteBlock_WriteManyBlocks )
  * reset the device, so this test is only supported on the Windows Simulator environment.
  * The Windows Simulator environment does not reset.
  */
-TEST( Full_OTA_PAL, otaPal_ActivateNewImage )
+TEST( Full_OTA_PAL, otaPal_ActivateNewImage_HappyPath )
 {
     #ifdef WIN32
         OtaPalStatus_t xOtaStatus = otaPal_ActivateNewImage(&xOtaFile);
@@ -785,6 +789,8 @@ TEST( Full_OTA_PAL, otaPal_SetPlatformImageState_UnknownImageState )
  */
 TEST( Full_OTA_PAL, otaPal_SetPlatformImageState_AcceptedImageStateButImageNotClosed )
 {
+    /* This test is not supported on WinSim because we simply record the image
+     * state passed in into a file. */
     #ifndef WIN32
         OtaPalStatus_t xOtaStatus;
         OtaImageState_t eImageState = OtaImageStateUnknown;
