@@ -77,6 +77,9 @@
     #include "aws_dev_mode_key_provisioning.h"
 #endif
 
+/* Include header for vTaskDelay. */
+#include "platform/iot_threads.h"
+
 /* The Texas Instruments CC3220SF has special requirements on its file
  * system security. We enable code specially for testing the OTA PAL layer for
  * this device. */
