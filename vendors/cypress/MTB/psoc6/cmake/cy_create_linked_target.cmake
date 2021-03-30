@@ -278,15 +278,12 @@ function(cy_add_link_libraries)
         ${mtb_inc}
         "${AFR_KERNEL_DIR}/include"
         "${AFR_KERNEL_DIR}/portable/$ENV{CY_FREERTOS_TOOLCHAIN}/ARM_CM4F"	# for portmacro.h
-        "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include"
         "${ARG_BSP_DIR}/GeneratedSource"
         "${ARG_BSP_DIR}"
     )
 
     target_link_libraries(
         AFR::kernel::mcu_port
-        INTERFACE
-            3rdparty::tinycrypt
     )
 
     add_library(CyObjStore INTERFACE)
