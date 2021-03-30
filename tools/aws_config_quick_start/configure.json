@@ -1,7 +1,7 @@
 {
-    "afr_source_dir":"../..",
-    "thing_name":"$thing_name",
-    "wifi_ssid":"$wifi_ssid",
-    "wifi_password":"$wifi_password",
-    "wifi_security":"$wifi_security"
+    "afr_source_dir":"../../",
+    "thing_name":"esp32Thing5",
+    "wifi_ssid":"K-WIFI_EXT",
+    "wifi_password":"5853299850",
+    "wifi_security":"eWiFiSecurityWPA2"
 }
