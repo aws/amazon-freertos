@@ -88,7 +88,6 @@ test_afr_build-CY8CKIT_064S0S2_4343W-IAR:
     - IAR_8.50.4
   script:
     - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W IAR
-  allow_failure: true
 
 test_afr_build-CY8CKIT_062S2_43012-IAR:
   stage: test
@@ -97,7 +96,6 @@ test_afr_build-CY8CKIT_062S2_43012-IAR:
     - IAR_8.50.4
   script:
     - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012 IAR
-  allow_failure: true
 
 # Coverity
 test_coverity_CY8CPROTO_062_4343W:
@@ -662,7 +660,6 @@ afr_ota_demo_test_auto_CY8CKIT_062S2_43012_IAR:
     - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_062S2_43012 IAR
   after_script:
     - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
-  allow_failure: true
 
 afr_ota_demo_test_auto_CY8CPROTO_062_4343W_IAR:
   stage: test
@@ -676,7 +673,6 @@ afr_ota_demo_test_auto_CY8CPROTO_062_4343W_IAR:
     - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CPROTO_062_4343W IAR
   after_script:
     - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
-  allow_failure: true
 
 afr_ota_demo_test_auto_CY8CKIT_064S0S2_4343W_IAR:
   stage: test
@@ -690,5 +686,4 @@ afr_ota_demo_test_auto_CY8CKIT_064S0S2_4343W_IAR:
     - bash -e cypress_internal_test/demo_test/run_test_func.sh CY8CKIT_064S0S2_4343W IAR
   after_script:
     - bash cypress_internal_test/device_tester/testrail_uploader/run.sh
-  allow_failure: true
 

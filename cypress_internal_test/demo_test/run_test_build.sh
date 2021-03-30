@@ -119,9 +119,9 @@ function compile_cmake()
         ARM*)
             $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-armclang $additional_flags -DAFR_TOOLCHAIN_PATH="$ARMCC_DIR/bin" -DBLE_SUPPORTED=1 -S . -B build -G Ninja
             ;;
-#        IAR*)
-#            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-iar $additional_flags -DAFR_TOOLCHAIN_PATH="$IAR_DIR/bin" -DBLE_SUPPORTED=1 -S . -B build -G Ninja
-#            ;;
+        IAR*)
+            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-iar $additional_flags -DAFR_TOOLCHAIN_PATH="$IAR_DIR/bin" -DBLE_SUPPORTED=1 -S . -B build -G Ninja
+            ;;
     esac
 
     $NINJA_DIR/ninja -C build
