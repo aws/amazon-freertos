@@ -657,10 +657,10 @@ IotNetworkError_t IotNetworkAfr_Close( void * pConnection )
     {
         /* Wait for the network receive task to exit so that the socket can be shutdown safely
          * without causing the socket to block forever if there are pending reads or writes
-         * from other tasks. */
+         * from other tasks. Do not clear the flag as IotNetworkAfr_Destroy will do so. */
         ( void ) xEventGroupWaitBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
                                       _FLAG_RECEIVE_TASK_EXITED,
-                                      pdTRUE,
+                                      pdFALSE,
                                       pdTRUE,
                                       portMAX_DELAY );
     }
@@ -698,7 +698,13 @@ IotNetworkError_t IotNetworkAfr_Destroy( void * pConnection )
         if( pNetworkConnection->receiveCallback != NULL )
         {
             EventBits_t connectionFlags;
-            connectionFlags = xEventGroupGetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ) );
+
+            /* Clear the flag indicating the receive task has exited. */
+            connectionFlags = xEventGroupWaitBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
+                                                   _FLAG_RECEIVE_TASK_EXITED,
+                                                   pdTRUE,
+                                                   pdTRUE,
+                                                   portMAX_DELAY );
 
             configASSERT( ( connectionFlags & _FLAG_RECEIVE_TASK_EXITED ) == _FLAG_RECEIVE_TASK_EXITED );
 
