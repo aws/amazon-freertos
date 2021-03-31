@@ -693,20 +693,6 @@ IotNetworkError_t IotNetworkAfr_Destroy( void * pConnection )
     }
     else
     {
-        /* As this function should be called ONLY called after the connection is closed,
-         * the receive task should have already exited. */
-        if( pNetworkConnection->receiveCallback != NULL )
-        {
-            EventBits_t connectionFlags;
-            connectionFlags = xEventGroupGetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ) );
-
-            configASSERT( ( connectionFlags & _FLAG_RECEIVE_TASK_EXITED ) == _FLAG_RECEIVE_TASK_EXITED );
-
-            /* Suppress compiler warning of unused connectionFlags variable when
-             * configASSERT() is disabled. */
-            ( void ) connectionFlags;
-        }
-
         _destroyConnection( pNetworkConnection );
     }
 
