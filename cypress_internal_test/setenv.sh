@@ -203,7 +203,7 @@ function setup_cysecuretools()
     if ! pip show cysecuretools 2>/dev/null | grep "^Version:" | grep -q "$cysecuretools_version"; then
         # true: install official package from pypi.org
         # false: install directly from gitlab development repo
-        local use_pypi=true
+        local use_pypi=false
 
         if [[ $use_pypi == true ]]; then
             echo "Installing cysecuretools-$cysecuretools_version from pypi.org"
@@ -212,7 +212,7 @@ function setup_cysecuretools()
             # Use fixed tag to avoid sudden breakage of bsp_csp CI due to incompatible cysecuretools changes
             # Lookup the recent tags: http://git-ore.aus.cypress.com/repo/cysecuretools/-/tags
             local cysecuretools_url=http://git-ore.aus.cypress.com/repo/cysecuretools.git
-            local cysecuretools_tag=AnyCloudSDK1_1_ES100_TC1 # 2.0.0 ES100 test candidate
+            local cysecuretools_tag=CYSECURETOOLS_3.1.0_CYBOOTLOADER_SWAP_SCRATCH_TC3
 
             # cysecuretools dev package require new setuptools/pip
             python -m pip install --upgrade setuptools pip

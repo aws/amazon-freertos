@@ -30,13 +30,10 @@ ${restore_nounset}
 # Install Python modules in the virtualenv
 pip3 --no-cache-dir install --upgrade pip
 # cysecuretools RC branch
-pip3 install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@P64_2M_ES100_RC2
+pip3 install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@CYSECURETOOLS_3.1.0_CYBOOTLOADER_SWAP_SCRATCH_TC3
 
 # workaround for pyocd installation issue
 pip3 install setuptools_scm==3.5.0
-
-# pyocd RC branch
-pip3 install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@P64_2M_ES100_RC2
 
 # Download DevOps-provided tools and scripts
 git clone git@git-ore.aus.cypress.com:devops/devops_scripts.git

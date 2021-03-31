@@ -35,8 +35,7 @@ if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin" ]]; then   # linux or Ma
     python3.7 -m venv env
     source env/bin/activate
     pip3 --no-cache-dir install --upgrade pip
-    pip3 install cysecuretools==2.0.0 
-    pip3 install pyocd==0.27.0
+    pip3 install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@CYSECURETOOLS_3.1.0_CYBOOTLOADER_SWAP_SCRATCH_TC3
     pip3 install -r cypress_internal_test/demo_test/ota/scripts/requirements.txt
     AFR_DIR="$PWD"
     if [[ ${board}  == "CY8CKIT_064S0S2_4343W" ]]; then
