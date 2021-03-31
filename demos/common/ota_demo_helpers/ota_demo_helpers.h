@@ -151,14 +151,14 @@ void SubscriptionManager_RemoveCallback( const char * pTopicFilter,
  * The MQTT_COMMAND_CONTEXTS_POOL_SIZE configuration file constant defines how many
  * structures the pool contains.
  *
- * @param[in] blockTimeMs The length of time the calling task should remain in the
+ * @param[in] ulBlockTimeMs The length of time the calling task should remain in the
  * Blocked state (so not consuming any CPU time) to wait for a Command_t structure to
  * become available should one not be immediately at the time of the call.
  *
  * @return A pointer to a Command_t structure if one becomes available before
- * blockTimeMs time expired, otherwise NULL.
+ * ulBlockTimeMs time expired, otherwise NULL.
  */
-Command_t * Agent_GetCommand( uint32_t blockTimeMs );
+Command_t * Agent_GetCommand( uint32_t ulBlockTimeMs );
 
 /**
  * @brief Give a Command_t structure back to the the pool of structures managed by
@@ -172,41 +172,41 @@ Command_t * Agent_GetCommand( uint32_t blockTimeMs );
  * The MQTT_COMMAND_CONTEXTS_POOL_SIZE configuration file constant defines how many
  * structures the pool contains.
  *
- * @param[in] pCommandToRelease A pointer to the Command_t structure to return to
+ * @param[in] pxCommandToRelease A pointer to the Command_t structure to return to
  * the pool.  The structure must first have been obtained by calling
  * Agent_GetCommand(), otherwise Agent_ReleaseCommand() will
  * have no effect.
  *
  * @return true if the Command_t structure was returned to the pool, otherwise false.
  */
-bool Agent_ReleaseCommand( Command_t * pCommandToRelease );
+bool Agent_ReleaseCommand( Command_t * pxCommandToRelease );
 
 /**
  * @brief Send a message to the specified context.
  * Must be thread safe.
  *
- * @param[in] pMsgCtx An #AgentMessageContext_t.
- * @param[in] data Pointer to element to send to queue.
- * @param[in] blockTimeMs Block time to wait for a send.
+ * @param[in] pxMsgCtx An #AgentMessageContext_t.
+ * @param[in] pData Pointer to element to send to queue.
+ * @param[in] ulBlockTimeMs Block time to wait for a send.
  *
  * @return `true` if send was successful, else `false`.
  */
-bool Agent_MessageSend( const AgentMessageContext_t * pMsgCtx,
+bool Agent_MessageSend( const AgentMessageContext_t * pxMsgCtx,
                         const void * pData,
-                        uint32_t blockTimeMs );
+                        uint32_t ulBlockTimeMs );
 
 /**
  * @brief Receive a message from the specified context.
  * Must be thread safe.
  *
- * @param[in] pMsgCtx An #AgentMessageContext_t.
+ * @param[in] pxMsgCtx An #AgentMessageContext_t.
  * @param[in] pBuffer Pointer to buffer to write received data.
- * @param[in] blockTimeMs Block time to wait for a receive.
+ * @param[in] ulBlockTimeMs Block time to wait for a receive.
  *
  * @return `true` if receive was successful, else `false`.
  */
-bool Agent_MessageReceive( const AgentMessageContext_t * pMsgCtx,
+bool Agent_MessageReceive( const AgentMessageContext_t * pxMsgCtx,
                            void * pBuffer,
-                           uint32_t blockTimeMs );
+                           uint32_t ulBlockTimeMs );
 
 #endif /* ifndef OTA_DEMO_HELPERS_H_ */

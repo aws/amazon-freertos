@@ -38,17 +38,13 @@
 
 #include "iot_network.h"
 
-/* Agent  APIS for running MQTT in a multithreaded environment. */
+/* CoreMQTT-Agent APIS for running MQTT in a multithreaded environment. */
 #include "mqtt_agent.h"
-
-/* Include coreMQTT-Agent configs. */
+#include "agent_message.h"
 #include "core_mqtt_agent_config.h"
 
 /* Includes helpers for managing MQTT subscriptions. */
 #include "subscription_manager.h"
-
-/* Header include. */
-#include "agent_message.h"
 
 /* Retry utilities include. */
 #include "backoff_algorithm.h"
@@ -1440,7 +1436,7 @@ static MQTTStatus_t prvMqttInit( void )
                                               sizeof( Command_t * ),
                                               staticQueueStorageArea,
                                               &staticQueueStructure );
-    
+
     xMessageInterface.pMsgCtx = &xCommandQueue;
     xMessageInterface.recv = Agent_MessageReceive;
     xMessageInterface.send = Agent_MessageSend;
@@ -1452,7 +1448,7 @@ static MQTTStatus_t prvMqttInit( void )
     xTransport.send = SecureSocketsTransport_Send;
     xTransport.recv = SecureSocketsTransport_Recv;
 
-    /* Initialize MQTT library. */
+    /* Initialize MQTT Agent. */
     xReturn = MQTTAgent_Init( &xGlobalMqttAgentContext,
                               &xMessageInterface,
                               &xFixedBuffer,

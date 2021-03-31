@@ -73,16 +73,16 @@ struct AgentMessageContext
  * as PUBLISH or SUBSCRIBE) between the command being created by an API call and
  * completion of the command by the execution of the command's callback.
  */
-static Command_t commandStructurePool[ MQTT_COMMAND_CONTEXTS_POOL_SIZE ];
+static Command_t xCommandStructurePool[ MQTT_COMMAND_CONTEXTS_POOL_SIZE ];
 
 /**
  * @brief A counting semaphore used to guard the pool of Command_t structures.  To
  * obtain a structure first decrement the semaphore count.  To return a structure
  * increment the semaphore count after the structure is back in the pool.
  */
-static SemaphoreHandle_t freeCommandStructMutex = NULL;
+static SemaphoreHandle_t xFreeCommandStructMutex = NULL;
 
-static volatile uint8_t initStatus = SEMAPHORE_NOT_INITIALIZED;
+static volatile uint8_t ucInitStatus = SEMAPHORE_NOT_INITIALIZED;
 
 /*-----------------------------------------------------------*/
 
@@ -240,92 +240,92 @@ void SubscriptionManager_RemoveCallback( const char * pTopicFilter,
 }
 /*-----------------------------------------------------------*/
 
-bool Agent_MessageSend( const AgentMessageContext_t * pMsgCtx,
+bool Agent_MessageSend( const AgentMessageContext_t * pxMsgCtx,
                         const void * pData,
-                        uint32_t blockTimeMs )
+                        uint32_t ulBlockTimeMs )
 {
-    BaseType_t queueStatus = pdFAIL;
+    BaseType_t xQueueStatus = pdFAIL;
 
-    if( ( pMsgCtx != NULL ) && ( pData != NULL ) )
+    if( ( pxMsgCtx != NULL ) && ( pData != NULL ) )
     {
-        queueStatus = xQueueSendToBack( pMsgCtx->queue, pData, pdMS_TO_TICKS( blockTimeMs ) );
+        xQueueStatus = xQueueSendToBack( pxMsgCtx->queue, pData, pdMS_TO_TICKS( ulBlockTimeMs ) );
     }
 
-    return ( queueStatus == pdPASS ) ? true : false;
+    return ( xQueueStatus == pdPASS ) ? true : false;
 }
 
 /*-----------------------------------------------------------*/
 
-bool Agent_MessageReceive( const AgentMessageContext_t * pMsgCtx,
+bool Agent_MessageReceive( const AgentMessageContext_t * pxMsgCtx,
                            void * pBuffer,
-                           uint32_t blockTimeMs )
+                           uint32_t ulBlockTimeMs )
 {
-    BaseType_t queueStatus = pdFAIL;
+    BaseType_t xQueueStatus = pdFAIL;
 
-    if( ( pMsgCtx != NULL ) && ( pBuffer != NULL ) )
+    if( ( pxMsgCtx != NULL ) && ( pBuffer != NULL ) )
     {
-        queueStatus = xQueueReceive( pMsgCtx->queue, pBuffer, pdMS_TO_TICKS( blockTimeMs ) );
+        xQueueStatus = xQueueReceive( pxMsgCtx->queue, pBuffer, pdMS_TO_TICKS( ulBlockTimeMs ) );
     }
 
-    return ( queueStatus == pdPASS ) ? true : false;
+    return ( xQueueStatus == pdPASS ) ? true : false;
 }
 
 /*-----------------------------------------------------------*/
 
 static void initializePool()
 {
-    bool owner = false;
+    bool bSemAssigned = false;
 
     taskENTER_CRITICAL();
     {
-        if( initStatus == SEMAPHORE_NOT_INITIALIZED )
+        if( ucInitStatus == SEMAPHORE_NOT_INITIALIZED )
         {
-            owner = true;
-            initStatus = SEMAPHORE_INIT_PENDING;
+            bSemAssigned = true;
+            ucInitStatus = SEMAPHORE_INIT_PENDING;
         }
     }
     taskEXIT_CRITICAL();
 
-    if( owner )
+    if( bSemAssigned )
     {
-        memset( ( void * ) commandStructurePool, 0x00, sizeof( commandStructurePool ) );
-        freeCommandStructMutex = xSemaphoreCreateCounting( MQTT_COMMAND_CONTEXTS_POOL_SIZE, MQTT_COMMAND_CONTEXTS_POOL_SIZE );
-        initStatus = SEMAPHORE_INITIALIZED;
+        memset( ( void * ) xCommandStructurePool, 0x00, sizeof( xCommandStructurePool ) );
+        xFreeCommandStructMutex = xSemaphoreCreateCounting( MQTT_COMMAND_CONTEXTS_POOL_SIZE, MQTT_COMMAND_CONTEXTS_POOL_SIZE );
+        ucInitStatus = SEMAPHORE_INITIALIZED;
     }
 }
 
 /*-----------------------------------------------------------*/
 
-Command_t * Agent_GetCommand( uint32_t blockTimeMs )
+Command_t * Agent_GetCommand( uint32_t ulBlockTimeMs )
 {
-    Command_t * structToUse = NULL;
-    size_t i;
+    Command_t * xCommand = NULL;
+    size_t xCommandPoolSize;
 
     /* Check here so we do not enter a critical section every time. */
-    if( initStatus == SEMAPHORE_NOT_INITIALIZED )
+    if( ucInitStatus == SEMAPHORE_NOT_INITIALIZED )
     {
         initializePool();
-        configASSERT( freeCommandStructMutex ); /*_RB_ Create all objects here statically. */
+        configASSERT( xFreeCommandStructMutex ); /*_RB_ Create all objects here statically. */
     }
 
     /* Check counting semaphore has been created. */
-    if( freeCommandStructMutex != NULL )
+    if( xFreeCommandStructMutex != NULL )
     {
         /* If the semaphore count is not zero then a command context is available. */
-        if( xSemaphoreTake( freeCommandStructMutex, pdMS_TO_TICKS( blockTimeMs ) ) == pdPASS )
+        if( xSemaphoreTake( xFreeCommandStructMutex, pdMS_TO_TICKS( ulBlockTimeMs ) ) == pdPASS )
         {
-            for( i = 0; i < MQTT_COMMAND_CONTEXTS_POOL_SIZE; i++ )
+            for( xCommandPoolSize = 0; xCommandPoolSize < MQTT_COMMAND_CONTEXTS_POOL_SIZE; xCommandPoolSize++ )
             {
                 taskENTER_CRITICAL();
                 {
                     /* If the commandType is NONE then the structure is not in use. */
-                    if( commandStructurePool[ i ].commandType == NONE )
+                    if( xCommandStructurePool[ xCommandPoolSize ].commandType == NONE )
                     {
-                        structToUse = &( commandStructurePool[ i ] );
+                        xCommand = &( xCommandStructurePool[ xCommandPoolSize ] );
 
                         /* To show the struct is no longer available to be returned
                          * by calls to Agent_ReleaseCommand(). */
-                        structToUse->commandType = !NONE;
+                        xCommand->commandType = !NONE;
                         taskEXIT_CRITICAL();
                         break;
                     }
@@ -335,41 +335,41 @@ Command_t * Agent_GetCommand( uint32_t blockTimeMs )
         }
     }
 
-    return structToUse;
+    return xCommand;
 }
 
 /*-----------------------------------------------------------*/
 
-bool Agent_ReleaseCommand( Command_t * pCommandToRelease )
+bool Agent_ReleaseCommand( Command_t * pxCommandToRelease )
 {
-    size_t i;
-    bool structReturned = false;
+    size_t xCommandPoolSize;
+    bool bCommandReturned = false;
 
     /* See if the structure being returned is actually from the pool. */
-    for( i = 0; i < MQTT_COMMAND_CONTEXTS_POOL_SIZE; i++ )
+    for( xCommandPoolSize = 0; xCommandPoolSize < MQTT_COMMAND_CONTEXTS_POOL_SIZE; xCommandPoolSize++ )
     {
-        if( pCommandToRelease == &( commandStructurePool[ i ] ) )
+        if( pxCommandToRelease == &( xCommandStructurePool[ xCommandPoolSize ] ) )
         {
             taskENTER_CRITICAL();
 
             /* Yes its from the pool.  Clearing it to zero not only removes the old
              * data it also sets the structure's commandType parameter to NONE to
              * mark the structure as free again. */
-            memset( ( void * ) pCommandToRelease, 0x00, sizeof( Command_t ) );
+            memset( ( void * ) pxCommandToRelease, 0x00, sizeof( Command_t ) );
             taskEXIT_CRITICAL();
 
             /* Give back the counting semaphore after returning the structure so the
              * semaphore count equals the number of available structures. */
-            xSemaphoreGive( freeCommandStructMutex );
-            structReturned = true;
+            xSemaphoreGive( xFreeCommandStructMutex );
+            bCommandReturned = true;
 
-            LogDebug( ( "Returned Command Context %d to pool", ( int ) i ) );
+            LogDebug( ( "Returned Command Context %d to pool", ( int ) xCommandPoolSize ) );
 
             break;
         }
     }
 
-    return structReturned;
+    return bCommandReturned;
 }
 
 /*-----------------------------------------------------------*/
