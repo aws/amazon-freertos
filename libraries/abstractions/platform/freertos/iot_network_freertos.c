@@ -657,10 +657,10 @@ IotNetworkError_t IotNetworkAfr_Close( void * pConnection )
     {
         /* Wait for the network receive task to exit so that the socket can be shutdown safely
          * without causing the socket to block forever if there are pending reads or writes
-         * from other tasks. */
+         * from other tasks. Do not clear the flag as IotNetworkAfr_Destroy checks it. */
         ( void ) xEventGroupWaitBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
                                       _FLAG_RECEIVE_TASK_EXITED,
-                                      pdTRUE,
+                                      pdFALSE,
                                       pdTRUE,
                                       portMAX_DELAY );
     }
