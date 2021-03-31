@@ -220,6 +220,7 @@ TEST_GROUP_RUNNER( Full_OTA_PAL )
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_SetPlatformImageState_UnknownImageState );
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_SetPlatformImageState_RejectImageState );
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_SetPlatformImageState_AcceptedImageStateButImageNotClosed );
+
     /* Setting the image with the accepted state is not supported because that
      * requires an image that was written, verified, and rebooted. */
 
@@ -237,6 +238,7 @@ TEST_GROUP_RUNNER( Full_OTA_PAL )
     RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CheckFileSignature_NonexistingCodeSignerCertificate );
 
     /******** otaPal_CloseFile Tests *********/
+
     /* This test must run last. It provisions the code signing certificate, and
      * other tests exercise the non-flash version.*/
     RUN_TEST_CASE( Full_OTA_PAL, otaPal_CloseFile_ValidSignatureKeyInFlash );
@@ -671,7 +673,7 @@ TEST( Full_OTA_PAL, otaPal_WriteBlock_WriteManyBlocks )
 TEST( Full_OTA_PAL, otaPal_ActivateNewImage_HappyPath )
 {
     #ifdef WIN32
-        OtaPalStatus_t xOtaStatus = otaPal_ActivateNewImage(&xOtaFile);
+        OtaPalStatus_t xOtaStatus = otaPal_ActivateNewImage( &xOtaFile );
 
         TEST_ASSERT_EQUAL_INT( OtaPalSuccess, OTA_PAL_MAIN_ERR( xOtaStatus ) );
     #endif
@@ -1065,8 +1067,8 @@ TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_InvalidSignatureBlockWritten )
             /* Check the signature. */
             palMainStatus = test_otaPal_CheckFileSignature( &xOtaFile );
 
-            if( ( OtaPalBadSignerCert != palMainStatus) &&
-                ( OtaPalSignatureCheckFailed != palMainStatus) )
+            if( ( OtaPalBadSignerCert != palMainStatus ) &&
+                ( OtaPalSignatureCheckFailed != palMainStatus ) )
             {
                 TEST_ASSERT_TRUE( 0 );
             }
@@ -1124,9 +1126,9 @@ TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_NonexistingCodeSignerCertificate )
         {
             /* Write data to the file. */
             blocksWritten = otaPal_WriteBlock( &xOtaFile,
-                                            0,
-                                            ucDummyData,
-                                            sizeof( ucDummyData ) );
+                                               0,
+                                               ucDummyData,
+                                               sizeof( ucDummyData ) );
             TEST_ASSERT_EQUAL( sizeof( ucDummyData ), blocksWritten );
 
             /* Check the signature (not expected to be valid in this case). */
