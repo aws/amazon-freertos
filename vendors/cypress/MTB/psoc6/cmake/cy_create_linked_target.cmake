@@ -525,7 +525,6 @@ function(cy_add_link_libraries)
 
         # common ota sources
         target_sources(AFR::ota::mcu_port INTERFACE
-            "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_map.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_psoc6.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/flash_qspi/flash_qspi.c"
@@ -575,11 +574,14 @@ function(cy_add_link_libraries)
                 "${AFR_3RDPARTY_DIR}/unity/extras/fixture/src"
                 "${AFR_ROOT_DIR}/demos/include"
                 "${AFR_ROOT_DIR}/demos/dev_mode_key_provisioning/include"
-                "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/pkcs11/include"
                 "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src/mqtt"
                 "${AFR_3RDPARTY_DIR}/pkcs11"
             )
         else()
+            target_sources(AFR::ota::mcu_port INTERFACE
+                "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
+            )
+
             # For aws_demos builds for OTA demos
             # add extra includes
             target_include_directories(AFR::ota::mcu_port INTERFACE
