@@ -294,7 +294,7 @@ static int eraseSlotTwo( void )
     const struct flash_area *fap;
     int image;
 
-    /* MCUBLOOT_IMAGE_NUMBER == 2, will ewrae both Secondary slot 1 and 2 */
+    /* MCUBLOOT_IMAGE_NUMBER == 2, will erase both Secondary slot 1 and 2 */
     for (image = 0; image < MCUBOOT_IMAGE_NUMBER; image++)
     {
         if (flash_area_open(FLASH_AREA_IMAGE_SECONDARY(image), &fap) != 0)
