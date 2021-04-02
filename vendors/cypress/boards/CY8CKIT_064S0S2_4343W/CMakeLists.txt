@@ -99,24 +99,40 @@ set(DEFENDER_METRICS_LWIP_SUPPORTED TRUE CACHE INTERNAL "LWIP Defender Metrics s
 #
 
 if(OTA_SUPPORT)
+    # Set for new Cy Bootloader SWAP_WITH_STATUS support
+    set(CY_MCUBOOT_SWAP_USING_STATUS             "1")
+    set(ENV{CY_MCUBOOT_SWAP_USING_STATUS}        "1")
+
     set(ENV{MCUBOOT_HEADER_SIZE}         "0x400"      )       # Must be a multiple of 1024
     set(ENV{MCUBOOT_MAX_IMG_SECTORS}     "2000"       )
     set(ENV{CY_BOOT_SCRATCH_SIZE}        "0x00001000" )
-    set(ENV{MCUBOOT_BOOTLOADER_SIZE}     "0x00040000" )
-    set(ENV{CY_BOOT_PRIMARY_1_START}     "0x00050000" )
-    set(ENV{CY_BOOT_PRIMARY_1_SIZE}      "0x00120000" )
+
     set(ENV{CY_BOOT_PRIMARY_2_START}     "0x00000000" )
     set(ENV{CY_BOOT_PRIMARY_2_SIZE}      "0x00050000" )
 
+    if(CY_MCUBOOT_SWAP_USING_STATUS)
+        # New SWAP_USING_STATUS bootloader
+        set(ENV{MCUBOOT_BOOTLOADER_SIZE}     "0x00050000" )
+        set(ENV{CY_BOOT_PRIMARY_1_START}     "0x00050000" )
+        set(ENV{CY_BOOT_PRIMARY_1_SIZE}      "0x0011C000" )
+        set(ENV{CY_BOOT_SECONDARY_1_START}   "0x00024400" ) # offset from start of external FLASH 18000000
+        set(ENV{CY_BOOT_SECONDARY_2_START}   "0x0016C000" ) # offset from CY_FLASH_BASE
+    else()
+        set(ENV{MCUBOOT_BOOTLOADER_SIZE}     "0x00040000" )
+        set(ENV{CY_BOOT_PRIMARY_1_START}     "0x00050000" )
+        set(ENV{CY_BOOT_PRIMARY_1_SIZE}      "0x00120000" )
+        set(ENV{CY_BOOT_SECONDARY_1_START}   "0x18000000" ) # start of external FLASH
+        set(ENV{CY_BOOT_SECONDARY_2_START}   "0x00170000" )
+    endif()
+
     set(ENV{MCUBOOT_IMAGE_NUMBER}        "2")            # 2 images (primary_1 and primary_2)
-    set(ENV{CY_BOOT_SECONDARY_1_START}   "0x18000000" ) # start of external FLASH
-    set(ENV{CY_BOOT_SECONDARY_2_START}   "0x00170000" )
 
     # Default to internal FLASH value for MCUBoot header signing
     # Note that after cy_bootloader changes to support 0xFF erase values
     # for different FLASH, this may	 need to change
     set(ENV{CY_BOOT_USE_EXTERNAL_FLASH}     "1" )
     set(ENV{CY_FLASH_ERASE_VALUE}           "1" )
+
 endif()
 
 # -------------------------------------------------------------------
