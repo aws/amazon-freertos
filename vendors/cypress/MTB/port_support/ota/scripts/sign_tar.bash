@@ -38,7 +38,7 @@ CY_BOOT_PRIMARY_1_SIZE=$1
 shift
 CY_BOOT_PRIMARY_2_SIZE=$1
 shift
-CY_BOOT_SECONDARY_2_START=$1
+CY_BOOT_SECONDARY_1_START=$1
 shift
 SIGNING_KEY_PATH=$1
 shift
@@ -95,7 +95,7 @@ CY_COMPONENTS_JSON_NAME=components.json
 #echo " CY_BOOT_PRIMARY_1_START  $CY_BOOT_PRIMARY_1_START"
 #echo " CY_BOOT_PRIMARY_1_SIZE   $CY_BOOT_PRIMARY_1_SIZE"
 #echo " CY_BOOT_PRIMARY_2_SIZE   $CY_BOOT_PRIMARY_2_SIZE"
-#echo " CY_BOOT_SECONDARY_2_START $CY_BOOT_SECONDARY_2_START"
+#echo " CY_BOOT_SECONDARY_1_START $CY_BOOT_SECONDARY_1_START"
 #echo " SIGNING_KEY_PATH         $SIGNING_KEY_PATH"
 #
 # For FLASH_ERASE_VALUE
@@ -194,7 +194,7 @@ echo "Application Name                         : $CY_OUTPUT_NAME"
 echo "Primary 1 Slot Start                     : $CY_BOOT_PRIMARY_1_START"
 echo "Primary 1 Slot Size                      : $CY_BOOT_PRIMARY_1_SIZE"
 echo "Primary 2 slot size                      : $CY_BOOT_PRIMARY_2_SIZE"
-echo "Secondary 2 slot start                   : $CY_BOOT_SECONDARY_2_START"
+echo "Secondary 1 slot start                   : $CY_BOOT_SECONDARY_1_START"
 echo "FLASH ERASE Value (NOTE: Empty for 0xff) : $FLASH_ERASE_VALUE"
 echo "Cypress MCUBoot Header size              : $MCUBOOT_HEADER_SIZE"
 echo "Max 512 bytes sectors for Application    : $MCUBOOT_MAX_IMG_SECTORS"

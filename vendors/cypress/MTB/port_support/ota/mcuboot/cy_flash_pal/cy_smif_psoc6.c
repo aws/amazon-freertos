@@ -273,10 +273,10 @@ int psoc6_smif_erase(off_t addr, size_t size)
 
     address = ((addr - CY_SMIF_BASE_MEM_OFFSET ) & ~(min_erase_size - 1u));
 
-    if ((size % min_erase_size) == 0) {
+    if (( (addr + size) % min_erase_size) == 0) {
        length = size;
     } else {
-       length = ((size + min_erase_size) & (~(min_erase_size - 1)));
+       length = ((((addr - CY_SMIF_BASE_MEM_OFFSET ) + size)  + min_erase_size) & (~(min_erase_size - 1)));
     }
 
     result = cy_serial_flash_qspi_erase(address, length);
