@@ -778,6 +778,10 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
+
+
+
+
     do
     {
         xDemoStatus = EstablishMqttSession( &xMqttContext,
@@ -968,49 +972,49 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
                 }
             }
 
-            if( xDemoStatus == pdPASS )
-            {
-                LogInfo( ( "Start to unsubscribe shadow topics and disconnect from MQTT. \r\n" ) );
+            // if( xDemoStatus == pdPASS )
+            // {
+            //     LogInfo( ( "Start to unsubscribe shadow topics and disconnect from MQTT. \r\n" ) );
 
-                xDemoStatus = UnsubscribeFromTopic( &xMqttContext,
-                                                    SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
-                                                    SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
+            //     xDemoStatus = UnsubscribeFromTopic( &xMqttContext,
+            //                                         SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ),
+            //                                         SHADOW_TOPIC_LENGTH_UPDATE_DELTA( THING_NAME_LENGTH ) );
 
-                if( xDemoStatus != pdPASS )
-                {
-                    LogError( ( "Failed to unsubscribe the topic %s",
-                                SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ) ) );
-                }
-            }
+            //     if( xDemoStatus != pdPASS )
+            //     {
+            //         LogError( ( "Failed to unsubscribe the topic %s",
+            //                     SHADOW_TOPIC_STRING_UPDATE_DELTA( THING_NAME ) ) );
+            //     }
+            // }
 
-            if( xDemoStatus == pdPASS )
-            {
-                xDemoStatus = UnsubscribeFromTopic( &xMqttContext,
-                                                    SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
-                                                    SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
+            // if( xDemoStatus == pdPASS )
+            // {
+            //     xDemoStatus = UnsubscribeFromTopic( &xMqttContext,
+            //                                         SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ),
+            //                                         SHADOW_TOPIC_LENGTH_UPDATE_ACCEPTED( THING_NAME_LENGTH ) );
 
-                if( xDemoStatus != pdPASS )
-                {
-                    LogError( ( "Failed to unsubscribe the topic %s",
-                                SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ) ) );
-                }
-            }
+            //     if( xDemoStatus != pdPASS )
+            //     {
+            //         LogError( ( "Failed to unsubscribe the topic %s",
+            //                     SHADOW_TOPIC_STRING_UPDATE_ACCEPTED( THING_NAME ) ) );
+            //     }
+            // }
 
-            if( xDemoStatus == pdPASS )
-            {
-                xDemoStatus = UnsubscribeFromTopic( &xMqttContext,
-                                                    SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
-                                                    SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
+            // if( xDemoStatus == pdPASS )
+            // {
+            //     xDemoStatus = UnsubscribeFromTopic( &xMqttContext,
+            //                                         SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ),
+            //                                         SHADOW_TOPIC_LENGTH_UPDATE_REJECTED( THING_NAME_LENGTH ) );
 
-                if( xDemoStatus != pdPASS )
-                {
-                    LogError( ( "Failed to unsubscribe the topic %s",
-                                SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ) ) );
-                }
-            }
+            //     if( xDemoStatus != pdPASS )
+            //     {
+            //         LogError( ( "Failed to unsubscribe the topic %s",
+            //                     SHADOW_TOPIC_STRING_UPDATE_REJECTED( THING_NAME ) ) );
+            //     }
+            // }
 
-            /* The MQTT session is always disconnected, even if there were prior failures. */
-            xDemoStatus = DisconnectMqttSession( &xMqttContext, &xNetworkContext );
+            // /* The MQTT session is always disconnected, even if there were prior failures. */
+            // xDemoStatus = DisconnectMqttSession( &xMqttContext, &xNetworkContext );
 
             /* This demo performs only Device Shadow operations. If matching the Shadow
              * MQTT topic fails or there are failure in parsing the received JSON document,
@@ -1028,6 +1032,61 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
         if( xDemoStatus == pdPASS )
         {
             LogInfo( ( "Demo iteration %lu is successful.", xDemoRunCount ) );
+            MQTTStatus_t xMQTTStatus = MQTTSuccess;
+
+            while(1)
+            {
+
+                if( xDemoStatus == pdPASS )
+                {
+                    xMQTTStatus = MQTT_ProcessLoop( &xMqttContext, MQTT_PROCESS_LOOP_TIMEOUT_MS );
+
+
+                    if( ( xMQTTStatus != MQTTSuccess ) )
+                    {
+                        xDemoStatus = pdFAIL;
+                        return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
+                    }
+
+                    /* Note that PublishToTopic already called MQTT_ProcessLoop,
+                    * therefore responses may have been received and the prvEventCallback
+                    * may have been called, which may have changed the stateChanged flag.
+                    * Check if the state change flag has been modified or not. If it's modified,
+                    * then we publish reported state to update topic.
+                    */
+                    if( stateChanged == true )
+                    {
+                        /* Report the latest power state back to device shadow. */
+                        LogInfo( ( "Report to the state change: %d\n", ulCurrentPowerOnState ) );
+                        ( void ) memset( pcUpdateDocument,
+                                        0x00,
+                                        sizeof( pcUpdateDocument ) );
+
+                        /* Keep the client token in global variable used to compare if
+                        * the same token in /update/accepted. */
+                        ulClientToken = ( xTaskGetTickCount() % 1000000 );
+
+                        snprintf( pcUpdateDocument,
+                                SHADOW_REPORTED_JSON_LENGTH + 1,
+                                SHADOW_REPORTED_JSON,
+                                ( int ) ulCurrentPowerOnState,
+                                ( long unsigned ) ulClientToken );
+
+                        xDemoStatus = PublishToTopic( &xMqttContext,
+                                                    SHADOW_TOPIC_STRING_UPDATE( THING_NAME ),
+                                                    SHADOW_TOPIC_LENGTH_UPDATE( THING_NAME_LENGTH ),
+                                                    pcUpdateDocument,
+                                                    ( SHADOW_DESIRED_JSON_LENGTH + 1 ) );
+                        stateChanged = false;
+                    }
+                    // else
+                    // {
+                    //     // LogInfo( ( "No change from /update/delta, unsubscribe all shadow topics and disconnect from MQTT.\r\n" ) );
+                    // }
+                }
+                
+                vTaskDelay( ( pdMS_TO_TICKS( 1000U ) ) );
+            }
         }
         /* Attempt to retry a failed iteration of demo for up to #SHADOW_MAX_DEMO_COUNT times. */
         else if( xDemoRunCount < SHADOW_MAX_DEMO_COUNT )
@@ -1036,12 +1095,12 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
             vTaskDelay( DELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
         }
         /* Failed all #SHADOW_MAX_DEMO_COUNT demo iterations. */
-        else
-        {
-            LogError( ( "All %d demo iterations failed.", SHADOW_MAX_DEMO_COUNT ) );
-            break;
-        }
-    } while( xDemoStatus != pdPASS );
+        // else
+        // {
+        //     LogError( ( "All %d demo iterations failed.", SHADOW_MAX_DEMO_COUNT ) );
+        //     break;
+        // }
+    } while( 1 );
 
     return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }
