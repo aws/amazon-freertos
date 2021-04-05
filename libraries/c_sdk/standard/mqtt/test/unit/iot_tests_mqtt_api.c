@@ -952,8 +952,11 @@ TEST( MQTT_Unit_API, OperationWaitTimeout )
     _mqttOperation_t * pOperation = NULL;
     IotSemaphore_t waitSem;
 
-    /* An arbitrary MQTT packet for this test. */
-    static uint8_t pPacket[ 2 ] = { MQTT_PACKET_TYPE_PINGREQ, 0x00 };
+    /* An arbitrary MQTT packet for this test. All packets are malloc'ed. */
+    uint8_t * pPacket = IotMqtt_MallocMessage( 2 );
+
+    pPacket[ 0 ] = MQTT_PACKET_TYPE_PINGREQ;
+    pPacket[ 1 ] = 0x00;
 
     /* Create the wait semaphore. */
     TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &waitSem, 0, 1 ) );
