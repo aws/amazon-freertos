@@ -49,13 +49,15 @@ static EventGroupHandle_t wifi_event_group;
 const int CONNECTED_BIT = BIT0;
 const int DISCONNECTED_BIT = BIT1;
 const int STARTED_BIT = BIT2;
+const int STOPPED_BIT = BIT3;
 
-const int AP_STARTED_BIT = BIT3;
-const int AP_STOPPED_BIT = BIT4;
-const int ESPTOUCH_DONE_BIT = BIT5;
+const int AP_STARTED_BIT = BIT4;
+const int AP_STOPPED_BIT = BIT5;
+const int ESPTOUCH_DONE_BIT = BIT6;
 static bool wifi_conn_state;
 static bool wifi_ap_state;
 static bool wifi_auth_failure;
+static bool wifi_started;
 
 static esp_netif_t *esp_netif_info;
 static esp_netif_t *esp_softap_netif_info;
@@ -132,7 +134,13 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
         switch(event_id) {
             case WIFI_EVENT_STA_START:
                 ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
+                xEventGroupClearBits(wifi_event_group, STOPPED_BIT);
                 xEventGroupSetBits(wifi_event_group, STARTED_BIT);
+                break;
+            case WIFI_EVENT_STA_STOP:
+                ESP_LOGI(TAG, "WIFI_EVENT_STA_STOP");
+                xEventGroupClearBits(wifi_event_group, STARTED_BIT);
+                xEventGroupSetBits(wifi_event_group, STOPPED_BIT);
                 break;
             case WIFI_EVENT_STA_CONNECTED:
                 ESP_LOGI(TAG, "WIFI_EVENT_STA_CONNECTED");
@@ -255,6 +263,34 @@ static void sc_callback(void* arg, esp_event_base_t event_base, int32_t event_id
     }
 }
 
+static esp_err_t esp_hal_wifi_start(void)
+{
+    esp_err_t ret;
+    ret = esp_wifi_start();
+    if (ret != ESP_OK) {
+        return ret;
+    }
+    if (xEventGroupWaitBits(wifi_event_group, STARTED_BIT | AP_STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY)) {
+        wifi_started = true;
+        return ESP_OK;
+    }
+    return ESP_FAIL;
+}
+
+static esp_err_t esp_hal_wifi_stop(void)
+{
+    esp_err_t ret;
+    ret = esp_wifi_stop();
+    if (ret != ESP_OK) {
+        return ret;
+    }
+    if (xEventGroupWaitBits(wifi_event_group, STOPPED_BIT | AP_STOPPED_BIT, pdFALSE, pdFALSE, portMAX_DELAY)) {
+        wifi_started = false;
+        return ESP_OK;
+    }
+    return ESP_FAIL;
+}
+
 WIFIReturnCode_t WIFI_Provision()
 {
     WIFIReturnCode_t wifi_ret = eWiFiFailure;
@@ -270,7 +306,7 @@ WIFIReturnCode_t WIFI_Provision()
             return wifi_ret;
         }
 
-        ret = esp_wifi_start();
+        ret = esp_hal_wifi_start();
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
             xSemaphoreGive( xWiFiSem );
@@ -343,7 +379,7 @@ WIFIReturnCode_t WIFI_Off( void )
 
         if ((ret = esp_wifi_deinit()) != ESP_OK) {
             if (ret == ESP_ERR_WIFI_NOT_STOPPED) {
-                ret = esp_wifi_stop();
+                ret = esp_hal_wifi_stop();
                 if (ret != ESP_OK) {
                     ESP_LOGE(TAG, "%s:Failed to stop wifi %d", __func__, ret);
                     goto err;
@@ -484,24 +520,20 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
 
         if( xCurMode != WIFI_MODE_STA && xCurMode != WIFI_MODE_APSTA )
         {
-
-        	esp_wifi_stop();
-
-        	ret = esp_wifi_set_mode(WIFI_MODE_STA);
-        if (ret != ESP_OK) {
+            ret = esp_wifi_set_mode(WIFI_MODE_STA);
+            if (ret != ESP_OK) {
         		ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
-            xSemaphoreGive( xWiFiSem );
-            return wifi_ret;
+                xSemaphoreGive( xWiFiSem );
+                return wifi_ret;
+            }
         }
-        ret = esp_wifi_start();
-        if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
-            xSemaphoreGive( xWiFiSem );
-            return wifi_ret;
-        }
-
-        // Wait for wifi started event
-        xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+        if (!wifi_started) {
+            ret = esp_hal_wifi_start();
+            if (ret != ESP_OK) {
+                ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
+                xSemaphoreGive( xWiFiSem );
+                return wifi_ret;
+            }
         }
 
         ret = esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
@@ -598,7 +630,6 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
 
     	if( xCurMode != WIFI_MODE_STA )
     	{
-    		esp_wifi_stop();
 
     		ret = esp_wifi_set_mode(WIFI_MODE_STA);
     		if (ret != ESP_OK) {
@@ -613,17 +644,16 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     			xSemaphoreGive( xWiFiSem );
     			return eWiFiFailure;
     		}
-
-    		ret = esp_wifi_start();
-    		if (ret != ESP_OK) {
-    			ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
-    			xSemaphoreGive( xWiFiSem );
-    			return eWiFiFailure;
-    		}
-
-    		// Wait for wifi started event
-		xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
     	}
+
+        if (!wifi_started) {
+            ret = esp_hal_wifi_start();
+            if (ret != ESP_OK) {
+                ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
+                xSemaphoreGive( xWiFiSem );
+                return eWiFiFailure;
+            }
+        }
 
         if ( wifi_conn_state == false && wifi_auth_failure == true )
         {
@@ -1305,11 +1335,13 @@ WIFIReturnCode_t WIFI_StartAP( void )
             xSemaphoreGive( xWiFiSem );
             return eWiFiSuccess;
         }
-        esp_err_t ret = esp_wifi_start();
-        if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
-            xSemaphoreGive( xWiFiSem );
-            return wifi_ret;
+        if (!wifi_started) {
+            esp_err_t ret = esp_hal_wifi_start();
+            if (ret != ESP_OK) {
+                ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
+                xSemaphoreGive( xWiFiSem );
+                return wifi_ret;
+            }
         }
 
         /* Enable DHCP server, if it's not already enabled */
@@ -1343,11 +1375,9 @@ WIFIReturnCode_t WIFI_StopAP( void )
             return eWiFiSuccess;
         }
 
-        esp_err_t ret = esp_wifi_stop();
+        esp_err_t ret = esp_hal_wifi_stop();
         if (ret == ESP_OK)
         {
-            // Wait for ap disconnected event
-            xEventGroupWaitBits(wifi_event_group, AP_STOPPED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
             xRetVal = eWiFiSuccess;
         }
         /* Return the semaphore. */
@@ -1417,11 +1447,10 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     {
         // Check if AP is already started
         if (wifi_ap_state == true) {
-            esp_err_t ret = esp_wifi_stop();
-            if (ret == ESP_OK)
+            esp_err_t ret = esp_hal_wifi_stop();
+            if (ret != ESP_OK)
             {
-                // Wait for AP stopped event
-                xEventGroupWaitBits(wifi_event_group, AP_STOPPED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+                ESP_LOGE(TAG, "%s:Failed to stop wifi %d", __func__, ret);
             }
         }
 
