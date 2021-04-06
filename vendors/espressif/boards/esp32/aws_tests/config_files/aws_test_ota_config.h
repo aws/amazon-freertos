@@ -50,12 +50,12 @@
 #define otatestpalUSE_FILE_SYSTEM                          0
 
 /**
- * @brief 1 if prvPAL_CheckFileSignature() is implemented in aws_ota_pal.c.
+ * @brief 1 if otaPal_CheckFileSignature() is implemented in aws_ota_pal.c.
  */
 #define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           1
 
 /**
- * @brief 1 if prvPAL_ReadAndAssumeCertificate() is implemented in aws_ota_pal.c.
+ * @brief 1 if otaPal_ReadAndAssumeCertificate() is implemented in aws_ota_pal.c.
  */
 #define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    1
 
@@ -68,14 +68,5 @@
  * @brief Include of signature testing data applicable to this device.
  */
 #include "aws_test_ota_pal_ecdsa_sha256_signature.h"
-
-
-
-/**
- * @brief Define a valid and invalid signature verification method for this
- * platform (Microchip). These are used for generating test JSON docs.
- */
-#define otatestVALID_SIG_METHOD      "sig-sha256-ecdsa"
-#define otatestINVALID_SIG_METHOD    "sig-sha256-rsa"
 
 #endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */

@@ -999,7 +999,6 @@ TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_ValidSignature )
 {
     #if ( otatestpalCHECK_FILE_SIGNATURE_SUPPORTED == 1 )
         OtaPalStatus_t xOtaStatus;
-        OtaPalMainStatus_t palMainStatus;
         int16_t blocksWritten;
         Sig256_t xSig = { 0 };
 
@@ -1025,8 +1024,8 @@ TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_ValidSignature )
             memcpy( xOtaFile.pSignature->data, ucValidSignature, ucValidSignatureLength );
             xOtaFile.pCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
 
-            palMainStatus = test_otaPal_CheckFileSignature( &xOtaFile );
-            TEST_ASSERT_EQUAL_INT( OtaPalSuccess, palMainStatus );
+            xOtaStatus = test_otaPal_CheckFileSignature( &xOtaFile );
+            TEST_ASSERT_EQUAL_INT( OtaPalSuccess, OTA_PAL_MAIN_ERR( xOtaStatus ) );
         }
     #endif /* if ( otatestpalCHECK_FILE_SIGNATURE_SUPPORTED == 1 ) */
 }
@@ -1039,7 +1038,6 @@ TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_InvalidSignatureBlockWritten )
 {
     #if ( otatestpalCHECK_FILE_SIGNATURE_SUPPORTED == 1 )
         OtaPalStatus_t xOtaStatus;
-        OtaPalMainStatus_t palMainStatus;
         int16_t blocksWritten;
         Sig256_t xSig = { 0 };
 
@@ -1065,10 +1063,10 @@ TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_InvalidSignatureBlockWritten )
             xOtaFile.pCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
 
             /* Check the signature. */
-            palMainStatus = test_otaPal_CheckFileSignature( &xOtaFile );
+            xOtaStatus = test_otaPal_CheckFileSignature( &xOtaFile );
 
-            if( ( OtaPalBadSignerCert != palMainStatus ) &&
-                ( OtaPalSignatureCheckFailed != palMainStatus ) )
+            if( ( OtaPalBadSignerCert != OTA_PAL_MAIN_ERR( xOtaStatus ) ) &&
+                ( OtaPalSignatureCheckFailed != OTA_PAL_MAIN_ERR( xOtaStatus ) ) )
             {
                 TEST_ASSERT_TRUE( 0 );
             }
@@ -1112,7 +1110,6 @@ TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_NonexistingCodeSignerCertificate )
 {
     #if ( ( otatestpalCHECK_FILE_SIGNATURE_SUPPORTED == 1 ) && ( otatestpalUSE_FILE_SYSTEM == 1 ) )
         OtaPalStatus_t xOtaStatus;
-        OtaPalMainStatus_t palMainStatus;
         int16_t blocksWritten;
         Sig256_t xSig = { 0 };
 
@@ -1137,10 +1134,10 @@ TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_NonexistingCodeSignerCertificate )
             memcpy( xOtaFile.pSignature->data, ucValidSignature, ucValidSignatureLength );
             xOtaFile.pCertFilepath = ( uint8_t * ) ( "nonexistingfile.crt" );
 
-            palMainStatus = test_otaPal_CheckFileSignature( &xOtaFile );
+            xOtaStatus = test_otaPal_CheckFileSignature( &xOtaFile );
 
-            if( ( OtaPalBadSignerCert != palMainStatus ) &&
-                ( OtaPalSignatureCheckFailed != palMainStatus ) )
+            if( ( OtaPalBadSignerCert != OTA_PAL_MAIN_ERR( xOtaStatus ) ) &&
+                ( OtaPalSignatureCheckFailed != OTA_PAL_MAIN_ERR( xOtaStatus ) ) )
             {
                 TEST_ASSERT_TRUE( 0 );
             }

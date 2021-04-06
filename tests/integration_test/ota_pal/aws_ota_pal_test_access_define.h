@@ -39,7 +39,7 @@
 /*-----------------------------------------------------------*/
 
 #if otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
-    OtaPalMainStatus_t test_otaPal_CheckFileSignature( OtaFileContext_t * const C )
+    OtaPalStatus_t test_otaPal_CheckFileSignature( OtaFileContext_t * const C )
     {
         return otaPal_CheckFileSignature( C );
     }

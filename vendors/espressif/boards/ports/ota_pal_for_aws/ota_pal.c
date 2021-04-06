@@ -353,8 +353,8 @@ static CK_RV prvGetCertificate( const char * pcLabelName,
     return xResult;
 }
 
-uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
-                                      uint32_t * const ulSignerCertSize )
+uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
+                                           uint32_t * const ulSignerCertSize )
 {
     uint8_t * pucCertData;
     uint32_t ulCertSize;
@@ -384,7 +384,7 @@ uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
         }
         else
         {
-            ESP_LOGE( TAG, "Error: No memory for certificate in prvPAL_ReadAndAssumeCertificate!\r\n" );
+            ESP_LOGE( TAG, "Error: No memory for certificate in otaPal_ReadAndAssumeCertificate!\r\n" );
         }
     }
 
@@ -392,7 +392,7 @@ uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
 }
 
 /* Verify the signature of the specified file. */
-OtaPalStatus_t prvPAL_CheckFileSignature( OtaFileContext_t * const C )
+OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C )
 {
     OtaPalStatus_t result;
     uint32_t ulSignerCertSize;
@@ -406,10 +406,10 @@ OtaPalStatus_t prvPAL_CheckFileSignature( OtaFileContext_t * const C )
                                            cryptoHASH_ALGORITHM_SHA256 ) == pdFALSE )
     {
         ESP_LOGE( TAG, "signature verification start failed" );
-        return OTA_PAL_COMBINE_ERR( OtaPalRxFileCreateFailed, 0 );
+        return OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, 0 );
     }
 
-    pucSignerCert = prvPAL_ReadAndAssumeCertificate( ( const uint8_t * const ) C->pCertFilepath, &ulSignerCertSize );
+    pucSignerCert = otaPal_ReadAndAssumeCertificate( ( const uint8_t * const ) C->pCertFilepath, &ulSignerCertSize );
 
     if( pucSignerCert == NULL )
     {
@@ -423,7 +423,7 @@ OtaPalStatus_t prvPAL_CheckFileSignature( OtaFileContext_t * const C )
     if( ret != ESP_OK )
     {
         ESP_LOGE( TAG, "partition mmap failed %d", ret );
-        result = OTA_PAL_COMBINE_ERR( OtaPalRxFileCreateFailed, 0 );
+        result = OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, 0 );
         goto end;
     }
 
@@ -434,7 +434,7 @@ OtaPalStatus_t prvPAL_CheckFileSignature( OtaFileContext_t * const C )
                                            C->pSignature->data, C->pSignature->size ) == pdFALSE )
     {
         ESP_LOGE( TAG, "signature verification failed" );
-        result = OTA_PAL_COMBINE_ERR( OtaPalRxFileCreateFailed, 0 );
+        result = OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, 0 );
     }
     else
     {
@@ -466,17 +466,17 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C )
     {
         ESP_LOGE( TAG, "Image Signature not found" );
         _esp_ota_ctx_clear( &ota_ctx );
-        result = OTA_PAL_COMBINE_ERR( OtaPalRxFileCreateFailed, 0 );
+        result = OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, 0 );
     }
     else if( ota_ctx.data_write_len == 0 )
     {
         ESP_LOGE( TAG, "No data written to partition" );
-        result = OTA_PAL_COMBINE_ERR( OtaPalRxFileCreateFailed, 0 );
+        result = OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, 0 );
     }
     else
     {
         /* Verify the file signature, close the file and return the signature verification result. */
-        result = prvPAL_CheckFileSignature( C );
+        result = otaPal_CheckFileSignature( C );
 
         if( result != OtaErrNone )
         {
@@ -510,7 +510,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C )
             }
             else
             {
-                result = OTA_PAL_COMBINE_ERR( OtaPalRxFileCreateFailed, 0 );
+                result = OTA_PAL_COMBINE_ERR( OtaPalFileClose, 0 );
             }
         }
     }
@@ -735,3 +735,8 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
 
     return OTA_PAL_COMBINE_ERR(mainErr,0);
 }
+
+/* Provide access to private members for testing. */
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
+    #include "aws_ota_pal_test_access_define.h"
+#endif
