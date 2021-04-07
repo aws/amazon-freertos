@@ -155,7 +155,7 @@ function(cy_add_link_libraries)
         TOOLCHAIN     "${AFR_TOOLCHAIN}"
     )
 
-    set(ENV{CY_COMPONENTS} "${AFR_BOARD_NAME};${ARG_COMPONENTS};SOFTFP;BSP_DESIGN_MODUS;PSOC6HAL;FREERTOS;$ENV{CY_CORE}")
+    set(ENV{CY_COMPONENTS} "${AFR_BOARD_NAME};${ARG_COMPONENTS};SOFTFP;BSP_DESIGN_MODUS;PSOC6HAL;FREERTOS;PSOC6;$ENV{CY_CORE}")
     set(CY_ARCH_DIR
         "${cy_libraries_clib_dir}"
         "${cy_psoc6_dir}"
