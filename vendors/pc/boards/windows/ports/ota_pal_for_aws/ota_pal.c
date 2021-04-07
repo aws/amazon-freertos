@@ -34,10 +34,18 @@
 
 #include "ota_pal.h"
 
+/* Include config file used for testing the OTA PAL. This config file defines
+ * the otatestpalSIGNING_CERTIFICATE_PEM macro. */
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
+    #include "aws_test_ota_config.h"
+#endif
+
 /* Specify the OTA signature algorithm we support on this platform. */
 const char OTA_JsonFileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
 
-static OtaErr_t otaPal_CheckFileSignature( OtaFileContext_t * const C );
+static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = otatestpalSIGNING_CERTIFICATE_PEM;
+
+static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C );
 static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
                                                   uint32_t * const ulSignerCertSize );
 
@@ -220,7 +228,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C )
         if( C->pSignature != NULL )
         {
             /* Verify the file signature, close the file and return the signature verification result. */
-            mainErr = otaPal_CheckFileSignature( C );
+            mainErr = OTA_PAL_MAIN_ERR( otaPal_CheckFileSignature( C ) );
         }
         else
         {
@@ -267,9 +275,9 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C )
 
 /* Verify the signature of the specified file. */
 
-static OtaPalMainStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C )
+static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C )
 {
-    OtaPalMainStatus_t eResult = OtaPalSuccess;
+    OtaPalMainStatus_t mainErr = OtaPalSuccess;
     uint32_t ulBytesRead;
     uint32_t ulSignerCertSize;
     uint8_t * pucBuf, * pucSignerCert;
@@ -280,7 +288,7 @@ static OtaPalMainStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C 
         /* Verify an ECDSA-SHA256 signature. */
         if( pdFALSE == CRYPTO_SignatureVerificationStart( &pvSigVerifyContext, cryptoASYMMETRIC_ALGORITHM_ECDSA, cryptoHASH_ALGORITHM_SHA256 ) )
         {
-            eResult = OtaPalSignatureCheckFailed;
+            mainErr = OtaPalSignatureCheckFailed;
         }
         else
         {
@@ -312,7 +320,7 @@ static OtaPalMainStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C 
                                                                           C->pSignature->data,
                                                                           C->pSignature->size ) ) /*lint !e732 !e9034 Allow comparison in this context. */
                         {
-                            eResult = OtaPalSignatureCheckFailed;
+                            mainErr = OtaPalSignatureCheckFailed;
                         }
 						pvSigVerifyContext = NULL;	/* The context has been freed by CRYPTO_SignatureVerificationFinal(). */
                     }
@@ -327,7 +335,7 @@ static OtaPalMainStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C 
                 else
                 {
                     LogError( ( "Failed to allocate buffer memory.\r\n" ) );
-                    eResult = OtaPalOutOfMemory;
+                    mainErr = OtaPalOutOfMemory;
                 }
 
                 /* Free the signer certificate that we now own after prvReadAndAssumeCertificate(). */
@@ -335,7 +343,7 @@ static OtaPalMainStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C 
             }
             else
             {
-                eResult = OtaPalBadSignerCert;
+                mainErr = OtaPalBadSignerCert;
             }
         }
     }
@@ -344,10 +352,10 @@ static OtaPalMainStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C 
         /* FIXME: Invalid error code for a NULL file context. */
         LogError( ( "Invalid OTA file context.\r\n" ) );
         /* Invalid OTA context or file pointer. */
-        eResult = OtaPalNullFileContext;
+        mainErr = OtaPalNullFileContext;
     }
 
-    return eResult;
+    return OTA_PAL_COMBINE_ERR( mainErr, 0 );
 }
 
 
