@@ -551,6 +551,12 @@ WIFIReturnCode_t prvWifiConnect( void )
                 xWifiStatus = eWiFiFailure;
             }
         }
+        xNetworkParams.ucChannel = wificonfigACCESS_POINT_CHANNEL;
+        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
+        {
+            configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
+                            xNetworkParams.ucSSID, xNetworkParams.xPassword.xWPA.cPassphrase ) );
+        }
         xWifiStatus = WIFI_StartAP();
         if (xWifiStatus != eWiFiSuccess)
         {
