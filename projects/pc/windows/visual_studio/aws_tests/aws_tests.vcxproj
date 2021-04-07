@@ -224,8 +224,6 @@
 		<ClInclude Include="..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal_ecdsa_sha256_signature.h"/>
 		<ClInclude Include="..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal_rsa_sha1_signature.h"/>
 		<ClInclude Include="..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal_rsa_sha256_signature.h"/>
-		<ClInclude Include="..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_signature_methods.h"/>
-		<ClInclude Include="..\..\..\..\..\tests\integration_test\ota_pal\ota_pal_test.h"/>
 		<ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aes.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aesni.h"/>

@@ -623,12 +623,6 @@
 		<ClInclude Include="..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal_rsa_sha256_signature.h">
 			<Filter>tests\integration_test\ota_pal</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_signature_methods.h">
-			<Filter>tests\integration_test\ota_pal</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\tests\integration_test\ota_pal\ota_pal_test.h">
-			<Filter>tests\integration_test\ota_pal</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.h">
 			<Filter>application_code</Filter>
 		</ClInclude>
