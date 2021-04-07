@@ -44,6 +44,10 @@
 #include "mbedtls/base64.h"
 #include "task.h"
 
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
+    #include "aws_test_ota_config.h"
+#endif
+
 #define kOTA_HalfSecondDelay    pdMS_TO_TICKS( 500UL )
 #define ECDSA_INTEGER_LEN       32
 
@@ -78,6 +82,8 @@ typedef struct
 
 static esp_ota_context_t ota_ctx;
 static const char * TAG = "ota_pal";
+
+static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = otatestpalSIGNING_CERTIFICATE_PEM;
 
 /* Specify the OTA signature algorithm we support on this platform. */
 const char OTA_JsonFileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";

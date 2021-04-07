@@ -27,7 +27,6 @@
 #define _AWS_TEST_OTA_PAL_RSA_SHA1_SIGNATURE_H_
 
 #include <stdint.h>
-#include "aws_test_ota_signature_methods.h"
 
 /**
  * @brief Invalid signature for OTA PAL testing.
@@ -93,6 +92,26 @@ static const int ucValidSignatureLength = 256;
 /**
  * @brief The type of signature method this file defines for the valid signature.
  */
-#define otatestSIG_METHOD    otatestSIG_SHA1_RSA
+#define otatestpalSIGNING_CERTIFICATE_PEM \
+    "-----BEGIN CERTIFICATE-----\n" \
+    "MIIDPDCCAiSgAwIBAgIBATANBgkqhkiG9w0BAQUFADB8MQswCQYDVQQGEwJJTDEP\n" \
+    "MA0GA1UECAwGU2hhcm9uMRAwDgYDVQQHDAdSYWFuYW5hMR8wHQYDVQQKDBZUZXhh\n" \
+    "cyBJbnN0cnVtZW50cyBJbmMuMQwwCgYDVQQLDANSTkQxGzAZBgNVBAMMEmR1bW15\n" \
+    "LXJvb3QtY2EtY2VydDAeFw0xODA2MjcxOTI4NTNaFw0xOTA2MjcxOTI4NTNaMCEx\n" \
+    "HzAdBgNVBAMMFnRlc3Rfc2lnbmVyQGFtYXpvbi5jb20wggEiMA0GCSqGSIb3DQEB\n" \
+    "AQUAA4IBDwAwggEKAoIBAQC5craIexo46oq3OTj+3fLz17MCtw/icXku8sJ16el0\n" \
+    "29Cibq4u8bdJeDnGlc42UySw0UlodWnzd5I52tXoXcQZs++m6uQ3JvvRHFXpNuV6\n" \
+    "Cyo//AdQ2MoqdKK8/pZqu4X71/xXHcIMBb3kS1RSkunJB65mPuPOfjcem6IXDtRk\n" \
+    "E346aN6wMfeIlmwOoFK4RBoWse459ELB5aq0tSwUmHv7UcyHYQf4Cxkz5HjWfx0y\n" \
+    "NYKCR4tPoudjg8E9R6uqik7DFlqrijNW2XdXS67d/cVToDJFn1SnYcHStARAoZUK\n" \
+    "gP0JwXTapO31QThi9q+q63FETBcnEQ29rfmeN1/pBOI/AgMBAAGjJDAiMAsGA1Ud\n" \
+    "DwQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcDAzANBgkqhkiG9w0BAQUFAAOCAQEA\n" \
+    "W29xvDV66B7NYAOSqXIG11JH+Pk2GFzZl5gNehkcDPPMHumBRNHHZqVAO4mah3Ej\n" \
+    "StqWmTXnIs5YKX9Ro7ch3NfKHMt4/JFvR7v9VolVIVwZZB+AQU1BD8OAGlHNEq28\n" \
+    "TbOdkpdv9Q69W4TVsqXAkVhONekLkEJQTZyhW7db28nb/LizftfN4ps+uuE2Xl9c\n" \
+    "YHmgWb/xqi9NIcsyQL08urJVCnyGuLQgj+GfitELFsCfc3ohhacNENsXupRIOz08\n" \
+    "NCa9WuCyk5uwoo6mn6JIErBMLqLTBcs82vq9d7WIFHf4QpgTs2FuelY/Hyw7HRFo\n" \
+    "Ml3tXnR4B4lqeJy/BP6/GA==\n" \
+    "-----END CERTIFICATE-----"
 
 #endif /* _AWS_TEST_OTA_PAL_RSA_SHA1_SIGNATURE_H_  */

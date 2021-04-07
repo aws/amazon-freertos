@@ -33,9 +33,6 @@
 
 #include "ota.h"
 
-
-static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = "Paste code signing certificate here.";
-
 /**
  * @brief Abort an OTA transfer.
  *

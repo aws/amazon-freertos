@@ -87,8 +87,6 @@ if(AFR_ENABLE_TESTS)
             "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_pal_ecdsa_sha256_signature.h"
             "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_pal_rsa_sha1_signature.h"
             "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_pal_rsa_sha256_signature.h"
-            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_signature_methods.h"
-            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/ota_pal_test.h"
     )
 
     afr_module_include_dirs(

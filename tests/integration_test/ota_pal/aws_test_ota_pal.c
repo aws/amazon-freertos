@@ -66,10 +66,6 @@
 /* Include functions for accessing static PAL functions. */
 #include "aws_ota_pal_test_access_declare.h"
 
-/* Include declarations of expected PAL functions under test and testing
- * certificates. */
-#include "ota_pal_test.h"
-
 /* Include PKCS11 headers. */
 #if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 )
     #include "core_pkcs11_config.h"
@@ -125,6 +121,9 @@ const AppVersion32_t appFirmwareVersion =
 /* Global static OTA file context used in every test. This variable is reset to
  * all zeros before every test. */
 static OtaFileContext_t xOtaFile;
+
+/* Certificate used for validating code signing signatures in the tests. */
+static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = otatestpalSIGNING_CERTIFICATE_PEM;
 
 #ifdef CC3220sf
 
