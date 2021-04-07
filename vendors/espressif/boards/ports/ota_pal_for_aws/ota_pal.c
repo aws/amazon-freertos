@@ -645,7 +645,7 @@ static void disable_rtc_wdt()
 }
 
 OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
-                                       OtaImageState_t eState )
+                                             OtaImageState_t eState )
 {
     OtaPalMainStatus_t mainErr = OtaPalSuccess;
     int state;
@@ -673,11 +673,11 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
 
         case OtaImageStateTesting:
             ESP_LOGW( TAG, "Set image as testing!" );
-            return OTA_PAL_COMBINE_ERR(OtaPalSuccess,0);
+            return OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
 
         default:
             ESP_LOGW( TAG, "Set image invalid state!" );
-            return OTA_PAL_COMBINE_ERR(OtaPalBadImageState,0);
+            return OTA_PAL_COMBINE_ERR( OtaPalBadImageState, 0 );
     }
 
     uint32_t ota_flags;
@@ -687,7 +687,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
     if( ret != ESP_OK )
     {
         ESP_LOGE( TAG, "failed to get ota flags %d", ret );
-        return OTA_PAL_COMBINE_ERR(OtaPalCommitFailed,0);
+        return OTA_PAL_COMBINE_ERR( OtaPalCommitFailed, 0 );
     }
 
     /* If this is first request to set platform state, post bootup and there is not OTA being
@@ -701,7 +701,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
             if( ret != ESP_OK )
             {
                 ESP_LOGE( TAG, "failed to set ota flags %d", ret );
-                return OTA_PAL_COMBINE_ERR(OtaPalCommitFailed,0);
+                return OTA_PAL_COMBINE_ERR( OtaPalCommitFailed, 0 );
             }
             else
             {
@@ -741,7 +741,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
         }
     }
 
-    return OTA_PAL_COMBINE_ERR(mainErr,0);
+    return OTA_PAL_COMBINE_ERR( mainErr, 0 );
 }
 
 /* Provide access to private members for testing. */
