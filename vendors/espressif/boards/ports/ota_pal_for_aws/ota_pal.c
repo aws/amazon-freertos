@@ -44,6 +44,8 @@
 #include "mbedtls/base64.h"
 #include "task.h"
 
+/* Include config file used for testing the OTA PAL. This config file defines
+ * the otatestpalSIGNING_CERTIFICATE_PEM macro. */
 #ifdef FREERTOS_ENABLE_UNIT_TESTS
     #include "aws_test_ota_config.h"
 #endif
