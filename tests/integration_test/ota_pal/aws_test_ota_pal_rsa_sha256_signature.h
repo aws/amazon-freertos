@@ -91,8 +91,8 @@ static const int ucValidSignatureLength = 256;
 /**
  * @brief The type of signature method this file defines for the valid signature.
  */
-#define otatestpalSIGNING_CERTIFICATE_PEM \
-    "-----BEGIN CERTIFICATE-----\n" \
+#define otatestpalSIGNING_CERTIFICATE_PEM                                \
+    "-----BEGIN CERTIFICATE-----\n"                                      \
     "MIIC6TCCAdGgAwIBAgIJAJmG5mbNWlukMA0GCSqGSIb3DQEBCwUAMCExHzAdBgNV\n" \
     "BAMMFnRlc3Rfc2lnbmVyQGFtYXpvbi5jb20wHhcNMTgwNjI3MjAwMDIyWhcNMTkw\n" \
     "NjI3MjAwMDIyWjAhMR8wHQYDVQQDDBZ0ZXN0X3NpZ25lckBhbWF6b24uY29tMIIB\n" \
@@ -108,7 +108,7 @@ static const int ucValidSignatureLength = 256;
     "rd3uzsN4IThHxHiwhPXu2IjjoIjSXLHcTKyZR2uHaifXbVEEwmUimg/49of02eIa\n" \
     "ouLySI/+zcLgNFtTklRdSUxxGVK9y47ufiVb+sErzfDBpYx7CwZg0d+wPgfbuYE2\n" \
     "8GMrCwFUbsFGMvhscPwG51rFLNonWh+ThZIwHrBwnVXmsDXayBlr6wCA50zGfBQb\n" \
-    "SXVRXIv/SKpj1k1slnf9IJLfArH6F0Ctjcef/Aw=\n" \
+    "SXVRXIv/SKpj1k1slnf9IJLfArH6F0Ctjcef/Aw=\n"                         \
     "-----END CERTIFICATE-----"
 
 #endif /* _AWS_TEST_OTA_PAL_RSA_SHA256_SIGNATURE_H_ */
