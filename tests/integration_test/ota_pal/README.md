@@ -5,7 +5,7 @@ tests (these tests are enabled by setting testrunnerFULL_OTA_PAL_ENABLED to 1, s
 
 The names of the files correspond to the signing algorithm associated with that certificate.
 
-If your OTA PAL layer port defines "signingcredentialSIGNING_CERTIFICATE_PEM" variable in ota_pal.h, then please copy
+If your OTA PAL layer port defines "signingcredentialSIGNING_CERTIFICATE_PEM" variable in ota_pal.c, then please copy
 in the certificate, with the applicable signing algorithm for your device, located under \<root-directory\>/tests/ota_pal/test_files.
 Currently the "signingcredentialSIGNING_CERTIFICATE_PEM" variable is set to use the ecdsa-sha256-signer.crt.pem certificate located
 under \<root-directory\>/tests/ota_pal/test_files by default.
