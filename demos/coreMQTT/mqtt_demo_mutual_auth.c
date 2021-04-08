@@ -1191,6 +1191,8 @@ static MQTTStatus_t prvWaitForPacket( MQTTContext_t * pxMQTTContext,
         /* Event callback will set #usPacketTypeReceived when receiving appropriate packet. This
          * will wait for at most mqttexamplePROCESS_LOOP_TIMEOUT_MS. */
         xMQTTStatus = MQTT_ProcessLoop( pxMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
+
+        vTaskDelay( mqttexampleDELAY_BETWEEN_PUBLISHES_TICKS );
     }
 
     if( ( xMQTTStatus != MQTTSuccess ) || ( usPacketTypeReceived != usPacketType ) )
