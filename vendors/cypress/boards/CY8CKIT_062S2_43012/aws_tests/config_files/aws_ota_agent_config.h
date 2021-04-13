@@ -38,10 +38,8 @@
 
 /**
  * @brief Log base 2 of the size of the file data block message (excluding the header).
- *
- * 10 bits yields a data block size of 1KB.
  */
-#define otaconfigLOG2_FILE_BLOCK_SIZE           10UL    /* 2^10 = 1024 block size */
+#define otaconfigLOG2_FILE_BLOCK_SIZE           12UL    /* 2^12 = 4096 block size */
 
 /**
  * @brief Milliseconds to wait for the self test phase to succeed before we force reset.
@@ -60,7 +58,7 @@
  * @brief The OTA agent task priority. Normally it runs at a low priority.
  *    lowest: 0, max 7 (configMAX_PRIORITIES) (tskIDLE_PRIORITY == 0)
  */
-#define otaconfigAGENT_PRIORITY                 (2)
+#define otaconfigAGENT_PRIORITY                 (0)
 
 /**
  * @brief The maximum allowed length of the thing name used by the OTA agent.
