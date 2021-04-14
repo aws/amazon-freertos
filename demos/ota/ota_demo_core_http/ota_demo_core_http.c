@@ -1427,6 +1427,9 @@ static MQTTStatus_t prvMqttInit( void )
                                               staticQueueStorageArea,
                                               &staticQueueStructure );
 
+    /* Initialize the agent task pool. */
+    Agent_InitializePool();
+
     xMessageInterface.pMsgCtx = &xCommandQueue;
     xMessageInterface.recv = Agent_MessageReceive;
     xMessageInterface.send = Agent_MessageSend;
