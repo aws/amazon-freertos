@@ -1,5 +1,5 @@
 /*
- * AWS IoT Device SDK for Embedded C V202009.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -62,27 +62,6 @@ typedef struct SubscriptionManagerRecord
  * @brief The registry to store records of topic filters and their subscription callbacks.
  */
 static SubscriptionManagerRecord_t callbackRecordList[ MAX_SUBSCRIPTION_CALLBACK_RECORDS ] = { 0 };
-
-struct AgentMessageContext
-{
-    QueueHandle_t queue;
-};
-
-/**
- * @brief The pool of command structures used to hold information on commands (such
- * as PUBLISH or SUBSCRIBE) between the command being created by an API call and
- * completion of the command by the execution of the command's callback.
- */
-static Command_t xCommandStructurePool[ MQTT_COMMAND_CONTEXTS_POOL_SIZE ];
-
-/**
- * @brief A counting semaphore used to guard the pool of Command_t structures.  To
- * obtain a structure first decrement the semaphore count.  To return a structure
- * increment the semaphore count after the structure is back in the pool.
- */
-static SemaphoreHandle_t xFreeCommandStructMutex = NULL;
-
-static volatile uint8_t ucInitStatus = SEMAPHORE_NOT_INITIALIZED;
 
 /*-----------------------------------------------------------*/
 
@@ -237,139 +216,6 @@ void SubscriptionManager_RemoveCallback( const char * pTopicFilter,
                    topicFilterLength,
                    pTopicFilter ) );
     }
-}
-/*-----------------------------------------------------------*/
-
-bool Agent_MessageSend( const AgentMessageContext_t * pxMsgCtx,
-                        const void * pData,
-                        uint32_t ulBlockTimeMs )
-{
-    BaseType_t xQueueStatus = pdFAIL;
-
-    if( ( pxMsgCtx != NULL ) && ( pData != NULL ) )
-    {
-        xQueueStatus = xQueueSendToBack( pxMsgCtx->queue, pData, pdMS_TO_TICKS( ulBlockTimeMs ) );
-    }
-
-    return ( xQueueStatus == pdPASS ) ? true : false;
-}
-
-/*-----------------------------------------------------------*/
-
-bool Agent_MessageReceive( const AgentMessageContext_t * pxMsgCtx,
-                           void * pBuffer,
-                           uint32_t ulBlockTimeMs )
-{
-    BaseType_t xQueueStatus = pdFAIL;
-
-    if( ( pxMsgCtx != NULL ) && ( pBuffer != NULL ) )
-    {
-        xQueueStatus = xQueueReceive( pxMsgCtx->queue, pBuffer, pdMS_TO_TICKS( ulBlockTimeMs ) );
-    }
-
-    return ( xQueueStatus == pdPASS ) ? true : false;
-}
-
-/*-----------------------------------------------------------*/
-
-static void initializePool()
-{
-    bool bSemAssigned = false;
-
-    taskENTER_CRITICAL();
-    {
-        if( ucInitStatus == SEMAPHORE_NOT_INITIALIZED )
-        {
-            bSemAssigned = true;
-            ucInitStatus = SEMAPHORE_INIT_PENDING;
-        }
-    }
-    taskEXIT_CRITICAL();
-
-    if( bSemAssigned )
-    {
-        memset( ( void * ) xCommandStructurePool, 0x00, sizeof( xCommandStructurePool ) );
-        xFreeCommandStructMutex = xSemaphoreCreateCounting( MQTT_COMMAND_CONTEXTS_POOL_SIZE, MQTT_COMMAND_CONTEXTS_POOL_SIZE );
-        ucInitStatus = SEMAPHORE_INITIALIZED;
-    }
-}
-
-/*-----------------------------------------------------------*/
-
-Command_t * Agent_GetCommand( uint32_t ulBlockTimeMs )
-{
-    Command_t * xCommand = NULL;
-    size_t xCommandPoolSize;
-
-    /* Check here so we do not enter a critical section every time. */
-    if( ucInitStatus == SEMAPHORE_NOT_INITIALIZED )
-    {
-        initializePool();
-        configASSERT( xFreeCommandStructMutex ); /*_RB_ Create all objects here statically. */
-    }
-
-    /* Check counting semaphore has been created. */
-    if( xFreeCommandStructMutex != NULL )
-    {
-        /* If the semaphore count is not zero then a command context is available. */
-        if( xSemaphoreTake( xFreeCommandStructMutex, pdMS_TO_TICKS( ulBlockTimeMs ) ) == pdPASS )
-        {
-            for( xCommandPoolSize = 0; xCommandPoolSize < MQTT_COMMAND_CONTEXTS_POOL_SIZE; xCommandPoolSize++ )
-            {
-                taskENTER_CRITICAL();
-                {
-                    /* If the commandType is NONE then the structure is not in use. */
-                    if( xCommandStructurePool[ xCommandPoolSize ].commandType == NONE )
-                    {
-                        xCommand = &( xCommandStructurePool[ xCommandPoolSize ] );
-
-                        /* To show the struct is no longer available to be returned
-                         * by calls to Agent_ReleaseCommand(). */
-                        xCommand->commandType = !NONE;
-                        taskEXIT_CRITICAL();
-                        break;
-                    }
-                }
-                taskEXIT_CRITICAL();
-            }
-        }
-    }
-
-    return xCommand;
-}
-
-/*-----------------------------------------------------------*/
-
-bool Agent_ReleaseCommand( Command_t * pxCommandToRelease )
-{
-    size_t xCommandPoolSize;
-    bool bCommandReturned = false;
-
-    /* See if the structure being returned is actually from the pool. */
-    for( xCommandPoolSize = 0; xCommandPoolSize < MQTT_COMMAND_CONTEXTS_POOL_SIZE; xCommandPoolSize++ )
-    {
-        if( pxCommandToRelease == &( xCommandStructurePool[ xCommandPoolSize ] ) )
-        {
-            taskENTER_CRITICAL();
-
-            /* Yes its from the pool.  Clearing it to zero not only removes the old
-             * data it also sets the structure's commandType parameter to NONE to
-             * mark the structure as free again. */
-            memset( ( void * ) pxCommandToRelease, 0x00, sizeof( Command_t ) );
-            taskEXIT_CRITICAL();
-
-            /* Give back the counting semaphore after returning the structure so the
-             * semaphore count equals the number of available structures. */
-            xSemaphoreGive( xFreeCommandStructMutex );
-            bCommandReturned = true;
-
-            LogDebug( ( "Returned Command Context %d to pool", ( int ) xCommandPoolSize ) );
-
-            break;
-        }
-    }
-
-    return bCommandReturned;
 }
 
 /*-----------------------------------------------------------*/

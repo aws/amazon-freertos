@@ -161,6 +161,9 @@
     <Filter Include="demos\common\ota_demo_helpers">
       <UniqueIdentifier>{aae86589-e01f-4d44-92f8-c02e70e886c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="demos\common\mqtt_agent_interface">
+      <UniqueIdentifier>{aae86589-e01f-4d44-92f8-c02e70e886d1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="vendors\pc\boards\windows\ports\ota_pal_for_aws">
       <UniqueIdentifier>{7f3e1fcd-4367-4ebf-ac51-c22d64704d9e}</UniqueIdentifier>
     </Filter>
@@ -1496,6 +1499,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_demo_helpers.c">
       <Filter>demos\common\ota_demo_helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\demos\common\mqtt_agent_interface\freertos_agent_message.c">
+      <Filter>demos\common\mqtt_agent_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\demos\common\mqtt_agent_interface\freertos_command_pool.c">
+      <Filter>demos\common\mqtt_agent_interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\ota_pal_for_aws\ota_pal.c">
       <Filter>vendors\pc\boards\windows\ports\ota_pal_for_aws</Filter>

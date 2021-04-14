@@ -1,5 +1,5 @@
 /*
- * AWS IoT Device SDK for Embedded C V202009.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,8 +27,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "mqtt_agent.h"
-#include "core_mqtt_agent_config.h"
+/* Include MQTT library. */
+#include "core_mqtt.h"
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -54,9 +54,6 @@
 #include "logging_stack.h"
 
 /************ End of logging configuration ****************/
-
-/* Include MQTT library. */
-#include "core_mqtt.h"
 
 /* Enumeration type for return status value from Subscription Manager API. */
 typedef enum SubscriptionManagerStatus
@@ -139,74 +136,5 @@ SubscriptionManagerStatus_t SubscriptionManager_RegisterCallback( const char * p
  */
 void SubscriptionManager_RemoveCallback( const char * pTopicFilter,
                                          uint16_t topicFilterLength );
-
-/**
- * @brief Obtain a Command_t structure from the pool of structures managed by the agent.
- *
- * @note Command_t structures hold everything the MQTT agent needs to process a
- * command that originates from application.  Examples of commands are PUBLISH and
- * SUBSCRIBE.  The Command_t structure must persist for the duration of the command's
- * operation so are obtained from a pool of statically allocated structures when a
- * new command is created, and returned to the pool when the command is complete.
- * The MQTT_COMMAND_CONTEXTS_POOL_SIZE configuration file constant defines how many
- * structures the pool contains.
- *
- * @param[in] ulBlockTimeMs The length of time the calling task should remain in the
- * Blocked state (so not consuming any CPU time) to wait for a Command_t structure to
- * become available should one not be immediately at the time of the call.
- *
- * @return A pointer to a Command_t structure if one becomes available before
- * ulBlockTimeMs time expired, otherwise NULL.
- */
-Command_t * Agent_GetCommand( uint32_t ulBlockTimeMs );
-
-/**
- * @brief Give a Command_t structure back to the the pool of structures managed by
- * the agent.
- *
- * @note Command_t structures hold everything the MQTT agent needs to process a
- * command that originates from application.  Examples of commands are PUBLISH and
- * SUBSCRIBE.  The Command_t structure must persist for the duration of the command's
- * operation so are obtained from a pool of statically allocated structures when a
- * new command is created, and returned to the pool when the command is complete.
- * The MQTT_COMMAND_CONTEXTS_POOL_SIZE configuration file constant defines how many
- * structures the pool contains.
- *
- * @param[in] pxCommandToRelease A pointer to the Command_t structure to return to
- * the pool.  The structure must first have been obtained by calling
- * Agent_GetCommand(), otherwise Agent_ReleaseCommand() will
- * have no effect.
- *
- * @return true if the Command_t structure was returned to the pool, otherwise false.
- */
-bool Agent_ReleaseCommand( Command_t * pxCommandToRelease );
-
-/**
- * @brief Send a message to the specified context.
- * Must be thread safe.
- *
- * @param[in] pxMsgCtx An #AgentMessageContext_t.
- * @param[in] pData Pointer to element to send to queue.
- * @param[in] ulBlockTimeMs Block time to wait for a send.
- *
- * @return `true` if send was successful, else `false`.
- */
-bool Agent_MessageSend( const AgentMessageContext_t * pxMsgCtx,
-                        const void * pData,
-                        uint32_t ulBlockTimeMs );
-
-/**
- * @brief Receive a message from the specified context.
- * Must be thread safe.
- *
- * @param[in] pxMsgCtx An #AgentMessageContext_t.
- * @param[in] pBuffer Pointer to buffer to write received data.
- * @param[in] ulBlockTimeMs Block time to wait for a receive.
- *
- * @return `true` if receive was successful, else `false`.
- */
-bool Agent_MessageReceive( const AgentMessageContext_t * pxMsgCtx,
-                           void * pBuffer,
-                           uint32_t ulBlockTimeMs );
 
 #endif /* ifndef OTA_DEMO_HELPERS_H_ */

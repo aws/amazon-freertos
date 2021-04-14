@@ -39,9 +39,8 @@
 #include "iot_network.h"
 
 /* CoreMQTT-Agent APIS for running MQTT in a multithreaded environment. */
-#include "mqtt_agent.h"
-#include "agent_message.h"
-#include "core_mqtt_agent_config.h"
+#include "freertos_agent_message.h"
+#include "freertos_command_pool.h"
 
 /* Includes helpers for managing MQTT subscriptions. */
 #include "subscription_manager.h"
@@ -454,15 +453,6 @@
 struct NetworkContext
 {
     SecureSocketsTransportParams_t * pParams;
-};
-
-
-/**
- * @brief Defines the structure to use as the agent IPC mechanism.
- */
-struct AgentMessageContext
-{
-    QueueHandle_t queue;
 };
 
 /**
