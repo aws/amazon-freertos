@@ -47,13 +47,10 @@ extern void vLoggingPrintf( const char * pcFormat, ... );
 extern void vLoggingPrint( const char * pcMessage );
 #define configPRINT( X )     vLoggingPrint( X )
 
-#ifdef DEBUG
 /* Assert call defined for debug builds. */
-extern void vAssertCalled(const char * pcFile, uint32_t ulLine);
-#define configASSERT(x) if((x) == 0) vAssertCalled(__FILE__, __LINE__)
-#else
-#define configASSERT(x)
-#endif /* DEBUG */
+extern void vAssertCalled(const char * pcFile,
+                           uint32_t ulLine);
+#define configASSERT(x)    if((x) == 0) vAssertCalled(__FILE__, __LINE__)
 
 #endif
 
