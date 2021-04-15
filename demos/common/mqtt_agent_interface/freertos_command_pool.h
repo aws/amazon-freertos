@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202011.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -18,21 +18,48 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * https://www.FreeRTOS.org
- * https://aws.amazon.com/freertos
- *
  */
 
 /**
- * @file agent_command_pool.h
+ * @file freertos_command_pool.h
  * @brief Functions to obtain and release a command.
  */
-#ifndef AGENT_COMMAND_POOL_H
-#define AGENT_COMMAND_POOL_H
+#ifndef FREERTOS_COMMAND_POOL_H
+#define FREERTOS_COMMAND_POOL_H
 
 /* MQTT agent includes. */
-#include "freertos_mqtt_agent.h"
+#include "mqtt_agent.h"
+#include "core_mqtt_agent_config.h"
+
+/**************************************************/
+/******* DO NOT CHANGE the following order ********/
+/**************************************************/
+
+/* Logging related header files are required to be included in the following order:
+ * 1. Include the header file "logging_levels.h".
+ * 2. Define LIBRARY_LOG_NAME and  LIBRARY_LOG_LEVEL.
+ * 3. Include the header file "logging_stack.h".
+ */
+
+/* Include header that defines log levels. */
+#include "logging_levels.h"
+
+/* Logging configuration for the Subscription Manager module. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME     "MQTT Agent Interface"
+#endif
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_DEBUG
+#endif
+
+#include "logging_stack.h"
+
+/************ End of logging configuration ****************/
+
+/**
+ * @brief Initialize the common task pool. Not thread safe.
+ */
+void Agent_InitializePool( void );
 
 /**
  * @brief Obtain a Command_t structure from the pool of structures managed by the agent.
@@ -45,14 +72,14 @@
  * The MQTT_COMMAND_CONTEXTS_POOL_SIZE configuration file constant defines how many
  * structures the pool contains.
  *
- * @param[in] blockTimeMs The length of time the calling task should remain in the
+ * @param[in] ulBlockTimeMs The length of time the calling task should remain in the
  * Blocked state (so not consuming any CPU time) to wait for a Command_t structure to
  * become available should one not be immediately at the time of the call.
  *
  * @return A pointer to a Command_t structure if one becomes available before
- * blockTimeMs time expired, otherwise NULL.
+ * ulBlockTimeMs time expired, otherwise NULL.
  */
-Command_t * Agent_GetCommand( uint32_t blockTimeMs );
+Command_t * Agent_GetCommand( uint32_t ulBlockTimeMs );
 
 /**
  * @brief Give a Command_t structure back to the the pool of structures managed by
@@ -66,13 +93,13 @@ Command_t * Agent_GetCommand( uint32_t blockTimeMs );
  * The MQTT_COMMAND_CONTEXTS_POOL_SIZE configuration file constant defines how many
  * structures the pool contains.
  *
- * @param[in] pCommandToRelease A pointer to the Command_t structure to return to
+ * @param[in] pxCommandToRelease A pointer to the Command_t structure to return to
  * the pool.  The structure must first have been obtained by calling
  * Agent_GetCommand(), otherwise Agent_ReleaseCommand() will
  * have no effect.
  *
  * @return true if the Command_t structure was returned to the pool, otherwise false.
  */
-bool Agent_ReleaseCommand( Command_t * pCommandToRelease );
+bool Agent_ReleaseCommand( Command_t * pxCommandToRelease );
 
-#endif /* AGENT_COMMAND_POOL_H */
+#endif /* FREERTOS_COMMAND_POOL_H */
