@@ -272,8 +272,12 @@ bool IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
         pSubscriptionArray[ deleteIndex ].topicFilterLength = 0;
 
         /* Free memory allocated for topic filter. */
-        IotMqtt_FreeMessage( pSubscriptionArray[ deleteIndex ].pTopicFilter );
-        pSubscriptionArray[ deleteIndex ].pTopicFilter = NULL;
+        if( pSubscriptionArray[ deleteIndex ].pTopicFilter != NULL )
+        {
+            IotMqtt_FreeMessage( pSubscriptionArray[ deleteIndex ].pTopicFilter );
+            pSubscriptionArray[ deleteIndex ].pTopicFilter = NULL;
+        }
+
         status = true;
     }
     else
@@ -305,8 +309,11 @@ void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
                 pSubscriptionArray[ index ].topicFilterLength = 0;
 
                 /* Free memory allocated for topic filter. */
-                IotMqtt_FreeMessage( pSubscriptionArray[ index ].pTopicFilter );
-                pSubscriptionArray[ index ].pTopicFilter = NULL;
+                if( pSubscriptionArray[ index ].pTopicFilter != NULL )
+                {
+                    IotMqtt_FreeMessage( pSubscriptionArray[ index ].pTopicFilter );
+                    pSubscriptionArray[ index ].pTopicFilter = NULL;
+                }
             }
         }
         else
@@ -315,8 +322,11 @@ void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
 
             pSubscriptionArray[ index ].unsubscribed = true;
 
-            IotMqtt_FreeMessage( pSubscriptionArray[ index ].pTopicFilter );
-            pSubscriptionArray[ index ].pTopicFilter = NULL;
+            if( pSubscriptionArray[ index ].pTopicFilter != NULL )
+            {
+                IotMqtt_FreeMessage( pSubscriptionArray[ index ].pTopicFilter );
+                pSubscriptionArray[ index ].pTopicFilter = NULL;
+            }
         }
 
         index++;
