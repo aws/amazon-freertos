@@ -943,7 +943,14 @@ static void lwip_dns_found_callback( const char * name,
 {
     uint32_t * addr = ( uint32_t * ) callback_arg;
 
-    *addr = *( ( uint32_t * ) ipaddr ); /* NOTE: IPv4 addresses only */
+    if( ipaddr != NULL )
+    {
+        *addr = *( ( uint32_t * ) ipaddr ); /* NOTE: IPv4 addresses only */
+    }
+    else
+    {
+        *addr = 0;
+    }
 }
 
 /*-----------------------------------------------------------*/
