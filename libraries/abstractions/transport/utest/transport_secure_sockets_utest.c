@@ -859,6 +859,7 @@ void test_SecureSocketsTransport_Disconnect_Fail_to_ShutDown( void )
     TransportSocketStatus_t returnStatus;
 
     SOCKETS_Shutdown_ExpectAndReturn( mockTcpSocket, SOCKETS_SHUT_RDWR, MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_Close_ExpectAndReturn( mockTcpSocket, MOCK_SECURE_SOCKET_ERROR );
     returnStatus = SecureSocketsTransport_Disconnect( &networkContext );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR, returnStatus );
 }
