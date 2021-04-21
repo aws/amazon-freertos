@@ -475,6 +475,13 @@ if (NOT IDF_SDKCONFIG_DEFAULTS)
     string(REGEX REPLACE "partition-table.csv" "${board_dir}/partition-table.csv" file_sdkconfig_default "${file_sdkconfig_default}")
     file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
     set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
+else()
+    set(ABS_SDKCONFIG_DEFAULTS)
+    foreach(DEFAULTS ${IDF_SDKCONFIG_DEFAULTS})
+        get_filename_component(ABS_DEFAULTS ${DEFAULTS} ABSOLUTE)
+        list(APPEND ABS_SDKCONFIG_DEFAULTS ${ABS_DEFAULTS})
+    endforeach()
+    set(IDF_SDKCONFIG_DEFAULTS ${ABS_SDKCONFIG_DEFAULTS})
 endif()
 
 # Set sdkconfig generation path inside build
@@ -515,7 +522,7 @@ endif()
 
 idf_build_process(esp32s2
                     SDKCONFIG ${CMAKE_BINARY_DIR}/sdkconfig
-                    SDKCONFIG_DEFAULTS ${CMAKE_BINARY_DIR}/sdkconfig.defaults
+                    SDKCONFIG_DEFAULTS ${IDF_SDKCONFIG_DEFAULTS}
                     BUILD_DIR ${CMAKE_BINARY_DIR})
 
 idf_build_get_property(idf_compile_options "COMPILE_OPTIONS")
