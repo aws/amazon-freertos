@@ -480,10 +480,6 @@ WIFIReturnCode_t prvWifiConnect( void )
     {
         /* Try connecting using provided wifi credentials. */
         xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
-<<<<<<< HEAD
-=======
-
->>>>>>> github/PsoC64_Release
         if( xWifiStatus == eWiFiSuccess )
         {
             configPRINTF( ( "WiFi connected to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID ) );
