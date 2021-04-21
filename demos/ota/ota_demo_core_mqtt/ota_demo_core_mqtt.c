@@ -38,14 +38,12 @@
 
 #include "iot_network.h"
 
-/* Agent  APIS for running MQTT in a multithreaded environment. */
-#include "freertos_mqtt_agent.h"
+/* CoreMQTT-Agent APIS for running MQTT in a multithreaded environment. */
+#include "freertos_agent_message.h"
+#include "freertos_command_pool.h"
 
 /* Includes helpers for managing MQTT subscriptions. */
 #include "subscription_manager.h"
-
-/* Header include. */
-#include "agent_message.h"
 
 /* Retry utilities include. */
 #include "backoff_algorithm.h"
@@ -361,15 +359,6 @@ struct NetworkContext
     SecureSocketsTransportParams_t * pParams;
 };
 
-
-/**
- * @brief Defines the structure to use as the agent IPC mechanism.
- */
-struct AgentMessageContext
-{
-    QueueHandle_t queue;
-};
-
 /**
  * @brief Structure used to store the topic filter to ota callback mappings.
  */
@@ -406,10 +395,15 @@ static MQTTAgentContext_t xGlobalMqttAgentContext;
 static uint8_t xNetworkBuffer[ MQTT_AGENT_NETWORK_BUFFER_SIZE ];
 
 /**
+ * @brief FreeRTOS blocking queue to be used as MQTT Agent context.
+ */
+static AgentMessageContext_t xCommandQueue;
+
+/**
  * @brief The interface context used to post commands to the agent.
  * For FreeRTOS its implemented using a FreeRTOS blocking queue.
  */
-static AgentMessageContext_t xCommandQueue;
+static AgentMessageInterface_t xMessageInterface;
 
 /**
  * @brief The global array of subscription elements.
@@ -1245,14 +1239,24 @@ static MQTTStatus_t prvMqttInit( void )
                                               staticQueueStorageArea,
                                               &staticQueueStructure );
 
+    /* Initialize the agent task pool. */
+    Agent_InitializePool();
+
+    xMessageInterface.pMsgCtx = &xCommandQueue;
+    xMessageInterface.recv = Agent_MessageReceive;
+    xMessageInterface.send = Agent_MessageSend;
+    xMessageInterface.getCommand = Agent_GetCommand;
+    xMessageInterface.releaseCommand = Agent_ReleaseCommand;
+
+
     /* Fill in Transport Interface send and receive function pointers. */
     xTransport.pNetworkContext = &networkContextMqtt;
     xTransport.send = SecureSocketsTransport_Send;
     xTransport.recv = SecureSocketsTransport_Recv;
 
-    /* Initialize MQTT library. */
+    /* Initialize MQTT Agent. */
     xReturn = MQTTAgent_Init( &xGlobalMqttAgentContext,
-                              &xCommandQueue,
+                              &xMessageInterface,
                               &xFixedBuffer,
                               &xTransport,
                               prvGetTimeMs,

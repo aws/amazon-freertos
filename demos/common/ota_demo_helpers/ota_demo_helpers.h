@@ -1,5 +1,5 @@
 /*
- * AWS IoT Device SDK for Embedded C V202009.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,6 +22,13 @@
 
 #ifndef OTA_DEMO_HELPERS_H_
 #define OTA_DEMO_HELPERS_H_
+
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+/* Include MQTT library. */
+#include "core_mqtt.h"
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -47,9 +54,6 @@
 #include "logging_stack.h"
 
 /************ End of logging configuration ****************/
-
-/* Include MQTT library. */
-#include "core_mqtt.h"
 
 /* Enumeration type for return status value from Subscription Manager API. */
 typedef enum SubscriptionManagerStatus
@@ -132,6 +136,5 @@ SubscriptionManagerStatus_t SubscriptionManager_RegisterCallback( const char * p
  */
 void SubscriptionManager_RemoveCallback( const char * pTopicFilter,
                                          uint16_t topicFilterLength );
-
 
 #endif /* ifndef OTA_DEMO_HELPERS_H_ */

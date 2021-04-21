@@ -137,20 +137,6 @@ target_link_libraries(
     INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
 
-# OTA
-afr_mcu_port(ota)
-target_sources(
-    AFR::ota::mcu_port
-    INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
-)
-target_link_libraries(
-    AFR::ota::mcu_port
-    INTERFACE
-        AFR::crypto
-        AFR::ota_mqtt
-        AFR::ota_http
-)
-
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
