@@ -480,6 +480,10 @@ WIFIReturnCode_t prvWifiConnect( void )
     {
         /* Try connecting using provided wifi credentials. */
         xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
+<<<<<<< HEAD
+=======
+
+>>>>>>> github/PsoC64_Release
         if( xWifiStatus == eWiFiSuccess )
         {
             configPRINTF( ( "WiFi connected to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID ) );
@@ -491,6 +495,10 @@ WIFIReturnCode_t prvWifiConnect( void )
                 pucIPV4Byte = ( uint8_t * ) ( &xIpConfig.xIPAddress.ulAddress[0] );
                 configPRINTF( ( "IP Address acquired %d.%d.%d.%d.\r\n",
                         pucIPV4Byte[ 0 ], pucIPV4Byte[ 1 ], pucIPV4Byte[ 2 ], pucIPV4Byte[ 3 ] ) );
+            }
+            else
+            {
+                configPRINTF( ( "Failed to acquire IP address.\r\n" ) );
             }
         }
         else
