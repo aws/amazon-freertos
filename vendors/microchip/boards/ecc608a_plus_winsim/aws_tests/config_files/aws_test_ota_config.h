@@ -75,11 +75,4 @@
  */
 #include "aws_test_ota_pal_ecdsa_sha256_signature.h"
 
-/**
- * @brief Define a valid and invalid signature verification method for this
- * platform (Windows). These are used for generating test JSON docs.
- */
-#define otatestVALID_SIG_METHOD                         "sig-sha256-ecdsa"
-#define otatestINVALID_SIG_METHOD                       "sig-sha256-rsa"
-
 #endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */
