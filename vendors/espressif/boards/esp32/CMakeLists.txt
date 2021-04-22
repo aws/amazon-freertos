@@ -73,6 +73,20 @@ else()
     set(aws_credentials_include "${AFR_DEMOS_DIR}/include")
 endif()
 
+# mbedTLS include directories
+if(NOT AFR_FREERTOS_TCP)
+    target_include_directories(
+        afr_3rdparty_mbedtls
+        PUBLIC
+        "${esp_idf_dir}/components/lwip/include/apps"
+        "${esp_idf_dir}/components/lwip/include/apps/sntp"
+        "${esp_idf_dir}/components/lwip/lwip/src/include"
+        "${esp_idf_dir}/components/lwip/port/esp32/include"
+        "${esp_idf_dir}/components/lwip/port/esp32/include/arch"
+        "${esp_idf_dir}/components/lwip/lwip/src/include/compat"
+        )
+endif()
+
 # Kernel
 afr_mcu_port(kernel)
 afr_glob_src(driver_src DIRECTORY "${esp_idf_dir}" RECURSE)
