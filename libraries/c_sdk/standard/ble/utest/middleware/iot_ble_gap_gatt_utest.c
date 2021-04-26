@@ -43,7 +43,11 @@
 
 #define MAX_SEMAPHORES_USED                ( 1 )
 
-#define MAX_MUTEXES_USED                   ( 3 )
+#define MAX_MUTEXES_USED                   ( 4 )
+
+#define DUMMY_MTU_SIZE                     ( 512 )
+
+#define DUMMY_CONNECTION_ID                 ( 1 )
 
 typedef struct BleConfiguration
 {
@@ -618,12 +622,13 @@ static void prvAdvertisementCallback( BTStatus_t status )
 void setUp( void )
 {
     numAdvertisementStatusCalls = 0;
-
-
     /* Initialize synchronization objects and stubs. */
     memset( mutexes, 0x00, sizeof( mutexes ) );
     memset( semaphores, 0x00, sizeof( semaphores ) );
     memset( &bleConfig, 0x00, sizeof( bleConfig ) );
+    memset( eventCallbackCount, 0x00, sizeof( eventCallbackCount ) );
+    memset( attributeInvokedCount, 0x00, sizeof( attributeInvokedCount ));
+
     IotMutex_Create_Stub( prvMutexCreateStub );
     IotMutex_Lock_Stub( prvMutexLockStub );
     IotMutex_Unlock_Stub( prvMutexUnlockStub );
@@ -801,7 +806,6 @@ void test_IotBle_On_OFF_MultipleTimes( void )
     prvTestTurnOffBLE();
 }
 
-
 void test_IotBleSetDeviceName_While_BLE_Is_On( void )
 {
     prvTestTurnOnBLE();
@@ -924,6 +928,7 @@ static void prvNumericComparisonCallback( BTBdaddr_t * pRemoteBdAddr,
     eventCallbackCount[ eBLENumericComparisonCallback ]++;
 }
 
+
 static IotBleEventsCallbacks_t eventCallbacks[ eNbEvents ] =
 {
     { .pMtuChangedCb                 = prvMtuChangedCallback                 },
@@ -932,6 +937,37 @@ static IotBleEventsCallbacks_t eventCallbacks[ eNbEvents ] =
     { .pConnParameterUpdateRequestCb = prvConnParameterUpdateRequestCallback },
     { .pNumericComparisonCb          = prvNumericComparisonCallback          }
 };
+
+static void prvSendIndicationMTUChangeCallback( uint16_t connId,
+                                   uint16_t mtu )
+{
+    IotBleAttributeData_t attr =
+    {
+        .handle = 101
+    };
+    IotBleEventResponse_t response =
+    {
+        .pAttrData = &attr
+    };
+    TEST_ASSERT_EQUAL( DUMMY_MTU_SIZE, mtu );
+    TEST_ASSERT_EQUAL( DUMMY_CONNECTION_ID, connId );
+    eventCallbackCount[ eBLEMtuChanged ]++;
+
+    IotBle_SendIndication( &response, DUMMY_CONNECTION_ID, false );
+}
+
+static BTStatus_t pxSendIndicationStub( uint8_t ucServerIf,
+                                       uint16_t usAttributeHandle,
+                                       uint16_t usConnId,
+                                       size_t xLen,
+                                       uint8_t * pucValue,
+                                       bool bConfirm, int cmock_calls )
+{
+    TEST_ASSERT_EQUAL( DUMMY_CONNECTION_ID, usConnId );
+    middlewareGATTCallback.pxIndicationSentCb( 0, eBTStatusSuccess );
+    return eBTStatusSuccess;
+
+ }
 
 
 void test_IotBleRegisterCallbacks( void )
@@ -1600,5 +1636,37 @@ void test_IotBleMallocFailure( void )
                        IotBle_RegisterEventCb( eBLENumericComparisonCallback, eventCallbacks[ eBLENumericComparisonCallback ] ) );
 
     pvPortMalloc_Stub( pvPortMalloc_Callback );
+    prvTestTurnOffBLE();
+}
+
+void test_IotBleSendIndication_From_Event_Callback( void )
+{
+    BTBdaddr_t dummyAddr = { 0 };
+    BTBdname_t dummyName = { 0 };
+
+    uint16_t handlesBuffer[ 3 ] = { 0 };
+    BTService_t service =
+    {
+        .ucInstId            = 0,
+        .xType               = eBTDbPrimaryService,
+        .xNumberOfAttributes = 3,
+        .pusHandlesBuffer    = handlesBuffer,
+        .pxBLEAttributes     = attributeTable
+    };
+
+    prvTestTurnOnBLE();
+
+    prvBleTestAddServiceBlob_Stub( prvAddServiceBlobStub );
+    prvBleTestSendIndication_Stub( pxSendIndicationStub );
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_CreateService( &service, attributeCallbacks ) );
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_RegisterEventCb( eBLEMtuChanged, prvSendIndicationMTUChangeCallback ) );
+
+    middlewareGATTCallback.pxMtuChangedCb( DUMMY_CONNECTION_ID, DUMMY_MTU_SIZE );
+
+    TEST_ASSERT_EQUAL( 1, eventCallbackCount[ eBLEMtuChanged ] );
+    TEST_ASSERT_EQUAL( 1, attributeInvokedCount[0][0] );
+
     prvTestTurnOffBLE();
 }
