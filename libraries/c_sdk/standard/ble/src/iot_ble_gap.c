@@ -517,6 +517,15 @@ BTStatus_t IotBle_StartAdv( IotBle_StartAdvCallback_t pStartAdvCb )
 
 /*-----------------------------------------------------------*/
 
+BTStatus_t IotBle_SetStopAdvCallback( IotBle_StopAdvCallback_t pStopAdvCb )
+{
+    _BTInterface.pStopAdvCb = pStopAdvCb;
+    return eBTStatusSuccess;
+}
+
+
+/*-----------------------------------------------------------*/
+
 BTStatus_t IotBle_StopAdv( IotBle_StopAdvCallback_t pStopAdvCb )
 {
     BTStatus_t status = eBTStatusSuccess;

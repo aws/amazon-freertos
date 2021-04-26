@@ -867,6 +867,25 @@ void test_IotBleStopAdvertisement( void )
     prvTestTurnOffBLE();
 }
 
+void test_IotBleSetStopAdvertisementCallback( void )
+{
+    prvTestTurnOnBLE();
+    prvBleTestStopAdv_Stub( prvStopAdvCallback );
+
+    /* Register callback for a stop advertisement event from stack. */
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_SetStopAdvCallback( prvAdvertisementCallback ) );
+
+    /* Verify that stop advertisement event from stack invokes the callback. */
+    middlewareBleCallback.pxAdvStatusCb( eBTStatusSuccess, 0 /* stop advertisement */, false );
+    TEST_ASSERT_EQUAL( 1, numAdvertisementStatusCalls );
+
+    /* Verify that start advertisement event from stack does not invoke the callback. */
+    middlewareBleCallback.pxAdvStatusCb( eBTStatusSuccess, 1 /* start advertisement */, false );
+    TEST_ASSERT_EQUAL( 1, numAdvertisementStatusCalls );
+
+    prvTestTurnOffBLE();
+}
+
 static uint32_t eventCallbackCount[ eNbEvents ] = { 0 };
 
 static void prvMtuChangedCallback( uint16_t connId,
