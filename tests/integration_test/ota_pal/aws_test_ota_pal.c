@@ -123,7 +123,7 @@ const AppVersion32_t appFirmwareVersion =
 static OtaFileContext_t xOtaFile;
 
 /* Certificate used for validating code signing signatures in the tests. */
-static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = otatestpalSIGNING_CERTIFICATE_PEM;
+static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = otapalconfigCODE_SIGNING_CERTIFICATE;
 
 #ifdef CC3220sf
 

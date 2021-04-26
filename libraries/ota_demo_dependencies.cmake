@@ -51,6 +51,7 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::logging
+        AFR::ota::mcu_port
 )
 
 ################################################################

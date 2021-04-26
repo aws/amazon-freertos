@@ -24,6 +24,7 @@
 #include "ota.h"
 #include "ota_pal.h"
 #include "ota_interface_private.h"
+#include "ota_config.h"
 
 #include "types/iot_network_types.h"
 #include "aws_iot_network_config.h"
@@ -43,12 +44,6 @@
 #include "mbedtls/bignum.h"
 #include "mbedtls/base64.h"
 #include "task.h"
-
-/* Include config file used for testing the OTA PAL. This config file defines
- * the otatestpalSIGNING_CERTIFICATE_PEM macro. */
-#ifdef FREERTOS_ENABLE_UNIT_TESTS
-    #include "aws_test_ota_config.h"
-#endif
 
 #define kOTA_HalfSecondDelay    pdMS_TO_TICKS( 500UL )
 #define ECDSA_INTEGER_LEN       32
@@ -85,7 +80,7 @@ typedef struct
 static esp_ota_context_t ota_ctx;
 static const char * TAG = "ota_pal";
 
-static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = otatestpalSIGNING_CERTIFICATE_PEM;
+static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = otapalconfigCODE_SIGNING_CERTIFICATE;
 
 /* Specify the OTA signature algorithm we support on this platform. */
 const char OTA_JsonFileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";

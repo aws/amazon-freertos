@@ -35,7 +35,7 @@
 #include "ota_pal.h"
 
 /* Include config file used for testing the OTA PAL. This config file defines
- * the otatestpalSIGNING_CERTIFICATE_PEM macro. */
+ * the otapalconfigCODE_SIGNING_CERTIFICATE macro. */
 #ifdef FREERTOS_ENABLE_UNIT_TESTS
     #include "aws_test_ota_config.h"
 #endif
@@ -43,7 +43,7 @@
 /* Specify the OTA signature algorithm we support on this platform. */
 const char OTA_JsonFileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
 
-static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = otatestpalSIGNING_CERTIFICATE_PEM;
+static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = otapalconfigCODE_SIGNING_CERTIFICATE;
 
 static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C );
 static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
