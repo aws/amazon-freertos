@@ -38,16 +38,27 @@
 #include "iot_ble.h"
 
 
-#define CUSTOM_BLE_DEVICE_NAME             "abcxyz"
-#define CONNECTION_INTERVAL_VALID_RANGE    { 0x0006UL, 0x0C80UL }
+#define CUSTOM_BLE_DEVICE_NAME              "abcxyz"
+#define CONNECTION_INTERVAL_VALID_RANGE     { 0x0006UL, 0x0C80UL }
 
-#define MAX_SEMAPHORES_USED                ( 1 )
+#define MAX_SEMAPHORES_USED                 ( 1 )
 
-#define MAX_MUTEXES_USED                   ( 4 )
+#define MAX_MUTEXES_USED                    ( 4 )
 
-#define DUMMY_MTU_SIZE                     ( 512 )
+#define DUMMY_MTU_SIZE                      ( 512 )
 
-#define DUMMY_CONNECTION_ID                ( 1 )
+#define DUMMY_CONNECTION_ID                 ( 1 )
+
+#define SERVICE_HANDLE                      ( 100 )
+
+#define NUM_SERVICE_ATTRIBUTES              ( 4 )
+
+#define MAX_ATTRIBUTE_HANDLE                ( SERVICE_HANDLE + NUM_SERVICE_ATTRIBUTES )
+
+#define SECONDARY_SERVICE_HANDLE            ( 200 )
+
+#define NUM_SECONDARY_SERVICE_ATTRIBUTES    ( 1 )
+
 
 typedef struct BleConfiguration
 {
@@ -159,7 +170,7 @@ static BTGattServerInterface_t bleGattServerMock =
 
 static BTService_t includedService;
 
-static BTAttribute_t inclAttributeTable[] =
+static BTAttribute_t inclAttributeTable[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] =
 {
     {
         .xAttributeType = eBTDbSecondaryService,
@@ -168,7 +179,7 @@ static BTAttribute_t inclAttributeTable[] =
     }
 };
 
-static BTAttribute_t attributeTable[] =
+static BTAttribute_t attributeTable[ NUM_SERVICE_ATTRIBUTES ] =
 {
     {
         .xAttributeType = eBTDbPrimaryService,
@@ -214,7 +225,7 @@ static IotBleAttributeEventCallback_t attributeCallbacks[ 4 ] =
 
 
 static uint32_t eventCallbackCount[ eNbEvents ] = { 0 };
-static uint32_t attributeInvokedCount[ 4 ][ 5 ] = { 0 };
+static uint32_t attributeInvokedCount[ NUM_SERVICE_ATTRIBUTES ][ 5 ] = { 0 };
 static uint32_t alloc_mem_blocks;
 static uint32_t numAdvertisementStatusCalls;
 static SynchronizationObj_t semaphores[ MAX_SEMAPHORES_USED ];
@@ -232,38 +243,38 @@ static void prvDummyAtttibuteCallback( IotBleAttributeEvent_t * pEventParam )
     switch( pEventParam->xEventType )
     {
         case eBLEWrite:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamWrite->attrHandle );
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamWrite->attrHandle );
-            handle = pEventParam->pParamWrite->attrHandle - 100;
+            TEST_ASSERT_GREATER_OR_EQUAL( SERVICE_HANDLE, pEventParam->pParamWrite->attrHandle );
+            TEST_ASSERT_LESS_THAN( MAX_ATTRIBUTE_HANDLE, pEventParam->pParamWrite->attrHandle );
+            handle = pEventParam->pParamWrite->attrHandle - SERVICE_HANDLE;
             attributeInvokedCount[ handle ][ 0 ]++;
             break;
 
         case eBLEWriteNoResponse:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamWrite->attrHandle );
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamWrite->attrHandle );
-            handle = pEventParam->pParamWrite->attrHandle - 100;
+            TEST_ASSERT_GREATER_OR_EQUAL( SERVICE_HANDLE, pEventParam->pParamWrite->attrHandle );
+            TEST_ASSERT_LESS_THAN( MAX_ATTRIBUTE_HANDLE, pEventParam->pParamWrite->attrHandle );
+            handle = pEventParam->pParamWrite->attrHandle - SERVICE_HANDLE;
             attributeInvokedCount[ handle ][ 1 ]++;
             break;
 
         case eBLERead:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamRead->attrHandle );
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamRead->attrHandle );
-            handle = pEventParam->pParamRead->attrHandle - 100;
+            TEST_ASSERT_GREATER_OR_EQUAL( SERVICE_HANDLE, pEventParam->pParamRead->attrHandle );
+            TEST_ASSERT_LESS_THAN( MAX_ATTRIBUTE_HANDLE, pEventParam->pParamRead->attrHandle );
+            handle = pEventParam->pParamRead->attrHandle - SERVICE_HANDLE;
             attributeInvokedCount[ handle ][ 2 ]++;
             break;
 
         case eBLEExecWrite:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamExecWrite->transId );
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamExecWrite->transId );
+            TEST_ASSERT_GREATER_OR_EQUAL( SERVICE_HANDLE, pEventParam->pParamExecWrite->transId );
+            TEST_ASSERT_LESS_THAN( MAX_ATTRIBUTE_HANDLE, pEventParam->pParamExecWrite->transId );
             TEST_ASSERT_TRUE( pEventParam->pParamExecWrite->execWrite );
-            handle = pEventParam->pParamExecWrite->transId - 100;
+            handle = pEventParam->pParamExecWrite->transId - SERVICE_HANDLE;
             attributeInvokedCount[ handle ][ 3 ]++;
             break;
 
         case eBLEResponseConfirmation:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamRespConfirm->handle );
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamRespConfirm->handle );
-            handle = pEventParam->pParamRespConfirm->handle - 100;
+            TEST_ASSERT_GREATER_OR_EQUAL( SERVICE_HANDLE, pEventParam->pParamRespConfirm->handle );
+            TEST_ASSERT_LESS_THAN( MAX_ATTRIBUTE_HANDLE, pEventParam->pParamRespConfirm->handle );
+            handle = pEventParam->pParamRespConfirm->handle - SERVICE_HANDLE;
             attributeInvokedCount[ handle ][ 4 ]++;
             break;
 
@@ -1048,12 +1059,14 @@ static BTStatus_t prvAddServiceBlobStub( uint8_t ucServerIf,
                                          BTService_t * pService,
                                          int cmock_num_calls )
 {
-    pService->pusHandlesBuffer[ 0 ] = 100;
-    pService->pusHandlesBuffer[ 1 ] = 101;
-    pService->pusHandlesBuffer[ 2 ] = 102;
-    pService->pusHandlesBuffer[ 3 ] = 103;
+    size_t index = 0;
 
-    middlewareGATTCallback.pxServiceAddedCb( eBTStatusSuccess, ucServerIf, NULL, 100 );
+    for( index = 0; index < pService->xNumberOfAttributes; index++ )
+    {
+        pService->pusHandlesBuffer[ index ] = SERVICE_HANDLE + index;
+    }
+
+    middlewareGATTCallback.pxServiceAddedCb( eBTStatusSuccess, ucServerIf, NULL, SERVICE_HANDLE );
 
     return eBTStatusSuccess;
 }
@@ -1068,19 +1081,19 @@ static BTStatus_t prvServiceDeleteStub( uint8_t ucServerIf,
 
 void test_IotBleCreateServiceBlob( void )
 {
-    uint16_t handlesBuffer[ 4 ] = { 0 };
-    uint16_t inclHandlesBuffer[ 1 ] = { 0 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { 0 };
 
     includedService.pusHandlesBuffer = inclHandlesBuffer;
     includedService.ucInstId = 1;
     includedService.xType = eBTDbSecondaryService;
-    includedService.xNumberOfAttributes = 1;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
 
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 4,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
@@ -1102,7 +1115,7 @@ static BTStatus_t prvAddServiceStub( uint8_t ucServerIf,
                                      uint16_t usNumHandles,
                                      int cmock_num_calls )
 {
-    middlewareGATTCallback.pxServiceAddedCb( eBTStatusSuccess, 0, prvBleTestSrvcId, 100 );
+    middlewareGATTCallback.pxServiceAddedCb( eBTStatusSuccess, 0, prvBleTestSrvcId, SERVICE_HANDLE );
     return eBTStatusSuccess;
 }
 
@@ -1113,8 +1126,8 @@ static BTStatus_t prvAddCharStub( uint8_t ucServerIf,
                                   BTCharPermissions_t xPermissions,
                                   int cmock_num_calls )
 {
-    TEST_ASSERT_EQUAL( 100, usServiceHandle );
-    middlewareGATTCallback.pxCharacteristicAddedCb( eBTStatusSuccess, 0, prvBleTestUuid, usServiceHandle, 101 );
+    TEST_ASSERT_EQUAL( SERVICE_HANDLE, usServiceHandle );
+    middlewareGATTCallback.pxCharacteristicAddedCb( eBTStatusSuccess, 0, prvBleTestUuid, usServiceHandle, SERVICE_HANDLE + 1 );
     return eBTStatusSuccess;
 }
 
@@ -1124,8 +1137,8 @@ static BTStatus_t prvAddDescrStub( uint8_t ucServerIf,
                                    BTCharPermissions_t ulPermissions,
                                    int cmock_num_calls )
 {
-    TEST_ASSERT_EQUAL( 100, usServiceHandle );
-    middlewareGATTCallback.pxDescriptorAddedCb( eBTStatusSuccess, 0, prvBleTestUuid, usServiceHandle, 102 );
+    TEST_ASSERT_EQUAL( SERVICE_HANDLE, usServiceHandle );
+    middlewareGATTCallback.pxDescriptorAddedCb( eBTStatusSuccess, 0, prvBleTestUuid, usServiceHandle, SERVICE_HANDLE + 2 );
     return eBTStatusSuccess;
 }
 static BTStatus_t prvAddIncludedServiceStub( uint8_t ucServerIf,
@@ -1134,9 +1147,9 @@ static BTStatus_t prvAddIncludedServiceStub( uint8_t ucServerIf,
                                              int cmock_num_calls )
 
 {
-    TEST_ASSERT_EQUAL( 100, usServiceHandle );
-    TEST_ASSERT_EQUAL( 103, usIncludedHandle );
-    middlewareGATTCallback.pxIncludedServiceAddedCb( eBTStatusSuccess, 0, usServiceHandle, 103 );
+    TEST_ASSERT_EQUAL( SERVICE_HANDLE, usServiceHandle );
+    TEST_ASSERT_EQUAL( SECONDARY_SERVICE_HANDLE, usIncludedHandle );
+    middlewareGATTCallback.pxIncludedServiceAddedCb( eBTStatusSuccess, 0, usServiceHandle, SERVICE_HANDLE + 3 );
     return eBTStatusSuccess;
 }
 
@@ -1160,20 +1173,20 @@ static BTStatus_t prvStopServiceStub( uint8_t ucServerIf,
 
 void test_IotBleCreateService( void )
 {
-    uint16_t handlesBuffer[ 4 ] = { 0 };
-    uint16_t inclHandlesBuffer[ 1 ] = { 103 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { SECONDARY_SERVICE_HANDLE };
 
     includedService.pusHandlesBuffer = inclHandlesBuffer;
     includedService.ucInstId = 1;
     includedService.xType = eBTDbSecondaryService;
-    includedService.xNumberOfAttributes = 1;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
     includedService.pxBLEAttributes = inclAttributeTable;
 
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 4,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
@@ -1198,20 +1211,20 @@ void test_IotBleCreateService( void )
 
 void test_IotBleCreateServiceBlob_ReturnFailure( void )
 {
-    uint16_t handlesBuffer[ 4 ] = { 0 };
-    uint16_t inclHandlesBuffer[ 1 ] = { 103 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { SECONDARY_SERVICE_HANDLE };
 
     includedService.pusHandlesBuffer = inclHandlesBuffer;
     includedService.ucInstId = 1;
     includedService.xType = eBTDbSecondaryService;
-    includedService.xNumberOfAttributes = 1;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
     includedService.pxBLEAttributes = inclAttributeTable;
 
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 4,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
@@ -1230,7 +1243,7 @@ static BTStatus_t prvAddServiceFailureStub( uint8_t ucServerIf,
                                             uint16_t usNumHandles,
                                             int cmock_num_calls )
 {
-    middlewareGATTCallback.pxServiceAddedCb( eBTStatusFail, 0, prvBleTestSrvcId, 100 );
+    middlewareGATTCallback.pxServiceAddedCb( eBTStatusFail, 0, prvBleTestSrvcId, SERVICE_HANDLE );
     return eBTStatusSuccess;
 }
 
@@ -1241,8 +1254,8 @@ static BTStatus_t prvAddCharFailureStub( uint8_t ucServerIf,
                                          BTCharPermissions_t xPermissions,
                                          int cmock_num_calls )
 {
-    TEST_ASSERT_EQUAL( 100, usServiceHandle );
-    middlewareGATTCallback.pxCharacteristicAddedCb( eBTStatusFail, 0, prvBleTestUuid, usServiceHandle, 101 );
+    TEST_ASSERT_EQUAL( SERVICE_HANDLE, usServiceHandle );
+    middlewareGATTCallback.pxCharacteristicAddedCb( eBTStatusFail, 0, prvBleTestUuid, usServiceHandle, SERVICE_HANDLE + 1 );
     return eBTStatusSuccess;
 }
 
@@ -1252,8 +1265,8 @@ static BTStatus_t prvAddDescrFailureStub( uint8_t ucServerIf,
                                           BTCharPermissions_t ulPermissions,
                                           int cmock_num_calls )
 {
-    TEST_ASSERT_EQUAL( 100, usServiceHandle );
-    middlewareGATTCallback.pxDescriptorAddedCb( eBTStatusFail, 0, prvBleTestUuid, usServiceHandle, 102 );
+    TEST_ASSERT_EQUAL( SERVICE_HANDLE, usServiceHandle );
+    middlewareGATTCallback.pxDescriptorAddedCb( eBTStatusFail, 0, prvBleTestUuid, usServiceHandle, SERVICE_HANDLE + 2 );
     return eBTStatusSuccess;
 }
 static BTStatus_t prvAddIncludedServiceFailureStub( uint8_t ucServerIf,
@@ -1262,9 +1275,9 @@ static BTStatus_t prvAddIncludedServiceFailureStub( uint8_t ucServerIf,
                                                     int cmock_num_calls )
 
 {
-    TEST_ASSERT_EQUAL( 100, usServiceHandle );
-    TEST_ASSERT_EQUAL( 103, usIncludedHandle );
-    middlewareGATTCallback.pxIncludedServiceAddedCb( eBTStatusFail, 0, usServiceHandle, 103 );
+    TEST_ASSERT_EQUAL( SERVICE_HANDLE, usServiceHandle );
+    TEST_ASSERT_EQUAL( SECONDARY_SERVICE_HANDLE, usIncludedHandle );
+    middlewareGATTCallback.pxIncludedServiceAddedCb( eBTStatusFail, 0, usServiceHandle, SERVICE_HANDLE + 3 );
     return eBTStatusSuccess;
 }
 
@@ -1279,20 +1292,20 @@ static BTStatus_t prvStartServiceFailureStub( uint8_t ucServerIf,
 
 void test_IotBleCreateService_FailureCases( void )
 {
-    uint16_t handlesBuffer[ 4 ] = { 0 };
-    uint16_t inclHandlesBuffer[ 1 ] = { 103 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { SECONDARY_SERVICE_HANDLE };
 
     includedService.pusHandlesBuffer = inclHandlesBuffer;
     includedService.ucInstId = 1;
     includedService.xType = eBTDbSecondaryService;
-    includedService.xNumberOfAttributes = 1;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
     includedService.pxBLEAttributes = inclAttributeTable;
 
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 4,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
@@ -1363,20 +1376,20 @@ static BTStatus_t prvStopServiceFailureStub( uint8_t ucServerIf,
 
 void test_IotBleDeleteService_ReturnsFailure( void )
 {
-    uint16_t handlesBuffer[ 4 ] = { 0 };
-    uint16_t inclHandlesBuffer[ 1 ] = { 103 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { SECONDARY_SERVICE_HANDLE };
 
     includedService.pusHandlesBuffer = inclHandlesBuffer;
     includedService.ucInstId = 1;
     includedService.xType = eBTDbSecondaryService;
-    includedService.xNumberOfAttributes = 1;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
     includedService.pxBLEAttributes = inclAttributeTable;
 
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 4,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
@@ -1413,15 +1426,24 @@ void test_IotBleDeleteService_ReturnsFailure( void )
 
 void test_ServiceAttributeInteractions( void )
 {
-    uint16_t handlesBuffer[ 3 ] = { 0 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { SECONDARY_SERVICE_HANDLE };
+
+    includedService.pusHandlesBuffer = inclHandlesBuffer;
+    includedService.ucInstId = 1;
+    includedService.xType = eBTDbSecondaryService;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
+    includedService.pxBLEAttributes = inclAttributeTable;
+
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 3,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
+
     BTBdaddr_t dummyAddr = { 0 };
     uint8_t value = 0x01;
     IotBleAttributeData_t attr =
@@ -1643,12 +1665,20 @@ void test_IotBleMallocFailure( void )
 
 void test_IotBleSendIndication_From_Event_Callback( void )
 {
-    uint16_t handlesBuffer[ 3 ] = { 0 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { SECONDARY_SERVICE_HANDLE };
+
+    includedService.pusHandlesBuffer = inclHandlesBuffer;
+    includedService.ucInstId = 1;
+    includedService.xType = eBTDbSecondaryService;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
+    includedService.pxBLEAttributes = inclAttributeTable;
+
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 3,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
