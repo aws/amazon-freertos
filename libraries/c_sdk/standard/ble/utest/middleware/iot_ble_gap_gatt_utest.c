@@ -47,7 +47,7 @@
 
 #define DUMMY_MTU_SIZE                     ( 512 )
 
-#define DUMMY_CONNECTION_ID                 ( 1 )
+#define DUMMY_CONNECTION_ID                ( 1 )
 
 typedef struct BleConfiguration
 {
@@ -212,6 +212,8 @@ static IotBleAttributeEventCallback_t attributeCallbacks[ 4 ] =
     NULL
 };
 
+
+static uint32_t eventCallbackCount[ eNbEvents ] = { 0 };
 static uint32_t attributeInvokedCount[ 4 ][ 5 ] = { 0 };
 static uint32_t alloc_mem_blocks;
 static uint32_t numAdvertisementStatusCalls;
@@ -282,6 +284,7 @@ static void * pvPortMalloc_Callback( size_t xSize,
     alloc_mem_blocks++; /* Free + malloc calls should cancel out in the end */
 
     void * pNew = malloc( xSize );
+
     TEST_ASSERT_MESSAGE( pNew, "Test Stub for malloc failed!" );
 
     return pNew;
@@ -627,7 +630,7 @@ void setUp( void )
     memset( semaphores, 0x00, sizeof( semaphores ) );
     memset( &bleConfig, 0x00, sizeof( bleConfig ) );
     memset( eventCallbackCount, 0x00, sizeof( eventCallbackCount ) );
-    memset( attributeInvokedCount, 0x00, sizeof( attributeInvokedCount ));
+    memset( attributeInvokedCount, 0x00, sizeof( attributeInvokedCount ) );
 
     IotMutex_Create_Stub( prvMutexCreateStub );
     IotMutex_Lock_Stub( prvMutexLockStub );
@@ -880,17 +883,15 @@ void test_IotBleSetStopAdvertisementCallback( void )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_SetStopAdvCallback( prvAdvertisementCallback ) );
 
     /* Verify that stop advertisement event from stack invokes the callback. */
-    middlewareBleCallback.pxAdvStatusCb( eBTStatusSuccess, 0 /* stop advertisement */, false );
+    middlewareBleCallback.pxAdvStatusCb( eBTStatusSuccess, 0, false );
     TEST_ASSERT_EQUAL( 1, numAdvertisementStatusCalls );
 
     /* Verify that start advertisement event from stack does not invoke the callback. */
-    middlewareBleCallback.pxAdvStatusCb( eBTStatusSuccess, 1 /* start advertisement */, false );
+    middlewareBleCallback.pxAdvStatusCb( eBTStatusSuccess, 0, true );
     TEST_ASSERT_EQUAL( 1, numAdvertisementStatusCalls );
 
     prvTestTurnOffBLE();
 }
-
-static uint32_t eventCallbackCount[ eNbEvents ] = { 0 };
 
 static void prvMtuChangedCallback( uint16_t connId,
                                    uint16_t mtu )
@@ -939,7 +940,7 @@ static IotBleEventsCallbacks_t eventCallbacks[ eNbEvents ] =
 };
 
 static void prvSendIndicationMTUChangeCallback( uint16_t connId,
-                                   uint16_t mtu )
+                                                uint16_t mtu )
 {
     IotBleAttributeData_t attr =
     {
@@ -949,6 +950,7 @@ static void prvSendIndicationMTUChangeCallback( uint16_t connId,
     {
         .pAttrData = &attr
     };
+
     TEST_ASSERT_EQUAL( DUMMY_MTU_SIZE, mtu );
     TEST_ASSERT_EQUAL( DUMMY_CONNECTION_ID, connId );
     eventCallbackCount[ eBLEMtuChanged ]++;
@@ -957,17 +959,17 @@ static void prvSendIndicationMTUChangeCallback( uint16_t connId,
 }
 
 static BTStatus_t pxSendIndicationStub( uint8_t ucServerIf,
-                                       uint16_t usAttributeHandle,
-                                       uint16_t usConnId,
-                                       size_t xLen,
-                                       uint8_t * pucValue,
-                                       bool bConfirm, int cmock_calls )
+                                        uint16_t usAttributeHandle,
+                                        uint16_t usConnId,
+                                        size_t xLen,
+                                        uint8_t * pucValue,
+                                        bool bConfirm,
+                                        int cmock_calls )
 {
     TEST_ASSERT_EQUAL( DUMMY_CONNECTION_ID, usConnId );
     middlewareGATTCallback.pxIndicationSentCb( 0, eBTStatusSuccess );
     return eBTStatusSuccess;
-
- }
+}
 
 
 void test_IotBleRegisterCallbacks( void )
@@ -1641,9 +1643,6 @@ void test_IotBleMallocFailure( void )
 
 void test_IotBleSendIndication_From_Event_Callback( void )
 {
-    BTBdaddr_t dummyAddr = { 0 };
-    BTBdname_t dummyName = { 0 };
-
     uint16_t handlesBuffer[ 3 ] = { 0 };
     BTService_t service =
     {
@@ -1654,19 +1653,30 @@ void test_IotBleSendIndication_From_Event_Callback( void )
         .pxBLEAttributes     = attributeTable
     };
 
+    IotBleEventsCallbacks_t mtuCallback =
+    {
+        .pMtuChangedCb = prvSendIndicationMTUChangeCallback
+    };
+
     prvTestTurnOnBLE();
 
     prvBleTestAddServiceBlob_Stub( prvAddServiceBlobStub );
     prvBleTestSendIndication_Stub( pxSendIndicationStub );
+    prvBleTestStopService_IgnoreAndReturn( eBTStatusSuccess );
+    prvBleTestDeleteService_Stub( prvServiceDeleteStub );
 
     TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_CreateService( &service, attributeCallbacks ) );
 
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_RegisterEventCb( eBLEMtuChanged, prvSendIndicationMTUChangeCallback ) );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_RegisterEventCb( eBLEMtuChanged, mtuCallback ) );
 
     middlewareGATTCallback.pxMtuChangedCb( DUMMY_CONNECTION_ID, DUMMY_MTU_SIZE );
 
     TEST_ASSERT_EQUAL( 1, eventCallbackCount[ eBLEMtuChanged ] );
-    TEST_ASSERT_EQUAL( 1, attributeInvokedCount[0][0] );
+    TEST_ASSERT_EQUAL( 1, attributeInvokedCount[ 0 ][ 0 ] );
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_UnRegisterEventCb( eBLEMtuChanged, mtuCallback ) );
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_DeleteService( &service ) );
 
     prvTestTurnOffBLE();
 }

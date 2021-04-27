@@ -305,6 +305,7 @@ void _connectionCb( uint16_t connId,
             IotBle_Free( pConnInfoListElem );
         }
     }
+
     IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
 
     IotMutex_Lock( &_BTInterface.eventCallbackMutex );

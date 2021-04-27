@@ -491,8 +491,8 @@ BTStatus_t IotBle_StartAdv( IotBle_StartAdvCallback_t pStartAdvCb );
 
 /**
  * @brief Sets an application defined callback invoked when an advertisement duration has ended or
- * advertisement stops due to an error. 
- * 
+ * advertisement stops due to an error.
+ *
  * @param pStopAdvCb The application defined callback to be invoked when advertisement is stopped.
  * @return Returns eBTStatusSuccess on successful call.
  */
