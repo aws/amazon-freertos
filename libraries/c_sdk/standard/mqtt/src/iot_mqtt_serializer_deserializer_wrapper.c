@@ -379,11 +379,6 @@ IotMqttError_t _IotMqtt_subscribeSerializeWrapper( const IotMqttSubscription_t *
         /* Converting status code from MQTT v4_beta2 status to MQTT v4_beta 1 status. */
         status = convertReturnCode( managedMqttStatus );
 
-        if( status != IOT_MQTT_SUCCESS )
-        {
-            /* Free memory allocated to subscription list on error. */
-            IotMqtt_FreeMessage( subscriptionList );
-        }
     }
 
     if( status == IOT_MQTT_SUCCESS )
@@ -411,8 +406,6 @@ IotMqttError_t _IotMqtt_subscribeSerializeWrapper( const IotMqttSubscription_t *
             /* Free allocated buffer on error. */
             IotMqtt_FreeMessage( networkBuffer.pBuffer );
 
-            /* Free memory allocated to subscription list on error. */
-            IotMqtt_FreeMessage( subscriptionList );
         }
     }
 
@@ -421,6 +414,9 @@ IotMqttError_t _IotMqtt_subscribeSerializeWrapper( const IotMqttSubscription_t *
         *pSubscribePacket = networkBuffer.pBuffer;
         *pPacketIdentifier = packetId;
     }
+
+    /* Free allocated memory as the packet was serialized. */
+    IotMqtt_FreeMessage(subscriptionList);
 
     return status;
 }
@@ -478,11 +474,6 @@ IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t
         /* Converting status code from MQTT v4_beta2 status to MQTT v4_beta 1 status. */
         status = convertReturnCode( managedMqttStatus );
 
-        if( status != IOT_MQTT_SUCCESS )
-        {
-            /* Free memory allocated to unsubscription list on error. */
-            IotMqtt_FreeMessage( unsubscriptionList );
-        }
     }
 
     if( status == IOT_MQTT_SUCCESS )
@@ -509,8 +500,6 @@ IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t
             /* Free allocated buffer on error. */
             IotMqtt_FreeMessage( networkBuffer.pBuffer );
 
-            /* Free memory allocated to unsubscription list on error. */
-            IotMqtt_FreeMessage( unsubscriptionList );
         }
     }
 
@@ -519,6 +508,9 @@ IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t
         *pUnsubscribePacket = networkBuffer.pBuffer;
         *pPacketIdentifier = packetId;
     }
+
+    /* Free allocated memory as the packet was serialized. */
+    IotMqtt_FreeMessage(unsubscriptionList);
 
     return status;
 }
