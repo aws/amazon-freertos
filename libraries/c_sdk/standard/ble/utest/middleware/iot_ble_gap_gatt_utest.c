@@ -230,6 +230,8 @@ static uint32_t alloc_mem_blocks;
 static uint32_t numAdvertisementStatusCalls;
 static SynchronizationObj_t semaphores[ MAX_SEMAPHORES_USED ];
 static SynchronizationObj_t mutexes[ MAX_MUTEXES_USED ];
+static int mutexFailAfterCount = MAX_MUTEXES_USED;
+
 
 static BTCallbacks_t middlewareBTCallback;
 static BTBleAdapterCallbacks_t middlewareBleCallback;
@@ -538,15 +540,27 @@ static void prvSemaphoreWaitStub( IotSemaphore_t * pSemaphore,
     TEST_ASSERT_TRUE( found );
 }
 
+static void makeMutexCreateFailAfterCount( int count )
+{
+    mutexFailAfterCount = count;
+}
+
 static bool prvMutexCreateStub( IotMutex_t * pNewMutex,
                                 bool recursive,
                                 int cmock_num_calls )
 {
     TEST_ASSERT_LESS_THAN( MAX_MUTEXES_USED, cmock_num_calls );
     TEST_ASSERT_FALSE( recursive );
-    mutexes[ cmock_num_calls ].pObj = ( void * ) pNewMutex;
-    mutexes[ cmock_num_calls ].value = 0;
-    return true;
+    bool result = false;
+
+    if( cmock_num_calls < mutexFailAfterCount )
+    {
+        mutexes[ cmock_num_calls ].pObj = ( void * ) pNewMutex;
+        mutexes[ cmock_num_calls ].value = 0;
+        result = true;
+    }
+
+    return result;
 }
 
 static void prvMutexLockStub( IotMutex_t * pMutex,
@@ -636,6 +650,8 @@ static void prvAdvertisementCallback( BTStatus_t status )
 void setUp( void )
 {
     numAdvertisementStatusCalls = 0;
+    mutexFailAfterCount = MAX_MUTEXES_USED;
+
     /* Initialize synchronization objects and stubs. */
     memset( mutexes, 0x00, sizeof( mutexes ) );
     memset( semaphores, 0x00, sizeof( semaphores ) );
@@ -724,6 +740,60 @@ void test_IotBle_Init_NullGattInterface( void )
     TEST_ASSERT_EQUAL( eBTStatusFail, IotBle_Init() );
 }
 
+/**
+ * @brief Tests BLE middleware initialization failure cases
+ */
+void test_IotBle_Init_Mutex_Create_Failed_1( void )
+{
+    BTGetBluetoothInterface_IgnoreAndReturn( &bleInterfaceMock );
+    prvBleTestGetLeAdapter_IgnoreAndReturn( &bleAdapterMock );
+    prvBleTestGetGattServerInterface_IgnoreAndReturn( &bleGattServerMock );
+    IotSemaphore_Create_IgnoreAndReturn( true );
+
+
+    makeMutexCreateFailAfterCount( 0 );
+    TEST_ASSERT_EQUAL( eBTStatusNoMem, IotBle_Init() );
+}
+
+void test_IotBle_Init_Mutex_Create_Failed_2( void )
+{
+    BTGetBluetoothInterface_IgnoreAndReturn( &bleInterfaceMock );
+    prvBleTestGetLeAdapter_IgnoreAndReturn( &bleAdapterMock );
+    prvBleTestGetGattServerInterface_IgnoreAndReturn( &bleGattServerMock );
+    IotSemaphore_Create_IgnoreAndReturn( true );
+
+    makeMutexCreateFailAfterCount( 1 );
+    IotMutex_Destroy_Ignore();
+    TEST_ASSERT_EQUAL( eBTStatusNoMem, IotBle_Init() );
+}
+
+void test_IotBle_Init_Mutex_Create_Failed_3( void )
+{
+    BTGetBluetoothInterface_IgnoreAndReturn( &bleInterfaceMock );
+    prvBleTestGetLeAdapter_IgnoreAndReturn( &bleAdapterMock );
+    prvBleTestGetGattServerInterface_IgnoreAndReturn( &bleGattServerMock );
+    IotSemaphore_Create_IgnoreAndReturn( true );
+
+    makeMutexCreateFailAfterCount( 2 );
+    IotMutex_Destroy_Ignore();
+    TEST_ASSERT_EQUAL( eBTStatusNoMem, IotBle_Init() );
+}
+
+/**
+ * @brief Tests BLE middleware initialization failure cases
+ */
+void test_IotBle_Init_Semaphore_Create_Failed( void )
+{
+    BTGetBluetoothInterface_IgnoreAndReturn( &bleInterfaceMock );
+    prvBleTestGetLeAdapter_IgnoreAndReturn( &bleAdapterMock );
+    prvBleTestGetGattServerInterface_IgnoreAndReturn( &bleGattServerMock );
+
+
+    IotMutex_Create_IgnoreAndReturn( true );
+    IotSemaphore_Create_IgnoreAndReturn( false );
+    IotMutex_Destroy_Ignore();
+    TEST_ASSERT_EQUAL( eBTStatusNoMem, IotBle_Init() );
+}
 
 void test_IoTBle_On_ManagerInitFailed()
 {
