@@ -33,12 +33,7 @@
 #include "ota_private.h"
 
 #include "ota_pal.h"
-
-/* Include config file used for testing the OTA PAL. This config file defines
- * the otapalconfigCODE_SIGNING_CERTIFICATE macro. */
-#ifdef FREERTOS_ENABLE_UNIT_TESTS
-    #include "aws_test_ota_config.h"
-#endif
+#include "ota_config.h"
 
 /* Specify the OTA signature algorithm we support on this platform. */
 const char OTA_JsonFileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
