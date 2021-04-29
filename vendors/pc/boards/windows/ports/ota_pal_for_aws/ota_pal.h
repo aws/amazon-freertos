@@ -125,7 +125,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C );
  * @return The number of bytes written on a success, or a negative error code from the platform
  * abstraction layer.
  */
-int16_t otaPal_WriteBlock( OtaFileContext_t * const C,
+int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
                            uint32_t ulOffset,
                            uint8_t * const pcData,
                            uint32_t ulBlockSize );
@@ -142,7 +142,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const C,
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent
  * error codes information in ota.h.
  */
-OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const C );
+OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext );
 
 /**
  * @brief Reset the device.
@@ -155,7 +155,7 @@ OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const C );
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent
  * error codes information in ota.h.
  */
-OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const C );
+OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const pFileContext );
 
 /**
  * @brief Attempt to set the state of the OTA update image.
@@ -178,8 +178,8 @@ OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const C );
  *   OtaPalRejectFailed: failed to roll back the update image as requested by OtaImageStateRejected.
  *   OtaPalCommitFailed: failed to make the update image permanent as requested by OtaImageStateAccepted.
  */
-OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
-                                       OtaImageState_t eState );
+OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileContext,
+                                             OtaImageState_t eState );
 
 /**
  * @brief Get the state of the OTA update image.
@@ -204,6 +204,6 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
  *
  *   NOTE: OtaPalImageStateUnknown should NEVER be returned and indicates an implementation error.
  */
-OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const C );
+OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileContext );
 
 #endif /* ifndef OTA_PAL_H_ */
