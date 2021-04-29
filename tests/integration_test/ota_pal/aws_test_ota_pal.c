@@ -62,6 +62,7 @@
 /* Include OTA headers. */
 #include "ota.h"
 #include "ota_appversion32.h"
+#include "ota_pal.h"
 
 /* Include functions for accessing static PAL functions. */
 #include "aws_ota_pal_test_access_declare.h"
