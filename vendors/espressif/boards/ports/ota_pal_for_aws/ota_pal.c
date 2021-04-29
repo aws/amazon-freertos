@@ -80,7 +80,7 @@ typedef struct
 static esp_ota_context_t ota_ctx;
 static const char * TAG = "ota_pal";
 
-static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = otapalconfigCODE_SIGNING_CERTIFICATE;
+static const char codeSigningCertificatePEM[] = otapalconfigCODE_SIGNING_CERTIFICATE;
 
 /* Specify the OTA signature algorithm we support on this platform. */
 const char OTA_JsonFileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
@@ -376,9 +376,9 @@ uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
                   ( const char * ) pucCertName );
 
         /* Allocate memory for the signer certificate plus a terminating zero so we can copy it and return to the caller. */
-        ulCertSize = sizeof( signingcredentialSIGNING_CERTIFICATE_PEM );
-        pucSignerCert = pvPortMalloc( ulCertSize );                           /*lint !e9029 !e9079 !e838 malloc proto requires void*. */
-        pucCertData = ( uint8_t * ) signingcredentialSIGNING_CERTIFICATE_PEM; /*lint !e9005 we don't modify the cert but it could be set by PKCS11 so it's not const. */
+        ulCertSize = sizeof( codeSigningCertificatePEM );
+        pucSignerCert = pvPortMalloc( ulCertSize );            /*lint !e9029 !e9079 !e838 malloc proto requires void*. */
+        pucCertData = ( uint8_t * ) codeSigningCertificatePEM; /*lint !e9005 we don't modify the cert but it could be set by PKCS11 so it's not const. */
 
         if( pucSignerCert != NULL )
         {

@@ -38,7 +38,7 @@
 /* Specify the OTA signature algorithm we support on this platform. */
 const char OTA_JsonFileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
 
-static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = otapalconfigCODE_SIGNING_CERTIFICATE;
+static const char codeSigningCertificatePEM[] = otapalconfigCODE_SIGNING_CERTIFICATE;
 
 static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext );
 static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
@@ -431,9 +431,9 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
                     ( const char * ) pucCertName ) );
 
         /* Allocate memory for the signer certificate plus a terminating zero so we can copy it and return to the caller. */
-        lSize = sizeof( signingcredentialSIGNING_CERTIFICATE_PEM );
-        pucSignerCert = pvPortMalloc( lSize );                                /*lint !e9029 !e9079 !e838 malloc proto requires void*. */
-        pucCertData = ( uint8_t * ) signingcredentialSIGNING_CERTIFICATE_PEM; /*lint !e9005 we don't modify the cert but it could be set by PKCS11 so it's not const. */
+        lSize = sizeof( codeSigningCertificatePEM );
+        pucSignerCert = pvPortMalloc( lSize );                 /*lint !e9029 !e9079 !e838 malloc proto requires void*. */
+        pucCertData = ( uint8_t * ) codeSigningCertificatePEM; /*lint !e9005 we don't modify the cert but it could be set by PKCS11 so it's not const. */
 
         if( pucSignerCert != NULL )
         {
