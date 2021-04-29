@@ -4,7 +4,7 @@
  *
  * Prerequisite: add SERCOM I2C Master Polled support to application in Atmel Studio
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -32,6 +32,7 @@
 
 #include "atmel_start.h"
 #include <stdlib.h>
+#include "cryptoauthlib.h"
 
 /** \defgroup hal_ Hardware abstraction layer (hal_)
  *
@@ -41,20 +42,14 @@
    @{ */
 
 
-#define MAX_I2C_BUSES    6   // SAMD21 has up to 6 SERCOMS that can be configured as I2C
 
-/** \brief this is the hal_data for ATCA HAL for Atmel START SERCOM
- */
-typedef struct atcaI2Cmaster
+typedef void (* start_change_baudrate)(ATCAIface iface, uint32_t speed);
+
+typedef struct i2c_start_instance
 {
-    struct i2c_m_sync_desc i2c_master_instance;
-    uint32_t               sercom_core_freq;
-    int                    ref_ct;
-    // for conveniences during interface release phase
-    int bus_index;
-} ATCAI2CMaster_t;
-
-void change_i2c_speed(ATCAIface iface, uint32_t speed);
+    struct i2c_m_sync_desc * i2c_descriptor;
+    start_change_baudrate    change_baudrate;
+} i2c_start_instance_t;
 
 /** @} */
 

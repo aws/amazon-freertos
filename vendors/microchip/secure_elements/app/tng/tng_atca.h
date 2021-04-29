@@ -1,7 +1,35 @@
+/**
+ * \file
+ * \brief TNG Helper Functions
+ *
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
+ *
+ * \page License
+ *
+ * Subject to your compliance with these terms, you may use Microchip software
+ * and any derivatives exclusively with Microchip products. It is your
+ * responsibility to comply with third party license terms applicable to your
+ * use of third party software (including open source software) that may
+ * accompany Microchip software.
+ *
+ * THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
+ * EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
+ * WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
+ * PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT,
+ * SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE
+ * OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF
+ * MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+ * FORESEEABLE. TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL
+ * LIABILITY ON ALL CLAIMS IN ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED
+ * THE AMOUNT OF FEES, IF ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR
+ * THIS SOFTWARE.
+ */
+
 #ifndef TNG_ATCA_H
 #define TNG_ATCA_H
 
-#include "basic/atca_basic.h"
+#include "atca_basic.h"
+#include "atcacert/atcacert_def.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,23 +43,22 @@ extern "C" {
  *
    @{ */
 
-#define TNG22_PRIMARY_KEY_SLOT 0
-#define TNGTN_PRIMARY_KEY_SLOT 1
-
-typedef enum
-{
-    TNGTYPE_UNKNOWN,
-    TNGTYPE_22,
-    TNGTYPE_TN
-} tng_type_t;
-
-/** \brief Get the type of TNG device.
+/** \brief Helper function to iterate through all trust cert definitions
  *
- * \param[out] type  TNG device type is returned here.
+ * \param[in] index Map index
+ *
+ * \return non-null value if success, otherwise NULL
+ */
+const atcacert_def_t* tng_map_get_device_cert_def(int index);
+
+/** \brief Get the TNG device certificate definition.
+ *
+ * \param[out] cert_def  TNG device certificate defnition is returned here.
  *
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
-ATCA_STATUS tng_get_type(tng_type_t* type);
+
+ATCA_STATUS tng_get_device_cert_def(const atcacert_def_t **cert_def);
 
 /** \brief Uses GenKey command to calculate the public key from the primary
  *         device public key.

@@ -2,31 +2,27 @@
  * \file
  * \brief PKCS11 Library Session Handling
  *
- * \copyright (c) 2017 Microchip Technology Inc. and its subsidiaries.
- *            You may use this software and any derivatives exclusively with
- *            Microchip products.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
- * (c) 2017 Microchip Technology Inc. and its subsidiaries. You may use this
- * software and any derivatives exclusively with Microchip products.
+ * Subject to your compliance with these terms, you may use Microchip software
+ * and any derivatives exclusively with Microchip products. It is your
+ * responsibility to comply with third party license terms applicable to your
+ * use of third party software (including open source software) that may
+ * accompany Microchip software.
  *
  * THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
  * EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
  * WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
- * PARTICULAR PURPOSE, OR ITS INTERACTION WITH MICROCHIP PRODUCTS, COMBINATION
- * WITH ANY OTHER PRODUCTS, OR USE IN ANY APPLICATION.
- *
- * IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
- * INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
- * WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS
- * BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO THE
- * FULLEST EXTENT ALLOWED BY LAW, MICROCHIPS TOTAL LIABILITY ON ALL CLAIMS IN
- * ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
- * THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
- *
- * MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE
- * TERMS.
+ * PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT,
+ * SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE
+ * OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF
+ * MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+ * FORESEEABLE. TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL
+ * LIABILITY ON ALL CLAIMS IN ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED
+ * THE AMOUNT OF FEES, IF ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR
+ * THIS SOFTWARE.
  */
 
 #include "cryptoauthlib.h"
@@ -35,82 +31,111 @@
 #include "pkcs11_config.h"
 #include "pkcs11_debug.h"
 #include "pkcs11_session.h"
+#include "pkcs11_token.h"
 #include "pkcs11_init.h"
 #include "pkcs11_slot.h"
 #include "pkcs11_object.h"
+#include "pkcs11_os.h"
+#include "pkcs11_util.h"
 
 /**
  * \defgroup pkcs11 Session Management (pkcs11_)
    @{ */
 
-#ifndef memset_s
-int memset_s(void *dest, size_t destsz, int ch, size_t count)
-{
-    if (dest == NULL)
-    {
-        return -1;
-    }
-    if (destsz > SIZE_MAX)
-    {
-        return -1;
-    }
-    if (count > destsz)
-    {
-        return -1;
-    }
-
-    volatile unsigned char *p = dest;
-    while (destsz-- && count--)
-    {
-        *p++ = ch;
-    }
-
-    return 0;
-}
-#endif
-
-
-#if PKCS11_USE_STATIC_MEMORY
+#ifdef ATCA_NO_HEAP
 static pkcs11_session_ctx pkcs11_session_cache[PKCS11_MAX_SESSIONS_ALLOWED];
+#elif UINTPTR_MAX == 0xffffffffffffffff
+static pkcs11_session_ctx_ptr pkcs11_session_cache[PKCS11_MAX_SESSIONS_ALLOWED];
 #endif
 
 static pkcs11_session_ctx_ptr pkcs11_allocate_session_context(void)
 {
     pkcs11_session_ctx_ptr rv = NULL_PTR;
 
-#if PKCS11_USE_STATIC_MEMORY
+#ifdef ATCA_NO_HEAP
     CK_ULONG i;
     for (i = 0; i < PKCS11_MAX_SESSIONS_ALLOWED; i++)
     {
+
         if (!pkcs11_session_cache[i].initialized)
         {
             rv = &pkcs11_session_cache[i];
             break;
         }
     }
+#elif UINTPTR_MAX == 0xffffffffffffffff
+    CK_ULONG i;
+    for (i = 0; i < PKCS11_MAX_SESSIONS_ALLOWED; i++)
+    {
+        if (!pkcs11_session_cache[i])
+        {
+            /* Use dynamic memory assignement from OS abstraction layer */
+            rv = pkcs11_os_malloc(sizeof(pkcs11_session_ctx));
+            pkcs11_session_cache[i] = rv;
+            break;
+        }
+    }
 #else
-    /* Use dynamic memory assignement from OS abstraction layer */
+    rv = pkcs11_os_malloc(sizeof(pkcs11_session_ctx));
 #endif
+
     return rv;
 }
 
 pkcs11_session_ctx_ptr pkcs11_get_session_context(CK_SESSION_HANDLE hSession)
 {
-#if defined(__x86_64__) || defined(_WIN64)
+#if UINTPTR_MAX == 0xffffffffffffffff
     pkcs11_session_ctx_ptr rv = NULL_PTR;
     CK_ULONG i;
     for (i = 0; i < PKCS11_MAX_SESSIONS_ALLOWED; i++)
     {
+#ifdef ATCA_NO_HEAP
         if (hSession == pkcs11_session_cache[i].handle)
         {
             rv = &pkcs11_session_cache[i];
             break;
         }
+#else
+        if (pkcs11_session_cache[i])
+        {
+            if (hSession == pkcs11_session_cache[i]->handle)
+            {
+                rv = pkcs11_session_cache[i];
+                break;
+            }
+        }
+#endif
     }
     return rv;
 #else
     return (pkcs11_session_ctx_ptr)hSession;
 #endif
+}
+
+static CK_RV pkcs11_session_free_session_context(pkcs11_session_ctx_ptr session_ctx)
+{
+    CK_RV rv = CKR_ARGUMENTS_BAD;
+
+    if (session_ctx)
+    {
+        (void)pkcs11_util_memset(session_ctx, sizeof(pkcs11_session_ctx), 0, sizeof(pkcs11_session_ctx));
+#ifndef ATCA_NO_HEAP
+#if UINTPTR_MAX == 0xffffffffffffffff
+        CK_ULONG i;
+        for (i = 0; i < PKCS11_MAX_SESSIONS_ALLOWED; i++)
+        {
+            if (session_ctx == pkcs11_session_cache[i])
+            {
+                pkcs11_session_cache[i] = NULL;
+                break;
+            }
+        }
+#endif
+        pkcs11_os_free(session_ctx);
+#endif
+        rv = CKR_OK;
+    }
+    return rv;
 }
 
 /**
@@ -253,7 +278,7 @@ CK_RV pkcs11_session_close(CK_SESSION_HANDLE hSession)
     }
 
     /* Free the session */
-    memset_s(session_ctx, sizeof(pkcs11_session_ctx), 0, sizeof(pkcs11_session_ctx));
+    (void)pkcs11_session_free_session_context(session_ctx);
 
     return CKR_OK;
 }
@@ -280,7 +305,7 @@ CK_RV pkcs11_session_closeall(CK_SLOT_ID slotID)
 
     /* If there were the ability to have multiple sessions open for a slot then
        we'd loop over the sessions and close them in order*/
-#if PKCS11_USE_STATIC_MEMORY
+#ifdef ATCA_NO_HEAP
     {
         int i;
         for (i = 0; i < PKCS11_MAX_SESSIONS_ALLOWED; i++)
@@ -338,16 +363,17 @@ CK_RV pkcs11_session_get_info(CK_SESSION_HANDLE hSession, CK_SESSION_INFO_PTR pI
 
 CK_RV pkcs11_session_login(CK_SESSION_HANDLE hSession, CK_USER_TYPE userType, CK_UTF8CHAR_PTR pPin, CK_ULONG ulPinLen)
 {
-    pkcs11_lib_ctx_ptr lib_ctx = pkcs11_get_context();
+    pkcs11_lib_ctx_ptr pLibCtx = pkcs11_get_context();
     pkcs11_session_ctx_ptr session_ctx = pkcs11_get_session_context(hSession);
-    size_t outlen;
+    uint8_t sn[ATCA_SERIAL_NUM_SIZE];
+    CK_RV rv;
 
-    if (!lib_ctx || !lib_ctx->initialized)
+    if (!pLibCtx || !pLibCtx->initialized)
     {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     }
 
-    if (!pPin || ulPinLen != 64)
+    if (!pPin || !ulPinLen)
     {
         return CKR_ARGUMENTS_BAD;
     }
@@ -362,11 +388,32 @@ CK_RV pkcs11_session_login(CK_SESSION_HANDLE hSession, CK_USER_TYPE userType, CK
         return CKR_SESSION_CLOSED;
     }
 
-    /* Decode the hex string pin into a binary io protection key */
-    outlen = sizeof(session_ctx->read_key);
-    (void)atcab_hex2bin((const char*)pPin, ulPinLen, session_ctx->read_key, &outlen);
+    if (64 != ulPinLen)
+    {
+        if (CKR_OK == (rv = pkcs11_lock_context(pLibCtx)))
+        {
+            rv = pkcs11_util_convert_rv(atcab_read_serial_number(sn));
+            (void)pkcs11_unlock_context(pLibCtx);
+        }
 
-    return CKR_OK;
+        if (CKR_OK == rv)
+        {
+            rv = pkcs11_token_convert_pin_to_key(pPin, ulPinLen, sn, (CK_LONG)sizeof(sn),
+                                                 session_ctx->read_key, (CK_LONG)sizeof(session_ctx->read_key));
+        }
+    }
+    else
+    {
+        rv = pkcs11_token_convert_pin_to_key(pPin, ulPinLen, NULL, 0, session_ctx->read_key,
+                                             (CK_LONG)sizeof(session_ctx->read_key));
+    }
+
+    if (CKR_OK == rv)
+    {
+        session_ctx->logged_in = TRUE;
+    }
+
+    return rv;
 }
 
 CK_RV pkcs11_session_logout(CK_SESSION_HANDLE hSession)
@@ -390,12 +437,15 @@ CK_RV pkcs11_session_logout(CK_SESSION_HANDLE hSession)
     }
 
     /* Wipe the io protection secret */
-    memset_s(session_ctx->read_key, sizeof(session_ctx->read_key), 0, sizeof(session_ctx->read_key));
+    (void)pkcs11_util_memset(session_ctx->read_key, sizeof(session_ctx->read_key), 0, sizeof(session_ctx->read_key));
+
+    session_ctx->logged_in = FALSE;
 
     return CKR_OK;
 }
 
-/* Authorize an object for use */
+#if 0
+/* Authorize an object for use - Legacy function @todo rework with new access model */
 CK_RV pkcs11_session_authorize(pkcs11_session_ctx_ptr pSession, CK_VOID_PTR pObject)
 {
     pkcs11_object_ptr obj_ptr = (pkcs11_object_ptr)pObject;
@@ -501,5 +551,6 @@ CK_RV pkcs11_session_authorize(pkcs11_session_ctx_ptr pSession, CK_VOID_PTR pObj
         return CKR_PIN_INCORRECT;
     }
 }
+#endif
 
 /** @} */

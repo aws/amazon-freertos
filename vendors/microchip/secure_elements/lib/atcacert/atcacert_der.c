@@ -2,7 +2,7 @@
  * \file
  * \brief functions required to work with DER encoded data related to X.509 certificates.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -191,6 +191,7 @@ int atcacert_der_enc_integer(const uint8_t* int_data,
     size_t der_int_size_calc = 0;
     size_t trim = 0;
     size_t pad = 0;
+    int ret;
 
     if (int_data == NULL || der_int_size == NULL || int_data_size <= 0)
     {
@@ -215,7 +216,7 @@ int atcacert_der_enc_integer(const uint8_t* int_data,
         pad = 1;
     }
 
-    int ret = atcacert_der_enc_length((uint32_t)(int_data_size + pad - trim), der_length, &der_length_size);
+    ret = atcacert_der_enc_length((uint32_t)(int_data_size + pad - trim), der_length, &der_length_size);
     if (ret != ATCACERT_E_SUCCESS)
     {
         return ret;

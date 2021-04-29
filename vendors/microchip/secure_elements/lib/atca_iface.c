@@ -3,7 +3,7 @@
  *
  * \brief  Microchip CryptoAuthLib hardware interface object
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -26,9 +26,7 @@
  * THIS SOFTWARE.
  */
 
-#include <stdlib.h>
-#include "atca_iface.h"
-#include "hal/atca_hal.h"
+#include "cryptoauthlib.h"
 
 /** \defgroup interface ATCAIface (atca_)
  *  \brief Abstract interface to all CryptoAuth device types.  This interface
@@ -36,17 +34,6 @@
  *  device communication from all the upper layers of CryptoAuthLib
    @{ */
 
-
-#ifndef ATCA_POST_DELAY_MSEC
-/* \brief How long to wait after an initial wake failure for the POSt to
- *         complete.
- * If Power-on self test (POST) is enabled, the self test will run on waking
- * from sleep or during power-on, which delays the wake reply.
- */
-#define ATCA_POST_DELAY_MSEC 25
-#endif
-
-ATCA_STATUS _atinit(ATCAIface ca_iface, ATCAHAL_t *hal);
 
 /** \brief Initializer for ATCAIface objects
  * \param[in] cfg       Logical configuration for the interface
@@ -62,10 +49,9 @@ ATCA_STATUS initATCAIface(ATCAIfaceCfg *cfg, ATCAIface ca_iface)
         return ATCA_BAD_PARAM;
     }
 
-    ca_iface->mType = cfg->iface_type;
     ca_iface->mIfaceCFG = cfg;
 
-    status = atinit(ca_iface);
+    status = ATCA_TRACE(atinit(ca_iface), "atinit");
     if (status != ATCA_SUCCESS)
     {
         return status;
@@ -106,17 +92,42 @@ ATCAIface newATCAIface(ATCAIfaceCfg *cfg)
 ATCA_STATUS atinit(ATCAIface ca_iface)
 {
     ATCA_STATUS status = ATCA_COMM_FAIL;
-    ATCAHAL_t hal;
 
-    _atinit(ca_iface, &hal);
-
-    status = ca_iface->atinit(&hal, ca_iface->mIfaceCFG);
-    if (status == ATCA_SUCCESS)
+    if (ca_iface)
     {
-        ca_iface->hal_data = hal.hal_data;
+        status = ATCA_TRACE(hal_iface_init(ca_iface->mIfaceCFG, &ca_iface->hal, &ca_iface->phy), "Failed to configure HAL");
 
-        // Perform the post init
-        status = ca_iface->atpostinit(ca_iface);
+        /* Initialize the physical interface if one is required for the hal */
+        if (ATCA_SUCCESS == status && ca_iface->phy)
+        {
+            if (ca_iface->phy->halinit && ca_iface->phy->halpostinit)
+            {
+                if (ATCA_SUCCESS == (status = ATCA_TRACE(ca_iface->phy->halinit(ca_iface, ca_iface->mIfaceCFG), "phyinit")))
+                {
+                    status = ATCA_TRACE(ca_iface->phy->halpostinit(ca_iface), "phypostinit");
+                }
+            }
+            else
+            {
+                status = ATCA_TRACE(ATCA_ASSERT_FAILURE, "phy is invalid");
+            }
+        }
+
+        /* Initialize the hal itself */
+        if (ATCA_SUCCESS == status)
+        {
+            if (ca_iface->hal->halinit && ca_iface->hal->halpostinit)
+            {
+                if (ATCA_SUCCESS == (status = ATCA_TRACE(ca_iface->hal->halinit(ca_iface, ca_iface->mIfaceCFG), "halinit")))
+                {
+                    status = ATCA_TRACE(ca_iface->hal->halpostinit(ca_iface), "halpostinit");
+                }
+            }
+            else
+            {
+                status = ATCA_TRACE(ATCA_ASSERT_FAILURE, "hal is invalid");
+            }
+        }
     }
 
     return status;
@@ -124,80 +135,175 @@ ATCA_STATUS atinit(ATCAIface ca_iface)
 
 /** \brief Sends the data to the device by calling intermediate HAL wrapper
  *         function.
- * \param[in] ca_iface  Device to interact with.
- * \param[in] txdata    Data to be transmitted to the device.
- * \param[in] txlength  Number of bytes to be transmitted to the device.
+ * \param[in] ca_iface       Device to interact with.
+ * \param[in] word_address   device transaction type
+ * \param[in] txdata         Data to be transmitted to the device.
+ * \param[in] txlength       Number of bytes to be transmitted to the device.
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
-ATCA_STATUS atsend(ATCAIface ca_iface, uint8_t *txdata, int txlength)
+ATCA_STATUS atsend(ATCAIface ca_iface, uint8_t address, uint8_t *txdata, int txlength)
 {
-    return ca_iface->atsend(ca_iface, txdata, txlength);
+    if (!ca_iface)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    if (ca_iface->hal && ca_iface->hal->halsend)
+    {
+#ifdef ATCA_HAL_I2C
+        if (ATCA_I2C_IFACE == ca_iface->mIfaceCFG->iface_type && 0xFF == address)
+        {
+            address = ca_iface->mIfaceCFG->atcai2c.address;
+        }
+#endif
+
+        return ca_iface->hal->halsend(ca_iface, address, txdata, txlength);
+    }
+    else
+    {
+        return ATCA_NOT_INITIALIZED;
+    }
 }
 
-/**\brief Receives data from the device by calling intermediate HAL wrapper
+/** \brief Receives data from the device by calling intermediate HAL wrapper
  *        function.
- * \param[in]    ca_iface  Device to interact with.
- * \param[out]   rxdata    Data received will be returned here.
- * \param[inout] rxlength  As input, the size of the rxdata buffer.
- *                         As output, the number of bytes received.
+ * \param[in]     ca_iface       Device to interact with.
+ * \param[in]     word_address   device transaction type
+ * \param[out]    rxdata         Data received will be returned here.
+ * \param[in,out] rxlength       As input, the size of the rxdata buffer.
+ *                               As output, the number of bytes received.
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
-ATCA_STATUS atreceive(ATCAIface ca_iface, uint8_t *rxdata, uint16_t *rxlength)
+ATCA_STATUS atreceive(ATCAIface ca_iface, uint8_t word_address, uint8_t *rxdata, uint16_t *rxlength)
 {
-    return ca_iface->atreceive(ca_iface, rxdata, rxlength);
+    if (!ca_iface)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    if (ca_iface->hal && ca_iface->hal->halreceive)
+    {
+        return ca_iface->hal->halreceive(ca_iface, word_address, rxdata, rxlength);
+    }
+    else
+    {
+        return ATCA_NOT_INITIALIZED;
+    }
 }
 
-/** \brief Wakes up the device by calling intermediate HAL wrapper function.
- *         If using the basic API, the atcab_wakeup() function should be used
- *         instead.
+
+/** \brief Perform control operations with the underlying hal driver
+ * \param[in]     ca_iface       Device to interact with.
+ * \param[in]     option         Control parameter identifier
+ * \param[in]     param          Optional pointer to parameter value
+ * \param[in]     paramlen       Length of the parameter
+ * \return ATCA_SUCCESS on success, otherwise an error code.
+ */
+ATCA_STATUS atcontrol(ATCAIface ca_iface, uint8_t option, void* param, size_t paramlen)
+{
+    if (!ca_iface)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+
+    if (ca_iface->hal && ca_iface->hal->halcontrol)
+    {
+        return ca_iface->hal->halcontrol(ca_iface, option, param, paramlen);
+    }
+    else
+    {
+        return ATCA_NOT_INITIALIZED;
+    }
+}
+
+/** \brief Wakes up the device by calling intermediate HAL wrapper function. The
+ * atcab_wakeup() function should be used instead.
+ * \deprecated This function does not have defined behavior when ATCA_HAL_LEGACY_API
+ * is undefined.
+ *
  * \param[in] ca_iface  Device to interact with.
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atwake(ATCAIface ca_iface)
 {
-    ATCA_STATUS status = ca_iface->atwake(ca_iface);
-
-    if (status == ATCA_WAKE_FAILED)
+    if (!ca_iface)
     {
-        // The device might be performing a POST. Wait for it to complete
-        // and try again.
-        atca_delay_ms(ATCA_POST_DELAY_MSEC);
-
-        status = ca_iface->atwake(ca_iface);
+        return ATCA_BAD_PARAM;
     }
 
-    return status;
+
+    if (ca_iface->hal && ca_iface->hal->halcontrol)
+    {
+        ATCA_STATUS status = ca_iface->hal->halcontrol(ca_iface, ATCA_HAL_CONTROL_WAKE, NULL, 0);
+
+        if (ATCA_WAKE_FAILED == status)
+        {
+            // The device might be performing a POST. Wait for it to complete
+            // and try again.
+            atca_delay_ms(ATCA_POST_DELAY_MSEC);
+
+            status = ca_iface->hal->halcontrol(ca_iface, ATCA_HAL_CONTROL_WAKE, NULL, 0);
+        }
+        return status;
+    }
+    else
+    {
+        return ATCA_NOT_INITIALIZED;
+    }
 }
 
 
 /** \brief Puts the device into idle state by calling intermediate HAL wrapper
- *         function. If using the basic API, the atcab_idle() function should
- *         be used instead.
+ *         function. The atcab_idle() function should be used instead.
+ * \deprecated This function does not have defined behavior when ATCA_HAL_LEGACY_API
+ * is undefined.
  * \param[in] ca_iface  Device to interact with.
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atidle(ATCAIface ca_iface)
 {
-    ATCA_STATUS status;
+    if (!ca_iface)
+    {
+        return ATCA_BAD_PARAM;
+    }
 
-    status = ca_iface->atidle(ca_iface);
-    atca_delay_ms(1);
-    return status;
+    if (ca_iface->hal && ca_iface->hal->halcontrol)
+    {
+        ATCA_STATUS status = ca_iface->hal->halcontrol(ca_iface, ATCA_HAL_CONTROL_IDLE, NULL, 0);
+        atca_delay_ms(1);
+        return status;
+    }
+    else
+    {
+        return ATCA_NOT_INITIALIZED;
+    }
 }
 
 /** \brief Puts the device into sleep state by calling intermediate HAL wrapper
- *         function. If using the basic API, the atcab_sleep() function should
- *         be used instead.
+ *         function. The atcab_sleep() function should be used instead.
+ * \deprecated This function does not have defined behavior when ATCA_HAL_LEGACY_API
+ * is undefined.
  * \param[in] ca_iface  Device to interact with.
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atsleep(ATCAIface ca_iface)
 {
-    ATCA_STATUS status;
+    if (!ca_iface)
+    {
+        return ATCA_BAD_PARAM;
+    }
 
-    status = ca_iface->atsleep(ca_iface);
-    atca_delay_ms(1);
-    return status;
+    if (ca_iface->hal && ca_iface->hal->halcontrol)
+    {
+        ATCA_STATUS status = ca_iface->hal->halcontrol(ca_iface, ATCA_HAL_CONTROL_SLEEP, NULL, 0);
+        atca_delay_ms(1);
+        return status;
+    }
+    else
+    {
+        return ATCA_NOT_INITIALIZED;
+    }
 }
 
 
@@ -207,7 +313,7 @@ ATCA_STATUS atsleep(ATCAIface ca_iface)
  */
 ATCAIfaceCfg * atgetifacecfg(ATCAIface ca_iface)
 {
-    return ca_iface->mIfaceCFG;
+    return ca_iface ? ca_iface->mIfaceCFG : NULL;
 }
 
 
@@ -217,8 +323,53 @@ ATCAIfaceCfg * atgetifacecfg(ATCAIface ca_iface)
  */
 void* atgetifacehaldat(ATCAIface ca_iface)
 {
-    return ca_iface->hal_data;
+    return ca_iface ? ca_iface->hal_data : NULL;
 }
+
+/** \brief Check if the given interface is configured as a "kit protocol" one where
+ * transactions are atomic
+ * \return true if the interface is considered a kit
+ */
+bool atca_iface_is_kit(ATCAIface ca_iface)
+{
+    bool ret = false;
+
+    if (ca_iface && ca_iface->mIfaceCFG)
+    {
+        if (ATCA_HID_IFACE == ca_iface->mIfaceCFG->iface_type || ATCA_KIT_IFACE == ca_iface->mIfaceCFG->iface_type)
+        {
+            ret = true;
+        }
+    }
+    return ret;
+}
+
+/** \brief Retrive the number of retries for a configured interface */
+int atca_iface_get_retries(ATCAIface ca_iface)
+{
+    if (ca_iface && ca_iface->mIfaceCFG)
+    {
+        return ca_iface->mIfaceCFG->rx_retries;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+/** \brief Retrive the wake/retry delay for a configured interface/device */
+uint16_t atca_iface_get_wake_delay(ATCAIface ca_iface)
+{
+    if (ca_iface && ca_iface->mIfaceCFG)
+    {
+        return ca_iface->mIfaceCFG->wake_delay;
+    }
+    else
+    {
+        return 1500;
+    }
+}
+
 
 /** \brief Instruct the HAL driver to release any resources associated with
  *         this interface.
@@ -227,12 +378,23 @@ void* atgetifacehaldat(ATCAIface ca_iface)
  */
 ATCA_STATUS releaseATCAIface(ATCAIface ca_iface)
 {
-    if (ca_iface == NULL)
-    {
-        return ATCA_BAD_PARAM;
-    }
+    ATCA_STATUS status = ATCA_BAD_PARAM;
 
-    return hal_iface_release(ca_iface->mType, ca_iface->hal_data);
+    if (ca_iface && ca_iface->mIfaceCFG)
+    {
+        if (ATCA_SUCCESS == (status = hal_iface_release(ca_iface->mIfaceCFG->iface_type, ca_iface->hal_data)))
+        {
+            ca_iface->hal_data = NULL;
+        }
+        if (ATCA_CUSTOM_IFACE == ca_iface->mIfaceCFG->iface_type)
+        {
+#ifndef ATCA_NO_HEAP
+            hal_free(ca_iface->hal);
+#endif
+            ca_iface->hal = NULL;
+        }
+    }
+    return status;
 }
 
 #ifndef ATCA_NO_HEAP
@@ -242,30 +404,13 @@ ATCA_STATUS releaseATCAIface(ATCAIface ca_iface)
  */
 void deleteATCAIface(ATCAIface *ca_iface)
 {
-    if (ca_iface == NULL)
+    if (ca_iface)
     {
-        return;
+        releaseATCAIface(*ca_iface);
+        free(*ca_iface);
+        *ca_iface = NULL;
     }
-
-    releaseATCAIface(*ca_iface);
-    free(*ca_iface);
-    *ca_iface = NULL;
 }
 #endif
 
-ATCA_STATUS _atinit(ATCAIface ca_iface, ATCAHAL_t *hal)
-{
-    // get method mapping to HAL methods for this interface
-    hal_iface_init(ca_iface->mIfaceCFG, hal);
-    ca_iface->atinit     = hal->halinit;
-    ca_iface->atpostinit = hal->halpostinit;
-    ca_iface->atsend     = hal->halsend;
-    ca_iface->atreceive  = hal->halreceive;
-    ca_iface->atwake     = hal->halwake;
-    ca_iface->atsleep    = hal->halsleep;
-    ca_iface->atidle     = hal->halidle;
-    ca_iface->hal_data   = hal->hal_data;
-
-    return ATCA_SUCCESS;
-}
 /** @} */

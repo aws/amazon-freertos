@@ -4,7 +4,7 @@
  *
  * Prerequisite: add UART Polled support to application in Atmel Studio
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -30,7 +30,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "swi_uart_samd21_asf.h"
-#include "basic/atca_helpers.h"
+#include "atca_helpers.h"
+
+#ifndef ATCA_HAL_LEGACY_API
+#error "The use of this hal requires the ATCA_HAL_LEGACY_API option to be enabled.
+#endif
 
 /** \defgroup hal_ Hardware abstraction layer (hal_)
  *

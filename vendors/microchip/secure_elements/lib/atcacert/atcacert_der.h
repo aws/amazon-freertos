@@ -2,7 +2,7 @@
  * \file
  * \brief function declarations required to work with DER encoded data related to X.509 certificates.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -53,7 +53,7 @@ extern "C" {
  *
  * \param[in]    length           Length to be encoded.
  * \param[out]   der_length       DER encoded length will returned in this buffer.
- * \param[inout] der_length_size  As input, size of der_length buffer in bytes.
+ * \param[in,out] der_length_size  As input, size of der_length buffer in bytes.
  *                                As output, the size of the DER length encoding in bytes.
  *
  * \return ATCACERT_E_SUCCESS on success, otherwise an error code.
@@ -66,7 +66,7 @@ int atcacert_der_enc_length(uint32_t length, uint8_t* der_length, size_t* der_le
  * X.690 (http://www.itu.int/rec/T-REC-X.690/en) section 8.1.3, for encoding
  *
  * \param[in]    der_length       DER encoded length.
- * \param[inout] der_length_size  As input, the size of the der_length buffer in bytes.
+ * \param[in,out] der_length_size  As input, the size of the der_length buffer in bytes.
  *                                As output, the size of the DER encoded length that was decoded.
  * \param[out]   length           Decoded length is returned here.
  *
@@ -86,7 +86,7 @@ int atcacert_der_adjust_length(uint8_t* der_length, size_t* der_length_size, int
  * \param[in]    int_data_size  Size of the raw integer in bytes.
  * \param[in]    is_unsigned    Indicate whether the input integer should be treated as unsigned.
  * \param[out]   der_int        DER encoded integer is returned in this buffer.
- * \param[inout] der_int_size   As input, the size of the der_int buffer in bytes.
+ * \param[in,out] der_int_size   As input, the size of the der_int buffer in bytes.
  *                              As output, the size of the DER integer returned in bytes.
  *
  * \return ATCACERT_E_SUCCESS on success, otherwise an error code.
@@ -104,11 +104,11 @@ int atcacert_der_enc_integer(const uint8_t* int_data,
  * X.690 (http://www.itu.int/rec/T-REC-X.690/en) section 8.3, for encoding
  *
  * \param[in]     der_int        DER encoded ASN.1 integer, including the tag and length fields.
- * \param[inout]  der_int_size   As input, the size of the der_int buffer in bytes.
+ * \param[in,out]  der_int_size   As input, the size of the der_int buffer in bytes.
  *                               As output, the size of the DER integer decoded in bytes.
  * \param[out]    int_data       Decode integer is returned in this buffer in a signed big-endian
  *                               format.
- * \param[inout]  int_data_size  As input, the size of int_data in bytes.
+ * \param[in,out]  int_data_size  As input, the size of int_data in bytes.
  *                               As output, the size of the decoded integer in bytes.
  *
  * \return ATCACERT_E_SUCCESS on success, otherwise an error code.
@@ -129,7 +129,7 @@ int atcacert_der_dec_integer(const uint8_t* der_int,
  *                              integers concatenated together. 64 bytes.
  * \param[out] der_sig          X.509 format signature (TLV of signatureValue) will be returned in
  *                              this buffer.
- * \param[inout] der_sig_size   As input, the size of the x509_sig buffer in bytes.
+ * \param[in,out] der_sig_size   As input, the size of the x509_sig buffer in bytes.
  *                              As output, the size of the returned X.509 signature in bytes.
  *
  * \return ATCACERT_E_SUCCESS on success, otherwise an error code.
@@ -146,7 +146,7 @@ int atcacert_der_enc_ecdsa_sig_value(const uint8_t raw_sig[64],
  * is the DER encoding of the ECDSA-Sig-Value as specified by RFC 5480 and SECG SEC1.
  *
  * \param[in]    der_sig        X.509 format signature (TLV of signatureValue) to be parsed.
- * \param[inout] der_sig_size   As input, size of the der_sig buffer in bytes.
+ * \param[in,out] der_sig_size   As input, size of the der_sig buffer in bytes.
  *                              As output, size of the DER x.509 signature parsed from the buffer.
  * \param[out]   raw_sig        Parsed P256 ECDSA signature will be returned in this buffer.
  *                              Formatted as R and S integers concatenated together. 64 bytes.

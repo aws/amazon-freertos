@@ -97,7 +97,6 @@ set(
         "${ecc608a_dir}/lib/hal/hal_windows.c"
         "${ecc608a_dir}/lib/hal/kit_protocol.c"
         "${ecc608a_dir}/lib/hal/atca_hal.h"
-        "${ecc608a_dir}/lib/hal/hal_all_platforms_kit_hidapi.h"
         "${ecc608a_dir}/lib/hal/kit_phy.h"
         "${ecc608a_dir}/lib/hal/kit_protocol.h"
 )

@@ -1,173 +1,173 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<ItemGroup>
-		<Filter Include="freertos_kernel"/>
-		<Filter Include="freertos_kernel\include"/>
-		<Filter Include="freertos_kernel\portable\MSVC-MingW"/>
-		<Filter Include="freertos_kernel\portable"/>
-		<Filter Include="freertos_kernel\portable\MemMang"/>
-		<Filter Include="demos\demo_runner"/>
-		<Filter Include="demos"/>
-		<Filter Include="demos\network_manager"/>
-		<Filter Include="demos\include"/>
-		<Filter Include="libraries\c_sdk\standard\common"/>
-		<Filter Include="libraries\c_sdk\standard"/>
-		<Filter Include="libraries\c_sdk"/>
-		<Filter Include="libraries"/>
-		<Filter Include="libraries\c_sdk\standard\common\include"/>
-		<Filter Include="libraries\c_sdk\standard\common\include\types"/>
-		<Filter Include="libraries\c_sdk\standard\common\taskpool"/>
-		<Filter Include="libraries\c_sdk\standard\common\include\private"/>
-		<Filter Include="libraries\abstractions\platform\include\platform"/>
-		<Filter Include="libraries\abstractions\platform\include"/>
-		<Filter Include="libraries\abstractions\platform"/>
-		<Filter Include="libraries\abstractions"/>
-		<Filter Include="libraries\abstractions\platform\include\types"/>
-		<Filter Include="libraries\abstractions\platform\freertos"/>
-		<Filter Include="libraries\abstractions\platform\freertos\include\platform"/>
-		<Filter Include="libraries\abstractions\platform\freertos\include"/>
-		<Filter Include="libraries\abstractions\secure_sockets\include"/>
-		<Filter Include="libraries\abstractions\secure_sockets"/>
-		<Filter Include="libraries\abstractions\secure_sockets\freertos_plus_tcp"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp"/>
-		<Filter Include="libraries\freertos_plus\standard"/>
-		<Filter Include="libraries\freertos_plus"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\include"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\BufferManagement"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface\WinPCap"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler"/>
-		<Filter Include="libraries\freertos_plus\standard\tls\src"/>
-		<Filter Include="libraries\freertos_plus\standard\tls"/>
-		<Filter Include="libraries\freertos_plus\standard\tls\include"/>
-		<Filter Include="libraries\freertos_plus\standard\crypto\src"/>
-		<Filter Include="libraries\freertos_plus\standard\crypto"/>
-		<Filter Include="libraries\freertos_plus\standard\crypto\include"/>
-		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\include"/>
-		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source"/>
-		<Filter Include="libraries\abstractions\pkcs11\corePKCS11"/>
-		<Filter Include="libraries\abstractions\pkcs11"/>
-		<Filter Include="vendors\microchip\secure_elements\lib\hal"/>
-		<Filter Include="vendors\microchip\secure_elements\lib"/>
-		<Filter Include="vendors\microchip\secure_elements"/>
-		<Filter Include="vendors\microchip"/>
-		<Filter Include="vendors"/>
-		<Filter Include="vendors\microchip\secure_elements\third_party\hidapi\windows"/>
-		<Filter Include="vendors\microchip\secure_elements\third_party\hidapi"/>
-		<Filter Include="vendors\microchip\secure_elements\third_party"/>
-		<Filter Include="libraries\abstractions\pkcs11\ecc608a"/>
-		<Filter Include="vendors\microchip\secure_elements\lib\atcacert"/>
-		<Filter Include="vendors\microchip\secure_elements\lib\basic"/>
-		<Filter Include="vendors\microchip\secure_elements\lib\crypto"/>
-		<Filter Include="vendors\microchip\secure_elements\lib\crypto\hashes"/>
-		<Filter Include="vendors\microchip\secure_elements\lib\host"/>
-		<Filter Include="vendors\microchip\secure_elements\lib\pkcs11"/>
-		<Filter Include="libraries\freertos_plus\standard\utils\src"/>
-		<Filter Include="libraries\freertos_plus\standard\utils"/>
-		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
-		<Filter Include="libraries\logging"/>
-		<Filter Include="libraries\logging\include"/>
-		<Filter Include="demos\dev_mode_key_provisioning\src"/>
-		<Filter Include="demos\dev_mode_key_provisioning"/>
-		<Filter Include="demos\dev_mode_key_provisioning\include"/>
-		<Filter Include="libraries\c_sdk\aws\defender\src"/>
-		<Filter Include="libraries\c_sdk\aws\defender"/>
-		<Filter Include="libraries\c_sdk\aws"/>
-		<Filter Include="libraries\c_sdk\aws\defender\src\private"/>
-		<Filter Include="libraries\c_sdk\aws\defender\include"/>
-		<Filter Include="libraries\c_sdk\standard\mqtt\src"/>
-		<Filter Include="libraries\c_sdk\standard\mqtt"/>
-		<Filter Include="libraries\coreMQTT\source"/>
-		<Filter Include="libraries\coreMQTT"/>
-		<Filter Include="libraries\coreMQTT\source\include"/>
-		<Filter Include="libraries\coreMQTT\source\interface"/>
-		<Filter Include="libraries\abstractions\backoff_algorithm\source"/>
-		<Filter Include="libraries\abstractions\backoff_algorithm"/>
-		<Filter Include="libraries\abstractions\backoff_algorithm\source\include"/>
-		<Filter Include="demos\common\pkcs11_helpers"/>
-		<Filter Include="demos\common"/>
-		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
-		<Filter Include="libraries\abstractions\transport"/>
-		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor"/>
-		<Filter Include="libraries\c_sdk\standard\serializer\src"/>
-		<Filter Include="libraries\c_sdk\standard\serializer"/>
-		<Filter Include="libraries\c_sdk\standard\serializer\src\json"/>
-		<Filter Include="libraries\c_sdk\standard\serializer\include"/>
-		<Filter Include="libraries\c_sdk\aws\shadow\src"/>
-		<Filter Include="libraries\c_sdk\aws\shadow"/>
-		<Filter Include="libraries\c_sdk\aws\shadow\include"/>
-		<Filter Include="libraries\c_sdk\standard\https\src"/>
-		<Filter Include="libraries\c_sdk\standard\https"/>
-		<Filter Include="libraries\coreHTTP\source"/>
-		<Filter Include="libraries\coreHTTP"/>
-		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty\http_parser"/>
-		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty"/>
-		<Filter Include="libraries\coreHTTP\source\dependency"/>
-		<Filter Include="libraries\coreHTTP\source\include"/>
-		<Filter Include="libraries\coreHTTP\source\interface"/>
-		<Filter Include="demos\common\http_demo_helpers"/>
-		<Filter Include="libraries\freertos_plus\aws\greengrass\src"/>
-		<Filter Include="libraries\freertos_plus\aws\greengrass"/>
-		<Filter Include="libraries\freertos_plus\aws"/>
-		<Filter Include="libraries\freertos_plus\aws\greengrass\include"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli\source"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli"/>
-		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX"/>
-		<Filter Include="libraries\abstractions\posix\include"/>
-		<Filter Include="libraries\abstractions\posix"/>
-		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX\sys"/>
-		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports\posix"/>
-		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports"/>
-		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim"/>
-		<Filter Include="vendors\microchip\boards"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
-		<Filter Include="libraries\coreMQTT-Agent\source"/>
-		<Filter Include="libraries\coreMQTT-Agent"/>
-		<Filter Include="libraries\coreMQTT-Agent\source\include"/>
-		<Filter Include="libraries\abstractions\mqtt_agent"/>
-		<Filter Include="libraries\coreJSON\source"/>
-		<Filter Include="libraries\coreJSON"/>
-		<Filter Include="libraries\coreJSON\source\include"/>
-		<Filter Include="libraries\device_shadow_for_aws\source"/>
-		<Filter Include="libraries\device_shadow_for_aws"/>
-		<Filter Include="libraries\device_shadow_for_aws\source\include"/>
-		<Filter Include="demos\common\mqtt_demo_helpers"/>
-		<Filter Include="libraries\device_defender_for_aws\source"/>
-		<Filter Include="libraries\device_defender_for_aws"/>
-		<Filter Include="libraries\device_defender_for_aws\source\include"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include"/>
-		<Filter Include="libraries\jobs_for_aws\source"/>
-		<Filter Include="libraries\jobs_for_aws"/>
-		<Filter Include="libraries\jobs_for_aws\source\include"/>
-		<Filter Include="demos\coreHTTP"/>
-		<Filter Include="demos\coreMQTT"/>
-		<Filter Include="demos\coreMQTT_Agent"/>
-		<Filter Include="demos\device_defender_for_aws"/>
-		<Filter Include="demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp"/>
-		<Filter Include="demos\device_defender_for_aws\metrics_collector"/>
-		<Filter Include="demos\device_shadow_for_aws"/>
-		<Filter Include="demos\greengrass_connectivity"/>
-		<Filter Include="demos\jobs_for_aws"/>
-		<Filter Include="demos\tcp"/>
-		<Filter Include="application_code"/>
-		<Filter Include="libraries\3rdparty\tracealyzer_recorder"/>
-		<Filter Include="libraries\3rdparty"/>
-		<Filter Include="libraries\3rdparty\mbedtls\library"/>
-		<Filter Include="libraries\3rdparty\mbedtls"/>
-		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls"/>
-		<Filter Include="libraries\3rdparty\mbedtls\include"/>
-		<Filter Include="libraries\3rdparty\mbedtls_utils"/>
-		<Filter Include="libraries\3rdparty\mbedtls_config"/>
-		<Filter Include="libraries\3rdparty\pkcs11"/>
-		<Filter Include="libraries\3rdparty\tinycbor\src"/>
-		<Filter Include="libraries\3rdparty\tinycbor"/>
-		<Filter Include="libraries\3rdparty\jsmn"/>
+		<Filter Include="freertos_kernel" />
+		<Filter Include="freertos_kernel\include" />
+		<Filter Include="freertos_kernel\portable\MSVC-MingW" />
+		<Filter Include="freertos_kernel\portable" />
+		<Filter Include="freertos_kernel\portable\MemMang" />
+		<Filter Include="demos\demo_runner" />
+		<Filter Include="demos" />
+		<Filter Include="demos\network_manager" />
+		<Filter Include="demos\include" />
+		<Filter Include="libraries\c_sdk\standard\common" />
+		<Filter Include="libraries\c_sdk\standard" />
+		<Filter Include="libraries\c_sdk" />
+		<Filter Include="libraries" />
+		<Filter Include="libraries\c_sdk\standard\common\include" />
+		<Filter Include="libraries\c_sdk\standard\common\include\types" />
+		<Filter Include="libraries\c_sdk\standard\common\taskpool" />
+		<Filter Include="libraries\c_sdk\standard\common\include\private" />
+		<Filter Include="libraries\abstractions\platform\include\platform" />
+		<Filter Include="libraries\abstractions\platform\include" />
+		<Filter Include="libraries\abstractions\platform" />
+		<Filter Include="libraries\abstractions" />
+		<Filter Include="libraries\abstractions\platform\include\types" />
+		<Filter Include="libraries\abstractions\platform\freertos" />
+		<Filter Include="libraries\abstractions\platform\freertos\include\platform" />
+		<Filter Include="libraries\abstractions\platform\freertos\include" />
+		<Filter Include="libraries\abstractions\secure_sockets\include" />
+		<Filter Include="libraries\abstractions\secure_sockets" />
+		<Filter Include="libraries\abstractions\secure_sockets\freertos_plus_tcp" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp" />
+		<Filter Include="libraries\freertos_plus\standard" />
+		<Filter Include="libraries\freertos_plus" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\include" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\BufferManagement" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface\WinPCap" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler" />
+		<Filter Include="libraries\freertos_plus\standard\tls\src" />
+		<Filter Include="libraries\freertos_plus\standard\tls" />
+		<Filter Include="libraries\freertos_plus\standard\tls\include" />
+		<Filter Include="libraries\freertos_plus\standard\crypto\src" />
+		<Filter Include="libraries\freertos_plus\standard\crypto" />
+		<Filter Include="libraries\freertos_plus\standard\crypto\include" />
+		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\include" />
+		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source" />
+		<Filter Include="libraries\abstractions\pkcs11\corePKCS11" />
+		<Filter Include="libraries\abstractions\pkcs11" />
+		<Filter Include="vendors\microchip\secure_elements\lib\hal" />
+		<Filter Include="vendors\microchip\secure_elements\lib" />
+		<Filter Include="vendors\microchip\secure_elements" />
+		<Filter Include="vendors\microchip" />
+		<Filter Include="vendors" />
+		<Filter Include="vendors\microchip\secure_elements\third_party\hidapi\windows" />
+		<Filter Include="vendors\microchip\secure_elements\third_party\hidapi" />
+		<Filter Include="vendors\microchip\secure_elements\third_party" />
+		<Filter Include="libraries\abstractions\pkcs11\ecc608a" />
+		<Filter Include="vendors\microchip\secure_elements\lib\atcacert" />
+		<Filter Include="vendors\microchip\secure_elements\lib\crypto" />
+		<Filter Include="vendors\microchip\secure_elements\lib\crypto\hashes" />
+		<Filter Include="vendors\microchip\secure_elements\lib\host" />
+		<Filter Include="vendors\microchip\secure_elements\lib\pkcs11" />
+		<Filter Include="libraries\freertos_plus\standard\utils\src" />
+		<Filter Include="libraries\freertos_plus\standard\utils" />
+		<Filter Include="libraries\freertos_plus\standard\utils\include" />
+		<Filter Include="libraries\logging" />
+		<Filter Include="libraries\logging\include" />
+		<Filter Include="demos\dev_mode_key_provisioning\src" />
+		<Filter Include="demos\dev_mode_key_provisioning" />
+		<Filter Include="demos\dev_mode_key_provisioning\include" />
+		<Filter Include="libraries\c_sdk\aws\defender\src" />
+		<Filter Include="libraries\c_sdk\aws\defender" />
+		<Filter Include="libraries\c_sdk\aws" />
+		<Filter Include="libraries\c_sdk\aws\defender\src\private" />
+		<Filter Include="libraries\c_sdk\aws\defender\include" />
+		<Filter Include="libraries\c_sdk\standard\mqtt\src" />
+		<Filter Include="libraries\c_sdk\standard\mqtt" />
+		<Filter Include="libraries\coreMQTT\source" />
+		<Filter Include="libraries\coreMQTT" />
+		<Filter Include="libraries\coreMQTT\source\include" />
+		<Filter Include="libraries\coreMQTT\source\interface" />
+		<Filter Include="libraries\abstractions\backoff_algorithm\source" />
+		<Filter Include="libraries\abstractions\backoff_algorithm" />
+		<Filter Include="libraries\abstractions\backoff_algorithm\source\include" />
+		<Filter Include="demos\common\pkcs11_helpers" />
+		<Filter Include="demos\common" />
+		<Filter Include="libraries\abstractions\transport\secure_sockets" />
+		<Filter Include="libraries\abstractions\transport" />
+		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor" />
+		<Filter Include="libraries\c_sdk\standard\serializer\src" />
+		<Filter Include="libraries\c_sdk\standard\serializer" />
+		<Filter Include="libraries\c_sdk\standard\serializer\src\json" />
+		<Filter Include="libraries\c_sdk\standard\serializer\include" />
+		<Filter Include="libraries\c_sdk\aws\shadow\src" />
+		<Filter Include="libraries\c_sdk\aws\shadow" />
+		<Filter Include="libraries\c_sdk\aws\shadow\include" />
+		<Filter Include="libraries\c_sdk\standard\https\src" />
+		<Filter Include="libraries\c_sdk\standard\https" />
+		<Filter Include="libraries\coreHTTP\source" />
+		<Filter Include="libraries\coreHTTP" />
+		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty\http_parser" />
+		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty" />
+		<Filter Include="libraries\coreHTTP\source\dependency" />
+		<Filter Include="libraries\coreHTTP\source\include" />
+		<Filter Include="libraries\coreHTTP\source\interface" />
+		<Filter Include="demos\common\http_demo_helpers" />
+		<Filter Include="libraries\freertos_plus\aws\greengrass\src" />
+		<Filter Include="libraries\freertos_plus\aws\greengrass" />
+		<Filter Include="libraries\freertos_plus\aws" />
+		<Filter Include="libraries\freertos_plus\aws\greengrass\include" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli\source" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli" />
+		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX" />
+		<Filter Include="libraries\abstractions\posix\include" />
+		<Filter Include="libraries\abstractions\posix" />
+		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX\sys" />
+		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports\posix" />
+		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports" />
+		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim" />
+		<Filter Include="vendors\microchip\boards" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include" />
+		<Filter Include="libraries\coreMQTT-Agent\source" />
+		<Filter Include="libraries\coreMQTT-Agent" />
+		<Filter Include="libraries\coreMQTT-Agent\source\include" />
+		<Filter Include="libraries\abstractions\mqtt_agent" />
+		<Filter Include="libraries\coreJSON\source" />
+		<Filter Include="libraries\coreJSON" />
+		<Filter Include="libraries\coreJSON\source\include" />
+		<Filter Include="libraries\device_shadow_for_aws\source" />
+		<Filter Include="libraries\device_shadow_for_aws" />
+		<Filter Include="libraries\device_shadow_for_aws\source\include" />
+		<Filter Include="demos\common\mqtt_demo_helpers" />
+		<Filter Include="libraries\device_defender_for_aws\source" />
+		<Filter Include="libraries\device_defender_for_aws" />
+		<Filter Include="libraries\device_defender_for_aws\source\include" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools" />
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include" />
+		<Filter Include="libraries\jobs_for_aws\source" />
+		<Filter Include="libraries\jobs_for_aws" />
+		<Filter Include="libraries\jobs_for_aws\source\include" />
+		<Filter Include="demos\coreHTTP" />
+		<Filter Include="demos\coreMQTT" />
+		<Filter Include="demos\coreMQTT_Agent" />
+		<Filter Include="demos\device_defender_for_aws" />
+		<Filter Include="demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp" />
+		<Filter Include="demos\device_defender_for_aws\metrics_collector" />
+		<Filter Include="demos\device_shadow_for_aws" />
+		<Filter Include="demos\greengrass_connectivity" />
+		<Filter Include="demos\jobs_for_aws" />
+		<Filter Include="demos\tcp" />
+		<Filter Include="application_code" />
+		<Filter Include="libraries\3rdparty\tracealyzer_recorder" />
+		<Filter Include="libraries\3rdparty" />
+		<Filter Include="libraries\3rdparty\mbedtls\library" />
+		<Filter Include="libraries\3rdparty\mbedtls" />
+		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls" />
+		<Filter Include="libraries\3rdparty\mbedtls\include" />
+		<Filter Include="libraries\3rdparty\mbedtls_utils" />
+		<Filter Include="libraries\3rdparty\mbedtls_config" />
+		<Filter Include="libraries\3rdparty\pkcs11" />
+		<Filter Include="libraries\3rdparty\tinycbor\src" />
+		<Filter Include="libraries\3rdparty\tinycbor" />
+		<Filter Include="libraries\3rdparty\jsmn" />
+		<Filter Include="vendors\microchip\secure_elements\lib\calib" />
 	</ItemGroup>
 	<ItemGroup>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h">
@@ -368,9 +368,6 @@
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.h">
 			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\hal_all_platforms_kit_hidapi.h">
-			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\kit_phy.h">
 			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
 		</ClInclude>
@@ -379,36 +376,6 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\ecc608a\atca_cert_chain.h">
 			<Filter>libraries\abstractions\pkcs11\ecc608a</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_bool.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_cfgs.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_command.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_compiler.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_device.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_devtypes.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_execution.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_iface.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_status.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\cryptoauthlib.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert.h">
 			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
@@ -433,15 +400,6 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_pem.h">
 			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic.h">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_gcm.h">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_helpers.h">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw.h">
 			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
@@ -962,6 +920,57 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
 			<Filter>libraries\3rdparty\jsmn</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_hw_aes.h">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_aes_gcm.h">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_basic.h">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_command.h">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_execution.h">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_basic.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_bool.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_cfgs.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_compiler.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_debug.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_device.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_devtypes.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_helpers.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_iface.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_status.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_version.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\cryptoauthlib.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
 	</ItemGroup>
 	<ItemGroup>
 		<ClCompile Include="..\..\..\..\..\freertos_kernel\event_groups.c">
@@ -1137,93 +1146,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_pem.c">
 			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_cbc.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_cmac.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_ctr.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_gcm.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_checkmac.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_counter.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_derivekey.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_ecdh.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_gendig.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_genkey.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_hmac.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_info.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_kdf.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_lock.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_mac.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_nonce.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_privwrite.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_random.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_read.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_secureboot.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_selftest.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_sha.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_sign.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_updateextra.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_verify.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_write.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_helpers.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_ecdsa.c">
 			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
@@ -1842,6 +1764,120 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
 			<Filter>libraries\3rdparty\jsmn</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_hw_aes_cbc.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_hw_aes_cbcmac.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_hw_aes_ccm.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_hw_aes_cmac.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_hw_aes_ctr.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_aes.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_aes_gcm.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_basic.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_checkmac.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_command.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_counter.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_derivekey.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_ecdh.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_execution.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_gendig.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_genkey.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_hmac.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_info.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_kdf.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_lock.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_mac.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_nonce.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_privwrite.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_random.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_read.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_secureboot.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_selftest.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_sha.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_sign.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_updateextra.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_verify.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_write.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_basic.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_debug.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_device.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_helpers.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_iface.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_utils_sizes.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
 		</ClCompile>
 	</ItemGroup>
 </Project>

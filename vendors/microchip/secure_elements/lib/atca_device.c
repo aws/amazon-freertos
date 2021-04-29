@@ -2,7 +2,7 @@
  * \file
  * \brief  Microchip CryptoAuth device object
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -25,8 +25,7 @@
  * THIS SOFTWARE.
  */
 
-#include <stdlib.h>
-#include "atca_device.h"
+#include <cryptoauthlib.h>
 
 /** \defgroup device ATCADevice (atca_)
  * \brief ATCADevice object - composite of command and interface objects
@@ -54,28 +53,11 @@ ATCADevice newATCADevice(ATCAIfaceCfg *cfg)
         return NULL;
     }
 
-    ca_dev->mCommands = (ATCACommand)malloc(sizeof(*(ca_dev->mCommands)));
-    if (ca_dev->mCommands == NULL)
-    {
-        free(ca_dev);
-        ca_dev = NULL;
-        return NULL;
-    }
-
-    ca_dev->mIface = (ATCAIface)malloc(sizeof(*(ca_dev->mIface)));
-    if (ca_dev->mIface == NULL)
-    {
-        free(ca_dev->mCommands);
-        free(ca_dev);
-        ca_dev = NULL;
-        return NULL;
-    }
+    memset(ca_dev, 0, sizeof(struct atca_device));
 
     status = initATCADevice(cfg, ca_dev);
     if (status != ATCA_SUCCESS)
     {
-        free(ca_dev->mIface);
-        free(ca_dev->mCommands);
         free(ca_dev);
         ca_dev = NULL;
         return NULL;
@@ -95,13 +77,6 @@ void deleteATCADevice(ATCADevice *ca_dev)
     }
 
     releaseATCADevice(*ca_dev);
-    deleteATCACommand(&(*ca_dev)->mCommands);
-    // Free iface manually as we don't want to call releaseATCAIface twice
-    if ((*ca_dev)->mIface)
-    {
-        free((*ca_dev)->mIface);
-        (*ca_dev)->mIface = NULL;
-    }
 
     free(*ca_dev);
     *ca_dev = NULL;
@@ -110,7 +85,7 @@ void deleteATCADevice(ATCADevice *ca_dev)
 
 /** \brief Initializer for an Microchip CryptoAuth device
  * \param[in]    cfg     pointer to an interface configuration object
- * \param[inout] ca_dev  As input, pre-allocated structure to be initialized.
+ * \param[in,out] ca_dev  As input, pre-allocated structure to be initialized.
  *                       mCommands and mIface members should point to existing
  *                       structures to be initialized.
  * \return ATCA_SUCCESS on success, otherwise an error code.
@@ -119,18 +94,12 @@ ATCA_STATUS initATCADevice(ATCAIfaceCfg *cfg, ATCADevice ca_dev)
 {
     ATCA_STATUS status;
 
-    if (cfg == NULL || ca_dev == NULL || ca_dev->mCommands == NULL || ca_dev->mIface == NULL)
+    if (cfg == NULL || ca_dev == NULL)
     {
         return ATCA_BAD_PARAM;
     }
 
-    status = initATCACommand(cfg->devtype, ca_dev->mCommands);
-    if (status != ATCA_SUCCESS)
-    {
-        return status;
-    }
-
-    status = initATCAIface(cfg, ca_dev->mIface);
+    status = initATCAIface(cfg, &ca_dev->mIface);
     if (status != ATCA_SUCCESS)
     {
         return status;
@@ -139,22 +108,13 @@ ATCA_STATUS initATCADevice(ATCAIfaceCfg *cfg, ATCADevice ca_dev)
     return ATCA_SUCCESS;
 }
 
-/** \brief returns a reference to the ATCACommand object for the device
- * \param[in] dev  reference to a device
- * \return reference to the ATCACommand object for the device
- */
-ATCACommand atGetCommands(ATCADevice dev)
-{
-    return dev->mCommands;
-}
-
 /** \brief returns a reference to the ATCAIface interface object for the device
  * \param[in] dev  reference to a device
  * \return reference to the ATCAIface object for the device
  */
 ATCAIface atGetIFace(ATCADevice dev)
 {
-    return dev->mIface;
+    return &dev->mIface;
 }
 
 /** \brief Release any resources associated with the device.
@@ -168,7 +128,7 @@ ATCA_STATUS releaseATCADevice(ATCADevice ca_dev)
         return ATCA_BAD_PARAM;
     }
 
-    return releaseATCAIface(ca_dev->mIface);
+    return releaseATCAIface(&ca_dev->mIface);
 }
 
 /** @} */

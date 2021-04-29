@@ -2,45 +2,33 @@
  * \file
  * \brief PKCS11 Library Object Handling
  *
- * Copyright (c) 2017 Microchip Technology Inc. All rights reserved.
- *
- * \atmel_crypto_device_library_license_start
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Subject to your compliance with these terms, you may use Microchip software
+ * and any derivatives exclusively with Microchip products. It is your
+ * responsibility to comply with third party license terms applicable to your
+ * use of third party software (including open source software) that may
+ * accompany Microchip software.
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. The name of Atmel may not be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * 4. This software may only be redistributed and used in connection with an
- *    Atmel integrated circuit.
- *
- * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
- * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- * \atmel_crypto_device_library_license_stop
+ * THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
+ * EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
+ * WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
+ * PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT,
+ * SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE
+ * OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF
+ * MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+ * FORESEEABLE. TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL
+ * LIABILITY ON ALL CLAIMS IN ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED
+ * THE AMOUNT OF FEES, IF ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR
+ * THIS SOFTWARE.
  */
 
 #ifndef PKCS11_OBJECT_H_
 #define PKCS11_OBJECT_H_
+
+#include "cryptoauthlib.h"
 
 #include "cryptoki.h"
 #include "pkcs11_config.h"
@@ -52,7 +40,6 @@ extern "C" {
 
 typedef struct _pkcs11_object
 {
-
     /** The Class Identifier */
     CK_OBJECT_CLASS class_id;
     /** The Class Type */
@@ -60,13 +47,18 @@ typedef struct _pkcs11_object
     /** List of attribute models this object possesses */
     pkcs11_attrib_model const * attributes;
     /** Count of attribute models */
-    CK_ULONG     count;
-    CK_ULONG     size;
-    CK_VOID_PTR  config;
-    CK_BYTE      slot;
-    CK_FLAGS     flags;
-    CK_UTF8CHAR  name[PKCS11_MAX_LABEL_SIZE + 1];
-    void const * data;
+    CK_ULONG    count;
+    CK_ULONG    size;
+    uint16_t    slot;
+    CK_FLAGS    flags;
+    CK_UTF8CHAR name[PKCS11_MAX_LABEL_SIZE + 1];
+#if ATCA_CA_SUPPORT
+    CK_VOID_PTR config;
+    CK_VOID_PTR data;
+#endif
+#if ATCA_TA_SUPPORT
+    ta_element_attributes_t handle_info;
+#endif
 } pkcs11_object, *pkcs11_object_ptr;
 
 typedef struct _pkcs11_object_cache_t
@@ -85,6 +77,9 @@ extern const CK_ULONG pkcs11_object_monotonic_attributes_count;
 #define PKCS11_OBJECT_FLAG_DESTROYABLE      0x01
 #define PKCS11_OBJECT_FLAG_MODIFIABLE       0x02
 #define PKCS11_OBJECT_FLAG_DYNAMIC          0x04
+#define PKCS11_OBJECT_FLAG_SENSITIVE        0x08
+#define PKCS11_OBJECT_FLAG_TA_TYPE          0x10
+#define PKCS11_OBJECT_FLAG_TRUST_TYPE       0x20
 
 CK_RV pkcs11_object_alloc(pkcs11_object_ptr * ppObject);
 CK_RV pkcs11_object_free(pkcs11_object_ptr pObject);
@@ -102,6 +97,10 @@ CK_RV pkcs11_object_create(CK_SESSION_HANDLE hSession, CK_ATTRIBUTE_PTR pTemplat
 CK_RV pkcs11_object_destroy(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject);
 
 CK_RV pkcs11_object_deinit(pkcs11_lib_ctx_ptr pContext);
+
+#if ATCA_TA_SUPPORT
+CK_RV pkcs11_object_load_handle_info(pkcs11_lib_ctx_ptr pContext);
+#endif
 
 #ifdef __cplusplus
 }

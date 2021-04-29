@@ -3,31 +3,27 @@
  * \brief PKCS11 Basic library redirects based on the 2.40 specification
  * http://docs.oasis-open.org/pkcs11/pkcs11-base/v2.40/os/pkcs11-base-v2.40-os.html
  *
- * \copyright (c) 2017 Microchip Technology Inc. and its subsidiaries.
- *            You may use this software and any derivatives exclusively with
- *            Microchip products.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
- * (c) 2017 Microchip Technology Inc. and its subsidiaries. You may use this
- * software and any derivatives exclusively with Microchip products.
+ * Subject to your compliance with these terms, you may use Microchip software
+ * and any derivatives exclusively with Microchip products. It is your
+ * responsibility to comply with third party license terms applicable to your
+ * use of third party software (including open source software) that may
+ * accompany Microchip software.
  *
  * THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
  * EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
  * WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
- * PARTICULAR PURPOSE, OR ITS INTERACTION WITH MICROCHIP PRODUCTS, COMBINATION
- * WITH ANY OTHER PRODUCTS, OR USE IN ANY APPLICATION.
- *
- * IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
- * INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
- * WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS
- * BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO THE
- * FULLEST EXTENT ALLOWED BY LAW, MICROCHIPS TOTAL LIABILITY ON ALL CLAIMS IN
- * ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
- * THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
- *
- * MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE
- * TERMS.
+ * PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT,
+ * SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE
+ * OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF
+ * MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+ * FORESEEABLE. TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL
+ * LIABILITY ON ALL CLAIMS IN ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED
+ * THE AMOUNT OF FEES, IF ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR
+ * THIS SOFTWARE.
  */
 
 /* PKCS11 Specification provided headers which define all API functions & types */
@@ -136,8 +132,8 @@ static CK_FUNCTION_LIST pkcs11FunctionList =
 
 
 /**
- * \Brief Initializes Cryptoki library
- * \notes If pInitArgs is a non-NULL_PTR is must dereference to a CK_C_INITIALIZE_ARGS structure
+ * \brief Initializes Cryptoki library
+ * NOTES: If pInitArgs is a non-NULL_PTR is must dereference to a CK_C_INITIALIZE_ARGS structure
  */
 CK_RV C_Initialize(CK_VOID_PTR pInitArgs)
 {
@@ -155,7 +151,7 @@ CK_RV C_Finalize(CK_VOID_PTR pReserved)
 }
 
 /**
- * \breif Obtains general information about Cryptoki
+ * \brief Obtains general information about Cryptoki
  */
 CK_RV C_GetInfo(CK_INFO_PTR pInfo)
 {
@@ -238,11 +234,8 @@ CK_RV C_InitToken(CK_SLOT_ID slotID, CK_UTF8CHAR_PTR pPin, CK_ULONG ulPinLen, CK
  */
 CK_RV C_InitPIN(CK_SESSION_HANDLE hSession, CK_UTF8CHAR_PTR pPin, CK_ULONG ulPinLen)
 {
-    ((void)hSession);
-    ((void)pPin);
-    ((void)ulPinLen);
     PKCS11_DEBUG("\r\n");
-    PKCS11_DEBUG_RETURN(CKR_FUNCTION_NOT_SUPPORTED);
+    PKCS11_DEBUG_RETURN(pkcs11_token_set_pin(hSession, NULL, 0, pPin, ulPinLen));
 }
 
 /**
@@ -934,14 +927,8 @@ CK_RV C_DeriveKey
     CK_OBJECT_HANDLE_PTR phKey
 )
 {
-    ((void)hSession);
-    ((void)pMechanism);
-    ((void)hBaseKey);
-    ((void)pTemplate);
-    ((void)ulCount);
-    ((void)phKey);
     PKCS11_DEBUG("\r\n");
-    PKCS11_DEBUG_RETURN(CKR_FUNCTION_NOT_SUPPORTED);
+    PKCS11_DEBUG_RETURN(pkcs11_key_derive(hSession, pMechanism, hBaseKey, pTemplate, ulCount, phKey));
 }
 
 /**

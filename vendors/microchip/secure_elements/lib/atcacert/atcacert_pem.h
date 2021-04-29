@@ -2,7 +2,7 @@
  * \file
  * \brief Functions for converting between DER and PEM formats.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -44,7 +44,7 @@ extern "C" {
  * \param[in]    der       DER data to be encoded as PEM.
  * \param[out]   der_size  DER data size in bytes.
  * \param[out]   pem       PEM encoded data is returned here.
- * \param[inout] pem_size  As input, the size of the pem buffer.
+ * \param[in,out] pem_size  As input, the size of the pem buffer.
  *                         As output, the size of the PEM data.
  * \param[in]    header    Header to place at the beginning of the PEM data.
  * \param[in]    footer    Footer to place at the end of the PEM data.
@@ -62,7 +62,7 @@ int atcacert_encode_pem(const uint8_t* der,
  * \param[in]    pem       PEM data to decode to DER.
  * \param[in]    pem_size  PEM data size in bytes.
  * \param[out]   der       DER data is returned here.
- * \param[inout] der_size  As input, the size of the der buffer.
+ * \param[in,out] der_size  As input, the size of the der buffer.
  *                         As output, the size of the DER data.
  * \param[in]    header    Header to find the beginning of the PEM data.
  * \param[in]    footer    Footer to find the end of the PEM data.
@@ -80,7 +80,7 @@ int atcacert_decode_pem(const char* pem,
  * \param[in]    der_cert       DER certificate to be encoded as PEM.
  * \param[out]   der_cert_size  DER certificate size in bytes.
  * \param[out]   pem_cert       PEM encoded certificate is returned here.
- * \param[inout] pem_cert_size  As input, the size of the pem_cert buffer.
+ * \param[in,out] pem_cert_size  As input, the size of the pem_cert buffer.
  *                              As output, the size of the PEM certificate.
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
@@ -91,7 +91,7 @@ int atcacert_encode_pem_cert(const uint8_t* der_cert, size_t der_cert_size, char
  * \param[in]    pem_cert       PEM certificate to decode to DER.
  * \param[in]    pem_cert_size  PEM certificate size in bytes.
  * \param[out]   der_cert       DER certificate is returned here.
- * \param[inout] der_cert_size  As input, the size of the der_cert buffer.
+ * \param[in,out] der_cert_size  As input, the size of the der_cert buffer.
  *                              As output, the size of the DER certificate.
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
@@ -102,7 +102,7 @@ int atcacert_decode_pem_cert(const char* pem_cert, size_t pem_cert_size, uint8_t
  * \param[in]    der_csr       DER CSR to be encoded as PEM.
  * \param[out]   der_csr_size  DER CSR size in bytes.
  * \param[out]   pem_csr       PEM encoded CSR is returned here.
- * \param[inout] pem_csr_size  As input, the size of the pem_csr buffer.
+ * \param[in,out] pem_csr_size  As input, the size of the pem_csr buffer.
  *                             As output, the size of the PEM CSR.
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
@@ -113,7 +113,7 @@ int atcacert_encode_pem_csr(const uint8_t* der_csr, size_t der_csr_size, char* p
  * \param[in]    pem_csr       PEM CSR to decode to DER.
  * \param[in]    pem_csr_size  PEM CSR size in bytes.
  * \param[out]   der_csr       DER CSR is returned here.
- * \param[inout] der_csr_size  As input, the size of the der_csr buffer.
+ * \param[in,out] der_csr_size  As input, the size of the der_csr buffer.
  *                             As output, the size of the DER CSR.
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */

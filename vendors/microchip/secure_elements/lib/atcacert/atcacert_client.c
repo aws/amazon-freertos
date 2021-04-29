@@ -4,7 +4,7 @@
  *        of the authentication process. It is assumed the client has an ECC CryptoAuthentication device
  *        (e.g. ATECC508A) and the certificates are stored on that device.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -33,7 +33,7 @@
 #include "atcacert_der.h"
 #include "atcacert_pem.h"
 #include "cryptoauthlib.h"
-#include "basic/atca_basic.h"
+#include "calib/calib_basic.h"
 
 // Perform floor integer division (-1 / 2 == -1) instead of truncate towards zero (-1 / 2 == 0)
 static int floor_div(int a, int b)
@@ -85,7 +85,7 @@ int atcacert_read_device_loc(const atcacert_device_loc_t* device_loc,
         {
             return ret;
         }
-        if (device_loc->offset + device_loc->count > zone_size)
+        if (device_loc->offset + device_loc->count > (uint16_t)zone_size)
         {
             if (device_loc->offset > zone_size)
             {
@@ -120,9 +120,14 @@ int atcacert_read_cert(const atcacert_def_t* cert_def,
     size_t i = 0;
     atcacert_build_state_t build_state;
 
-    if (cert_def == NULL || cert == NULL || cert_size == NULL)
+    if (cert_def == NULL || cert_size == NULL)
     {
         return ATCACERT_E_BAD_PARAMS;
+    }
+
+    if (cert == NULL)
+    {
+        return atcacert_read_cert_size(cert_def, cert_size);
     }
 
     ret = atcacert_get_device_locs(
@@ -289,13 +294,13 @@ int atcacert_create_csr(const atcacert_def_t* csr_def, uint8_t* csr, size_t* csr
         if (csr_def == NULL || csr == NULL || csr == NULL || csr_size == NULL)
         {
             status = ATCACERT_E_BAD_PARAMS;
-            BREAK(status, "Null input parameter");
+            ATCA_TRACE(status, "Null input parameter"); break;
         }
         // Check the csr buffer size
         if (*csr_size < csr_def->cert_template_size)
         {
             status = ATCACERT_E_BUFFER_TOO_SMALL;
-            BREAK(status, "CSR buffer size too small");
+            ATCA_TRACE(status, "CSR buffer size too small"); break;
         }
         // Copy the CSR template into the CSR that will be returned
         memcpy(csr, csr_def->cert_template, csr_def->cert_template_size);
@@ -315,7 +320,7 @@ int atcacert_create_csr(const atcacert_def_t* csr_def, uint8_t* csr, size_t* csr
             status = atcab_get_pubkey(key_slot, pub_key);
             if (status != ATCA_SUCCESS)
             {
-                BREAK(status, "Could not generate public key");
+                ATCA_TRACE(status, "Could not generate public key"); break;
             }
         }
         else
@@ -324,35 +329,35 @@ int atcacert_create_csr(const atcacert_def_t* csr_def, uint8_t* csr, size_t* csr
             status = atcab_read_pubkey(key_slot, pub_key);
             if (status != ATCA_SUCCESS)
             {
-                BREAK(status, "Could not read public key");
+                ATCA_TRACE(status, "Could not read public key"); break;
             }
         }
         // Insert the public key into the CSR template
         status = atcacert_set_cert_element(csr_def, pub_loc, csr, *csr_size, pub_key, ATCA_PUB_KEY_SIZE);
         if (status != ATCA_SUCCESS)
         {
-            BREAK(status, "Setting CSR public key failed");
+            ATCA_TRACE(status, "Setting CSR public key failed"); break;
         }
 
         // Get the CSR TBS digest
         status = atcacert_get_tbs_digest(csr_def, csr, *csr_size, tbs_digest);
         if (status != ATCA_SUCCESS)
         {
-            BREAK(status, "Get TBS digest failed");
+            ATCA_TRACE(status, "Get TBS digest failed"); break;
         }
 
         // Sign the TBS digest
         status = atcab_sign(priv_key_slot, tbs_digest, sig);
         if (status != ATCA_SUCCESS)
         {
-            BREAK(status, "Signing CSR failed");
+            ATCA_TRACE(status, "Signing CSR failed"); break;
         }
 
         // Insert the signature into the CSR template
         status = atcacert_set_signature(csr_def, csr, csr_size, csr_max_size, sig);
         if (status != ATCA_SUCCESS)
         {
-            BREAK(status, "Setting CSR signature failed");
+            ATCA_TRACE(status, "Setting CSR signature failed"); break;
         }
 
         // The exact size of the csr cannot be determined until after adding the signature

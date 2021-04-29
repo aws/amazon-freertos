@@ -2,7 +2,7 @@
  * \file
  * \brief Software implementation of the SHA1 algorithm.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -27,7 +27,7 @@
 
 #include "sha1_routines.h"
 #include <string.h>
-
+#include "atca_compiler.h"
 
 /**
  * \brief Initialize context for performing SHA1 hash in software.
@@ -69,18 +69,6 @@ void CL_hashUpdate(CL_HashContext *ctx, const U8 *src, int nbytes)
     U8 i, freeBytes;
     U32 temp32;
 
-    typedef struct
-    {
-        U8 buf[64];
-    } Buf64;
-
-    // We are counting on the fact that Buf64 is 64 bytes long.  In
-    // principle the compiler may make Buf64 bigger 64 bytes, but this
-    // seems unlikely.  Add an assertion check to be sure.  Beware that
-    // assert may not be active in release versions.
-    //
-    //assert(sizeof(Buf64) == 64);
-
     // Get number of free bytes in the buf
     freeBytes = (U8)(ctx->byteCount);
     freeBytes &= 63;
@@ -99,8 +87,7 @@ void CL_hashUpdate(CL_HashContext *ctx, const U8 *src, int nbytes)
         // Copy src bytes to buf
         if (i == 64)
         {
-            // This seems to be much faster on IAR than memcpy().
-            *(Buf64*)(ctx->buf) = *(Buf64*)src;
+            memcpy(((U8*)ctx->buf), src, i);
         }
         else
         {
@@ -193,13 +180,11 @@ void CL_hashFinal(CL_HashContext *ctx, U8 *dest)
     shaEngine(ctx->buf, ctx->h);
 
     /* Unpack chaining variables to dest bytes. */
-    memcpy(dest, ctx->h, 20);
     for (i = 0; i < 5; i++)
     {
-        dest[i * 4 + 0] = (ctx->h[i] >> 24) & 0xFF;
-        dest[i * 4 + 1] = (ctx->h[i] >> 16) & 0xFF;
-        dest[i * 4 + 2] = (ctx->h[i] >>  8) & 0xFF;
-        dest[i * 4 + 3] = (ctx->h[i] >>  0) & 0xFF;
+        temp = ATCA_UINT32_BE_TO_HOST(ctx->h[i]);
+        memcpy(dest, &temp, sizeof(temp));
+        dest += sizeof(temp);
     }
 }
 

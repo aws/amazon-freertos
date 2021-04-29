@@ -1,0 +1,97 @@
+/* Auto-generated config file atca_config.h */
+#ifndef ATCA_CONFIG_H
+#define ATCA_CONFIG_H
+
+/* Included HALS */
+#cmakedefine ATCA_HAL_KIT_HID
+#cmakedefine ATCA_HAL_I2C
+#cmakedefine ATCA_HAL_SPI
+#cmakedefine ATCA_HAL_KIT_BRIDGE
+#cmakedefine ATCA_HAL_CUSTOM
+#cmakedefine ATCA_HAL_SWI
+#cmakedefine ATCA_HAL_1WIRE
+
+
+/** Define to enable compatibility with legacy HALs
+   (HALs with embedded device logic)*/
+#cmakedefine ATCA_HAL_LEGACY_API
+
+
+/* Included device support */
+#cmakedefine ATCA_ATSHA204A_SUPPORT
+#cmakedefine ATCA_ATSHA206A_SUPPORT
+#cmakedefine ATCA_ATECC108A_SUPPORT
+#cmakedefine ATCA_ATECC508A_SUPPORT
+#cmakedefine ATCA_ATECC608_SUPPORT
+#cmakedefine ATCA_TA100_SUPPORT
+#cmakedefine ATCA_ECC204_SUPPORT
+
+/** Device Override - Library Assumes ATECC608B support in checks */
+#cmakedefine ATCA_ATECC608A_SUPPORT
+
+
+
+/** Define if cryptoauthlib is to use the maximum execution time method */
+#cmakedefine ATCA_NO_POLL
+
+
+/* \brief How long to wait after an initial wake failure for the POST to
+ *         complete.
+ * If Power-on self test (POST) is enabled, the self test will run on waking
+ * from sleep or during power-on, which delays the wake reply.
+ */
+#ifndef ATCA_POST_DELAY_MSEC
+#define ATCA_POST_DELAY_MSEC 25
+#endif
+
+/***************** Diagnostic & Test Configuration Section *****************/
+
+/** Enable debug messages */
+#cmakedefine ATCA_PRINTF
+
+/** Enable to build in test hooks */
+#cmakedefine ATCA_TESTS_ENABLED
+
+/******************** Features Configuration Section ***********************/
+
+/** Define certificate templates to be supported. */
+#cmakedefine ATCA_TNGTLS_SUPPORT
+#cmakedefine ATCA_TNGLORA_SUPPORT
+#cmakedefine ATCA_TFLEX_SUPPORT
+#cmakedefine ATCA_TNG_LEGACY_SUPPORT
+
+/** Define Software Crypto Library to Use - if none are defined use the
+    cryptoauthlib version where applicable */
+#cmakedefine ATCA_MBEDTLS
+#cmakedefine ATCA_OPENSSL
+#cmakedefine ATCA_WOLFSSL
+
+/** Additional Runtime Configuration */
+#cmakedefine ATCA_LIBRARY_CONF  "@ATCA_LIBRARY_CONF@"
+
+/** Define to build atcab_ functions rather that defining them as macros */
+#cmakedefine ATCA_USE_ATCAB_FUNCTIONS
+
+/** Define to enable older API forms that have been replaced */
+#cmakedefine ATCA_ENABLE_DEPRECATED
+
+/** TA100 Specific - Enable auth sessions that require AES (CMAC/GCM) from
+   an external library */
+#cmakedefine ATCA_TA100_AES_AUTH_SUPPORT
+
+/** TA100 Specific - Enable support for the FCE APIs for the TA100 */
+#cmakedefine ATCA_TA100_FCE_SUPPORT
+
+/******************** Platform Configuration Section ***********************/
+
+/** Define if the library is not to use malloc/free */
+#cmakedefine ATCA_NO_HEAP
+
+/** Define platform malloc/free */
+#cmakedefine ATCA_PLATFORM_MALLOC    @ATCA_PLATFORM_MALLOC@
+#cmakedefine ATCA_PLATFORM_FREE      @ATCA_PLATFORM_FREE@
+
+#define atca_delay_ms   hal_delay_ms
+#define atca_delay_us   hal_delay_us
+
+#endif // ATCA_CONFIG_H

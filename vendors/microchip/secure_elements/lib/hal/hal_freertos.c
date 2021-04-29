@@ -2,7 +2,7 @@
  * \file
  * \brief FreeRTOS Hardware/OS Abstration Layer.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -43,7 +43,6 @@
  *
    @{ */
 
-#ifdef ATCA_USE_RTOS_TIMER
 /**
  * \brief This function delays for a number of milliseconds.
  *
@@ -52,7 +51,17 @@
  *
  * \param[in] delay  Number of milliseconds to delay
  */
-void atca_delay_ms(uint32_t delay)
+#if INCLUDE_xTaskGetSchedulerState == 0
+void hal_rtos_delay_ms(uint32_t delay)
+{
+    #if ATCA_USE_RTOS_TIMER
+    vTaskDelay(pdMS_TO_TICKS(delay) + 1);
+    #else
+    hal_delay_ms(delay);
+    #endif
+}
+#else
+void hal_rtos_delay_ms(uint32_t delay)
 {
     /* If the freeRTOS scheduler is running yield to other tasks */
     if (taskSCHEDULER_RUNNING == xTaskGetSchedulerState())
@@ -61,7 +70,7 @@ void atca_delay_ms(uint32_t delay)
     }
     else
     {
-        atca_delay_ms_internal(delay);
+        hal_delay_ms(delay);
     }
 }
 #endif

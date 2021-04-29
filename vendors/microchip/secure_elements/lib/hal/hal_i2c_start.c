@@ -7,7 +7,7 @@
  *
  * Prerequisite: add SERCOM I2C Master Polled support to application in Atmel Studio
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -34,13 +34,14 @@
 #include <atmel_start.h>
 #include <hal_gpio.h>
 #include <hal_delay.h>
-#include "atca_hal.h"
-#include "atca_device.h"
 #include "hal_i2c_start.h"
-#include "peripheral_clk_config.h"
-#include "atca_execution.h"
 #include "atca_start_config.h"
 #include "atca_start_iface.h"
+#include "cryptoauthlib.h"
+
+#ifndef ATCA_HAL_LEGACY_API
+#error "The use of this hal requires the ATCA_HAL_LEGACY_API option to be enabled.
+#endif
 
 /** \defgroup hal_ Hardware abstraction layer (hal_)
  *
@@ -49,7 +50,6 @@
  *
    @{ */
 
-static ATCAI2CMaster_t i2c_hal_data[MAX_I2C_BUSES];   // map logical, 0-based bus number to index
 
 /* Notes:
     - this HAL implementation assumes you've included the Atmel START SERCOM I2C libraries in your project, otherwise,
@@ -71,13 +71,8 @@ ATCA_STATUS hal_i2c_discover_buses(int i2c_buses[], int max_buses)
      * As an optimization and making discovery safer, make assumptions about bus-num / SERCOM map based on D21 Xplained Pro board
      * If you were using a raw D21 on your own board, you would supply your own bus numbers based on your particular hardware configuration.
      */
-#ifdef __SAMR21G18A__
-    i2c_buses[0] = 1;   // default r21 for xplained pro dev board
-#else
-    i2c_buses[0] = 2;   // default d21 for xplained pro dev board
-#endif
 
-    return ATCA_SUCCESS;
+    return ATCA_UNIMPLEMENTED;
 }
 
 /** \brief discover any CryptoAuth devices on a given logical bus number
@@ -89,132 +84,7 @@ ATCA_STATUS hal_i2c_discover_buses(int i2c_buses[], int max_buses)
 
 ATCA_STATUS hal_i2c_discover_devices(int bus_num, ATCAIfaceCfg cfg[], int *found)
 {
-    ATCAIfaceCfg *head = cfg;
-    uint8_t slaveAddress = 0x01;
-    ATCADevice device;
-
-#ifdef ATCA_NO_HEAP
-    struct atca_device disc_device;
-    struct atca_command disc_command;
-    struct atca_iface disc_iface;
-#endif
-    ATCAPacket packet;
-    ATCA_STATUS status;
-    uint8_t revs608[][4] = { { 0x00, 0x00, 0x60, 0x01 }, { 0x00, 0x00, 0x60, 0x02 } };
-    uint8_t revs508[][4] = { { 0x00, 0x00, 0x50, 0x00 } };
-    uint8_t revs108[][4] = { { 0x80, 0x00, 0x10, 0x01 } };
-    uint8_t revs204[][4] = { { 0x00, 0x02, 0x00, 0x08 }, { 0x00, 0x02, 0x00, 0x09 }, { 0x00, 0x04, 0x05, 0x00 } };
-    int i;
-
-    /** \brief default configuration, to be reused during discovery process */
-    ATCAIfaceCfg discoverCfg = {
-        .iface_type             = ATCA_I2C_IFACE,
-        .devtype                = ATECC508A,
-        .atcai2c.slave_address  = 0x07,
-        .atcai2c.bus            = bus_num,
-        .atcai2c.baud           = 400000,
-        //.atcai2c.baud = 100000,
-        .wake_delay             = 800,
-        .rx_retries             = 3
-    };
-
-    if (bus_num < 0)
-    {
-        return ATCA_COMM_FAIL;
-    }
-
-#ifdef ATCA_NO_HEAP
-    disc_device.mCommands = &disc_command;
-    disc_device.mIface    = &disc_iface;
-    status = initATCADevice(&discoverCfg, &disc_device);
-    if (status != ATCA_SUCCESS)
-    {
-        return status;
-    }
-    device = &disc_device;
-#else
-    device = newATCADevice(&discoverCfg);
-    if (device == NULL)
-    {
-        return ATCA_COMM_FAIL;
-    }
-#endif
-
-    // iterate through all addresses on given i2c bus
-    // all valid 7-bit addresses go from 0x07 to 0x78
-    for (slaveAddress = 0x07; slaveAddress <= 0x78; slaveAddress++)
-    {
-        discoverCfg.atcai2c.slave_address = slaveAddress << 1;  // turn it into an 8-bit address which is what the rest of the i2c HAL is expecting when a packet is sent
-
-        memset(&packet, 0x00, sizeof(packet));
-        // build an info command
-        packet.param1 = INFO_MODE_REVISION;
-        packet.param2 = 0;
-        // get devrev info and set device type accordingly
-        atInfo(device->mCommands, &packet);
-        if ((status = atca_execute_command(&packet, device)) != ATCA_SUCCESS)
-        {
-            continue;
-        }
-
-        // determine device type from common info and dev rev response byte strings... start with unknown
-        discoverCfg.devtype = ATCA_DEV_UNKNOWN;
-
-        for (i = 0; i < (int)sizeof(revs608) / 4; i++)
-        {
-            if (memcmp(&packet.data[1], &revs608[i], 4) == 0)
-            {
-                discoverCfg.devtype = ATECC608A;
-                break;
-            }
-        }
-
-        for (i = 0; i < (int)sizeof(revs508) / 4; i++)
-        {
-            if (memcmp(&packet.data[1], &revs508[i], 4) == 0)
-            {
-                discoverCfg.devtype = ATECC508A;
-                break;
-            }
-        }
-
-        for (i = 0; i < (int)sizeof(revs204) / 4; i++)
-        {
-            if (memcmp(&packet.data[1], &revs204[i], 4) == 0)
-            {
-                discoverCfg.devtype = ATSHA204A;
-                break;
-            }
-        }
-
-        for (i = 0; i < (int)sizeof(revs108) / 4; i++)
-        {
-            if (memcmp(&packet.data[1], &revs108[i], 4) == 0)
-            {
-                discoverCfg.devtype = ATECC108A;
-                break;
-            }
-        }
-
-        if (discoverCfg.devtype != ATCA_DEV_UNKNOWN)
-        {
-            // now the device type is known, so update the caller's cfg array element with it
-            (*found)++;
-            memcpy( (uint8_t*)head, (uint8_t*)&discoverCfg, sizeof(ATCAIfaceCfg));
-            head->devtype = discoverCfg.devtype;
-            head++;
-        }
-
-        atca_delay_ms(15);
-    }
-
-#ifdef ATCA_NO_HEAP
-    releaseATCADevice(device);
-#else
-    deleteATCADevice(&device);
-#endif
-
-    return ATCA_SUCCESS;
+    return ATCA_UNIMPLEMENTED;
 }
 
 
@@ -238,42 +108,6 @@ ATCA_STATUS hal_i2c_discover_devices(int bus_num, ATCAIfaceCfg cfg[], int *found
 
 ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
 {
-    if (cfg->atcai2c.bus >= MAX_I2C_BUSES)
-    {
-        return ATCA_COMM_FAIL;
-    }
-    ATCAI2CMaster_t* data = &i2c_hal_data[cfg->atcai2c.bus];
-
-    if (data->ref_ct <= 0)
-    {
-        // Bus isn't being used, enable it
-        switch (cfg->atcai2c.bus)
-        {
-        case 2:
-            memcpy(&(data->i2c_master_instance), &I2C_0, sizeof(struct i2c_m_sync_desc));
-            data->sercom_core_freq = I2C_SERCOM_CORE_FREQ;
-            break;
-        default:
-            return ATCA_COMM_FAIL;
-        }
-
-        // set I2C baudrate and enable I2C module
-        i2c_m_sync_set_baudrate(&data->i2c_master_instance, data->sercom_core_freq / 1000, cfg->atcai2c.baud / 1000);
-        i2c_m_sync_enable(&data->i2c_master_instance);
-
-        // store this for use during the release phase
-        data->bus_index = cfg->atcai2c.bus;
-        // buses are shared, this is the first instance
-        data->ref_ct = 1;
-    }
-    else
-    {
-        // Bus is already is use, increment reference counter
-        data->ref_ct++;
-    }
-
-    ((ATCAHAL_t*)hal)->hal_data = data;
-
     return ATCA_SUCCESS;
 }
 
@@ -293,9 +127,11 @@ ATCA_STATUS hal_i2c_post_init(ATCAIface iface)
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
 
-ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
+ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t word_address, uint8_t *txdata, int txlength)
 {
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
+    struct i2c_m_sync_desc * i2c_descriptor_instance;
+    i2c_start_instance_t * plib;
 
     struct _i2c_m_msg packet = {
         .addr   = cfg->atcai2c.slave_address >> 1,
@@ -303,16 +139,39 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
         .flags  = I2C_M_SEVEN | I2C_M_STOP,
     };
 
+    if (!cfg)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    plib = (i2c_start_instance_t*)cfg->cfg_data;
+
+    if (!plib)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    i2c_descriptor_instance = (struct i2c_m_sync_desc *)plib->i2c_descriptor;
+
+    if (!i2c_descriptor_instance)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
     // for this implementation of I2C with CryptoAuth chips, txdata is assumed to have ATCAPacket format
 
     // other device types that don't require i/o tokens on the front end of a command need a different hal_i2c_send and wire it up instead of this one
     // this covers devices such as ATSHA204A and ATECCx08A that require a word address value pre-pended to the packet
     // txdata[0] is using _reserved byte of the ATCAPacket
-    txdata[0] = 0x03;   // insert the Word Address Value, Command token
-    txlength++;         // account for word address value byte.
+    if (0xFF != word_address)
+    {
+        txdata[0] = word_address;   // insert the Word Address Value, Command token
+        txlength++;                 // account for word address value byte.
+    }
+
     packet.len = txlength;
 
-    if (i2c_m_sync_transfer(&i2c_hal_data[cfg->atcai2c.bus].i2c_master_instance, &packet) != I2C_OK)
+    if (i2c_m_sync_transfer(i2c_descriptor_instance, &packet) != I2C_OK)
     {
         return ATCA_COMM_FAIL;
     }
@@ -323,16 +182,20 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 /** \brief HAL implementation of I2C receive function for START I2C
  * \param[in]    iface     Device to interact with.
  * \param[out]   rxdata    Data received will be returned here.
- * \param[inout] rxlength  As input, the size of the rxdata buffer.
+ * \param[in,out] rxlength  As input, the size of the rxdata buffer.
  *                         As output, the number of bytes received.
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
-ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength)
+ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t word_address, uint8_t *rxdata, uint16_t *rxlength)
 {
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
     int retries = cfg->rx_retries;
-    int status = !ATCA_SUCCESS;
+    ATCA_STATUS status = !ATCA_SUCCESS;
+    uint16_t read_length = 2;
+    uint8_t min_resp_size = 4;
     uint16_t rxdata_max_size = *rxlength;
+    struct i2c_m_sync_desc * i2c_descriptor_instance;
+    i2c_start_instance_t * plib;
 
     struct _i2c_m_msg packet = {
         .addr   = cfg->atcai2c.slave_address >> 1,
@@ -341,77 +204,110 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
         .flags  = I2C_M_SEVEN | I2C_M_RD | I2C_M_STOP,
     };
 
+    if ((NULL == cfg) || (NULL == rxlength) || (NULL == rxdata))
+    {
+        return ATCA_TRACE(ATCA_INVALID_POINTER, "NULL pointer encountered");
+    }
+
+    plib = (i2c_start_instance_t*)cfg->cfg_data;
+
+    if (!plib)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    i2c_descriptor_instance = (struct i2c_m_sync_desc *)plib->i2c_descriptor;
+
+    if (!i2c_descriptor_instance)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
     *rxlength = 0;
     if (rxdata_max_size < 1)
     {
         return ATCA_SMALL_BUFFER;
     }
 
-    while (retries-- > 0 && status != ATCA_SUCCESS)
+    do
     {
-        if (i2c_m_sync_transfer(&i2c_hal_data[cfg->atcai2c.bus].i2c_master_instance, &packet) != I2C_OK)
+        /*Send Word address to device...*/
+        retries = cfg->rx_retries;
+        while (retries-- > 0 && status != ATCA_SUCCESS)
         {
-            status = ATCA_COMM_FAIL;
+            status = hal_i2c_send(iface, word_address, &word_address, 0);
+        }
+        if (ATCA_SUCCESS != status)
+        {
+            ATCA_TRACE(status, "hal_i2c_send - failed");
+            break;
+        }
+
+#if ATCA_TA_SUPPORT
+        /*Set read length.. Check for register reads or 1 byte reads*/
+        if ((word_address == ATCA_MAIN_PROCESSOR_RD_CSR) || (word_address == ATCA_FAST_CRYPTO_RD_FSR)
+            || (rxdata_max_size == 1))
+        {
+            read_length = 1;
+        }
+#endif
+        /*Update the length to be received from device */
+        packet.len = read_length;
+
+        /* Read length bytes to know number of bytes to read */
+        if (i2c_m_sync_transfer(i2c_descriptor_instance, &packet) != I2C_OK)
+        {
+            status = ATCA_RX_FAIL;
+            ATCA_TRACE(status, "hal_i2c_receive - failed");
+            break;
+        }
+
+        if (1 == read_length)
+        {
+            ATCA_TRACE(status, "1 byte read completed");
+            break;
+        }
+
+        /*Calculate bytes to read based on device response*/
+        if (cfg->devtype == TA100)
+        {
+            read_length = ((uint16_t)rxdata[0] * 256) + rxdata[1];
+            min_resp_size += 1;
         }
         else
         {
-            status = ATCA_SUCCESS;
+            read_length =  rxdata[0];
         }
+
+        if (read_length > rxdata_max_size)
+        {
+            status = ATCA_TRACE(ATCA_SMALL_BUFFER, "rxdata is small buffer");
+            break;
+        }
+
+        if (read_length < min_resp_size)
+        {
+            status = ATCA_TRACE(ATCA_RX_FAIL, "packet size is invalid");
+            break;
+        }
+
+        /*Update receive length with first byte received and set to read rest of the data */
+        packet.len = read_length - 2;
+        packet.buffer = &rxdata[2];
+
+        /* Read given length bytes from device */
+        if (i2c_m_sync_transfer(i2c_descriptor_instance, &packet) != I2C_OK)
+        {
+            status = ATCA_TRACE(ATCA_RX_FAIL, "hal_i2c_receive - failed");
+            break;
+        }
+
     }
-    if (status != ATCA_SUCCESS)
-    {
-        return status;
-    }
-    if (rxdata[0] < ATCA_RSP_SIZE_MIN)
-    {
-        return ATCA_INVALID_SIZE;
-    }
-    if (rxdata[0] > rxdata_max_size)
-    {
-        return ATCA_SMALL_BUFFER;
-    }
+    while (0);
 
-    //Update receive length with first byte received and set to read rest of the data
-    packet.len = rxdata[0] - 1;
-    packet.buffer = &rxdata[1];
+    *rxlength = read_length;
 
-    if (i2c_m_sync_transfer(&i2c_hal_data[cfg->atcai2c.bus].i2c_master_instance, &packet) != I2C_OK)
-    {
-        status = ATCA_COMM_FAIL;
-    }
-    else
-    {
-        status = ATCA_SUCCESS;
-    }
-    if (status != ATCA_SUCCESS)
-    {
-        return status;
-    }
-
-    *rxlength = rxdata[0];
-
-    return ATCA_SUCCESS;
-}
-
-/** \brief method to change the bus speec of I2C
- * \param[in] iface  interface on which to change bus speed
- * \param[in] speed  baud rate (typically 100000 or 400000)
- */
-
-void change_i2c_speed(ATCAIface iface, uint32_t speed)
-{
-    ATCAIfaceCfg *cfg = atgetifacecfg(iface);
-    uint32_t freq_constant; // I2C frequency configuration constant
-
-    // disable I2C module
-    i2c_m_sync_disable(&i2c_hal_data[cfg->atcai2c.bus].i2c_master_instance);
-
-    // store I2C baudrate in kHz
-    freq_constant = speed / 1000;
-
-    // set I2C baudrate and enable I2C module
-    i2c_m_sync_set_baudrate(&i2c_hal_data[cfg->atcai2c.bus].i2c_master_instance, i2c_hal_data[cfg->atcai2c.bus].sercom_core_freq / 1000, freq_constant);
-    i2c_m_sync_enable(&i2c_hal_data[cfg->atcai2c.bus].i2c_master_instance);
+    return status;
 }
 
 /** \brief wake up CryptoAuth device using I2C bus
@@ -426,10 +322,34 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
     uint32_t bdrt = cfg->atcai2c.baud;
     int status = !I2C_OK;
     uint8_t data[4];
+    struct i2c_m_sync_desc * i2c_descriptor_instance;
+    i2c_start_instance_t * plib;
+
+    if (!cfg)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    retries = cfg->rx_retries;
+    bdrt = cfg->atcai2c.baud;
+    plib = (i2c_start_instance_t*)cfg->cfg_data;
+
+    if (!plib)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    i2c_descriptor_instance = (struct i2c_m_sync_desc *)plib->i2c_descriptor;
+
+    if (!i2c_descriptor_instance)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
 
     if (bdrt != 100000)    // if not already at 100KHz, change it
     {
-        change_i2c_speed(iface, 100000);
+        plib->change_baudrate(iface, 100000);
     }
 
     // send the wake by writing to an address of 0x00
@@ -441,7 +361,7 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
     };
 
     // Send the 00 address as the wake pulse; part will NACK, so don't check for status
-    status = i2c_m_sync_transfer(&i2c_hal_data[cfg->atcai2c.bus].i2c_master_instance, &packet);
+    status = i2c_m_sync_transfer(i2c_descriptor_instance, &packet);
 
     // wait tWHI + tWLO which is configured based on device type and configuration structure
     delay_us(cfg->wake_delay);
@@ -454,7 +374,7 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
 
     while (retries-- > 0 && status != I2C_OK)
     {
-        status = i2c_m_sync_transfer(&i2c_hal_data[cfg->atcai2c.bus].i2c_master_instance, &packet);
+        status = i2c_m_sync_transfer(i2c_descriptor_instance, &packet);
     }
 
     if (status == I2C_OK)
@@ -462,7 +382,7 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
         // if necessary, revert baud rate to what came in.
         if (bdrt != 100000)
         {
-            change_i2c_speed(iface, bdrt);
+            plib->change_baudrate(iface, 100000);
         }
     }
 
@@ -478,7 +398,27 @@ ATCA_STATUS hal_i2c_idle(ATCAIface iface)
 {
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
     uint8_t data[4];
+    struct i2c_m_sync_desc * i2c_descriptor_instance;
+    i2c_start_instance_t * plib;
 
+    if (!cfg)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    plib = (i2c_start_instance_t*)cfg->cfg_data;
+
+    if (!plib)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    i2c_descriptor_instance = (struct i2c_m_sync_desc *)plib->i2c_descriptor;
+
+    if (!i2c_descriptor_instance)
+    {
+        return ATCA_BAD_PARAM;
+    }
     struct _i2c_m_msg packet = {
         .addr   = cfg->atcai2c.slave_address >> 1,
         .len    = 1,
@@ -487,7 +427,7 @@ ATCA_STATUS hal_i2c_idle(ATCAIface iface)
     };
 
     data[0] = 0x02;  // idle word address value
-    if (i2c_m_sync_transfer(&i2c_hal_data[cfg->atcai2c.bus].i2c_master_instance, &packet) != I2C_OK)
+    if (i2c_m_sync_transfer(i2c_descriptor_instance, &packet) != I2C_OK)
     {
         return ATCA_COMM_FAIL;
     }
@@ -504,6 +444,27 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
 {
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
     uint8_t data[4];
+    struct i2c_m_sync_desc * i2c_descriptor_instance;
+    i2c_start_instance_t * plib;
+
+    if (!cfg)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    plib = (i2c_start_instance_t*)cfg->cfg_data;
+
+    if (!plib)
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    i2c_descriptor_instance = (struct i2c_m_sync_desc *)plib->i2c_descriptor;
+
+    if (!i2c_descriptor_instance)
+    {
+        return ATCA_BAD_PARAM;
+    }
 
     struct _i2c_m_msg packet = {
         .addr   = cfg->atcai2c.slave_address >> 1,
@@ -513,7 +474,7 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
     };
 
     data[0] = 0x01;  // sleep word address value
-    if (i2c_m_sync_transfer(&i2c_hal_data[cfg->atcai2c.bus].i2c_master_instance, &packet) != I2C_OK)
+    if (i2c_m_sync_transfer(i2c_descriptor_instance, &packet) != I2C_OK)
     {
         return ATCA_COMM_FAIL;
     }
@@ -528,15 +489,6 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
 
 ATCA_STATUS hal_i2c_release(void *hal_data)
 {
-    ATCAI2CMaster_t *hal = (ATCAI2CMaster_t*)hal_data;
-
-    //if the use count for this bus has gone to 0 references, disable it.  protect against an unbracketed release
-    if (hal && --(hal->ref_ct) <= 0)
-    {
-        i2c_m_sync_disable(&hal->i2c_master_instance);
-        hal->ref_ct = 0;
-    }
-
     return ATCA_SUCCESS;
 }
 

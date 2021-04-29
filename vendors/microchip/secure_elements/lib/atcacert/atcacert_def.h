@@ -12,7 +12,7 @@
  *
  * This also defines utility functions for working with the certificates and their definitions.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -41,9 +41,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "atca_compiler.h"
 #include "atcacert.h"
 #include "atcacert_date.h"
-#include "basic/atca_helpers.h"
+#include "atca_helpers.h"
 
 #define ATCA_MAX_TRANSFORMS 2
 
@@ -126,13 +127,17 @@ typedef enum atcacert_std_cert_element_e
 } atcacert_std_cert_element_t;
 
 // Some of these structures may need to be byte-accurate
-
+#ifndef ATCA_NO_PRAGMA_PACK
 #pragma pack(push, 1)
+#define ATCA_PACKED
+#else
+#define ATCA_PACKED     __attribute__ ((packed))
+#endif
 
 /**
  * Defines a chunk of data in an ATECC device.
  */
-typedef struct atcacert_device_loc_s
+typedef struct ATCA_PACKED atcacert_device_loc_s
 {
     atcacert_device_zone_t zone;        //!< Zone in the device.
     uint8_t                slot;        //!< Slot within the data zone. Only applies if zone is DEVZONE_DATA.
@@ -144,7 +149,7 @@ typedef struct atcacert_device_loc_s
 /**
  * Defines a chunk of data in a certificate template.
  */
-typedef struct atcacert_cert_loc_s
+typedef struct ATCA_PACKED atcacert_cert_loc_s
 {
     uint16_t offset;    //!< Byte offset in the certificate template.
     uint16_t count;     //!< Byte count. Set to 0 if it doesn't exist.
@@ -153,7 +158,7 @@ typedef struct atcacert_cert_loc_s
 /**
  * Defines a generic dynamic element for a certificate including the device and template locations.
  */
-typedef struct atcacert_cert_element_s
+typedef struct ATCA_PACKED atcacert_cert_element_s
 {
     char                  id[25];                          //!< ID identifying this element.
     atcacert_device_loc_t device_loc;                      //!< Location in the device for the element.
@@ -167,7 +172,7 @@ typedef struct atcacert_cert_element_s
  * If any of the standard certificate elements (std_cert_elements) are not a part of the certificate
  * definition, set their count to 0 to indicate their absence.
  */
-typedef struct atcacert_def_s
+typedef struct ATCA_PACKED atcacert_def_s
 {
     atcacert_cert_type_t           type;                                    //!< Certificate type.
     uint8_t                        template_id;                             //!< ID for the this certificate definition (4-bit value).
@@ -192,7 +197,8 @@ typedef struct atcacert_def_s
 /**
  * Tracks the state of a certificate as it's being rebuilt from device information.
  */
-typedef struct atcacert_build_state_s
+
+typedef struct ATCA_PACKED atcacert_build_state_s
 {
     const atcacert_def_t* cert_def;             //!< Certificate definition for the certificate being rebuilt.
     uint8_t*              cert;                 //!< Buffer to contain the rebuilt certificate.
@@ -202,7 +208,9 @@ typedef struct atcacert_build_state_s
     uint8_t               device_sn[9];         //!< Storage for the device SN, when it's found.
 } atcacert_build_state_t;
 
+#ifndef ATCA_NO_PRAGMA_PACK
 #pragma pack(pop)
+#endif
 
 // Inform function naming when compiling in C++
 #ifdef __cplusplus
@@ -219,8 +227,8 @@ extern "C" {
  *
  * \param[in]    cert_def               Certificate definition containing all the device locations
  *                                      to add to the list.
- * \param[inout] device_locs            List of device locations to add to.
- * \param[inout] device_locs_count      As input, existing size of the device locations list.
+ * \param[in,out] device_locs            List of device locations to add to.
+ * \param[in,out] device_locs_count      As input, existing size of the device locations list.
  *                                      As output, the new size of the device locations list.
  * \param[in]    device_locs_max_count  Maximum number of elements device_locs can hold.
  * \param[in]    block_size             Block size to align all offsets and counts to when adding
@@ -314,7 +322,7 @@ int atcacert_get_device_data(const atcacert_def_t*        cert_def,
  * \brief Sets the subject public key and subject key ID in a certificate.
  *
  * \param[in]    cert_def         Certificate definition for the certificate.
- * \param[inout] cert             Certificate to update.
+ * \param[in,out] cert             Certificate to update.
  * \param[in]    cert_size        Size of the certificate (cert) in bytes.
  * \param[in]    subj_public_key  Subject public key as X and Y integers concatenated together. 64 bytes.
  *
@@ -360,8 +368,8 @@ int atcacert_get_subj_key_id(const atcacert_def_t * cert_def,
  * \brief Sets the signature in a certificate. This may alter the size of the X.509 certificates.
  *
  * \param[in]    cert_def       Certificate definition for the certificate.
- * \param[inout] cert           Certificate to update.
- * \param[inout] cert_size      As input, size of the certificate (cert) in bytes.
+ * \param[in,out] cert           Certificate to update.
+ * \param[in,out] cert_size      As input, size of the certificate (cert) in bytes.
  *                              As output, the new size of the certificate.
  * \param[in]    max_cert_size  Maximum size of the cert buffer.
  * \param[in]    signature      Signature as R and S integers concatenated together. 64 bytes.
@@ -395,7 +403,7 @@ int atcacert_get_signature(const atcacert_def_t * cert_def,
  *        format specified in the certificate definition.
  *
  * \param[in]    cert_def   Certificate definition for the certificate.
- * \param[inout] cert       Certificate to update.
+ * \param[in,out] cert       Certificate to update.
  * \param[in]    cert_size  Size of the certificate (cert) in bytes.
  * \param[in]    timestamp  Issue date.
  *
@@ -427,7 +435,7 @@ int atcacert_get_issue_date(const atcacert_def_t* cert_def,
  *        format specified in the certificate definition.
  *
  * \param[in]    cert_def   Certificate definition for the certificate.
- * \param[inout] cert       Certificate to update.
+ * \param[in,out] cert       Certificate to update.
  * \param[in]    cert_size  Size of the certificate (cert) in bytes.
  * \param[in]    timestamp  Expire date.
  *
@@ -458,7 +466,7 @@ int atcacert_get_expire_date(const atcacert_def_t* cert_def,
  * \brief Sets the signer ID in a certificate. Will be formatted as 4 upper-case hex digits.
  *
  * \param[in]    cert_def   Certificate definition for the certificate.
- * \param[inout] cert       Certificate to update.
+ * \param[in,out] cert       Certificate to update.
  * \param[in]    cert_size  Size of the certificate (cert) in bytes.
  * \param[in]    signer_id  Signer ID.
  *
@@ -488,8 +496,8 @@ int atcacert_get_signer_id(const atcacert_def_t * cert_def,
  * \brief Sets the certificate serial number in a certificate.
  *
  * \param[in]    cert_def      Certificate definition for the certificate.
- * \param[inout] cert          Certificate to update.
- * \param[inout] cert_size     Size of the certificate (cert) in bytes.
+ * \param[in,out] cert          Certificate to update.
+ * \param[in,out] cert_size     Size of the certificate (cert) in bytes.
  * \param[in]    max_cert_size  Maximum size of the cert buffer.
  * \param[in]    cert_sn       Certificate serial number.
  * \param[in]    cert_sn_size  Size of the certificate serial number in bytes.
@@ -513,7 +521,7 @@ int atcacert_set_cert_sn(const atcacert_def_t* cert_def,
  * function will return ATCACERT_E_SUCCESS without making any changes to the certificate.
  *
  * \param[in]    cert_def      Certificate definition for the certificate.
- * \param[inout] cert          Certificate to update.
+ * \param[in,out] cert          Certificate to update.
  * \param[in]    cert_size     Size of the certificate (cert) in bytes.
  * \param[in]    device_sn     Device serial number, only used if required by the sn_source scheme.
  *                             Can be set to NULL, if not required.
@@ -532,7 +540,7 @@ int atcacert_gen_cert_sn(const atcacert_def_t* cert_def,
  * \param[in]    cert          Certificate to get element from.
  * \param[in]    cert_size     Size of the certificate (cert) in bytes.
  * \param[out]   cert_sn       Certificate SN will be returned in this buffer.
- * \param[inout] cert_sn_size  As input, the size of the cert_sn buffer.
+ * \param[in,out] cert_sn_size  As input, the size of the cert_sn buffer.
  *                             As output, the size of the certificate SN (cert_sn) in bytes.
  *
  * \return ATCACERT_E_SUCCESS on success, otherwise an error code.
@@ -548,7 +556,7 @@ int atcacert_get_cert_sn(const atcacert_def_t* cert_def,
  *        creates a key ID from it.
  *
  * \param[in]    cert_def         Certificate definition for the certificate.
- * \param[inout] cert             Certificate to update.
+ * \param[in,out] cert             Certificate to update.
  * \param[in]    cert_size        Size of the certificate (cert) in bytes.
  * \param[in]    auth_public_key  Authority public key as X and Y integers concatenated together.
  *                                64 bytes.
@@ -564,7 +572,7 @@ int atcacert_set_auth_key_id(const atcacert_def_t* cert_def,
  * \brief Sets the authority key ID in a certificate.
  *
  * \param[in]    cert_def         Certificate definition for the certificate.
- * \param[inout] cert             Certificate to update.
+ * \param[in,out] cert             Certificate to update.
  * \param[in]    cert_size        Size of the certificate (cert) in bytes.
  * \param[in]    auth_key_id      Authority key ID. Same size as defined in the cert_def.
  *
@@ -596,8 +604,8 @@ int atcacert_get_auth_key_id(const atcacert_def_t * cert_def,
  *        certificate to make sure they match.
  *
  * \param[in]    cert_def       Certificate definition for the certificate.
- * \param[inout] cert           Certificate to update.
- * \param[inout] cert_size      As input, size of the certificate (cert) in bytes.
+ * \param[in,out] cert           Certificate to update.
+ * \param[in,out] cert_size      As input, size of the certificate (cert) in bytes.
  *                              As output, the new size of the certificate.
  * \param[in]    max_cert_size  Maximum size of the cert buffer.
  * \param[in]    comp_cert      Compressed certificate. 72 bytes.
@@ -663,7 +671,7 @@ int atcacert_get_tbs_digest(const atcacert_def_t * cert_def,
  *
  * \param[in]    cert_def       Certificate definition for the certificate.
  * \param[in]    cert_loc       Certificate location for this element.
- * \param[inout] cert           Certificate to update.
+ * \param[in,out] cert           Certificate to update.
  * \param[in]    cert_size      Size of the certificate (cert) in bytes.
  * \param[in]    data           Element data to insert into the certificate. Buffer must contain
  *                              cert_loc.count bytes to be copied into the certificate.
@@ -728,9 +736,9 @@ int atcacert_get_key_id(const uint8_t public_key[64], uint8_t key_id[20]);
  * applies to the device_loc being added. Existing device locations in the list won't be modified
  * to match the block size.
  *
- * \param[inout] device_locs            Existing device location list to merge the new device
+ * \param[in,out] device_locs            Existing device location list to merge the new device
  *                                      location into.
- * \param[inout] device_locs_count      As input, the existing number of items in the device_locs
+ * \param[in,out] device_locs_count      As input, the existing number of items in the device_locs
  *                                      list. As output, the new size of the device_locs list.
  * \param[in]    device_locs_max_count  Maximum number of items the device_locs list can hold.
  * \param[in]    device_loc             New device location to be merged into the device_locs list.
@@ -785,7 +793,7 @@ void atcacert_public_key_remove_padding(const uint8_t padded_key[72], uint8_t ra
  * \param[in]    data              Input data to be transformed.
  * \param[in]    data_size         Size of the input data in bytes.
  * \param[out]   destination       Destination buffer to hold the transformed data.
- * \param[inout] destination_size  As input, the size of the destination buffer.
+ * \param[in,out] destination_size  As input, the size of the destination buffer.
  *                                 As output the size of the transformed data.
  *
  * \return ATCACERT_E_SUCCESS on success, otherwise an error code.

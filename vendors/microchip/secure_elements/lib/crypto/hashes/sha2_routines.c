@@ -2,7 +2,7 @@
  * \file
  * \brief Software implementation of the SHA256 algorithm.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -27,7 +27,7 @@
 
 #include <string.h>
 #include "sha2_routines.h"
-
+#include "atca_compiler.h"
 #define rotate_right(value, places) ((value >> places) | (value << (32 - places)))
 
 /**
@@ -77,7 +77,9 @@ static void sw_sha256_process(sw_sha256_ctx* ctx, const uint8_t* blocks, uint32_
             w_union.w_byte[i + 2] = cur_msg_block[i + 1];
             w_union.w_byte[i + 1] = cur_msg_block[i + 2];
             w_union.w_byte[i + 0] = cur_msg_block[i + 3];
+            w_union.w_word[i / 4] = ATCA_UINT32_HOST_TO_LE(w_union.w_word[i / 4]);
         }
+
 
         w_index = 16;
         while (w_index < SHA256_BLOCK_SIZE)

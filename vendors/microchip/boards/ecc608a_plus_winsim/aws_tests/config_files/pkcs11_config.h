@@ -2,63 +2,38 @@
  * \file
  * \brief PKCS11 Library Configuration
  *
- * Copyright (c) 2017 Microchip Technology Inc. All rights reserved.
- *
- * \atmel_crypto_device_library_license_start
+ * \copyright (c) 2017 Microchip Technology Inc. and its subsidiaries.
+ *            You may use this software and any derivatives exclusively with
+ *            Microchip products.
  *
  * \page License
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * (c) 2017 Microchip Technology Inc. and its subsidiaries. You may use this
+ * software and any derivatives exclusively with Microchip products.
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ * THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
+ * EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
+ * WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
+ * PARTICULAR PURPOSE, OR ITS INTERACTION WITH MICROCHIP PRODUCTS, COMBINATION
+ * WITH ANY OTHER PRODUCTS, OR USE IN ANY APPLICATION.
  *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ * IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
+ * INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
+ * WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS
+ * BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO THE
+ * FULLEST EXTENT ALLOWED BY LAW, MICROCHIPS TOTAL LIABILITY ON ALL CLAIMS IN
+ * ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
+ * THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
  *
- * 3. The name of Atmel may not be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * 4. This software may only be redistributed and used in connection with an
- *    Atmel integrated circuit.
- *
- * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
- * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- * \atmel_crypto_device_library_license_stop
+ * MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE
+ * TERMS.
  */
 
 #ifndef PKCS11_CONFIG_H_
 #define PKCS11_CONFIG_H_
 
 
-/* Cryptoauthlib at the time of this module development is not versioned */
-#ifndef ATCA_LIB_VER_MAJOR
-#define ATCA_LIB_VER_MAJOR  3
-#endif
-
-#ifndef ATCA_LIB_VER_MINOR
-#define ATCA_LIB_VER_MINOR  2
-#endif
-
-/** If an Auth-key or IoProtection Secret is to be used this is the
- * slot number of it */
-#ifndef PKCS11_PIN_SLOT
-#define PKCS11_PIN_SLOT                 6
-#endif
-
-/** Define to lock the PIN slot after writing */
+ /** Define to lock the PIN slot after writing */
 #ifndef PKCS11_LOCK_PIN_SLOT
 #define PKCS11_LOCK_PIN_SLOT            0
 #endif
@@ -84,13 +59,13 @@
 #define PKCS11_MAX_SLOTS_ALLOWED        1
 #endif
 
-/** Maximum number of total sessions allowed in the system - if using static
-   memory then this many session contexts will be allocated */
+   /** Maximum number of total sessions allowed in the system - if using static
+	  memory then this many session contexts will be allocated */
 #ifndef PKCS11_MAX_SESSIONS_ALLOWED
 #define PKCS11_MAX_SESSIONS_ALLOWED     10
 #endif
 
-/** Maximum number of cryptographic objects allowed to be cached */
+	  /** Maximum number of cryptographic objects allowed to be cached */
 #ifndef PKCS11_MAX_OBJECTS_ALLOWED
 #define PKCS11_MAX_OBJECTS_ALLOWED      16
 #endif
@@ -113,23 +88,13 @@
 #define PKCS11_EXTERNAL_FUNCTION_LIST    1
 #endif
 
-/** Static Search Attribute Cache in bytes (variable number of attributes based
-   on size and memory requirements) */
+   /** Static Search Attribute Cache in bytes (variable number of attributes based
+	  on size and memory requirements) */
 #ifndef PKCS11_SEARCH_CACHE_SIZE
-#define PKCS11_SEARCH_CACHE_SIZE        128
+#define PKCS11_SEARCH_CACHE_SIZE        250
 #endif
 
-/** Device Support for ATECC508A */
-#ifndef PKCS11_508_SUPPORT
-#define PKCS11_508_SUPPORT              0
-#endif
-
-/** Device Support for ATECC608A */
-#ifndef PKCS11_608_SUPPORT
-#define PKCS11_608_SUPPORT              1
-#endif
-
-/** Support for configuring a "blank" or new device */
+	  /** Support for configuring a "blank" or new device */
 #ifndef PKCS11_TOKEN_INIT_SUPPORT
 #define PKCS11_TOKEN_INIT_SUPPORT       1
 #endif
@@ -142,18 +107,21 @@
 
 #include "pkcs11/cryptoki.h"
 #include <stddef.h>
-typedef struct _pkcs11_slot_ctx *pkcs11_slot_ctx_ptr;
-typedef struct _pkcs11_lib_ctx  *pkcs11_lib_ctx_ptr;
-typedef struct _pkcs11_object   *pkcs11_object_ptr;
+typedef struct _pkcs11_slot_ctx* pkcs11_slot_ctx_ptr;
+typedef struct _pkcs11_lib_ctx* pkcs11_lib_ctx_ptr;
+typedef struct _pkcs11_object* pkcs11_object_ptr;
 
+#if PKCS11_USE_STATIC_CONFIG
+CK_RV pkcs11_config_interface(pkcs11_slot_ctx_ptr pSlot);
+#endif
 CK_RV pkcs11_config_load_objects(pkcs11_slot_ctx_ptr pSlot);
 CK_RV pkcs11_config_load(pkcs11_slot_ctx_ptr slot_ctx);
 CK_RV pkcs11_config_cert(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, pkcs11_object_ptr pObject, CK_ATTRIBUTE_PTR pcLabel);
 CK_RV pkcs11_config_key(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, pkcs11_object_ptr pObject, CK_ATTRIBUTE_PTR pcLabel);
 CK_RV pkcs11_config_remove_object(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, pkcs11_object_ptr pObject);
 
-void pkcs11_config_init_private(pkcs11_object_ptr pObject, char * label, size_t len);
-void pkcs11_config_init_public(pkcs11_object_ptr pObject, char * label, size_t len);
-void pkcs11_config_init_cert(pkcs11_object_ptr pObject, char * label, size_t len);
+void pkcs11_config_init_private(pkcs11_object_ptr pObject, char* label, size_t len);
+void pkcs11_config_init_public(pkcs11_object_ptr pObject, char* label, size_t len);
+void pkcs11_config_init_cert(pkcs11_object_ptr pObject, char* label, size_t len);
 
 #endif /* PKCS11_CONFIG_H_ */

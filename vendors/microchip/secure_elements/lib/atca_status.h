@@ -3,7 +3,7 @@
  *
  * \brief  Microchip Crypto Auth status codes
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -31,6 +31,7 @@
 
 #include <stdint.h>
 #include "atca_bool.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,6 +44,8 @@ typedef enum
     ATCA_SUCCESS                = 0x00, //!< Function succeeded.
     ATCA_CONFIG_ZONE_LOCKED     = 0x01,
     ATCA_DATA_ZONE_LOCKED       = 0x02,
+    ATCA_INVALID_POINTER,
+    ATCA_INVALID_LENGTH,
     ATCA_WAKE_FAILED            = 0xD0, //!< response status byte indicates CheckMac failure (status byte = 0x01)
     ATCA_CHECKMAC_VERIFY_FAILED = 0xD1, //!< response status byte indicates CheckMac failure (status byte = 0x01)
     ATCA_PARSE_ERROR            = 0xD2, //!< response status byte indicates parsing error (status byte = 0x03)
@@ -76,7 +79,11 @@ typedef enum
     ATCA_NO_DEVICES             = 0xF9, //!< For protocols that support device discovery (kit protocol), no devices were found
     ATCA_HEALTH_TEST_ERROR      = 0xFA, //!< random number generator health test error
     ATCA_ALLOC_FAILURE          = 0xFB, //!< Couldn't allocate required memory
+    ATCA_USE_FLAGS_CONSUMED     = 0xFC, //!< Use flags on the device indicates its consumed fully
+    ATCA_NOT_INITIALIZED        = 0xFD, //!< The library has not been initialized so the command could not be executed
 } ATCA_STATUS;
+
+#define ATCA_STATUS_AUTH_BIT    0x40
 
 #ifdef __cplusplus
 }

@@ -2,7 +2,7 @@
  * \file
  * \brief  Wrapper API for software SHA 256 routines
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -40,13 +40,6 @@
  *
    @{ */
 
-#define ATCA_SHA2_256_DIGEST_SIZE (32)
-
-typedef struct
-{
-    uint32_t pad[48]; //!< Filler value to make sure the actual implementation has enough room to store its context. uint32_t is used to remove some alignment warnings.
-} atcac_sha2_256_ctx;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -55,6 +48,11 @@ int atcac_sw_sha2_256_init(atcac_sha2_256_ctx* ctx);
 int atcac_sw_sha2_256_update(atcac_sha2_256_ctx* ctx, const uint8_t* data, size_t data_size);
 int atcac_sw_sha2_256_finish(atcac_sha2_256_ctx * ctx, uint8_t digest[ATCA_SHA2_256_DIGEST_SIZE]);
 int atcac_sw_sha2_256(const uint8_t * data, size_t data_size, uint8_t digest[ATCA_SHA2_256_DIGEST_SIZE]);
+
+ATCA_STATUS atcac_sha256_hmac_init(atcac_hmac_sha256_ctx* ctx, const uint8_t* key, const uint8_t key_len);
+ATCA_STATUS atcac_sha256_hmac_update(atcac_hmac_sha256_ctx* ctx, const uint8_t* data, size_t data_size);
+ATCA_STATUS atcac_sha256_hmac_finish(atcac_hmac_sha256_ctx* ctx, uint8_t* digest, size_t* digest_len);
+ATCA_STATUS atcac_sha256_hmac_counter(atcac_hmac_sha256_ctx* ctx, uint8_t* label, size_t label_len, uint8_t* data, size_t data_len, uint8_t* digest, size_t diglen);
 
 #ifdef __cplusplus
 }

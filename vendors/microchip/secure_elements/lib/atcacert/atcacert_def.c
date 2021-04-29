@@ -2,7 +2,7 @@
  * \file
  * \brief Main certificate definition implementation.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -31,7 +31,7 @@
 #include "atcacert_der.h"
 #include "atcacert_date.h"
 #include <string.h>
-#include "basic/atca_helpers.h"
+#include "atca_helpers.h"
 
 #define ATCACERT_MIN(x, y) ((x) < (y) ? (x) : (y))
 #define ATCACERT_MAX(x, y) ((x) >= (y) ? (x) : (y))
@@ -275,7 +275,7 @@ int atcacert_cert_build_start(atcacert_build_state_t* build_state,
                               const uint8_t           ca_public_key[64])
 {
     int ret = 0;
-    size_t new_cert_length;
+    uint32_t new_cert_length;
     size_t old_cert_der_length_size;
 
     if (build_state == NULL || cert_def == NULL || cert == NULL || cert_size == NULL)
@@ -291,13 +291,7 @@ int atcacert_cert_build_start(atcacert_build_state_t* build_state,
     build_state->max_cert_size = *cert_size;
     build_state->is_device_sn  = FALSE;
 
-//    if (build_state->max_cert_size < build_state->cert_def->cert_template_size)
-//    {
-//        *build_state->cert_size = build_state->cert_def->cert_template_size;
-//        return ATCACERT_E_BUFFER_TOO_SMALL; // cert buffer is too small to contain the template
-//    }
-
-    // Initialize the cert buffer with the cert template - template contains an 
+    // Initialize the cert buffer with the cert template - template contains an
     // arbitrary signature that will be replaced during the certificate build.
     // if the certificate size was established by using the api functions then
     // the difference has already been accounted for.
@@ -871,7 +865,7 @@ int atcacert_get_issue_date(const atcacert_def_t* cert_def,
         return ATCACERT_E_BAD_PARAMS;
     }
 
-    if (cert_def->issue_date_format > sizeof(ATCACERT_DATE_FORMAT_SIZES) / sizeof(ATCACERT_DATE_FORMAT_SIZES[0]))
+    if (cert_def->issue_date_format >= sizeof(ATCACERT_DATE_FORMAT_SIZES) / sizeof(ATCACERT_DATE_FORMAT_SIZES[0]))
     {
         return ATCACERT_E_ERROR;  // Format is out of range
 
@@ -945,7 +939,7 @@ int atcacert_get_expire_date(const atcacert_def_t* cert_def,
         return ATCACERT_E_BAD_PARAMS;
     }
 
-    if (cert_def->expire_date_format > sizeof(ATCACERT_DATE_FORMAT_SIZES) / sizeof(ATCACERT_DATE_FORMAT_SIZES[0]))
+    if (cert_def->expire_date_format >= sizeof(ATCACERT_DATE_FORMAT_SIZES) / sizeof(ATCACERT_DATE_FORMAT_SIZES[0]))
     {
         return ATCACERT_E_ERROR;  // Format is out of range
 
@@ -1506,7 +1500,7 @@ int atcacert_get_comp_cert(const atcacert_def_t* cert_def,
     ret = atcacert_get_signer_id(cert_def, cert, cert_size, &comp_cert[67]);
     if (ret == ATCACERT_E_ELEM_MISSING)
     {
-        memset(&comp_cert[67], 0, 2);  // No signer ID in cert, use 0
+        memset(&comp_cert[67], 0, sizeof(uint16_t));  // No signer ID in cert, use 0
     }
     else if (ret != ATCACERT_E_SUCCESS)
     {
@@ -1673,10 +1667,10 @@ int atcacert_get_key_id(const uint8_t public_key[64], uint8_t key_id[20])
 
 void atcacert_public_key_add_padding(const uint8_t raw_key[64], uint8_t padded_key[72])
 {
-    memmove(&padded_key[40], &raw_key[32], 32); // Move Y to padded position
-    memset(&padded_key[36], 0, 4);              // Add Y padding bytes
-    memmove(&padded_key[4], &raw_key[0], 32);   // Move X to padded position
-    memset(&padded_key[0], 0, 4);               // Add X padding bytes
+    memmove(&padded_key[40], &raw_key[32], 32);    // Move Y to padded position
+    memset(&padded_key[36], 0, sizeof(uint32_t));  // Add Y padding bytes
+    memmove(&padded_key[4], &raw_key[0], 32);      // Move X to padded position
+    memset(&padded_key[0], 0, sizeof(uint32_t));   // Add X padding bytes
 }
 
 void atcacert_public_key_remove_padding(const uint8_t padded_key[72], uint8_t raw_key[64])
@@ -1710,6 +1704,7 @@ int atcacert_transform_data(atcacert_transform_t transform,
         {
             status = ATCA_SMALL_BUFFER;
         }
+        break;
     case TF_REVERSE:
         status = atcab_reversal(data, data_size, destination, destination_size);
         break;
@@ -1784,4 +1779,3 @@ int atcacert_max_cert_size(const atcacert_def_t* cert_def,
 
     return ATCACERT_E_SUCCESS;
 }
-

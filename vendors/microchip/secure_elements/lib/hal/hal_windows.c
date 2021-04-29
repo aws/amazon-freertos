@@ -2,7 +2,7 @@
  * \file
  * \brief ATCA Hardware abstraction layer for windows timer functions.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -41,7 +41,7 @@
  *
  * \param[in] delay number of microseconds to delay
  */
-void atca_delay_us(uint32_t delay)
+void hal_delay_us(uint32_t delay)
 {
     // divide by 1000 to convert us to ms
     // todo: use a timer with us accuracy
@@ -55,7 +55,7 @@ void atca_delay_us(uint32_t delay)
  *
  * \param[in] delay number of 0.01 milliseconds to delay
  */
-void atca_delay_10us(uint32_t delay)
+void hal_delay_10us(uint32_t delay)
 {
     // divide by 100 to convert 10's of us to ms
     // todo: use a timer with us accuracy
@@ -72,25 +72,19 @@ void atca_delay_10us(uint32_t delay)
  * \param[in] delay number of milliseconds to delay
  */
 
-#ifndef ATCA_USE_RTOS_TIMER
-void atca_delay_ms(uint32_t delay)
-#else
-void atca_delay_ms_internal(uint32_t delay)
-#endif
+void hal_delay_ms(uint32_t delay)
 {
     // use Windows supplied delay
     Sleep(delay);
 }
 
-
 #ifndef ATCA_USE_RTOS_TIMER
-
 /**
  * \brief Application callback for creating a mutex object
  * \param[IN/OUT] ppMutex location to receive ptr to mutex
  * \param[IN] pName Name of the mutex for systems using named objects
  */
-ATCA_STATUS hal_create_mutex(void** ppMutex, const char *pName)
+ATCA_STATUS hal_create_mutex(void** ppMutex, char *pName)
 {
     if (!ppMutex)
     {
@@ -178,5 +172,4 @@ ATCA_STATUS hal_unlock_mutex(void* pMutex)
 }
 
 #endif
-
 /** @} */

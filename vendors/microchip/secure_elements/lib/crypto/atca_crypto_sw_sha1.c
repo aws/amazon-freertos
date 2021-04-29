@@ -2,7 +2,7 @@
  * \file
  * \brief Wrapper API for SHA 1 routines
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -29,6 +29,7 @@
 #include "atca_crypto_sw_sha1.h"
 #include "hashes/sha1_routines.h"
 
+#if ATCA_ENABLE_SHA1_IMPL
 
 /** \brief Initialize context for performing SHA1 hash in software.
  * \param[in] ctx  Hash context
@@ -71,7 +72,7 @@ int atcac_sw_sha1_finish(atcac_sha1_ctx* ctx, uint8_t digest[ATCA_SHA1_DIGEST_SI
 
     return ATCA_SUCCESS;
 }
-
+#endif
 
 /** \brief Perform SHA1 hash of data in software.
  * \param[in]  data       Data to be hashed

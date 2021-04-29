@@ -2,7 +2,7 @@
  * \file
  * \brief Host side methods to support CryptoAuth computations
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -28,10 +28,11 @@
 #include "atca_host.h"
 #include "crypto/atca_crypto_sw_sha2.h"
 
+#if ATCA_CA_SUPPORT
 
 /** \brief This function copies otp and sn data into a command buffer.
  *
- * \param[in, out] param pointer to parameter structure
+ * \param[in,out] param pointer to parameter structure
  * \return pointer to command buffer byte that was copied last
  */
 uint8_t *atcah_include_data(struct atca_include_data_in_out *param)
@@ -90,7 +91,7 @@ uint8_t *atcah_include_data(struct atca_include_data_in_out *param)
 }
 
 /** \brief This function calculates host side nonce with the parameters passed.
- *    \param[in, out] param pointer to parameter structure
+ *    \param[in,out] param pointer to parameter structure
  *   \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atcah_nonce(struct atca_nonce_in_out *param)
@@ -150,36 +151,73 @@ ATCA_STATUS atcah_nonce(struct atca_nonce_in_out *param)
         // Update TempKey to only 32 bytes
         param->temp_key->is_64 = 0;
     }
-    else if (param->mode == NONCE_MODE_PASSTHROUGH && (param->mode & NONCE_MODE_TARGET_MASK) != NONCE_MODE_TARGET_TEMPKEY)
+    else if ((param->mode & NONCE_MODE_MASK) == NONCE_MODE_PASSTHROUGH)
     {
-        // Pass-through mode for TempKey (other targets have no effect on TempKey)
-        if ((param->mode & NONCE_MODE_INPUT_LEN_MASK) == NONCE_MODE_INPUT_LEN_64)
-        {
-            memcpy(param->temp_key->value, param->num_in, 64);
-            param->temp_key->is_64 = 1;
-        }
-        else
-        {
-            memcpy(param->temp_key->value, param->num_in, 32);
-            param->temp_key->is_64 = 0;
-        }
 
-        // Update TempKey flags
-        param->temp_key->source_flag = 1; // Not Random
-        param->temp_key->key_id = 0;
-        param->temp_key->gen_dig_data = 0;
-        param->temp_key->no_mac_flag = 0;
-        param->temp_key->valid = 1;
+        if ((param->mode & NONCE_MODE_TARGET_MASK) == NONCE_MODE_TARGET_TEMPKEY)
+        {
+            // Pass-through mode for TempKey (other targets have no effect on TempKey)
+            if ((param->mode & NONCE_MODE_INPUT_LEN_MASK) == NONCE_MODE_INPUT_LEN_64)
+            {
+                memcpy(param->temp_key->value, param->num_in, 64);
+                param->temp_key->is_64 = 1;
+            }
+            else
+            {
+                memcpy(param->temp_key->value, param->num_in, 32);
+                param->temp_key->is_64 = 0;
+            }
+
+            // Update TempKey flags
+            param->temp_key->source_flag = 1; // Not Random
+            param->temp_key->key_id = 0;
+            param->temp_key->gen_dig_data = 0;
+            param->temp_key->no_mac_flag = 0;
+            param->temp_key->valid = 1;
+        }
+        else //In the case of ECC608, passthrough message may be stored in message digest buffer/ Alternate Key buffer
+        {
+
+            // Update TempKey flags
+            param->temp_key->source_flag = 1; //Not Random
+            param->temp_key->key_id = 0;
+            param->temp_key->gen_dig_data = 0;
+            param->temp_key->no_mac_flag = 0;
+            param->temp_key->valid = 0;
+
+        }
+    }
+    else if ((NONCE_MODE_GEN_SESSION_KEY == calc_mode) && (param->zero >= 0x8000))
+    {
+        // Calculate nonce using SHA-256 (refer to data sheet)
+        p_temp = temporary;
+
+        memcpy(p_temp, param->rand_out, RANDOM_NUM_SIZE);
+        p_temp += RANDOM_NUM_SIZE;
+
+        memcpy(p_temp, param->num_in, NONCE_NUMIN_SIZE);
+        p_temp += NONCE_NUMIN_SIZE;
+
+        *p_temp++ = ATCA_NONCE;
+        *p_temp++ = param->mode;
+        *p_temp++ = (param->zero) & 0xFF;
+
+        // Calculate SHA256 to get the nonce
+        atcac_sw_sha2_256(temporary, ATCA_MSG_SIZE_NONCE, param->temp_key->value);
+    }
+    else
+    {
+        return ATCA_BAD_PARAM;
     }
 
     return ATCA_SUCCESS;
 }
 
 /** \brief Decrypt data that's been encrypted by the IO protection key.
- *          The ECDH and KDF commands on the ATECC608A are the only ones that
+ *          The ECDH and KDF commands on the ATECC608 are the only ones that
  *          support this operation.
  *
- *    \param[inout] param  Parameters required to perform the operation.
+ *    \param[in,out] param  Parameters required to perform the operation.
  *
  *   \return ATCA_SUCCESS on success, otherwise an error code.
  */
@@ -220,7 +258,7 @@ ATCA_STATUS atcah_io_decrypt(struct atca_io_decrypt_in_out *param)
 
 /** \brief Calculate the expected MAC on the host side for the Verify command.
  *
- * \param[inout] param  Data required to perform the operation.
+ * \param[in,out] param  Data required to perform the operation.
  *
  *  \return ATCA_SUCCESS on success, otherwise an error code.
  */
@@ -307,7 +345,7 @@ ATCA_STATUS atcah_verify_mac(atca_verify_mac_in_out_t *param)
 /** \brief Encrypts the digest for the SecureBoot command when using the
  *          encrypted digest / validating mac option.
  *
- * \param[inout] param  Data required to perform the operation.
+ * \param[in,out] param  Data required to perform the operation.
  *
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
@@ -343,7 +381,7 @@ ATCA_STATUS atcah_secureboot_enc(atca_secureboot_enc_in_out_t* param)
  * The result of this function (param->mac) should be compared with the actual
  * MAC returned to validate the response.
  *
- * \param[inout] param  Data required to perform the operation.
+ * \param[in,out] param  Data required to perform the operation.
  *
  *   \return ATCA_SUCCESS on success, otherwise an error code.
  */
@@ -394,7 +432,7 @@ ATCA_STATUS atcah_secureboot_mac(atca_secureboot_mac_in_out_t *param)
    The resulting digest will match with the one generated by the device when executing a MAC command.
    The TempKey (if used) should be valid (temp_key.valid = 1) before executing this function.
 
- * \param[in, out] param pointer to parameter structure
+ * \param[in,out] param pointer to parameter structure
  *   \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atcah_mac(struct atca_mac_in_out *param)
@@ -475,7 +513,7 @@ ATCA_STATUS atcah_mac(struct atca_mac_in_out *param)
 
 
 /** \brief This function performs the checkmac operation to generate client response on the host side .
- * \param[inout] param  Input and output parameters
+ * \param[in,out] param  Input and output parameters
  *  \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atcah_check_mac(struct atca_check_mac_in_out *param)
@@ -579,14 +617,14 @@ ATCA_STATUS atcah_check_mac(struct atca_check_mac_in_out *param)
    The resulting hash will match with the one generated in the device by an HMAC command.
    The TempKey has to be valid (temp_key.valid = 1) before executing this function.
 
- * \param[in, out] param pointer to parameter structure
+ * \param[in,out] param pointer to parameter structure
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atcah_hmac(struct atca_hmac_in_out *param)
 {
     // Local Variables
     struct atca_include_data_in_out include_data;
-    uint8_t temporary[HMAC_BLOCK_SIZE + ATCA_MSG_SIZE_HMAC];
+    uint8_t temporary[ATCA_HMAC_BLOCK_SIZE + ATCA_MSG_SIZE_HMAC];
     uint8_t i = 0;
     uint8_t *p_temp = NULL;
 
@@ -625,8 +663,8 @@ ATCA_STATUS atcah_hmac(struct atca_hmac_in_out *param)
     // zero pad key out to block size
     // Refer to fips-198 , length Key = 32 bytes, Block size = 512 bits = 64 bytes.
     // So the Key must be padded with zeros.
-    memset(p_temp, 0x36, HMAC_BLOCK_SIZE - ATCA_KEY_SIZE);
-    p_temp += HMAC_BLOCK_SIZE - ATCA_KEY_SIZE;
+    memset(p_temp, 0x36, ATCA_HMAC_BLOCK_SIZE - ATCA_KEY_SIZE);
+    p_temp += ATCA_HMAC_BLOCK_SIZE - ATCA_KEY_SIZE;
 
     // Next append the stream of data 'text'
     memset(p_temp, 0, ATCA_KEY_SIZE);
@@ -648,7 +686,7 @@ ATCA_STATUS atcah_hmac(struct atca_hmac_in_out *param)
 
     // Calculate SHA256
     // H((K0^ipad):text), use param.response for temporary storage
-    atcac_sw_sha2_256(temporary, HMAC_BLOCK_SIZE + ATCA_MSG_SIZE_HMAC, param->response);
+    atcac_sw_sha2_256(temporary, ATCA_HMAC_BLOCK_SIZE + ATCA_MSG_SIZE_HMAC, param->response);
 
 
     // Start second calculation (outer)
@@ -663,15 +701,15 @@ ATCA_STATUS atcah_hmac(struct atca_hmac_in_out *param)
     // zero pad key out to block size
     // Refer to fips-198 , length Key = 32 bytes, Block size = 512 bits = 64 bytes.
     // So the Key must be padded with zeros.
-    memset(p_temp, 0x5C, HMAC_BLOCK_SIZE - ATCA_KEY_SIZE);
-    p_temp += HMAC_BLOCK_SIZE - ATCA_KEY_SIZE;
+    memset(p_temp, 0x5C, ATCA_HMAC_BLOCK_SIZE - ATCA_KEY_SIZE);
+    p_temp += ATCA_HMAC_BLOCK_SIZE - ATCA_KEY_SIZE;
 
     // Append result from last calculation H((K0 ^ ipad) || text)
     memcpy(p_temp, param->response, ATCA_SHA_DIGEST_SIZE);
     p_temp += ATCA_SHA_DIGEST_SIZE;
 
     // Calculate SHA256 to get the resulting HMAC
-    atcac_sw_sha2_256(temporary, HMAC_BLOCK_SIZE + ATCA_SHA_DIGEST_SIZE, param->response);
+    atcac_sw_sha2_256(temporary, ATCA_HMAC_BLOCK_SIZE + ATCA_SHA_DIGEST_SIZE, param->response);
 
     // Update TempKey fields
     param->temp_key->valid = 0;
@@ -690,7 +728,7 @@ ATCA_STATUS atcah_hmac(struct atca_hmac_in_out *param)
    This stored value must be known by the application and is passed to this GenDig calculation function.
    The function calculates a new TempKey and returns it.
 
- * \param[in, out] param pointer to parameter structure
+ * \param[in,out] param pointer to parameter structure
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atcah_gen_dig(struct atca_gen_dig_in_out *param)
@@ -703,14 +741,16 @@ ATCA_STATUS atcah_gen_dig(struct atca_gen_dig_in_out *param)
     {
         return ATCA_BAD_PARAM;
     }
-    if (param->zone != GENDIG_ZONE_SHARED_NONCE && param->stored_value == NULL)
+    if ((param->zone <= GENDIG_ZONE_DATA) && (param->stored_value == NULL))
     {
-        return ATCA_BAD_PARAM;  // Stored value can only be null with the shared_nonce mode
+        return ATCA_BAD_PARAM;  // Stored value cannot be null for Config,OTP and Data
     }
+
     if ((param->zone == GENDIG_ZONE_SHARED_NONCE || (param->zone == GENDIG_ZONE_DATA && param->is_key_nomac)) && param->other_data == NULL)
     {
         return ATCA_BAD_PARAM;  // Other data is required in these cases
     }
+
     if (param->zone > 5)
     {
         return ATCA_BAD_PARAM;  // Unknown zone
@@ -719,16 +759,33 @@ ATCA_STATUS atcah_gen_dig(struct atca_gen_dig_in_out *param)
     // Start calculation
     p_temp = temporary;
 
+
     // (1) 32 bytes inputKey
-    if (param->zone == GENDIG_ZONE_SHARED_NONCE && param->key_id & 0x8000)
+    if (param->zone == GENDIG_ZONE_SHARED_NONCE)
     {
-        memcpy(p_temp, param->other_data, ATCA_KEY_SIZE);
+        if (param->key_id & 0x8000)
+        {
+            memcpy(p_temp, param->temp_key->value, ATCA_KEY_SIZE);  // 32 bytes TempKey
+        }
+        else
+        {
+            memcpy(p_temp, param->other_data, ATCA_KEY_SIZE);       // 32 bytes other data
+
+        }
+    }
+    else if (param->zone == GENDIG_ZONE_COUNTER || param->zone == GENDIG_ZONE_KEY_CONFIG)
+    {
+        memset(p_temp, 0x00, ATCA_KEY_SIZE);                        // 32 bytes of zero.
+
     }
     else
     {
-        memcpy(p_temp, param->stored_value, ATCA_KEY_SIZE);
+        memcpy(p_temp, param->stored_value, ATCA_KEY_SIZE);     // 32 bytes of stored data
+
     }
+
     p_temp += ATCA_KEY_SIZE;
+
 
     if (param->zone == GENDIG_ZONE_DATA && param->is_key_nomac)
     {
@@ -744,9 +801,18 @@ ATCA_STATUS atcah_gen_dig(struct atca_gen_dig_in_out *param)
         // (3) 1 byte Param1 (zone)
         *p_temp++ = param->zone;
 
-        // (4) 2 bytes Param2 (keyID)
+        // (4) 1 byte LSB of Param2 (keyID)
         *p_temp++ = (uint8_t)(param->key_id & 0xFF);
-        *p_temp++ = (uint8_t)(param->key_id >> 8);
+        if (param->zone == GENDIG_ZONE_SHARED_NONCE)
+        {
+            //(4) 1 byte zero for shared nonce mode
+            *p_temp++ = 0;
+        }
+        else
+        {
+            //(4)  1 byte MSB of Param2 (keyID) for other modes
+            *p_temp++ = (uint8_t)(param->key_id >> 8);
+        }
     }
 
     // (5) 1 byte SN[8]
@@ -756,21 +822,66 @@ ATCA_STATUS atcah_gen_dig(struct atca_gen_dig_in_out *param)
     *p_temp++ = param->sn[0];
     *p_temp++ = param->sn[1];
 
-    // (7) 25 zeros
-    memset(p_temp, 0, ATCA_GENDIG_ZEROS_SIZE);
-    p_temp += ATCA_GENDIG_ZEROS_SIZE;
 
-    if (param->zone == GENDIG_ZONE_SHARED_NONCE && !(param->key_id & 0x8000))
+    // (7)
+    if (param->zone == GENDIG_ZONE_COUNTER)
     {
-        memcpy(p_temp, param->other_data, ATCA_KEY_SIZE);       // (8) 32 bytes OtherData
+        *p_temp++ = 0;
+        *p_temp++ = (uint8_t)(param->counter & 0xFF);   // (7) 4 bytes of counter
+        *p_temp++ = (uint8_t)(param->counter >> 8);
+        *p_temp++ = (uint8_t)(param->counter >> 16);
+        *p_temp++ = (uint8_t)(param->counter >> 24);
+
+        memset(p_temp, 0x00, 20);                       // (7) 20 bytes of zero
+        p_temp += 20;
+
+    }
+    else if (param->zone == GENDIG_ZONE_KEY_CONFIG)
+    {
+        *p_temp++ = 0;
+        *p_temp++ = param->slot_conf & 0xFF;            // (7) 2 bytes of Slot config
+        *p_temp++ = (uint8_t)(param->slot_conf >> 8);
+
+        *p_temp++ = param->key_conf & 0xFF;
+        *p_temp++ = (uint8_t)(param->key_conf >> 8);   // (7) 2 bytes of key config
+
+        *p_temp++ = param->slot_locked;                // (7) 1 byte of slot locked
+
+        memset(p_temp, 0x00, 19);                      // (7) 19 bytes of zero
+        p_temp += 19;
+
+
     }
     else
     {
-        memcpy(p_temp, param->temp_key->value, ATCA_KEY_SIZE);  // (8) 32 bytes TempKey
+
+        memset(p_temp, 0, ATCA_GENDIG_ZEROS_SIZE);       // (7) 25 zeros
+        p_temp += ATCA_GENDIG_ZEROS_SIZE;
 
     }
+
+
+
+
+    if (param->zone == GENDIG_ZONE_SHARED_NONCE && (param->key_id & 0x8000))
+    {
+        memcpy(p_temp, param->other_data, ATCA_KEY_SIZE);           // (8) 32 bytes OtherData
+        p_temp += ATCA_KEY_SIZE;
+
+    }
+    else
+    {
+        memcpy(p_temp, param->temp_key->value, ATCA_KEY_SIZE);      // (8) 32 bytes TempKey
+        p_temp += ATCA_KEY_SIZE;
+
+    }
+
+
+
+
+
     // Calculate SHA256 to get the new TempKey
-    atcac_sw_sha2_256(temporary, ATCA_MSG_SIZE_GEN_DIG, param->temp_key->value);
+    atcac_sw_sha2_256(temporary, (p_temp - temporary), param->temp_key->value);
 
     // Update TempKey fields
     param->temp_key->valid = 1;
@@ -779,6 +890,10 @@ ATCA_STATUS atcah_gen_dig(struct atca_gen_dig_in_out *param)
     {
         param->temp_key->gen_dig_data = 1;
         param->temp_key->key_id = (param->key_id & 0xF);    // mask lower 4-bit only
+        if (param->is_key_nomac == 1)
+        {
+            param->temp_key->no_mac_flag = 1;
+        }
     }
     else
     {
@@ -790,7 +905,7 @@ ATCA_STATUS atcah_gen_dig(struct atca_gen_dig_in_out *param)
 }
 
 /** \brief This function generates mac with session key with a plain text.
- * \param[in, out] param pointer to parameter structure
+ * \param[in,out] param pointer to parameter structure
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atcah_gen_mac(struct atca_gen_dig_in_out *param)
@@ -870,7 +985,7 @@ ATCA_STATUS atcah_gen_mac(struct atca_gen_dig_in_out *param)
 
    The Write command will need an input MAC if SlotConfig.WriteConfig.Encrypt is set.
 
- * \param[in, out] param pointer to parameter structure
+ * \param[in,out] param pointer to parameter structure
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atcah_write_auth_mac(struct atca_write_mac_in_out *param)
@@ -945,7 +1060,7 @@ ATCA_STATUS atcah_write_auth_mac(struct atca_write_mac_in_out *param)
 
    The PrivWrite command will need an input MAC if SlotConfig.WriteConfig.Encrypt is set.
 
- * \param[in, out] param pointer to parameter structure
+ * \param[in,out] param pointer to parameter structure
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atcah_privwrite_auth_mac(struct atca_write_mac_in_out *param)
@@ -1042,7 +1157,7 @@ ATCA_STATUS atcah_privwrite_auth_mac(struct atca_write_mac_in_out *param)
    After executing this function, the initial value of target_key will be overwritten with the derived key.
    The TempKey should be valid (temp_key.valid = 1) before executing this function.
 
- * \param[in, out] param pointer to parameter structure
+ * \param[in,out] param pointer to parameter structure
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atcah_derive_key(struct atca_derive_key_in_out *param)
@@ -1117,7 +1232,7 @@ ATCA_STATUS atcah_derive_key(struct atca_derive_key_in_out *param)
 
    The DeriveKey command will need an input MAC if SlotConfig[TargetKey].Bit15 is set.
 
- * \param[in, out] param pointer to parameter structure
+ * \param[in,out] param pointer to parameter structure
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atcah_derive_key_mac(struct atca_derive_key_mac_in_out *param)
@@ -1176,7 +1291,7 @@ ATCA_STATUS atcah_derive_key_mac(struct atca_derive_key_mac_in_out *param)
    The decryption function does not check whether the TempKey has been generated by a correct ParentKey for the corresponding zone.
    Therefore to get a correct result, the application has to make sure that prior GenDig calculation was done using correct ParentKey.
 
- * \param[in, out] param pointer to parameter structure
+ * \param[in,out] param pointer to parameter structure
  * \return ATCA_SUCCESS on success, otherwise an error code.
  */
 ATCA_STATUS atcah_decrypt(struct atca_decrypt_in_out *param)
@@ -1234,7 +1349,7 @@ ATCA_STATUS atcah_sha256(int32_t len, const uint8_t *message, uint8_t *digest)
 
 /** \brief Calculate the PubKey digest created by GenKey and saved to TempKey.
  *
- * \param[inout] param  GenKey parameters required to calculate the PubKey
+ * \param[in,out] param  GenKey parameters required to calculate the PubKey
  *                        digest. Digest is return in the temp_key parameter.
  *
    \return ATCA_SUCCESS on success, otherwise an error code.
@@ -1301,7 +1416,7 @@ ATCA_STATUS atcah_gen_key_msg(struct atca_gen_key_in_out *param)
  * automatically from the current state of TempKey and the full config
  * zone.
  *
- * \param[inout] param          Sign(Internal) parameters to be filled out. Only
+ * \param[in,out] param          Sign(Internal) parameters to be filled out. Only
  *                              slot_config, key_config, and is_slot_locked will be
  *                              set.
  * \param[in]    device_type    The type of the device.
@@ -1462,3 +1577,122 @@ ATCA_STATUS atcah_encode_counter_match(uint32_t counter_value, uint8_t * counter
 
     return ATCA_SUCCESS;
 }
+
+/** \brief This function calculates the input MAC for the ECC204 Write command.
+
+   The Write command will need an input MAC if SlotConfig3.bit0 is set.
+
+ * \param[in,out] param pointer to parameter structure
+ * \return ATCA_SUCCESS on success, otherwise an error code.
+ */
+ATCA_STATUS atcah_ecc204_write_auth_mac(struct atca_write_mac_in_out *param)
+{
+    uint8_t mac_input[ATCA_MSG_SIZE_ENCRYPT_MAC];
+    uint8_t i;
+    uint8_t *p_temp;
+
+    // Check parameters
+    if ((NULL == param->input_data) || (NULL == param->temp_key))
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    // Encrypt by XOR-ing Data with the session key
+    for (i = 0; i < 32; i++)
+    {
+        param->encrypted_data[i] = param->input_data[i] ^ param->temp_key->value[i];
+    }
+
+    // If the pointer *mac is provided by the caller then calculate input MAC
+    if (param->auth_mac)
+    {
+        // Start calculation
+        p_temp = mac_input;
+
+        // (1) 32 bytes TempKey
+        memcpy(p_temp, param->temp_key->value, ATCA_KEY_SIZE);
+        p_temp += ATCA_KEY_SIZE;
+
+        // (2) 1 byte Opcode
+        *p_temp++ = ATCA_WRITE;
+
+        // (3) 1 byte Param1 (zone)
+        *p_temp++ = param->zone;
+
+        // (4) 2 bytes Param2 (keyID)
+        *p_temp++ = (param->key_id >> 8) & 0xFF;
+        *p_temp++ = param->key_id & 0xFF;
+
+        // (5) 1 byte SN[8]
+        *p_temp++ = param->sn[8];
+
+        // (6) 2 bytes SN[0:1]
+        *p_temp++ = param->sn[0];
+        *p_temp++ = param->sn[1];
+
+        // (7) 25 zeros
+        memset(p_temp, 0, ATCA_WRITE_MAC_ZEROS_SIZE);
+        p_temp += ATCA_WRITE_MAC_ZEROS_SIZE;
+
+        // (8) 32 bytes PlainText
+        memcpy(p_temp, param->input_data, ATCA_KEY_SIZE);
+
+        // Calculate SHA256 to get MAC
+        atcac_sw_sha2_256(mac_input, sizeof(mac_input), param->auth_mac);
+    }
+
+    return ATCA_SUCCESS;
+}
+
+/** \brief This function calculates the session key for the ECC204.
+ *
+ * \param[in,out] param pointer to parameter structure
+ * \return ATCA_SUCCESS on success, otherwise an error code.
+ */
+ATCA_STATUS atcah_gen_session_key(struct atca_session_key_in_out *param)
+{
+    uint8_t session_key_input[ATCA_MSG_SIZE_SESSION_KEY];
+    uint8_t *p_temp;
+
+    if ((NULL == param->transport_key) || (NULL == param->nonce) || (NULL == param->session_key))
+    {
+        return ATCA_BAD_PARAM;
+    }
+
+    p_temp = session_key_input;
+
+    // (1) 32 bytes of transport key
+    memcpy(p_temp, param->transport_key, ATCA_KEY_SIZE);
+    p_temp += ATCA_KEY_SIZE;
+
+    // (2) 0x15
+    *p_temp++ = 0x15;
+
+    // (3) 0x00
+    *p_temp++ = 0x00;
+
+    // (4) 2bytes of transport key id
+    *p_temp++ = param->transport_key_id & 0xFF;
+    *p_temp++ = (param->transport_key_id >> 8) & 0xFF;
+
+    // (5) 1 byte SN[8]
+    *p_temp++ = param->sn[8];
+
+    // (6) 2 bytes SN[0:1]
+    *p_temp++ = param->sn[0];
+    *p_temp++ = param->sn[1];
+
+    // (7) 25 zeros
+    memset(p_temp, 0, ATCA_WRITE_MAC_ZEROS_SIZE);
+    p_temp += ATCA_WRITE_MAC_ZEROS_SIZE;
+
+    // (8) 32 bytes nonce
+    memcpy(p_temp, param->nonce, 32);
+
+    // Calculate SHA256 to get MAC
+    atcac_sw_sha2_256(session_key_input, sizeof(session_key_input), param->session_key);
+
+    return ATCA_SUCCESS;
+}
+
+#endif

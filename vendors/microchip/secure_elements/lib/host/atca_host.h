@@ -2,7 +2,7 @@
  * \file
  * \brief  Definitions and Prototypes for ATCA Utility Functions
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -31,6 +31,7 @@
 
 #include <stdint.h>
 #include "cryptoauthlib.h"  // contains definitions used by chip and these routines
+#include "calib/calib_basic.h"
 
 /** \defgroup atcah Host side crypto methods (atcah_)
  *
@@ -75,6 +76,9 @@
 //! KeyId{32} || OpCode{1} || Param1{1} || Param2{2}|| SN8{1} || SN0_1{2} || 0{25} || TempKey{32}
 #define ATCA_MSG_SIZE_ENCRYPT_MAC      (96)
 
+//! TransportKey{32} || 0x15{1} || 0x00{1} || KeyId{2} || SN8{1} || SN0_1{2} || 0{25} || Nonce{32}
+#define ATCA_MSG_SIZE_SESSION_KEY      (96)
+
 //! KeyId{32} || OpCode{1} || Param1{1} || Param2{2}|| SN8{1} || SN0_1{2} || 0{21} || PlainText{36}
 #define ATCA_MSG_SIZE_PRIVWRITE_MAC    (96)
 
@@ -84,7 +88,7 @@
 #define ATCA_PRIVWRITE_MAC_ZEROS_SIZE  (21)
 #define ATCA_PRIVWRITE_PLAIN_TEXT_SIZE (36)
 #define ATCA_DERIVE_KEY_ZEROS_SIZE     (25)
-#define HMAC_BLOCK_SIZE                 (64)
+#define ATCA_HMAC_BLOCK_SIZE           (64)
 #define ENCRYPTION_KEY_SIZE             (64)
 
 /** @} */
@@ -107,7 +111,7 @@
  */
 typedef struct atca_temp_key
 {
-    uint8_t  value[ATCA_KEY_SIZE * 2]; //!< Value of TempKey (64 bytes for ATECC608A only)
+    uint8_t  value[ATCA_KEY_SIZE * 2]; //!< Value of TempKey (64 bytes for ATECC608 only)
     unsigned key_id       : 4;         //!< If TempKey was derived from a slot or transport key (GenDig or GenKey), that key ID is saved here.
     unsigned source_flag  : 1;         //!< Indicates id TempKey started from a random nonce (0) or not (1).
     unsigned gen_dig_data : 1;         //!< TempKey was derived from the GenDig command.
@@ -273,6 +277,10 @@ typedef struct atca_gen_dig_in_out
 {
     uint8_t               zone;         //!< [in] Zone/Param1 for the GenDig command
     uint16_t              key_id;       //!< [in] KeyId/Param2 for the GenDig command
+    uint16_t              slot_conf;    //!< [in] Slot config for the GenDig command
+    uint16_t              key_conf;     //!< [in] Key config for the GenDig command
+    uint8_t               slot_locked;  //!< [in] slot locked for the GenDig command
+    uint32_t              counter;      //!< [in] counter for the GenDig command
     bool                  is_key_nomac; //!< [in] Set to true if the slot pointed to be key_id has the SotConfig.NoMac bit set
     const uint8_t *       sn;           //!< [in] Device serial number SN[0:8]. Only SN[0:1] and SN[8] are required though.
     const uint8_t *       stored_value; //!< [in] 32-byte slot value, config block, OTP block as specified by the Zone/KeyId parameters
@@ -409,6 +417,18 @@ typedef struct atca_sign_internal_in_out
     uint8_t*                    digest;            //!< [out] SHA256 digest of the full 55 byte message. Can be NULL if not required.
 } atca_sign_internal_in_out_t;
 
+/** \brief Input/Output paramters for calculating the session key
+ *         by the nonce command. Used with the atcah_gen_session_key() function.
+ */
+typedef struct atca_session_key_in_out
+{
+    uint8_t*       transport_key;
+    uint16_t       transport_key_id;
+    const uint8_t* sn;
+    uint8_t*       nonce;
+    uint8_t*       session_key;
+}atca_session_key_in_out_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -434,6 +454,8 @@ ATCA_STATUS atcah_secureboot_enc(atca_secureboot_enc_in_out_t* param);
 ATCA_STATUS atcah_secureboot_mac(atca_secureboot_mac_in_out_t *param);
 ATCA_STATUS atcah_encode_counter_match(uint32_t counter, uint8_t * counter_match);
 ATCA_STATUS atcah_io_decrypt(struct atca_io_decrypt_in_out *param);
+ATCA_STATUS atcah_ecc204_write_auth_mac(struct atca_write_mac_in_out *param);
+ATCA_STATUS atcah_gen_session_key(atca_session_key_in_out_t *param);
 #ifdef __cplusplus
 }
 #endif

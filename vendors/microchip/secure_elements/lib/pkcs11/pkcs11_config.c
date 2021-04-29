@@ -2,31 +2,27 @@
  * \file
  * \brief PKCS11 Library Configuration
  *
- * \copyright (c) 2017 Microchip Technology Inc. and its subsidiaries.
- *            You may use this software and any derivatives exclusively with
- *            Microchip products.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
- * (c) 2017 Microchip Technology Inc. and its subsidiaries. You may use this
- * software and any derivatives exclusively with Microchip products.
+ * Subject to your compliance with these terms, you may use Microchip software
+ * and any derivatives exclusively with Microchip products. It is your
+ * responsibility to comply with third party license terms applicable to your
+ * use of third party software (including open source software) that may
+ * accompany Microchip software.
  *
  * THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
  * EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
  * WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
- * PARTICULAR PURPOSE, OR ITS INTERACTION WITH MICROCHIP PRODUCTS, COMBINATION
- * WITH ANY OTHER PRODUCTS, OR USE IN ANY APPLICATION.
- *
- * IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
- * INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
- * WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS
- * BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO THE
- * FULLEST EXTENT ALLOWED BY LAW, MICROCHIPS TOTAL LIABILITY ON ALL CLAIMS IN
- * ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
- * THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
- *
- * MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE
- * TERMS.
+ * PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT,
+ * SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE
+ * OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF
+ * MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+ * FORESEEABLE. TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL
+ * LIABILITY ON ALL CLAIMS IN ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED
+ * THE AMOUNT OF FEES, IF ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR
+ * THIS SOFTWARE.
  */
 
 #include "pkcs11_config.h"
@@ -37,6 +33,10 @@
 #include "pkcs11_key.h"
 #include "pkcs11_cert.h"
 #include "pkcs11_os.h"
+
+#if defined(ATCA_TNGTLS_SUPPORT) || defined(ATCA_TNGLORA_SUPPORT) || defined(ATCA_TFLEX_SUPPORT)
+CK_RV pkcs11_trust_load_objects(pkcs11_slot_ctx_ptr pSlot);
+#endif
 
 
 /**
@@ -93,6 +93,10 @@ void pkcs11_config_init_cert(pkcs11_object_ptr pObject, char * label, size_t len
 
 #if !PKCS11_USE_STATIC_CONFIG
 
+#ifdef ATCA_NO_HEAP
+#error Invalid configuration: ATCA_NO_HEAP && PKCS11_USE_STATIC_CONFIG==0 - Loading pkcs11 configuration from disk requires dynamic memory allocation
+#endif
+
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -109,15 +113,19 @@ static size_t pkcs11_config_load_file(FILE* fp, char ** buffer)
         fseek(fp, 0L, SEEK_SET);
 
         *buffer = (char*)pkcs11_os_malloc(size);
-        memset(*buffer, 0, size);
         if (*buffer)
         {
+            memset(*buffer, 0, size);
             if (size != fread(*buffer, 1, size, fp))
             {
                 pkcs11_os_free(*buffer);
                 *buffer = NULL;
                 size = 0;
             }
+        }
+        else
+        {
+            size = 0;
         }
     }
     return size;
@@ -214,6 +222,47 @@ static void pkcs11_config_split_string(char* s, char splitter, int * argc, char*
     *argc = args;
 }
 
+static CK_RV pkcs11_config_parse_device(pkcs11_slot_ctx_ptr slot_ctx, char* cfgstr)
+{
+    int argc = 4;
+    char * argv[4];
+    CK_RV rv = CKR_GENERAL_ERROR;
+
+    pkcs11_config_split_string(cfgstr, '-', &argc, argv);
+
+    if (!strcmp(argv[0], "ATECC508A"))
+    {
+        slot_ctx->interface_config.devtype = ATECC508A;
+        rv = CKR_OK;
+    }
+    else if (!strncmp(argv[0], "ATECC608", 8))
+    {
+        slot_ctx->interface_config.devtype = ATECC608;
+
+        if (1 < argc)
+        {
+#if defined(ATCA_TNGTLS_SUPPORT) || defined(ATCA_TNGLORA_SUPPORT) || defined(ATCA_TFLEX_SUPPORT)
+            if (!strcmp(argv[1], "TNGTLS") || !strcmp(argv[1], "TFLXTLS") || !strcmp(argv[1], "TNGLORA"))
+            {
+                rv = pkcs11_trust_load_objects(slot_ctx);
+            }
+#endif
+        }
+        rv = CKR_OK;
+    }
+    else if (!strcmp(argv[0], "TA100"))
+    {
+        slot_ctx->interface_config.devtype = TA100;
+        rv = CKR_OK;
+    }
+    else
+    {
+        PKCS11_DEBUG("Unrecognized device: %s", argv[0]);
+    }
+
+    return rv;
+}
+
 static CK_RV pkcs11_config_parse_interface(pkcs11_slot_ctx_ptr slot_ctx, char* cfgstr)
 {
     int argc = 4;
@@ -222,27 +271,79 @@ static CK_RV pkcs11_config_parse_interface(pkcs11_slot_ctx_ptr slot_ctx, char* c
 
     pkcs11_config_split_string(cfgstr, ',', &argc, argv);
 
+    /* Device part number was a late addition so this defaults it to a 608 */
+    slot_ctx->interface_config.devtype = ATECC608;
+    slot_ctx->interface_config.wake_delay = 1500;
+    slot_ctx->interface_config.rx_retries = 20;
+
     if (!strcmp(argv[0], "i2c"))
     {
-        slot_ctx->interface_config = &cfg_ateccx08a_i2c_default;
+        #ifdef ATCA_HAL_I2C
+        slot_ctx->interface_config.iface_type = ATCA_I2C_IFACE;
         if (argc > 1)
         {
-            cfg_ateccx08a_i2c_default.atcai2c.slave_address = (uint8_t)strtol(argv[1], NULL, 16);
+            slot_ctx->interface_config.atcai2c.address = (uint8_t)strtol(argv[1], NULL, 16);
         }
         if (argc > 2)
         {
-            cfg_ateccx08a_i2c_default.atcai2c.bus = (uint8_t)strtol(argv[2], NULL, 16);
+            slot_ctx->interface_config.atcai2c.bus = (uint8_t)strtol(argv[2], NULL, 16);
         }
         if (argc > 3)
         {
-            cfg_ateccx08a_i2c_default.atcai2c.baud = (uint8_t)strtol(argv[3], NULL, 10);
+            slot_ctx->interface_config.atcai2c.baud = (uint8_t)strtol(argv[3], NULL, 10);
         }
         rv = CKR_OK;
+        #endif
     }
     else if (!strcmp(argv[0], "hid"))
     {
-        slot_ctx->interface_config = &cfg_ateccx08a_kithid_default;
+        #ifdef ATCA_HAL_KIT_HID
+        slot_ctx->interface_config.iface_type = ATCA_HID_IFACE;
+        slot_ctx->interface_config.atcahid.dev_interface = ATCA_KIT_AUTO_IFACE;
+        slot_ctx->interface_config.atcahid.vid = 0x03EB;
+        slot_ctx->interface_config.atcahid.pid = 0x2312;
+        slot_ctx->interface_config.atcahid.packetsize = 64;
+        if (argc > 1)
+        {
+            if (!strcmp(argv[1], "i2c"))
+            {
+                slot_ctx->interface_config.atcahid.dev_interface = ATCA_KIT_I2C_IFACE;
+            }
+            else if (!strcmp(argv[1], "swi"))
+            {
+                slot_ctx->interface_config.atcahid.dev_interface = ATCA_KIT_SWI_IFACE;
+            }
+            else if (!strcmp(argv[1], "spi"))
+            {
+                slot_ctx->interface_config.atcahid.dev_interface = ATCA_KIT_SPI_IFACE;
+            }
+        }
+        if (argc > 2)
+        {
+            slot_ctx->interface_config.atcahid.dev_identity = (uint8_t)strtol(argv[2], NULL, 16);
+        }
+
         rv = CKR_OK;
+        #endif
+    }
+    else if (!strcmp(argv[0], "spi"))
+    {
+#ifdef ATCA_HAL_SPI
+        slot_ctx->interface_config.iface_type = ATCA_SPI_IFACE;
+        if (argc > 1)
+        {
+            slot_ctx->interface_config.atcaspi.bus = (uint8_t)strtol(argv[1], NULL, 16);
+        }
+        if (argc > 2)
+        {
+            slot_ctx->interface_config.atcaspi.select_pin = (uint8_t)strtol(argv[2], NULL, 16);
+        }
+        if (argc > 3)
+        {
+            slot_ctx->interface_config.atcaspi.baud = (uint32_t)strtol(argv[3], NULL, 10);
+        }
+        rv = CKR_OK;
+#endif
     }
     else
     {
@@ -250,6 +351,26 @@ static CK_RV pkcs11_config_parse_interface(pkcs11_slot_ctx_ptr slot_ctx, char* c
     }
     return rv;
 }
+
+#ifndef PKCS11_LABEL_IS_SERNUM
+static CK_RV pkcs11_config_parse_label(pkcs11_slot_ctx_ptr slot_ctx, char* cfgstr)
+{
+    CK_RV rv = CKR_OK;
+    size_t len = strlen(cfgstr);
+
+    if (len && (len < PKCS11_MAX_LABEL_SIZE))
+    {
+        memcpy(slot_ctx->label, cfgstr, len);
+        slot_ctx->label[PKCS11_MAX_LABEL_SIZE] = 0;
+    }
+    else
+    {
+        rv = CKR_ARGUMENTS_BAD;
+    }
+
+    return rv;
+}
+#endif
 
 static CK_RV pkcs11_config_parse_freeslots(pkcs11_slot_ctx_ptr slot_ctx, char* cfgstr)
 {
@@ -283,7 +404,7 @@ static CK_RV pkcs11_config_parse_object(pkcs11_slot_ctx_ptr slot_ctx, char* cfgs
     if (!strcmp(argv[0], "private") && argc == 3)
     {
         pkcs11_object_ptr pPubkey = NULL;
-        CK_BYTE slot = (CK_BYTE)strtol(argv[2], NULL, 10);
+        uint16_t slot = (uint16_t)strtol(argv[2], NULL, 16);
 
         rv = pkcs11_object_alloc(&pObject);
         if (!rv && pObject)
@@ -317,19 +438,19 @@ static CK_RV pkcs11_config_parse_object(pkcs11_slot_ctx_ptr slot_ctx, char* cfgs
         if (!rv && pObject)
         {
             pkcs11_config_init_public(pObject, argv[1], strlen(argv[1]));
-            pObject->slot = (CK_BYTE)strtol(argv[2], NULL, 10);
+            pObject->slot = (uint16_t)strtol(argv[2], NULL, 16);
             pObject->flags = 0;
             pObject->config = &slot_ctx->cfg_zone;
         }
     }
-#if !PKCS11_USE_STATIC_MEMORY
-    else if (!strcmp(argv[0], "certificate") && argc > 3)
+    else if (!strcmp(argv[0], "certificate") && argc >= 3)
     {
+
         rv = pkcs11_object_alloc(&pObject);
         if (!rv && pObject)
         {
             memmove(pObject->name, argv[1], strlen(argv[1]));
-            pObject->slot = (CK_BYTE)strtol(argv[2], NULL, 10);
+            pObject->slot = (uint16_t)strtol(argv[2], NULL, 16);
             pObject->class_id = CKO_CERTIFICATE;
             pObject->class_type = CK_CERTIFICATE_CATEGORY_TOKEN_USER;
             pObject->attributes = pkcs11_cert_x509public_attributes;
@@ -342,13 +463,34 @@ static CK_RV pkcs11_config_parse_object(pkcs11_slot_ctx_ptr slot_ctx, char* cfgs
             pObject->config = &slot_ctx->cfg_zone;
         }
     }
-#endif
     else
     {
         PKCS11_DEBUG("Unrecognized object type: %s", argv[0]);
     }
+
+
+
     return rv;
 }
+
+
+static CK_RV pkcs11_config_parse_handle(uint16_t * handle, char* cfgstr)
+{
+    int argc = 4;
+    char * argv[4];
+    CK_RV rv = CKR_GENERAL_ERROR;
+
+    pkcs11_config_split_string(cfgstr, ',', &argc, argv);
+
+    if (argc == 1)
+    {
+        *handle = (uint16_t)strtol(argv[2], NULL, 16);
+        rv = CKR_OK;
+    }
+
+    return rv;
+}
+
 
 static CK_RV pkcs11_config_parse_slot_file(pkcs11_slot_ctx_ptr slot_ctx, int argc, char * argv[])
 {
@@ -357,13 +499,31 @@ static CK_RV pkcs11_config_parse_slot_file(pkcs11_slot_ctx_ptr slot_ctx, int arg
 
     for (i = 0; i < argc; i += 2)
     {
-        if (!strcmp(argv[i], "interface"))
+        if (!strcmp(argv[i], "device"))
+        {
+            rv = pkcs11_config_parse_device(slot_ctx, argv[i + 1]);
+        }
+        else if (!strcmp(argv[i], "interface"))
         {
             rv = pkcs11_config_parse_interface(slot_ctx, argv[i + 1]);
         }
+#ifndef PKCS11_LABEL_IS_SERNUM
+        else if (!strcmp(argv[i], "label"))
+        {
+            rv = pkcs11_config_parse_label(slot_ctx, argv[i + 1]);
+        }
+#endif
         else if (!strcmp(argv[i], "freeslots"))
         {
             rv = pkcs11_config_parse_freeslots(slot_ctx, argv[i + 1]);
+        }
+        else if (!strcmp(argv[i], "user_pin_handle"))
+        {
+            rv = pkcs11_config_parse_handle(&slot_ctx->user_pin_handle, argv[i + 1]);
+        }
+        else if (!strcmp(argv[i], "so_pin_handle"))
+        {
+            rv = pkcs11_config_parse_handle(&slot_ctx->so_pin_handle, argv[i + 1]);
         }
         else if (!strcmp(argv[i], "object"))
         {
@@ -445,6 +605,7 @@ CK_RV pkcs11_config_key(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, p
     char *objtype = "";
     char filename[200];
     int i;
+    CK_RV rv = CKR_FUNCTION_FAILED;
 
     /* Find a free slot that matches the object type */
 
@@ -482,25 +643,37 @@ CK_RV pkcs11_config_key(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, p
 
     if (i < 16)
     {
-        (void)snprintf(filename, sizeof(filename), "%s%d.%d.conf", pLibCtx->config_path, pSlot->slot_id, i);
-        fp = fopen(filename, "wb");
-        if (fp)
+        int ret = snprintf(filename, sizeof(filename), "%s%d.%d.conf", pLibCtx->config_path,
+                           (int)pSlot->slot_id, (int)i);
+
+        if (ret > 0 && ret < sizeof(filename))
         {
-            fprintf(fp, "type = %s\n", objtype);
-            fprintf(fp, "label = %s\n", pObject->name);
-            fclose(fp);
+            fp = fopen(filename, "wb");
+            if (fp)
+            {
+                fprintf(fp, "type = %s\n", objtype);
+                fprintf(fp, "label = %s\n", pObject->name);
+                fclose(fp);
+                rv = CKR_OK;
+            }
         }
     }
-    return CKR_OK;
+
+    return rv;
 }
 
 CK_RV pkcs11_config_remove_object(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, pkcs11_object_ptr pObject)
 {
     char filename[200];
 
-    (void)snprintf(filename, sizeof(filename), "%s%d.%d.conf", pLibCtx->config_path, pSlot->slot_id, pObject->slot);
+    int ret = snprintf(filename, sizeof(filename), "%s%d.%d.conf", pLibCtx->config_path,
+                       (int)pSlot->slot_id, (int)pObject->slot);
 
-    remove(filename);
+    if (ret > 0 && ret < sizeof(filename))
+    {
+        remove(filename);
+        pSlot->flags |= (1 << pObject->slot);
+    }
 
     return CKR_OK;
 }
@@ -554,8 +727,16 @@ CK_RV pkcs11_config_load_objects(pkcs11_slot_ctx_ptr slot_ctx)
     rv = 0;
     for (i = 0; i < PKCS11_MAX_SLOTS_ALLOWED && !rv; i++)
     {
-        (void)snprintf(filename, sizeof(filename), "%s%d.conf", pLibCtx->config_path, i);
-        fp = fopen(filename, "rb");
+        int ret = snprintf(filename, sizeof(filename), "%s%d.conf", pLibCtx->config_path, i);
+
+        if (ret > 0 && ret < sizeof(filename))
+        {
+            fp = fopen(filename, "rb");
+        }
+        else
+        {
+            fp = NULL;
+        }
 
         if (fp)
         {
@@ -573,14 +754,32 @@ CK_RV pkcs11_config_load_objects(pkcs11_slot_ctx_ptr slot_ctx)
                 {
                     PKCS11_DEBUG("Failed to parse the slot configuration file");
                 }
+#ifndef PKCS11_LABEL_IS_SERNUM
+                if (CKR_OK == rv)
+                {
+                    /* If a label wasn't set - configure a default */
+                    if (!slot_ctx->label[0])
+                    {
+                        snprintf((char*)slot_ctx->label, sizeof(slot_ctx->label) - 1, "%02XABC", (uint8_t)i);
+                    }
+                }
+#endif
                 pkcs11_os_free(buffer);
             }
         }
 
         for (j = 0; j < 16; j++)
         {
-            (void)snprintf(filename, sizeof(filename), "%s%d.%d.conf", pLibCtx->config_path, i, j);
-            fp = fopen(filename, "rb");
+            int ret = snprintf(filename, sizeof(filename), "%s%d.%d.conf", pLibCtx->config_path, i, j);
+            if (ret > 0 && ret < sizeof(filename))
+            {
+                fp = fopen(filename, "rb");
+            }
+            else
+            {
+                fp = NULL;
+            }
+
             if (fp)
             {
                 buflen = pkcs11_config_load_file(fp, &buffer);
@@ -606,7 +805,6 @@ CK_RV pkcs11_config_load_objects(pkcs11_slot_ctx_ptr slot_ctx)
         }
     }
 
-
     return rv;
 }
 
@@ -615,12 +813,12 @@ CK_RV pkcs11_config_load_objects(pkcs11_slot_ctx_ptr slot_ctx)
 /* Function to load/specify device configurations depending on platform */
 CK_RV pkcs11_config_load(pkcs11_slot_ctx_ptr slot_ctx)
 {
-    pkcs11_object_ptr pObject;
     CK_RV rv = CKR_OK;
 
 #if PKCS11_MONOTONIC_ENABLE
     if (CKR_OK == rv)
     {
+        pkcs11_object_ptr pObject;
         rv = pkcs11_object_alloc(&pObject);
         if (pObject)
         {

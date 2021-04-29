@@ -48,7 +48,7 @@
  *
  * \param[in] delay number of microseconds to delay
  */
-void atca_delay_us(uint32_t delay)
+void hal_delay_us(uint32_t delay)
 {
     usleep(delay);
 }
@@ -57,9 +57,9 @@ void atca_delay_us(uint32_t delay)
  *
  * \param[in] delay number of 0.01 milliseconds to delay
  */
-void atca_delay_10us(uint32_t delay)
+void hal_delay_10us(uint32_t delay)
 {
-    atca_delay_us(delay * 10);
+    hal_delay_us(delay * 10);
 }
 
 
@@ -71,11 +71,12 @@ void atca_delay_10us(uint32_t delay)
  */
 
 /* ASF already has delay_ms - see delay.h */
-void atca_delay_ms(uint32_t delay)
+void hal_delay_ms(uint32_t delay)
 {
-    atca_delay_us(delay * 1000);
+    hal_delay_us(delay * 1000);
 }
 
+#ifndef ATCA_USE_RTOS_TIMER
 #if ATCA_USE_SHARED_MUTEX
 
 typedef struct
@@ -141,7 +142,9 @@ ATCA_STATUS hal_create_mutex(void ** ppMutex, char* pName)
         pthread_mutexattr_t muattr;
         pthread_mutexattr_init(&muattr);
         pthread_mutexattr_settype(&muattr, PTHREAD_MUTEX_ERRORCHECK);
+#ifdef PTHREAD_PRIO_INHERIT
         pthread_mutexattr_setprotocol(&muattr, PTHREAD_PRIO_INHERIT);
+#endif
         pthread_mutexattr_setrobust(&muattr, PTHREAD_MUTEX_ROBUST);
         if (pName)
         {
@@ -248,8 +251,8 @@ ATCA_STATUS hal_unlock_mutex(void * pMutex)
 
 /**
  * \brief Application callback for creating a mutex object
- * \param[IN/OUT] ppMutex location to receive ptr to mutex
- * \param[IN/OUT] name String used to identify the mutex
+ * \param[in,out] ppMutex location to receive ptr to mutex
+ * \param[in,out] pName String used to identify the mutex
  */
 ATCA_STATUS hal_create_mutex(void ** ppMutex, char* pName)
 {
@@ -346,5 +349,5 @@ ATCA_STATUS hal_unlock_mutex(void * pMutex)
     }
 }
 #endif
-
+#endif
 /** @} */

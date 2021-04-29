@@ -2,7 +2,7 @@
  * \file
  * \brief Declarations for date handling with regard to certificates.
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -87,7 +87,7 @@ extern const size_t ATCACERT_DATE_FORMAT_SIZES[ATCACERT_DATE_FORMAT_SIZES_COUNT]
  * \param[in]    format               Format to use.
  * \param[in]    timestamp            Timestamp to format.
  * \param[out]   formatted_date       Formatted date will be returned in this buffer.
- * \param[inout] formatted_date_size  As input, the size of the formatted_date buffer.
+ * \param[in,out] formatted_date_size  As input, the size of the formatted_date buffer.
  *                                    As output, the size of the returned formatted_date.
  *
  * \return ATCACERT_E_SUCCESS on success, otherwise an error code.

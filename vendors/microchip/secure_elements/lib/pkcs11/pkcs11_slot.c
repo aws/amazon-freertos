@@ -8,40 +8,38 @@
  * by the device specification would be enumerated seperately as related to
  * specific supported mechanisms as cryptographic "objects".
  *
- * \copyright (c) 2017 Microchip Technology Inc. and its subsidiaries.
- *            You may use this software and any derivatives exclusively with
- *            Microchip products.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
- * (c) 2017 Microchip Technology Inc. and its subsidiaries. You may use this
- * software and any derivatives exclusively with Microchip products.
+ * Subject to your compliance with these terms, you may use Microchip software
+ * and any derivatives exclusively with Microchip products. It is your
+ * responsibility to comply with third party license terms applicable to your
+ * use of third party software (including open source software) that may
+ * accompany Microchip software.
  *
  * THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
  * EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
  * WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
- * PARTICULAR PURPOSE, OR ITS INTERACTION WITH MICROCHIP PRODUCTS, COMBINATION
- * WITH ANY OTHER PRODUCTS, OR USE IN ANY APPLICATION.
- *
- * IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
- * INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
- * WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS
- * BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO THE
- * FULLEST EXTENT ALLOWED BY LAW, MICROCHIPS TOTAL LIABILITY ON ALL CLAIMS IN
- * ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
- * THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
- *
- * MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE
- * TERMS.
+ * PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT,
+ * SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE
+ * OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF
+ * MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+ * FORESEEABLE. TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL
+ * LIABILITY ON ALL CLAIMS IN ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED
+ * THE AMOUNT OF FEES, IF ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR
+ * THIS SOFTWARE.
  */
 
+#include "cryptoauthlib.h"
 #include "pkcs11_config.h"
 #include "pkcs11_debug.h"
 #include "pkcs11_init.h"
 #include "pkcs11_slot.h"
 #include "pkcs11_info.h"
 #include "pkcs11_util.h"
-#include "cryptoauthlib.h"
+#include "pkcs11_object.h"
+#include "pkcs11_os.h"
 
 #include <stdio.h>
 
@@ -49,7 +47,7 @@
  * \defgroup pkcs11 Slot Management (pkcs11_)
    @{ */
 
-#if PKCS11_USE_STATIC_MEMORY
+#ifdef ATCA_NO_HEAP
 static pkcs11_slot_ctx pkcs11_slot_cache[PKCS11_MAX_SLOTS_ALLOWED];
 #endif
 
@@ -75,15 +73,21 @@ pkcs11_slot_ctx_ptr pkcs11_slot_get_context(pkcs11_lib_ctx_ptr lib_ctx, CK_SLOT_
 
 CK_VOID_PTR pkcs11_slot_initslots(CK_ULONG pulCount)
 {
-#if PKCS11_USE_STATIC_MEMORY
+#ifdef ATCA_NO_HEAP
     int i;
-
     for (i = 0; i < PKCS11_MAX_SLOTS_ALLOWED; i++)
     {
         memset(&pkcs11_slot_cache[i], 0, sizeof(pkcs11_slot_ctx));
     }
 
     return &pkcs11_slot_cache;
+#else
+    pkcs11_slot_ctx_ptr slot_ctx_array = pkcs11_os_malloc(sizeof(pkcs11_slot_ctx) * pulCount);
+    if (slot_ctx_array)
+    {
+        memset(slot_ctx_array, 0, sizeof(pkcs11_slot_ctx) * pulCount);
+    }
+    return slot_ctx_array;
 #endif
 }
 
@@ -105,15 +109,9 @@ CK_RV pkcs11_slot_config(CK_SLOT_ID slotID)
         return CKR_SLOT_ID_INVALID;
     }
 
-#if PKCS11_USE_STATIC_CONFIG
-#ifdef ATCA_HAL_I2C
-    cfg_ateccx08a_i2c_default.atcai2c.slave_address = ATCA_I2C_ECC_ADDRESS;
-    slot_ctx->interface_config = &cfg_ateccx08a_i2c_default;
-#else
-    slot_ctx->interface_config = &cfg_ateccx08a_kithid_default;
-#endif
-
-#endif /* PKCS11_USE_STATIC_CONFIG */
+    /* Set Defaults */
+    slot_ctx->user_pin_handle = 0xFFFF;
+    slot_ctx->so_pin_handle = 0xFFFF;
 
     /* Load the configuration */
     rv = pkcs11_config_load(slot_ctx);
@@ -121,10 +119,13 @@ CK_RV pkcs11_slot_config(CK_SLOT_ID slotID)
     return rv;
 }
 
+#if 0
 static ATCA_STATUS pkcs11_slot_check_device_type(ATCAIfaceCfg * ifacecfg)
 {
     uint8_t info[4] = { 0 };
     ATCA_STATUS status = atcab_info(info);
+
+    printf("pkcs11_slot_check_device_type: %d\n", ifacecfg->devtype);
 
     if (ATCA_SUCCESS == status)
     {
@@ -136,7 +137,7 @@ static ATCA_STATUS pkcs11_slot_check_device_type(ATCAIfaceCfg * ifacecfg)
         }
         else if (0x60 == info[2])
         {
-            devType = ATECC608A;
+            devType = ATECC608;
         }
 
         if (ifacecfg->devtype != devType)
@@ -147,8 +148,12 @@ static ATCA_STATUS pkcs11_slot_check_device_type(ATCAIfaceCfg * ifacecfg)
             status = atcab_init(ifacecfg);
         }
     }
+
+    printf("pkcs11_slot_check_device_type: %d\n", ifacecfg->devtype);
+
     return status;
 }
+#endif
 
 CK_RV pkcs11_slot_init(CK_SLOT_ID slotID)
 {
@@ -169,23 +174,9 @@ CK_RV pkcs11_slot_init(CK_SLOT_ID slotID)
         return CKR_SLOT_ID_INVALID;
     }
 
-    if (!slot_ctx->interface_config)
-    {
-        return CKR_GENERAL_ERROR;
-    }
-
     if (!slot_ctx->initialized)
     {
-        ATCAIfaceCfg * ifacecfg = (ATCAIfaceCfg*)slot_ctx->interface_config;
-
-    #if !(PKCS11_508_SUPPORT && PKCS11_608_SUPPORT)
-        /* If only one option is supported */
-        #if PKCS11_508_SUPPORT
-        ifacecfg->devtype = ATECC508A;
-        #else
-        ifacecfg->devtype = ATECC608A;
-        #endif
-    #endif
+        ATCAIfaceCfg * ifacecfg = &slot_ctx->interface_config;
 
         retries = 2;
         do
@@ -200,10 +191,10 @@ CK_RV pkcs11_slot_init(CK_SLOT_ID slotID)
     #ifdef ATCA_HAL_I2C
         if (ATCA_SUCCESS != status)
         {
-            if (0xC0 != ifacecfg->atcai2c.slave_address)
+            if (0xC0 != ifacecfg->atcai2c.address)
             {
                 /* Try the default address */
-                ifacecfg->atcai2c.slave_address = 0xC0;
+                ifacecfg->atcai2c.address = 0xC0;
                 atcab_release();
                 atca_delay_ms(1);
                 retries = 2;
@@ -227,7 +218,19 @@ CK_RV pkcs11_slot_init(CK_SLOT_ID slotID)
 
         if (ATCA_SUCCESS == status)
         {
-            status = atcab_read_config_zone((uint8_t*)&slot_ctx->cfg_zone);
+            if (atcab_is_ca_device(ifacecfg->devtype))
+            {
+                /* Only the classic cryptoauth devices require the configuration
+                   to be loaded into memory */
+                status = atcab_read_config_zone((uint8_t*)&slot_ctx->cfg_zone);
+            }
+            else
+            {
+#if ATCA_TA_SUPPORT
+                /* Iterate through all objects and attach handle info */
+                status = pkcs11_object_load_handle_info(lib_ctx);
+#endif
+            }
         }
 
         if (ATCA_SUCCESS == status)
@@ -359,7 +362,7 @@ CK_RV pkcs11_slot_get_info(CK_SLOT_ID slotID, CK_SLOT_INFO_PTR pInfo)
     pInfo->firmwareVersion.minor = (CK_BYTE)CK_UNAVAILABLE_INFORMATION;
 
     /* Get the reference to the slot configuration structure that was used */
-    if_cfg_ptr = (ATCAIfaceCfg*)slot_ctx->interface_config;
+    if_cfg_ptr = &slot_ctx->interface_config;
 
     /* Set up the flags - Always a hardware slot, only removable devices can
        be listed as not present */
@@ -368,40 +371,34 @@ CK_RV pkcs11_slot_get_info(CK_SLOT_ID slotID, CK_SLOT_INFO_PTR pInfo)
     /* So there a number of rules about what a slot can and can not be - this
        means there needs to be a fixed configuration somewhere or a scan
        operation when we intialize */
-    if (if_cfg_ptr)
+
+    /* if the interface is USB then it's removable otherwise assume it's not - This might require a
+        configuration API for cases where the device is used for consumable authentication */
+    if (ATCA_UART_IFACE == if_cfg_ptr->iface_type || ATCA_HID_IFACE == if_cfg_ptr->iface_type)
     {
-        /* if the interface is USB then it's removable otherwise assume it's not - This might require a
-           configuration API for cases where the device is used for consumable authentication */
-        if (ATCA_UART_IFACE == if_cfg_ptr->iface_type || ATCA_HID_IFACE == if_cfg_ptr->iface_type)
+        pInfo->flags |= CKF_REMOVABLE_DEVICE;
+        if (!slot_ctx->initialized)
         {
-            pInfo->flags |= CKF_REMOVABLE_DEVICE;
-            if (!slot_ctx->initialized)
-            {
-                pInfo->flags &= ~CKF_TOKEN_PRESENT;
-            }
-        }
-
-        /* Basic description of the expected interface based on the configuration */
-        snprintf((char*)pInfo->slotDescription, sizeof(pInfo->slotDescription), "%d_%d_%d", (int)slotID,
-                 (int)if_cfg_ptr->devtype, (int)if_cfg_ptr->iface_type);
-
-        if (slot_ctx->initialized)
-        {
-            (void)pkcs11_lock_context(lib_ctx);
-
-            if (!atcab_info(buf))
-            {
-                /* SHA204 = 00 02 00 09, ECC508 = 00 00 50 00, AES132 = 0A 07*/
-                pInfo->hardwareVersion.major = 0;
-                pInfo->hardwareVersion.minor = buf[3];
-            }
-
-            (void)pkcs11_unlock_context(lib_ctx);
+            pInfo->flags &= ~CKF_TOKEN_PRESENT;
         }
     }
-    else
+
+    /* Basic description of the expected interface based on the configuration */
+    snprintf((char*)pInfo->slotDescription, sizeof(pInfo->slotDescription), "%d_%d_%d", (int)slotID,
+             (int)if_cfg_ptr->devtype, (int)if_cfg_ptr->iface_type);
+
+    if (slot_ctx->initialized)
     {
-        snprintf((char*)pInfo->slotDescription, sizeof(pInfo->slotDescription), "%d", (int)slotID);
+        (void)pkcs11_lock_context(lib_ctx);
+
+        if (!atcab_info(buf))
+        {
+            /* SHA204 = 00 02 00 09, ECC508 = 00 00 50 00, AES132 = 0A 07*/
+            pInfo->hardwareVersion.major = 0;
+            pInfo->hardwareVersion.minor = buf[3];
+        }
+
+        (void)pkcs11_unlock_context(lib_ctx);
     }
 
     /* Use the same manufacturer ID we use throughout */

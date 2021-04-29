@@ -8,77 +8,103 @@ specific hardware platforms.
 
 **Include just those HAL files you require based on platform type.**
 
+Cryptoauthlib HAL Architecture
+=============================================
+
+Cryptoauthlib has several intermediate conceptual layers
+
+1. The highest layer of cryptoauthlib (outside of integration APIS) that may be used with an application is the atcab_
+   api functions. These are general purpose functions that present a simple and consistent crypto interface to the application
+   regardless of the device being used.
+
+2. calib_, talib_ APIs are the library functions behind atcab_ ones that generate the correct command packets and process the
+   received responses. Device specific logic is handled by the library here
+   
+3. hal_ these functions perform the transmit/recieve of data for a given interface. These are split into sublayers
+    * The HAL layer is the first hal layer that presents the interface expected by the higher level library. When using a native
+    driver and no further interpretation is required this layer is all that is required.
+    * The PHY layer if for hals that perform an interpretation or additional protocol logic. In this situation the HAL performs
+    protocol interpretation while the phy performs the physical communication
+
+
+### HAL and PHY Requirements
+
+The hal and phy layers have the same construction. A hal or phy must have the following functions and their signatures
+
+* ATCA_STATUS hal_<name>_init(ATCAIface iface, ATCAIfaceCfg *cfg);
+* ATCA_STATUS hal_<name>_post_init(ATCAIface iface);
+* ATCA_STATUS hal_<name>_send(ATCAIface iface, uint8_t address, uint8_t *txdata, int txlength);
+* ATCA_STATUS hal_<name>_receive(ATCAIface iface, uint8_t address, uint8_t *rxdata, uint16_t *rxlength);
+* ATCA_STATUS hal_<name>_control(ATCAIface iface, uint8_t option, void* param, size_t paramlen);
+* ATCA_STATUS hal_<name>_release(void *hal_data);
+
+If the hal is a native driver no phy is required. See the tables below for which hal is required to be ported based on a configured
+interface
+
+
 CryptoAuthLib Supported HAL Layers
 =============================================
 
-HAL Layers files are combined into groups. Initial group is generic files that are typically included in a project.
-Files are then broken out by uController Family and or Operating System Interface.
+
+| Device Interface  | Physical Interface   | HAL            | PHY       |
+|-------------------|----------------------|----------------|-----------|
+| i2c               | i2c                  | hal_i2c        |           |
+|                   | gpio                 | hal_i2c_gpio   | hal_gpio  |
+| spi               | spi                  | hal_spi        |           |
+| swi               | uart                 | hal_swi        | hal_uart  |
+|                   | gpio                 | hal_swi_gpio   | hal_gpio  |
+| any               | uart                 | kit            | hal_uart  |
+|                   | hid                  | kit            | hal_hid   |
+|                   | any (user provided)  | kit_bridge     |           |
 
 
-| Protocol Files | Interface  | Files                        | API         | Notes                              |
-|----------------|------------|------------------------------|-------------|------------------------------------|
-|atca            |            | atca_hal.c/h                 |             | For all projects                   |
-|kit protocol    |            | kit_protocol.c/h             |             | For all Kit Protocol projects      |
-|                |            | kit_phy.h                    |             |                                    |
-|                |            | hal_i2c_bitbang.c/h          | ASF         | For all I2C Bitbang projects       |
-|                |            | hal_swi_bitbang.c/h          | ASF         | For all SWI Bitbang projects       |
+Microchip Harmony 3 for all PIC32 & ARM products - Use the Harmony 3 Configurator to generate and configure prjects
+--------------------------------------------
+Obtain library and configure using [Harmony 3](https://github.com/Microchip-MPLAB-Harmony/Microchip-MPLAB-Harmony.github.io/wiki)
+
+| Interface  | Files                        | API         | Notes                                           |
+|------------|------------------------------|-------------|-------------------------------------------------|
+|   I2C      | hal_i2c_harmony.c            | plib.h      |  For all Harmony 3 based projects               |
+|   SPI      | hal_spi_harmony.c            | plib.h      |                                                 |
+|   UART     | hal_uart_harmony.c           | plib.h      |                                                 }
+
+Microchip 8 & 16 bit products - AVR, PIC16/18, PIC24/DSPIC
+--------------------------------------------
+Obtain library and integration through [Microchip Code Configurator](https://www.microchip.com/mplab/mplab-code-configurator)
 
 
-Most microcontrollers supported by [Atmel START](https://www.microchip.com/start)
-have generic drivers depending on the interface.
-
-| START Micros   | Interface  | Files                        | API         | Notes                              |
-|----------------|------------|------------------------------|-------------|------------------------------------|
-|                |            | hal_timer_start.c            | START       | Timer implementation               |
-|                |   I2C      | hal_i2c_start.c/h            | START       |                                    |
-|                |   SWI      | swi_uart_start.c/h           | START       | SWI using UART                     |
-
-
-|AVR Micros      | Interface  | Files                        | API         | Notes                              |
-|----------------|------------|------------------------------|-------------|------------------------------------|
-|at90usb1287     |   I2C      | hal_at90usb1287_i2c_asf.c/h  | ASF         |                                    |
-|                |            | hal_at90usb1287_timer_asf.c  | ASF         |                                    |
-|                |   SWI      | swi_uart_at90usb1287_asf.c/h | ASF         |                                    |
-|xmega_a3bu      |   I2C      | hal_xmega_a3bu_i2c_asf.c/h   | ASF         |                                    |
-|                |            | hal_xmega_a3bu_timer_asf.c   | ASF         |                                    |
-|                |   SWI      | swi_uart_xmaga_a3bu_asf.c/h  | ASF         |                                    |
-
-
-|SAM Micros      | Interface  | Files                        | API         | Notes                              |
-|----------------|------------|------------------------------|-------------|------------------------------------|
-|sam4s           |   I2C      | hal_sam4s_i2c_asf.c/h        | ASF         |                                    |
-|                |            | hal_sam4s_timer_asf.c        | ASF         |                                    |
-|samb11          |   I2C      | hal_samb11_i2c_asf.c/h       | ASF         |                                    |
-|                |            | hal_samb11_timer_asf.c       | ASF         |                                    |
-|samd21          |   I2C      | hal_samd21_i2c_asf.c/h       | ASF         |                                    |
-|                |            | hal_samd21_timer_asf.c       | ASF         | For all samd21 ASF projects        |
-|samd21          |   I2C      | i2c_bitbang_samd21.c/h       | ASF         | For samd21 I2C bitbang projects    |
-|samd21          |   SWI      | swi_bitbang_samd21.c/h       | ASF         | For samd21 SWI bitbang projects    |
-|samd21          |   SWI      | swi_uart_samd21.c/h          | ASF         | For samd21 SWI uart projects       |
-|samg55          |   I2C      | hal_samg55_i2c_asf.c/h       | ASF         |                                    |
-|                |            | hal_samg55_timer_asf.c       | ASF         |                                    |
-|samv71          |   I2C      | hal_samv71_i2c_asf.c/h       | ASF         |                                    |
-|                |            | hal_samv71_timer_asf.c       | ASF         |                                    |
-
-
-|PIC Micros      | Interface  | Files                        | API         | Notes                                           |
-|----------------|------------|------------------------------|-------------|-------------------------------------------------|
-|pic32mx695f512h |   I2C      | hal_pic32mx695f512h.c/h      | plib.h      |  For pic32mx695f512h Standalone Mplab projects  |
-|                |            | hal_pic32mx695f512h_timer.c  | plib.h      |  For pic32mx695f512h Standalone Mplab projects  |
-|PIC32MZ2048     |   I2C      | hal_pic32mz2048efm_i2c.c/h   |             |                                                 |
-|                |            | hal_pic32mz2048efm_timer.c   |             |                                                 |
-
-
+OS & RTOS integrations
+--------------------------------------------
+Use [CMake](https://cmake.org/download/) to configure the library in Linux, Windows, and MacOS environments
 
 | OS             | Interface  | Files                            | API         | Notes                              |
 |----------------|------------|----------------------------------|-------------|------------------------------------|
-| MS Windows     |  kit-cdc   | hal_win_kit_cdc.c/h              | windows.h   | For all windows USB CDC projects   |
-| MS Windows     |  kit-hid   | hal_win_kit_hid.c/h              | windows.h   | For all windows USB HID projects   |
-|                |            |                                  | setupapi.h  |                                    |
-| MS Windows     |            | hal_win_timer.c                  | windows.h   | For all windows projects           | 
 | Linux          |    I2C     | hal_linux_i2c_userspace.c/h      | i2c-dev     |                                    |
-| Linux          |  kit-cdc   | hal_linux_kit_cdc.c/h            | fopen       | For USB Linux CDC projects         |
-| Linux          |  kit-hid   | hal_linux_kit_hid.c/h            | udev        | For USB Linux HID Projects         |
-| Linux/Mac      |            | hal_linux_timer.c                |             | For all Linux/Mac projects         |
+| Linux          |    SPI     | hal_linux_spi_userspace.c/h      | spidev      |                                    |
+| Linux/Mac      |            | hal_linux.c                      |             | For all Linux/Mac projects         |
+| Windows        |            | hal_windows.c                    |             | For all Windows projects
 | All            |  kit-hid   | hal_all_platforms_kit_hidapi.c/h | hidapi      | Works for Windows, Linux, and Mac  |
 | freeRTOS       |            | hal_freertos.c                   |             | freeRTOS common routines           |
+
+
+Legacy Support - [Atmel START](https://www.microchip.com/start) for AVR, ARM based processesors (SAM)
+---------------------------------------------
+
+| Interface  | Files                        | API         | Notes                              |
+|------------|------------------------------|-------------|------------------------------------|
+|            | hal_timer_start.c            | START       | Timer implementation               |
+|   I2C      | hal_i2c_start.c/h            | START       |                                    |
+|   SWI      | swi_uart_start.c/h           | START       | SWI using UART                     |
+
+
+Legacy Support - ASF3 for ARM Cortex-m0 & Cortex-m based processors (SAM)
+---------------------------------------------
+
+|SAM Micros      | Interface  | Files                        | API         | Notes                              |
+|----------------|------------|------------------------------|-------------|------------------------------------|
+| cortex-m0      |   I2C      | hal_sam0_i2c_asf.c/h         | ASF3        | SAMD21, SAMB11, etc                |
+| cortex-m3/4/7  |   I2C      | hal_sam_i2c_asf.c/h          | ASF3        | SAM4S, SAMG55, SAMV71, etc         |
+| all            |            | hal_sam_timer_asf.c          | ASF3        | Common timer hal for all platforms |
+
+
+@ingroup hal_

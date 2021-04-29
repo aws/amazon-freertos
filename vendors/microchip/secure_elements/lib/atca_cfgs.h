@@ -2,7 +2,7 @@
  * \file
  * \brief a set of default configurations for various ATCA devices and interfaces
  *
- * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -50,16 +50,27 @@ extern ATCAIfaceCfg cfg_ateccx08a_kithid_default;
 
 
 /** \brief default configuration for a SHA204A device on the first logical I2C bus */
-extern ATCAIfaceCfg cfg_atsha204a_i2c_default;
+extern ATCAIfaceCfg cfg_atsha20xa_i2c_default;
 
-/** \brief default configuration for an SHA204A device on the logical SWI bus over UART*/
-extern ATCAIfaceCfg cfg_atsha204a_swi_default;
+/** \brief default configuration for an SHA20xA device on the logical SWI bus over UART*/
+extern ATCAIfaceCfg cfg_atsha20xa_swi_default;
 
 /** \brief default configuration for Kit protocol over a CDC interface */
-extern ATCAIfaceCfg cfg_atsha204a_kitcdc_default;
+extern ATCAIfaceCfg cfg_atsha20xa_kitcdc_default;
 
 /** \brief default configuration for Kit protocol over a HID interface for SHA204 */
-extern ATCAIfaceCfg cfg_atsha204a_kithid_default;
+extern ATCAIfaceCfg cfg_atsha20xa_kithid_default;
+
+
+/** \brief default configuration for an ECC204 device on the first logical I2C bus */
+extern ATCAIfaceCfg cfg_ecc204_i2c_default;
+
+/** \brief default configuration for an ECC204 device on the logical SWI over GPIO*/
+extern ATCAIfaceCfg cfg_ecc204_swi_default;
+
+/** \brief default configuration for Kit protocol over the device's async interface */
+extern ATCAIfaceCfg cfg_ecc204_kithid_default;
+
 
 #ifdef __cplusplus
 }

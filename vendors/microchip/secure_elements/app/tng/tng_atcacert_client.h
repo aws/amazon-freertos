@@ -2,7 +2,7 @@
  * \file
  * \brief Client side certificate I/O functions for TNG devices.
  *
- * \copyright (c) 2015-2019 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -54,7 +54,7 @@ int tng_atcacert_max_device_cert_size(size_t* max_cert_size);
  * \brief Reads the device certificate for a TNG device.
  *
  * \param[out]   cert         Buffer to received the certificate (DER format).
- * \param[inout] cert_size    As input, the size of the cert buffer in bytes.
+ * \param[in,out] cert_size    As input, the size of the cert buffer in bytes.
  *                            As output, the size of the certificate returned
  *                            in cert in bytes.
  * \param[in]    signer_cert  If supplied, the signer public key is used from
@@ -94,7 +94,7 @@ int tng_atcacert_max_signer_cert_size(size_t* max_cert_size);
  * \brief Reads the signer certificate for a TNG device.
  *
  * \param[out]   cert       Buffer to received the certificate (DER format).
- * \param[inout] cert_size  As input, the size of the cert buffer in bytes.
+ * \param[in,out] cert_size  As input, the size of the cert buffer in bytes.
  *                          As output, the size of the certificate returned
  *                          in cert in bytes.
  *
@@ -127,7 +127,7 @@ int tng_atcacert_root_cert_size(size_t* cert_size);
 /** \brief Get the TNG root cert.
  *
  * \param[out]   cert       Buffer to received the certificate (DER format).
- * \param[inout] cert_size  As input, the size of the cert buffer in bytes.
+ * \param[in,out] cert_size  As input, the size of the cert buffer in bytes.
  *                          As output, the size of the certificate returned
  *                          in cert in bytes.
  *

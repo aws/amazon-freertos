@@ -2,7 +2,7 @@
  * \file
  * \brief Client side certificate I/O functions for TNG devices.
  *
- * \copyright (c) 2015-2019 Microchip Technology Inc. and its subsidiaries.
+ * \copyright (c) 2015-2020 Microchip Technology Inc. and its subsidiaries.
  *
  * \page License
  *
@@ -28,39 +28,44 @@
 #include "tng_atca.h"
 #include "atcacert/atcacert_client.h"
 #include "tng_atcacert_client.h"
-#include "tng22_cert_def_2_device.h"
-#include "tng22_cert_def_1_signer.h"
-#include "tngtn_cert_def_2_device.h"
-#include "tngtn_cert_def_1_signer.h"
+#include "tngtls_cert_def_1_signer.h"
 #include "tng_root_cert.h"
 
 int tng_atcacert_max_device_cert_size(size_t* max_cert_size)
 {
-    return atcacert_max_cert_size(&g_tng22_cert_def_2_device, max_cert_size);
+    int ret = ATCACERT_E_WRONG_CERT_DEF;
+    int index = 0;
+    size_t cert_size;
+    const atcacert_def_t* cert_def;
+
+    do
+    {
+        cert_def = tng_map_get_device_cert_def(index++);
+        if (cert_def)
+        {
+            ret = atcacert_max_cert_size(cert_def, &cert_size);
+            if (cert_size > *max_cert_size)
+            {
+                *max_cert_size = cert_size;
+            }
+        }
+    }
+    while (cert_def && !ret);
+
+    return ret;
 }
 
 int tng_atcacert_read_device_cert(uint8_t* cert, size_t* cert_size, const uint8_t* signer_cert)
 {
     int ret;
-    tng_type_t type;
     const atcacert_def_t* cert_def = NULL;
     uint8_t ca_public_key[72];
 
-    ret = tng_get_type(&type);
+    ret = tng_get_device_cert_def(&cert_def);
     if (ret != ATCA_SUCCESS)
     {
         return ret;
     }
-
-    if (type == TNGTYPE_TN)
-    {
-        cert_def = &g_tngtn_cert_def_2_device;
-    }
-    else
-    {
-        cert_def = &g_tng22_cert_def_2_device;
-    }
-
     // Get the CA (signer) public key
     if (signer_cert != NULL)
     {
@@ -96,7 +101,6 @@ int tng_atcacert_read_device_cert(uint8_t* cert, size_t* cert_size, const uint8_
 int tng_atcacert_device_public_key(uint8_t* public_key, uint8_t* cert)
 {
     int ret;
-    tng_type_t type;
     const atcacert_def_t* cert_def = NULL;
     uint8_t raw_public_key[72];
 
@@ -105,46 +109,25 @@ int tng_atcacert_device_public_key(uint8_t* public_key, uint8_t* cert)
         return ATCACERT_E_BAD_PARAMS;
     }
 
-    if (cert != NULL)
+    ret = tng_get_device_cert_def(&cert_def);
+    if (ret != ATCA_SUCCESS)
     {
-        // TNG 22 cert def will work for either if the certificate is supplied
-        return atcacert_get_subj_public_key(
-            &g_tng22_cert_def_2_device,
-            cert,
-            g_tng22_cert_def_2_device.cert_template_size,  // cert size doesn't need to be accurate
-            public_key);
+        return ret;
+    }
+
+    ret = atcacert_read_device_loc(&cert_def->public_key_dev_loc, raw_public_key);
+    if (ret != ATCACERT_E_SUCCESS)
+    {
+        return ret;
+    }
+    if (cert_def->public_key_dev_loc.count == 72)
+    {
+        // Public key is formatted with padding bytes in front of the X and Y components
+        atcacert_public_key_remove_padding(raw_public_key, public_key);
     }
     else
     {
-        ret = tng_get_type(&type);
-        if (ret != ATCA_SUCCESS)
-        {
-            return ret;
-        }
-
-        if (type == TNGTYPE_TN)
-        {
-            cert_def = &g_tngtn_cert_def_2_device;
-        }
-        else
-        {
-            cert_def = &g_tng22_cert_def_2_device;
-        }
-
-        ret = atcacert_read_device_loc(&cert_def->public_key_dev_loc, raw_public_key);
-        if (ret != ATCACERT_E_SUCCESS)
-        {
-            return ret;
-        }
-        if (cert_def->public_key_dev_loc.count == 72)
-        {
-            // Public key is formatted with padding bytes in front of the X and Y components
-            atcacert_public_key_remove_padding(raw_public_key, public_key);
-        }
-        else
-        {
-            memcpy(public_key, raw_public_key, 64);
-        }
+        memcpy(public_key, raw_public_key, 64);
     }
 
     return ATCACERT_E_SUCCESS;
@@ -152,41 +135,32 @@ int tng_atcacert_device_public_key(uint8_t* public_key, uint8_t* cert)
 
 int tng_atcacert_max_signer_cert_size(size_t* max_cert_size)
 {
-    return atcacert_max_cert_size(&g_tng22_cert_def_1_signer, max_cert_size);
+    return atcacert_max_cert_size(&g_tngtls_cert_def_1_signer, max_cert_size);
 }
 
 int tng_atcacert_read_signer_cert(uint8_t* cert, size_t* cert_size)
 {
     int ret;
-    tng_type_t type;
     const atcacert_def_t* cert_def = NULL;
     const uint8_t* ca_public_key = NULL;
 
-    ret = tng_get_type(&type);
-    if (ret != ATCA_SUCCESS)
+    ret = tng_get_device_cert_def(&cert_def);
+    if (ATCA_SUCCESS == ret)
     {
-        return ret;
+        cert_def = cert_def->ca_cert_def;
+
+        // Get the CA (root) public key
+        ca_public_key = &g_cryptoauth_root_ca_002_cert[CRYPTOAUTH_ROOT_CA_002_PUBLIC_KEY_OFFSET];
+
+        ret = atcacert_read_cert(cert_def, ca_public_key, cert, cert_size);
     }
 
-    if (type == TNGTYPE_TN)
-    {
-        cert_def = &g_tngtn_cert_def_1_signer;
-    }
-    else
-    {
-        cert_def = &g_tng22_cert_def_1_signer;
-    }
-
-    // Get the CA (root) public key
-    ca_public_key = &g_cryptoauth_root_ca_002_cert[CRYPTOAUTH_ROOT_CA_002_PUBLIC_KEY_OFFSET];
-
-    return atcacert_read_cert(cert_def, ca_public_key, cert, cert_size);
+    return ret;
 }
 
 int tng_atcacert_signer_public_key(uint8_t* public_key, uint8_t* cert)
 {
     int ret;
-    tng_type_t type;
     const atcacert_def_t* cert_def = NULL;
     uint8_t raw_public_key[72];
 
@@ -197,47 +171,37 @@ int tng_atcacert_signer_public_key(uint8_t* public_key, uint8_t* cert)
 
     if (cert != NULL)
     {
-        // TNG 22 cert def will work for either if the certificate is supplied
-        return atcacert_get_subj_public_key(
-            &g_tng22_cert_def_1_signer,
+        // TNG TLS cert def will work for either if the certificate is supplied
+        ret = atcacert_get_subj_public_key(
+            &g_tngtls_cert_def_1_signer,
             cert,
-            g_tng22_cert_def_1_signer.cert_template_size,  // cert size doesn't need to be accurate
+            g_tngtls_cert_def_1_signer.cert_template_size,  // cert size doesn't need to be accurate
             public_key);
     }
     else
     {
-        ret = tng_get_type(&type);
-        if (ret != ATCA_SUCCESS)
+        ret = tng_get_device_cert_def(&cert_def);
+        if (ATCA_SUCCESS == ret)
         {
-            return ret;
-        }
+            cert_def = cert_def->ca_cert_def;
 
-        if (type == TNGTYPE_TN)
-        {
-            cert_def = &g_tngtn_cert_def_1_signer;
-        }
-        else
-        {
-            cert_def = &g_tng22_cert_def_1_signer;
-        }
-
-        ret = atcacert_read_device_loc(&cert_def->public_key_dev_loc, raw_public_key);
-        if (ret != ATCACERT_E_SUCCESS)
-        {
-            return ret;
-        }
-        if (cert_def->public_key_dev_loc.count == 72)
-        {
-            // Public key is formatted with padding bytes in front of the X and Y components
-            atcacert_public_key_remove_padding(raw_public_key, public_key);
-        }
-        else
-        {
-            memcpy(public_key, raw_public_key, 64);
+            ret = atcacert_read_device_loc(&cert_def->public_key_dev_loc, raw_public_key);
+            if (ATCACERT_E_SUCCESS == ret)
+            {
+                if (cert_def->public_key_dev_loc.count == 72)
+                {
+                    // Public key is formatted with padding bytes in front of the X and Y components
+                    atcacert_public_key_remove_padding(raw_public_key, public_key);
+                }
+                else
+                {
+                    memcpy(public_key, raw_public_key, 64);
+                }
+            }
         }
     }
 
-    return ATCACERT_E_SUCCESS;
+    return ret;
 }
 
 int tng_atcacert_root_cert_size(size_t* cert_size)
