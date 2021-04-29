@@ -53,7 +53,7 @@
  * OtaPalSuccess is returned when aborting access to the open file was successful.
  * OtaPalFileAbort is returned when aborting access to the open file context was unsuccessful.
  */
-OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const C );
+OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const pFileContext );
 
 /**
  * @brief Create a new receive file for the data chunks as they come in.
@@ -78,7 +78,7 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const C );
  * OtaPalBootInfoCreateFailed is returned if the bootloader information file creation fails.
  * OtaPalRxFileCreateFailed is returned for other errors creating the file in the device's non-volatile memory.
  */
-OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C );
+OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext );
 
 /**
  * @brief Authenticate and close the underlying receive file in the specified OTA context.
@@ -104,7 +104,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C );
  * OtaPalBadSignerCert is returned for errors in the certificate itself.
  * OtaPalFileClose is returned when closing the file fails.
  */
-OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C );
+OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext );
 
 /**
  * @brief Write a block of data to the specified file at the given offset.
@@ -118,16 +118,16 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C );
  * offset is validated by the OTA agent before this function is called.
  *
  * @param[in] pFileContext OTA file context information.
- * @param[in] offset Byte offset to write to from the beginning of the file.
+ * @param[in] ulOffset Byte offset to write to from the beginning of the file.
  * @param[in] pData Pointer to the byte array of data to write.
- * @param[in] blockSize The number of bytes to write.
+ * @param[in] ulBlockSize The number of bytes to write.
  *
  * @return The number of bytes written on a success, or a negative error code from the platform
  * abstraction layer.
  */
 int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
                            uint32_t ulOffset,
-                           uint8_t * const pcData,
+                           uint8_t * const pData,
                            uint32_t ulBlockSize );
 
 /**
@@ -138,6 +138,8 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
  *
  * @note This function SHOULD not return. If it does, the platform does not support
  * an automatic reset or an error occurred.
+ *
+ * @param[in] pFileContext OTA file context information.
  *
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent
  * error codes information in ota.h.
@@ -152,6 +154,8 @@ OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext );
  * @note This function SHOULD not return. If it does, the platform does not support
  * an automatic reset or an error occurred.
  *
+ * @param[in] pFileContext OTA file context information.
+ *
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent
  * error codes information in ota.h.
  */
@@ -164,7 +168,6 @@ OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const pFileContext );
  * Refer to the PAL implementation to determine what happens on your platform.
  *
  * @param[in] pFileContext File context of type OtaFileContext_t.
- *
  * @param[in] eState The desired state of the OTA update image.
  *
  * @return The OtaPalStatus_t error code combined with the MCU specific error code. See ota.h for
