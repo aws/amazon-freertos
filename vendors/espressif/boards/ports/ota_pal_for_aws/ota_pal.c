@@ -157,16 +157,16 @@ static void _esp_ota_ctx_clear( esp_ota_context_t * ota_ctx )
     }
 }
 
-static bool _esp_ota_ctx_validate( OtaFileContext_t * C )
+static bool _esp_ota_ctx_validate( OtaFileContext_t * pFileContext )
 {
-    return( C != NULL && ota_ctx.cur_ota == C && C->pFile == ( uint8_t * ) &ota_ctx );
+    return( pFileContext != NULL && ota_ctx.cur_ota == pFileContext && pFileContext->pFile == ( uint8_t * ) &ota_ctx );
 }
 
-static void _esp_ota_ctx_close( OtaFileContext_t * C )
+static void _esp_ota_ctx_close( OtaFileContext_t * pFileContext )
 {
-    if( C != NULL )
+    if( pFileContext != NULL )
     {
-        C->pFile = 0;
+        pFileContext->pFile = 0;
     }
 
     /*memset(&ota_ctx, 0, sizeof(esp_ota_context_t)); */
@@ -174,16 +174,16 @@ static void _esp_ota_ctx_close( OtaFileContext_t * C )
 }
 
 /* Abort receiving the specified OTA update by closing the file. */
-OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const C )
+OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const pFileContext )
 {
     OtaPalStatus_t ota_ret = OTA_PAL_COMBINE_ERR( OtaPalAbortFailed, 0 );
 
-    if( _esp_ota_ctx_validate( C ) )
+    if( _esp_ota_ctx_validate( pFileContext ) )
     {
-        _esp_ota_ctx_close( C );
+        _esp_ota_ctx_close( pFileContext );
         ota_ret = OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
     }
-    else if( C && ( C->pFile == NULL ) )
+    else if( pFileContext && ( pFileContext->pFile == NULL ) )
     {
         ota_ret = OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
     }
@@ -192,9 +192,9 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const C )
 }
 
 /* Attempt to create a new receive file for the file chunks as they come in. */
-OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
+OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
 {
-    if( ( NULL == C ) || ( NULL == C->pFilePath ) )
+    if( ( NULL == pFileContext ) || ( NULL == pFileContext->pFilePath ) )
     {
         return OTA_PAL_COMBINE_ERR( OtaPalRxFileCreateFailed, 0 );
     }
@@ -219,11 +219,11 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
         return OTA_PAL_COMBINE_ERR( OtaPalRxFileCreateFailed, 0 );
     }
 
-    ota_ctx.cur_ota = C;
+    ota_ctx.cur_ota = pFileContext;
     ota_ctx.update_partition = update_partition;
     ota_ctx.update_handle = update_handle;
 
-    C->pFile = ( uint8_t * ) &ota_ctx;
+    pFileContext->pFile = ( uint8_t * ) &ota_ctx;
     ota_ctx.data_write_len = 0;
     ota_ctx.valid_image = false;
 
@@ -395,7 +395,7 @@ uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
 }
 
 /* Verify the signature of the specified file. */
-OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C )
+OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext )
 {
     OtaPalStatus_t result;
     uint32_t ulSignerCertSize;
@@ -412,7 +412,7 @@ OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C )
         return OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, 0 );
     }
 
-    pucSignerCert = otaPal_ReadAndAssumeCertificate( ( const uint8_t * const ) C->pCertFilepath, &ulSignerCertSize );
+    pucSignerCert = otaPal_ReadAndAssumeCertificate( ( const uint8_t * const ) pFileContext->pCertFilepath, &ulSignerCertSize );
 
     if( pucSignerCert == NULL )
     {
@@ -434,7 +434,7 @@ OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const C )
     spi_flash_munmap( ota_data_map );
 
     if( CRYPTO_SignatureVerificationFinal( pvSigVerifyContext, ( char * ) pucSignerCert, ulSignerCertSize,
-                                           C->pSignature->data, C->pSignature->size ) == pdFALSE )
+                                           pFileContext->pSignature->data, pFileContext->pSignature->size ) == pdFALSE )
     {
         ESP_LOGE( TAG, "signature verification failed" );
         result = OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, 0 );
@@ -456,16 +456,16 @@ end:
 }
 
 /* Close the specified file. This shall authenticate the file if it is marked as secure. */
-OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C )
+OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
 {
     OtaPalStatus_t result = OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
 
-    if( !_esp_ota_ctx_validate( C ) )
+    if( !_esp_ota_ctx_validate( pFileContext ) )
     {
         return OTA_PAL_COMBINE_ERR( OtaPalFileClose, 0 );
     }
 
-    if( C->pSignature == NULL )
+    if( pFileContext->pSignature == NULL )
     {
         ESP_LOGE( TAG, "Image Signature not found" );
         _esp_ota_ctx_clear( &ota_ctx );
@@ -479,7 +479,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C )
     else
     {
         /* Verify the file signature, close the file and return the signature verification result. */
-        result = otaPal_CheckFileSignature( C );
+        result = otaPal_CheckFileSignature( pFileContext );
 
         if( result != OtaErrNone )
         {
@@ -494,7 +494,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C )
             {
                 memset( sec_boot_sig->sec_ver, 0x00, sizeof( sec_boot_sig->sec_ver ) );
                 memset( sec_boot_sig->pad, 0xFF, sizeof( sec_boot_sig->pad ) );
-                result = asn1_to_raw_ecdsa( C->pSignature->data, C->pSignature->size, sec_boot_sig->raw_ecdsa_sig );
+                result = asn1_to_raw_ecdsa( pFileContext->pSignature->data, pFileContext->pSignature->size, sec_boot_sig->raw_ecdsa_sig );
 
                 if( result == OTA_PAL_COMBINE_ERR( OtaErrNone, 0 ) )
                 {
@@ -521,9 +521,9 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C )
     return result;
 }
 
-OtaPalStatus_t IRAM_ATTR otaPal_ResetDevice( OtaFileContext_t * const C )
+OtaPalStatus_t IRAM_ATTR otaPal_ResetDevice( OtaFileContext_t * const pFileContext )
 {
-    ( void ) C;
+    ( void ) pFileContext;
 
     /* Short delay for debug log output before reset. */
     vTaskDelay( kOTA_HalfSecondDelay );
@@ -531,9 +531,9 @@ OtaPalStatus_t IRAM_ATTR otaPal_ResetDevice( OtaFileContext_t * const C )
     return OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
 }
 
-OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const C )
+OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext )
 {
-    ( void ) C;
+    ( void ) pFileContext;
 
     if( ota_ctx.cur_ota != NULL )
     {
@@ -541,7 +541,7 @@ OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const C )
         {
             ESP_LOGE( TAG, "aws_esp_ota_end failed!" );
             esp_partition_erase_range( ota_ctx.update_partition, 0, ota_ctx.update_partition->size );
-            otaPal_ResetDevice( C );
+            otaPal_ResetDevice( pFileContext );
         }
 
         esp_err_t err = aws_esp_ota_set_boot_partition( ota_ctx.update_partition );
@@ -553,21 +553,21 @@ OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const C )
             _esp_ota_ctx_clear( &ota_ctx );
         }
 
-        otaPal_ResetDevice( C );
+        otaPal_ResetDevice( pFileContext );
     }
 
     _esp_ota_ctx_clear( &ota_ctx );
-    otaPal_ResetDevice( C );
+    otaPal_ResetDevice( pFileContext );
     return OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
 }
 
 /* Write a block of data to the specified file. */
-int16_t otaPal_WriteBlock( OtaFileContext_t * const C,
+int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
                            uint32_t iOffset,
                            uint8_t * const pacData,
                            uint32_t iBlockSize )
 {
-    if( _esp_ota_ctx_validate( C ) )
+    if( _esp_ota_ctx_validate( pFileContext ) )
     {
         esp_err_t ret = aws_esp_ota_write( ota_ctx.update_handle, pacData, iOffset, iBlockSize );
 
@@ -588,12 +588,12 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const C,
     return iBlockSize;
 }
 
-OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const C )
+OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileContext )
 {
     OtaPalImageState_t eImageState = OtaPalImageStateUnknown;
     uint32_t ota_flags;
 
-    ( void ) C;
+    ( void ) pFileContext;
 
     ESP_LOGI( TAG, "%s", __func__ );
 
@@ -639,13 +639,13 @@ static void disable_rtc_wdt()
     rtc_wdt_disable();
 }
 
-OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
+OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileContext,
                                              OtaImageState_t eState )
 {
     OtaPalMainStatus_t mainErr = OtaPalSuccess;
     int state;
 
-    ( void ) C;
+    ( void ) pFileContext;
 
     ESP_LOGI( TAG, "%s, %d", __func__, eState );
 
