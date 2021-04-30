@@ -854,9 +854,6 @@
     <ClInclude Include="..\..\..\..\lib\FreeRTOS\portable\Compiler\Arch\portmacro.h">
       <Filter>lib\aws\FreeRTOS\portable\Compiler\Arch</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\microchip\curiosity_pic32mzef\common\config_files\aws_wifi_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\rsa_internal.h">
       <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
     </ClInclude>
