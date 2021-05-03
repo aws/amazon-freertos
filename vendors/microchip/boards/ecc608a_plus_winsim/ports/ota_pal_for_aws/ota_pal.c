@@ -35,6 +35,12 @@
 #include "ota_platform_interface.h"
 #include "ota_pal.h"
 
+/* Include config file used for testing the OTA PAL. This config file defines
+ * the otatestpalSIGNING_CERTIFICATE_PEM macro. */
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
+    #include "aws_test_ota_config.h"
+#endif
+
 /* Used to set the high bit of Windows error codes for a negative return value. */
 #define OTA_PAL_INT16_NEGATIVE_MASK    ( 1 << 15 )
 
@@ -355,7 +361,7 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 
         if( lResult == 0 )                               /* fseek returns a non-zero value on error. */
         {
-            lSize = ( s32 ) ftell( pFile );                  /*lint !e586 Allow call in this context. */
+            lSize = ( int32_t ) ftell( pFile );                  /*lint !e586 Allow call in this context. */
 
             if( lSize != -1L )                                 /* ftell returns -1 on error. */
             {
@@ -563,8 +569,3 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const C  )
 }
 
 /*-----------------------------------------------------------*/
-
-/* Provide access to private members for testing. */
-#ifdef FREERTOS_ENABLE_UNIT_TESTS
-    #include "aws_test_ota_config.h"
-#endif

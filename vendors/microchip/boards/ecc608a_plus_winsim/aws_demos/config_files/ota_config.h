@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V1.4.8
+ * AWS IoT Device SDK for Embedded C V202009.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -18,35 +18,57 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
  */
 
 /**
- * @file aws_ota_agent_config.h
+ * @file ota_config.h
  * @brief OTA user configurable settings.
  */
 
 #ifndef OTA_CONFIG_H_
 #define OTA_CONFIG_H_
 
-/**
- * @brief The number of words allocated to the stack for the OTA agent.
+/**************************************************/
+/******* DO NOT CHANGE the following order ********/
+/**************************************************/
+
+/* Logging related header files are required to be included in the following order:
+ * 1. Include the header file "logging_levels.h".
+ * 2. Define LIBRARY_LOG_NAME and  LIBRARY_LOG_LEVEL.
+ * 3. Include the header file "logging_stack.h".
  */
-#define otaconfigSTACK_SIZE                     630U
+
+/* Include header that defines log levels. */
+#include "logging_levels.h"
+
+/* Configure name and log level for the OTA library. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME     "OTA"
+#endif
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_INFO
+#endif
+
+#include "logging_stack.h"
+
+/************ End of logging configuration ****************/
 
 /**
  * @brief Log base 2 of the size of the file data block message (excluding the header).
  *
  * 10 bits yields a data block size of 1KB.
  */
-#define otaconfigLOG2_FILE_BLOCK_SIZE           10UL
+#define otaconfigLOG2_FILE_BLOCK_SIZE          10UL
+
+ /**
+  * @brief Size of the file data block message (excluding the header).
+  */
+#define otaconfigFILE_BLOCK_SIZE                ( 1UL << otaconfigLOG2_FILE_BLOCK_SIZE )
 
 /**
  * @brief Milliseconds to wait for the self test phase to succeed before we force reset.
  */
-#define otaconfigSELF_TEST_RESPONSE_WAIT_MS     16000U
+#define otaconfigSELF_TEST_RESPONSE_WAIT_MS    16000U
 
 /**
  * @brief Milliseconds to wait before requesting data blocks from the OTA service if nothing is happening.
@@ -54,12 +76,7 @@
  * The wait timer is reset whenever a data block is received from the OTA service so we will only send
  * the request message after being idle for this amount of time.
  */
-#define otaconfigFILE_REQUEST_WAIT_MS           2500U
-
-/**
- * @brief The OTA agents task priority. Normally it runs at a low priority.
- */
-#define otaconfigAGENT_PRIORITY                 tskIDLE_PRIORITY
+#define otaconfigFILE_REQUEST_WAIT_MS          2500U
 
 /**
  * @brief The maximum allowed length of the thing name used by the OTA agent.
@@ -69,7 +86,7 @@
  * initializing the OTA agent. The agent uses this size to allocate static storage for the
  * Thing name used in all OTA base topics. Namely $aws/things/<thingName>
  */
-#define otaconfigMAX_THINGNAME_LEN              64U
+#define otaconfigMAX_THINGNAME_LEN             64U
 
 /**
  * @brief The maximum number of data blocks requested per request from the OTA
@@ -110,9 +127,8 @@
  *
  * This configuration parameter sets the maximum number of times the requests are made over
  * the selected communication channel before aborting and returning error.
- *
  */
-#define otaconfigMAX_NUM_REQUEST_MOMENTUM       32U
+#define otaconfigMAX_NUM_REQUEST_MOMENTUM      32U
 
 /**
  * @brief The number of data buffers reserved by the OTA agent.
@@ -120,7 +136,18 @@
  * This configurations parameter sets the maximum number of static data buffers used by
  * the OTA agent for job and file data blocks received.
  */
-#define otaconfigMAX_NUM_OTA_DATA_BUFFERS       4U
+#define otaconfigMAX_NUM_OTA_DATA_BUFFERS      4U
+
+ /**
+  * @brief How frequently the device will report its OTA progress to the cloud.
+  *
+  * Device will update the job status with the number of blocks it has received every certain
+  * number of blocks it receives. For example, 25 means device will update job status every 25 blocks
+  * it receives.
+  */
+#define otaconfigOTA_UPDATE_STATUS_FREQUENCY    25U
+
+
 
 /**
  * @brief Allow update to same or lower version.
@@ -130,21 +157,21 @@
  * testing purpose and it is recommended to always update to higher version and keep this
  * configuration disabled.
  */
-#define otaconfigAllowDowngrade              0U
+#define otaconfigAllowDowngrade                0U
 
 /**
  * @brief The protocol selected for OTA control operations.
-
+ *
  * This configurations parameter sets the default protocol for all the OTA control
  * operations like requesting OTA job, updating the job status etc.
  *
  * Note - Only MQTT is supported at this time for control operations.
  */
-#define configENABLED_CONTROL_PROTOCOL       ( OTA_CONTROL_OVER_MQTT )
+#define configENABLED_CONTROL_PROTOCOL         ( OTA_CONTROL_OVER_MQTT )
 
 /**
  * @brief The protocol selected for OTA data operations.
-
+ *
  * This configurations parameter sets the protocols selected for the data operations
  * like requesting file blocks from the service.
  *
@@ -154,18 +181,18 @@
  * Enable data over HTTP - ( OTA_DATA_OVER_HTTP)
  * Enable data over both MQTT & HTTP ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
  */
-#define configENABLED_DATA_PROTOCOLS         ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
+#define configENABLED_DATA_PROTOCOLS           ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP  )
 
- /**
-  * @brief The preferred protocol selected for OTA data operations.
-  *
-  * Primary data protocol will be the protocol used for downloading file if more than
-  * one protocol is selected while creating OTA job. Default primary data protocol is MQTT
-  * and following update here to switch to HTTP as primary.
-  *
-  * Note - use OTA_DATA_OVER_HTTP for HTTP as primary data protocol.
-  */
+/**
+ * @brief The preferred protocol selected for OTA data operations.
+ *
+ * Primary data protocol will be the protocol used for downloading file if more than
+ * one protocol is selected while creating OTA job. Default primary data protocol is MQTT
+ * and following update here to switch to HTTP as primary.
+ *
+ * Note - use OTA_DATA_OVER_HTTP for HTTP as primary data protocol.
+ */
 
-#define configOTA_PRIMARY_DATA_PROTOCOL     ( OTA_DATA_OVER_MQTT )
+#define configOTA_PRIMARY_DATA_PROTOCOL    ( OTA_DATA_OVER_MQTT )
 
 #endif /* OTA_CONFIG_H_ */
