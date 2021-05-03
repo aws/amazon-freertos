@@ -1563,7 +1563,7 @@ static OtaMqttStatus_t prvMqttUnSubscribe( const char * pTopicFilter,
 
 
     commandParams.blockTimeMs = MQTT_AGENT_SEND_BLOCK_TIME_MS;
-    commandParams.cmdCompleteCallback = prvMQTTSubscribeCompleteCallback;
+    commandParams.cmdCompleteCallback = prvMQTTUnsubscribeCompleteCallback;
     commandParams.pCmdCompleteCallbackContext = &commandContext;
     commandContext.xTaskToNotify = xTaskGetCurrentTaskHandle();
     commandContext.pArgs = &subscribeArgs;
