@@ -53,6 +53,10 @@
 
 /************ End of logging configuration ****************/
 
+/* Include config file used for testing the OTA PAL. This config file defines
+ * the otapalconfigCODE_SIGNING_CERTIFICATE macro. */
+#include "aws_test_ota_config.h"
+
 /**
  * @brief Log base 2 of the size of the file data block message (excluding the header).
  *
@@ -99,7 +103,7 @@
  *  how many data blocks response is expected for each data requests.
  *  Please note that this must be set larger than zero.
  */
-#define otaconfigMAX_NUM_BLOCKS_REQUEST        4U
+#define otaconfigMAX_NUM_BLOCKS_REQUEST        1U
 
 /**
  * @brief The maximum number of requests allowed to send without a response before we abort.
@@ -115,7 +119,8 @@
  * This configurations parameter sets the maximum number of static data buffers used by
  * the OTA agent for job and file data blocks received.
  */
-#define otaconfigMAX_NUM_OTA_DATA_BUFFERS      4U
+
+#define otaconfigMAX_NUM_OTA_DATA_BUFFERS      2U
 
  /**
   * @brief How frequently the device will report its OTA progress to the cloud.

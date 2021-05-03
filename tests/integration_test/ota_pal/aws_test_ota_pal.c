@@ -62,6 +62,7 @@
 /* Include OTA headers. */
 #include "ota.h"
 #include "ota_appversion32.h"
+#include "ota_pal.h"
 
 /* Include functions for accessing static PAL functions. */
 #include "aws_ota_pal_test_access_declare.h"
@@ -123,7 +124,7 @@ const AppVersion32_t appFirmwareVersion =
 static OtaFileContext_t xOtaFile;
 
 /* Certificate used for validating code signing signatures in the tests. */
-static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = otatestpalSIGNING_CERTIFICATE_PEM;
+static const char codeSigningCertificatePEM[] = otapalconfigCODE_SIGNING_CERTIFICATE;
 
 #ifdef CC3220sf
 
@@ -344,8 +345,8 @@ TEST( Full_OTA_PAL, otaPal_CloseFile_ValidSignatureKeyInFlash )
         int16_t blocksWritten;
 
         /* Import the code signing certificate into NVM using the PKCS #11 module. */
-        xResult = prvImportCodeSigningCertificate( ( const uint8_t * ) signingcredentialSIGNING_CERTIFICATE_PEM,
-                                                   sizeof( signingcredentialSIGNING_CERTIFICATE_PEM ),
+        xResult = prvImportCodeSigningCertificate( ( const uint8_t * ) codeSigningCertificatePEM,
+                                                   sizeof( codeSigningCertificatePEM ),
                                                    ( uint8_t * ) pkcs11configLABEL_CODE_VERIFICATION_KEY );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
 

@@ -1,6 +1,6 @@
 /*
  * FreeRTOS BLE HAL V5.1.0
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2020-2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -62,6 +62,15 @@ typedef enum
     eBTAvsrcAudioStateStarted = 2,       /**< Audio Started */
 } BTAvAudioState_t;
 
+/**
+ * @brief Bluetooth AV ACL Priority
+ */
+typedef enum
+{
+    eBTAvsrcAclPriorityLow = 0,  /**< ACL Low Priority */
+    eBTAvsrcAclPriorityHigh = 1, /**< ACL High Priority */
+} BTAvsrcAclPriority_t;
+
 /** Audio callback structure */
 
 /**
@@ -82,11 +91,24 @@ typedef void (* BTAvsrcConnectionStateCallback_t)( BTAvConnectionState_t xState,
 typedef void (* BTAvsrcAudioStateCallback_t)( BTAvAudioState_t xState,
                                               BTBdaddr_t * pxBdAddr );
 
+
+/**
+ * @brief Callback invoked when ACL priority changes
+ * Priority can change when the stack enables/disables silent A2DP data while
+ * A2DP keepalive feature is enabled.
+ *
+ * @param[in] xPriority Acl Priority
+ * @param[in] pxBdAddr Address of the Remote device
+ */
+typedef void (* BTAvsrcAclPriorityCallback_t)( BTAvsrcAclPriority_t xPriority,
+                                               BTBdaddr_t * pxBdAddr );
+
 typedef struct
 {
     size_t xSize;
-    BTAvsrcConnectionStateCallback_t xConnStateCback;
-    BTAvsrcAudioStateCallback_t xAudioStateCback;
+    BTAvsrcConnectionStateCallback_t xConnStateCback; /**< Connection state callback */
+    BTAvsrcAudioStateCallback_t xAudioStateCback;     /**< Connection state callback */
+    BTAvsrcAclPriorityCallback_t xAclPriorityCback;   /**< ACL priority callback */
 } BTAvsrcCallbacks_t;
 
 /** Represents the standard AV connection interface. */

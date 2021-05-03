@@ -419,24 +419,6 @@ target_include_directories(
         "${afr_ports_dir}/ble"
 )
 
-# OTA
-afr_mcu_port(ota)
-target_sources(
-    AFR::ota::mcu_port
-    INTERFACE
-        "${afr_ports_dir}/ota/aws_ota_pal.c"
-        "${afr_ports_dir}/ota/asn1utility.c"
-        "${afr_ports_dir}/ota/asn1utility.h"
-        "${afr_ports_dir}/ota/aws_ota_pal_settings.h"
-)
-
-target_link_libraries(
-    AFR::ota::mcu_port
-    INTERFACE
-        AFR::crypto
-        AFR::ota_mqtt
-)
-
 # POSIX
 afr_mcu_port(posix)
 target_sources(
