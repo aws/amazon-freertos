@@ -52,19 +52,8 @@
 /* Custom mbedtls utls include. */
 #include "mbedtls_error.h"
 
-#ifndef configGETTHEDAY()
-#warning Undefined macro "configGETTHEDAY".
-#endif
-#ifndef configGETTHEMONTH()
-#warning Undefined macro "configGETTHEMONTH".
-#endif
-#ifndef configGETTHEYEAR()
-#warning Undefined macro "configGETTHEYEAR".
-#endif
-
 /* C runtime includes. */
 #include <string.h>
-#include <time.h>
 #include <stdio.h>
 
 /**
