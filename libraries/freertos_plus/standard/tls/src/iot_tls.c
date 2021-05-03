@@ -297,6 +297,10 @@ static int prvCheckCertificate( void * pvCtx,
             }
         }
     }
+    else
+    {
+        certificate_old = false; // do not fail if the time is invalid or there is no date function.
+    }
 
     if(certificate_old)
     {
