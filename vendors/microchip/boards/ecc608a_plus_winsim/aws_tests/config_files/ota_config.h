@@ -31,6 +31,10 @@
 #ifndef OTA_CONFIG_H_
 #define OTA_CONFIG_H_
 
+/* Include config file used for testing the OTA PAL. This config file defines
+ * the otapalconfigCODE_SIGNING_CERTIFICATE macro. */
+#include "aws_test_ota_config.h"
+
 /**
  * @brief The number of words allocated to the stack for the OTA agent.
  */
