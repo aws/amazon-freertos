@@ -100,6 +100,35 @@ typedef struct xTLS_PARAMS
 } TLSParams_t;
 
 /**
+ * @brief Defines a day,month,year time structure for testing certificate expriation
+ * 
+ * @param day The current day of the month from 1 to 31 depending upon the current month
+ * @param month The current month from 1 to 12
+ * @param year The current year (4 digits)
+ */
+typedef struct xTLS_DATE
+{
+    int day;
+    int month;
+    int year;
+} TLSDate_t;
+
+/**
+ * @brief defines a function pointer that will fill a supplied TLSDate_t with the current date.
+ * 
+ * @param date A pointer to the a TLSDate_t structure that needs to be filled with the current date.
+ * @return A boolean value indicating that the date is valid or invalid.
+ */
+typedef bool (*getDate_t)( TLSDate_t *date);
+
+/**
+ * @brief provides a function that will collect the current date
+ * 
+ * @param[in] dateFunction A function pointer to a function that does the getDate_t.
+ */
+void TLS_SetDateFunction(getDate_t dateFunction);
+
+/**
  * @brief Initializes the TLS context.
  *
  * @param[out] ppvContext Opaque context handle returned by the TLS library.
