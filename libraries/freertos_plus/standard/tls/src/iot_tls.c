@@ -54,6 +54,7 @@
 
 /* C runtime includes. */
 #include <string.h>
+#include <time.h>
 #include <stdio.h>
 
 /**
@@ -140,25 +141,11 @@ typedef struct TLSContext
 
 #define TLS_PRINT( X )    configPRINTF( X )
 
-
-static bool prvGetDate_default(TLSDate_t *date);
-
-getDate_t getDate = prvGetDate_default;
-
 /*-----------------------------------------------------------*/
 
 /*
  * Helper routines.
  */
-
-/**
- * @brief a Default data function that simply returns that we have an invalid date
- */
-static bool prvGetDate_default(TLSDate_t *date)
-{
-    return false;
-}
-
 
 /**
  * @brief TLS internal context rundown helper routine.
@@ -272,40 +259,29 @@ static int prvGenerateRandomBytes( void * pvCtx,
  *
  * @return Zero on success.
  */
-static int prvCheckCertificate( void * pvCtx,
+static int prvCheckCertificate( void * pvContext,
                                 mbedtls_x509_crt * pxCertificate,
                                 int lPathCount,
                                 uint32_t * pulFlags )
 {
-    TLSDate_t today;
-    bool certificate_old = true;
-
     /* Unreferenced parameters. */
-    ( void ) ( pvCtx );
+    ( void ) ( pvContext );
     ( void ) ( lPathCount );
 
-    if( getDate && getDate(&today) )
-    {
-        if( pxCertificate->valid_to.year <= today.year )
-        {
-            if( pxCertificate->valid_to.mon <= today.month )
-            {
-                if( pxCertificate->valid_to.day <= today.day )
-                {
-                    certificate_old = false;
-                }
-            }
-        }
-    }
-    else
-    {
-        certificate_old = false; // do not fail if the time is invalid or there is no date function.
-    }
-
-    if(certificate_old)
+    struct tm expiryDate;
+    expiryDate.tm_year = pxCertificate->valid_to.year;
+    expiryDate.tm_mon = pxCertificate->valid_to.mon;
+    expiryDate.tm_mday = pxCertificate->valid_to.day;
+    
+    time_t expireTime = mktime(&expiryDate);
+    
+    time_t now = time(NULL);
+    
+    if( now && (difftime(expireTime, now) < 0))
     {
         *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
     }
+
     return 0;
 }
 
@@ -718,6 +694,7 @@ BaseType_t TLS_Init( void ** ppvContext,
         pxCtx->xNetworkRecv = pxParams->pxNetworkRecv;
         pxCtx->xNetworkSend = pxParams->pxNetworkSend;
         pxCtx->pvCallerContext = pxParams->pvCallerContext;
+        pxCtx->getDate = prvGetDate_default;
 
         /* Get the function pointer list for the PKCS#11 module. */
         xCkGetFunctionList = C_GetFunctionList;
@@ -1105,8 +1082,3 @@ void TLS_Cleanup( void * pvContext )
     }
 }
 
-/*----------------------------------------------------------*/
-void TLS_SetDateFunction(getDate_t dateFunction)
-{
-    getDate = dateFunction;
-}
