@@ -1,17 +1,20 @@
 ---
-name: Feature request
-about: Suggest an idea for FreeRTOS
-labels: feature request
+name: Feature Request
+about: Suggest a new feature for this project
+title: "[Feature Request] <replace with your title>"
+labels: Feature Request
+assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**  
-A clear and concise description of what the problem is. What are the use cases of the feature to be added? 
+**Is your feature request related to an issue you've encountered? If so, please elaborate.**
+A clear and concise description of the problem. For example, "I'm always frustrated when [ ... ]".
 
-**Describe the solution you would like.**  
-A clear and concise description of what you want to happen.
+**Describe the new feature you are requesting**
+A clear and concise description of the feature you are proposing, as well as its relevant use cases.
 
-**Additional context**  
-Add any other information (including rationale, requirements, or references) about the feature request here.
+**Describe alternatives you've considered**
+A clear and concise description of any alternatives you've considered.
 
-Thank you!
+**Additional context**
+Add any additional information supporting the request here (screenshots, logs, references, etc.).
