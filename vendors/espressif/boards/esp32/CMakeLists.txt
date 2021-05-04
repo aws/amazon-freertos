@@ -428,9 +428,17 @@ target_link_libraries(
     AFR::ota::mcu_port
     INTERFACE
         AFR::crypto
-        AFR::pkcs11
+        AFR::pkcs11_implementation
+        3rdparty::mbedtls
         AFR::ota
 )
+
+if(AFR_ENABLE_TESTS)
+    target_include_directories(
+        AFR::ota::mcu_port
+        INTERFACE "${PROJECT_SOURCE_DIR}/tests/integration_test/ota_pal"
+    )
+endif()
 
 # Add extra components to metadata
 afr_files_to_console_metadata(

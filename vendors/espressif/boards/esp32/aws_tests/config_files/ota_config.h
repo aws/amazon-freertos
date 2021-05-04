@@ -53,6 +53,10 @@
 
 /************ End of logging configuration ****************/
 
+/* Include config file used for testing the OTA PAL. This config file defines
+ * the otapalconfigCODE_SIGNING_CERTIFICATE macro. */
+#include "aws_test_ota_config.h"
+
 /**
  * @brief Log base 2 of the size of the file data block message (excluding the header).
  *
@@ -115,6 +119,7 @@
  * This configurations parameter sets the maximum number of static data buffers used by
  * the OTA agent for job and file data blocks received.
  */
+
 #define otaconfigMAX_NUM_OTA_DATA_BUFFERS      2U
 
  /**
@@ -160,7 +165,7 @@
  * Enable data over HTTP - ( OTA_DATA_OVER_HTTP)
  * Enable data over both MQTT & HTTP ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
  */
-#define configENABLED_DATA_PROTOCOLS           ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP  )
+#define configENABLED_DATA_PROTOCOLS           ( OTA_DATA_OVER_MQTT )
 
 /**
  * @brief The preferred protocol selected for OTA data operations.

@@ -53,6 +53,9 @@
 
 /************ End of logging configuration ****************/
 
+/* Include OTA demo configurations. */
+#include "ota_demo_config.h"
+
 /**
  * @brief Log base 2 of the size of the file data block message (excluding the header).
  *
