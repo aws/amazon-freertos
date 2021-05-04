@@ -10,7 +10,7 @@ assignees: ''
 ---
 
 **Describe the bug**
-A clear and concise description explaining the bug.
+Please provide a clear and concise description explaining the bug.
 
 **System information**
 - Hardware board: [ ... ]
@@ -18,31 +18,27 @@ A clear and concise description explaining the bug.
 - Operating System: [ Windows | Linux | MacOS ]
 - Code version: (run ``git describe --tags`` to find it)
 - Project/Demo: [ mqtt_demo_mutual_auth | shadow_demo | custom application | etc... ]
-- If your project is a custom application, please add the relevant code
-  snippet(s) in the section named `Code to reproduce the bug`.
+- If your project is a custom application, please add the relevant code snippet(s) in the section titled `"Code to reproduce bug"`.
 
 **Expected behavior**
 A clear description of the expected behavior.
 
 **Screenshots or console output**
-If appropriate, please paste the console output/error log explaining the issue.
-If possible, include the call stack.
+If appropriate, please paste the console output/error log explaining the issue. If possible, include the call stack.
 
-**Steps to reproduce**
-Example:
-1. "I am using project [ ... ], and configured with [ ... ]"
-2. "When run on [ ... ], I observed [ ... ]"
+**Steps to reproduce bug**
+    Example:
+      1. "I am using project [ ... ], and have configured with [ ... ]"
+      2. "When run on [ ... ], I observed that [ ... ]"
 
-...
-
-**Code to reproduce the bug**
-The code should be wrapped in the ``'cpp'`` tag in order to be displayed clearly. For example:
+**Code to reproduce bug**
+The code should be wrapped in the ``cpp`` tag in order to be displayed clearly. For example:
 
 ```cpp
 printf("Hello World")
 ```
 
 **Additional context**
-Add any other context about the problem here.
+Include any additional context relevant to the issue here.
 
-<!-- For general inquiries, please open an issue with the "Type: Question" tag using [this template](https://forums.freertos.org). -->
+<!-- For general inquiries, please open an issue with the "Type: Question" tag using [this template](.github/ISSUE_TEMPLATE/general_inquiry.md). -->
