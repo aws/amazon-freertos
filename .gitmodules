@@ -80,9 +80,6 @@
 [submodule "vendors/cypress/MTB/psoc6/psoc6cm0p"]
 	path = vendors/cypress/MTB/psoc6/psoc6cm0p
 	url = https://github.com/cypresssemiconductorco/psoc6cm0p.git
-[submodule "vendors/cypress/MTB/libraries/emeeprom"]
-	path = vendors/cypress/MTB/libraries/emeeprom
-	url = https://github.com/cypresssemiconductorco/emeeprom.git
 [submodule "vendors/cypress/MTB/libraries/capsense"]
 	path = vendors/cypress/MTB/libraries/capsense
 	url = https://github.com/cypresssemiconductorco/capsense.git
@@ -110,3 +107,6 @@
 [submodule "vendors/cypress/MTB/libraries/lpa"]
 	path = vendors/cypress/MTB/libraries/lpa
 	url = https://github.com/cypresssemiconductorco/lpa.git
+[submodule "vendors/cypress/MTB/libraries/kv-store"]
+	path = vendors/cypress/MTB/libraries/kv-store
+	url = https://github.com/cypresssemiconductorco/kv-store.git
