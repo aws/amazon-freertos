@@ -2,9 +2,9 @@
 afr_demo_module(core_mqtt_agent)
 
 # Set the default demo that is enabled in the downloaded package.
-afr_set_demo_metadata(ID "CORE_MQTT_CONNECTION_SHARING_DEMO")
-afr_set_demo_metadata(DESCRIPTION "Examples that demonstrate the MQTT library")
-afr_set_demo_metadata(DISPLAY_NAME "coreMQTT Demos")
+afr_set_demo_metadata(ID "CORE_MQTT_AGENT_DEMO")
+afr_set_demo_metadata(DESCRIPTION "Examples that demonstrate the MQTT Agent library")
+afr_set_demo_metadata(DISPLAY_NAME "coreMQTT Agent Demos")
 
 # Add the CMakeLists.txt file of module to metadata list.
 afr_module_cmake_files(${AFR_CURRENT_MODULE} 
@@ -14,7 +14,7 @@ afr_module_cmake_files(${AFR_CURRENT_MODULE}
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${CMAKE_CURRENT_LIST_DIR}/mqtt_demo_connection_sharing.c"
+        "${CMAKE_CURRENT_LIST_DIR}/mqtt_agent_demo.c"
         # Add the header file added to the target's metadata so that it
         # is available in code downloaded from the FreeRTOS console.
         ${AFR_DEMOS_DIR}/include/aws_iot_metrics.h
@@ -31,6 +31,7 @@ afr_module_dependencies(
     INTERFACE
         AFR::core_mqtt
         AFR::core_mqtt_agent
+        AFR::mqtt_agent_interface
         AFR::backoff_algorithm
         AFR::transport_interface_secure_sockets
         AFR::secure_sockets
