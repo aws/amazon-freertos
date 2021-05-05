@@ -63,6 +63,11 @@ if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/core_mqtt_demo_dependencies.cmake)
     include(core_mqtt_demo_dependencies.cmake)
 endif()
 
+# Add core_mqtt_agent modules ONLY if present in the FreeRTOS console download.
+if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/core_mqtt_agent_demo_dependencies.cmake)
+    include(core_mqtt_agent_demo_dependencies.cmake)
+endif()
+
 # Add core_http modules ONLY if present in the FreeRTOS console download.
 if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/core_http_demo_dependencies.cmake)
     include(core_http_demo_dependencies.cmake)
