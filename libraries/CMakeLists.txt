@@ -108,6 +108,11 @@ if(EXISTS ${AFR_MODULES_DIR}/abstractions/transport/transport_interface_secure_s
   include(${AFR_MODULES_DIR}/abstractions/transport/transport_interface_secure_sockets.cmake)
 endif()
 
+# Add mqtt agent interface implementation module ONLY if present in FreeRTOS console download.
+if(EXISTS ${AFR_MODULES_DIR}/abstractions/mqtt_agent/mqtt_agent_interface.cmake)
+  include(${AFR_MODULES_DIR}/abstractions/mqtt_agent/mqtt_agent_interface.cmake)
+endif()
+
 # Add backoff algorithm module ONLY if present in FreeRTOS console download.
 if(EXISTS ${AFR_MODULES_DIR}/abstractions/backoff_algorithm.cmake)
   include(${AFR_MODULES_DIR}/abstractions/backoff_algorithm.cmake)
