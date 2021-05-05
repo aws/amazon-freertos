@@ -417,7 +417,7 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioSpeed )
             }
 
             /* The count is a reference to how long the read takes
-            *  so when running faster the count should be smaller. */
+             *  so when running faster the count should be smaller. */
             TEST_ASSERT_GREATER_THAN( ulPerfCountFastDelta, ulPerfCountSlowDelta );
         }
     }
