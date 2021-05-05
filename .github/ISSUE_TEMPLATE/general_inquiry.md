@@ -3,7 +3,7 @@ name: General Inquiry
 about: Generic issue for initiating discussion on any amazon-freertos topic (ex. questions,
   clarifications, concerns, etc.).
 title: "[General] <replace with your title>"
-labels: question
+labels: 'Type: Question'
 assignees: ''
 
 ---

@@ -4,7 +4,7 @@ about: Create a report to help us improve amazon-freertos by identifying any con
   bugs. To discuss a potential bug, or pose other inquiries, please open an issue
   using the template linked below.
 title: "[BUG] <replace with your title>"
-labels: 'Type: bug'
+labels: 'Type: Bug'
 assignees: ''
 
 ---
