@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202011.00
+ * FreeRTOS V202104.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,6 +33,13 @@
 
 /* MQTT agent includes. */
 #include "core_mqtt_agent.h"
+
+/**
+ * @brief The number of structures to allocate in the command pool.
+ */
+#ifndef MQTT_COMMAND_CONTEXTS_POOL_SIZE
+    #define MQTT_COMMAND_CONTEXTS_POOL_SIZE    ( 10U )
+#endif
 
 /**
  * @brief Initialize the common task pool. Not thread safe.
