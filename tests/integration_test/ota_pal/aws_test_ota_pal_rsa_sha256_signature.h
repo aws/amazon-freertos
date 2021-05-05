@@ -91,7 +91,7 @@ static const int ucValidSignatureLength = 256;
 /**
  * @brief The type of signature method this file defines for the valid signature.
  */
-#define otatestpalSIGNING_CERTIFICATE_PEM                                \
+#define CODE_SIGNING_CERTIFICATE_PEM                                     \
     "-----BEGIN CERTIFICATE-----\n"                                      \
     "MIIC6TCCAdGgAwIBAgIJAJmG5mbNWlukMA0GCSqGSIb3DQEBCwUAMCExHzAdBgNV\n" \
     "BAMMFnRlc3Rfc2lnbmVyQGFtYXpvbi5jb20wHhcNMTgwNjI3MjAwMDIyWhcNMTkw\n" \

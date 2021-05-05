@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202011.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -18,14 +18,10 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * https://www.FreeRTOS.org
- * https://aws.amazon.com/freertos
- *
  */
 
 /**
- * @file agent_message.c
+ * @file freertos_agent_message.c
  * @brief Implements functions to interact with queues.
  */
 
@@ -35,46 +31,40 @@
 
 /* Kernel includes. */
 #include "FreeRTOS.h"
-#include "queue.h"
+#include "semphr.h"
 
 /* Header include. */
+#include "freertos_agent_message.h"
 #include "agent_message.h"
 
 /*-----------------------------------------------------------*/
 
-struct AgentMessageContext
-{
-    QueueHandle_t queue;
-};
-
-/*-----------------------------------------------------------*/
-
-bool Agent_MessageSend( const AgentMessageContext_t * pMsgCtx,
+bool Agent_MessageSend( const AgentMessageContext_t * pxMsgCtx,
                         const void * pData,
-                        uint32_t blockTimeMs )
+                        uint32_t ulBlockTimeMs )
 {
-    BaseType_t queueStatus = pdFAIL;
+    BaseType_t xQueueStatus = pdFAIL;
 
-    if( ( pMsgCtx != NULL ) && ( pData != NULL ) )
+    if( ( pxMsgCtx != NULL ) && ( pData != NULL ) )
     {
-        queueStatus = xQueueSendToBack( pMsgCtx->queue, pData, pdMS_TO_TICKS( blockTimeMs ) );
+        xQueueStatus = xQueueSendToBack( pxMsgCtx->queue, pData, pdMS_TO_TICKS( ulBlockTimeMs ) );
     }
 
-    return ( queueStatus == pdPASS ) ? true : false;
+    return ( xQueueStatus == pdPASS ) ? true : false;
 }
 
 /*-----------------------------------------------------------*/
 
-bool Agent_MessageReceive( const AgentMessageContext_t * pMsgCtx,
+bool Agent_MessageReceive( const AgentMessageContext_t * pxMsgCtx,
                            void * pBuffer,
-                           uint32_t blockTimeMs )
+                           uint32_t ulBlockTimeMs )
 {
-    BaseType_t queueStatus = pdFAIL;
+    BaseType_t xQueueStatus = pdFAIL;
 
-    if( ( pMsgCtx != NULL ) && ( pBuffer != NULL ) )
+    if( ( pxMsgCtx != NULL ) && ( pBuffer != NULL ) )
     {
-        queueStatus = xQueueReceive( pMsgCtx->queue, pBuffer, pdMS_TO_TICKS( blockTimeMs ) );
+        xQueueStatus = xQueueReceive( pxMsgCtx->queue, pBuffer, pdMS_TO_TICKS( ulBlockTimeMs ) );
     }
 
-    return ( queueStatus == pdPASS ) ? true : false;
+    return ( xQueueStatus == pdPASS ) ? true : false;
 }

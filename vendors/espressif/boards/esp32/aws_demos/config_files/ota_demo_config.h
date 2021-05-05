@@ -1,5 +1,4 @@
 /*
- * FreeRTOS Demo Bootloader V1.4.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -18,41 +17,21 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
  */
 
 /**
- * @file asn1utility.h
- * @brief ASN1 utility header.
+ * @file ota_demo_config.h
+ * @brief Configuration options for the OTA related demos.
  */
 
-#ifndef _ASN1UTILITY_H_
-#define _ASN1UTILITY_H_
-
-/**
- * @brief asn1_getBigInteger.
- * Gets big integer from the data block.
- * @param[in] - pucInt - Data
- * @param[out] - ppucStart - returns pointer to next signature component.
- * @param[in] - pucEnd - end of the data
- * @return - 0 On success , 1 otherwise
- */
-int asn1_getBigInteger( uint8_t * pucInt,
-                                uint8_t ** ppucStart,
-                                uint8_t * pucEnd );
+#ifndef _OTA_CONFIG_H_
+#define _OTA_CONFIG_H_
 
 /**
- * @brief asn1_decodeSignature.
- * Decodes ASN1 encoded signature.
- * @param[in] - pucSignature - ASN1 encoded signature.
- * @param[in] - pucStart - start of the data
- * @param[in] - pucEnd - end of the data
- * @return - 0 On success , 1 otherwise
+ * @brief Certificate used for validating code signing signatures in the OTA PAL.
  */
-int asn1_decodeSignature( uint8_t * pucSignature,
-                                 uint8_t * pucStart,
-                                 uint8_t * pucEnd );
-						  
+#ifndef otapalconfigCODE_SIGNING_CERTIFICATE
+    #define otapalconfigCODE_SIGNING_CERTIFICATE        "Insert code signing certificate..."
 #endif
+
+#endif /* _OTA_CONFIG_H_ */

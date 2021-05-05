@@ -125,6 +125,13 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
                               const char * pcFormat,
                               va_list xArgs );
 
+/* A simple locking mechanism to protect access to the logging
+stream buffer. */
+static void prvBitOpsAcquire( LONG volatile *plValue );
+
+/* Release the lock. */
+static void prvBitOpsRelease( LONG volatile *plValue );
+
 /*-----------------------------------------------------------*/
 
 /* Windows event used to wake the Win32 thread which performs any logging that
@@ -230,6 +237,7 @@ void vLoggingInit( BaseType_t xLogToStdout,
                     NULL );
 
                 /* Use the cores that are not used by the FreeRTOS tasks. */
+                configASSERT( Win32Thread != NULL );
                 SetThreadAffinityMask( Win32Thread, ~0x01u );
                 SetThreadPriorityBoost( Win32Thread, TRUE );
                 SetThreadPriority( Win32Thread, THREAD_PRIORITY_IDLE );
@@ -366,6 +374,29 @@ void vLoggingPrintfWithFileAndLine( const char * pcFile,
     prvLoggingPrintf( LOG_NONE, pcFile, fileLineNo, pdTRUE, pcFormat, args );
 
     va_end( args );
+}
+
+/*-----------------------------------------------------------*/
+
+static void prvBitOpsAcquire( LONG volatile *plValue )
+{
+    /* Return the value of bit-0 before setting it, as an atomic operation. */
+    while( _interlockedbittestandset( plValue, 0U ) == 1 )
+    {
+        /* It would be good to yield here, but that would not
+         * work for a Windows thread. */
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+static void prvBitOpsRelease( LONG volatile *plValue )
+{
+    /* Return the value of bit-0 before clearing it, as an atomic operation. */
+    BOOLEAN rc = _interlockedbittestandreset( plValue, 0U );
+
+    /* If the bit was not set, this is a fatal error. */
+    configASSERT( rc != 0 );
 }
 
 /*-----------------------------------------------------------*/
@@ -587,24 +618,25 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
          * actual output. */
         if( ( xStdoutLoggingUsed != pdFALSE ) || ( xDiskFileLoggingUsed != pdFALSE ) )
         {
+            static LONG volatile ulBits;
+            size_t uxSpace;
             configASSERT( xLogStreamBuffer );
 
-            /* First write in the length of the data, then write in the data
-             * itself.  Raising the thread priority is used as a critical section
-             * as there are potentially multiple writers.  The stream buffer is
-             * only thread safe when there is a single writer (likewise for
-             * reading from the buffer). */
-            xCurrentTask = GetCurrentThread();
-            iOriginalPriority = GetThreadPriority( xCurrentTask );
-            SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
+            prvBitOpsAcquire( &( ulBits ) );
             {
                 /* How much space is in the buffer? */
-                size_t uxSpace = uxStreamBufferGetSpace( xLogStreamBuffer );
+                uxSpace = uxStreamBufferGetSpace( xLogStreamBuffer );
 
                 /* There must be enough space to write both the string and the length of
                  * the string. */
                 if( uxSpace >= ( xLength + sizeof( xLength ) ) )
                 {
+                    /* First write in the length of the data, then write in the data
+                     * itself.  Raising the thread priority is used as a critical section
+                     * as there are potentially multiple writers.  The stream buffer is
+                     * only thread safe when there is a single writer (likewise for
+                     * reading from the buffer). */
+
                     uxStreamBufferAdd( xLogStreamBuffer,
                                        0,
                                        ( const uint8_t * ) &( xLength ),
@@ -619,7 +651,7 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
                     /* Log line will be dropped, bad luck. */
                 }
             }
-            SetThreadPriority( GetCurrentThread(), iOriginalPriority );
+            prvBitOpsRelease( &( ulBits ) );
 
             /* xDirectPrint is initialised to pdTRUE, and while it remains true the
              * logging output function is called directly.  When the system is running
@@ -652,6 +684,7 @@ static void prvLoggingFlushBuffer( void )
      * used to pass data from the FreeRTOS simulator into this Win32 thread? */
     while( uxStreamBufferGetSize( xLogStreamBuffer ) > sizeof( xLength ) )
     {
+        size_t xBytesRead;
         memset( cPrintString, 0x00, dlMAX_PRINT_STRING_LENGTH );
         uxStreamBufferGet(
             xLogStreamBuffer,
@@ -659,12 +692,17 @@ static void prvLoggingFlushBuffer( void )
             ( uint8_t * ) &xLength,
             sizeof( xLength ),
             pdFALSE );
-        uxStreamBufferGet(
+
+        configASSERT( xLength < cPrintString );
+
+        xBytesRead = uxStreamBufferGet(
             xLogStreamBuffer,
             0,
             ( uint8_t * ) cPrintString,
             xLength,
             pdFALSE );
+
+        configASSERT( xLength == xBytesRead );
 
         /* Write the message to standard out if requested to do so when
          * vLoggingInit() was called, or if the network is not yet up. */

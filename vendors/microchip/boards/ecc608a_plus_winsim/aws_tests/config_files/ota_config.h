@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V1.4.8
+ * FreeRTOS V1.1.4
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,8 +28,12 @@
  * @brief OTA user configurable settings.
  */
 
-#ifndef _AWS_OTA_AGENT_CONFIG_H_
-#define _AWS_OTA_AGENT_CONFIG_H_
+#ifndef OTA_CONFIG_H_
+#define OTA_CONFIG_H_
+
+/* Include config file used for testing the OTA PAL. This config file defines
+ * the otapalconfigCODE_SIGNING_CERTIFICATE macro. */
+#include "aws_test_ota_config.h"
 
 /**
  * @brief The number of words allocated to the stack for the OTA agent.
@@ -56,12 +60,12 @@
  */
 #define otaconfigFILE_REQUEST_WAIT_MS           2500U
 
-/**
+ /**
  * @brief The OTA agents task priority. Normally it runs at a low priority.
  */
 #define otaconfigAGENT_PRIORITY                 tskIDLE_PRIORITY
 
-/**
+ /**
  * @brief The maximum allowed length of the thing name used by the OTA agent.
  *
  * AWS IoT requires Thing names to be unique for each device that connects to the broker.
@@ -168,4 +172,4 @@
 
 #define configOTA_PRIMARY_DATA_PROTOCOL     ( OTA_DATA_OVER_MQTT )
 
-#endif /* _AWS_OTA_AGENT_CONFIG_H_ */
+#endif /* OTA_CONFIG_H_ */

@@ -37,7 +37,7 @@
  * This value can be used to compensate for clock differences, and other
  * code overhead.
  */
-#define         integrationtestportableTIMEOUT_OVER_TOLERANCE      20
+#define         integrationtestportableTIMEOUT_OVER_TOLERANCE     20
 
 /**
  * @brief Indicates how much less time than the specified timeout is acceptable for
@@ -47,34 +47,34 @@
  * If networking and tests are on different CPUs, an "under tolerance" is acceptable.
  * For tests where same clock is used for networking and tests.
  */
-#define         integrationtestportableTIMEOUT_UNDER_TOLERANCE     0
+#define         integrationtestportableTIMEOUT_UNDER_TOLERANCE    0
 
 /**
  *  @brief Indicates how long  receive needs to wait for data before Timeout happens.
  *
  */
-#define         integrationtestportableRECEIVE_TIMEOUT             10000
+#define         integrationtestportableRECEIVE_TIMEOUT            10000
 
 /**
  * @brief Indicates how long  send needs to wait before Timeout happens.
  *
  */
-#define         integrationtestportableSEND_TIMEOUT                10000
+#define         integrationtestportableSEND_TIMEOUT               10000
 
 /**
  * @brief The timeout for all TCP echo multi-task tests.
  */
-#define         tcptestECHO_TEST_SYNC_TIMEOUT                      80000
+#define         tcptestECHO_TEST_SYNC_TIMEOUT                     120000
 
 /**
  * @brief The stack size of the tasks created in all TCP echo multi-task tests.
  */
-#define         tcptestTCP_ECHO_TASKS_STACK_SIZE                   ( configMINIMAL_STACK_SIZE * 8 )
+#define         tcptestTCP_ECHO_TASKS_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 8 )
 
 /**
  * @brief The priority of the tasks created in all TCP echo multi-task tests.
  */
-#define         tcptestTCP_ECHO_TASKS_PRIORITY                     ( tskIDLE_PRIORITY + 5 )
+#define         tcptestTCP_ECHO_TASKS_PRIORITY                    ( tskIDLE_PRIORITY + 5 )
 
 
 #endif /*AWS_INTEGRATION_TEST_TCP_CONFIG_H */
