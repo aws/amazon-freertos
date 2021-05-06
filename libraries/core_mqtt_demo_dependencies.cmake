@@ -51,7 +51,7 @@ afr_module_dependencies(
 # This module enables the FreeRTOS console experience of enabling
 # library dependencies when selecting the MQTT library, so that the
 # coreMQTT demos can be downloaded.
-afr_module(NAME core_mqtt_demo_dependencies )
+afr_module(NAME core_mqtt_demo_dependencies INTERNAL )
 
 afr_set_lib_metadata(ID "core_mqtt_demo_dependencies")
 afr_set_lib_metadata(DESCRIPTION "This library implements the MQTT protocol that enables \
