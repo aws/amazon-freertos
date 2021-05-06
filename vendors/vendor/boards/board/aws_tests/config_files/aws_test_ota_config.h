@@ -31,9 +31,11 @@
 #define _AWS_TEST_OTA_CONFIG_H_
 
  /**
- * @brief Path to cert for OTA test PAL. Used to verify signature.
- * If applicable, the device must be pre-provisioned with this certificate. Please see
- * test/common/ota/test_files for the set of certificates.
+ * @brief Path to the OTA PAL test certificate used to verify the signature.
+ *
+ * If applicable, the device must be pre-provisioned with this certificate.
+ * Please see tests/integration_test/ota_pal/test_files for the set of
+ * certificates.
  */
 #define otatestpalCERTIFICATE_FILE    "ecdsa-sha256-signer.crt.pem" /* FIX ME. */
 
@@ -50,12 +52,12 @@
 #define otatestpalUSE_FILE_SYSTEM     1 /* FIX ME. */
 
 /**
- * @brief 1 if prvPAL_CheckFileSignature is implemented in aws_ota_pal.c.
+ * @brief 1 if otaPAL_CheckFileSignature is implemented in ota_pal.c.
  */
 #define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           1   /* FIX ME. */
 
 /**
- * @brief 1 if prvPAL_ReadAndAssumeCertificate is implemented in the aws_ota_pal.c.
+ * @brief 1 if otaPAL_ReadAndAssumeCertificate is implemented in ota_pal.c.
  */
 #define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    1   /* FIX ME. */
 
@@ -68,12 +70,5 @@
  * @brief Include of signature testing data applicable to this device.
  */
 #include "aws_test_ota_pal_ecdsa_sha256_signature.h" /* FIX ME. */
-
-/**
- * @brief Define a valid and invalid signature verification method for this
- * platform (Windows). These are used for generating test JSON docs.
- */
-#define otatestVALID_SIG_METHOD                         "sig-sha256-rsa"    /* FIX ME. */
-#define otatestINVALID_SIG_METHOD                       "sig-sha256-ecdsa"  /* FIX ME. */
 
 #endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */
