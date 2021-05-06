@@ -141,6 +141,9 @@ typedef struct TLSContext
 
 #define TLS_PRINT( X )    configPRINTF( X )
 
+BaseType_t prvDefault_DateIsInThePast(BaseType_t day, BaseType_t month, BaseType_t year);
+dateIsInThePast_t pDateIsInThePast = prvDefault_DateIsInThePast;
+
 /*-----------------------------------------------------------*/
 
 /*
@@ -173,6 +176,11 @@ static void prvFreeContext( TLSContext_t * pxCtx )
 
         pxCtx->xTLSHandshakeState = TLS_HANDSHAKE_NOT_STARTED;
     }
+}
+
+BaseType_t prvDefault_DateIsInThePast(BaseType_t day, BaseType_t month, BaseType_t year)
+{
+    return 0; // assume a good certificate
 }
 
 /*-----------------------------------------------------------*/
@@ -268,16 +276,11 @@ static int prvCheckCertificate( void * pvContext,
     ( void ) ( pvContext );
     ( void ) ( lPathCount );
 
-    struct tm expiryDate;
-    expiryDate.tm_year = pxCertificate->valid_to.year;
-    expiryDate.tm_mon = pxCertificate->valid_to.mon;
-    expiryDate.tm_mday = pxCertificate->valid_to.day;
+    BaseType_t day = pxCertificate->valid_to.day;
+    BaseType_t month = pxCertificate->valid_to.mon;
+    BaseType_t year = pxCertificate->valid_to.year;
     
-    time_t expireTime = mktime(&expiryDate);
-    
-    time_t now = time(NULL);
-    
-    if( now && (difftime(expireTime, now) < 0))
+    if( pDateIsInThePast(day, month, year) != 0 )
     {
         *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
     }
@@ -1082,3 +1085,9 @@ void TLS_Cleanup( void * pvContext )
     }
 }
 
+/*-----------------------------------------------------------*/
+
+void TLS_setDateIsInThePastFunction(dateIsInThePast_t DateIsInThePast)
+{
+    pDateIsInThePast = DateIsInThePast;
+}
