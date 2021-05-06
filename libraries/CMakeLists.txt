@@ -63,6 +63,11 @@ if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/core_mqtt_demo_dependencies.cmake)
     include(core_mqtt_demo_dependencies.cmake)
 endif()
 
+# Add core_mqtt_agent modules ONLY if present in the FreeRTOS console download.
+if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/core_mqtt_agent_demo_dependencies.cmake)
+    include(core_mqtt_agent_demo_dependencies.cmake)
+endif()
+
 # Add core_http modules ONLY if present in the FreeRTOS console download.
 if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/core_http_demo_dependencies.cmake)
     include(core_http_demo_dependencies.cmake)
@@ -101,6 +106,11 @@ endif()
 # Add transport interface implementation module ONLY if present in FreeRTOS console download.
 if(EXISTS ${AFR_MODULES_DIR}/abstractions/transport/transport_interface_secure_sockets.cmake)
   include(${AFR_MODULES_DIR}/abstractions/transport/transport_interface_secure_sockets.cmake)
+endif()
+
+# Add mqtt agent interface implementation module ONLY if present in FreeRTOS console download.
+if(EXISTS ${AFR_MODULES_DIR}/abstractions/mqtt_agent/mqtt_agent_interface.cmake)
+  include(${AFR_MODULES_DIR}/abstractions/mqtt_agent/mqtt_agent_interface.cmake)
 endif()
 
 # Add backoff algorithm module ONLY if present in FreeRTOS console download.
