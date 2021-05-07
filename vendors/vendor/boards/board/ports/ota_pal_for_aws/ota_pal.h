@@ -166,7 +166,7 @@ OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext );
 /**
  * @brief Attempt to set the state of the OTA update image.
  *
- * Do whatever is required by the platform to Accept/Reject the OTA update image (or bundle).
+ * Take required actions on the platform to Accept/Reject the OTA update image (or bundle).
  * Refer to the PAL implementation to determine what happens on your platform.
  *
  * @param[in] pFileContext File context of type OtaFileContext_t.
