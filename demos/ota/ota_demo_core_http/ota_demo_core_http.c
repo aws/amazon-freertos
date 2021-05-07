@@ -562,19 +562,9 @@ static SecureSocketsTransportParams_t xHTTPSecureSocketsTransportParams;
 static TransportInterface_t transportInterfaceHttp;
 
 /**
- * @brief MQTT connection context used in this demo.
- */
-static MQTTContext_t mqttContext;
-
-/**
  * @brief Semaphore for synchronizing buffer operations.
  */
 static SemaphoreHandle_t xBufferSemaphore;
-
-/**
- * @brief The network buffer must remain valid when OTA library task is running.
- */
-static uint8_t otaNetworkBuffer[ OTA_NETWORK_BUFFER_SIZE ];
 
 /**
  * @brief The location of the path within the pre-signed URL.
@@ -584,22 +574,22 @@ static const char * pPath;
 /**
  * @brief Update File path buffer.
  */
-static uint8_t updateFilePath[ OTA_MAX_FILE_PATH_SIZE ];
+static uint8_t ucUpdateFilePath[ OTA_MAX_FILE_PATH_SIZE ];
 
 /**
  * @brief Certificate File path buffer.
  */
-static uint8_t certFilePath[ OTA_MAX_FILE_PATH_SIZE ];
+static uint8_t ucCertFilePath[ OTA_MAX_FILE_PATH_SIZE ];
 
 /**
  * @brief Stream name buffer.
  */
-static uint8_t streamName[ OTA_MAX_STREAM_NAME_SIZE ];
+static uint8_t ucStreamName[ OTA_MAX_STREAM_NAME_SIZE ];
 
 /**
  * @brief Decode memory.
  */
-static uint8_t decodeMem[ otaconfigFILE_BLOCK_SIZE ];
+static uint8_t ucDecodeMem[ otaconfigFILE_BLOCK_SIZE ];
 
 /**
  * @brief Bitmap memory.
@@ -634,11 +624,11 @@ static uint32_t ulGlobalEntryTimeMs;
  */
 static OtaAppBuffer_t otaBuffer =
 {
-    .pUpdateFilePath    = updateFilePath,
+    .pUpdateFilePath    = ucUpdateFilePath,
     .updateFilePathsize = OTA_MAX_FILE_PATH_SIZE,
-    .pCertFilePath      = certFilePath,
+    .pCertFilePath      = ucCertFilePath,
     .certFilePathSize   = OTA_MAX_FILE_PATH_SIZE,
-    .pDecodeMemory      = decodeMem,
+    .pDecodeMemory      = ucDecodeMem,
     .decodeMemorySize   = otaconfigFILE_BLOCK_SIZE,
     .pFileBitmap        = bitmap,
     .fileBitmapSize     = OTA_MAX_BLOCK_BITMAP_SIZE,
@@ -953,7 +943,7 @@ static void prvMqttDefaultCallback( void * pvIncomingPublishCallbackContext,
 /**
  * @brief Registry for all  mqtt topic filters to their corresponding callbacks for OTA.
  */
-static OtaTopicFilterCallback_t otaTopicFilterCallbacks[] =
+static OtaTopicFilterCallback_t xOtaTopicFilterCallbacks[] =
 {
     {
         .pTopicFilter = OTA_JOB_NOTIFY_TOPIC_FILTER,
@@ -1242,7 +1232,7 @@ static void prvRegisterOTACallback( const char * pTopicFilter,
     bool isMatch = false;
     MQTTStatus_t mqttStatus = MQTTSuccess;
     uint16_t index = 0U;
-    uint16_t numTopicFilters = sizeof( otaTopicFilterCallbacks ) / sizeof( OtaTopicFilterCallback_t );
+    uint16_t numTopicFilters = sizeof( xOtaTopicFilterCallbacks ) / sizeof( OtaTopicFilterCallback_t );
 
 
     bool subscriptionAdded;
@@ -1255,8 +1245,8 @@ static void prvRegisterOTACallback( const char * pTopicFilter,
     {
         mqttStatus = MQTT_MatchTopic( pTopicFilter,
                                       topicFilterLength,
-                                      otaTopicFilterCallbacks[ index ].pTopicFilter,
-                                      otaTopicFilterCallbacks[ index ].topicFilterLength,
+                                      xOtaTopicFilterCallbacks[ index ].pTopicFilter,
+                                      xOtaTopicFilterCallbacks[ index ].topicFilterLength,
                                       &isMatch );
         assert( mqttStatus == MQTTSuccess );
 
@@ -1266,7 +1256,7 @@ static void prvRegisterOTACallback( const char * pTopicFilter,
             subscriptionAdded = addSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
                                                  pTopicFilter,
                                                  topicFilterLength,
-                                                 otaTopicFilterCallbacks[ index ].callback,
+                                                 xOtaTopicFilterCallbacks[ index ].callback,
                                                  NULL );
 
             if( subscriptionAdded == false )
