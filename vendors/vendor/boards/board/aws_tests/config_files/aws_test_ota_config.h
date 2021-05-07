@@ -30,26 +30,26 @@
 #ifndef _AWS_TEST_OTA_CONFIG_H_
 #define _AWS_TEST_OTA_CONFIG_H_
 
- /**
+/**
  * @brief Path to the OTA PAL test certificate used to verify the signature.
  *
  * If applicable, the device must be pre-provisioned with this certificate.
  * Please see tests/integration_test/ota_pal/test_files for the set of
  * certificates.
  */
-#define otatestpalCERTIFICATE_FILE    "ecdsa-sha256-signer.crt.pem" /* FIX ME. */
-
- /**
- * @brief Some boards have a hard-coded name for the firmware image to boot.
- */
-#define otatestpalFIRMWARE_FILE  "dummy.bin"
+#define otatestpalCERTIFICATE_FILE                         "ecdsa-sha256-signer.crt.pem" /* FIX ME. */
 
 /**
- * @brief Some boards OTA PAL layers will use the file names passed into it for the 
+ * @brief Some boards have a hard-coded name for the firmware image to boot.
+ */
+#define otatestpalFIRMWARE_FILE                            "dummy.bin"
+
+/**
+ * @brief Some boards OTA PAL layers will use the file names passed into it for the
  * image and the certificates because their non-volatile memory is abstracted by a
  * file system. Set this to 1 if that is the case for your device.
  */
-#define otatestpalUSE_FILE_SYSTEM     1 /* FIX ME. */
+#define otatestpalUSE_FILE_SYSTEM                          1 /* FIX ME. */
 
 /**
  * @brief 1 if otaPAL_CheckFileSignature is implemented in ota_pal.c.

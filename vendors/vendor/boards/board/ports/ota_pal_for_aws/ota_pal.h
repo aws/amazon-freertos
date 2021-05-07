@@ -44,7 +44,7 @@
  *
  * This function may be called before the file is opened, so the file pointer pFileContext->fileHandle
  * may be NULL when this function is called.
- * 
+ *
  * The file pointer will be set to NULL after this function returns.
  *
  * @param[in] pFileContext OTA file context information.
@@ -155,7 +155,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
  * @return The OtaPalStatus_t error code is a combination of the main OTA PAL interface error and
  *         the MCU specific sub error code. See ota_platform_interface.h for the OtaPalMainStatus_t
  *         error codes and your specific PAL implementation for the sub error code.
- * 
+ *
  * Major error codes returned are:
  *
  *   OtaPalSuccess on success.
