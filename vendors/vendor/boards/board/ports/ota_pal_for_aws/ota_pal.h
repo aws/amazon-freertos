@@ -144,7 +144,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
 /**
  * @brief Activate the newest MCU image received via OTA.
  *
- * This function shall do whatever is necessary to activate the newest MCU
+ * This function shall take necessary actions to activate the newest MCU
  * firmware received via OTA. It is typically just a reset of the device.
  *
  * @note This function SHOULD NOT return. If it does, the platform does not support
