@@ -133,7 +133,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext );
  * @param[in] pData Pointer to the byte array of data to write.
  * @param[in] ulBlockSize The number of bytes to write.
  *
- * @return The number of bytes written on a success, or a negative error code from the platform
+ * @return The number of bytes written successfully, or a negative error code from the platform
  * abstraction layer.
  */
 int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
