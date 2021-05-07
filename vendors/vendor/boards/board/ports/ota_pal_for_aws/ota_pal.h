@@ -45,8 +45,6 @@
  * This function may be called before the file is opened, so the file pointer pFileContext->fileHandle
  * may be NULL when this function is called.
  *
- * The file pointer will be set to NULL after this function returns.
- *
  * @param[in] pFileContext OTA file context information.
  *
  * @return The OtaPalStatus_t error code is a combination of the main OTA PAL interface error and
