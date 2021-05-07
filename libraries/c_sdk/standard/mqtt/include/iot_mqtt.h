@@ -307,7 +307,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 /**
  * @brief Closes an MQTT connection and frees resources.
  *
- * This function closes an MQTT connection and SHOULD be called ONLY ONCE once
+ * This function closes an MQTT connection and MUST be called ONLY ONCE once
  * the MQTT connection is no longer needed. Its exact behavior depends on the
  * `flags` parameter.
  *
