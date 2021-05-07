@@ -133,7 +133,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext );
  * @param[in] pData Pointer to the byte array of data to write.
  * @param[in] ulBlockSize The number of bytes to write.
  *
- * @return The number of bytes written on a success, or a negative error code from the platform
+ * @return The number of bytes written successfully, or a negative error code from the platform
  * abstraction layer.
  */
 int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
@@ -144,10 +144,10 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
 /**
  * @brief Activate the newest MCU image received via OTA.
  *
- * This function shall do whatever is necessary to activate the newest MCU
+ * This function shall take necessary actions to activate the newest MCU
  * firmware received via OTA. It is typically just a reset of the device.
  *
- * @note This function SHOULD not return. If it does, the platform does not support
+ * @note This function SHOULD NOT return. If it does, the platform does not support
  * an automatic reset or an error occurred.
  *
  * @param[in] pFileContext OTA file context information.
@@ -166,7 +166,7 @@ OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext );
 /**
  * @brief Attempt to set the state of the OTA update image.
  *
- * Do whatever is required by the platform to Accept/Reject the OTA update image (or bundle).
+ * Take required actions on the platform to Accept/Reject the OTA update image (or bundle).
  * Refer to the PAL implementation to determine what happens on your platform.
  *
  * @param[in] pFileContext File context of type OtaFileContext_t.
@@ -217,7 +217,7 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileC
  *
  * This function shall reset the MCU and cause a reboot of the system.
  *
- * @note This function SHOULD not return. If it does, the platform does not support
+ * @note This function SHOULD NOT return. If it does, the platform does not support
  * an automatic reset or an error occurred.
  *
  * @param[in] pFileContext OTA file context information.
