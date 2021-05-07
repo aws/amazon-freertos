@@ -19,11 +19,17 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/**
+ * @file core_mqtt_agent_config.h
+ * @brief Config file for parameters that overwrite the default MQTT-Agent
+ *        configurations.
+ */
+
 #ifndef CORE_MQTT_AGENT_CONFIG_H_
 #define CORE_MQTT_AGENT_CONFIG_H_
 
-#define MQTT_AGENT_COMMAND_QUEUE_LENGTH     ( 25 )
-#define MQTT_COMMAND_CONTEXTS_POOL_SIZE     ( 10 )
+#define MQTT_AGENT_COMMAND_QUEUE_LENGTH     ( 25 ) /* FIX ME. */
+#define MQTT_COMMAND_CONTEXTS_POOL_SIZE     ( 10 ) /* FIX ME. */
 
 /**
  * @brief The maximum number of subscriptions to track for a single connection.
@@ -33,7 +39,7 @@
  * subscriptions records that can be maintained at one time.  The higher this
  * number is the greater the agent's RAM consumption will be.
  */
-#define MQTT_AGENT_MAX_SIMULTANEOUS_SUBSCRIPTIONS    ( 10 )
+#define MQTT_AGENT_MAX_SIMULTANEOUS_SUBSCRIPTIONS    ( 10 ) /* FIX ME. */
 /**
  * @brief Size of statically allocated buffers for holding subscription filters.
  *
@@ -42,13 +48,13 @@
  * characters. The higher this number is the greater the agent's RAM consumption
  * will be.
  */
-#define MQTT_AGENT_MAX_SUBSCRIPTION_FILTER_LENGTH ( 100 )
+#define MQTT_AGENT_MAX_SUBSCRIPTION_FILTER_LENGTH ( 100 ) /* FIX ME. */
 /**
  * @brief Dimensions the buffer used to serialise and deserialise MQTT packets.
  * @note Specified in bytes.  Must be large enough to hold the maximum
  * anticipated MQTT payload.
  */
-#define MQTT_AGENT_NETWORK_BUFFER_SIZE    ( 5000 )
+#define MQTT_AGENT_NETWORK_BUFFER_SIZE    ( 5000 ) /* FIX ME. */
 /**
  * @breif Timeout for which MQTT library keeps polling the transport interface,
  * when no byte is received.
@@ -56,12 +62,12 @@
  * are read from network interface. Keeping this timeout to a sufficiently large value so
  * as to account for delay of receipt of a large block of message.
  */
-#define MQTT_RECV_POLLING_TIMEOUT_MS  ( 1000U )
+#define MQTT_RECV_POLLING_TIMEOUT_MS  ( 1000U ) /* FIX ME. */
  /**
   * @breif Maximum time MQTT agent waits in the queue for any pending MQTT operations.
   * The wait time is kept smallest possible to increase the responsiveness of MQTT agent
   * while processing  pending MQTT operations as well as receive packets from network.
   */
-#define MQTT_AGENT_MAX_EVENT_QUEUE_WAIT_TIME ( 1U )
+#define MQTT_AGENT_MAX_EVENT_QUEUE_WAIT_TIME ( 1U ) /* FIX ME. */
 
 #endif /* ifndef CORE_MQTT_AGENT_CONFIG_H */

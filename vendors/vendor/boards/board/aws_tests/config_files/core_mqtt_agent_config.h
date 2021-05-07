@@ -19,6 +19,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/**
+ * @file core_mqtt_agent_config.h
+ * @brief Config file for parameters that overwrite the default MQTT-Agent
+ *        configurations.
+ */
+
 #ifndef CORE_MQTT_AGENT_CONFIG_H_
 #define CORE_MQTT_AGENT_CONFIG_H_
 

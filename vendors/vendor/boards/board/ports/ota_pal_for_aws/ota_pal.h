@@ -61,7 +61,7 @@
 OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const pFileContext );
 
 /**
- * @brief Create a new receive file for the data chunks as they come in.
+ * @brief Create a new receive file.
  *
  * @note Opens the file indicated in the OTA file context in the MCU file system.
  *
@@ -84,7 +84,9 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const pFileContext );
  *   OtaPalSuccess: File creation was successful.
  *   OtaPalRxFileTooLarge: The OTA receive file is too big for the platform to support.
  *   OtaPalBootInfoCreateFailed: The bootloader information file creation failed.
- *   OtaPalRxFileCreateFailed: Returned for other errors creating the file in the device's non-volatile memory.
+ *   OtaPalRxFileCreateFailed: Returned for other errors creating the file in the device's
+ *                             non-volatile memory. If this error is returned, then the sub error
+ *                             should be set to the appropriate platform specific value.
  */
 OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext );
 
@@ -95,8 +97,6 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext );
  * function is called. This function is called only at the end of block ingestion.
  * otaPAL_CreateFileForRx() must succeed before this function is reached, so
  * pFileContext->fileHandle(or pFileContext->pFile) is never NULL.
- * The certificate path on the device is a required job document field in the OTA Agent,
- * so pFileContext->pCertFilepath is never NULL.
  * The file signature key is required job document field in the OTA Agent, so pFileContext->pSignature will
  * never be NULL.
  *
