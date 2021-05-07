@@ -217,7 +217,7 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileC
  *
  * This function shall reset the MCU and cause a reboot of the system.
  *
- * @note This function SHOULD not return. If it does, the platform does not support
+ * @note This function SHOULD NOT return. If it does, the platform does not support
  * an automatic reset or an error occurred.
  *
  * @param[in] pFileContext OTA file context information.
