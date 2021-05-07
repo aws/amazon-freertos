@@ -141,8 +141,8 @@ typedef struct TLSContext
 
 #define TLS_PRINT( X )    configPRINTF( X )
 
-BaseType_t prvDefault_DateIsInThePast(BaseType_t day, BaseType_t month, BaseType_t year);
-dateIsInThePast_t pDateIsInThePast = prvDefault_DateIsInThePast;
+static BaseType_t prvDefault_DateIsInThePast(BaseType_t day, BaseType_t month, BaseType_t year);
+static dateIsInThePast_t pDateIsInThePast = prvDefault_DateIsInThePast;
 
 /*-----------------------------------------------------------*/
 
@@ -178,7 +178,7 @@ static void prvFreeContext( TLSContext_t * pxCtx )
     }
 }
 
-BaseType_t prvDefault_DateIsInThePast(BaseType_t day, BaseType_t month, BaseType_t year)
+static BaseType_t prvDefault_DateIsInThePast(BaseType_t day, BaseType_t month, BaseType_t year)
 {
     return 0; /* Assume the certificate is valid. */
 }
@@ -697,7 +697,6 @@ BaseType_t TLS_Init( void ** ppvContext,
         pxCtx->xNetworkRecv = pxParams->pxNetworkRecv;
         pxCtx->xNetworkSend = pxParams->pxNetworkSend;
         pxCtx->pvCallerContext = pxParams->pvCallerContext;
-        pxCtx->getDate = prvGetDate_default;
 
         /* Get the function pointer list for the PKCS#11 module. */
         xCkGetFunctionList = C_GetFunctionList;
