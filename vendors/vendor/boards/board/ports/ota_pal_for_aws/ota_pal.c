@@ -29,44 +29,55 @@
 
 /* FreeRTOS include. */
 #include "FreeRTOS.h"
-#include "aws_iot_ota_pal.h"
-#include "aws_iot_ota_agent_internal.h"
+
+/* OTA library includes. */
+#include "ota.h"
+#include "ota_private.h"
+
+/* OTA PAL Port include. */
+#include "ota_pal.h"
+
+/* OTA PAL test config file include. */
+#include "ota_config.h"
 
 /* Specify the OTA signature algorithm we support on this platform. */
-const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";   /* FIX ME. */
+const char OTA_JsonFileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa"; /* FIX ME. */
 
 
-/* The static functions below (prvPAL_CheckFileSignature and prvPAL_ReadAndAssumeCertificate)
- * are optionally implemented. If these functions are implemented then please set the following macros in
- * aws_test_ota_config.h to 1:
- * otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
- * otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED
+/* The static functions below (otaPAL_CheckFileSignature and otaPAL_ReadAndAssumeCertificate)
+ * are optionally implemented. If these functions are implemented then please set the following
+ * macros in aws_test_ota_config.h to 1:
+ *   otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
+ *   otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED
  */
 
 /**
  * @brief Verify the signature of the specified file.
  *
- * This function should be implemented if signature verification is not offloaded
- * to non-volatile memory io functions.
+ * This function should be implemented if signature verification is not offloaded to non-volatile
+ * memory io functions.
  *
- * This function is called from prvPAL_Close().
+ * This function is expected to be called from otaPal_CloseFile().
  *
- * @param[in] C OTA file context information.
+ * @param[in] pFileContext OTA file context information.
  *
- * @return Below are the valid return values for this function.
- * kOTA_Err_None if the signature verification passes.
- * kOTA_Err_SignatureCheckFailed if the signature verification fails.
- * kOTA_Err_BadSignerCert if the if the signature verification certificate cannot be read.
+ * @return The OtaPalStatus_t error code combined with the MCU specific error code. See
+ *         ota_platform_interface.h for OTA major error codes and your specific PAL implementation
+ *         for the sub error code.
  *
+ * Major error codes returned are:
+ *   OtaPalSuccess: if the signature verification passes.
+ *   OtaPalSignatureCheckFailed: if the signature verification fails.
+ *   OtaPalBadSignerCert: if the signature verification certificate cannot be read.
  */
-static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C );
+static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext );
 
 /**
  * @brief Read the specified signer certificate from the filesystem into a local buffer.
  *
  * The allocated memory returned becomes the property of the caller who is responsible for freeing it.
  *
- * This function is called from prvPAL_CheckFileSignature(). It should be implemented if signature
+ * This function is called from otaPAL_CheckFileSignature(). It should be implemented if signature
  * verification is not offloaded to non-volatile memory io function.
  *
  * @param[in] pucCertName The file path of the certificate file.
@@ -75,105 +86,95 @@ static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C );
  * @return A pointer to the signer certificate in the file system. NULL if the certificate cannot be read.
  * This returned pointer is the responsibility of the caller; if the memory is allocated the caller must free it.
  */
-static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
+static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
                                                   uint32_t * const ulSignerCertSize );
 
+
 /*-----------------------------------------------------------*/
 
-OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
+OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const pFileContext )
 {
-    DEFINE_OTA_METHOD_NAME( "prvPAL_CreateFileForRx" );
-
     /* FIX ME. */
-    return kOTA_Err_RxFileCreateFailed;
+    return OtaPalFileAbort;
 }
+
 /*-----------------------------------------------------------*/
 
-OTA_Err_t prvPAL_Abort( OTA_FileContext_t * const C )
+OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
 {
-    DEFINE_OTA_METHOD_NAME( "prvPAL_Abort" );
-
     /* FIX ME. */
-    return kOTA_Err_FileAbort;
+    return OtaPalRxFileCreateFailed;
 }
+
 /*-----------------------------------------------------------*/
 
-/* Write a block of data to the specified file. */
-int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C,
+OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
+{
+    /* FIX ME. */
+    return OtaPalFileClose;
+}
+
+/*-----------------------------------------------------------*/
+
+int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
                            uint32_t ulOffset,
-                           uint8_t * const pacData,
+                           uint8_t * const pData,
                            uint32_t ulBlockSize )
 {
-    DEFINE_OTA_METHOD_NAME( "prvPAL_WriteBlock" );
-
     /* FIX ME. */
     return -1;
 }
+
 /*-----------------------------------------------------------*/
 
-OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * const C )
+OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext )
 {
-    DEFINE_OTA_METHOD_NAME( "prvPAL_CloseFile" );
-
     /* FIX ME. */
-    return kOTA_Err_FileClose;
+    return OtaPalActivateFailed;
 }
+
 /*-----------------------------------------------------------*/
 
-
-static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
+OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileContext,
+                                             OtaImageState_t eState )
 {
-    DEFINE_OTA_METHOD_NAME( "prvPAL_CheckFileSignature" );
-
     /* FIX ME. */
-    return kOTA_Err_SignatureCheckFailed;
+    return OtaPalBadImageState;
 }
+
 /*-----------------------------------------------------------*/
 
-static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
+OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileContext )
+{
+    /* FIX ME. */
+    return OtaPalImageStateUnknown;
+}
+
+/*-----------------------------------------------------------*/
+
+OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const pFileContext )
+{
+    /* FIX ME. */
+    return OtaPalSuccess;
+}
+
+/*-----------------------------------------------------------*/
+
+static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext )
+{
+    /* FIX ME. */
+    return OtaPalSignatureCheckFailed;
+}
+
+/*-----------------------------------------------------------*/
+
+static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
                                                   uint32_t * const ulSignerCertSize )
 {
-    DEFINE_OTA_METHOD_NAME( "prvPAL_ReadAndAssumeCertificate" );
-
     /* FIX ME. */
     return NULL;
 }
-/*-----------------------------------------------------------*/
 
-OTA_Err_t prvPAL_ResetDevice( void )
-{
-    DEFINE_OTA_METHOD_NAME("prvPAL_ResetDevice");
-
-    /* FIX ME. */
-    return kOTA_Err_ResetNotSupported;
-}
-/*-----------------------------------------------------------*/
-
-OTA_Err_t prvPAL_ActivateNewImage( void )
-{
-    DEFINE_OTA_METHOD_NAME("prvPAL_ActivateNewImage");
-
-    /* FIX ME. */
-    return kOTA_Err_Uninitialized;
-}
-/*-----------------------------------------------------------*/
-
-OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )
-{
-    DEFINE_OTA_METHOD_NAME( "prvPAL_SetPlatformImageState" );
-
-    /* FIX ME. */
-    return kOTA_Err_BadImageState;
-}
-/*-----------------------------------------------------------*/
-
-OTA_PAL_ImageState_t prvPAL_GetPlatformImageState( void )
-{
-    DEFINE_OTA_METHOD_NAME( "prvPAL_GetPlatformImageState" );
-
-    /* FIX ME. */
-    return eOTA_ImageState_Unknown;
-}
 /*-----------------------------------------------------------*/
 
 /* Provide access to private members for testing. */
