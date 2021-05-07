@@ -180,7 +180,7 @@ static void prvFreeContext( TLSContext_t * pxCtx )
 
 BaseType_t prvDefault_DateIsInThePast(BaseType_t day, BaseType_t month, BaseType_t year)
 {
-    return 0; // assume a good certificate
+    return 0; /* Assume the certificate is valid. */
 }
 
 /*-----------------------------------------------------------*/
