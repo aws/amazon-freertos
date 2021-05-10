@@ -203,7 +203,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C )
         if( C->pSignature != NULL )
         {
             /* Verify the file signature, close the file and return the signature verification result. */
-            mainErr = otaPal_CheckFileSignature( C );
+            mainErr = OTA_PAL_MAIN_ERR( otaPal_CheckFileSignature( C ) );
         }
         else
         {
