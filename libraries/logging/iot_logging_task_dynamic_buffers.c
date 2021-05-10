@@ -80,8 +80,14 @@
  *    that nothing was written as opposed to negative value from
  *    vsnprintf/snprintf.
  */
-static int vsnprintf_safe( char * s, size_t n, const char * format, va_list arg );
-static int snprintf_safe( char * s, size_t n, const char * format, ... );
+static int vsnprintf_safe( char * s,
+                           size_t n,
+                           const char * format,
+                           va_list arg );
+static int snprintf_safe( char * s,
+                          size_t n,
+                          const char * format,
+                          ... );
 
 /*-----------------------------------------------------------*/
 
@@ -109,7 +115,10 @@ static QueueHandle_t xQueue = NULL;
 
 /*-----------------------------------------------------------*/
 
-static int vsnprintf_safe( char * s, size_t n, const char * format, va_list arg )
+static int vsnprintf_safe( char * s,
+                           size_t n,
+                           const char * format,
+                           va_list arg )
 {
     int ret;
 
@@ -139,7 +148,10 @@ static int vsnprintf_safe( char * s, size_t n, const char * format, va_list arg 
 
 /*-----------------------------------------------------------*/
 
-static int snprintf_safe( char * s, size_t n, const char * format, ... )
+static int snprintf_safe( char * s,
+                          size_t n,
+                          const char * format,
+                          ... )
 {
     int ret;
     va_list args;
