@@ -108,6 +108,15 @@ struct MQTTAgentCommandContext
     void * pArgs;
 };
 
+/**
+ * @brief Parameters for this task.
+ */
+struct DemoParams
+{
+    uint32_t ulTaskNumber;
+    bool xSuccess;
+};
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -200,6 +209,8 @@ extern MQTTAgentContext_t xGlobalMqttAgentContext;
 
 /*-----------------------------------------------------------*/
 
+static TaskHandle_t xMainTask;
+
 /**
  * @brief The buffer to hold the topic filter. The topic is generated at runtime
  * by adding the task names.
@@ -212,10 +223,13 @@ static char topicBuf[ democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE ][ mqttexampl
 
 void vStartSimpleSubscribePublishTask( uint32_t ulNumberToCreate,
                                        configSTACK_DEPTH_TYPE uxStackSize,
-                                       UBaseType_t uxPriority )
+                                       UBaseType_t uxPriority,
+                                       struct DemoParams * pxParams )
 {
     char pcTaskNameBuf[ 15 ];
     uint32_t ulTaskNumber;
+
+    xMainTask = xTaskGetCurrentTaskHandle();
 
     /* Each instance of prvSimpleSubscribePublishTask() generates a unique name
      * and topic filter for itself from the number passed in as the task
@@ -225,10 +239,12 @@ void vStartSimpleSubscribePublishTask( uint32_t ulNumberToCreate,
     {
         memset( pcTaskNameBuf, 0x00, sizeof( pcTaskNameBuf ) );
         snprintf( pcTaskNameBuf, 10, "SubPub%d", ( int ) ulTaskNumber );
+        pxParams[ ulTaskNumber ].ulTaskNumber = ulTaskNumber;
+        pxParams[ ulTaskNumber ].xSuccess = false;
         xTaskCreate( prvSimpleSubscribePublishTask,
                      pcTaskNameBuf,
                      uxStackSize,
-                     ( void * ) ulTaskNumber,
+                     ( void * ) &pxParams[ ulTaskNumber ],
                      uxPriority,
                      NULL );
     }
@@ -427,7 +443,8 @@ static void prvSimpleSubscribePublishTask( void * pvParameters )
     MQTTAgentCommandContext_t xCommandContext;
     uint32_t ulNotification = 0U, ulValueToNotify = 0UL;
     MQTTStatus_t xCommandAdded;
-    uint32_t ulTaskNumber = ( uint32_t ) pvParameters;
+    struct DemoParams * pxParams = ( struct DemoParams * ) pvParameters;
+    uint32_t ulTaskNumber = pxParams->ulTaskNumber;
     MQTTQoS_t xQoS;
     TickType_t xTicksToDelay;
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
@@ -512,13 +529,24 @@ static void prvSimpleSubscribePublishTask( void * pvParameters )
         {
             numSuccesses++;
             /* Log statement to indicate successful reception of publish. */
-            LogInfo( ( "Demo completed successfully.\r\n" ) );
-            LogInfo( ( "Short delay before next publish... \r\n\r\n" ) );
+            LogInfo( ( "Publish %d completed successfully.\r\n", ulValueToNotify ) );
         }
+
+        LogInfo( ( "Short delay before next publish... \r\n\r\n" ) );
 
         xTicksToDelay = pdMS_TO_TICKS( mqttexampleDELAY_BETWEEN_PUBLISH_OPERATIONS_MS );
         vTaskDelay( xTicksToDelay );
     }
+
+    /* Mark this task as successful if every publish was successfully completed. */
+    if( numSuccesses == mqttexamplePUBLISH_COUNT )
+    {
+        pxParams->xSuccess = true;
+        LogInfo( ( "Task %s successful.", taskName ) );
+    }
+
+    /* Notify the main task this one has completed. */
+    xTaskNotifyGive( xMainTask );
 
     /* Delete the task if it is complete. */
     LogInfo( ( "Task %s completed.", taskName ) );

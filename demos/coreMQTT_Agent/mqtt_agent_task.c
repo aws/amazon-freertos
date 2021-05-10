@@ -221,6 +221,15 @@ struct NetworkContext
     SecureSocketsTransportParams_t * pParams;
 };
 
+/**
+ * @brief Parameters for this task.
+ */
+struct DemoParams
+{
+    uint32_t ulTaskNumber;
+    bool xSuccess;
+};
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -348,8 +357,10 @@ static void prvMQTTAgentTask( void * pvParameters );
  *
  * @param[in] pvParameters Parameters as passed at the time of task creation. Not
  * used in this example.
+ *
+ * @return EXIT_SUCCESS if demo completes successfully, else EXIT_FAILURE.
  */
-static void prvConnectAndCreateDemoTasks( void * pvParameters );
+static int prvConnectAndCreateDemoTasks( void * pvParameters );
 
 /**
  * @brief The timer query function provided to the MQTT context.
@@ -370,7 +381,8 @@ static BaseType_t prvConnectToMQTTBroker( void );
 
 extern void vStartSimpleSubscribePublishTask( uint32_t ulTaskNumber,
                                               configSTACK_DEPTH_TYPE uxStackSize,
-                                              UBaseType_t uxPriority );
+                                              UBaseType_t uxPriority,
+                                              struct DemoParams * pxParams );
 
 /*-----------------------------------------------------------*/
 
@@ -398,6 +410,8 @@ MQTTAgentContext_t xGlobalMqttAgentContext;
 static uint8_t xNetworkBuffer[ MQTT_AGENT_NETWORK_BUFFER_SIZE ];
 
 static MQTTAgentMessageContext_t xCommandQueue;
+
+static struct DemoParams taskParameters[ democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE ];
 
 /**
  * @brief The global array of subscription elements.
@@ -437,7 +451,24 @@ int RunCoreMqttAgentDemo( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-    prvConnectAndCreateDemoTasks( NULL );
+    for( ulDemoCount = 0UL; ( ulDemoCount < democonfigMQTT_MAX_DEMO_COUNT ); ulDemoCount++ )
+    {
+        ret = prvConnectAndCreateDemoTasks( NULL );
+
+        if( ret == EXIT_SUCCESS )
+        {
+            LogInfo( ( "Demo iteration %lu successful.", ulDemoCount ) );
+            break;
+        }
+        else if( ulDemoCount < ( democonfigMQTT_MAX_DEMO_COUNT - 1 ) )
+        {
+            LogWarn( ( "Demo iteration %lu failed. Retrying...", ulDemoCount ) );
+        }
+        else
+        {
+            LogError( ( "All %d iterations failed", democonfigMQTT_MAX_DEMO_COUNT ) );
+        }
+    }
 
     return ret;
 }
@@ -848,23 +879,33 @@ static void prvMQTTAgentTask( void * pvParameters )
         else if( xMQTTStatus == MQTTSuccess )
         {
             /* MQTTAgent_Terminate() was called, but MQTT was not disconnected. */
-            xMQTTStatus = MQTT_Disconnect( &( xGlobalMqttAgentContext.mqttContext ) );
+            xConnectStatus = MQTT_Disconnect( &( xGlobalMqttAgentContext.mqttContext ) );
             xNetworkResult = prvSocketDisconnect( &xNetworkContext );
+            break;
         }
         /* Error. */
         else
         {
             /* Reconnect TCP. */
             xNetworkResult = prvSocketDisconnect( &xNetworkContext );
-            configASSERT( xNetworkResult == pdPASS );
-            xNetworkResult = prvSocketConnect( &xNetworkContext );
-            configASSERT( xNetworkResult == pdPASS );
-            pMqttContext->connectStatus = MQTTNotConnected;
-            /* MQTT Connect with a persistent session. */
-            xConnectStatus = prvMQTTConnect( false );
-            configASSERT( xConnectStatus == MQTTSuccess );
+
+            if( xNetworkResult == pdPASS )
+            {
+                xNetworkResult = prvSocketConnect( &xNetworkContext );
+
+                if( xNetworkResult == pdPASS )
+                {
+                    pMqttContext->connectStatus = MQTTNotConnected;
+                    /* MQTT Connect with a persistent session. */
+                    xConnectStatus = prvMQTTConnect( false );
+                }
+            }
         }
     } while( xMQTTStatus != MQTTSuccess );
+
+    /* Delete the task if it is complete. */
+    LogInfo( ( "MQTT Agent task completed." ) );
+    vTaskDelete( NULL );
 }
 
 /*-----------------------------------------------------------*/
@@ -893,8 +934,11 @@ static BaseType_t prvConnectToMQTTBroker( void )
 }
 /*-----------------------------------------------------------*/
 
-static void prvConnectAndCreateDemoTasks( void * pvParameters )
+static int prvConnectAndCreateDemoTasks( void * pvParameters )
 {
+    MQTTAgentCommandInfo_t xCommandParams = { 0 };
+    uint32_t i, numSuccess = 0;
+
     ( void ) pvParameters;
 
     /* Miscellaneous initialization. */
@@ -913,19 +957,40 @@ static void prvConnectAndCreateDemoTasks( void * pvParameters )
         {
             vStartSimpleSubscribePublishTask( democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE,
                                               democonfigSIMPLE_SUB_PUB_TASK_STACK_SIZE,
-                                              tskIDLE_PRIORITY );
+                                              tskIDLE_PRIORITY,
+                                              taskParameters );
         }
     #endif
 
 
-    /* This task has nothing left to do, so rather than create the MQTT
-     * agent as a separate thread, it simply calls the function that implements
-     * the agent - in effect turning itself into the agent. */
-    prvMQTTAgentTask( NULL );
+    /* Create an instance of the MQTT agent task. */
+    xTaskCreate( prvMQTTAgentTask,
+                 "MQTT Agent",
+                 configMINIMAL_STACK_SIZE,
+                 NULL,
+                 tskIDLE_PRIORITY + 1,
+                 NULL );
 
-    /* Should not get here.  Force an assert if the task returns from
-     * prvMQTTAgentTask(). */
-    configASSERT( pvParameters == ( void * ) ~1 );
+    /* Wait for all tasks to exit. */
+    for( i = 0; i < democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE; i++ )
+    {
+        ulTaskNotifyTake( pdFALSE, portMAX_DELAY );
+    }
+
+    /* Terminate the agent task. */
+    MQTTAgent_Terminate( &xGlobalMqttAgentContext, &xCommandParams );
+
+    for( i = 0; i < democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE; i++ )
+    {
+        if( taskParameters[ i ].xSuccess )
+        {
+            numSuccess++;
+        }
+    }
+
+    LogInfo( ( "%lu/%lu tasks successful.", numSuccess, democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE ) );
+
+    return ( numSuccess == democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE ) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 /*-----------------------------------------------------------*/
