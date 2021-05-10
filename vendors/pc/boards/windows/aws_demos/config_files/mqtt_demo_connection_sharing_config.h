@@ -92,6 +92,10 @@
  * #define democonfigMQTT_BROKER_PORT    ( insert here. )
  */
 
+#define democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE       1
+#define democonfigSIMPLE_SUB_PUB_TASK_STACK_SIZE           ( configMINIMAL_STACK_SIZE )
+
+
 /**
  * @brief The maximum number of times to run the demo's task creation loop.
  */
