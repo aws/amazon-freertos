@@ -53,16 +53,12 @@
 /* Standard includes. */
 #include <string.h>
 #include <stdio.h>
-#include <assert.h>
+#include <stdlib.h>
 
 /* Kernel includes. */
 #include "FreeRTOS.h"
 #include "queue.h"
 #include "task.h"
-
-/* FreeRTOS+TCP includes. */
-#include "FreeRTOS_IP.h"
-#include "FreeRTOS_Sockets.h"
 
 /* Demo Specific configs. */
 #include "mqtt_demo_connection_sharing_config.h"
