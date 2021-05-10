@@ -63,7 +63,7 @@ struct MQTTAgentMessageContext
  *
  * @return `true` if send was successful, else `false`.
  */
-bool Agent_MessageSend( const MQTTAgentMessageContext_t * pMsgCtx,
+bool Agent_MessageSend( MQTTAgentMessageContext_t * pMsgCtx,
                         MQTTAgentCommand_t * const * pCommandToSend,
                         uint32_t blockTimeMs );
 
@@ -77,7 +77,7 @@ bool Agent_MessageSend( const MQTTAgentMessageContext_t * pMsgCtx,
  *
  * @return `true` if receive was successful, else `false`.
  */
-bool Agent_MessageReceive( const MQTTAgentMessageContext_t * pMsgCtx,
+bool Agent_MessageReceive( MQTTAgentMessageContext_t * pMsgCtx,
                            MQTTAgentCommand_t ** pReceivedCommand,
                            uint32_t blockTimeMs );
 

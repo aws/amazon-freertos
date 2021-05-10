@@ -284,17 +284,6 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext );
 static BaseType_t prvSocketDisconnect( NetworkContext_t * pxNetworkContext );
 
 /**
- * @brief Callback executed when there is activity on the TCP socket that is
- * connected to the MQTT broker.  If there are no messages in the MQTT agent's
- * command queue then the callback send a message to ensure the MQTT agent
- * task unblocks and can therefore process whatever is necessary on the socket
- * (if anything) as quickly as possible.
- *
- * @param[in] pxSocket Socket with data, unused.
- */
-static void prvMQTTClientSocketWakeupCallback( Socket_t pxSocket );
-
-/**
  * @brief Fan out the incoming publishes to the callbacks registered by different
  * tasks. If there are no callbacks registered for the incoming publish, it will be
  * passed to the unsolicited publish handler.
@@ -332,7 +321,7 @@ static MQTTStatus_t prvHandleResubscribe( void );
  * @param[in] pxCommandContext Context of the initial command.
  * @param[in] pxReturnInfo The result of the command.
  */
-static void prvSubscriptionCommandCallback( void * pxCommandContext,
+static void prvSubscriptionCommandCallback( MQTTAgentCommandContext_t * pxCommandContext,
                                             MQTTAgentReturnInfo_t * pxReturnInfo );
 
 /**
@@ -644,7 +633,7 @@ static MQTTStatus_t prvHandleResubscribe( void )
 
 /*-----------------------------------------------------------*/
 
-static void prvSubscriptionCommandCallback( void * pxCommandContext,
+static void prvSubscriptionCommandCallback( MQTTAgentCommandContext_t * pxCommandContext,
                                             MQTTAgentReturnInfo_t * pxReturnInfo )
 {
     size_t lIndex = 0;
@@ -798,26 +787,6 @@ static BaseType_t prvSocketDisconnect( NetworkContext_t * pxNetworkContext )
     TransportSocketStatus_t xNetworkStatus = SecureSocketsTransport_Disconnect( pxNetworkContext );
 
     return ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS ) ? pdPASS : pdFAIL;
-}
-
-/*-----------------------------------------------------------*/
-
-static void prvMQTTClientSocketWakeupCallback( Socket_t pxSocket )
-{
-    MQTTAgentCommandInfo_t xCommandParams = { 0 };
-
-    /* Just to avoid compiler warnings.  The socket is not used but the function
-     * prototype cannot be changed because this is a callback function. */
-    ( void ) pxSocket;
-
-    /* A socket used by the MQTT task may need attention.  Send an event
-     * to the MQTT task to make sure the task is not blocked on xCommandQueue. */
-    if( ( uxQueueMessagesWaiting( xCommandQueue.queue ) == 0U ) && ( FreeRTOS_recvcount( pxSocket ) > 0 ) )
-    {
-        /* Don't block as this is called from the context of the IP task. */
-        xCommandParams.blockTimeMs = 0U;
-        MQTTAgent_ProcessLoop( &xGlobalMqttAgentContext, &xCommandParams );
-    }
 }
 
 /*-----------------------------------------------------------*/
