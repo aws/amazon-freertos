@@ -260,8 +260,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_command_functions.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_message_interface.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\stdbool.readme"/>
-		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\stdint.readme"/>
 		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow_config_defaults.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_iot_metrics.h"/>

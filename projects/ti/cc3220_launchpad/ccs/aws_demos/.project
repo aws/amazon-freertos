@@ -1118,16 +1118,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/coreJSON/source/include/core_json.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreJSON/source/include/stdbool.readme</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreJSON/source/include/stdbool.readme</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreJSON/source/include/stdint.readme</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreJSON/source/include/stdint.readme</locationURI>
-		</link>
-		<link>
 			<name>libraries/device_shadow_for_aws/source/shadow.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/device_shadow_for_aws/source/shadow.c</locationURI>

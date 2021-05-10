@@ -2034,16 +2034,6 @@
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/coreJSON/source/include/core_json.h</FilePath>
 						</File>
-						<File>
-							<FileName>stdbool.readme</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreJSON/source/include/stdbool.readme</FilePath>
-						</File>
-						<File>
-							<FileName>stdint.readme</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/coreJSON/source/include/stdint.readme</FilePath>
-						</File>
 					</Files>
 				</Group>
 				<Group>

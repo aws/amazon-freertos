@@ -2713,12 +2713,6 @@
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include\core_json.h</name>
 					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include\stdbool.readme</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include\stdint.readme</name>
-					</file>
 				</group>
 			</group>
 		</group>
