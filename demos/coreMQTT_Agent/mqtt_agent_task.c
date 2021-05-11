@@ -966,14 +966,16 @@ static int prvConnectAndCreateDemoTasks( void * pvParameters )
     /* Initialize the MQTT context with the buffer and transport interface. */
     xMQTTStatus = prvMQTTAgentInit();
 
-    /* Create the TCP connection to the broker, then the MQTT connection to the
-     * same. */
-    xResult = prvConnectToMQTTBroker( true );
-
-    /* Selectively create demo tasks as per the compile time constant settings. */
+    if( xMQTTStatus == MQTTSuccess )
+    {
+        /* Create the TCP connection to the broker, then the MQTT connection to the
+         * same. */
+        xResult = prvConnectToMQTTBroker( true );
+    }
 
     if( xResult == pdPASS )
     {
+        /* Create demo tasks as per the compile time constant settings. */
         vStartSimpleSubscribePublishTask( democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE,
                                           democonfigSIMPLE_SUB_PUB_TASK_STACK_SIZE,
                                           tskIDLE_PRIORITY,

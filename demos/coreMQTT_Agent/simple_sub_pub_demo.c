@@ -93,6 +93,13 @@
  */
 #define mqttexampleMAX_COMMAND_SEND_BLOCK_TIME_MS         ( 500 )
 
+/**
+ * @brief The modulus with which to reduce a task number to obtain the task's
+ * publish QoS value. Must be either to 1, 2, or 3, resulting in maximum QoS
+ * values of 0, 1, and 2, respectively.
+ */
+#define mqttexampleQOS_MODULUS                            ( 2UL )
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -394,27 +401,29 @@ static bool prvSubscribeToTopic( MQTTQoS_t xQoS,
     xCommandParams.cmdCompleteCallback = prvSubscribeCommandCallback;
     xCommandParams.pCmdCompleteCallbackContext = ( void * ) &xApplicationDefinedContext;
 
-    /* Loop in case the queue used to communicate with the MQTT agent is full and
-     * attempts to post to it time out.  The queue will not become full if the
-     * priority of the MQTT agent task is higher than the priority of the task
-     * calling this function. */
+    /* The queue will not become full if the priority of the MQTT agent task is
+     * higher than the priority of the task calling this function. */
     LogInfo( ( "Sending subscribe request to agent for topic filter: %s with id %d",
                pcTopicFilter,
                ( int ) ulSubscribeMessageID ) );
 
-    do
+    xCommandAdded = MQTTAgent_Subscribe( &xGlobalMqttAgentContext,
+                                         &xSubscribeArgs,
+                                         &xCommandParams );
+
+    if( xCommandAdded == MQTTSuccess )
     {
-        xCommandAdded = MQTTAgent_Subscribe( &xGlobalMqttAgentContext,
-                                             &xSubscribeArgs,
-                                             &xCommandParams );
-    } while( xCommandAdded != MQTTSuccess );
+        /* Wait for acks to the subscribe message - this is optional but done here
+         * so the code below can check the notification sent by the callback matches
+         * the ulNextSubscribeMessageID value set in the context above. */
+        xCommandAcknowledged = prvWaitForCommandAcknowledgment( &ulNotifiedValue );
+    }
+    else
+    {
+        LogError( ( "Failed to enqueue subscribe command." ) );
+    }
 
-    /* Wait for acks to the subscribe message - this is optional but done here
-     * so the code below can check the notification sent by the callback matches
-     * the ulNextSubscribeMessageID value set in the context above. */
-    xCommandAcknowledged = prvWaitForCommandAcknowledgment( &ulNotifiedValue );
-
-    /* Check both ways the status was passed back just for demonstration
+    /* Check all ways the status was passed back just for demonstration
      * purposes. */
     if( ( xCommandAcknowledged != pdTRUE ) ||
         ( xApplicationDefinedContext.xReturnStatus != MQTTSuccess ) ||
@@ -453,7 +462,7 @@ static void prvSimpleSubscribePublishTask( void * pvParameters )
 
     /* Have different tasks use different QoS.  0 and 1.  2 can also be used
      * if supported by the broker. */
-    xQoS = ( MQTTQoS_t ) ( ulTaskNumber % 2UL );
+    xQoS = ( MQTTQoS_t ) ( ulTaskNumber % mqttexampleQOS_MODULUS );
 
     /* Create a unique name for this task from the task number that is passed into
      * the task using the task's parameter. */
