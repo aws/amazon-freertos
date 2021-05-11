@@ -513,14 +513,20 @@ static void prvSimpleSubscribePublishTask( void * pvParameters )
         xCommandAdded = MQTTAgent_Publish( &xGlobalMqttAgentContext,
                                            &xPublishInfo,
                                            &xCommandParams );
-        configASSERT( xCommandAdded == MQTTSuccess );
 
-        /* For QoS 1 and 2, wait for the publish acknowledgment.  For QoS0,
-         * wait for the publish to be sent. */
-        LogInfo( ( "Task %s waiting for publish %d to complete.",
-                   taskName,
-                   ulValueToNotify ) );
-        prvWaitForCommandAcknowledgment( &ulNotification );
+        if( xCommandAdded == MQTTSuccess )
+        {
+            /* For QoS 1 and 2, wait for the publish acknowledgment.  For QoS0,
+             * wait for the publish to be sent. */
+            LogInfo( ( "Task %s waiting for publish %d to complete.",
+                       taskName,
+                       ulValueToNotify ) );
+            prvWaitForCommandAcknowledgment( &ulNotification );
+        }
+        else
+        {
+            LogError( ( "Failed to enqueue publish command. Error code=%s", MQTT_Status_strerror( xCommandAdded ) ) );
+        }
 
         /* The value received by the callback that executed when the publish was
          * completed came from the context passed into MQTTAgent_Publish() above,

@@ -439,7 +439,6 @@ int RunCoreMqttAgentDemo( bool awsIotMqttMode,
     BaseType_t xResult = pdFALSE;
     BaseType_t xNetworkConnectionCreated = pdFALSE;
     uint32_t ulNotification = 0UL;
-    MQTTStatus_t xMQTTStatus;
 
     uint32_t ulDemoCount = 0UL;
     uint32_t ulDemoSuccessCount = 0UL;
@@ -756,6 +755,8 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     ServerInfo_t xServerInfo = { 0 };
     SocketsConfig_t xSocketConfig = { 0 };
+    /* Set the receive timeout to a small nonzero value. */
+    const TickType_t xTransportTimeout = 1UL;
 
     /* Initialize the MQTT broker information. */
     xServerInfo.pHostName = democonfigMQTT_BROKER_ENDPOINT;
@@ -806,6 +807,14 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
     } while( ( xConnected != pdPASS ) && ( xBackoffStatus == pdPASS ) );
 
     /* Set the socket wakeup callback and ensure the read block time. */
+    if( xConnected )
+    {
+        SOCKETS_SetSockOpt( pxNetworkContext->pParams->tcpSocket,
+                            0,
+                            SOCKETS_SO_RCVTIMEO,
+                            &xTransportTimeout,
+                            sizeof( TickType_t ) );
+    }
 
     return xConnected;
 }
