@@ -83,7 +83,7 @@ if(ECC608_IN_USE)
     afr_module(NAME pkcs11_ecc608a INTERFACE)
 
     afr_glob_src(ecc608a_atacert_src RECURSE DIRECTORY ${ecc608a_dir}/lib/atcacert)
-    afr_glob_src(ecc608a_basic_src RECURSE DIRECTORY ${ecc608a_dir}/lib/basic)
+    afr_glob_src(ecc608a_calib_src RECURSE DIRECTORY ${ecc608a_dir}/lib/calib)
     afr_glob_src(ecc608a_crypto_src RECURSE DIRECTORY ${ecc608a_dir}/lib/crypto)
     afr_glob_src(ecc608a_host_src RECURSE DIRECTORY ${ecc608a_dir}/lib/host)
     afr_glob_src(ecc608a_pkcs11_src RECURSE DIRECTORY ${ecc608a_dir}/lib/pkcs11)
@@ -96,7 +96,7 @@ if(ECC608_IN_USE)
     set(ecc608_src_list
         "${ecc608a_src}"
         "${ecc608a_atacert_src}"
-        "${ecc608a_basic_src}"
+        "${ecc608a_calib_src}"
         "${ecc608a_crypto_src}"
         "${ecc608a_host_src}"
         "${ecc608a_pkcs11_src}"
