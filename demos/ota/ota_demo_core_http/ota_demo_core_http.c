@@ -763,7 +763,7 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl );
  *                         other errors on failure.
  */
 static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
-                                    uint32_t ulRangeEnd );
+                                       uint32_t ulRangeEnd );
 
 /**
  * @brief Deinitialize and cleanup of the HTTP connection.
@@ -875,7 +875,7 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
  * @return None.
  */
 static void prvOtaAppCallback( OtaJobEvent_t xEvent,
-                            const void * pData );
+                               const void * pData );
 
 
 /**
@@ -1002,7 +1002,7 @@ static OtaEventData_t * prvOtaEventBufferGet( void )
 /*-----------------------------------------------------------*/
 
 static void prvOtaAppCallback( OtaJobEvent_t xEvent,
-                            const void * pData )
+                               const void * pData )
 {
     OtaErr_t xOtaError = OtaErrUninitialized;
 
@@ -1224,10 +1224,10 @@ static void prvRegisterOTACallback( const char * pcTopicFilter,
     for( ; usIndex < usNumTopicFilters; usIndex++ )
     {
         xMqttStatus = MQTT_MatchTopic( pcTopicFilter,
-                                      usTopicFilterLength,
-                                      xOtaTopicFilterCallbacks[ usIndex ].pcTopicFilter,
-                                      xOtaTopicFilterCallbacks[ usIndex ].usTopicFilterLength,
-                                      &isMatch );
+                                       usTopicFilterLength,
+                                       xOtaTopicFilterCallbacks[ usIndex ].pcTopicFilter,
+                                       xOtaTopicFilterCallbacks[ usIndex ].usTopicFilterLength,
+                                       &isMatch );
         assert( xMqttStatus == MQTTSuccess );
 
         if( isMatch )
@@ -1482,13 +1482,10 @@ static MQTTStatus_t prvMQTTConnect( void )
 {
     MQTTStatus_t xMqttStatus = MQTTBadParameter;
     MQTTConnectInfo_t xConnectInfo = { 0 };
-    MQTTAgentConnectArgs_t xConnectArgs = { 0 };
-    CommandContext_t xCommandContext = { 0 };
-    CommandInfo_t xCommandParams = { 0 };
+
     bool sessionPresent = false;
 
-    /* Establish MQTT session by sending a CONNECT packet
-     * through the MQTTAgent. */
+    /* Establish MQTT session by sending a CONNECT packet. */
 
     /* If #createCleanSession is true, start with a clean session
      * i.e. direct the MQTT broker to discard any previous session data.
@@ -1510,27 +1507,9 @@ static MQTTStatus_t prvMQTTConnect( void )
      * PINGREQ Packet. */
     xConnectInfo.keepAliveSeconds = MQTT_KEEP_ALIVE_INTERVAL_SECONDS;
 
-    /* Update the MQTTAgent connection params*/
-    xConnectArgs.pConnectInfo = &xConnectInfo;
-    xConnectArgs.pWillInfo = NULL;
-    xConnectArgs.timeoutMs = CONNACK_RECV_TIMEOUT_MS;
-    xConnectArgs.sessionPresent = sessionPresent;
+    /* Send MQTT CONNECT packet to broker. */
+    xMqttStatus = MQTT_Connect( &xGlobalMqttAgentContext.mqttContext, &xConnectInfo, NULL, CONNACK_RECV_TIMEOUT_MS, &sessionPresent );
 
-    xCommandParams.blockTimeMs = MQTT_AGENT_SEND_BLOCK_TIME_MS;
-    xCommandParams.cmdCompleteCallback = prvMQTTAgentCmdCompleteCallback;
-    xCommandParams.pCmdCompleteCallbackContext = &xCommandContext;
-    xCommandContext.xTaskToNotify = xTaskGetCurrentTaskHandle();
-    xCommandContext.pArgs = NULL;
-    xCommandContext.xReturnStatus = MQTTSendFailed;
-
-    /* Establish an MQTT connection through the Agent. */
-    xMqttStatus = MQTTAgent_Connect(&xGlobalMqttAgentContext, &xConnectArgs, &xCommandParams);
-    configASSERT( xMqttStatus == MQTTSuccess );
-
-    xTaskNotifyWait( 0,
-                     0,
-                     NULL,
-                     pdMS_TO_TICKS( MQTT_AGENT_MS_TO_WAIT_FOR_NOTIFICATION ) );
     return xMqttStatus;
 }
 /*-----------------------------------------------------------*/
@@ -1618,7 +1597,7 @@ static void prvDisconnectFromMQTTBroker( void )
 /*-----------------------------------------------------------*/
 
 static int32_t connectToS3Server( NetworkContext_t * pxNetworkContext,
-                                  const char * pcUrl ) //todo fixfunction
+                                  const char * pcUrl ) /*todo fixfunction */
 {
     BaseType_t returnStatus = pdPASS;
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
@@ -1644,9 +1623,9 @@ static int32_t connectToS3Server( NetworkContext_t * pxNetworkContext,
     {
         /* Retrieve the address location and length from S3_PRESIGNED_GET_URL. */
         xHTTPStatus = getUrlAddress( pcUrl,
-                                    strlen( pcUrl ),
-                                    &pcAddress,
-                                    &serverHostLength );
+                                     strlen( pcUrl ),
+                                     &pcAddress,
+                                     &serverHostLength );
 
         if( xHTTPStatus != HTTPSuccess )
         {
@@ -1768,7 +1747,7 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
      * attempts are reached or maximum timeout value is reached. The function
      * returns EXIT_FAILURE if the TCP connection cannot be established to
      * broker after configured number of attempts. */
-    //todo try reconnect here
+    /*todo try reconnect here */
     if( connectToS3Server( &networkContextHttp, pcUrl ) == EXIT_SUCCESS )
     {
         /* Define the transport interface. */
@@ -1781,9 +1760,9 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
          * function returns the length of the path without the query into
          * pathLen, which is left unused in this demo. */
         xHTTPStatus = getUrlPath( pcUrl,
-                                 strlen( pcUrl ),
-                                 &pPath,
-                                 &pathLen );
+                                  strlen( pcUrl ),
+                                  &pPath,
+                                  &pathLen );
 
         xReturnStatus = ( xHTTPStatus == HTTPSuccess ) ? OtaHttpSuccess : OtaHttpInitFailed;
     }
@@ -1802,7 +1781,7 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
 /*-----------------------------------------------------------*/
 
 static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
-                                    uint32_t ulRangeEnd )
+                                       uint32_t ulRangeEnd )
 {
     /* OTA lib return error code. */
     OtaHttpStatus_t xReturnStatus = OtaHttpSuccess;
@@ -1843,7 +1822,7 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
     xRequestHeaders.bufferLen = HTTP_USER_BUFFER_LENGTH;
 
     xHTTPStatus = HTTPClient_InitializeRequestHeaders( &xRequestHeaders,
-                                                      &xRequestInfo );
+                                                       &xRequestInfo );
 
     HTTPClient_AddRangeHeader( &xRequestHeaders, ulRangeStart, ulRangeEnd );
 
@@ -1856,11 +1835,11 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
 
         /* Send the request and receive the response. */
         xHTTPStatus = HTTPClient_Send( &transportInterfaceHttp,
-                                      &xRequestHeaders,
-                                      NULL,
-                                      0,
-                                      &xResponse,
-                                      0 );
+                                       &xRequestHeaders,
+                                       NULL,
+                                       0,
+                                       &xResponse,
+                                       0 );
     }
     else
     {
@@ -2272,9 +2251,9 @@ static BaseType_t prvRunOTADemo( void )
     if( xStatus == pdPASS )
     {
         if( ( xOtaError = OTA_Init( &otaBuffer,
-                                 &otaInterfaces,
-                                 ( const uint8_t * ) ( democonfigCLIENT_IDENTIFIER ),
-                                 prvOtaAppCallback ) ) != OtaErrNone )
+                                    &otaInterfaces,
+                                    ( const uint8_t * ) ( democonfigCLIENT_IDENTIFIER ),
+                                    prvOtaAppCallback ) ) != OtaErrNone )
         {
             LogError( ( "Failed to initialize OTA Agent, exiting = %u.",
                         xOtaError ) );
@@ -2460,5 +2439,5 @@ int RunOtaCoreHttpDemo( bool awsIotMqttMode,
         vSemaphoreDelete( xBufferSemaphore );
     }
 
-    return ( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
+    return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }

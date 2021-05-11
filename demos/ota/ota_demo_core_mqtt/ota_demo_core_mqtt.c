@@ -692,7 +692,7 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
  * @return None.
  */
 static void prvOtaAppCallback( OtaJobEvent_t xEvent,
-                            const void * pData );
+                               const void * pData );
 
 
 /**
@@ -823,7 +823,7 @@ static OtaEventData_t * prvOtaEventBufferGet( void )
 /*-----------------------------------------------------------*/
 
 static void prvOtaAppCallback( OtaJobEvent_t xEvent,
-                            const void * pData )
+                               const void * pData )
 {
     OtaErr_t xOtaError = OtaErrUninitialized;
 
@@ -1048,10 +1048,10 @@ static void prvRegisterOTACallback( const char * pcTopicFilter,
     for( ; ulIndex < ulNumTopicFilters; ulIndex++ )
     {
         xMqttStatus = MQTT_MatchTopic( pcTopicFilter,
-                                      usTopicFilterLength,
-                                      xOtaTopicFilterCallbacks[ ulIndex ].pcTopicFilter,
-                                      xOtaTopicFilterCallbacks[ ulIndex ].usTopicFilterLength,
-                                      &isMatch );
+                                       usTopicFilterLength,
+                                       xOtaTopicFilterCallbacks[ ulIndex ].pcTopicFilter,
+                                       xOtaTopicFilterCallbacks[ ulIndex ].usTopicFilterLength,
+                                       &isMatch );
         assert( xMqttStatus == MQTTSuccess );
 
         if( isMatch )
@@ -1307,14 +1307,10 @@ static MQTTStatus_t prvMQTTConnect( void )
 {
     MQTTStatus_t xMqttStatus = MQTTBadParameter;
     MQTTConnectInfo_t xConnectInfo = { 0 };
-    MQTTAgentConnectArgs_t xConnectArgs = { 0 };
-    CommandContext_t xCommandContext = { 0 };
-    CommandInfo_t xCommandParams = { 0 };
 
     bool sessionPresent = false;
 
-    /* Establish MQTT session by sending a CONNECT packet
-     * through the MQTTAgent. */
+    /* Establish MQTT session by sending a CONNECT packet. */
 
     /* If #createCleanSession is true, start with a clean session
      * i.e. direct the MQTT broker to discard any previous session data.
@@ -1336,27 +1332,8 @@ static MQTTStatus_t prvMQTTConnect( void )
      * PINGREQ Packet. */
     xConnectInfo.keepAliveSeconds = MQTT_KEEP_ALIVE_INTERVAL_SECONDS;
 
-    /* Update the MQTTAgent connection params*/
-    xConnectArgs.pConnectInfo = &xConnectInfo;
-    xConnectArgs.pWillInfo = NULL;
-    xConnectArgs.timeoutMs = CONNACK_RECV_TIMEOUT_MS;
-    xConnectArgs.sessionPresent = sessionPresent;
-
-    xCommandParams.blockTimeMs = MQTT_AGENT_SEND_BLOCK_TIME_MS;
-    xCommandParams.cmdCompleteCallback = prvMQTTAgentCmdCompleteCallback;
-    xCommandParams.pCmdCompleteCallbackContext = &xCommandContext;
-    xCommandContext.xTaskToNotify = xTaskGetCurrentTaskHandle();
-    xCommandContext.pArgs = NULL;
-    xCommandContext.xReturnStatus = MQTTSendFailed;
-
-    /* Establish an MQTT connection through the Agent. */
-    xMqttStatus = MQTTAgent_Connect(&xGlobalMqttAgentContext, &xConnectArgs, &xCommandParams);
-    configASSERT( xMqttStatus == MQTTSuccess );
-
-    xTaskNotifyWait( 0,
-                     0,
-                     NULL,
-                     pdMS_TO_TICKS( MQTT_AGENT_MS_TO_WAIT_FOR_NOTIFICATION ) );
+    /* Send MQTT CONNECT packet to broker. */
+    xMqttStatus = MQTT_Connect( &xGlobalMqttAgentContext.mqttContext, &xConnectInfo, NULL, CONNACK_RECV_TIMEOUT_MS, &sessionPresent );
 
     return xMqttStatus;
 }
@@ -1781,9 +1758,9 @@ static BaseType_t prvRunOTADemo( void )
     if( xStatus == pdPASS )
     {
         if( ( xOtaError = OTA_Init( &xOtaBuffer,
-                                 &xOtaInterfaces,
-                                 ( const uint8_t * ) ( democonfigCLIENT_IDENTIFIER ),
-                                 prvOtaAppCallback ) ) != OtaErrNone )
+                                    &xOtaInterfaces,
+                                    ( const uint8_t * ) ( democonfigCLIENT_IDENTIFIER ),
+                                    prvOtaAppCallback ) ) != OtaErrNone )
         {
             LogError( ( "Failed to initialize OTA Agent, exiting = %u.",
                         xOtaError ) );
@@ -1963,5 +1940,5 @@ int RunOtaCoreMqttDemo( bool awsIotMqttMode,
         vSemaphoreDelete( xBufferSemaphore );
     }
 
-    return ( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
+    return( ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE );
 }
