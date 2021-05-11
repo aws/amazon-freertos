@@ -975,7 +975,7 @@ static int prvConnectAndCreateDemoTasks( void * pvParameters )
 
     if( xResult == pdPASS )
     {
-        /* Create demo tasks as per the compile time constant settings. */
+        /* Create demo tasks as per the configuration macro settings. */
         vStartSimpleSubscribePublishTask( democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE,
                                           democonfigSIMPLE_SUB_PUB_TASK_STACK_SIZE,
                                           tskIDLE_PRIORITY,
