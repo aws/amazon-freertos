@@ -50,7 +50,6 @@
 /* Kernel includes. */
 #include "FreeRTOS.h"
 #include "task.h"
-#include "queue.h"
 
 /* Demo Specific configs. */
 #include "mqtt_demo_connection_sharing_config.h"
@@ -404,7 +403,6 @@ static bool prvSubscribeToTopic( MQTTQoS_t xQoS,
 
     do
     {
-        /* TODO: prvIncomingPublish as publish callback. */
         xCommandAdded = MQTTAgent_Subscribe( &xGlobalMqttAgentContext,
                                              &xSubscribeArgs,
                                              &xCommandParams );
@@ -420,7 +418,7 @@ static bool prvSubscribeToTopic( MQTTQoS_t xQoS,
     if( ( xCommandAcknowledged != pdTRUE ) ||
         ( xApplicationDefinedContext.xReturnStatus != MQTTSuccess ) )
     {
-        LogInfo( ( "Error or timed out waiting for ack to subscribe message topic %s",
+        LogWarn( ( "Error or timed out waiting for ack to subscribe message topic %s",
                    pcTopicFilter ) );
     }
     else

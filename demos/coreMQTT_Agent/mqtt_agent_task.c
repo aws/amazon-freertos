@@ -42,11 +42,8 @@
  *    implemented in simple_sub_pub_demo.c.  See the comments at the top
  *    of that file for more information.
  *
- * 3) After creating the demo tasks the initial task could create the MQTT
- *    agent task.  However, as it has no other operations to perform, rather
- *    than create the MQTT agent as a separate task the initial task just calls
- *    the agent's implementing function - effectively turning itself into the
- *    MQTT agent.
+ * 3) After creating the demo tasks the initial task will create the MQTT
+ *    agent task.
  */
 
 
@@ -63,9 +60,6 @@
 /* Demo Specific configs. */
 #include "mqtt_demo_connection_sharing_config.h"
 
-/* MQTT library includes. */
-#include "core_mqtt.h"
-
 /* MQTT agent include. */
 #include "core_mqtt_agent.h"
 
@@ -81,7 +75,6 @@
 
 /* Subscription manager header include. */
 #include "subscription_manager.h"
-
 
 /* Transport interface implementation include header for TLS. */
 #include "transport_secure_sockets.h"
@@ -222,7 +215,7 @@ struct NetworkContext
 };
 
 /**
- * @brief Parameters for this task.
+ * @brief Parameters for subscribe-publish tasks.
  */
 struct DemoParams
 {
@@ -233,12 +226,12 @@ struct DemoParams
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Initializes an MQTT context, including transport interface and
- * network buffer.
+ * @brief Initializes an MQTT Agent context, including transport interface,
+ * network buffer, and publish callback.
  *
  * @return `MQTTSuccess` if the initialization succeeds, else `MQTTBadParameter`.
  */
-static MQTTStatus_t prvMQTTInit( void );
+static MQTTStatus_t prvMQTTAgentInit( void );
 
 /**
  * @brief Sends an MQTT Connect packet over the already connected TCP socket.
@@ -376,9 +369,8 @@ static uint32_t prvGetTimeMs( void );
 static BaseType_t prvConnectToMQTTBroker( void );
 
 /*
- * Functions that start the tasks demonstrated by this project.
+ * Function that starts the tasks demonstrated by this project.
  */
-
 extern void vStartSimpleSubscribePublishTask( uint32_t ulTaskNumber,
                                               configSTACK_DEPTH_TYPE uxStackSize,
                                               UBaseType_t uxPriority,
@@ -405,19 +397,31 @@ static SecureSocketsTransportParams_t secureSocketsTransportParams;
  */
 static uint32_t ulGlobalEntryTimeMs;
 
+/**
+ * @brief Global MQTT Agent context used by every task.
+ */
 MQTTAgentContext_t xGlobalMqttAgentContext;
 
+/**
+ * @brief Network buffer for coreMQTT.
+ */
 static uint8_t xNetworkBuffer[ MQTT_AGENT_NETWORK_BUFFER_SIZE ];
 
+/**
+ * @brief Message queue used to deliver commands to the agent task.
+ */
 static MQTTAgentMessageContext_t xCommandQueue;
 
+/**
+ * @brief Structs to hold input and output parameters for each subscribe-publish task.
+ */
 static struct DemoParams taskParameters[ democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE ];
 
 /**
  * @brief The global array of subscription elements.
  *
- * @note No thread safety is required to this array, since the updates the array
- * elements are done only from one task at a time. The subscription manager
+ * @note No thread safety is required to this array, since updates to the array
+ * elements are done only from the MQTT agent task. The subscription manager
  * implementation expects that the array of the subscription elements used for
  * storing subscriptions to be initialized to 0. As this is a global array, it
  * will be initialized to 0 by default.
@@ -427,7 +431,8 @@ SubscriptionElement_t xGlobalSubscriptionList[ SUBSCRIPTION_MANAGER_MAX_SUBSCRIP
 /*-----------------------------------------------------------*/
 
 /*
- * @brief Create the task that demonstrates the MQTT Connection sharing demo.
+ * @brief Create the task that demonstrates the sharing of an MQTT connection
+ * using the coreMQTT Agent library.
  */
 int RunCoreMqttAgentDemo( bool awsIotMqttMode,
                           const char * pIdentifier,
@@ -456,12 +461,12 @@ int RunCoreMqttAgentDemo( bool awsIotMqttMode,
 
         if( ret == EXIT_SUCCESS )
         {
-            LogInfo( ( "Demo iteration %lu successful.", ulDemoCount ) );
+            LogInfo( ( "Demo iteration %lu successful.", ( ulDemoCount + 1 ) ) );
             break;
         }
         else if( ulDemoCount < ( democonfigMQTT_MAX_DEMO_COUNT - 1 ) )
         {
-            LogWarn( ( "Demo iteration %lu failed. Retrying...", ulDemoCount ) );
+            LogWarn( ( "Demo iteration %lu failed. Retrying...", ( ulDemoCount + 1 ) ) );
         }
         else
         {
@@ -474,7 +479,7 @@ int RunCoreMqttAgentDemo( bool awsIotMqttMode,
 
 /*-----------------------------------------------------------*/
 
-static MQTTStatus_t prvMQTTInit( void )
+static MQTTStatus_t prvMQTTAgentInit( void )
 {
     TransportInterface_t xTransport;
     MQTTStatus_t xReturn;
@@ -498,7 +503,7 @@ static MQTTStatus_t prvMQTTInit( void )
     configASSERT( xCommandQueue.queue );
     messageInterface.pMsgCtx = &xCommandQueue;
 
-    /* Initialize the task pool. */
+    /* Initialize the command struct pool. */
     Agent_InitializePool();
 
     /* Fill in Transport Interface send and receive function pointers. */
@@ -688,10 +693,6 @@ static void prvSubscriptionCommandCallback( MQTTAgentCommandContext_t * pxComman
                                     pxSubscribeArgs->pSubscribeInfo[ lIndex ].topicFilterLength );
             }
         }
-
-        /* Hit an assert as some of the tasks won't be able to proceed correctly without
-         * the subscriptions. This logic will be updated with exponential backoff and retry.  */
-        configASSERT( pdTRUE );
     }
 }
 
@@ -854,7 +855,7 @@ static void prvIncomingPublishCallback( MQTTAgentContext_t * pMqttAgentContext,
         pcLocation = ( char * ) &( pxPublishInfo->pTopicName[ pxPublishInfo->topicNameLength ] );
         cOriginalChar = *pcLocation;
         *pcLocation = 0x00;
-        LogWarn( ( "WARN:  Received an unsolicited publish from topic %s", pxPublishInfo->pTopicName ) );
+        LogWarn( ( "Received an unsolicited publish from topic %s", pxPublishInfo->pTopicName ) );
         *pcLocation = cOriginalChar;
     }
 }
@@ -892,7 +893,7 @@ static void prvMQTTAgentTask( void * pvParameters )
             xNetworkResult = prvSocketDisconnect( &xNetworkContext );
             break;
         }
-        /* Error. */
+        /* Any error. */
         else
         {
             /* Reconnect TCP. */
@@ -930,7 +931,7 @@ static BaseType_t prvConnectToMQTTBroker( void )
     if( xNetworkStatus == pdPASS )
     {
         /* Initialize the MQTT context with the buffer and transport interface. */
-        xMQTTStatus = prvMQTTInit();
+        xMQTTStatus = prvMQTTAgentInit();
 
         if( xMQTTStatus == MQTTSuccess )
         {
@@ -947,6 +948,7 @@ static int prvConnectAndCreateDemoTasks( void * pvParameters )
 {
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
     uint32_t i, numSuccess = 0;
+    BaseType_t xResult = pdFAIL;
 
     ( void ) pvParameters;
 
@@ -958,42 +960,42 @@ static int prvConnectAndCreateDemoTasks( void * pvParameters )
 
     /* Create the TCP connection to the broker, then the MQTT connection to the
      * same. */
-    prvConnectToMQTTBroker();
+    xResult = prvConnectToMQTTBroker();
 
     /* Selectively create demo tasks as per the compile time constant settings. */
 
-    #if ( democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE > 0 )
+    if( xResult == pdPASS )
+    {
+        vStartSimpleSubscribePublishTask( democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE,
+                                          democonfigSIMPLE_SUB_PUB_TASK_STACK_SIZE,
+                                          tskIDLE_PRIORITY,
+                                          taskParameters );
+
+        /* Create an instance of the MQTT agent task. Give it higher priority than the
+         * subscribe-publish tasks so that the agent's command queue will not become full,
+         * as those tasks need to send commands to the queue. */
+        xTaskCreate( prvMQTTAgentTask,
+                     "MQTT Agent",
+                     configMINIMAL_STACK_SIZE,
+                     NULL,
+                     tskIDLE_PRIORITY + 1,
+                     NULL );
+
+        /* Wait for all tasks to exit. */
+        for( i = 0; i < democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE; i++ )
         {
-            vStartSimpleSubscribePublishTask( democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE,
-                                              democonfigSIMPLE_SUB_PUB_TASK_STACK_SIZE,
-                                              tskIDLE_PRIORITY,
-                                              taskParameters );
+            ulTaskNotifyTake( pdFALSE, portMAX_DELAY );
         }
-    #endif
 
+        /* Terminate the agent task. */
+        MQTTAgent_Terminate( &xGlobalMqttAgentContext, &xCommandParams );
 
-    /* Create an instance of the MQTT agent task. */
-    xTaskCreate( prvMQTTAgentTask,
-                 "MQTT Agent",
-                 configMINIMAL_STACK_SIZE,
-                 NULL,
-                 tskIDLE_PRIORITY + 1,
-                 NULL );
-
-    /* Wait for all tasks to exit. */
-    for( i = 0; i < democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE; i++ )
-    {
-        ulTaskNotifyTake( pdFALSE, portMAX_DELAY );
-    }
-
-    /* Terminate the agent task. */
-    MQTTAgent_Terminate( &xGlobalMqttAgentContext, &xCommandParams );
-
-    for( i = 0; i < democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE; i++ )
-    {
-        if( taskParameters[ i ].xSuccess )
+        for( i = 0; i < democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE; i++ )
         {
-            numSuccess++;
+            if( taskParameters[ i ].xSuccess )
+            {
+                numSuccess++;
+            }
         }
     }
 
