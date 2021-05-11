@@ -189,6 +189,7 @@ static void prvIncomingPublishCallback( void * pvIncomingPublishCallbackContext,
  * @param[in] xQoS The quality of service (QoS) to use.  Can be zero or one
  * for all MQTT brokers.  Can also be QoS2 if supported by the broker.  AWS IoT
  * does not support QoS2.
+ * @param[in] pcTopicFilter Topic filter to subscribe to.
  */
 static bool prvSubscribeToTopic( MQTTQoS_t xQoS,
                                  char * pcTopicFilter );
@@ -278,9 +279,7 @@ static void prvSubscribeCommandCallback( MQTTAgentCommandContext_t * pxCommandCo
     MQTTAgentSubscribeArgs_t * pxSubscribeArgs = ( MQTTAgentSubscribeArgs_t * ) pxCommandContext->pArgs;
 
     /* Store the result in the application defined context so the task that
-     * initiated the subscribe can check the operation's status.  Also send the
-     * status as the notification value.  These things are just done for
-     * demonstration purposes. */
+     * initiated the subscribe can check the operation's status. */
     pxCommandContext->xReturnStatus = pxReturnInfo->returnCode;
 
     /* Check if the subscribe operation is a success. Only one topic is
@@ -304,7 +303,7 @@ static void prvSubscribeCommandCallback( MQTTAgentCommandContext_t * pxCommandCo
     }
 
     xTaskNotify( pxCommandContext->xTaskToNotify,
-                 ( uint32_t ) ( pxReturnInfo->returnCode ),
+                 pxCommandContext->ulNotificationValue,
                  eSetValueWithOverwrite );
 }
 
@@ -355,7 +354,7 @@ static bool prvSubscribeToTopic( MQTTQoS_t xQoS,
 {
     MQTTStatus_t xCommandAdded;
     BaseType_t xCommandAcknowledged = pdFALSE;
-    uint32_t ulSubscribeMessageID;
+    uint32_t ulSubscribeMessageID, ulNotifiedValue = 0;
     MQTTAgentSubscribeArgs_t xSubscribeArgs;
     MQTTSubscribeInfo_t xSubscribeInfo;
     static int32_t ulNextSubscribeMessageID = 0;
@@ -365,7 +364,9 @@ static bool prvSubscribeToTopic( MQTTQoS_t xQoS,
     /* Create a unique number of the subscribe that is about to be sent.  The number
      * is used as the command context and is sent back to this task as a notification
      * in the callback that executed upon receipt of the subscription acknowledgment.
-     * That way this task can match an acknowledgment to a subscription. */
+     * That way this task can match an acknowledgment to a subscription. This is useful
+     * if there is more than one subscription, but only included for demonstration
+     * purposes here as there is only one subscription per task. */
     xTaskNotifyStateClear( NULL );
     taskENTER_CRITICAL();
     {
@@ -385,7 +386,7 @@ static bool prvSubscribeToTopic( MQTTQoS_t xQoS,
     /* Complete an application defined context associated with this subscribe message.
      * This gets updated in the callback function so the variable must persist until
      * the callback executes. */
-    xApplicationDefinedContext.ulNotificationValue = ulNextSubscribeMessageID;
+    xApplicationDefinedContext.ulNotificationValue = ulSubscribeMessageID;
     xApplicationDefinedContext.xTaskToNotify = xTaskGetCurrentTaskHandle();
     xApplicationDefinedContext.pArgs = ( void * ) &xSubscribeArgs;
 
@@ -411,12 +412,13 @@ static bool prvSubscribeToTopic( MQTTQoS_t xQoS,
     /* Wait for acks to the subscribe message - this is optional but done here
      * so the code below can check the notification sent by the callback matches
      * the ulNextSubscribeMessageID value set in the context above. */
-    xCommandAcknowledged = prvWaitForCommandAcknowledgment( NULL );
+    xCommandAcknowledged = prvWaitForCommandAcknowledgment( &ulNotifiedValue );
 
     /* Check both ways the status was passed back just for demonstration
      * purposes. */
     if( ( xCommandAcknowledged != pdTRUE ) ||
-        ( xApplicationDefinedContext.xReturnStatus != MQTTSuccess ) )
+        ( xApplicationDefinedContext.xReturnStatus != MQTTSuccess ) ||
+        ( ulNotifiedValue != ulSubscribeMessageID ) )
     {
         LogWarn( ( "Error or timed out waiting for ack to subscribe message topic %s",
                    pcTopicFilter ) );

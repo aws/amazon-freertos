@@ -365,8 +365,10 @@ static uint32_t prvGetTimeMs( void );
 /**
  * @brief Connects a TCP socket to the MQTT broker, then creates and MQTT
  * connection to the same.
+ *
+ * @param[in] xCreateCleanSession Whether to create a clean session.
  */
-static BaseType_t prvConnectToMQTTBroker( void );
+static BaseType_t prvConnectToMQTTBroker( bool xCreateCleanSession );
 
 /*
  * Function that starts the tasks demonstrated by this project.
@@ -751,8 +753,6 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
 static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
 {
     BaseType_t xConnected = pdFAIL;
-    BackoffAlgorithmContext_t xReconnectParams;
-    BaseType_t xBackoffStatus = pdFAIL;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     ServerInfo_t xServerInfo = { 0 };
     SocketsConfig_t xSocketConfig = { 0 };
@@ -772,40 +772,16 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
     xSocketConfig.pRootCa = democonfigROOT_CA_PEM;
     xSocketConfig.rootCaSize = sizeof( democonfigROOT_CA_PEM );
 
-    /* Initialize reconnect attempts and interval. */
-    BackoffAlgorithm_InitializeParams( &xReconnectParams,
-                                       RETRY_BACKOFF_BASE_MS,
-                                       RETRY_MAX_BACKOFF_DELAY_MS,
-                                       RETRY_MAX_ATTEMPTS );
+    /* Establish a TCP connection with the MQTT broker. This example connects to
+     * the MQTT broker as specified in democonfigMQTT_BROKER_ENDPOINT and
+     * democonfigMQTT_BROKER_PORT at the top of this file. */
+    LogInfo( ( "Creating a TLS connection to %s:%d.",
+               democonfigMQTT_BROKER_ENDPOINT,
+               democonfigMQTT_BROKER_PORT ) );
 
-    /* Attempt to connect to MQTT broker. If connection fails, retry after a
-     * timeout. Timeout value will exponentially increase until the maximum
-     * number of attempts are reached.
-     */
-    do
-    {
-        /* Establish a TCP connection with the MQTT broker. This example connects to
-         * the MQTT broker as specified in democonfigMQTT_BROKER_ENDPOINT and
-         * democonfigMQTT_BROKER_PORT at the top of this file. */
-        LogInfo( ( "Creating a TLS connection to %s:%d.",
-                   democonfigMQTT_BROKER_ENDPOINT,
-                   democonfigMQTT_BROKER_PORT ) );
+    xNetworkStatus = SecureSocketsTransport_Connect( pxNetworkContext, &xServerInfo, &xSocketConfig );
 
-        xNetworkStatus = SecureSocketsTransport_Connect( pxNetworkContext, &xServerInfo, &xSocketConfig );
-
-        xConnected = ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS ) ? pdPASS : pdFAIL;
-
-        if( !xConnected )
-        {
-            LogWarn( ( "Connection to the broker failed. Attempting connection retry after backoff delay." ) );
-
-            /* As the connection attempt failed, we will retry the connection after an
-             * exponential backoff with jitter delay. */
-
-            /* Calculate the backoff period for the next retry attempt and perform the wait operation. */
-            xBackoffStatus = prvBackoffForRetry( &xReconnectParams );
-        }
-    } while( ( xConnected != pdPASS ) && ( xBackoffStatus == pdPASS ) );
+    xConnected = ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS ) ? pdPASS : pdFAIL;
 
     /* Set the socket wakeup callback and ensure the read block time. */
     if( xConnected )
@@ -901,14 +877,16 @@ static void prvMQTTAgentTask( void * pvParameters )
 
             if( xNetworkResult == pdPASS )
             {
-                xNetworkResult = prvSocketConnect( &xNetworkContext );
+                pMqttContext->connectStatus = MQTTNotConnected;
 
-                if( xNetworkResult == pdPASS )
-                {
-                    pMqttContext->connectStatus = MQTTNotConnected;
-                    /* MQTT Connect with a persistent session. */
-                    xConnectStatus = prvMQTTConnect( false );
-                }
+                /* MQTT Connect with a persistent session. */
+                xNetworkResult = prvConnectToMQTTBroker( false );
+            }
+
+            if( xNetworkResult != pdPASS )
+            {
+                LogError( ( "Could not reconnect to MQTT broker" ) );
+                break;
             }
         }
     } while( xMQTTStatus != MQTTSuccess );
@@ -920,25 +898,51 @@ static void prvMQTTAgentTask( void * pvParameters )
 
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvConnectToMQTTBroker( void )
+static BaseType_t prvConnectToMQTTBroker( bool xCreateCleanSession )
 {
-    BaseType_t xNetworkStatus = pdFAIL;
     MQTTStatus_t xMQTTStatus = MQTTBadParameter;
+    BaseType_t xConnected = pdFAIL;
+    BackoffAlgorithmContext_t xReconnectParams;
+    BaseType_t xBackoffStatus = pdFAIL;
 
-    /* Connect a TCP socket to the broker. */
-    xNetworkStatus = prvSocketConnect( &xNetworkContext );
+    /* Initialize reconnect attempts and interval. */
+    BackoffAlgorithm_InitializeParams( &xReconnectParams,
+                                       RETRY_BACKOFF_BASE_MS,
+                                       RETRY_MAX_BACKOFF_DELAY_MS,
+                                       RETRY_MAX_ATTEMPTS );
 
-    if( xNetworkStatus == pdPASS )
+    /* Attempt to connect to MQTT broker. If connection fails, retry after a
+     * timeout. Timeout value will exponentially increase until the maximum
+     * number of attempts are reached.
+     */
+    do
     {
-        /* Initialize the MQTT context with the buffer and transport interface. */
-        xMQTTStatus = prvMQTTAgentInit();
+        /* Connect a TCP socket to the broker. */
+        xConnected = prvSocketConnect( &xNetworkContext );
 
-        if( xMQTTStatus == MQTTSuccess )
+        if( xConnected == pdPASS )
         {
-            /* Form an MQTT connection without a persistent session. */
-            xMQTTStatus = prvMQTTConnect( true );
+            /* Form an MQTT connection. */
+            xMQTTStatus = prvMQTTConnect( xCreateCleanSession );
+
+            if( xMQTTStatus != MQTTSuccess )
+            {
+                /* Close connection before next retry. */
+                prvSocketDisconnect( &xNetworkContext );
+            }
         }
-    }
+
+        if( xMQTTStatus != MQTTSuccess )
+        {
+            LogWarn( ( "Connection to the broker failed. Attempting connection retry after backoff delay." ) );
+
+            /* As the connection attempt failed, we will retry the connection after an
+             * exponential backoff with jitter delay. */
+
+            /* Calculate the backoff period for the next retry attempt and perform the wait operation. */
+            xBackoffStatus = prvBackoffForRetry( &xReconnectParams );
+        }
+    } while( ( xMQTTStatus != MQTTSuccess ) && ( xBackoffStatus == pdPASS ) );
 
     return ( xMQTTStatus == MQTTSuccess ) ? pdPASS : pdFAIL;
 }
@@ -949,6 +953,7 @@ static int prvConnectAndCreateDemoTasks( void * pvParameters )
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
     uint32_t i, numSuccess = 0;
     BaseType_t xResult = pdFAIL;
+    MQTTStatus_t xMQTTStatus = MQTTBadParameter;
 
     ( void ) pvParameters;
 
@@ -958,9 +963,12 @@ static int prvConnectAndCreateDemoTasks( void * pvParameters )
     /* Set the pParams member of the network context with desired transport. */
     xNetworkContext.pParams = &secureSocketsTransportParams;
 
+    /* Initialize the MQTT context with the buffer and transport interface. */
+    xMQTTStatus = prvMQTTAgentInit();
+
     /* Create the TCP connection to the broker, then the MQTT connection to the
      * same. */
-    xResult = prvConnectToMQTTBroker();
+    xResult = prvConnectToMQTTBroker( true );
 
     /* Selectively create demo tasks as per the compile time constant settings. */
 
@@ -976,7 +984,7 @@ static int prvConnectAndCreateDemoTasks( void * pvParameters )
          * as those tasks need to send commands to the queue. */
         xTaskCreate( prvMQTTAgentTask,
                      "MQTT Agent",
-                     configMINIMAL_STACK_SIZE,
+                     democonfigSIMPLE_SUB_PUB_TASK_STACK_SIZE,
                      NULL,
                      tskIDLE_PRIORITY + 1,
                      NULL );

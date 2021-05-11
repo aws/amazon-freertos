@@ -25,7 +25,7 @@
  */
 
 /**
- * @file freertos_core_mqtt_agent_message_interface.h
+ * @file freertos_agent_message.h
  * @brief Functions to interact with queues.
  */
 #ifndef FREERTOS_AGENT_MESSAGE_H
