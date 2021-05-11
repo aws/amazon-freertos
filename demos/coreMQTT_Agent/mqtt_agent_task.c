@@ -58,7 +58,7 @@
 #include "task.h"
 
 /* Demo Specific configs. */
-#include "mqtt_demo_connection_sharing_config.h"
+#include "mqtt_agent_demo_config.h"
 
 /* MQTT agent include. */
 #include "core_mqtt_agent.h"

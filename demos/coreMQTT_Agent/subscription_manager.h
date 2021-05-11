@@ -56,7 +56,7 @@
 
 
 /* Demo config include. */
-#include "mqtt_demo_connection_sharing_config.h"
+#include "mqtt_agent_demo_config.h"
 
 /* core MQTT include. */
 #include "core_mqtt.h"
