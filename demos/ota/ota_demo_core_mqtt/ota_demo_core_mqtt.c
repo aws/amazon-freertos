@@ -1351,6 +1351,12 @@ static MQTTStatus_t prvMQTTConnect( void )
 
     /* Establish an MQTT connection through the Agent. */
     xMqttStatus = MQTTAgent_Connect(&xGlobalMqttAgentContext, &xConnectArgs, &xCommandParams);
+    configASSERT( xMqttStatus == MQTTSuccess );
+
+    xTaskNotifyWait( 0,
+                     0,
+                     NULL,
+                     pdMS_TO_TICKS( MQTT_AGENT_MS_TO_WAIT_FOR_NOTIFICATION ) );
 
     return xMqttStatus;
 }
