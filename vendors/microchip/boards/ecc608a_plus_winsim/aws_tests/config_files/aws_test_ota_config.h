@@ -50,12 +50,12 @@
 #define otatestpalUSE_FILE_SYSTEM                          0
 
 /**
- * @brief 1 if otaPal_CheckFileSignature() is implemented in aws_ota_pal.c.
+ * @brief 1 if otaPal_CheckFileSignature() is implemented in ota_pal.c.
  */
 #define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           1
 
 /**
- * @brief 1 if otaPal_ReadAndAssumeCertificate() is implemented in aws_ota_pal.c.
+ * @brief 1 if otaPal_ReadAndAssumeCertificate() is implemented in ota_pal.c.
  */
 #define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    1
 
