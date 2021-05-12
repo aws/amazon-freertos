@@ -4601,11 +4601,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/CompilerName/ReadMe.txt</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/CompilerName/ReadMe.txt</locationURI>
@@ -4804,21 +4799,6 @@
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/mw300_rd/NetworkInterface.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/mw300_rd/NetworkInterface.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/BufferAllocation_2.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/BufferAllocation_2.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/NetworkInterface_eth.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/NetworkInterface_eth.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/NetworkInterface_wifi.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/pic32mzef/NetworkInterface_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/ATSAM4E/component/gmac.h</name>
