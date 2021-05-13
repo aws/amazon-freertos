@@ -136,41 +136,150 @@
 #define otaexampleMQTT_TRANSPORT_SEND_RECV_TIMEOUT_MS    ( 500U )
 
 /**
+ * @brief The delay used in the main OTA Demo task loop to periodically output
+ * the OTA statistics like number of packets received, dropped, processed and
+ * queued per connection.
+ */
+#define otaexampleEXAMPLE_TASK_DELAY_MS                  ( 1000U )
+
+/**
+ * @brief The timeout for waiting for the agent to get suspended after closing
+ * the connection.
+ *
+ * Timeout value should be large enough for OTA agent to finish any pending MQTT
+ * operations and suspend itself.
+ *
+ */
+#define otaexampleSUSPEND_TIMEOUT_MS                     ( 10000U )
+
+/**
+ * @brief The maximum size of the file paths used in the demo.
+ */
+#define otaexampleMAX_FILE_PATH_SIZE                     ( 260U )
+
+/**
+ * @brief The maximum size of the stream name required for downloading update
+ * file from streaming service.
+ */
+#define otaexampleMAX_STREAM_NAME_SIZE                   ( 128U )
+
+/**
+ * @brief Size of the network buffer to receive the MQTT message.
+ *
+ * The largest message size is data size from the AWS IoT streaming service,
+ * otaconfigFILE_BLOCK_SIZE + extra for headers.
+ */
+
+#define otaexampleNETWORK_BUFFER_SIZE                          ( 5120U )
+
+/**
+ * @brief The common prefix for all OTA topics.
+ *
+ * Thing name is substituted with a wildcard symbol `+`. OTA agent
+ * registers with MQTT broker with the thing name in the topic. This topic
+ * filter is used to match incoming packet received and route them to OTA.
+ * Thing name is not needed for this matching.
+ */
+#define otaexampleTOPIC_PREFIX                                 "$aws/things/+/"
+
+/**
+ * @brief Wildcard topic filter for job notification.
+ * The filter is used to match the constructed job notify topic filter from OTA
+ * agent and register appropirate callback for it.
+ */
+#define otaexampleJOB_NOTIFY_TOPIC_FILTER                      otaexampleTOPIC_PREFIX "jobs/notify-next"
+
+/**
+ * @brief Length of job notification topic filter.
+ */
+#define otaexampleJOB_NOTIFY_TOPIC_FILTER_LENGTH               ( ( uint16_t ) ( sizeof( otaexampleJOB_NOTIFY_TOPIC_FILTER ) - 1 ) )
+
+/**
+ * @brief Wildcard topic filter for matching job response messages.
+ * This topic filter is used to match the responses from OTA service for OTA
+ * agent job requests. The topic filter is a reserved topic which is not
+ * subscribed with MQTT broker.
+ */
+#define otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER           otaexampleTOPIC_PREFIX "jobs/$next/get/accepted"
+
+/**
+ * @brief Length of job accepted response topic filter.
+ */
+#define otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER ) - 1 ) )
+
+
+/**
+ * @brief Wildcard topic filter for matching OTA data packets.
+ *  The filter is used to match the constructed data stream topic filter from
+ * OTA agent and register appropirate callback for it.
+ */
+#define otaexampleDATA_STREAM_TOPIC_FILTER           otaexampleTOPIC_PREFIX  "streams/#"
+
+/**
+ * @brief Length of data stream topic filter.
+ */
+#define otaexampleDATA_STREAM_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( otaexampleDATA_STREAM_TOPIC_FILTER ) - 1 ) )
+
+
+/**
+ * @brief Default topic filter for OTA.
+ * This is used to route all the packets for OTA reserved topics which OTA agent
+ * has not subscribed for.
+ */
+#define otaexampleDEFAULT_TOPIC_FILTER            otaexampleTOPIC_PREFIX "jobs/#"
+
+/**
+ * @brief Length of default topic filter.
+ */
+#define otaexampleDEFAULT_TOPIC_FILTER_LENGTH     ( ( uint16_t ) ( sizeof( otaexampleDEFAULT_TOPIC_FILTER ) - 1 ) )
+
+/**
+ * @brief Stack size required for OTA agent task.
+ */
+#define otaexampleAGENT_TASK_STACK_SIZE           ( 4000U )
+
+/**
+ * @brief Priority required for OTA agent task.
+ */
+#define otaexampleAGENT_TASK_PRIORITY             ( tskIDLE_PRIORITY )
+
+/**
  * @brief The maximum number of retries for network operation with server.
  */
-#define RETRY_MAX_ATTEMPTS                               ( 5U )
+#define RETRY_MAX_ATTEMPTS                        ( 5U )
 
 /**
- * @brief The maximum back-off delay (in milliseconds) for retrying failed operation
- *  with server.
+ * @brief The maximum back-off delay (in milliseconds) for retrying failed
+ * operation with server.
  */
-#define RETRY_MAX_BACKOFF_DELAY_MS                       ( 5000U )
+#define RETRY_MAX_BACKOFF_DELAY_MS                ( 5000U )
 
 /**
- * @brief The base back-off delay (in milliseconds) to use for network operation retry
- * attempts.
+ * @brief The base back-off delay (in milliseconds) to use for network operation
+ * retry attempts.
  */
-#define RETRY_BACKOFF_BASE_MS                            ( 500U )
+#define RETRY_BACKOFF_BASE_MS                     ( 500U )
 
 /**
- * @brief ALPN (Application-Layer Protocol Negotiation) protocol name for AWS IoT MQTT.
+ * @brief ALPN (Application-Layer Protocol Negotiation) protocol name for AWS
+ * IoT MQTT.
  *
- * This will be used if the AWS_MQTT_PORT is configured as 443 for AWS IoT MQTT broker.
- * Please see more details about the ALPN protocol for AWS IoT MQTT endpoint
- * in the link below.
+ * This will be used if the AWS_MQTT_PORT is configured as 443 for AWS IoT MQTT
+ * broker. Please see more details about the ALPN protocol for AWS IoT MQTT
+ * endpoint in the link below.
  * https://aws.amazon.com/blogs/iot/mqtt-with-tls-client-authentication-on-port-443-why-it-is-useful-and-how-it-works/
  */
-#define AWS_IOT_MQTT_ALPN                                "\x0ex-amzn-mqtt-ca"
+#define AWS_IOT_MQTT_ALPN                         "\x0ex-amzn-mqtt-ca"
 
 /**
  * @brief Length of ALPN protocol name.
  */
-#define AWS_IOT_MQTT_ALPN_LENGTH                         ( ( uint16_t ) ( sizeof( AWS_IOT_MQTT_ALPN ) - 1 ) )
+#define AWS_IOT_MQTT_ALPN_LENGTH                  ( ( uint16_t ) ( sizeof( AWS_IOT_MQTT_ALPN ) - 1 ) )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milli seconds.
  */
-#define CONNACK_RECV_TIMEOUT_MS                          ( 2000U )
+#define CONNACK_RECV_TIMEOUT_MS                   ( 2000U )
 
 /**
  * @brief The maximum time interval in seconds which is allowed to elapse
@@ -181,154 +290,26 @@
  * absence of sending any other Control Packets, the Client MUST send a
  * PINGREQ Packet.
  */
-#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS                 ( 60U )
-
-
-/**
- * @brief The delay used in the main OTA Demo task loop to periodically output the OTA
- * statistics like number of packets received, dropped, processed and queued per connection.
- */
-#define OTA_EXAMPLE_TASK_DELAY_MS                ( 1000U )
-
-/**
- * @brief The timeout for waiting for the agent to get suspended after closing the
- * connection.
- *
- * Timeout value should be large enough for OTA agent to finish any pending MQTT operations
- * and suspend itself.
- *
- */
-#define OTA_SUSPEND_TIMEOUT_MS                   ( 10000U )
-
-/**
- * @brief The maximum size of the file paths used in the demo.
- */
-#define OTA_MAX_FILE_PATH_SIZE                   ( 260U )
-
-/**
- * @brief The maximum size of the stream name required for downloading update file
- * from streaming service.
- */
-#define OTA_MAX_STREAM_NAME_SIZE                 ( 128U )
-
-/**
- * @brief The maximum back-off delay (in milliseconds) for retrying connection to server.
- */
-#define CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS    ( 5000U )
-
-/**
- * @brief The base back-off delay (in milliseconds) to use for connection retry attempts.
- */
-#define CONNECTION_RETRY_BACKOFF_BASE_MS         ( 500U )
-
-/**
- * @brief Number of milliseconds in a second.
- */
-#define NUM_MILLISECONDS_IN_SECOND               ( 1000U )
-
-/**
- * @brief Size of the network buffer to receive the MQTT message.
- *
- * The largest message size is data size from the AWS IoT streaming service,
- * otaconfigFILE_BLOCK_SIZE + extra for headers.
- */
-
-#define OTA_NETWORK_BUFFER_SIZE                          ( 5120U )
-
-/**
- * @brief The maximum number of retries for connecting to server.
- */
-#define CONNECTION_RETRY_MAX_ATTEMPTS                    ( 5U )
-
-/**
- * @brief The common prefix for all OTA topics.
- *
- * Thing name is substituted with a wildcard symbol `+`. OTA agent
- * registers with MQTT broker with the thing name in the topic. This topic
- * filter is used to match incoming packet received and route them to OTA.
- * Thing name is not needed for this matching.
- */
-#define OTA_TOPIC_PREFIX                                 "$aws/things/+/"
-
-/**
- * @brief Wildcard topic filter for job notification.
- * The filter is used to match the constructed job notify topic filter from OTA agent and register
- * appropirate callback for it.
- */
-#define OTA_JOB_NOTIFY_TOPIC_FILTER                      OTA_TOPIC_PREFIX "jobs/notify-next"
-
-/**
- * @brief Length of job notification topic filter.
- */
-#define OTA_JOB_NOTIFY_TOPIC_FILTER_LENGTH               ( ( uint16_t ) ( sizeof( OTA_JOB_NOTIFY_TOPIC_FILTER ) - 1 ) )
-
-/**
- * @brief Wildcard topic filter for matching job response messages.
- * This topic filter is used to match the responses from OTA service for OTA agent job requests. THe
- * topic filter is a reserved topic which is not subscribed with MQTT broker.
- *
- */
-#define OTA_JOB_ACCEPTED_RESPONSE_TOPIC_FILTER           OTA_TOPIC_PREFIX "jobs/$next/get/accepted"
-
-/**
- * @brief Length of job accepted response topic filter.
- */
-#define OTA_JOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( OTA_JOB_ACCEPTED_RESPONSE_TOPIC_FILTER ) - 1 ) )
-
-
-/**
- * @brief Wildcard topic filter for matching OTA data packets.
- *  The filter is used to match the constructed data stream topic filter from OTA agent and register
- * appropirate callback for it.
- */
-#define OTA_DATA_STREAM_TOPIC_FILTER           OTA_TOPIC_PREFIX  "streams/#"
-
-/**
- * @brief Length of data stream topic filter.
- */
-#define OTA_DATA_STREAM_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( OTA_DATA_STREAM_TOPIC_FILTER ) - 1 ) )
-
-
-/**
- * @brief Default topic filter for OTA.
- * This is used to route all the packets for OTA reserved topics which OTA agent has not subscribed for.
- */
-#define OTA_DEFAULT_TOPIC_FILTER           OTA_TOPIC_PREFIX "jobs/#"
-
-/**
- * @brief Length of default topic filter.
- */
-#define OTA_DEFAULT_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( OTA_DEFAULT_TOPIC_FILTER ) - 1 ) )
-
-/**
- * @brief Stack size required for OTA agent task.
- */
-#define OTA_AGENT_TASK_STACK_SIZE          ( 4000U )
-
-/**
- * @brief Priority required for OTA agent task.
- */
-#define OTA_AGENT_TASK_PRIORITY            ( tskIDLE_PRIORITY )
+#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS          ( 60U )
 
 /**
  * @brief Stack size required for MQTT agent task.
- * MQTT agent task takes care of TLS connection and reconnection, keeping task stack size
- * to high enough required for TLS connection.
+ * MQTT agent task takes care of TLS connection and reconnection, keeping task
+ * stack size to high enough required for TLS connection.
  */
-#define MQTT_AGENT_TASK_STACK_SIZE         ( 6000U )
+#define MQTT_AGENT_TASK_STACK_SIZE                ( 6000U )
 
 /**
  * @brief Priority required for OTA statistics task.
  */
-#define MQTT_AGENT_TASK_PRIORITY           ( tskIDLE_PRIORITY )
+#define MQTT_AGENT_TASK_PRIORITY                  ( tskIDLE_PRIORITY )
 
 /**
  * @brief The maximum amount of time in milliseconds to wait for the commands
  * to be posted to the MQTT agent should the MQTT agent's command queue be full.
  * Tasks wait in the Blocked state, so don't use any CPU time.
  */
-#define MQTT_AGENT_SEND_BLOCK_TIME_MS      ( 200U )
-
+#define MQTT_AGENT_SEND_BLOCK_TIME_MS             ( 200U )
 
 /**
  * @brief This demo uses task notifications to signal tasks from MQTT callback
@@ -336,6 +317,28 @@
  * to wait for such a callback.
  */
 #define MQTT_AGENT_MS_TO_WAIT_FOR_NOTIFICATION    ( 5000U )
+
+/**
+ * @brief The maximum back-off delay (in milliseconds) for retrying connection
+ * to server.
+ */
+#define CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS     ( 5000U )
+
+/**
+ * @brief The base back-off delay (in milliseconds) to use for connection retry
+ * attempts.
+ */
+#define CONNECTION_RETRY_BACKOFF_BASE_MS          ( 500U )
+
+/**
+ * @brief The maximum number of retries for connecting to server.
+ */
+#define CONNECTION_RETRY_MAX_ATTEMPTS             ( 5U )
+
+/**
+ * @brief Number of milliseconds in a second.
+ */
+#define NUM_MILLISECONDS_IN_SECOND                ( 1000U )
 
 /**
  * @brief Milliseconds per second.
@@ -350,7 +353,8 @@
 /**
  * @brief Each compilation unit that consumes the NetworkContext must define it.
  * It should contain a single pointer to the type of your desired transport.
- * When using multiple transports in the same compilation unit, define this pointer as void *.
+ * When using multiple transports in the same compilation unit, define this
+ * pointer as void *.
  *
  * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
  */
@@ -383,16 +387,17 @@ struct CommandContext
 
 /**
  * @brief The MQTT agent context.
- * In case of sharing the mqtt connection with other demos using the MQTT agent, this context
- * should be declared non-static so that's it shared across all demo files.
+ * In case of sharing the mqtt connection with other demos using the MQTT agent,
+ * this context should be declared non-static so that's it shared across all
+ * demo files.
  */
 static MQTTAgentContext_t xGlobalMqttAgentContext;
 
 /**
- * @brief The buffer is used to hold the serialized packets for transmission to and from
- * the transport interface.
+ * @brief The buffer is used to hold the serialized packets for transmission to
+ * and from the transport interface.
  */
-static uint8_t xNetworkBuffer[ MQTT_AGENT_NETWORK_BUFFER_SIZE ];
+static uint8_t pucNetworkBuffer[ MQTT_AGENT_NETWORK_BUFFER_SIZE ];
 
 /**
  * @brief FreeRTOS blocking queue to be used as MQTT Agent context.
@@ -414,7 +419,7 @@ static AgentMessageInterface_t xMessageInterface;
  * storing subscriptions to be initialized to 0. As this is a global array, it
  * will be intialized to 0 by default.
  */
-static SubscriptionElement_t xGlobalSubscriptionList[ SUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ];
+static SubscriptionElement_t pxGlobalSubscriptionList[ SUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ];
 
 /**
  * @brief The parameters for the network context using a TLS channel.
@@ -434,38 +439,39 @@ static SemaphoreHandle_t xBufferSemaphore;
 /**
  * @brief Update File path buffer.
  */
-static uint8_t ucUpdateFilePath[ OTA_MAX_FILE_PATH_SIZE ];
+static uint8_t pucUpdateFilePath[ otaexampleMAX_FILE_PATH_SIZE ];
 
 /**
  * @brief Certificate File path buffer.
  */
-static uint8_t ucCertFilePath[ OTA_MAX_FILE_PATH_SIZE ];
+static uint8_t pucCertFilePath[ otaexampleMAX_FILE_PATH_SIZE ];
 
 /**
  * @brief Stream name buffer.
  */
-static uint8_t ucStreamName[ OTA_MAX_STREAM_NAME_SIZE ];
+static uint8_t pucStreamName[ otaexampleMAX_STREAM_NAME_SIZE ];
 
 /**
  * @brief Decode memory.
  */
-static uint8_t ucDecodeMem[ otaconfigFILE_BLOCK_SIZE ];
+static uint8_t pucDecodeMem[ otaconfigFILE_BLOCK_SIZE ];
 
 /**
  * @brief Bitmap memory.
  */
-static uint8_t ucBitmap[ OTA_MAX_BLOCK_BITMAP_SIZE ];
+static uint8_t pucBitmap[ OTA_MAX_BLOCK_BITMAP_SIZE ];
 
 /**
  * @brief Event buffer.
  */
-static OtaEventData_t xEventBuffer[ otaconfigMAX_NUM_OTA_DATA_BUFFERS ];
+static OtaEventData_t pxEventBuffer[ otaconfigMAX_NUM_OTA_DATA_BUFFERS ];
 
 /**
  * @brief Global entry time into the application to use as a reference timestamp
  * in the #prvGetTimeMs function. #prvGetTimeMs will always return the difference
- * between the current time and the global entry time. This will reduce the chances
- * of overflow for the 32 bit unsigned integer used for holding the timestamp.
+ * between the current time and the global entry time. This will reduce the
+ * chances of overflow for the 32 bit unsigned integer used for holding the
+ * timestamp.
  */
 static uint32_t ulGlobalEntryTimeMs;
 
@@ -474,15 +480,15 @@ static uint32_t ulGlobalEntryTimeMs;
  */
 static OtaAppBuffer_t xOtaBuffer =
 {
-    .pUpdateFilePath    = ucUpdateFilePath,
-    .updateFilePathsize = OTA_MAX_FILE_PATH_SIZE,
-    .pCertFilePath      = ucCertFilePath,
-    .certFilePathSize   = OTA_MAX_FILE_PATH_SIZE,
-    .pStreamName        = ucStreamName,
-    .streamNameSize     = OTA_MAX_STREAM_NAME_SIZE,
-    .pDecodeMemory      = ucDecodeMem,
+    .pUpdateFilePath    = pucUpdateFilePath,
+    .updateFilePathsize = otaexampleMAX_FILE_PATH_SIZE,
+    .pCertFilePath      = pucCertFilePath,
+    .certFilePathSize   = otaexampleMAX_FILE_PATH_SIZE,
+    .pStreamName        = pucStreamName,
+    .streamNameSize     = otaexampleMAX_STREAM_NAME_SIZE,
+    .pDecodeMemory      = pucDecodeMem,
     .decodeMemorySize   = otaconfigFILE_BLOCK_SIZE,
-    .pFileBitmap        = ucBitmap,
+    .pFileBitmap        = pucBitmap,
     .fileBitmapSize     = OTA_MAX_BLOCK_BITMAP_SIZE,
 };
 
@@ -492,7 +498,7 @@ static OtaAppBuffer_t xOtaBuffer =
  * @brief Initializes an MQTT Agent including transport interface and
  * network buffer.
  *
- * @return `MQTTSuccess` if the initialization succeeds, else `MQTTBadParameter`.
+ * @return `MQTTSuccess` if the initialization succeeds, else `MQTTBadParameter`
  */
 static MQTTStatus_t prvMqttAgentInit( void );
 
@@ -591,8 +597,8 @@ static void prvDisconnectFromMQTTBroker( void );
 
 /**
  * @brief Task for OTA agent.
- * Task runs OTA agent  loop which process OTA events. Task returns only when OTA agent is shutdown by
- * invoking OTA_Shutdown() API.
+ * Task runs OTA agent  loop which process OTA events. Task returns only when
+ * OTA agent is shutdown by invoking OTA_Shutdown() API.
  *
  * @param[in] pParam Can be used to pass down functionality to the agent task
  */
@@ -600,9 +606,10 @@ static void prvOTAAgentTask( void * pParam );
 
 /**
  * @brief Task for MQTT agent.
- * Task runs MQTT agent command loop, which returns only when the user disconnects
- * MQTT, terminates agent, or the mqtt connection is broken. If the mqtt connection is broken, the task
- * suspends OTA agent reconnects to the broker and then resumes OTA agent.
+ * Task runs MQTT agent command loop, which returns only when the user
+ * disconnects MQTT, terminates agent, or the mqtt connection is broken. If the
+ * mqtt connection is broken, the task suspends OTA agent reconnects to the
+ * broker and then resumes OTA agent.
  *
  * @param[in] pParam Can be used to pass down functionality to the agent task
  */
@@ -612,8 +619,10 @@ static void prvMQTTAgentTask( void * pParam );
 /**
  * @brief Callback invoked by agent for a command process completion.
  *
- * @param[in] pxCommandContext User context passed by caller along with the command.
- * @param[in] pxReturnInfo Info containing return code and output of command from agent.
+ * @param[in] pxCommandContext User context passed by caller along with the
+ * command.
+ * @param[in] pxReturnInfo Info containing return code and output of command
+ * from agent.
  */
 static void prvMQTTAgentCmdCompleteCallback( CommandContext_t * pxCommandContext,
                                              MQTTAgentReturnInfo_t * pxReturnInfo );
@@ -654,21 +663,23 @@ static void prvSetOtaInterfaces( OtaInterfaces_t * pxOtaInterfaces );
  * the next retry attempt of a failed network operation with the server.
  *
  * The function generates a random number, calculates the next backoff period
- * with the generated random number, and performs the backoff delay operation if the
- * number of retries have not exhausted.
+ * with the generated random number, and performs the backoff delay operation if
+ * the number of retries have not exhausted.
  *
- * @note The PKCS11 module is used to generate the random number as it allows access
- * to a True Random Number Generator (TRNG) if the vendor platform supports it.
- * It is recommended to seed the random number generator with a device-specific entropy
- * source so that probability of collisions from devices in connection retries is mitigated.
+ * @note The PKCS11 module is used to generate the random number as it allows
+ * access to a True Random Number Generator (TRNG) if the vendor platform
+ * supports it. It is recommended to seed the random number generator with a
+ * device-specific entropy source so that probability of collisions from devices
+ * in connection retries is mitigated.
  *
  * @note The backoff period is calculated using the backoffAlgorithm library.
  *
- * @param[in, out] pxRetryAttempts The context to use for backoff period calculation
- * with the backoffAlgorithm library.
+ * @param[in, out] pxRetryAttempts The context to use for backoff period
+ * calculation with the backoffAlgorithm library.
  *
- * @return pdPASS if calculating the backoff period was successful; otherwise pdFAIL
- * if there was failure in random number generation OR all retry attempts had exhausted.
+ * @return pdPASS if calculating the backoff period was successful; otherwise
+ * pdFAIL if there was failure in random number generation OR all retry attempts
+ * had exhausted.
  */
 static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams );
 
@@ -696,8 +707,9 @@ static void prvOtaAppCallback( OtaJobEvent_t xEvent,
 
 
 /**
- * @brief Common callback registered with MQTT agent to receive all publish packets.
- * Packets received using the callback is distributed to subscribed topics using subscription manager.
+ * @brief Common callback registered with MQTT agent to receive all publish
+ * packets. Packets received using the callback is distributed to subscribed
+ * topics using subscription manager.
  *
  * @param[in] pxMqttAgentContext MQTT agent context for the connection.
  * @param[in] usPacketId Packet identifier for the packet.
@@ -711,7 +723,8 @@ static void prvIncomingPublishCallback( MQTTAgentContext_t * pxMqttAgentContext,
 /**
  * @brief Register OTA callbacks with the subscription manager.
  *
- * @param[in] pcTopicFilter The topic filter for which a  callback needs to be registered for.
+ * @param[in] pcTopicFilter The topic filter for which a  callback needs to be
+ * registered for.
  * @param[in] usTopicFilterLength length of the topic filter.
  *
  */
@@ -735,7 +748,8 @@ static void prvMqttJobCallback( void * pContext,
  * @brief Callback that notifies the OTA library when a data block is received.
  *
  * @param[in] pContext MQTT context which stores the connection.
- * @param[in] pxPublishInfo MQTT packet that stores the information of the file block.
+ * @param[in] pxPublishInfo MQTT packet that stores the information of the file
+ * block.
  */
 static void prvMqttDataCallback( void * pContext,
                                  MQTTPublishInfo_t * pxPublishInfo );
@@ -743,13 +757,16 @@ static void prvMqttDataCallback( void * pContext,
 /**
  * @brief Default callback used to receive unsolicited messages for OTA.
  *
- * The callback is not subscribed with MQTT broker, but only with local subscription manager.
- * A wildcard OTA job topic is used for subscription so that all unsolicited messages related to OTA is
- * forwarded to this callback for filteration. Right now the callback is used to filter responses to job requests
- * from the OTA service.
+ * The callback is not subscribed with MQTT broker, but only with local
+ * subscription manager. A wildcard OTA job topic is used for subscription so
+ * that all unsolicited messages related to OTA is forwarded to this callback for
+ * filteration. Right now the callback is used to filter responses to job
+ * requests from the OTA service.
  *
- * @param[in] pvIncomingPublishCallbackContext MQTT context which stores the connection.
- * @param[in] pxPublishInfo MQTT packet that stores the information of the file block.
+ * @param[in] pvIncomingPublishCallbackContext MQTT context which stores the
+ * connection.
+ * @param[in] pxPublishInfo MQTT packet that stores the information of the file
+ * block.
  */
 static void prvMqttDefaultCallback( void * pvIncomingPublishCallbackContext,
                                     MQTTPublishInfo_t * pxPublishInfo );
@@ -757,23 +774,24 @@ static void prvMqttDefaultCallback( void * pvIncomingPublishCallbackContext,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Registry for all  mqtt topic filters to their corresponding callbacks for OTA.
+ * @brief Registry for all  mqtt topic filters to their corresponding callbacks
+ * for OTA.
  */
 static OtaTopicFilterCallback_t xOtaTopicFilterCallbacks[] =
 {
     {
-        .pcTopicFilter = OTA_JOB_NOTIFY_TOPIC_FILTER,
-        .usTopicFilterLength = OTA_JOB_NOTIFY_TOPIC_FILTER_LENGTH,
+        .pcTopicFilter = otaexampleJOB_NOTIFY_TOPIC_FILTER,
+        .usTopicFilterLength = otaexampleJOB_NOTIFY_TOPIC_FILTER_LENGTH,
         .xCallback = prvMqttJobCallback
     },
     {
-        .pcTopicFilter = OTA_DATA_STREAM_TOPIC_FILTER,
-        .usTopicFilterLength = OTA_DATA_STREAM_TOPIC_FILTER_LENGTH,
+        .pcTopicFilter = otaexampleDATA_STREAM_TOPIC_FILTER,
+        .usTopicFilterLength = otaexampleDATA_STREAM_TOPIC_FILTER_LENGTH,
         .xCallback = prvMqttDataCallback
     },
     {
-        .pcTopicFilter = OTA_DEFAULT_TOPIC_FILTER,
-        .usTopicFilterLength = OTA_DEFAULT_TOPIC_FILTER_LENGTH,
+        .pcTopicFilter = otaexampleDEFAULT_TOPIC_FILTER,
+        .usTopicFilterLength = otaexampleDEFAULT_TOPIC_FILTER_LENGTH,
         .xCallback = prvMqttDefaultCallback
     }
 };
@@ -803,10 +821,10 @@ static OtaEventData_t * prvOtaEventBufferGet( void )
     {
         for( ulIndex = 0; ulIndex < otaconfigMAX_NUM_OTA_DATA_BUFFERS; ulIndex++ )
         {
-            if( xEventBuffer[ ulIndex ].bufferUsed == false )
+            if( pxEventBuffer[ ulIndex ].bufferUsed == false )
             {
-                xEventBuffer[ ulIndex ].bufferUsed = true;
-                pxFreeBuffer = &xEventBuffer[ ulIndex ];
+                pxEventBuffer[ ulIndex ].bufferUsed = true;
+                pxFreeBuffer = &pxEventBuffer[ ulIndex ];
                 break;
             }
         }
@@ -837,7 +855,8 @@ static void prvOtaAppCallback( OtaJobEvent_t xEvent,
 
             /* Initiate Shutdown of OTA Agent.
              * If it is required that the unsubscribe operations are not
-             * performed while shutting down please set the second parameter to 0 instead of 1.
+             * performed while shutting down please set the second parameter to
+             * 0 instead of 1.
              */
             OTA_Shutdown( 0, 1 );
 
@@ -893,7 +912,7 @@ static void prvOtaAppCallback( OtaJobEvent_t xEvent,
 
             /* Initiate Shutdown of OTA Agent.
              * If it is required that the unsubscribe operations are not
-             * performed while shutting down please set the second parameter to 0 instead of 1.
+             * performed while shutting down please set the second parameter to 0 instead of 1
              */
             OTA_Shutdown( 0, 1 );
 
@@ -968,15 +987,15 @@ static void prvMqttJobCallback( void * pvIncomingPublishCallbackContext,
 static void prvMqttDefaultCallback( void * pvIncomingPublishCallbackContext,
                                     MQTTPublishInfo_t * pxPublishInfo )
 {
-    bool isMatch = false;
+    bool xIsMatch = false;
 
     ( void ) MQTT_MatchTopic( pxPublishInfo->pTopicName,
                               pxPublishInfo->topicNameLength,
-                              OTA_JOB_ACCEPTED_RESPONSE_TOPIC_FILTER,
-                              OTA_JOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH,
-                              &isMatch );
+                              otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER,
+                              otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH,
+                              &xIsMatch );
 
-    if( isMatch == true )
+    if( xIsMatch == true )
     {
         prvMqttJobCallback( pvIncomingPublishCallbackContext, pxPublishInfo );
     }
@@ -1037,33 +1056,34 @@ static void prvMQTTAgentCmdCompleteCallback( CommandContext_t * pxCommandContext
 static void prvRegisterOTACallback( const char * pcTopicFilter,
                                     uint16_t usTopicFilterLength )
 {
-    bool isMatch = false;
-    bool subscriptionAdded;
+    bool xIsMatch = false;
+    bool xSubscriptionAdded;
     MQTTStatus_t xMqttStatus = MQTTSuccess;
-    uint16_t ulIndex = 0U;
+    uint16_t usIndex = 0U;
     uint16_t ulNumTopicFilters = sizeof( xOtaTopicFilterCallbacks ) / sizeof( OtaTopicFilterCallback_t );
 
     /* Match the input topic filter against the wild-card pattern of topics filters
     * relevant for the OTA Update service to determine the type of topic filter. */
-    for( ; ulIndex < ulNumTopicFilters; ulIndex++ )
+    for( usIndex = 0U; usIndex < ulNumTopicFilters; usIndex++ )
     {
         xMqttStatus = MQTT_MatchTopic( pcTopicFilter,
                                        usTopicFilterLength,
-                                       xOtaTopicFilterCallbacks[ ulIndex ].pcTopicFilter,
-                                       xOtaTopicFilterCallbacks[ ulIndex ].usTopicFilterLength,
-                                       &isMatch );
+                                       xOtaTopicFilterCallbacks[ usIndex ].pcTopicFilter,
+                                       xOtaTopicFilterCallbacks[ usIndex ].usTopicFilterLength,
+                                       &xIsMatch );
         assert( xMqttStatus == MQTTSuccess );
 
-        if( isMatch )
+        if( xIsMatch )
         {
-            /* Add subscription so that incoming publishes are routed to the application callback. */
-            subscriptionAdded = addSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
-                                                 pcTopicFilter,
-                                                 usTopicFilterLength,
-                                                 xOtaTopicFilterCallbacks[ ulIndex ].xCallback,
-                                                 NULL );
+            /* Add subscription so that incoming publishes are routed to the
+             * application callback. */
+            xSubscriptionAdded = addSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
+                                                  pcTopicFilter,
+                                                  usTopicFilterLength,
+                                                  xOtaTopicFilterCallbacks[ usIndex ].xCallback,
+                                                  NULL );
 
-            if( subscriptionAdded == false )
+            if( xSubscriptionAdded == false )
             {
                 LogError( ( "Failed to register a publish callback for topic %.*s.",
                             pcTopicFilter,
@@ -1109,7 +1129,9 @@ static void prvMQTTUnsubscribeCompleteCallback( CommandContext_t * pxCommandCont
     if( pxReturnInfo->returnCode == MQTTSuccess )
     {
         pxSubsribeArgs = ( MQTTAgentSubscribeArgs_t * ) ( pxCommandContext->pArgs );
-        /* Add subscription so that incoming publishes are routed to the application callback. */
+
+        /* Add subscription so that incoming publishes are routed to the
+         * application callback. */
         removeSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
                             pxSubsribeArgs->pSubscribeInfo->pTopicFilter,
                             pxSubsribeArgs->pSubscribeInfo->topicFilterLength );
@@ -1145,11 +1167,11 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
      * To calculate the backoff period for the next retry attempt, we will
      * generate a random number to provide to the backoffAlgorithm library.
      *
-     * Note: The PKCS11 module is used to generate the random number as it allows access
-     * to a True Random Number Generator (TRNG) if the vendor platform supports it.
-     * It is recommended to use a random number generator seeded with a device-specific
-     * entropy source so that probability of collisions from devices in connection retries
-     * is mitigated.
+     * Note: The PKCS11 module is used to generate the random number as it allows
+     * access to a True Random Number Generator (TRNG) if the vendor platform
+     * supports it. It is recommended to use a random number generator seeded
+     * with a device-specific entropy source so that probability of collisions
+     * from devices in connection retries is mitigated.
      */
     uint32_t ulRandomNum = 0;
 
@@ -1207,7 +1229,7 @@ static MQTTStatus_t prvMqttAgentInit( void )
 {
     TransportInterface_t xTransport;
     MQTTStatus_t xReturn;
-    MQTTFixedBuffer_t xFixedBuffer = { .pBuffer = xNetworkBuffer, .size = MQTT_AGENT_NETWORK_BUFFER_SIZE };
+    MQTTFixedBuffer_t xFixedBuffer = { .pBuffer = pucNetworkBuffer, .size = MQTT_AGENT_NETWORK_BUFFER_SIZE };
     static uint8_t ucStaticQueueStorageArea[ MQTT_AGENT_COMMAND_QUEUE_LENGTH * sizeof( Command_t * ) ];
     static StaticQueue_t xStaticQueueStructure;
 
@@ -1240,7 +1262,7 @@ static MQTTStatus_t prvMqttAgentInit( void )
                               prvGetTimeMs,
                               prvIncomingPublishCallback,
                               /* Context to pass into the callback. Passing the pointer to subscription array. */
-                              xGlobalSubscriptionList );
+                              pxGlobalSubscriptionList );
 
     return xReturn;
 }
@@ -1308,7 +1330,7 @@ static MQTTStatus_t prvMQTTConnect( void )
     MQTTStatus_t xMqttStatus = MQTTBadParameter;
     MQTTConnectInfo_t xConnectInfo = { 0 };
 
-    bool sessionPresent = false;
+    bool xSessionPresent = false;
 
     /* Establish MQTT session by sending a CONNECT packet. */
 
@@ -1333,7 +1355,7 @@ static MQTTStatus_t prvMQTTConnect( void )
     xConnectInfo.keepAliveSeconds = MQTT_KEEP_ALIVE_INTERVAL_SECONDS;
 
     /* Send MQTT CONNECT packet to broker. */
-    xMqttStatus = MQTT_Connect( &xGlobalMqttAgentContext.mqttContext, &xConnectInfo, NULL, CONNACK_RECV_TIMEOUT_MS, &sessionPresent );
+    xMqttStatus = MQTT_Connect( &xGlobalMqttAgentContext.mqttContext, &xConnectInfo, NULL, CONNACK_RECV_TIMEOUT_MS, &xSessionPresent );
 
     return xMqttStatus;
 }
@@ -1633,7 +1655,8 @@ static void prvMQTTAgentTask( void * pParam )
         /* Clear Agent queue so that no any pending MQTT operations are processed. */
         xQueueReset( xCommandQueue.queue );
 
-        /* Success is returned for application intiated disconnect or termination. The socket will also be disconnected by the caller. */
+        /* Success is returned for application intiated disconnect or termination.
+         * The socket will also be disconnected by the caller. */
         if( xMQTTStatus != MQTTSuccess )
         {
             xResult = prvSuspendOTA();
@@ -1669,13 +1692,13 @@ static BaseType_t prvSuspendOTA( void )
 
     if( xOtaError == OtaErrNone )
     {
-        ulSuspendTimeout = OTA_SUSPEND_TIMEOUT_MS;
+        ulSuspendTimeout = otaexampleSUSPEND_TIMEOUT_MS;
 
         while( ( OTA_GetState() != OtaAgentStateSuspended ) && ( ulSuspendTimeout > 0 ) )
         {
             /* Wait for OTA Library state to suspend */
-            vTaskDelay( pdMS_TO_TICKS( OTA_EXAMPLE_TASK_DELAY_MS ) );
-            ulSuspendTimeout -= OTA_EXAMPLE_TASK_DELAY_MS;
+            vTaskDelay( pdMS_TO_TICKS( otaexampleEXAMPLE_TASK_DELAY_MS ) );
+            ulSuspendTimeout -= otaexampleEXAMPLE_TASK_DELAY_MS;
         }
 
         if( OTA_GetState() != OtaAgentStateSuspended )
@@ -1705,13 +1728,13 @@ static BaseType_t prvResumeOTA( void )
 
     if( xOtaError == OtaErrNone )
     {
-        ulSuspendTimeout = OTA_SUSPEND_TIMEOUT_MS;
+        ulSuspendTimeout = otaexampleSUSPEND_TIMEOUT_MS;
 
         while( ( OTA_GetState() == OtaAgentStateSuspended ) && ( ulSuspendTimeout > 0 ) )
         {
             /* Wait for OTA Library state to suspend */
-            vTaskDelay( pdMS_TO_TICKS( OTA_EXAMPLE_TASK_DELAY_MS ) );
-            ulSuspendTimeout -= OTA_EXAMPLE_TASK_DELAY_MS;
+            vTaskDelay( pdMS_TO_TICKS( otaexampleEXAMPLE_TASK_DELAY_MS ) );
+            ulSuspendTimeout -= otaexampleEXAMPLE_TASK_DELAY_MS;
         }
 
         if( OTA_GetState() == OtaAgentStateSuspended )
@@ -1753,7 +1776,7 @@ static BaseType_t prvRunOTADemo( void )
     /* Set OTA Library interfaces.*/
     prvSetOtaInterfaces( &xOtaInterfaces );
 
-    /****************************** Init OTA Library. ******************************/
+    /*************************** Init OTA Library. ***************************/
 
     if( xStatus == pdPASS )
     {
@@ -1769,15 +1792,15 @@ static BaseType_t prvRunOTADemo( void )
         }
     }
 
-    /****************************** Create OTA Agent Task. ******************************/
+    /************************ Create OTA Agent Task. ************************/
 
     if( xStatus == pdPASS )
     {
         xStatus = xTaskCreate( prvOTAAgentTask,
                                "OTA Agent Task",
-                               OTA_AGENT_TASK_STACK_SIZE,
+                               otaexampleAGENT_TASK_STACK_SIZE,
                                NULL,
-                               OTA_AGENT_TASK_PRIORITY,
+                               otaexampleAGENT_TASK_PRIORITY,
                                NULL );
 
         if( xStatus != pdPASS )
@@ -1790,7 +1813,7 @@ static BaseType_t prvRunOTADemo( void )
      * Register a callback for receiving messages intended for OTA agent from broker,
      * for which the topic has not been subscribed for.
      */
-    prvRegisterOTACallback( OTA_DEFAULT_TOPIC_FILTER, OTA_DEFAULT_TOPIC_FILTER_LENGTH );
+    prvRegisterOTACallback( otaexampleDEFAULT_TOPIC_FILTER, otaexampleDEFAULT_TOPIC_FILTER_LENGTH );
 
     /****************************** Start OTA ******************************/
 
@@ -1801,7 +1824,7 @@ static BaseType_t prvRunOTADemo( void )
         OTA_SignalEvent( &xEventMsg );
     }
 
-    /****************************** Loop and display OTA statistics ******************************/
+    /******************** Loop and display OTA statistics ********************/
 
     if( xStatus == pdPASS )
     {
@@ -1819,7 +1842,7 @@ static BaseType_t prvRunOTADemo( void )
                            xOtaStatistics.otaPacketsDropped ) );
             }
 
-            vTaskDelay( pdMS_TO_TICKS( OTA_EXAMPLE_TASK_DELAY_MS ) );
+            vTaskDelay( pdMS_TO_TICKS( otaexampleEXAMPLE_TASK_DELAY_MS ) );
         }
     }
 
@@ -1828,8 +1851,8 @@ static BaseType_t prvRunOTADemo( void )
      * for which the topic has not been subscribed for.
      */
     removeSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
-                        OTA_DEFAULT_TOPIC_FILTER,
-                        OTA_DEFAULT_TOPIC_FILTER_LENGTH );
+                        otaexampleDEFAULT_TOPIC_FILTER,
+                        otaexampleDEFAULT_TOPIC_FILTER_LENGTH );
 
     return xStatus;
 }
@@ -1845,7 +1868,7 @@ static BaseType_t prvRunOTADemo( void )
  * of the real work; checking to see if the message topic is one destined for
  * the OTA agent. If not, it is simply ignored.
  *
- * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
+ * @param[in] xAwsIotMqttMode Specify if this demo is running with the AWS IoT
  * MQTT server. Set this to `false` if using another MQTT server.
  * @param[in] pIdentifier NULL-terminated MQTT client identifier.
  * @param[in] pNetworkServerInfo Passed to the MQTT connect function when
@@ -1854,23 +1877,24 @@ static BaseType_t prvRunOTADemo( void )
  * establishing the MQTT connection.
  * @param[in] pxNetworkInterface The network interface to use for this demo.
  *
- * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
+ * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE`
+ * otherwise.
  *
  */
-int RunOtaCoreMqttDemo( bool awsIotMqttMode,
+int RunOtaCoreMqttDemo( bool xAwsIotMqttMode,
                         const char * pIdentifier,
                         void * pNetworkServerInfo,
                         void * pNetworkCredentialInfo,
                         const IotNetworkInterface_t * pxNetworkInterface )
 {
-    ( void ) awsIotMqttMode;
+    ( void ) xAwsIotMqttMode;
     ( void ) pIdentifier;
     ( void ) pNetworkServerInfo;
     ( void ) pNetworkCredentialInfo;
     ( void ) pxNetworkInterface;
 
     BaseType_t xDemoStatus = pdPASS;
-    BaseType_t mqttInitialized = pdFALSE;
+    BaseType_t xMqttInitialized = pdFALSE;
 
     LogInfo( ( "OTA over MQTT demo, Application version %u.%u.%u",
                appFirmwareVersion.u.x.major,
@@ -1897,11 +1921,11 @@ int RunOtaCoreMqttDemo( bool awsIotMqttMode,
         }
         else
         {
-            mqttInitialized = pdTRUE;
+            xMqttInitialized = pdTRUE;
         }
     }
 
-    /****************************** Create MQTT Agent Task. ******************************/
+    /************************ Create MQTT Agent Task. ************************/
 
     if( xDemoStatus == pdPASS )
     {
@@ -1929,7 +1953,7 @@ int RunOtaCoreMqttDemo( bool awsIotMqttMode,
 
     /****************************** Cleanup ******************************/
 
-    if( mqttInitialized == pdTRUE )
+    if( xMqttInitialized == pdTRUE )
     {
         prvDisconnectFromMQTTBroker();
     }

@@ -121,9 +121,9 @@
 #ifndef democonfigCLIENT_IDENTIFIER
 
 /**
- * @brief The MQTT client identifier used in this example.  Each client identifier
- * must be unique so edit as required to ensure no two clients connecting to the
- * same broker use the same client identifier.
+ * @brief The MQTT client identifier used in this example.  Each client
+ * identifier must be unique so edit as required to ensure no two clients
+ * connecting to the same broker use the same client identifier.
  */
     #define democonfigCLIENT_IDENTIFIER    clientcredentialIOT_THING_NAME
 #endif
@@ -196,45 +196,163 @@
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define otaexampleMQTT_TRANSPORT_SEND_RECV_TIMEOUT_MS    ( 500U )
+#define otaexampleMQTT_TRANSPORT_SEND_RECV_TIMEOUT_MS          ( 500U )
 
+/**
+ * @brief The common prefix for all OTA topics.
+ *
+ * Thing name is substituted with a wildcard symbol `+`. OTA agent
+ * registers with MQTT broker with the thing name in the topic. This topic
+ * filter is used to match incoming packet received and route them to OTA.
+ * Thing name is not needed for this matching.
+ */
+#define otaexampleTOPIC_PREFIX                                 "$aws/things/+/"
+
+/**
+ * @brief Wildcard topic filter for job notification.
+ * The filter is used to match the constructed job notify topic filter from OTA
+ * agent and register appropirate callback for it.
+ */
+#define otaexampleJOB_NOTIFY_TOPIC_FILTER                      otaexampleTOPIC_PREFIX "jobs/notify-next"
+
+/**
+ * @brief Length of job notification topic filter.
+ */
+#define otaexampleJOB_NOTIFY_TOPIC_FILTER_LENGTH               ( ( uint16_t ) ( sizeof( otaexampleJOB_NOTIFY_TOPIC_FILTER ) - 1 ) )
+
+/**
+ * @brief Wildcard topic filter for matching job response messages.
+ * This topic filter is used to match the responses from OTA service for OTA
+ * agent job requests. The topic filter is a reserved topic which is not
+ * subscribed with MQTT broker.
+ *
+ */
+#define otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER           otaexampleTOPIC_PREFIX "jobs/$next/get/accepted"
+
+/**
+ * @brief Length of job accepted response topic filter.
+ */
+#define otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER ) - 1 ) )
+
+
+/**
+ * @brief Wildcard topic filter for matching OTA data packets.
+ *  The filter is used to match the constructed data stream topic filter from
+ * OTA agent and register appropirate callback for it.
+ */
+#define otaexampleDATA_STREAM_TOPIC_FILTER           otaexampleTOPIC_PREFIX  "streams/#"
+
+/**
+ * @brief Length of data stream topic filter.
+ */
+#define otaexampleDATA_STREAM_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( otaexampleDATA_STREAM_TOPIC_FILTER ) - 1 ) )
+
+
+/**
+ * @brief Default topic filter for OTA.
+ * This is used to route all the packets for OTA reserved topics which OTA
+ * agent has not subscribed for.
+ */
+#define otaexampleDEFAULT_TOPIC_FILTER           otaexampleTOPIC_PREFIX "jobs/#"
+
+/**
+ * @brief Length of default topic filter.
+ */
+#define otaexampleDEFAULT_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( otaexampleDEFAULT_TOPIC_FILTER ) - 1 ) )
+
+/**
+ * @brief Stack size required for OTA agent task.
+ * OTA agent task takes care of TLS connection and reconnection to S3 endpoint,
+ * keeping task stack size to high enough required for TLS connection.
+ */
+#define otaexampleAGENT_TASK_STACK_SIZE          ( 6000U )
+
+/**
+ * @brief Priority required for OTA agent task.
+ */
+#define otaexampleAGENT_TASK_PRIORITY            ( tskIDLE_PRIORITY )
+
+/**
+ * @brief The delay used in the main OTA Demo task loop to periodically output
+ * the OTA statistics like number of packets received, dropped, processed and
+ * queued per connection.
+ */
+#define otaexampleTASK_DELAY_MS                  ( 1000U )
+
+/**
+ * @brief The timeout for waiting for the agent to get suspended after closing
+ * the connection.
+ * Timeout value should be large enough for OTA agent to finish any pending MQTT
+ * operations and suspend itself.
+ */
+#define otaexampleSUSPEND_TIMEOUT_MS             ( 10000U )
+
+/**
+ * @brief The maximum size of the file paths used in the demo.
+ */
+#define otaexampleMAX_FILE_PATH_SIZE             ( 260U )
+
+/**
+ * @brief The maximum size of the stream name required for downloading update file
+ * from streaming service.
+ */
+#define otaexampleMAX_STREAM_NAME_SIZE           ( 128U )
+
+/**
+ * @brief Maximum size of the url.
+ */
+#define otaexampleMAX_URL_SIZE                   ( 2048U )
+
+/**
+ * @brief Maximum size of the auth scheme.
+ */
+#define otaexampleMAX_AUTH_SCHEME_SIZE           ( 48U )
+
+/**
+ * @brief Size of the network buffer to receive the MQTT message.
+ *
+ * The largest message size is data size from the AWS IoT streaming service,
+ * otaconfigFILE_BLOCK_SIZE + extra for headers.
+ */
+
+#define otaexampleNETWORK_BUFFER_SIZE             ( otaconfigFILE_BLOCK_SIZE + otaexampleMAX_URL_SIZE + 128 )
 
 /**
  * @brief The maximum number of retries for network operation with server.
  */
-#define RETRY_MAX_ATTEMPTS                       ( 5U )
+#define RETRY_MAX_ATTEMPTS                        ( 5U )
 
 /**
- * @brief The maximum back-off delay (in milliseconds) for retrying failed operation
- *  with server.
+ * @brief The maximum back-off delay (in milliseconds) for retrying failed
+ * operation with server.
  */
-#define RETRY_MAX_BACKOFF_DELAY_MS               ( 5000U )
+#define RETRY_MAX_BACKOFF_DELAY_MS                ( 5000U )
 
 /**
- * @brief The base back-off delay (in milliseconds) to use for network operation retry
- * attempts.
+ * @brief The base back-off delay (in milliseconds) to use for network operation
+ * retry attempts.
  */
-#define RETRY_BACKOFF_BASE_MS                    ( 500U )
+#define RETRY_BACKOFF_BASE_MS                     ( 500U )
 
 /**
  * @brief ALPN (Application-Layer Protocol Negotiation) protocol name for AWS IoT MQTT.
  *
- * This will be used if the AWS_MQTT_PORT is configured as 443 for AWS IoT MQTT broker.
- * Please see more details about the ALPN protocol for AWS IoT MQTT endpoint
- * in the link below.
+ * This will be used if the AWS_MQTT_PORT is configured as 443 for AWS IoT MQTT
+ * broker. Please see more details about the ALPN protocol for AWS IoT MQTT
+ * endpoint in the link below.
  * https://aws.amazon.com/blogs/iot/mqtt-with-tls-client-authentication-on-port-443-why-it-is-useful-and-how-it-works/
  */
-#define AWS_IOT_MQTT_ALPN                        "\x0ex-amzn-mqtt-ca"
+#define AWS_IOT_MQTT_ALPN                         "\x0ex-amzn-mqtt-ca"
 
 /**
  * @brief Length of ALPN protocol name.
  */
-#define AWS_IOT_MQTT_ALPN_LENGTH                 ( ( uint16_t ) ( sizeof( AWS_IOT_MQTT_ALPN ) - 1 ) )
+#define AWS_IOT_MQTT_ALPN_LENGTH                  ( ( uint16_t ) ( sizeof( AWS_IOT_MQTT_ALPN ) - 1 ) )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milli seconds.
  */
-#define CONNACK_RECV_TIMEOUT_MS                  ( 2000U )
+#define CONNACK_RECV_TIMEOUT_MS                   ( 2000U )
 
 /**
  * @brief The maximum time interval in seconds which is allowed to elapse
@@ -245,164 +363,25 @@
  * absence of sending any other Control Packets, the Client MUST send a
  * PINGREQ Packet.
  */
-#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS         ( 60U )
+#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS          ( 60U )
 
 /**
  * @brief Timeout for MQTT_ProcessLoop function in milliseconds.
  */
-#define MQTT_PROCESS_LOOP_TIMEOUT_MS             ( 100U )
+#define MQTT_PROCESS_LOOP_TIMEOUT_MS              ( 100U )
 
 /**
  * @brief Interval between process loop  in milliseconds. This interval unblocks
- * any other threads waiting to perform an MQTT operation. This interval should be
- * short enough so that MQTT receive loop can execute almost quickly but still let
- * other thread not starve for MQTT operation to complete.
+ * any other threads waiting to perform an MQTT operation. This interval should
+ * be short enough so that MQTT receive loop can execute almost quickly but
+ * still let other thread not starve for MQTT operation to complete.
  */
-#define MQTT_PROCESS_LOOP_INTERVAL_MS            ( 5U )
-
-/**
- * @brief The delay used in the main OTA Demo task loop to periodically output the OTA
- * statistics like number of packets received, dropped, processed and queued per connection.
- */
-#define OTA_EXAMPLE_TASK_DELAY_MS                ( 1000U )
-
-/**
- * @brief The timeout for waiting for the agent to get suspended after closing the
- * connection.
- * Timeout value should be large enough for OTA agent to finish any pending MQTT operations
- * and suspend itself.
- */
-#define OTA_SUSPEND_TIMEOUT_MS                   ( 10000U )
-
-/**
- * @brief The maximum size of the file paths used in the demo.
- */
-#define OTA_MAX_FILE_PATH_SIZE                   ( 260U )
-
-/**
- * @brief The maximum size of the stream name required for downloading update file
- * from streaming service.
- */
-#define OTA_MAX_STREAM_NAME_SIZE                 ( 128U )
-
-/**
- * @brief The maximum back-off delay (in milliseconds) for retrying connection to server.
- */
-#define CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS    ( 5000U )
-
-/**
- * @brief The base back-off delay (in milliseconds) to use for connection retry attempts.
- */
-#define CONNECTION_RETRY_BACKOFF_BASE_MS         ( 500U )
-
-/**
- * @brief Maximum size of the url.
- */
-#define OTA_MAX_URL_SIZE                         ( 2048U )
-
-/**
- * @brief Maximum size of the auth scheme.
- */
-#define OTA_MAX_AUTH_SCHEME_SIZE                 ( 48U )
-
-/**
- * @brief Size of the network buffer to receive the MQTT message.
- *
- * The largest message size is data size from the AWS IoT streaming service,
- * otaconfigFILE_BLOCK_SIZE + extra for headers.
- */
-
-#define OTA_NETWORK_BUFFER_SIZE                          ( otaconfigFILE_BLOCK_SIZE + OTA_MAX_URL_SIZE + 128 )
-
-/**
- * @brief The maximum number of retries for connecting to server.
- */
-#define CONNECTION_RETRY_MAX_ATTEMPTS                    ( 5U )
-
-/**
- * @brief The maximum size of the HTTP header.
- */
-#define HTTP_HEADER_SIZE_MAX                             ( 1024U )
-
-/* HTTP buffers used for http request and response. */
-#define HTTP_USER_BUFFER_LENGTH                          ( otaconfigFILE_BLOCK_SIZE + HTTP_HEADER_SIZE_MAX )
-
-/**
- * @brief The common prefix for all OTA topics.
- *
- * Thing name is substituted with a wildcard symbol `+`. OTA agent
- * registers with MQTT broker with the thing name in the topic. This topic
- * filter is used to match incoming packet received and route them to OTA.
- * Thing name is not needed for this matching.
- */
-#define OTA_TOPIC_PREFIX                                 "$aws/things/+/"
-
-/**
- * @brief Wildcard topic filter for job notification.
- * The filter is used to match the constructed job notify topic filter from OTA agent and register
- * appropirate callback for it.
- */
-#define OTA_JOB_NOTIFY_TOPIC_FILTER                      OTA_TOPIC_PREFIX "jobs/notify-next"
-
-/**
- * @brief Length of job notification topic filter.
- */
-#define OTA_JOB_NOTIFY_TOPIC_FILTER_LENGTH               ( ( uint16_t ) ( sizeof( OTA_JOB_NOTIFY_TOPIC_FILTER ) - 1 ) )
-
-/**
- * @brief Wildcard topic filter for matching job response messages.
- * This topic filter is used to match the responses from OTA service for OTA agent job requests. THe
- * topic filter is a reserved topic which is not subscribed with MQTT broker.
- *
- */
-#define OTA_JOB_ACCEPTED_RESPONSE_TOPIC_FILTER           OTA_TOPIC_PREFIX "jobs/$next/get/accepted"
-
-/**
- * @brief Length of job accepted response topic filter.
- */
-#define OTA_JOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( OTA_JOB_ACCEPTED_RESPONSE_TOPIC_FILTER ) - 1 ) )
-
-
-/**
- * @brief Wildcard topic filter for matching OTA data packets.
- *  The filter is used to match the constructed data stream topic filter from OTA agent and register
- * appropirate callback for it.
- */
-#define OTA_DATA_STREAM_TOPIC_FILTER           OTA_TOPIC_PREFIX  "streams/#"
-
-/**
- * @brief Length of data stream topic filter.
- */
-#define OTA_DATA_STREAM_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( OTA_DATA_STREAM_TOPIC_FILTER ) - 1 ) )
-
-
-/**
- * @brief Default topic filter for OTA.
- * This is used to route all the packets for OTA reserved topics which OTA agent has not subscribed for.
- */
-#define OTA_DEFAULT_TOPIC_FILTER                  OTA_TOPIC_PREFIX "jobs/#"
-
-/**
- * @brief Length of default topic filter.
- */
-#define OTA_DEFAULT_TOPIC_FILTER_LENGTH           ( ( uint16_t ) ( sizeof( OTA_DEFAULT_TOPIC_FILTER ) - 1 ) )
-
-/**
- * @brief Stack size required for OTA agent task.
- * OTA agent task takes care of TLS connection and reconnection to S3 endpoint, keeping task stack size
- * to high enough required for TLS connection.
- */
-#define OTA_AGENT_TASK_STACK_SIZE                 ( 6000U )
-
-/**
- * @brief Priority required for OTA agent task.
- */
-#define OTA_AGENT_TASK_PRIORITY                   ( tskIDLE_PRIORITY )
+#define MQTT_PROCESS_LOOP_INTERVAL_MS             ( 5U )
 
 /**
  * @brief Stack size required for MQTT agent task.
- * MQTT agent task takes care of TLS connection and reconnection, keeping task stack size
- * to high enough required for TLS connection.
+ * MQTT agent task takes care of TLS connection and reconnection, keeping task
+ * stack size to high enough required for TLS connection.
  */
 #define MQTT_AGENT_TASK_STACK_SIZE                ( 6000U )
 
@@ -426,14 +405,29 @@
 #define MQTT_AGENT_MS_TO_WAIT_FOR_NOTIFICATION    ( 5000 )
 
 /**
- * @brief Milliseconds per second.
+ * @brief The maximum back-off delay (in milliseconds) for retrying connection
+ * to server.
  */
-#define MILLISECONDS_PER_SECOND                   ( 1000U )
+#define CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS     ( 5000U )
 
 /**
- * @brief Milliseconds per FreeRTOS tick.
+ * @brief The base back-off delay (in milliseconds) to use for connection
+ * retry attempts.
  */
-#define MILLISECONDS_PER_TICK                     ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+#define CONNECTION_RETRY_BACKOFF_BASE_MS          ( 500U )
+
+/**
+ * @brief The maximum number of retries for connecting to server.
+ */
+#define CONNECTION_RETRY_MAX_ATTEMPTS             ( 5U )
+
+/**
+ * @brief The maximum size of the HTTP header.
+ */
+#define HTTP_HEADER_SIZE_MAX                      ( 1024U )
+
+/* HTTP buffers used for http request and response. */
+#define HTTP_USER_BUFFER_LENGTH                   ( otaconfigFILE_BLOCK_SIZE + HTTP_HEADER_SIZE_MAX )
 
 /**
  * @brief HTTP response codes used in this demo.
@@ -444,9 +438,20 @@
 #define HTTP_RESPONSE_NOT_FOUND                   ( 404 )
 
 /**
+ * @brief Milliseconds per second.
+ */
+#define MILLISECONDS_PER_SECOND                   ( 1000U )
+
+/**
+ * @brief Milliseconds per FreeRTOS tick.
+ */
+#define MILLISECONDS_PER_TICK                     ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+
+/**
  * @brief Each compilation unit that consumes the NetworkContext must define it.
  * It should contain a single pointer to the type of your desired transport.
- * When using multiple transports in the same compilation unit, define this pointer as void* .
+ * When using multiple transports in the same compilation unit, define this
+ * pointer as void* .
  *
  * @note Transport stacks are defined in amazon - freertos / libraries / abstractions / transport / secure_sockets / transport_secure_sockets.h.
  */
@@ -480,16 +485,17 @@ struct CommandContext
 
 /**
  * @brief The MQTT agent context.
- * In case of sharing the mqtt connection with other demos using the MQTT agent, this context
- * should be declared non-static so that's it shared across all demo files.
+ * In case of sharing the mqtt connection with other demos using the MQTT agent,
+ * this context should be declared non-static so that's it shared across all
+ * demo files.
  */
 static MQTTAgentContext_t xGlobalMqttAgentContext;
 
 /**
- * @brief The buffer is used to hold the serialized packets for transmission to and from
- * the transport interface.
+ * @brief The buffer is used to hold the serialized packets for transmission to
+ * and from the transport interface.
  */
-static uint8_t xNetworkBuffer[ MQTT_AGENT_NETWORK_BUFFER_SIZE ];
+static uint8_t pucNetworkBuffer[ MQTT_AGENT_NETWORK_BUFFER_SIZE ];
 
 /**
  * @brief The interface context used to post commands to the agent.
@@ -513,7 +519,7 @@ static AgentMessageContext_t xCommandQueue;
  * storing subscriptions to be initialized to 0. As this is a global array, it
  * will be intialized to 0 by default.
  */
-static SubscriptionElement_t xGlobalSubscriptionList[ SUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ];
+static SubscriptionElement_t pxGlobalSubscriptionList[ SUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ];
 
 /**
  * @brief The parameters for the network context using a TLS channel.
@@ -523,12 +529,12 @@ static SecureSocketsTransportParams_t xMQTTSecureSocketsTransportParams;
 /**
  * @brief Network connection context used in this demo for MQTT connection.
  */
-static NetworkContext_t networkContextMqtt;
+static NetworkContext_t xNetworkContextMqtt;
 
 /**
  * @brief Network connection context used for HTTP connection.
  */
-static NetworkContext_t networkContextHttp;
+static NetworkContext_t xNetworkContextHttp;
 
 /**
  * @brief The host address string extracted from the pre-signed URL.
@@ -536,12 +542,12 @@ static NetworkContext_t networkContextHttp;
  * @note S3_PRESIGNED_GET_URL_LENGTH is set as the array length here as the
  * length of the host name string cannot exceed this value.
  */
-static char serverHost[ 256 ];
+static char pcServerHost[ 256 ];
 
 /**
  * @brief The length of the host address found in the pre-signed URL.
  */
-static size_t serverHostLength;
+static size_t xServerHostLength;
 
 /**
  * @brief A buffer used in the demo for storing HTTP request headers and
@@ -551,7 +557,7 @@ static size_t serverHostLength;
  * response after the HTTP request is sent out. However, the user can also
  * decide to use separate buffers for storing the HTTP request and response.
  */
-static uint8_t httpUserBuffer[ HTTP_USER_BUFFER_LENGTH ];
+static uint8_t pucHttpUserBuffer[ HTTP_USER_BUFFER_LENGTH ];
 
 /**
  * @brief The parameters for the network context using a TLS channel.
@@ -559,7 +565,7 @@ static uint8_t httpUserBuffer[ HTTP_USER_BUFFER_LENGTH ];
 static SecureSocketsTransportParams_t xHTTPSecureSocketsTransportParams;
 
 /* The transport layer interface used by the HTTP Client library. */
-static TransportInterface_t transportInterfaceHttp;
+static TransportInterface_t xTransportInterfaceHttp;
 
 /**
  * @brief Semaphore for synchronizing buffer operations.
@@ -569,68 +575,69 @@ static SemaphoreHandle_t xBufferSemaphore;
 /**
  * @brief The location of the path within the pre-signed URL.
  */
-static const char * pPath;
+static const char * pcPath;
 
 /**
  * @brief Update File path buffer.
  */
-static uint8_t ucUpdateFilePath[ OTA_MAX_FILE_PATH_SIZE ];
+static uint8_t pucUpdateFilePath[ otaexampleMAX_FILE_PATH_SIZE ];
 
 /**
  * @brief Certificate File path buffer.
  */
-static uint8_t ucCertFilePath[ OTA_MAX_FILE_PATH_SIZE ];
+static uint8_t pucCertFilePath[ otaexampleMAX_FILE_PATH_SIZE ];
 
 /**
  * @brief Decode memory.
  */
-static uint8_t ucDecodeMem[ otaconfigFILE_BLOCK_SIZE ];
+static uint8_t pucDecodeMem[ otaconfigFILE_BLOCK_SIZE ];
 
 /**
  * @brief Bitmap memory.
  */
-static uint8_t ucBitmap[ OTA_MAX_BLOCK_BITMAP_SIZE ];
+static uint8_t pucBitmap[ OTA_MAX_BLOCK_BITMAP_SIZE ];
 
 /**
  * @brief Certificate File path buffer.
  */
-static uint8_t ucUpdateUrl[ OTA_MAX_URL_SIZE ];
+static uint8_t pucUpdateUrl[ otaexampleMAX_URL_SIZE ];
 
 /**
  * @brief Auth scheme buffer.
  */
-static uint8_t ucAuthScheme[ OTA_MAX_URL_SIZE ];
+static uint8_t pucAuthScheme[ otaexampleMAX_URL_SIZE ];
 
 /**
  * @brief Event buffer.
  */
-static OtaEventData_t xEventBuffer[ otaconfigMAX_NUM_OTA_DATA_BUFFERS ];
+static OtaEventData_t pxEventBuffer[ otaconfigMAX_NUM_OTA_DATA_BUFFERS ];
 
 /**
  * @brief Global entry time into the application to use as a reference timestamp
  * in the #prvGetTimeMs function. #prvGetTimeMs will always return the difference
- * between the current time and the global entry time. This will reduce the chances
- * of overflow for the 32 bit unsigned integer used for holding the timestamp.
+ * between the current time and the global entry time. This will reduce the
+ * chances of overflow for the 32 bit unsigned integer used for holding the
+ * timestamp.
  */
 static uint32_t ulGlobalEntryTimeMs;
 
 /**
  * @brief The buffer passed to the OTA Agent from application while initializing.
  */
-static OtaAppBuffer_t otaBuffer =
+static OtaAppBuffer_t xOtaBuffer =
 {
-    .pUpdateFilePath    = ucUpdateFilePath,
-    .updateFilePathsize = OTA_MAX_FILE_PATH_SIZE,
-    .pCertFilePath      = ucCertFilePath,
-    .certFilePathSize   = OTA_MAX_FILE_PATH_SIZE,
-    .pDecodeMemory      = ucDecodeMem,
+    .pUpdateFilePath    = pucUpdateFilePath,
+    .updateFilePathsize = otaexampleMAX_FILE_PATH_SIZE,
+    .pCertFilePath      = pucCertFilePath,
+    .certFilePathSize   = otaexampleMAX_FILE_PATH_SIZE,
+    .pDecodeMemory      = pucDecodeMem,
     .decodeMemorySize   = otaconfigFILE_BLOCK_SIZE,
-    .pFileBitmap        = ucBitmap,
+    .pFileBitmap        = pucBitmap,
     .fileBitmapSize     = OTA_MAX_BLOCK_BITMAP_SIZE,
-    .pUrl               = ucUpdateUrl,
-    .urlSize            = OTA_MAX_URL_SIZE,
-    .pAuthScheme        = ucAuthScheme,
-    .authSchemeSize     = OTA_MAX_AUTH_SCHEME_SIZE
+    .pUrl               = pucUpdateUrl,
+    .urlSize            = otaexampleMAX_URL_SIZE,
+    .pAuthScheme        = pucAuthScheme,
+    .authSchemeSize     = otaexampleMAX_AUTH_SCHEME_SIZE
 };
 
 /*-----------------------------------------------------------*/
@@ -775,8 +782,8 @@ static OtaHttpStatus_t prvHttpDeinit( void );
 
 /**
  * @brief Task for OTA agent.
- * Task runs OTA agent  loop which process OTA events. Task returns only when OTA agent is shutdown by
- * invoking OTA_Shutdown() API.
+ * Task runs OTA agent  loop which process OTA events. Task returns only when
+ * OTA agent is shutdown by invoking OTA_Shutdown() API.
  *
  * @param[in] pParam Can be used to pass down functionality to the agent task
  */
@@ -784,9 +791,10 @@ static void prvOTAAgentTask( void * pParam );
 
 /**
  * @brief Task for MQTT agent.
- * Task runs MQTT agent command loop, which returns only when the user disconnects
- * MQTT, terminates agent, or the mqtt connection is broken. If the mqtt connection is broken, the task
- * suspends OTA agent reconnects to the broker and then resumes OTA agent.
+ * Task runs MQTT agent command loop, which returns only when the user
+ * disconnects MQTT, terminates agent, or the mqtt connection is broken. If the
+ * mqtt connection is broken, the task suspends OTA agent reconnects to the
+ * broker and then resumes OTA agent.
  *
  * @param[in] pParam Can be used to pass down functionality to the agent task
  */
@@ -796,8 +804,10 @@ static void prvMQTTAgentTask( void * pParam );
 /**
  * @brief Callback invoked by agent for a command process completion.
  *
- * @param[in] pxCommandContext User context passed by caller along with the command.
- * @param[in] pxReturnInfo Info containing return code and output of command from agent.
+ * @param[in] pxCommandContext User context passed by caller along with the
+ * command.
+ * @param[in] pxReturnInfo Info containing return code and output of command
+ * from agent.
  */
 static void prvMQTTAgentCmdCompleteCallback( CommandContext_t * pxCommandContext,
                                              MQTTAgentReturnInfo_t * pxReturnInfo );
@@ -837,21 +847,23 @@ static void setOtaInterfaces( OtaInterfaces_t * pxOtaInterfaces );
  * the next retry attempt of a failed network operation with the server.
  *
  * The function generates a random number, calculates the next backoff period
- * with the generated random number, and performs the backoff delay operation if the
- * number of retries have not exhausted.
+ * with the generated random number, and performs the backoff delay operation if
+ * the number of retries have not exhausted.
  *
- * @note The PKCS11 module is used to generate the random number as it allows access
- * to a True Random Number Generator (TRNG) if the vendor platform supports it.
- * It is recommended to seed the random number generator with a device-specific entropy
- * source so that probability of collisions from devices in connection retries is mitigated.
+ * @note The PKCS11 module is used to generate the random number as it allows
+ * access to a True Random Number Generator (TRNG) if the vendor platform
+ * supports it. It is recommended to seed the random number generator with a
+ * device-specific entropy source so that probability of collisions from devices
+ * in connection retries is mitigated.
  *
  * @note The backoff period is calculated using the backoffAlgorithm library.
  *
- * @param[in, out] pxRetryAttempts The context to use for backoff period calculation
- * with the backoffAlgorithm library.
+ * @param[in, out] pxRetryAttempts The context to use for backoff period
+ * calculation with the backoffAlgorithm library.
  *
- * @return pdPASS if calculating the backoff period was successful; otherwise pdFAIL
- * if there was failure in random number generation OR all retry attempts had exhausted.
+ * @return pdPASS if calculating the backoff period was successful; otherwise
+ * pdFAIL if there was failure in random number generation OR all retry attempts
+ * had exhausted.
  */
 static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams );
 
@@ -879,8 +891,9 @@ static void prvOtaAppCallback( OtaJobEvent_t xEvent,
 
 
 /**
- * @brief Common callback registered with MQTT agent to receive all publish packets.
- * Packets received using the callback is distributed to subscribed topics using subscription manager.
+ * @brief Common callback registered with MQTT agent to receive all publish
+ * packets. Packets received using the callback is distributed to subscribed
+ * topics using subscription manager.
  *
  * @param[in] pxMqttAgentContext MQTT agent context for the connection.
  * @param[in] usPacketId Packet identifier for the packet.
@@ -894,7 +907,8 @@ static void prvIncomingPublishCallback( MQTTAgentContext_t * pxMqttAgentContext,
 /**
  * @brief Register OTA callbacks with the subscription manager.
  *
- * @param[in] pcTopicFilter The topic filter for which a  callback needs to be registered for.
+ * @param[in] pcTopicFilter The topic filter for which a  callback needs to be
+ * registered for.
  * @param[in] usTopicFilterLength length of the topic filter.
  *
  */
@@ -916,7 +930,8 @@ static void prvMqttJobCallback( void * pContext,
  * @brief Callback that notifies the OTA library when a data block is received.
  *
  * @param[in] pContext MQTT context which stores the connection.
- * @param[in] pxPublishInfo MQTT packet that stores the information of the file block.
+ * @param[in] pxPublishInfo MQTT packet that stores the information of the file
+ * block.
  */
 static void prvMqttDataCallback( void * pContext,
                                  MQTTPublishInfo_t * pxPublishInfo );
@@ -924,36 +939,40 @@ static void prvMqttDataCallback( void * pContext,
 /**
  * @brief Default callback used to receive unsolicited messages for OTA.
  *
- * The callback is not subscribed with MQTT broker, but only with local subscription manager.
- * A wildcard OTA job topic is used for subscription so that all unsolicited messages related to OTA is
- * forwarded to this callback for filteration. Right now the callback is used to filter responses to job requests
- * from the OTA service.
+ * The callback is not subscribed with MQTT broker, but only with local
+ * subscription manager. A wildcard OTA job topic is used for subscription so
+ * that all unsolicited messages related to OTA is forwarded to this callback
+ * for filteration. Right now the callback is used to filter responses to job
+ * requests from the OTA service.
  *
- * @param[in] pvIncomingPublishCallbackContext MQTT context which stores the connection.
- * @param[in] pxPublishInfo MQTT packet that stores the information of the file block.
+ * @param[in] pvIncomingPublishCallbackContext MQTT context which stores the
+ * connection.
+ * @param[in] pxPublishInfo MQTT packet that stores the information of the file
+ * block.
  */
 static void prvMqttDefaultCallback( void * pvIncomingPublishCallbackContext,
                                     MQTTPublishInfo_t * pxPublishInfo );
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Registry for all  mqtt topic filters to their corresponding callbacks for OTA.
+ * @brief Registry for all  mqtt topic filters to their corresponding callbacks
+ * for OTA.
  */
 static OtaTopicFilterCallback_t xOtaTopicFilterCallbacks[] =
 {
     {
-        .pcTopicFilter = OTA_JOB_NOTIFY_TOPIC_FILTER,
-        .usTopicFilterLength = OTA_JOB_NOTIFY_TOPIC_FILTER_LENGTH,
+        .pcTopicFilter = otaexampleJOB_NOTIFY_TOPIC_FILTER,
+        .usTopicFilterLength = otaexampleJOB_NOTIFY_TOPIC_FILTER_LENGTH,
         .xCallback = prvMqttJobCallback
     },
     {
-        .pcTopicFilter = OTA_DATA_STREAM_TOPIC_FILTER,
-        .usTopicFilterLength = OTA_DATA_STREAM_TOPIC_FILTER_LENGTH,
+        .pcTopicFilter = otaexampleDATA_STREAM_TOPIC_FILTER,
+        .usTopicFilterLength = otaexampleDATA_STREAM_TOPIC_FILTER_LENGTH,
         .xCallback = prvMqttDataCallback
     },
     {
-        .pcTopicFilter = OTA_DEFAULT_TOPIC_FILTER,
-        .usTopicFilterLength = OTA_DEFAULT_TOPIC_FILTER_LENGTH,
+        .pcTopicFilter = otaexampleDEFAULT_TOPIC_FILTER,
+        .usTopicFilterLength = otaexampleDEFAULT_TOPIC_FILTER_LENGTH,
         .xCallback = prvMqttDefaultCallback
     }
 };
@@ -982,10 +1001,10 @@ static OtaEventData_t * prvOtaEventBufferGet( void )
     {
         for( ulIndex = 0; ulIndex < otaconfigMAX_NUM_OTA_DATA_BUFFERS; ulIndex++ )
         {
-            if( xEventBuffer[ ulIndex ].bufferUsed == false )
+            if( pxEventBuffer[ ulIndex ].bufferUsed == false )
             {
-                xEventBuffer[ ulIndex ].bufferUsed = true;
-                pxFreeBuffer = &xEventBuffer[ ulIndex ];
+                pxEventBuffer[ ulIndex ].bufferUsed = true;
+                pxFreeBuffer = &pxEventBuffer[ ulIndex ];
                 break;
             }
         }
@@ -1016,7 +1035,8 @@ static void prvOtaAppCallback( OtaJobEvent_t xEvent,
 
             /* Initiate Shutdown of OTA Agent.
              * If it is required that the unsubscribe operations are not
-             * performed while shutting down please set the second parameter to 0 instead of 1.
+             * performed while shutting down please set the second parameter to
+             * 0 instead of 1.
              */
             OTA_Shutdown( 0, 1 );
 
@@ -1146,15 +1166,15 @@ static void prvMqttJobCallback( void * pvIncomingPublishCallbackContext,
 static void prvMqttDefaultCallback( void * pvIncomingPublishCallbackContext,
                                     MQTTPublishInfo_t * pxPublishInfo )
 {
-    bool isMatch = false;
+    bool xIsMatch = false;
 
     ( void ) MQTT_MatchTopic( pxPublishInfo->pTopicName,
                               pxPublishInfo->topicNameLength,
-                              OTA_JOB_ACCEPTED_RESPONSE_TOPIC_FILTER,
-                              OTA_JOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH,
-                              &isMatch );
+                              otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER,
+                              otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH,
+                              &xIsMatch );
 
-    if( isMatch == true )
+    if( xIsMatch == true )
     {
         prvMqttJobCallback( pvIncomingPublishCallbackContext, pxPublishInfo );
     }
@@ -1213,33 +1233,33 @@ static void prvMQTTAgentCmdCompleteCallback( CommandContext_t * pxCommandContext
 static void prvRegisterOTACallback( const char * pcTopicFilter,
                                     uint16_t usTopicFilterLength )
 {
-    bool isMatch = false;
-    bool subscriptionAdded;
+    bool xIsMatch = false;
+    bool xSubscriptionAdded;
     MQTTStatus_t xMqttStatus = MQTTSuccess;
     uint16_t usIndex = 0U;
     uint16_t usNumTopicFilters = sizeof( xOtaTopicFilterCallbacks ) / sizeof( OtaTopicFilterCallback_t );
 
     /* Match the input topic filter against the wild-card pattern of topics filters
     * relevant for the OTA Update service to determine the type of topic filter. */
-    for( ; usIndex < usNumTopicFilters; usIndex++ )
+    for( usIndex = 0U; usIndex < usNumTopicFilters; usIndex++ )
     {
         xMqttStatus = MQTT_MatchTopic( pcTopicFilter,
                                        usTopicFilterLength,
                                        xOtaTopicFilterCallbacks[ usIndex ].pcTopicFilter,
                                        xOtaTopicFilterCallbacks[ usIndex ].usTopicFilterLength,
-                                       &isMatch );
+                                       &xIsMatch );
         assert( xMqttStatus == MQTTSuccess );
 
-        if( isMatch )
+        if( xIsMatch )
         {
             /* Add subscription so that incoming publishes are routed to the application callback. */
-            subscriptionAdded = addSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
-                                                 pcTopicFilter,
-                                                 usTopicFilterLength,
-                                                 xOtaTopicFilterCallbacks[ usIndex ].xCallback,
-                                                 NULL );
+            xSubscriptionAdded = addSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
+                                                  pcTopicFilter,
+                                                  usTopicFilterLength,
+                                                  xOtaTopicFilterCallbacks[ usIndex ].xCallback,
+                                                  NULL );
 
-            if( subscriptionAdded == false )
+            if( xSubscriptionAdded == false )
             {
                 LogError( ( "Failed to register a publish callback for topic %.*s.",
                             pcTopicFilter,
@@ -1321,11 +1341,11 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
      * To calculate the backoff period for the next retry attempt, we will
      * generate a random number to provide to the backoffAlgorithm library.
      *
-     * Note: The PKCS11 module is used to generate the random number as it allows access
-     * to a True Random Number Generator (TRNG) if the vendor platform supports it.
-     * It is recommended to use a random number generator seeded with a device-specific
-     * entropy source so that probability of collisions from devices in connection retries
-     * is mitigated.
+     * Note: The PKCS11 module is used to generate the random number as it allows
+     * access to a True Random Number Generator (TRNG) if the vendor platform
+     * supports it. It is recommended to use a random number generator seeded with
+     * a device-specific entropy source so that probability of collisions from
+     * devices in connection retries is mitigated.
      */
     uint32_t ulRandomNum = 0;
 
@@ -1383,14 +1403,14 @@ static MQTTStatus_t prvMqttAgentInit( void )
 {
     TransportInterface_t xTransport;
     MQTTStatus_t xReturn;
-    MQTTFixedBuffer_t xFixedBuffer = { .pBuffer = xNetworkBuffer, .size = MQTT_AGENT_NETWORK_BUFFER_SIZE };
-    static uint8_t usStaticQueueStorageArea[ MQTT_AGENT_COMMAND_QUEUE_LENGTH * sizeof( Command_t * ) ];
+    MQTTFixedBuffer_t xFixedBuffer = { .pBuffer = pucNetworkBuffer, .size = MQTT_AGENT_NETWORK_BUFFER_SIZE };
+    static uint8_t ucStaticQueueStorageArea[ MQTT_AGENT_COMMAND_QUEUE_LENGTH * sizeof( Command_t * ) ];
     static StaticQueue_t xStaticQueueStructure;
 
     LogDebug( ( "Creating command queue." ) );
     xCommandQueue.queue = xQueueCreateStatic( MQTT_AGENT_COMMAND_QUEUE_LENGTH,
                                               sizeof( Command_t * ),
-                                              usStaticQueueStorageArea,
+                                              ucStaticQueueStorageArea,
                                               &xStaticQueueStructure );
 
     /* Initialize the agent task pool. */
@@ -1403,7 +1423,7 @@ static MQTTStatus_t prvMqttAgentInit( void )
     xMessageInterface.releaseCommand = Agent_ReleaseCommand;
 
     /* Fill in Transport Interface send and receive function pointers. */
-    xTransport.pNetworkContext = &networkContextMqtt;
+    xTransport.pNetworkContext = &xNetworkContextMqtt;
     xTransport.send = SecureSocketsTransport_Send;
     xTransport.recv = SecureSocketsTransport_Recv;
 
@@ -1415,7 +1435,7 @@ static MQTTStatus_t prvMqttAgentInit( void )
                               prvGetTimeMs,
                               prvIncomingPublishCallback,
                               /* Context to pass into the callback. Passing the pointer to subscription array. */
-                              xGlobalSubscriptionList );
+                              pxGlobalSubscriptionList );
 
     return xReturn;
 }
@@ -1483,7 +1503,7 @@ static MQTTStatus_t prvMQTTConnect( void )
     MQTTStatus_t xMqttStatus = MQTTBadParameter;
     MQTTConnectInfo_t xConnectInfo = { 0 };
 
-    bool sessionPresent = false;
+    bool xSessionPresent = false;
 
     /* Establish MQTT session by sending a CONNECT packet. */
 
@@ -1508,7 +1528,7 @@ static MQTTStatus_t prvMQTTConnect( void )
     xConnectInfo.keepAliveSeconds = MQTT_KEEP_ALIVE_INTERVAL_SECONDS;
 
     /* Send MQTT CONNECT packet to broker. */
-    xMqttStatus = MQTT_Connect( &xGlobalMqttAgentContext.mqttContext, &xConnectInfo, NULL, CONNACK_RECV_TIMEOUT_MS, &sessionPresent );
+    xMqttStatus = MQTT_Connect( &xGlobalMqttAgentContext.mqttContext, &xConnectInfo, NULL, CONNACK_RECV_TIMEOUT_MS, &xSessionPresent );
 
     return xMqttStatus;
 }
@@ -1518,14 +1538,14 @@ static BaseType_t prvConnectToMQTTBroker( void )
 {
     BaseType_t xStatus = pdFAIL;
 
-    networkContextMqtt.pParams = &xMQTTSecureSocketsTransportParams;
+    xNetworkContextMqtt.pParams = &xMQTTSecureSocketsTransportParams;
 
     /* Attempt to connect to the MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will be exponentially increased till the maximum
      * attempts are reached or maximum timeout value is reached. The function
      * returns EXIT_FAILURE if the TCP connection cannot be established to
      * broker after configured number of attempts. */
-    xStatus = prvCreateSocketConnectionToMQTTBroker( &networkContextMqtt );
+    xStatus = prvCreateSocketConnectionToMQTTBroker( &xNetworkContextMqtt );
 
     if( xStatus != pdPASS )
     {
@@ -1592,15 +1612,15 @@ static void prvDisconnectFromMQTTBroker( void )
 
 
     /* End TLS session, then close TCP connection. */
-    ( void ) SecureSocketsTransport_Disconnect( &networkContextMqtt );
+    ( void ) SecureSocketsTransport_Disconnect( &xNetworkContextMqtt );
 }
 /*-----------------------------------------------------------*/
 
-static int32_t connectToS3Server( NetworkContext_t * pxNetworkContext,
-                                  const char * pcUrl ) /*todo fixfunction */
+static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
+                                     const char * pcUrl )
 {
     BaseType_t returnStatus = pdPASS;
-    HTTPStatus_t xHTTPStatus = HTTPSuccess;
+    HTTPStatus_t xHttpStatus = HTTPSuccess;
     /* The location of the host address within the pre-signed URL. */
     const char * pcAddress = NULL;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
@@ -1622,35 +1642,35 @@ static int32_t connectToS3Server( NetworkContext_t * pxNetworkContext,
     if( pcUrl != NULL )
     {
         /* Retrieve the address location and length from S3_PRESIGNED_GET_URL. */
-        xHTTPStatus = getUrlAddress( pcUrl,
+        xHttpStatus = getUrlAddress( pcUrl,
                                      strlen( pcUrl ),
                                      &pcAddress,
-                                     &serverHostLength );
+                                     &xServerHostLength );
 
-        if( xHTTPStatus != HTTPSuccess )
+        if( xHttpStatus != HTTPSuccess )
         {
             LogError( ( "URL %s parsing failed. Error code: %d",
                         pcUrl,
-                        xHTTPStatus ) );
+                        xHttpStatus ) );
         }
 
-        /* serverHost should consist only of the host address. */
-        memcpy( serverHost, pcAddress, serverHostLength );
-        serverHost[ serverHostLength ] = '\0';
+        /* pcServerHost should consist only of the host address. */
+        memcpy( pcServerHost, pcAddress, xServerHostLength );
+        pcServerHost[ xServerHostLength ] = '\0';
     }
 
     if( returnStatus != pdFAIL )
     {
         /* Initialize server information. */
-        xServerInfo.pHostName = serverHost;
-        xServerInfo.hostNameLength = serverHostLength;
+        xServerInfo.pHostName = pcServerHost;
+        xServerInfo.hostNameLength = xServerHostLength;
         xServerInfo.port = democonfigHTTPS_PORT;
 
         /* Establish a TLS session with the HTTP server. This example connects
          * to the HTTP server as specified in SERVER_HOST and HTTPS_PORT in
          * demo_config.h. */
         LogInfo( ( "Establishing a TLS session with %s:%d.",
-                   serverHost,
+                   pcServerHost,
                    democonfigHTTPS_PORT ) );
 
         xNetworkStatus = SecureSocketsTransport_Connect( pxNetworkContext,
@@ -1728,7 +1748,7 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
     OtaHttpStatus_t xReturnStatus = OtaHttpSuccess;
 
     /* HTTPS Client library return status. */
-    HTTPStatus_t xHTTPStatus = HTTPSuccess;
+    HTTPStatus_t xHttpStatus = HTTPSuccess;
 
     /* The length of the path within the pre-signed URL. This variable is
      * defined in order to store the length returned from parsing the URL, but
@@ -1740,38 +1760,37 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
     /* Establish HTTPs connection */
     LogInfo( ( "Performing TLS handshake on top of the TCP connection." ) );
 
-    networkContextHttp.pParams = &xHTTPSecureSocketsTransportParams;
+    xNetworkContextHttp.pParams = &xHTTPSecureSocketsTransportParams;
 
     /* Attempt to connect to the HTTPs server. If connection fails, retry after
      * a timeout. Timeout value will be exponentially increased till the maximum
      * attempts are reached or maximum timeout value is reached. The function
      * returns EXIT_FAILURE if the TCP connection cannot be established to
      * broker after configured number of attempts. */
-    /*todo try reconnect here */
-    if( connectToS3Server( &networkContextHttp, pcUrl ) == EXIT_SUCCESS )
+    if( prvConnectToS3Server( &xNetworkContextHttp, pcUrl ) == EXIT_SUCCESS )
     {
         /* Define the transport interface. */
-        ( void ) memset( &transportInterfaceHttp, 0, sizeof( transportInterfaceHttp ) );
-        transportInterfaceHttp.recv = SecureSocketsTransport_Recv;
-        transportInterfaceHttp.send = SecureSocketsTransport_Send;
-        transportInterfaceHttp.pNetworkContext = &networkContextHttp;
+        ( void ) memset( &xTransportInterfaceHttp, 0, sizeof( xTransportInterfaceHttp ) );
+        xTransportInterfaceHttp.recv = SecureSocketsTransport_Recv;
+        xTransportInterfaceHttp.send = SecureSocketsTransport_Send;
+        xTransportInterfaceHttp.pNetworkContext = &xNetworkContextHttp;
 
         /* Retrieve the path location from url. This
          * function returns the length of the path without the query into
          * pathLen, which is left unused in this demo. */
-        xHTTPStatus = getUrlPath( pcUrl,
+        xHttpStatus = getUrlPath( pcUrl,
                                   strlen( pcUrl ),
-                                  &pPath,
+                                  &pcPath,
                                   &pathLen );
 
-        xReturnStatus = ( xHTTPStatus == HTTPSuccess ) ? OtaHttpSuccess : OtaHttpInitFailed;
+        xReturnStatus = ( xHttpStatus == HTTPSuccess ) ? OtaHttpSuccess : OtaHttpInitFailed;
     }
     else
     {
         /* Log an error to indicate connection failure after all
          * reconnect attempts are over. */
         LogError( ( "Failed to connect to HTTP server %s.",
-                    serverHost ) );
+                    pcServerHost ) );
 
         xReturnStatus = OtaHttpInitFailed;
     }
@@ -1795,10 +1814,10 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
     HTTPRequestHeaders_t xRequestHeaders;
 
     /* Return value of all methods from the HTTP Client library API. */
-    HTTPStatus_t xHTTPStatus = HTTPSuccess;
+    HTTPStatus_t xHttpStatus = HTTPSuccess;
 
     /* Reconnection required flag. */
-    bool reconnectRequired = false;
+    bool xReconnectRequired = false;
 
     /* Initialize all HTTP Client library API structs to 0. */
     ( void ) memset( &xRequestInfo, 0, sizeof( xRequestInfo ) );
@@ -1806,35 +1825,35 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
     ( void ) memset( &xRequestHeaders, 0, sizeof( xRequestHeaders ) );
 
     /* Initialize the request object. */
-    xRequestInfo.pHost = serverHost;
-    xRequestInfo.hostLen = serverHostLength;
+    xRequestInfo.pHost = pcServerHost;
+    xRequestInfo.hostLen = xServerHostLength;
     xRequestInfo.pMethod = HTTP_METHOD_GET;
     xRequestInfo.methodLen = sizeof( HTTP_METHOD_GET ) - 1;
-    xRequestInfo.pPath = pPath;
-    xRequestInfo.pathLen = strlen( pPath );
+    xRequestInfo.pPath = pcPath;
+    xRequestInfo.pathLen = strlen( pcPath );
 
     /* Set "Connection" HTTP header to "keep-alive" so that multiple requests
      * can be sent over the same established TCP connection. */
     xRequestInfo.reqFlags = HTTP_REQUEST_KEEP_ALIVE_FLAG;
 
     /* Set the buffer used for storing request headers. */
-    xRequestHeaders.pBuffer = httpUserBuffer;
+    xRequestHeaders.pBuffer = pucHttpUserBuffer;
     xRequestHeaders.bufferLen = HTTP_USER_BUFFER_LENGTH;
 
-    xHTTPStatus = HTTPClient_InitializeRequestHeaders( &xRequestHeaders,
+    xHttpStatus = HTTPClient_InitializeRequestHeaders( &xRequestHeaders,
                                                        &xRequestInfo );
 
     HTTPClient_AddRangeHeader( &xRequestHeaders, ulRangeStart, ulRangeEnd );
 
-    if( xHTTPStatus == HTTPSuccess )
+    if( xHttpStatus == HTTPSuccess )
     {
         /* Initialize the response object. The same buffer used for storing
          * request headers is reused here. */
-        xResponse.pBuffer = httpUserBuffer;
+        xResponse.pBuffer = pucHttpUserBuffer;
         xResponse.bufferLen = HTTP_USER_BUFFER_LENGTH;
 
         /* Send the request and receive the response. */
-        xHTTPStatus = HTTPClient_Send( &transportInterfaceHttp,
+        xHttpStatus = HTTPClient_Send( &xTransportInterfaceHttp,
                                        &xRequestHeaders,
                                        NULL,
                                        0,
@@ -1844,19 +1863,19 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
     else
     {
         LogError( ( "Failed to initialize HTTP request headers: Error=%s.",
-                    HTTPClient_strerror( xHTTPStatus ) ) );
+                    HTTPClient_strerror( xHttpStatus ) ) );
     }
 
-    if( xHTTPStatus != HTTPSuccess )
+    if( xHttpStatus != HTTPSuccess )
     {
-        if( ( xHTTPStatus == HTTPNoResponse ) || ( xHTTPStatus == HTTPNetworkError ) )
+        if( ( xHttpStatus == HTTPNoResponse ) || ( xHttpStatus == HTTPNetworkError ) )
         {
-            reconnectRequired = true;
+            xReconnectRequired = true;
         }
         else
         {
             LogError( ( "HTTPClient_Send failed: Error=%s.",
-                        HTTPClient_strerror( xHTTPStatus ) ) );
+                        HTTPClient_strerror( xHttpStatus ) ) );
 
             xReturnStatus = OtaHttpRequestFailed;
         }
@@ -1866,20 +1885,20 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
         /* Check if reconnection required. */
         if( xResponse.respFlags & HTTP_RESPONSE_CONNECTION_CLOSE_FLAG )
         {
-            reconnectRequired = true;
+            xReconnectRequired = true;
         }
 
         /* Handle the http response received. */
         xReturnStatus = prvHandleHttpResponse( &xResponse );
     }
 
-    if( reconnectRequired == true )
+    if( xReconnectRequired == true )
     {
         /* End TLS session, then close TCP connection. */
-        ( void ) SecureSocketsTransport_Disconnect( &networkContextHttp );
+        ( void ) SecureSocketsTransport_Disconnect( &xNetworkContextHttp );
 
         /* Try establishing connection to S3 server again. */
-        if( connectToS3Server( &networkContextHttp, NULL ) == EXIT_SUCCESS )
+        if( prvConnectToS3Server( &xNetworkContextHttp, NULL ) == EXIT_SUCCESS )
         {
             xReturnStatus = HTTPSuccess;
         }
@@ -1888,7 +1907,7 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
             /* Log an error to indicate connection failure after all
              * reconnect attempts are over. */
             LogError( ( "Failed to connect to HTTP server %s.",
-                        serverHost ) );
+                        pcServerHost ) );
 
             xReturnStatus = OtaHttpRequestFailed;
         }
@@ -2126,7 +2145,8 @@ static void prvMQTTAgentTask( void * pParam )
         /* Clear Agent queue so that no any pending MQTT operations are processed. */
         xQueueReset( xCommandQueue.queue );
 
-        /* Success is returned for application intiated disconnect or termination. The socket will also be disconnected by the caller. */
+        /* Success is returned for application intiated disconnect or termination.
+         * The socket will also be disconnected by the caller. */
         if( xMQTTStatus != MQTTSuccess )
         {
             xResult = prvSuspendOTA();
@@ -2135,7 +2155,7 @@ static void prvMQTTAgentTask( void * pParam )
             LogInfo( ( "Suspended OTA agent." ) );
 
             /* Reconnect TCP. */
-            ( void ) SecureSocketsTransport_Disconnect( &networkContextMqtt );
+            ( void ) SecureSocketsTransport_Disconnect( &xNetworkContextMqtt );
 
             xResult = prvConnectToMQTTBroker();
             configASSERT( xResult == pdPASS );
@@ -2162,13 +2182,13 @@ static BaseType_t prvSuspendOTA( void )
 
     if( xOtaError == OtaErrNone )
     {
-        ulSuspendTimeout = OTA_SUSPEND_TIMEOUT_MS;
+        ulSuspendTimeout = otaexampleSUSPEND_TIMEOUT_MS;
 
         while( ( OTA_GetState() != OtaAgentStateSuspended ) && ( ulSuspendTimeout > 0 ) )
         {
             /* Wait for OTA Library state to suspend */
-            vTaskDelay( pdMS_TO_TICKS( OTA_EXAMPLE_TASK_DELAY_MS ) );
-            ulSuspendTimeout -= OTA_EXAMPLE_TASK_DELAY_MS;
+            vTaskDelay( pdMS_TO_TICKS( otaexampleTASK_DELAY_MS ) );
+            ulSuspendTimeout -= otaexampleTASK_DELAY_MS;
         }
 
         if( OTA_GetState() != OtaAgentStateSuspended )
@@ -2198,13 +2218,13 @@ static BaseType_t prvResumeOTA( void )
 
     if( xOtaError == OtaErrNone )
     {
-        ulSuspendTimeout = OTA_SUSPEND_TIMEOUT_MS;
+        ulSuspendTimeout = otaexampleSUSPEND_TIMEOUT_MS;
 
         while( ( OTA_GetState() == OtaAgentStateSuspended ) && ( ulSuspendTimeout > 0 ) )
         {
             /* Wait for OTA Library state to suspend */
-            vTaskDelay( pdMS_TO_TICKS( OTA_EXAMPLE_TASK_DELAY_MS ) );
-            ulSuspendTimeout -= OTA_EXAMPLE_TASK_DELAY_MS;
+            vTaskDelay( pdMS_TO_TICKS( otaexampleTASK_DELAY_MS ) );
+            ulSuspendTimeout -= otaexampleTASK_DELAY_MS;
         }
 
         if( OTA_GetState() == OtaAgentStateSuspended )
@@ -2250,7 +2270,7 @@ static BaseType_t prvRunOTADemo( void )
 
     if( xStatus == pdPASS )
     {
-        if( ( xOtaError = OTA_Init( &otaBuffer,
+        if( ( xOtaError = OTA_Init( &xOtaBuffer,
                                     &otaInterfaces,
                                     ( const uint8_t * ) ( democonfigCLIENT_IDENTIFIER ),
                                     prvOtaAppCallback ) ) != OtaErrNone )
@@ -2262,15 +2282,15 @@ static BaseType_t prvRunOTADemo( void )
         }
     }
 
-    /****************************** Create OTA Agent Task. ******************************/
+    /************************* Create OTA Agent Task. *************************/
 
     if( xStatus == pdPASS )
     {
         xStatus = xTaskCreate( prvOTAAgentTask,
                                "OTA Agent Task",
-                               OTA_AGENT_TASK_STACK_SIZE,
+                               otaexampleAGENT_TASK_STACK_SIZE,
                                NULL,
-                               OTA_AGENT_TASK_PRIORITY,
+                               otaexampleAGENT_TASK_PRIORITY,
                                NULL );
 
         if( xStatus != pdPASS )
@@ -2283,7 +2303,7 @@ static BaseType_t prvRunOTADemo( void )
      * Register a callback for receiving messages intended for OTA agent from broker,
      * for which the topic has not been subscribed for.
      */
-    prvRegisterOTACallback( OTA_DEFAULT_TOPIC_FILTER, OTA_DEFAULT_TOPIC_FILTER_LENGTH );
+    prvRegisterOTACallback( otaexampleDEFAULT_TOPIC_FILTER, otaexampleDEFAULT_TOPIC_FILTER_LENGTH );
 
     /****************************** Start OTA ******************************/
 
@@ -2294,7 +2314,7 @@ static BaseType_t prvRunOTADemo( void )
         OTA_SignalEvent( &xEventMsg );
     }
 
-    /****************************** Loop and display OTA statistics ******************************/
+    /********************* Loop and display OTA statistics ********************/
 
     if( xStatus == pdPASS )
     {
@@ -2316,7 +2336,7 @@ static BaseType_t prvRunOTADemo( void )
                 LogInfo( ( "OTA Agent is suspended." ) );
             }
 
-            vTaskDelay( pdMS_TO_TICKS( OTA_EXAMPLE_TASK_DELAY_MS ) );
+            vTaskDelay( pdMS_TO_TICKS( otaexampleTASK_DELAY_MS ) );
         }
     }
 
@@ -2325,8 +2345,8 @@ static BaseType_t prvRunOTADemo( void )
      * for which the topic has not been subscribed for.
      */
     removeSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
-                        OTA_DEFAULT_TOPIC_FILTER,
-                        OTA_DEFAULT_TOPIC_FILTER_LENGTH );
+                        otaexampleDEFAULT_TOPIC_FILTER,
+                        otaexampleDEFAULT_TOPIC_FILTER_LENGTH );
 
     return xStatus;
 }
@@ -2342,7 +2362,7 @@ static BaseType_t prvRunOTADemo( void )
  * of the real work; checking to see if the message topic is one destined for
  * the OTA agent. If not, it is simply ignored.
  *
- * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
+ * @param[in] xAwsIotMqttMode Specify if this demo is running with the AWS IoT
  * MQTT server. Set this to `false` if using another MQTT server.
  * @param[in] pIdentifier NULL-terminated MQTT client identifier.
  * @param[in] pNetworkServerInfo Passed to the MQTT connect function when
@@ -2351,16 +2371,17 @@ static BaseType_t prvRunOTADemo( void )
  * establishing the MQTT connection.
  * @param[in] pxNetworkInterface The network interface to use for this demo.
  *
- * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
+ * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE`
+ * otherwise.
  *
  */
-int RunOtaCoreHttpDemo( bool awsIotMqttMode,
+int RunOtaCoreHttpDemo( bool xAwsIotMqttMode,
                         const char * pIdentifier,
                         void * pNetworkServerInfo,
                         void * pNetworkCredentialInfo,
                         const IotNetworkInterface_t * pxNetworkInterface )
 {
-    ( void ) awsIotMqttMode;
+    ( void ) xAwsIotMqttMode;
     ( void ) pIdentifier;
     ( void ) pNetworkServerInfo;
     ( void ) pNetworkCredentialInfo;
@@ -2368,7 +2389,7 @@ int RunOtaCoreHttpDemo( bool awsIotMqttMode,
 
     /* Return error status. */
     BaseType_t xDemoStatus = pdPASS;
-    BaseType_t mqttInitialized = pdFALSE;
+    BaseType_t xMqttInitialized = pdFALSE;
 
     LogInfo( ( "OTA over HTTP demo, Application version %u.%u.%u",
                appFirmwareVersion.u.x.major,
@@ -2384,7 +2405,7 @@ int RunOtaCoreHttpDemo( bool awsIotMqttMode,
         xDemoStatus = pdFAIL;
     }
 
-    /****************************** Init MQTT ******************************/
+    /******************************* Init MQTT *******************************/
 
     if( xDemoStatus == pdPASS )
     {
@@ -2395,11 +2416,11 @@ int RunOtaCoreHttpDemo( bool awsIotMqttMode,
         }
         else
         {
-            mqttInitialized = true;
+            xMqttInitialized = true;
         }
     }
 
-    /****************************** Create MQTT Agent Task. ******************************/
+    /************************ Create MQTT Agent Task. ************************/
 
     if( xDemoStatus == pdPASS )
     {
@@ -2427,10 +2448,10 @@ int RunOtaCoreHttpDemo( bool awsIotMqttMode,
 
     /****************************** Cleanup ******************************/
 
-    if( mqttInitialized )
+    if( xMqttInitialized )
     {
         prvDisconnectFromMQTTBroker();
-        ( void ) SecureSocketsTransport_Disconnect( &networkContextHttp );
+        ( void ) SecureSocketsTransport_Disconnect( &xNetworkContextHttp );
     }
 
     if( xBufferSemaphore != NULL )
