@@ -289,15 +289,15 @@ function(cy_add_link_libraries)
             3rdparty::tinycrypt
     )
 
-    add_library(CyObjStore INTERFACE)
-    target_sources(CyObjStore INTERFACE
-        "${cy_port_support_dir}/objstore/cyobjstore.c"
-        "${cy_libraries_dir}/emeeprom/cy_em_eeprom.c"
+    add_library(KVStore INTERFACE)
+    target_sources(KVStore INTERFACE
+        "${cy_port_support_dir}/kvstore/kvstore.c"
+        "${cy_libraries_dir}/kv-store/mtb_kvstore.c"
     )
-    target_include_directories(CyObjStore INTERFACE
+    target_include_directories(KVStore INTERFACE
         "${cy_libraries_dir}/abstraction-rtos/include/COMPONENT_FREERTOS"
-        "${cy_libraries_dir}/emeeprom"
-        "${cy_port_support_dir}/objstore"
+        "${cy_libraries_dir}/kv-store"
+        "${cy_port_support_dir}/kvstore"
     )
 
     # WiFi
@@ -314,7 +314,8 @@ function(cy_add_link_libraries)
     target_include_directories(AFR::wifi::mcu_port INTERFACE
         "${afr_ports_dir}/wifi"
         "${cy_libraries_dir}/abstraction-rtos/include"
-        "${cy_port_support_dir}/objstore"
+        "${cy_libraries_dir}/kv-store"
+        "${cy_port_support_dir}/kvstore"
         "${cy_libraries_whd_dir}"
         "${cy_libraries_dir}/whd-bsp-integration"
         "${cy_libraries_whd_dir}/WiFi_Host_Driver/src/include"
@@ -330,7 +331,7 @@ function(cy_add_link_libraries)
     # BLE
     if(BLE_SUPPORTED)
         set(BLE_SUPPORTED 1 CACHE INTERNAL "BLE is supported on this platform.")
-        afr_mcu_port(ble_hal DEPENDS CyObjStore)
+        afr_mcu_port(ble_hal DEPENDS KVStore)
         target_sources(
             AFR::ble_hal::mcu_port
             INTERFACE
@@ -377,7 +378,7 @@ function(cy_add_link_libraries)
     )
 
     # PKCS11
-    afr_mcu_port(pkcs11_implementation DEPENDS CyObjStore)
+    afr_mcu_port(pkcs11_implementation DEPENDS KVStore)
 
     target_include_directories(AFR::pkcs11_implementation::mcu_port INTERFACE
         "${cy_libraries_dir}/abstraction-rtos/include"

@@ -90,6 +90,7 @@ typedef struct
     BTGattServerInterface_t * pGattServerInterface;
     uint8_t adapterIf;
     IotMutex_t threadSafetyMutex;
+    IotMutex_t eventCallbackMutex;
     IotMutex_t waitCbMutex;
     IotSemaphore_t callbackSemaphore;
     BTStatus_t cbStatus;
