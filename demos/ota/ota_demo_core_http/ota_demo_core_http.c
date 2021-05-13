@@ -1652,11 +1652,14 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
             LogError( ( "URL %s parsing failed. Error code: %d",
                         pcUrl,
                         xHttpStatus ) );
+            returnStatus = pdFAIL;
         }
-
-        /* pcServerHost should consist only of the host address. */
-        memcpy( pcServerHost, pcAddress, xServerHostLength );
-        pcServerHost[ xServerHostLength ] = '\0';
+        else
+        {
+            /* pcServerHost should consist only of the host address. */
+            memcpy( pcServerHost, pcAddress, xServerHostLength );
+            pcServerHost[ xServerHostLength ] = '\0';
+        }
     }
 
     if( returnStatus != pdFAIL )
