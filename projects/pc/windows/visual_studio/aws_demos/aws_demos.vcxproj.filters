@@ -125,6 +125,10 @@
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
+		<Filter Include="libraries\coreMQTT-Agent\source"/>
+		<Filter Include="libraries\coreMQTT-Agent"/>
+		<Filter Include="libraries\coreMQTT-Agent\source\include"/>
+		<Filter Include="libraries\abstractions\mqtt_agent"/>
 		<Filter Include="libraries\coreJSON\source"/>
 		<Filter Include="libraries\coreJSON"/>
 		<Filter Include="libraries\coreJSON\source\include"/>
@@ -143,6 +147,7 @@
 		<Filter Include="libraries\jobs_for_aws\source\include"/>
 		<Filter Include="demos\coreHTTP"/>
 		<Filter Include="demos\coreMQTT"/>
+		<Filter Include="demos\coreMQTT_Agent"/>
 		<Filter Include="demos\device_defender_for_aws"/>
 		<Filter Include="demos\device_defender_for_aws\metrics_collector\freertos_plus_tcp"/>
 		<Filter Include="demos\device_defender_for_aws\metrics_collector"/>
@@ -525,6 +530,15 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent.h">
+			<Filter>libraries\coreMQTT-Agent\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_command_functions.h">
+			<Filter>libraries\coreMQTT-Agent\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_message_interface.h">
+			<Filter>libraries\coreMQTT-Agent\source\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h">
 			<Filter>libraries\coreJSON\source\include</Filter>
 		</ClInclude>
@@ -554,6 +568,9 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\jobs_for_aws\source\include\jobs.h">
 			<Filter>libraries\jobs_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.h">
+			<Filter>demos\coreMQTT_Agent</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\device_defender_for_aws\report_builder.h">
 			<Filter>demos\device_defender_for_aws</Filter>
@@ -1139,6 +1156,18 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent.c">
+			<Filter>libraries\coreMQTT-Agent\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent_command_functions.c">
+			<Filter>libraries\coreMQTT-Agent\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_agent_message.c">
+			<Filter>libraries\abstractions\mqtt_agent</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_command_pool.c">
+			<Filter>libraries\abstractions\mqtt_agent</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
 			<Filter>libraries\coreJSON\source</Filter>
 		</ClCompile>
@@ -1178,8 +1207,14 @@
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_mutual_auth.c">
 			<Filter>demos\coreMQTT</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\coreMQTT\mqtt_demo_connection_sharing.c">
-			<Filter>demos\coreMQTT</Filter>
+		<ClCompile Include="..\..\..\..\..\demos\coreMQTT_Agent\mqtt_agent_task.c">
+			<Filter>demos\coreMQTT_Agent</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\coreMQTT_Agent\simple_sub_pub_demo.c">
+			<Filter>demos\coreMQTT_Agent</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.c">
+			<Filter>demos\coreMQTT_Agent</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\defender_demo.c">
 			<Filter>demos\device_defender_for_aws</Filter>

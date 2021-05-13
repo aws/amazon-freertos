@@ -93,30 +93,37 @@
  */
 
 /**
- * @brief Server's root CA certificate.
+ * @brief Dimensions the buffer used to serialize and deserialize MQTT packets.
  *
- * This certificate is used to identify the AWS IoT server and is publicly available.
- * Refer to the AWS documentation available in the link below for information about the
- * Server Root CAs.
- * https://docs.aws.amazon.com/iot/latest/developerguide/server-authentication.html#server-authentication-certs
+ * @note Specified in bytes.  Must be large enough to hold the maximum
+ * anticipated MQTT payload.
  *
- * @note The TI C3220 Launchpad board requires that the Root CA have its certificate self-signed. As mentioned in the
- * above link, the Amazon Root CAs are cross-signed by the Starfield Root CA. Thus, ONLY the Starfield Root CA
- * can be used to connect to the ATS endpoints on AWS IoT for the TI board.
- *
- * @note This certificate should be PEM-encoded.
- *
- * Must include the PEM header and footer:
- * "-----BEGIN CERTIFICATE-----\n"\
- * "...base64 data...\n"\
- * "-----END CERTIFICATE-----\n"
- *
+ * #define MQTT_AGENT_NETWORK_BUFFER_SIZE    ( insert here. )
  */
-#define democonfigROOT_CA_PEM            tlsSTARFIELD_ROOT_CERTIFICATE_PEM
+
+/**
+ * @brief The length of the queue used to hold commands for the agent.
+ *
+ * #define MQTT_AGENT_COMMAND_QUEUE_LENGTH    ( insert here. )
+ */
+
+/**
+ * @brief Maximum number of subscriptions maintained by the subscription manager
+ * simultaneously in a list.
+ *
+ * #define SUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS    ( insert here. )
+ */
+
+/**
+ * @brief The number of simple subscribe-publish tasks to create for the demo
+ */
+#define democonfigNUM_SIMPLE_SUB_PUB_TASKS_TO_CREATE       1
+#define democonfigSIMPLE_SUB_PUB_TASK_STACK_SIZE           ( configMINIMAL_STACK_SIZE * 4 )
+
 
 /**
  * @brief The maximum number of times to run the demo's task creation loop.
  */
-#define democonfigMQTT_MAX_DEMO_COUNT    ( 3 )
+#define democonfigMQTT_MAX_DEMO_COUNT   ( 3 )
 
 #endif /* MQTT_DEMO_CONNECTION_SHARING_CONFIG_H */
