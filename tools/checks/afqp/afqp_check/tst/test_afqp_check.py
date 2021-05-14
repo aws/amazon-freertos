@@ -13,7 +13,6 @@ import src.afqp_check as afqp_check
 
 check_fs_params_existing = [
     (afqp_check.AFR_ROOT, 'rules.json', 'ti', 'cc3220_launchpad', 'ccs'),
-    (afqp_check.AFR_ROOT, 'rules.json', 'microchip', 'curiosity_pic32mzef', 'mplab'),
     (afqp_check.AFR_ROOT, 'rules.json', 'espressif', 'esp32_devkitc_esp_wrover_kit', 'make'),
     (afqp_check.AFR_ROOT, 'rules.json', 'infineon', 'xmc4800_iotkit', 'dave4'),
     (afqp_check.AFR_ROOT, 'rules.json', 'nxp', 'lpc54018iotmodule', 'iar'),
@@ -51,7 +50,6 @@ def test_fs_check_nonexisting(root, rules_path, vendor, board, ide):
 
 check_platform_name_params = [
     (afqp_check.AFR_ROOT, 'ti', 'cc3220_launchpad'),
-    (afqp_check.AFR_ROOT, 'microchip', 'curiosity_pic32mzef'),
     (afqp_check.AFR_ROOT, 'espressif', 'esp32_devkitc_esp_wrover_kit'),
     (afqp_check.AFR_ROOT, 'infineon', 'xmc4800_iotkit'),
     (afqp_check.AFR_ROOT, 'nxp', 'lpc54018iotmodule'),

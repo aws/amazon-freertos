@@ -254,16 +254,14 @@ void _sspRequestCb( BTBdaddr_t * pRemoteBdAddr,
 
     if( pairingVariant == eBTsspVariantPasskeyConfirmation )
     {
-        /* If confirmation is needed, trigger the hooks on the APP side. */
-        IotMutex_Lock( &_BTInterface.threadSafetyMutex );
-
-        /* Get the event associated to the callback */
+        IotMutex_Lock( &_BTInterface.eventCallbackMutex );
+        /* If confirmation is needed, trigger the hooks on the APP side. Get the event associated to the callback */
         IotContainers_ForEach( &_BTInterface.subscrEventListHead[ eBLENumericComparisonCallback ], pEventListIndex )
         {
             pEventIndex = IotLink_Container( _bleSubscrEventListElement_t, pEventListIndex, eventList );
             pEventIndex->subscribedEventCb.pNumericComparisonCb( pRemoteBdAddr, passKey );
         }
-        IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
+        IotMutex_Unlock( &_BTInterface.eventCallbackMutex );
     }
     else
     {
@@ -282,15 +280,15 @@ void _pairingStateChangedCb( BTStatus_t status,
     IotLink_t * pEventListIndex;
     _bleSubscrEventListElement_t * pEventIndex;
 
-    IotMutex_Lock( &_BTInterface.threadSafetyMutex );
     /* Get the event associated to the callback */
+
+    IotMutex_Lock( &_BTInterface.eventCallbackMutex );
     IotContainers_ForEach( &_BTInterface.subscrEventListHead[ eBLEPairingStateChanged ], pEventListIndex )
     {
         pEventIndex = IotLink_Container( _bleSubscrEventListElement_t, pEventListIndex, eventList );
         pEventIndex->subscribedEventCb.pGAPPairingStateChangedCb( status, pRemoteBdAddr, state, securityLevel, reason );
     }
-
-    IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
+    IotMutex_Unlock( &_BTInterface.eventCallbackMutex );
 }
 
 /*-----------------------------------------------------------*/
@@ -514,6 +512,15 @@ BTStatus_t IotBle_StartAdv( IotBle_StartAdvCallback_t pStartAdvCb )
 
     return status;
 }
+
+/*-----------------------------------------------------------*/
+
+BTStatus_t IotBle_SetStopAdvCallback( IotBle_StopAdvCallback_t pStopAdvCb )
+{
+    _BTInterface.pStopAdvCb = pStopAdvCb;
+    return eBTStatusSuccess;
+}
+
 
 /*-----------------------------------------------------------*/
 
@@ -814,6 +821,7 @@ BTStatus_t IotBle_Off( void )
 BTStatus_t _createSyncrhonizationObjects( void )
 {
     bool createdThreadSafetyMutex = false;
+    bool createdEventCallbackMutex = false;
     bool createdWaitCbMutex = false;
     bool createdCallbackSemaphore = false;
     BTStatus_t status = eBTStatusSuccess;
@@ -826,6 +834,19 @@ BTStatus_t _createSyncrhonizationObjects( void )
     {
         status = eBTStatusNoMem;
         IotLogError( "Cannot create thread safety mutex." );
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        if( IotMutex_Create( &_BTInterface.eventCallbackMutex, false ) == true )
+        {
+            createdEventCallbackMutex = true;
+        }
+        else
+        {
+            status = eBTStatusNoMem;
+            IotLogError( "Cannot create event callback mutex." );
+        }
     }
 
     if( status == eBTStatusSuccess )
@@ -860,6 +881,11 @@ BTStatus_t _createSyncrhonizationObjects( void )
         if( createdThreadSafetyMutex == true )
         {
             IotMutex_Destroy( &_BTInterface.threadSafetyMutex );
+        }
+
+        if( createdEventCallbackMutex == true )
+        {
+            IotMutex_Destroy( &_BTInterface.eventCallbackMutex );
         }
 
         if( createdWaitCbMutex == true )
@@ -1032,12 +1058,12 @@ BTStatus_t IotBle_RegisterEventCb( IotBleEvents_t xEvent,
 
         if( pNewEvent != NULL )
         {
-            IotMutex_Lock( &_BTInterface.threadSafetyMutex );
+            IotMutex_Lock( &_BTInterface.eventCallbackMutex );
             pNewEvent->subscribedEventCb = xBLEEventsCallbacks;
             IotListDouble_InsertHead( &_BTInterface.subscrEventListHead[ xEvent ],
                                       &pNewEvent->eventList );
 
-            IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
+            IotMutex_Unlock( &_BTInterface.eventCallbackMutex );
         }
         else
         {
@@ -1056,7 +1082,7 @@ BTStatus_t IotBle_UnRegisterEventCb( IotBleEvents_t event,
     _bleSubscrEventListElement_t * pEventIndex;
     IotLink_t * pEventListIndex;
 
-    IotMutex_Lock( &_BTInterface.threadSafetyMutex );
+    IotMutex_Lock( &_BTInterface.eventCallbackMutex );
 
     /* Get the event associated to the callback */
     IotContainers_ForEach( &_BTInterface.subscrEventListHead[ event ], pEventListIndex )
@@ -1077,7 +1103,7 @@ BTStatus_t IotBle_UnRegisterEventCb( IotBleEvents_t event,
         IotBle_Free( pEventIndex );
     }
 
-    IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
+    IotMutex_Unlock( &_BTInterface.eventCallbackMutex );
 
     return status;
 }

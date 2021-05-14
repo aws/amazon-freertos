@@ -327,7 +327,6 @@
     <ClInclude Include="..\..\..\common\include\aws_simple_tcp_echo_server.h" />
     <ClInclude Include="..\..\..\common\include\aws_subscribe_publish_loop.h" />
     <ClInclude Include="..\..\..\common\include\aws_tcp_echo_client_single_tasks.h" />
-    <ClInclude Include="..\..\..\microchip\curiosity_pic32mzef\common\config_files\aws_wifi_config.h" />
     <ClInclude Include="..\common\application_code\stdbool.h" />
     <ClInclude Include="..\common\application_code\unistd.h" />
     <ClInclude Include="..\common\config_files\iot_bufferpool_config.h" />

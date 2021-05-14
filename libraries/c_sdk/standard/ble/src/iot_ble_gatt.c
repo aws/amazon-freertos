@@ -306,14 +306,16 @@ void _connectionCb( uint16_t connId,
         }
     }
 
+    IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
+
+    IotMutex_Lock( &_BTInterface.eventCallbackMutex );
     /* Get the event associated to the callback */
     IotContainers_ForEach( &_BTInterface.subscrEventListHead[ eBLEConnection ], pEventListIndex )
     {
         pEventIndex = IotLink_Container( _bleSubscrEventListElement_t, pEventListIndex, eventList );
         pEventIndex->subscribedEventCb.pConnectionCb( status, connId, connected, pBda );
     }
-
-    IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
+    IotMutex_Unlock( &_BTInterface.eventCallbackMutex );
 }
 
 /*-----------------------------------------------------------*/
@@ -593,14 +595,14 @@ void _mtuChangedCb( uint16_t connId,
     IotLink_t * pEventListIndex;
     _bleSubscrEventListElement_t * pEventIndex;
 
-    IotMutex_Lock( &_BTInterface.threadSafetyMutex );
     /* Get the event associated to the callback */
+    IotMutex_Lock( &_BTInterface.eventCallbackMutex );
     IotContainers_ForEach( &_BTInterface.subscrEventListHead[ eBLEMtuChanged ], pEventListIndex )
     {
         pEventIndex = IotLink_Container( _bleSubscrEventListElement_t, pEventListIndex, eventList );
         pEventIndex->subscribedEventCb.pMtuChangedCb( connId, mtu );
     }
-    IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
+    IotMutex_Unlock( &_BTInterface.eventCallbackMutex );
 }
 
 /*-----------------------------------------------------------*/

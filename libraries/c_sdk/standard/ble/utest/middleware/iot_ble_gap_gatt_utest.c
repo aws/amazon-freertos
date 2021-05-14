@@ -38,12 +38,27 @@
 #include "iot_ble.h"
 
 
-#define CUSTOM_BLE_DEVICE_NAME             "abcxyz"
-#define CONNECTION_INTERVAL_VALID_RANGE    { 0x0006UL, 0x0C80UL }
+#define CUSTOM_BLE_DEVICE_NAME              "abcxyz"
+#define CONNECTION_INTERVAL_VALID_RANGE     { 0x0006UL, 0x0C80UL }
 
-#define MAX_SEMAPHORES_USED                ( 1 )
+#define MAX_SEMAPHORES_USED                 ( 1 )
 
-#define MAX_MUTEXES_USED                   ( 3 )
+#define MAX_MUTEXES_USED                    ( 4 )
+
+#define DUMMY_MTU_SIZE                      ( 512 )
+
+#define DUMMY_CONNECTION_ID                 ( 1 )
+
+#define SERVICE_HANDLE                      ( 100 )
+
+#define NUM_SERVICE_ATTRIBUTES              ( 4 )
+
+#define MAX_ATTRIBUTE_HANDLE                ( SERVICE_HANDLE + NUM_SERVICE_ATTRIBUTES )
+
+#define SECONDARY_SERVICE_HANDLE            ( 200 )
+
+#define NUM_SECONDARY_SERVICE_ATTRIBUTES    ( 1 )
+
 
 typedef struct BleConfiguration
 {
@@ -155,7 +170,7 @@ static BTGattServerInterface_t bleGattServerMock =
 
 static BTService_t includedService;
 
-static BTAttribute_t inclAttributeTable[] =
+static BTAttribute_t inclAttributeTable[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] =
 {
     {
         .xAttributeType = eBTDbSecondaryService,
@@ -164,7 +179,7 @@ static BTAttribute_t inclAttributeTable[] =
     }
 };
 
-static BTAttribute_t attributeTable[] =
+static BTAttribute_t attributeTable[ NUM_SERVICE_ATTRIBUTES ] =
 {
     {
         .xAttributeType = eBTDbPrimaryService,
@@ -208,11 +223,15 @@ static IotBleAttributeEventCallback_t attributeCallbacks[ 4 ] =
     NULL
 };
 
-static uint32_t attributeInvokedCount[ 4 ][ 5 ] = { 0 };
+
+static uint32_t eventCallbackCount[ eNbEvents ] = { 0 };
+static uint32_t attributeInvokedCount[ NUM_SERVICE_ATTRIBUTES ][ 5 ] = { 0 };
 static uint32_t alloc_mem_blocks;
 static uint32_t numAdvertisementStatusCalls;
 static SynchronizationObj_t semaphores[ MAX_SEMAPHORES_USED ];
 static SynchronizationObj_t mutexes[ MAX_MUTEXES_USED ];
+static int mutexFailAfterCount = MAX_MUTEXES_USED;
+
 
 static BTCallbacks_t middlewareBTCallback;
 static BTBleAdapterCallbacks_t middlewareBleCallback;
@@ -226,38 +245,38 @@ static void prvDummyAtttibuteCallback( IotBleAttributeEvent_t * pEventParam )
     switch( pEventParam->xEventType )
     {
         case eBLEWrite:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamWrite->attrHandle );
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamWrite->attrHandle );
-            handle = pEventParam->pParamWrite->attrHandle - 100;
+            TEST_ASSERT_GREATER_OR_EQUAL( SERVICE_HANDLE, pEventParam->pParamWrite->attrHandle );
+            TEST_ASSERT_LESS_THAN( MAX_ATTRIBUTE_HANDLE, pEventParam->pParamWrite->attrHandle );
+            handle = pEventParam->pParamWrite->attrHandle - SERVICE_HANDLE;
             attributeInvokedCount[ handle ][ 0 ]++;
             break;
 
         case eBLEWriteNoResponse:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamWrite->attrHandle );
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamWrite->attrHandle );
-            handle = pEventParam->pParamWrite->attrHandle - 100;
+            TEST_ASSERT_GREATER_OR_EQUAL( SERVICE_HANDLE, pEventParam->pParamWrite->attrHandle );
+            TEST_ASSERT_LESS_THAN( MAX_ATTRIBUTE_HANDLE, pEventParam->pParamWrite->attrHandle );
+            handle = pEventParam->pParamWrite->attrHandle - SERVICE_HANDLE;
             attributeInvokedCount[ handle ][ 1 ]++;
             break;
 
         case eBLERead:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamRead->attrHandle );
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamRead->attrHandle );
-            handle = pEventParam->pParamRead->attrHandle - 100;
+            TEST_ASSERT_GREATER_OR_EQUAL( SERVICE_HANDLE, pEventParam->pParamRead->attrHandle );
+            TEST_ASSERT_LESS_THAN( MAX_ATTRIBUTE_HANDLE, pEventParam->pParamRead->attrHandle );
+            handle = pEventParam->pParamRead->attrHandle - SERVICE_HANDLE;
             attributeInvokedCount[ handle ][ 2 ]++;
             break;
 
         case eBLEExecWrite:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamExecWrite->transId );
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamExecWrite->transId );
+            TEST_ASSERT_GREATER_OR_EQUAL( SERVICE_HANDLE, pEventParam->pParamExecWrite->transId );
+            TEST_ASSERT_LESS_THAN( MAX_ATTRIBUTE_HANDLE, pEventParam->pParamExecWrite->transId );
             TEST_ASSERT_TRUE( pEventParam->pParamExecWrite->execWrite );
-            handle = pEventParam->pParamExecWrite->transId - 100;
+            handle = pEventParam->pParamExecWrite->transId - SERVICE_HANDLE;
             attributeInvokedCount[ handle ][ 3 ]++;
             break;
 
         case eBLEResponseConfirmation:
-            TEST_ASSERT_GREATER_OR_EQUAL( 100, pEventParam->pParamRespConfirm->handle );
-            TEST_ASSERT_LESS_OR_EQUAL( 103, pEventParam->pParamRespConfirm->handle );
-            handle = pEventParam->pParamRespConfirm->handle - 100;
+            TEST_ASSERT_GREATER_OR_EQUAL( SERVICE_HANDLE, pEventParam->pParamRespConfirm->handle );
+            TEST_ASSERT_LESS_THAN( MAX_ATTRIBUTE_HANDLE, pEventParam->pParamRespConfirm->handle );
+            handle = pEventParam->pParamRespConfirm->handle - SERVICE_HANDLE;
             attributeInvokedCount[ handle ][ 4 ]++;
             break;
 
@@ -278,6 +297,7 @@ static void * pvPortMalloc_Callback( size_t xSize,
     alloc_mem_blocks++; /* Free + malloc calls should cancel out in the end */
 
     void * pNew = malloc( xSize );
+
     TEST_ASSERT_MESSAGE( pNew, "Test Stub for malloc failed!" );
 
     return pNew;
@@ -520,15 +540,27 @@ static void prvSemaphoreWaitStub( IotSemaphore_t * pSemaphore,
     TEST_ASSERT_TRUE( found );
 }
 
+static void makeMutexCreateFailAfterCount( int count )
+{
+    mutexFailAfterCount = count;
+}
+
 static bool prvMutexCreateStub( IotMutex_t * pNewMutex,
                                 bool recursive,
                                 int cmock_num_calls )
 {
     TEST_ASSERT_LESS_THAN( MAX_MUTEXES_USED, cmock_num_calls );
     TEST_ASSERT_FALSE( recursive );
-    mutexes[ cmock_num_calls ].pObj = ( void * ) pNewMutex;
-    mutexes[ cmock_num_calls ].value = 0;
-    return true;
+    bool result = false;
+
+    if( cmock_num_calls < mutexFailAfterCount )
+    {
+        mutexes[ cmock_num_calls ].pObj = ( void * ) pNewMutex;
+        mutexes[ cmock_num_calls ].value = 0;
+        result = true;
+    }
+
+    return result;
 }
 
 static void prvMutexLockStub( IotMutex_t * pMutex,
@@ -618,12 +650,15 @@ static void prvAdvertisementCallback( BTStatus_t status )
 void setUp( void )
 {
     numAdvertisementStatusCalls = 0;
-
+    mutexFailAfterCount = MAX_MUTEXES_USED;
 
     /* Initialize synchronization objects and stubs. */
     memset( mutexes, 0x00, sizeof( mutexes ) );
     memset( semaphores, 0x00, sizeof( semaphores ) );
     memset( &bleConfig, 0x00, sizeof( bleConfig ) );
+    memset( eventCallbackCount, 0x00, sizeof( eventCallbackCount ) );
+    memset( attributeInvokedCount, 0x00, sizeof( attributeInvokedCount ) );
+
     IotMutex_Create_Stub( prvMutexCreateStub );
     IotMutex_Lock_Stub( prvMutexLockStub );
     IotMutex_Unlock_Stub( prvMutexUnlockStub );
@@ -705,6 +740,60 @@ void test_IotBle_Init_NullGattInterface( void )
     TEST_ASSERT_EQUAL( eBTStatusFail, IotBle_Init() );
 }
 
+/**
+ * @brief Tests BLE middleware initialization failure cases
+ */
+void test_IotBle_Init_Mutex_Create_Failed_1( void )
+{
+    BTGetBluetoothInterface_IgnoreAndReturn( &bleInterfaceMock );
+    prvBleTestGetLeAdapter_IgnoreAndReturn( &bleAdapterMock );
+    prvBleTestGetGattServerInterface_IgnoreAndReturn( &bleGattServerMock );
+    IotSemaphore_Create_IgnoreAndReturn( true );
+
+
+    makeMutexCreateFailAfterCount( 0 );
+    TEST_ASSERT_EQUAL( eBTStatusNoMem, IotBle_Init() );
+}
+
+void test_IotBle_Init_Mutex_Create_Failed_2( void )
+{
+    BTGetBluetoothInterface_IgnoreAndReturn( &bleInterfaceMock );
+    prvBleTestGetLeAdapter_IgnoreAndReturn( &bleAdapterMock );
+    prvBleTestGetGattServerInterface_IgnoreAndReturn( &bleGattServerMock );
+    IotSemaphore_Create_IgnoreAndReturn( true );
+
+    makeMutexCreateFailAfterCount( 1 );
+    IotMutex_Destroy_Ignore();
+    TEST_ASSERT_EQUAL( eBTStatusNoMem, IotBle_Init() );
+}
+
+void test_IotBle_Init_Mutex_Create_Failed_3( void )
+{
+    BTGetBluetoothInterface_IgnoreAndReturn( &bleInterfaceMock );
+    prvBleTestGetLeAdapter_IgnoreAndReturn( &bleAdapterMock );
+    prvBleTestGetGattServerInterface_IgnoreAndReturn( &bleGattServerMock );
+    IotSemaphore_Create_IgnoreAndReturn( true );
+
+    makeMutexCreateFailAfterCount( 2 );
+    IotMutex_Destroy_Ignore();
+    TEST_ASSERT_EQUAL( eBTStatusNoMem, IotBle_Init() );
+}
+
+/**
+ * @brief Tests BLE middleware initialization failure cases
+ */
+void test_IotBle_Init_Semaphore_Create_Failed( void )
+{
+    BTGetBluetoothInterface_IgnoreAndReturn( &bleInterfaceMock );
+    prvBleTestGetLeAdapter_IgnoreAndReturn( &bleAdapterMock );
+    prvBleTestGetGattServerInterface_IgnoreAndReturn( &bleGattServerMock );
+
+
+    IotMutex_Create_IgnoreAndReturn( true );
+    IotSemaphore_Create_IgnoreAndReturn( false );
+    IotMutex_Destroy_Ignore();
+    TEST_ASSERT_EQUAL( eBTStatusNoMem, IotBle_Init() );
+}
 
 void test_IoTBle_On_ManagerInitFailed()
 {
@@ -801,7 +890,6 @@ void test_IotBle_On_OFF_MultipleTimes( void )
     prvTestTurnOffBLE();
 }
 
-
 void test_IotBleSetDeviceName_While_BLE_Is_On( void )
 {
     prvTestTurnOnBLE();
@@ -867,7 +955,24 @@ void test_IotBleStopAdvertisement( void )
     prvTestTurnOffBLE();
 }
 
-static uint32_t eventCallbackCount[ eNbEvents ] = { 0 };
+void test_IotBleSetStopAdvertisementCallback( void )
+{
+    prvTestTurnOnBLE();
+    prvBleTestStopAdv_Stub( prvStopAdvCallback );
+
+    /* Register callback for a stop advertisement event from stack. */
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_SetStopAdvCallback( prvAdvertisementCallback ) );
+
+    /* Verify that stop advertisement event from stack invokes the callback. */
+    middlewareBleCallback.pxAdvStatusCb( eBTStatusSuccess, 0, false );
+    TEST_ASSERT_EQUAL( 1, numAdvertisementStatusCalls );
+
+    /* Verify that start advertisement event from stack does not invoke the callback. */
+    middlewareBleCallback.pxAdvStatusCb( eBTStatusSuccess, 0, true );
+    TEST_ASSERT_EQUAL( 1, numAdvertisementStatusCalls );
+
+    prvTestTurnOffBLE();
+}
 
 static void prvMtuChangedCallback( uint16_t connId,
                                    uint16_t mtu )
@@ -905,6 +1010,7 @@ static void prvNumericComparisonCallback( BTBdaddr_t * pRemoteBdAddr,
     eventCallbackCount[ eBLENumericComparisonCallback ]++;
 }
 
+
 static IotBleEventsCallbacks_t eventCallbacks[ eNbEvents ] =
 {
     { .pMtuChangedCb                 = prvMtuChangedCallback                 },
@@ -913,6 +1019,38 @@ static IotBleEventsCallbacks_t eventCallbacks[ eNbEvents ] =
     { .pConnParameterUpdateRequestCb = prvConnParameterUpdateRequestCallback },
     { .pNumericComparisonCb          = prvNumericComparisonCallback          }
 };
+
+static void prvSendIndicationMTUChangeCallback( uint16_t connId,
+                                                uint16_t mtu )
+{
+    IotBleAttributeData_t attr =
+    {
+        .handle = 101
+    };
+    IotBleEventResponse_t response =
+    {
+        .pAttrData = &attr
+    };
+
+    TEST_ASSERT_EQUAL( DUMMY_MTU_SIZE, mtu );
+    TEST_ASSERT_EQUAL( DUMMY_CONNECTION_ID, connId );
+    eventCallbackCount[ eBLEMtuChanged ]++;
+
+    IotBle_SendIndication( &response, DUMMY_CONNECTION_ID, false );
+}
+
+static BTStatus_t pxSendIndicationStub( uint8_t ucServerIf,
+                                        uint16_t usAttributeHandle,
+                                        uint16_t usConnId,
+                                        size_t xLen,
+                                        uint8_t * pucValue,
+                                        bool bConfirm,
+                                        int cmock_calls )
+{
+    TEST_ASSERT_EQUAL( DUMMY_CONNECTION_ID, usConnId );
+    middlewareGATTCallback.pxIndicationSentCb( 0, eBTStatusSuccess );
+    return eBTStatusSuccess;
+}
 
 
 void test_IotBleRegisterCallbacks( void )
@@ -991,12 +1129,14 @@ static BTStatus_t prvAddServiceBlobStub( uint8_t ucServerIf,
                                          BTService_t * pService,
                                          int cmock_num_calls )
 {
-    pService->pusHandlesBuffer[ 0 ] = 100;
-    pService->pusHandlesBuffer[ 1 ] = 101;
-    pService->pusHandlesBuffer[ 2 ] = 102;
-    pService->pusHandlesBuffer[ 3 ] = 103;
+    size_t index = 0;
 
-    middlewareGATTCallback.pxServiceAddedCb( eBTStatusSuccess, ucServerIf, NULL, 100 );
+    for( index = 0; index < pService->xNumberOfAttributes; index++ )
+    {
+        pService->pusHandlesBuffer[ index ] = SERVICE_HANDLE + index;
+    }
+
+    middlewareGATTCallback.pxServiceAddedCb( eBTStatusSuccess, ucServerIf, NULL, SERVICE_HANDLE );
 
     return eBTStatusSuccess;
 }
@@ -1011,19 +1151,19 @@ static BTStatus_t prvServiceDeleteStub( uint8_t ucServerIf,
 
 void test_IotBleCreateServiceBlob( void )
 {
-    uint16_t handlesBuffer[ 4 ] = { 0 };
-    uint16_t inclHandlesBuffer[ 1 ] = { 0 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { 0 };
 
     includedService.pusHandlesBuffer = inclHandlesBuffer;
     includedService.ucInstId = 1;
     includedService.xType = eBTDbSecondaryService;
-    includedService.xNumberOfAttributes = 1;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
 
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 4,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
@@ -1045,7 +1185,7 @@ static BTStatus_t prvAddServiceStub( uint8_t ucServerIf,
                                      uint16_t usNumHandles,
                                      int cmock_num_calls )
 {
-    middlewareGATTCallback.pxServiceAddedCb( eBTStatusSuccess, 0, prvBleTestSrvcId, 100 );
+    middlewareGATTCallback.pxServiceAddedCb( eBTStatusSuccess, 0, prvBleTestSrvcId, SERVICE_HANDLE );
     return eBTStatusSuccess;
 }
 
@@ -1056,8 +1196,8 @@ static BTStatus_t prvAddCharStub( uint8_t ucServerIf,
                                   BTCharPermissions_t xPermissions,
                                   int cmock_num_calls )
 {
-    TEST_ASSERT_EQUAL( 100, usServiceHandle );
-    middlewareGATTCallback.pxCharacteristicAddedCb( eBTStatusSuccess, 0, prvBleTestUuid, usServiceHandle, 101 );
+    TEST_ASSERT_EQUAL( SERVICE_HANDLE, usServiceHandle );
+    middlewareGATTCallback.pxCharacteristicAddedCb( eBTStatusSuccess, 0, prvBleTestUuid, usServiceHandle, SERVICE_HANDLE + 1 );
     return eBTStatusSuccess;
 }
 
@@ -1067,8 +1207,8 @@ static BTStatus_t prvAddDescrStub( uint8_t ucServerIf,
                                    BTCharPermissions_t ulPermissions,
                                    int cmock_num_calls )
 {
-    TEST_ASSERT_EQUAL( 100, usServiceHandle );
-    middlewareGATTCallback.pxDescriptorAddedCb( eBTStatusSuccess, 0, prvBleTestUuid, usServiceHandle, 102 );
+    TEST_ASSERT_EQUAL( SERVICE_HANDLE, usServiceHandle );
+    middlewareGATTCallback.pxDescriptorAddedCb( eBTStatusSuccess, 0, prvBleTestUuid, usServiceHandle, SERVICE_HANDLE + 2 );
     return eBTStatusSuccess;
 }
 static BTStatus_t prvAddIncludedServiceStub( uint8_t ucServerIf,
@@ -1077,9 +1217,9 @@ static BTStatus_t prvAddIncludedServiceStub( uint8_t ucServerIf,
                                              int cmock_num_calls )
 
 {
-    TEST_ASSERT_EQUAL( 100, usServiceHandle );
-    TEST_ASSERT_EQUAL( 103, usIncludedHandle );
-    middlewareGATTCallback.pxIncludedServiceAddedCb( eBTStatusSuccess, 0, usServiceHandle, 103 );
+    TEST_ASSERT_EQUAL( SERVICE_HANDLE, usServiceHandle );
+    TEST_ASSERT_EQUAL( SECONDARY_SERVICE_HANDLE, usIncludedHandle );
+    middlewareGATTCallback.pxIncludedServiceAddedCb( eBTStatusSuccess, 0, usServiceHandle, SERVICE_HANDLE + 3 );
     return eBTStatusSuccess;
 }
 
@@ -1103,20 +1243,20 @@ static BTStatus_t prvStopServiceStub( uint8_t ucServerIf,
 
 void test_IotBleCreateService( void )
 {
-    uint16_t handlesBuffer[ 4 ] = { 0 };
-    uint16_t inclHandlesBuffer[ 1 ] = { 103 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { SECONDARY_SERVICE_HANDLE };
 
     includedService.pusHandlesBuffer = inclHandlesBuffer;
     includedService.ucInstId = 1;
     includedService.xType = eBTDbSecondaryService;
-    includedService.xNumberOfAttributes = 1;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
     includedService.pxBLEAttributes = inclAttributeTable;
 
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 4,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
@@ -1141,20 +1281,20 @@ void test_IotBleCreateService( void )
 
 void test_IotBleCreateServiceBlob_ReturnFailure( void )
 {
-    uint16_t handlesBuffer[ 4 ] = { 0 };
-    uint16_t inclHandlesBuffer[ 1 ] = { 103 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { SECONDARY_SERVICE_HANDLE };
 
     includedService.pusHandlesBuffer = inclHandlesBuffer;
     includedService.ucInstId = 1;
     includedService.xType = eBTDbSecondaryService;
-    includedService.xNumberOfAttributes = 1;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
     includedService.pxBLEAttributes = inclAttributeTable;
 
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 4,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
@@ -1173,7 +1313,7 @@ static BTStatus_t prvAddServiceFailureStub( uint8_t ucServerIf,
                                             uint16_t usNumHandles,
                                             int cmock_num_calls )
 {
-    middlewareGATTCallback.pxServiceAddedCb( eBTStatusFail, 0, prvBleTestSrvcId, 100 );
+    middlewareGATTCallback.pxServiceAddedCb( eBTStatusFail, 0, prvBleTestSrvcId, SERVICE_HANDLE );
     return eBTStatusSuccess;
 }
 
@@ -1184,8 +1324,8 @@ static BTStatus_t prvAddCharFailureStub( uint8_t ucServerIf,
                                          BTCharPermissions_t xPermissions,
                                          int cmock_num_calls )
 {
-    TEST_ASSERT_EQUAL( 100, usServiceHandle );
-    middlewareGATTCallback.pxCharacteristicAddedCb( eBTStatusFail, 0, prvBleTestUuid, usServiceHandle, 101 );
+    TEST_ASSERT_EQUAL( SERVICE_HANDLE, usServiceHandle );
+    middlewareGATTCallback.pxCharacteristicAddedCb( eBTStatusFail, 0, prvBleTestUuid, usServiceHandle, SERVICE_HANDLE + 1 );
     return eBTStatusSuccess;
 }
 
@@ -1195,8 +1335,8 @@ static BTStatus_t prvAddDescrFailureStub( uint8_t ucServerIf,
                                           BTCharPermissions_t ulPermissions,
                                           int cmock_num_calls )
 {
-    TEST_ASSERT_EQUAL( 100, usServiceHandle );
-    middlewareGATTCallback.pxDescriptorAddedCb( eBTStatusFail, 0, prvBleTestUuid, usServiceHandle, 102 );
+    TEST_ASSERT_EQUAL( SERVICE_HANDLE, usServiceHandle );
+    middlewareGATTCallback.pxDescriptorAddedCb( eBTStatusFail, 0, prvBleTestUuid, usServiceHandle, SERVICE_HANDLE + 2 );
     return eBTStatusSuccess;
 }
 static BTStatus_t prvAddIncludedServiceFailureStub( uint8_t ucServerIf,
@@ -1205,9 +1345,9 @@ static BTStatus_t prvAddIncludedServiceFailureStub( uint8_t ucServerIf,
                                                     int cmock_num_calls )
 
 {
-    TEST_ASSERT_EQUAL( 100, usServiceHandle );
-    TEST_ASSERT_EQUAL( 103, usIncludedHandle );
-    middlewareGATTCallback.pxIncludedServiceAddedCb( eBTStatusFail, 0, usServiceHandle, 103 );
+    TEST_ASSERT_EQUAL( SERVICE_HANDLE, usServiceHandle );
+    TEST_ASSERT_EQUAL( SECONDARY_SERVICE_HANDLE, usIncludedHandle );
+    middlewareGATTCallback.pxIncludedServiceAddedCb( eBTStatusFail, 0, usServiceHandle, SERVICE_HANDLE + 3 );
     return eBTStatusSuccess;
 }
 
@@ -1222,20 +1362,20 @@ static BTStatus_t prvStartServiceFailureStub( uint8_t ucServerIf,
 
 void test_IotBleCreateService_FailureCases( void )
 {
-    uint16_t handlesBuffer[ 4 ] = { 0 };
-    uint16_t inclHandlesBuffer[ 1 ] = { 103 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { SECONDARY_SERVICE_HANDLE };
 
     includedService.pusHandlesBuffer = inclHandlesBuffer;
     includedService.ucInstId = 1;
     includedService.xType = eBTDbSecondaryService;
-    includedService.xNumberOfAttributes = 1;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
     includedService.pxBLEAttributes = inclAttributeTable;
 
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 4,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
@@ -1306,20 +1446,20 @@ static BTStatus_t prvStopServiceFailureStub( uint8_t ucServerIf,
 
 void test_IotBleDeleteService_ReturnsFailure( void )
 {
-    uint16_t handlesBuffer[ 4 ] = { 0 };
-    uint16_t inclHandlesBuffer[ 1 ] = { 103 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { SECONDARY_SERVICE_HANDLE };
 
     includedService.pusHandlesBuffer = inclHandlesBuffer;
     includedService.ucInstId = 1;
     includedService.xType = eBTDbSecondaryService;
-    includedService.xNumberOfAttributes = 1;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
     includedService.pxBLEAttributes = inclAttributeTable;
 
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 4,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
@@ -1356,15 +1496,24 @@ void test_IotBleDeleteService_ReturnsFailure( void )
 
 void test_ServiceAttributeInteractions( void )
 {
-    uint16_t handlesBuffer[ 3 ] = { 0 };
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { SECONDARY_SERVICE_HANDLE };
+
+    includedService.pusHandlesBuffer = inclHandlesBuffer;
+    includedService.ucInstId = 1;
+    includedService.xType = eBTDbSecondaryService;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
+    includedService.pxBLEAttributes = inclAttributeTable;
+
     BTService_t service =
     {
         .ucInstId            = 0,
         .xType               = eBTDbPrimaryService,
-        .xNumberOfAttributes = 3,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
         .pusHandlesBuffer    = handlesBuffer,
         .pxBLEAttributes     = attributeTable
     };
+
     BTBdaddr_t dummyAddr = { 0 };
     uint8_t value = 0x01;
     IotBleAttributeData_t attr =
@@ -1581,5 +1730,53 @@ void test_IotBleMallocFailure( void )
                        IotBle_RegisterEventCb( eBLENumericComparisonCallback, eventCallbacks[ eBLENumericComparisonCallback ] ) );
 
     pvPortMalloc_Stub( pvPortMalloc_Callback );
+    prvTestTurnOffBLE();
+}
+
+void test_IotBleSendIndication_From_Event_Callback( void )
+{
+    uint16_t handlesBuffer[ NUM_SERVICE_ATTRIBUTES ] = { 0 };
+    uint16_t inclHandlesBuffer[ NUM_SECONDARY_SERVICE_ATTRIBUTES ] = { SECONDARY_SERVICE_HANDLE };
+
+    includedService.pusHandlesBuffer = inclHandlesBuffer;
+    includedService.ucInstId = 1;
+    includedService.xType = eBTDbSecondaryService;
+    includedService.xNumberOfAttributes = NUM_SECONDARY_SERVICE_ATTRIBUTES;
+    includedService.pxBLEAttributes = inclAttributeTable;
+
+    BTService_t service =
+    {
+        .ucInstId            = 0,
+        .xType               = eBTDbPrimaryService,
+        .xNumberOfAttributes = NUM_SERVICE_ATTRIBUTES,
+        .pusHandlesBuffer    = handlesBuffer,
+        .pxBLEAttributes     = attributeTable
+    };
+
+    IotBleEventsCallbacks_t mtuCallback =
+    {
+        .pMtuChangedCb = prvSendIndicationMTUChangeCallback
+    };
+
+    prvTestTurnOnBLE();
+
+    prvBleTestAddServiceBlob_Stub( prvAddServiceBlobStub );
+    prvBleTestSendIndication_Stub( pxSendIndicationStub );
+    prvBleTestStopService_IgnoreAndReturn( eBTStatusSuccess );
+    prvBleTestDeleteService_Stub( prvServiceDeleteStub );
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_CreateService( &service, attributeCallbacks ) );
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_RegisterEventCb( eBLEMtuChanged, mtuCallback ) );
+
+    middlewareGATTCallback.pxMtuChangedCb( DUMMY_CONNECTION_ID, DUMMY_MTU_SIZE );
+
+    TEST_ASSERT_EQUAL( 1, eventCallbackCount[ eBLEMtuChanged ] );
+    TEST_ASSERT_EQUAL( 1, attributeInvokedCount[ 0 ][ 0 ] );
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_UnRegisterEventCb( eBLEMtuChanged, mtuCallback ) );
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, IotBle_DeleteService( &service ) );
+
     prvTestTurnOffBLE();
 }

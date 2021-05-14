@@ -42,7 +42,7 @@
 #include <cy_result.h>
 #include <cybsp_wifi.h>
 #include <cyabs_rtos.h>
-#include <cyobjstore.h>
+#include <kvstore.h>
 
 #define CMP_MAC( a, b )  (((((unsigned char*)a)[0])==(((unsigned char*)b)[0]))&& \
                           ((((unsigned char*)a)[1])==(((unsigned char*)b)[1]))&& \
@@ -58,6 +58,13 @@
 #ifndef CY_TOTAL_WIFI_PROFILES
 #define CY_TOTAL_WIFI_PROFILES          (8)
 #endif
+
+/* This is the number of characters in WIFI_PROFILE_KEY_COMMON, a space, up to three digits
+ * (CY_FIRST_WIFI_PROFILE + CY_TOTAL_WIFI_PROFILES), and the string termination character
+ * (see get_wifi_profile_key fuction below) */
+#define WIFI_PROFILE_KEY_SIZE 21
+#define WIFI_PROFILE_KEY_COMMON "Wifi Profile Key"
+
 
 #define DEFAULT_SLEEP_DELAY_MS          (200)
 
@@ -392,21 +399,33 @@ WIFIReturnCode_t WIFI_GetMode( WIFIDeviceMode_t * pxDeviceMode )
 }
 /*-----------------------------------------------------------*/
 
-static WIFIReturnCode_t add_profile(const WIFINetworkProfile_t * const pxNetworkProfile, uint16_t * pusIndex)
+static void get_wifi_profile_key(uint8_t index, char *wifi_profile_key)
 {
-    for(uint32_t i = CY_FIRST_WIFI_PROFILE; i < CY_FIRST_WIFI_PROFILE + CY_TOTAL_WIFI_PROFILES; i++)
+    char wifi_profile_key_common[] = WIFI_PROFILE_KEY_COMMON;
+
+    sprintf(wifi_profile_key, "%s %d", wifi_profile_key_common, index);
+}
+/*-----------------------------------------------------------*/
+
+static WIFIReturnCode_t add_profile(const WIFINetworkProfile_t * const pxNetworkProfile,
+    uint16_t *pusIndex)
+{
+    uint32_t index;
+    char wifi_profile_key[WIFI_PROFILE_KEY_SIZE];
+
+    for (index = 0; index < CY_TOTAL_WIFI_PROFILES; index++)
     {
-        if (cy_objstore_find_object(i, NULL, NULL) == CY_OBJSTORE_NO_SUCH_OBJECT)
+        get_wifi_profile_key(index + CY_FIRST_WIFI_PROFILE, wifi_profile_key);
+
+        if (mtb_kvstore_read(&kvstore_obj, wifi_profile_key, NULL, NULL) != CY_RSLT_SUCCESS)
         {
             /* Found an empty slot */
-            cy_rslt_t res;
-
-            res = cy_objstore_store_object(i, (const uint8_t *)pxNetworkProfile, sizeof(WIFINetworkProfile_t));
-            if (res != CY_RSLT_SUCCESS)
+            if (mtb_kvstore_write(&kvstore_obj, wifi_profile_key, (const uint8_t *)pxNetworkProfile,
+                                  sizeof(WIFINetworkProfile_t)) != CY_RSLT_SUCCESS)
             {
                 return eWiFiFailure;
             }
-            *pusIndex = i - CY_FIRST_WIFI_PROFILE;
+            *pusIndex = index;
             return eWiFiSuccess;
         }
     }
@@ -418,13 +437,6 @@ WIFIReturnCode_t WIFI_NetworkAdd( const WIFINetworkProfile_t * const pxNetworkPr
     configASSERT(pxNetworkProfile != NULL && pusIndex != NULL);
     if (cy_rtos_get_mutex(&wifiMutex, wificonfigMAX_SEMAPHORE_WAIT_TIME_MS) == CY_RSLT_SUCCESS)
     {
-        if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED &&
-            cy_objstore_initialize(false, 1) != CY_RSLT_SUCCESS)
-        {
-            cy_rtos_set_mutex(&wifiMutex);
-            return eWiFiFailure;
-        }
-
         if (add_profile(pxNetworkProfile, pusIndex) != eWiFiSuccess)
         {
             cy_rtos_set_mutex(&wifiMutex);
@@ -444,20 +456,20 @@ WIFIReturnCode_t WIFI_NetworkAdd( const WIFINetworkProfile_t * const pxNetworkPr
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_NetworkGet( WIFINetworkProfile_t * pxNetworkProfile, uint16_t usIndex )
+WIFIReturnCode_t WIFI_NetworkGet(WIFINetworkProfile_t *pxNetworkProfile, uint16_t usIndex)
 {
+    char wifi_profile_key[WIFI_PROFILE_KEY_SIZE];
+    uint32_t size = sizeof(WIFINetworkProfile_t);
+
     configASSERT(pxNetworkProfile != NULL);
+    configASSERT(usIndex < CY_TOTAL_WIFI_PROFILES);
+
+    get_wifi_profile_key(usIndex + CY_FIRST_WIFI_PROFILE, wifi_profile_key);
+
     if (cy_rtos_get_mutex(&wifiMutex, wificonfigMAX_SEMAPHORE_WAIT_TIME_MS) == CY_RSLT_SUCCESS)
     {
-        if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED &&
-            cy_objstore_initialize(false, 1) != CY_RSLT_SUCCESS)
-        {
-            cy_rtos_set_mutex(&wifiMutex);
-            return eWiFiFailure;
-        }
-
-        if (usIndex >= CY_TOTAL_WIFI_PROFILES ||
-            cy_objstore_read_object(usIndex + CY_FIRST_WIFI_PROFILE, (uint8_t *)pxNetworkProfile, sizeof(WIFINetworkProfile_t)))
+        if (mtb_kvstore_read(&kvstore_obj, wifi_profile_key, (uint8_t *)pxNetworkProfile, &size) !=
+            CY_RSLT_SUCCESS)
         {
             cy_rtos_set_mutex(&wifiMutex);
             return eWiFiFailure;
@@ -475,22 +487,18 @@ WIFIReturnCode_t WIFI_NetworkGet( WIFINetworkProfile_t * pxNetworkProfile, uint1
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_NetworkDelete( uint16_t usIndex )
+WIFIReturnCode_t WIFI_NetworkDelete(uint16_t usIndex)
 {
-    uint32_t index;
-    uint32_t size;
+    char wifi_profile_key[WIFI_PROFILE_KEY_SIZE];
+
+    configASSERT(usIndex < CY_TOTAL_WIFI_PROFILES);
+
+    get_wifi_profile_key(usIndex + CY_FIRST_WIFI_PROFILE, wifi_profile_key);
+
     if (cy_rtos_get_mutex(&wifiMutex, wificonfigMAX_SEMAPHORE_WAIT_TIME_MS) == CY_RSLT_SUCCESS)
     {
-        if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED &&
-            cy_objstore_initialize(false, 1) != CY_RSLT_SUCCESS)
-        {
-            cy_rtos_set_mutex(&wifiMutex);
-            return eWiFiFailure;
-        }
-
-        if (usIndex >= CY_TOTAL_WIFI_PROFILES ||
-            (cy_objstore_find_object(usIndex + CY_FIRST_WIFI_PROFILE, &index, &size) != CY_OBJSTORE_NO_SUCH_OBJECT &&
-            cy_objstore_delete_object(usIndex + CY_FIRST_WIFI_PROFILE) != CY_RSLT_SUCCESS))
+        if ((mtb_kvstore_read(&kvstore_obj, wifi_profile_key, NULL, NULL) != CY_RSLT_SUCCESS) ||
+            (mtb_kvstore_delete(&kvstore_obj, wifi_profile_key) != CY_RSLT_SUCCESS))
         {
             cy_rtos_set_mutex(&wifiMutex);
             return eWiFiFailure;

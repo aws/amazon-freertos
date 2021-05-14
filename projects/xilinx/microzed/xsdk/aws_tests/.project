@@ -978,6 +978,41 @@
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/coreMQTT-Agent/source/core_mqtt_agent.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_agent_message.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/abstractions/mqtt_agent/freertos_agent_message.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_command_pool.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/abstractions/mqtt_agent/freertos_command_pool.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/coreJSON/source/core_json.c</locationURI>
@@ -1308,24 +1343,9 @@
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/FreeRTOSIPConfig.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/iot_bufferpool_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_bufferpool_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_ggd_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/aws_ggd_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/iot_mqtt_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_mqtt_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/iot_secure_sockets_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_shadow_config.h</name>
@@ -1378,6 +1398,11 @@
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/defender_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/iot_bufferpool_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_bufferpool_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/iot_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_config.h</locationURI>
@@ -1386,6 +1411,16 @@
 			<name>config_files/iot_mqtt_agent_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_mqtt_agent_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_mqtt_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_mqtt_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_secure_sockets_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/shadow_config.h</name>
