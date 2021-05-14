@@ -1,5 +1,13 @@
 # FreeRTOS AWS Reference Integrations
 
+## Update (05/13/2021)
+
+In the next few months, we will have an official release of the AWS Reference Integration repository which brings in the 202012.01-LTS libraries. In this release, we will carry the LTS libraries and remove legacy libraries. The legacy libraries will continue to be accessible through the release tags, and AWS will continue to support Github issues on these libraries on a case by case basis.
+
+All the libraries under /libraries/c_sdk (except BLE library which will be moved to other folder) will be removed. 
+OTAv1 library under libraries/freertos_plus/aws/ota will be removed.
+
+
 ## Cloning
 This repo uses [Git Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to bring in dependent components.
 
