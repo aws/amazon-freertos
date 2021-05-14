@@ -42,6 +42,12 @@
 #include "freertos_agent_message.h"
 #include "freertos_command_pool.h"
 
+/* CoreMQTT-Agent include. */
+#include "core_mqtt_agent.h"
+
+/* CoreMQTT-Agent configuration file. */
+#include "core_mqtt_agent_config.h"
+
 /* Includes helpers for managing MQTT subscriptions. */
 #include "subscription_manager.h"
 
@@ -474,7 +480,7 @@ typedef struct OtaTopicFilterCallback
  * @brief Defines the structure to use as the command callback context in this
  * demo.
  */
-struct CommandContext
+struct MQTTAgentCommandContext
 {
     MQTTStatus_t xReturnStatus;
     TaskHandle_t xTaskToNotify;
@@ -501,12 +507,12 @@ static uint8_t pucNetworkBuffer[ MQTT_AGENT_NETWORK_BUFFER_SIZE ];
  * @brief The interface context used to post commands to the agent.
  * For FreeRTOS its implemented using a FreeRTOS blocking queue.
  */
-static AgentMessageInterface_t xMessageInterface;
+static MQTTAgentMessageInterface_t xMessageInterface;
 
 /**
  * @brief FreeRTOS blocking queue to be used as MQTT Agent context.
  */
-static AgentMessageContext_t xCommandQueue;
+static MQTTAgentMessageContext_t xCommandQueue;
 
 
 
@@ -809,7 +815,7 @@ static void prvMQTTAgentTask( void * pParam );
  * @param[in] pxReturnInfo Info containing return code and output of command
  * from agent.
  */
-static void prvMQTTAgentCmdCompleteCallback( CommandContext_t * pxCommandContext,
+static void prvMQTTAgentCmdCompleteCallback( MQTTAgentCommandContext_t * pxCommandContext,
                                              MQTTAgentReturnInfo_t * pxReturnInfo );
 
 /**
@@ -1211,7 +1217,7 @@ static void prvMqttDataCallback( void * pvIncomingPublishCallbackContext,
 }
 /*-----------------------------------------------------------*/
 
-static void prvMQTTAgentCmdCompleteCallback( CommandContext_t * pxCommandContext,
+static void prvMQTTAgentCmdCompleteCallback( MQTTAgentCommandContext_t * pxCommandContext,
                                              MQTTAgentReturnInfo_t * pxReturnInfo )
 {
     /* Store the result in the application defined context so the task that
@@ -1270,7 +1276,7 @@ static void prvRegisterOTACallback( const char * pcTopicFilter,
 }
 /*-----------------------------------------------------------*/
 
-static void prvMQTTSubscribeCompleteCallback( CommandContext_t * pxCommandContext,
+static void prvMQTTSubscribeCompleteCallback( MQTTAgentCommandContext_t * pxCommandContext,
                                               MQTTAgentReturnInfo_t * pxReturnInfo )
 {
     MQTTAgentSubscribeArgs_t * pxSubsribeArgs;
@@ -1297,7 +1303,7 @@ static void prvMQTTSubscribeCompleteCallback( CommandContext_t * pxCommandContex
 }
 /*-----------------------------------------------------------*/
 
-static void prvMQTTUnsubscribeCompleteCallback( CommandContext_t * pxCommandContext,
+static void prvMQTTUnsubscribeCompleteCallback( MQTTAgentCommandContext_t * pxCommandContext,
                                                 MQTTAgentReturnInfo_t * pxReturnInfo )
 {
     MQTTAgentSubscribeArgs_t * pxSubsribeArgs;
@@ -1404,12 +1410,12 @@ static MQTTStatus_t prvMqttAgentInit( void )
     TransportInterface_t xTransport;
     MQTTStatus_t xReturn;
     MQTTFixedBuffer_t xFixedBuffer = { .pBuffer = pucNetworkBuffer, .size = MQTT_AGENT_NETWORK_BUFFER_SIZE };
-    static uint8_t ucStaticQueueStorageArea[ MQTT_AGENT_COMMAND_QUEUE_LENGTH * sizeof( Command_t * ) ];
+    static uint8_t ucStaticQueueStorageArea[ MQTT_AGENT_COMMAND_QUEUE_LENGTH * sizeof( MQTTAgentCommand_t * ) ];
     static StaticQueue_t xStaticQueueStructure;
 
     LogDebug( ( "Creating command queue." ) );
     xCommandQueue.queue = xQueueCreateStatic( MQTT_AGENT_COMMAND_QUEUE_LENGTH,
-                                              sizeof( Command_t * ),
+                                              sizeof( MQTTAgentCommand_t * ),
                                               ucStaticQueueStorageArea,
                                               &xStaticQueueStructure );
 
@@ -1587,8 +1593,8 @@ static BaseType_t prvConnectToMQTTBroker( void )
 
 static void prvDisconnectFromMQTTBroker( void )
 {
-    CommandContext_t xCommandContext = { 0 };
-    CommandInfo_t xCommandParams = { 0 };
+    MQTTAgentCommandContext_t xCommandContext = { 0 };
+    MQTTAgentCommandInfo_t xCommandParams = { 0 };
     MQTTStatus_t xCommandStatus;
 
     /* Disconnect from broker. */
@@ -1936,8 +1942,8 @@ static OtaMqttStatus_t prvMqttSubscribe( const char * pcTopicFilter,
 {
     OtaMqttStatus_t xMqttStatus = OtaMqttSuccess;
     MQTTStatus_t xCommandStatus;
-    CommandInfo_t xCommandParams = { 0 };
-    CommandContext_t xCommandContext = { 0 };
+    MQTTAgentCommandInfo_t xCommandParams = { 0 };
+    MQTTAgentCommandContext_t xCommandContext = { 0 };
     MQTTSubscribeInfo_t xSubscription = { 0 };
     MQTTAgentSubscribeArgs_t xSubscribeArgs = { 0 };
 
@@ -1992,8 +1998,8 @@ static OtaMqttStatus_t prvMqttPublish( const char * const pcTopic,
 {
     OtaMqttStatus_t xMqttStatus = OtaMqttSuccess;
     MQTTStatus_t xCommandStatus;
-    CommandInfo_t xCommandParams = { 0 };
-    CommandContext_t xCommandContext = { 0 };
+    MQTTAgentCommandInfo_t xCommandParams = { 0 };
+    MQTTAgentCommandContext_t xCommandContext = { 0 };
     MQTTPublishInfo_t publishInfo = { 0 };
 
     /* Set the required publish parameters. */
@@ -2040,8 +2046,8 @@ static OtaMqttStatus_t prvMqttUnSubscribe( const char * pcTopicFilter,
 {
     OtaMqttStatus_t xMqttStatus = OtaMqttSuccess;
     MQTTStatus_t xCommandStatus;
-    CommandInfo_t xCommandParams = { 0 };
-    CommandContext_t xCommandContext = { 0 };
+    MQTTAgentCommandInfo_t xCommandParams = { 0 };
+    MQTTAgentCommandContext_t xCommandContext = { 0 };
     MQTTSubscribeInfo_t xSubscription = { 0 };
     MQTTAgentSubscribeArgs_t xSubscribeArgs = { 0 };
 
