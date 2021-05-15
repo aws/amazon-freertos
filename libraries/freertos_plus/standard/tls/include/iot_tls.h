@@ -164,7 +164,7 @@ void TLS_Cleanup( void * pvContext );
  * 
  * @return non-zero if the date is in the past
  */
-typedef BaseType_t (*dateIsInThePast_t)(BaseType_t, BaseType_t, BaseType_t);
+typedef BaseType_t (*DateIsInThePast_t)(BaseType_t day, BaseType_t month, BaseType_t year);
 
 /**
  * @brief function to set the callback for testing the expiration date of certificates
