@@ -171,6 +171,6 @@ typedef BaseType_t (*DateIsInThePast_t)(BaseType_t day, BaseType_t month, BaseTy
  * 
  * @param DateIsInThePast a function that tests the expiration date against the current date
  */
-void TLS_setDateIsInThePastFunction(dateIsInThePast_t DateIsInThePast);
+void TLS_setDateIsInThePastFunction(DateIsInThePast_t dateIsInThePast);
 
 #endif /* ifndef __AWS__TLS__H__ */
