@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/param.h>
 #include "aws_iot_ota_agent.h"
 #include "aws_iot_ota_pal.h"
 #include "aws_iot_ota_interface.h"
@@ -399,7 +400,7 @@ OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
     void * pvSigVerifyContext;
     u8 * pucSignerCert = 0;
     static spi_flash_mmap_memory_t ota_data_map;
-    const void * buf = NULL;
+    uint32_t mmu_free_pages_count, len, flash_offset = 0;
 
     /* Verify an ECDSA-SHA256 signature. */
     if( CRYPTO_SignatureVerificationStart( &pvSigVerifyContext, cryptoASYMMETRIC_ALGORITHM_ECDSA,
@@ -417,18 +418,32 @@ OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
         return kOTA_Err_BadSignerCert;
     }
 
-    esp_err_t ret = esp_partition_mmap( ota_ctx.update_partition, 0, ota_ctx.data_write_len,
-                                        SPI_FLASH_MMAP_DATA, &buf, &ota_data_map );
+    mmu_free_pages_count = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_DATA);
+    len = ota_ctx.data_write_len;
 
-    if( ret != ESP_OK )
-    {
-        ESP_LOGE( TAG, "partition mmap failed %d", ret );
-        result = kOTA_Err_SignatureCheckFailed;
-        goto end;
+    while (len > 0) {
+        /* Data we could map in case we are not aligned to PAGE boundary is one page size lesser.
+         * 0x0000FFFF is mmap aligned mask for 64K boundary */
+        uint32_t mmu_page_offset = ((flash_offset & 0x0000FFFF) != 0) ? 1 : 0;
+        /* Read the image that fits in the free MMU pages */
+        uint32_t partial_image_len = MIN(len, ((mmu_free_pages_count - mmu_page_offset) * SPI_FLASH_MMU_PAGE_SIZE));
+        const void * buf = NULL;
+
+        esp_err_t ret = esp_partition_mmap( ota_ctx.update_partition, flash_offset, partial_image_len,
+                                            SPI_FLASH_MMAP_DATA, &buf, &ota_data_map );
+
+        if( ret != ESP_OK )
+        {
+            ESP_LOGE( TAG, "partition mmap failed %d", ret );
+            result = kOTA_Err_SignatureCheckFailed;
+            goto end;
+        }
+
+        CRYPTO_SignatureVerificationUpdate( pvSigVerifyContext, buf, partial_image_len );
+        spi_flash_munmap( ota_data_map );
+        flash_offset += partial_image_len;
+        len -= partial_image_len;
     }
-
-    CRYPTO_SignatureVerificationUpdate( pvSigVerifyContext, buf, ota_ctx.data_write_len );
-    spi_flash_munmap( ota_data_map );
 
     if( CRYPTO_SignatureVerificationFinal( pvSigVerifyContext, ( char * ) pucSignerCert, ulSignerCertSize,
                                            C->pxSignature->ucData, C->pxSignature->usSize ) == pdFALSE )
