@@ -19,3 +19,17 @@ afr_module_dependencies(
     PUBLIC
         AFR::core_mqtt
 )
+
+afr_module( NAME ota_demo_version )
+
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/ota_demo_version.c"
+)
+
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    PUBLIC
+        AFR::ota
+)

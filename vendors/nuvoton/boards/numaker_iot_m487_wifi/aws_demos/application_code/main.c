@@ -46,7 +46,6 @@
 #include "iot_wifi.h"
 #endif
 #include "aws_clientcredential.h"
-#include "aws_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
 
 
@@ -157,7 +156,6 @@ int main( void )
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();
-    configPRINTF( ( "FreeRTOS App Ver:%x\n", xAppFirmwareVersion));    
     configPRINTF( ( "FreeRTOS_IPInit\n" ) );	
 #if !defined(CONFIG_OTA_MQTT_UPDATE_DEMO_ENABLED) && !defined(CONFIG_OTA_HTTP_UPDATE_DEMO_ENABLED)
     xTaskCreate( vCheckTask, "Check", mainCHECK_TASK_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY, NULL );	

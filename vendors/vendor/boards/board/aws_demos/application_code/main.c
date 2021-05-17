@@ -36,15 +36,7 @@
 #include "iot_logging_task.h"
 #include "iot_wifi.h"
 #include "aws_clientcredential.h"
-#include "aws_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
-
-/* Declare the firmware version structure for all to see. */
-const AppVersion32_t xAppFirmwareVersion = {
-	.u.x.ucMajor = APP_VERSION_MAJOR,
-	.u.x.ucMinor = APP_VERSION_MINOR,
-	.u.x.usBuild = APP_VERSION_BUILD,
-};
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )

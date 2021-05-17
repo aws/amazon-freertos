@@ -53,17 +53,6 @@
 /* WiFi driver includes. */
 #include "es_wifi.h"
 
-/* Application version info. */
-#include "aws_application_version.h"
-
-/* Declare the firmware version structure for all to see. */
-const AppVersion32_t xAppFirmwareVersion =
-{
-    .u.x.ucMajor = APP_VERSION_MAJOR,
-    .u.x.ucMinor = APP_VERSION_MINOR,
-    .u.x.usBuild = APP_VERSION_BUILD,
-};
-
 /* The SPI driver polls at a high priority. The logging task's priority must also
  * be high to be not be starved of CPU time. */
 #define mainLOGGING_TASK_PRIORITY                         ( configMAX_PRIORITIES - 1 )

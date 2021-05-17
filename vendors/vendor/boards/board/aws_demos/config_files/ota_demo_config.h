@@ -34,4 +34,34 @@
     #define otapalconfigCODE_SIGNING_CERTIFICATE    "Insert code signing certificate..."
 #endif
 
+/**
+ * @brief Major version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#ifndef APP_VERSION_MAJOR
+    #define APP_VERSION_MAJOR    0
+#endif
+
+/**
+ * @brief Minor version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#ifndef APP_VERSION_MINOR
+    #define APP_VERSION_MINOR    9
+#endif
+
+/**
+ * @brief Build version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#ifndef APP_VERSION_BUILD
+    #define APP_VERSION_BUILD    0
+#endif
+
 #endif /* _OTA_DEMO_CONFIG_H_ */

@@ -40,7 +40,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "iot_system_init.h"
 #include "iot_logging_task.h"
 #include "aws_clientcredential.h"
-#include "aws_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
 
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 6 )

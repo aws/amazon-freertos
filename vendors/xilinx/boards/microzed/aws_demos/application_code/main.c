@@ -39,7 +39,6 @@
 #include "aws_demo.h"
 
 /* AWS System includes. */
-#include "aws_application_version.h"
 #include "iot_system_init.h"
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
@@ -48,9 +47,6 @@
 #include "aws_demo_config.h"
 #include "aws_demo.h"
 #include "iot_logging_task.h"
-
-/* Application version info. */
-#include "aws_application_version.h"
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 128 )

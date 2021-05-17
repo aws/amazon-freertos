@@ -18,19 +18,26 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
  */
 
-#include "aws_application_version.h"
+/**
+ * @file ota_demo_version.c
+ *
+ * @brief This file defines the appFirmwareVersion variable that is required to
+ * build the OTA library. This variable has a dedicated file so that it can be
+ * referenced by multiple OTA demos.
+ */
+
+/* Includes the OTA Application version number. */
 #include "ota_appversion32.h"
+#include "ota_demo_config.h"
 
-
-/* Declare the firmware version structure for all to see. */
+/* Definition of the appFirmwareVersion variable that is used by the OTA
+ * library and is declared in the ota_appversion32.h file. The values for these
+ * firmware versions are set in the ota_demo_config.h file. */
 const AppVersion32_t appFirmwareVersion =
 {
     .u.x.major = APP_VERSION_MAJOR,
     .u.x.minor = APP_VERSION_MINOR,
-    .u.x.build = APP_VERSION_BUILD,
+    .u.x.build = APP_VERSION_BUILD
 };
