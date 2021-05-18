@@ -692,11 +692,6 @@
 					<GroupName>demos/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_application_version.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../demos/include/aws_application_version.h</FilePath>
-						</File>
-						<File>
 							<FileName>aws_clientcredential.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../demos/include/aws_clientcredential.h</FilePath>
@@ -761,11 +756,6 @@
 				<Group>
 					<GroupName>libraries/c_sdk/standard/common/include/</GroupName>
 					<Files>
-						<File>
-							<FileName>iot_appversion32.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h</FilePath>
-						</File>
 						<File>
 							<FileName>iot_init.h</FileName>
 							<FileType>5</FileType>
