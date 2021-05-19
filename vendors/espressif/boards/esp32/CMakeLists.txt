@@ -73,6 +73,20 @@ else()
     set(aws_credentials_include "${AFR_DEMOS_DIR}/include")
 endif()
 
+# mbedTLS include directories
+if(NOT AFR_FREERTOS_TCP)
+    target_include_directories(
+        afr_3rdparty_mbedtls
+        PUBLIC
+        "${esp_idf_dir}/components/lwip/include/apps"
+        "${esp_idf_dir}/components/lwip/include/apps/sntp"
+        "${esp_idf_dir}/components/lwip/lwip/src/include"
+        "${esp_idf_dir}/components/lwip/port/esp32/include"
+        "${esp_idf_dir}/components/lwip/port/esp32/include/arch"
+        "${esp_idf_dir}/components/lwip/lwip/src/include/compat"
+        )
+endif()
+
 # Kernel
 afr_mcu_port(kernel)
 afr_glob_src(driver_src DIRECTORY "${esp_idf_dir}" RECURSE)
@@ -541,6 +555,13 @@ if (NOT IDF_SDKCONFIG_DEFAULTS)
     string(REGEX REPLACE "partition-table.csv" "${board_dir}/partition-table.csv" file_sdkconfig_default "${file_sdkconfig_default}")
     file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
     set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
+else()
+    set(ABS_SDKCONFIG_DEFAULTS)
+    foreach(DEFAULTS ${IDF_SDKCONFIG_DEFAULTS})
+        get_filename_component(ABS_DEFAULTS ${DEFAULTS} ABSOLUTE)
+        list(APPEND ABS_SDKCONFIG_DEFAULTS ${ABS_DEFAULTS})
+    endforeach()
+    set(IDF_SDKCONFIG_DEFAULTS ${ABS_SDKCONFIG_DEFAULTS})
 endif()
 
 # Set sdkconfig generation path inside build
@@ -580,7 +601,7 @@ endif()
 
 idf_build_process(esp32
                     SDKCONFIG ${CMAKE_BINARY_DIR}/sdkconfig
-                    SDKCONFIG_DEFAULTS ${CMAKE_BINARY_DIR}/sdkconfig.defaults
+                    SDKCONFIG_DEFAULTS ${IDF_SDKCONFIG_DEFAULTS}
                     BUILD_DIR ${CMAKE_BINARY_DIR})
 
 idf_build_get_property(idf_compile_options "COMPILE_OPTIONS")

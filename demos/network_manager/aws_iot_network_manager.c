@@ -460,26 +460,43 @@ static IotNetworkManager_t networkManager =
 
             xConnectParams.xSecurity = xSecurity;
 
-            if( xSecurity == eWiFiSecurityWPA2 )
+            switch( xSecurity )
             {
-                if( pcPassword != NULL )
-                {
-                    xPasswordLength = strlen( clientcredentialWIFI_PASSWORD );
+                case eWiFiSecurityWPA:
+                case eWiFiSecurityWPA2:
 
-                    if( ( xPasswordLength > 0 ) && ( xPasswordLength < wificonfigMAX_PASSPHRASE_LEN ) )
+                    if( pcPassword != NULL )
                     {
-                        xConnectParams.xPassword.xWPA.ucLength = xPasswordLength;
-                        memcpy( xConnectParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xPasswordLength );
+                        xPasswordLength = strlen( clientcredentialWIFI_PASSWORD );
+
+                        if( ( xPasswordLength > 0 ) && ( xPasswordLength < wificonfigMAX_PASSPHRASE_LEN ) )
+                        {
+                            xConnectParams.xPassword.xWPA.ucLength = xPasswordLength;
+                            memcpy( xConnectParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xPasswordLength );
+                        }
+                        else
+                        {
+                            status = false;
+                        }
                     }
                     else
                     {
                         status = false;
                     }
-                }
-                else
-                {
+
+                    break;
+
+                case eWiFiSecurityOpen:
+                    /* Nothing to do. */
+                    break;
+
+                case eWiFiSecurityWPA3:
+                case eWiFiSecurityWPA2_ent:
+                case eWiFiSecurityWEP:
+                default:
+                    IotLogError( "The configured WiFi security option is not supported." );
                     status = false;
-                }
+                    break;
             }
 
             if( status == true )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -14,17 +14,17 @@
 extern "C" {
 #endif
 
-/******** TFM_SP_STORAGE ********/
-#define TFM_SST_SET_SID                                            (0x00000060U)
-#define TFM_SST_SET_VERSION                                        (1U)
-#define TFM_SST_GET_SID                                            (0x00000061U)
-#define TFM_SST_GET_VERSION                                        (1U)
-#define TFM_SST_GET_INFO_SID                                       (0x00000062U)
-#define TFM_SST_GET_INFO_VERSION                                   (1U)
-#define TFM_SST_REMOVE_SID                                         (0x00000063U)
-#define TFM_SST_REMOVE_VERSION                                     (1U)
-#define TFM_SST_GET_SUPPORT_SID                                    (0x00000064U)
-#define TFM_SST_GET_SUPPORT_VERSION                                (1U)
+/******** TFM_SP_PS ********/
+#define TFM_PS_SET_SID                                             (0x00000060U)
+#define TFM_PS_SET_VERSION                                         (1U)
+#define TFM_PS_GET_SID                                             (0x00000061U)
+#define TFM_PS_GET_VERSION                                         (1U)
+#define TFM_PS_GET_INFO_SID                                        (0x00000062U)
+#define TFM_PS_GET_INFO_VERSION                                    (1U)
+#define TFM_PS_REMOVE_SID                                          (0x00000063U)
+#define TFM_PS_REMOVE_VERSION                                      (1U)
+#define TFM_PS_GET_SUPPORT_SID                                     (0x00000064U)
+#define TFM_PS_GET_SUPPORT_VERSION                                 (1U)
 
 /******** TFM_SP_ITS ********/
 #define TFM_ITS_SET_SID                                            (0x00000070U)
@@ -45,6 +45,8 @@ extern "C" {
 #define TFM_SP_PLATFORM_SYSTEM_RESET_VERSION                       (1U)
 #define TFM_SP_PLATFORM_IOCTL_SID                                  (0x00000041U)
 #define TFM_SP_PLATFORM_IOCTL_VERSION                              (1U)
+#define TFM_SP_PLATFORM_NV_COUNTER_SID                             (0x00000042U)
+#define TFM_SP_PLATFORM_NV_COUNTER_VERSION                         (1U)
 
 /******** TFM_SP_INITIAL_ATTESTATION ********/
 #define TFM_ATTEST_GET_TOKEN_SID                                   (0x00000020U)
@@ -59,10 +61,6 @@ extern "C" {
 #define SPM_CORE_TEST_INIT_SUCCESS_VERSION                         (1U)
 #define SPM_CORE_TEST_DIRECT_RECURSION_SID                         (0x0000F021U)
 #define SPM_CORE_TEST_DIRECT_RECURSION_VERSION                     (1U)
-#define SPM_CORE_TEST_MPU_ACCESS_SID                               (0x0000F022U)
-#define SPM_CORE_TEST_MPU_ACCESS_VERSION                           (1U)
-#define SPM_CORE_TEST_MEMORY_PERMISSIONS_SID                       (0x0000F023U)
-#define SPM_CORE_TEST_MEMORY_PERMISSIONS_VERSION                   (1U)
 #define SPM_CORE_TEST_SS_TO_SS_SID                                 (0x0000F024U)
 #define SPM_CORE_TEST_SS_TO_SS_VERSION                             (1U)
 #define SPM_CORE_TEST_SS_TO_SS_BUFFER_SID                          (0x0000F025U)
@@ -128,9 +126,9 @@ extern "C" {
 #define SPM_CORE_IRQ_TEST_1_EXECUTE_TEST_SCENARIO_SID              (0x0000F0A1U)
 #define SPM_CORE_IRQ_TEST_1_EXECUTE_TEST_SCENARIO_VERSION          (1U)
 
-/******** TFM_SP_SST_TEST ********/
-#define TFM_SST_TEST_PREPARE_SID                                   (0x0000F0C0U)
-#define TFM_SST_TEST_PREPARE_VERSION                               (1U)
+/******** TFM_SP_PS_TEST ********/
+#define TFM_PS_TEST_PREPARE_SID                                    (0x0000F0C0U)
+#define TFM_PS_TEST_PREPARE_VERSION                                (1U)
 
 /******** TFM_SP_PSOC_SERVICE_TEST ********/
 #define PSOC_SERVICE_TEST_PSA_INIT_WD_SID                          (0x00002001U)
@@ -153,12 +151,6 @@ extern "C" {
 /******** TFM_SP_SECURE_CLIENT_2 ********/
 #define TFM_SECURE_CLIENT_2_SID                                    (0x0000F0E0U)
 #define TFM_SECURE_CLIENT_2_VERSION                                (1U)
-
-/******** TFM_SP_MULTI_CORE_TEST ********/
-#define MULTI_CORE_MULTI_CLIENT_CALL_TEST_0_SID                    (0x0000F100U)
-#define MULTI_CORE_MULTI_CLIENT_CALL_TEST_0_VERSION                (1U)
-#define MULTI_CORE_MULTI_CLIENT_CALL_TEST_1_SID                    (0x0000F101U)
-#define MULTI_CORE_MULTI_CLIENT_CALL_TEST_1_VERSION                (1U)
 
 #ifdef __cplusplus
 }

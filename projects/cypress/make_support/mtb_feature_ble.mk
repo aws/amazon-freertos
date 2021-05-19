@@ -12,7 +12,7 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/mqtt_ble/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/wifi_provisioning/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src/services/data_transfer/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/*.c)
 
 INCLUDES+=\
 	$(CY_AFR_BOARD_PATH)/ports/ble\

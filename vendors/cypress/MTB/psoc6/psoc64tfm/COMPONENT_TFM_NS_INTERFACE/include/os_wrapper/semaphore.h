@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -18,7 +18,7 @@ extern "C" {
  * \brief Creates a new semaphore
  *
  * \param[in] max_count       Highest count of the semaphore
- * \param[in] initial_count   Starting count of the semaphore
+ * \param[in] initial_count   Starting count of the available semaphore
  * \param[in] name            Name of the semaphore
  *
  * \return Returns handle of the semaphore created, or NULL in case of error

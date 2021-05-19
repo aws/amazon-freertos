@@ -377,7 +377,7 @@
 							<MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
 							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot;  CONFIG_MEDTLS_USE_AFR_MEMORY RVDS_ARMCM4_NUC4xx __little_endian__=1 NDEBUG M487_ETH_DEMO</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../demos/common/http_demo_helpers;../../../../../demos/common/mqtt_demo_helpers;../../../../../demos/common/pkcs11_helpers;../../../../../demos/device_defender_for_aws;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../tests/integration_test;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/M487;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/abstractions/backoff_algorithm/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws/source/include;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../libraries/freertos_plus/aws/ota/include;../../../../../libraries/freertos_plus/aws/ota/src;</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../demos/common/http_demo_helpers;../../../../../demos/common/mqtt_demo_helpers;../../../../../demos/common/pkcs11_helpers;../../../../../demos/device_defender_for_aws;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../tests/integration_test;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/M487;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/abstractions/backoff_algorithm/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/coreMQTT-Agent/source/include;../../../../../libraries/abstractions/mqtt_agent/include;../../../../../libraries/abstractions/mqtt_agent;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws/source/include;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../demos/coreMQTT_Agent;../../../../../libraries/freertos_plus/aws/ota/include;../../../../../libraries/freertos_plus/aws/ota/src;</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -1699,6 +1699,56 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/coreMQTT-Agent/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_mqtt_agent.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreMQTT-Agent/source/core_mqtt_agent.c</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_agent_command_functions.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/coreMQTT-Agent/source/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>core_mqtt_agent.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_agent_command_functions.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</FilePath>
+						</File>
+						<File>
+							<FileName>core_mqtt_agent_message_interface.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/abstractions/mqtt_agent/</GroupName>
+					<Files>
+						<File>
+							<FileName>freertos_agent_message.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/abstractions/mqtt_agent/freertos_agent_message.c</FilePath>
+						</File>
+						<File>
+							<FileName>freertos_command_pool.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/abstractions/mqtt_agent/freertos_command_pool.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/coreJSON/source/</GroupName>
 					<Files>
 						<File>
@@ -1796,10 +1846,30 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_mutual_auth.c</FilePath>
 						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>demos/coreMQTT_Agent/</GroupName>
+					<Files>
 						<File>
-							<FileName>mqtt_demo_connection_sharing.c</FileName>
+							<FileName>mqtt_agent_task.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../demos/coreMQTT/mqtt_demo_connection_sharing.c</FilePath>
+							<FilePath>../../../../../demos/coreMQTT_Agent/mqtt_agent_task.c</FilePath>
+						</File>
+						<File>
+							<FileName>simple_sub_pub_demo.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT_Agent/simple_sub_pub_demo.c</FilePath>
+						</File>
+						<File>
+							<FileName>subscription_manager.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../demos/coreMQTT_Agent/subscription_manager.c</FilePath>
+						</File>
+						<File>
+							<FileName>subscription_manager.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../demos/coreMQTT_Agent/subscription_manager.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1972,9 +2042,9 @@
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/core_pkcs11_config.h</FilePath>
 						</File>
 						<File>
-							<FileName>mqtt_demo_connection_sharing_config.h</FileName>
+							<FileName>mqtt_agent_demo_config.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</FilePath>
+							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/mqtt_agent_demo_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>mqtt_demo_mutual_auth_config.h</FileName>
