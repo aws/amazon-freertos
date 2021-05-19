@@ -20,7 +20,7 @@ afr_module_dependencies(
         AFR::core_mqtt
 )
 
-afr_module( NAME ota_demo_version )
+afr_module( INTERNAL NAME ota_demo_version )
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
