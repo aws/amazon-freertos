@@ -1,2 +1,0 @@
-This folder contains code for testing cypress code in cypress's internal repo.
-This folder should never push to upstream amazon-freertos

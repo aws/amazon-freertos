@@ -1,6 +1,0 @@
-9b24ac4cb75f93dde7fbdf2fb805cc0030261408f7e70da6a17759658b02ac5e gcc/gcc-7.2.1-1.0.0.1-linux.zip
-020812a9f87293482cec51fdf44f41cc47e794de568f945a8175549d997e1760 cmake/cmake-3.15.3-Linux-x86_64.tar.gz
-f8f5792ef13869145dfc68050440b1519158aeed8191b2cb17093b94b5c073d5 ninja/ninja-1.9.0-linux.zip
-0df448fb4b4d800d430099f3e89774f66d8d5835ce5387b14e09db4461f5dc1c arm/arm-compiler/arm-compiler-6.12-linux-x86_64.tar.xz
-3f02e40341ff555e333ed60989282c6c8e1da9f275c23f677152db9618ab024d afr-device-tester/devicetester_freertos_linux_4.0.1.zip createdir
-cbb01a3855fac52c1de7a79cfa5ea9c064528e0731807339c36074e4f958ba74 http://iot-webserver.aus.cypress.com/projects/iot_release/ASSETS/repo/cyopenocd/icw/4.0/820/deploy/openocd-4.0.0.820-linux.zip createdir
