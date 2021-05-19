@@ -1,5 +1,0 @@
-ae49b767941ca9e2972704e5b720c8236301447ff8ed63764d871af351e0e18b gcc/gcc-7.2.1-1.0.0.1-windows.zip
-a18d96b7839ac3294e5e9f464f0af4c8336a16cd5f95e69a90a259207d7e5177 cmake/cmake-3.15.3-win64-x64.zip
-9d0de706043de5b86410c29e01a2541fc90aecc6419f662562a5f6ac3a60d4b6 ninja/ninja-1.9.0-win.zip
-2e3250ec8ee1bb2b25b5e7d8d8a8326a6a5138320e3be01ed4281606da0d9b4a arm/arm-compiler/arm-compiler-6.12-windows-x86_64.zip
-dcedbdf18c86c6ccf160582223dea5d6301c681b2264fbe2b6dccb40585e4678 afr-device-tester/devicetester_freertos_win_4.0.1.zip createdir
