@@ -558,7 +558,7 @@ static void _responseCompleteCallback( void * pPrivData,
      * requests exited properly. */
     if( TEST_PROTECT() )
     {
-        TEST_ASSERT_TRUE_MESSAGE( verifParams->numRequestsLeft >= 0, "verifParams->numRequestsLeft < 0, something went wrong. _responseCompleteCallback should only be called once per request." )
+        TEST_ASSERT_TRUE_MESSAGE( verifParams->numRequestsLeft >= 0, "verifParams->numRequestsLeft < 0, something went wrong. _responseCompleteCallback should only be called once per request." );
     }
 
     /* If this is the last request to complete, then post to the semaphore to let the test know everything is done. */
