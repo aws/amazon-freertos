@@ -16,8 +16,6 @@ afr_module_sources(
     INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_agent_task.c"
         "${CMAKE_CURRENT_LIST_DIR}/simple_sub_pub_demo.c"
-        "${CMAKE_CURRENT_LIST_DIR}/subscription_manager.c"
-        "${CMAKE_CURRENT_LIST_DIR}/subscription_manager.h"
         # Add the header file added to the target's metadata so that it
         # is available in code downloaded from the FreeRTOS console.
         ${AFR_DEMOS_DIR}/include/aws_iot_metrics.h
@@ -36,6 +34,7 @@ afr_module_dependencies(
         AFR::core_mqtt
         AFR::core_mqtt_agent
         AFR::mqtt_agent_interface
+        AFR::mqtt_subscription_manager
         AFR::backoff_algorithm
         AFR::transport_interface_secure_sockets
         AFR::secure_sockets
