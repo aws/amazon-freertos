@@ -21,7 +21,7 @@
  */
 
 /**
- * @file ota_demo_version.c
+ * @file ota_application_version.c
  *
  * @brief This file defines the appFirmwareVersion variable that is required to
  * build the OTA library. This variable has a dedicated file so that it can be
@@ -30,7 +30,7 @@
 
 /* Includes the OTA Application version number. */
 #include "ota_appversion32.h"
-#include "ota_demo_config.h"
+#include "ota_config.h"
 
 /* Definition of the appFirmwareVersion variable that is used by the OTA
  * library and is declared in the ota_appversion32.h file. The values for these

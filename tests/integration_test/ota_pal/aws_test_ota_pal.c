@@ -110,15 +110,6 @@ static uint8_t ucDummyData[] =
     0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f
 };
 
-/* This variable must be set to build the OTA library, but it is not being used
- * in these tests. The value for the version is arbitrary. */
-const AppVersion32_t appFirmwareVersion =
-{
-    .u.x.major = 0U,
-    .u.x.minor = 0U,
-    .u.x.build = 0U
-};
-
 /* Global static OTA file context used in every test. This variable is reset to
  * all zeros before every test. */
 static OtaFileContext_t xOtaFile;
