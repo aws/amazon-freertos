@@ -684,11 +684,6 @@
 							<FilePath>../../../../../demos/include/aws_iot_demo_network.h</FilePath>
 						</File>
 						<File>
-							<FileName>aws_ota_codesigner_certificate.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../demos/include/aws_ota_codesigner_certificate.h</FilePath>
-						</File>
-						<File>
 							<FileName>iot_config_common.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../demos/include/iot_config_common.h</FilePath>
@@ -1882,11 +1877,6 @@
 							<FileName>aws_iot_network_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/aws_iot_network_config.h</FilePath>
-						</File>
-						<File>
-							<FileName>aws_ota_agent_config.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/aws_ota_agent_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>aws_shadow_config.h</FileName>
