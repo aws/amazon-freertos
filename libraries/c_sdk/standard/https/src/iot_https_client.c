@@ -3399,5 +3399,5 @@ IotHttpsReturnCode_t IotHttpsClient_ReadContentLength( IotHttpsResponseHandle_t 
 
 /* Provide access to internal functions and variables if testing. */
 #if IOT_BUILD_TESTS == 1
-    #include "iot_test_access_https_client.c"
+    #include "iot_test_access_https_client.h"
 #endif
