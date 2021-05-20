@@ -1226,11 +1226,11 @@
 		<ClCompile Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_demo_helpers.c">
 			<Filter>demos\common\ota_demo_helpers</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_subscription_manager\subscription_manager.c">
-			<Filter>demos\common\mqtt_subscription_manager</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_application_version.c">
 			<Filter>demos\common\ota_demo_helpers</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_subscription_manager\subscription_manager.c">
+			<Filter>demos\common\mqtt_subscription_manager</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_mutual_auth.c">
 			<Filter>demos\coreHTTP</Filter>
