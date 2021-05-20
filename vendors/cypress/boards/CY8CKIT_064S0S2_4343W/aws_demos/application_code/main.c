@@ -79,6 +79,9 @@
 #include "tfm_ns_mailbox.h"
 #endif
 
+/* For kvstore_init() */
+#include "kvstore.h"
+
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 90 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
@@ -260,6 +263,9 @@ void vApplicationDaemonTaskStartupHook( void )
     {
         printf( "Retarget IO initialization failed \r\n" );
     }
+
+    result = kvstore_init();
+    CY_ASSERT(CY_RSLT_SUCCESS == result);
 
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
 #ifdef PDL_CODE

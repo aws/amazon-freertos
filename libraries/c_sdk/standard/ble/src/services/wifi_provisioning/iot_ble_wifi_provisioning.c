@@ -61,7 +61,12 @@
     ( ( ret == IOT_SERIALIZER_SUCCESS ) ||              \
       ( ( !pxSerializerBuf ) && ( ret == IOT_SERIALIZER_BUFFER_TOO_SMALL ) ) )
 
-#define STORAGE_INDEX( priority )    ( wifiProvisioning.numNetworks - priority - 1 )
+/**
+ * @brief Macro to check if provided network index for an operation is within range.
+ */
+#define IS_INDEX_WITHIN_RANGE( index )    ( ( index >= 0 ) && ( index < wifiProvisioning.numNetworks ) )
+
+#define STORAGE_INDEX( priority )         ( wifiProvisioning.numNetworks - priority - 1 )
 #define NETWORK_INFO_DEFAULT_PARAMS    { .status = eWiFiSuccess, .RSSI = IOT_BLE_WIFI_PROV_INVALID_NETWORK_RSSI, .connected = false, .savedIdx = IOT_BLE_WIFI_PROV_INVALID_NETWORK_INDEX }
 
 
@@ -1516,7 +1521,10 @@ static void _addNetworkTask( IotTaskPool_t taskPool,
 
     if( wifiProvisioning.addNetworkRequest.savedIdx != IOT_BLE_WIFI_PROV_INVALID_NETWORK_INDEX )
     {
-        ret = _connectSavedNetwork( wifiProvisioning.addNetworkRequest.savedIdx );
+        if( IS_INDEX_WITHIN_RANGE( wifiProvisioning.addNetworkRequest.savedIdx ) )
+        {
+            ret = _connectSavedNetwork( wifiProvisioning.addNetworkRequest.savedIdx );
+        }
     }
     else
     {
@@ -1547,7 +1555,10 @@ static void _deleteNetworkTask( IotTaskPool_t taskPool,
 {
     WIFIReturnCode_t ret = eWiFiFailure;
 
-    ret = _popNetwork( wifiProvisioning.deleteNetworkRequest.idx, NULL );
+    if( IS_INDEX_WITHIN_RANGE( wifiProvisioning.deleteNetworkRequest.idx ) )
+    {
+        ret = _popNetwork( wifiProvisioning.deleteNetworkRequest.idx, NULL );
+    }
 
     if( ret == eWiFiSuccess )
     {
@@ -1573,7 +1584,13 @@ static void _editNetworkTask( IotTaskPool_t taskPool,
 {
     WIFIReturnCode_t ret = eWiFiFailure;
 
-    ret = _moveNetwork( wifiProvisioning.editNetworkRequest.curIdx, wifiProvisioning.editNetworkRequest.newIdx );
+
+    if( IS_INDEX_WITHIN_RANGE( wifiProvisioning.editNetworkRequest.curIdx ) &&
+        IS_INDEX_WITHIN_RANGE( wifiProvisioning.editNetworkRequest.newIdx ) )
+    {
+        ret = _moveNetwork( wifiProvisioning.editNetworkRequest.curIdx, wifiProvisioning.editNetworkRequest.newIdx );
+    }
+
     _sendStatusResponse( IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_RESP, ret );
     IotSemaphore_Post( &wifiProvisioning.lock );
     IotTaskPool_RecycleJob( taskPool, job );

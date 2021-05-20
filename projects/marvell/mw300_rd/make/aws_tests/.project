@@ -4201,11 +4201,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/test_files/ecdsa-sha256-signer.crt.pem</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/test/test_files/ecdsa-sha256-signer.key.pem</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/test_files/ecdsa-sha256-signer.key.pem</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/aws/ota/test/test_files/getStreamResponse_0.cbor</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/test_files/getStreamResponse_0.cbor</locationURI>
@@ -4291,11 +4286,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/test_files/payload.bin</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/test/test_files/rsa-sha1-root-ca-cert-key.pem</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/test_files/rsa-sha1-root-ca-cert-key.pem</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/aws/ota/test/test_files/rsa-sha1-root-ca-cert.pem</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/test_files/rsa-sha1-root-ca-cert.pem</locationURI>
@@ -4306,19 +4296,9 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/test_files/rsa-sha1-signer.crt.pem</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/test/test_files/rsa-sha1-signer.key.pem</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/test_files/rsa-sha1-signer.key.pem</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/aws/ota/test/test_files/rsa-sha256-signer.crt.pem</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/test_files/rsa-sha256-signer.crt.pem</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/test/test_files/rsa-sha256-signer.key.pem</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/test_files/rsa-sha256-signer.key.pem</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/ota/test/test_files/rsasigner.crt</name>

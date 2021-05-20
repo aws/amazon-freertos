@@ -13,12 +13,18 @@
 #include "string.h"
 #include "FreeRTOS.h"
 #include "wiced_bt_dev.h"
-#include "cyobjstore.h"
+#include "kvstore.h"
 
 #define ENABLE_PLATFORM_NVRAM_LOG       0
 
 #define PLATFORM_MAX_BONDED_DEVICES     5
-#define MAX_BONIDNG_KEY_DATA_SIZE       sizeof(platform_bt_nvram_access_entry_t)+146 /* 146 is the max, size of Bluetooth key blob */
+#define MAX_BONDING_KEY_DATA_SIZE       sizeof(platform_bt_nvram_access_entry_t)+146 /* 146 is the max, size of Bluetooth key blob */
+
+/* This is the number of characters in BT_BONDING_KEY_COMMON, a space, up to three digits
+ * (BT_BASE_KEY + PLATFORM_MAX_BONDED_DEVICES), and the string termination character
+ * (see get_bt_bonding_key fuction below) */
+#define BT_BONDING_KEY_SIZE 19
+#define BT_BONDING_KEY_COMMON "BT Bonding Key"
 
 wiced_result_t platform_bt_nvram_get_bonded_devices(wiced_bt_device_address_t bonded_device_list[], uint16_t *p_num_devices);
 wiced_result_t platform_bt_nvram_save_bonded_device_key(wiced_bt_device_address_t bd_addr, uint8_t *p_keyblobs, uint16_t key_len);
@@ -45,6 +51,24 @@ platform_bt_nvram_interface_t nvram_interface =
  ****************************************************************************/
 
 /**
+ * Function     get_bt_bonding_key
+ *
+ * creates the BT bonding key string
+ *
+ * @param[in]  index
+ * @param[in]  char pointer to where to put string
+ *
+ * @return  void
+ */
+static void get_bt_bonding_key(uint8_t index, char *bt_bonding_key)
+{
+    char bt_bonding_key_common[] = BT_BONDING_KEY_COMMON;
+
+    sprintf(bt_bonding_key, "%s %d", bt_bonding_key_common, index);
+}
+
+
+/**
  * Function     platform_bt_nvram_find_device
  *
  * Check if the KV store already has entry for this bd address
@@ -55,27 +79,23 @@ platform_bt_nvram_interface_t nvram_interface =
  */
 static uint8_t platform_bt_nvram_find_device(const wiced_bt_device_address_t bda )
 {
-    uint8_t index = 0;
-    uint8_t kv_data[MAX_BONIDNG_KEY_DATA_SIZE];
-    uint32_t kv_entry_size;
+    uint8_t index;
+    char bt_bonding_key[BT_BONDING_KEY_SIZE];
 
-    if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED)
+    for (index = 0; index < PLATFORM_MAX_BONDED_DEVICES; index++)
     {
-        cy_objstore_initialize(false, 1);
-    }
+        get_bt_bonding_key(index + BT_BASE_KEY, bt_bonding_key);
 
-    for(index = 0; index < PLATFORM_MAX_BONDED_DEVICES; index++)
-    {
-        if (0 == cy_objstore_find_object(index+BT_BASE_KEY, (uint32_t *)kv_data, &kv_entry_size))
+        if (mtb_kvstore_read(&kvstore_obj, bt_bonding_key, NULL, NULL) == CY_RSLT_SUCCESS)
         {
-#if ENABLE_PLATFORM_NVRAM_LOG
+            #if ENABLE_PLATFORM_NVRAM_LOG
             printf("Found a valid KV store entry at index %d\r\n", index);
-#endif
+            #endif
             break;
         }
     }
 
-    return index+BT_BASE_KEY;
+    return index + BT_BASE_KEY;
 }
 
 /**
@@ -89,24 +109,22 @@ static uint8_t platform_bt_nvram_find_device(const wiced_bt_device_address_t bda
  */
 static uint8_t platform_bt_nvram_find_free_slot(void)
 {
-    uint8_t index = 0;
+    uint8_t index;
+    char bt_bonding_key[BT_BONDING_KEY_SIZE];
 
-    if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED)
+    for (index = 0; index < PLATFORM_MAX_BONDED_DEVICES; index++)
     {
-        cy_objstore_initialize(false, 1);
-    }
+        get_bt_bonding_key(index + BT_BASE_KEY, bt_bonding_key);
 
-    for(index = 0; index < PLATFORM_MAX_BONDED_DEVICES; index++)
-    {
-        if (cy_objstore_find_object(index+BT_BASE_KEY, NULL, NULL) == CY_OBJSTORE_NO_SUCH_OBJECT)
+        if (mtb_kvstore_read(&kvstore_obj, bt_bonding_key, NULL, NULL) != CY_RSLT_SUCCESS)
         {
             /* Found an empty slot */
-            return index+BT_BASE_KEY;
+            return index + BT_BASE_KEY;
         }
     }
 
     //TODO: handle error case
-    return index+BT_BASE_KEY;
+    return index + BT_BASE_KEY;
 }
 
 /**
@@ -123,33 +141,31 @@ static uint8_t platform_bt_nvram_find_free_slot(void)
 static wiced_result_t platform_bt_nvram_write(uint8_t kv_index, uint8_t* p_entry, uint8_t entry_len)
 {
     wiced_result_t result = WICED_ERROR;
+    char bt_bonding_key[BT_BONDING_KEY_SIZE];
 
-#if ENABLE_PLATFORM_NVRAM_LOG
+    #if ENABLE_PLATFORM_NVRAM_LOG
     uint8_t index;
     printf("KV store write length = %d and value is:\r\n", entry_len);
-    for(index = 0; index < entry_len; index++)
+    for (index = 0; index < entry_len; index++)
     {
         printf("%2x ", p_entry[index]);
     }
-#endif
+    #endif
 
-    if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED)
-    {
-        cy_objstore_initialize(false, 1);
-    }
+    get_bt_bonding_key(kv_index, bt_bonding_key);
 
-    if (0 == cy_objstore_store_object(kv_index, p_entry, entry_len))
+    if (mtb_kvstore_write(&kvstore_obj, bt_bonding_key, p_entry, entry_len) == CY_RSLT_SUCCESS)
     {
-#if ENABLE_PLATFORM_NVRAM_LOG
+        #if ENABLE_PLATFORM_NVRAM_LOG
         printf("KV store write at index %d SUCCESS!\r\n", kv_index);
-#endif
+        #endif
         result = WICED_SUCCESS;
     }
     else
     {
-#if ENABLE_PLATFORM_NVRAM_LOG
+        #if ENABLE_PLATFORM_NVRAM_LOG
         printf("KV store write at index %d FAILED!\r\n", kv_index);
-#endif
+        #endif
     }
     return result;
 }
@@ -161,31 +177,31 @@ static wiced_result_t platform_bt_nvram_write(uint8_t kv_index, uint8_t* p_entry
  *
  * @param[in]  kv_index - KV store bonding device index
  * @param[in]  p_key_entry - data pointer
- * @param[in]  entry_max_length - max. length of data to be read
+ * @param[in]  p_entry_max_length - max. length of data to be read
   *
  * @return  wiced_result_t
  */
-static wiced_result_t platform_bt_nvram_read(uint8_t kv_index, uint8_t* p_key_entry, uint8_t entry_max_length)
+static wiced_result_t platform_bt_nvram_read(uint8_t kv_index, uint8_t *p_key_entry,
+    uint32_t *p_entry_max_length)
 {
     wiced_result_t result = WICED_ERROR;
+    char bt_bonding_key[BT_BONDING_KEY_SIZE];
 
-    if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED)
-    {
-        cy_objstore_initialize(false, 1);
-    }
+    get_bt_bonding_key(kv_index, bt_bonding_key);
 
-    if(0 == cy_objstore_read_object(kv_index, p_key_entry, entry_max_length))
+    if (mtb_kvstore_read(&kvstore_obj, bt_bonding_key, p_key_entry, p_entry_max_length) ==
+        CY_RSLT_SUCCESS)
     {
-#if ENABLE_PLATFORM_NVRAM_LOG
+        #if ENABLE_PLATFORM_NVRAM_LOG
         printf("KV store read at index %d SUCCESS!\r\n", kv_index);
-#endif
+        #endif
         result = WICED_SUCCESS;
     }
     else
     {
-#if ENABLE_PLATFORM_NVRAM_LOG
+        #if ENABLE_PLATFORM_NVRAM_LOG
         printf("KV store read failed\r\n");
-#endif
+        #endif
     }
 
     return result;
@@ -203,17 +219,15 @@ static wiced_result_t platform_bt_nvram_read(uint8_t kv_index, uint8_t* p_key_en
 static wiced_result_t platform_bt_nvram_delete(uint8_t kv_index)
 {
     wiced_result_t result = WICED_ERROR;
+    char bt_bonding_key[BT_BONDING_KEY_SIZE];
 
-    if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED)
-    {
-        cy_objstore_initialize(false, 1);
-    }
+    get_bt_bonding_key(kv_index, bt_bonding_key);
 
-    if (0 == cy_objstore_delete_object(kv_index))
+    if (mtb_kvstore_delete(&kvstore_obj, bt_bonding_key) == CY_RSLT_SUCCESS)
     {
-#if ENABLE_PLATFORM_NVRAM_LOG
+        #if ENABLE_PLATFORM_NVRAM_LOG
         printf("KV store delete at index %d SUCCESS!\r\n", kv_index);
-#endif
+        #endif
         result = WICED_SUCCESS;
     }
     return result;
@@ -234,23 +248,24 @@ wiced_result_t platform_bt_nvram_get_bonded_devices(
 {
     wiced_result_t result = WICED_ERROR;
     uint8_t index = 0;
-    uint8_t kv_data[MAX_BONIDNG_KEY_DATA_SIZE];
+    uint8_t kv_data[MAX_BONDING_KEY_DATA_SIZE];
+    uint32_t kv_data_size;
+    char bt_bonding_key[BT_BONDING_KEY_SIZE];
 
     *p_num_devices = 0;
 
-    if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED)
+    for (index = 0; index < PLATFORM_MAX_BONDED_DEVICES; index++)
     {
-        cy_objstore_initialize(false, 1);
-    }
-    
-    for(index = 0; index < PLATFORM_MAX_BONDED_DEVICES; index++)
-    {
-        if (0 == cy_objstore_find_object(index+BT_BASE_KEY, NULL, NULL))
+        get_bt_bonding_key(index + BT_BASE_KEY, bt_bonding_key);
+        kv_data_size = sizeof(wiced_bt_device_address_t);
+
+        if (mtb_kvstore_read(&kvstore_obj, bt_bonding_key, kv_data, &kv_data_size) ==
+            CY_RSLT_SUCCESS)
         {
-#if ENABLE_PLATFORM_NVRAM_LOG
+            #if ENABLE_PLATFORM_NVRAM_LOG
             printf("Found a valid KV store entry at index %d\r\n", index);
-#endif
-            cy_objstore_read_object(index + BT_BASE_KEY, kv_data, sizeof(wiced_bt_device_address_t));
+            #endif
+
             /* BD address is the first 6 bytes of the key blob */
             memcpy(&bonded_device_list[*p_num_devices], kv_data, sizeof(wiced_bt_device_address_t));
             *p_num_devices = *p_num_devices + 1;
@@ -297,11 +312,6 @@ wiced_result_t platform_bt_nvram_save_bonded_device_key(
     if(!p_entry)
         return WICED_ERROR;
 
-    if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED)
-    {
-        cy_objstore_initialize(false, 1);
-    }
-
     /* Check if an entry already exists or a slot is free, if yes, then store the bonding key in the KV store */
     if (PLATFORM_MAX_BONDED_DEVICES + BT_BASE_KEY != (kv_index = platform_bt_nvram_find_device(bd_addr)) ||
         PLATFORM_MAX_BONDED_DEVICES + BT_BASE_KEY != (kv_index = platform_bt_nvram_find_free_slot()))
@@ -341,7 +351,7 @@ wiced_result_t plaform_bt_nvram_load_bonded_device_keys(
     uint16_t kv_index;
     wiced_result_t result = WICED_SUCCESS;
     platform_bt_nvram_access_entry_t *p_entry = NULL;
-    uint8_t entry_len;
+    uint32_t entry_len;
 
 #if ENABLE_PLATFORM_NVRAM_LOG
     uint8_t index;
@@ -356,11 +366,6 @@ wiced_result_t plaform_bt_nvram_load_bonded_device_keys(
     if( p_key_entry == NULL || entry_max_length == 0)
         return WICED_ERROR;
 
-    if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED)
-    {
-        cy_objstore_initialize(false, 1);
-    }
-
     if( PLATFORM_MAX_BONDED_DEVICES != (kv_index = platform_bt_nvram_find_device(bd_addr)) )
     {
         entry_len = (uint8_t)(sizeof(platform_bt_nvram_access_entry_t) -1 + entry_max_length);
@@ -368,7 +373,7 @@ wiced_result_t plaform_bt_nvram_load_bonded_device_keys(
         if(!p_entry)
         return WICED_ERROR;
 
-        result = platform_bt_nvram_read(kv_index, (uint8_t*)p_entry, entry_len);
+        result = platform_bt_nvram_read(kv_index, (uint8_t*)p_entry, &entry_len);
         if(result == WICED_SUCCESS)
         {
             memcpy(p_key_entry, p_entry->key_blobs, entry_max_length);
@@ -532,17 +537,21 @@ int print_bt_key_info( int32_t argc, const char* argv[]  )
     int status = 0;
     uint8_t index = 0;
     uint8_t bdIndex = 0;
-    uint32_t dataLength = 0;
+    uint32_t dataLength;
     char key[8];
-    uint8_t kv_data[MAX_BONIDNG_KEY_DATA_SIZE];
+    uint8_t kv_data[MAX_BONDING_KEY_DATA_SIZE];
     uint8_t deviceFound = 0;
+    char bt_bonding_key[BT_BONDING_KEY_SIZE];
 
-    for(index = 0; index < PLATFORM_MAX_BONDED_DEVICES; index++)
+    for (index = 0; index < PLATFORM_MAX_BONDED_DEVICES; index++)
     {
-        cy_objstore_read_object(index + BT_BASE_KEY, kv_data, &dataLength);
-        if (dataLength > 0)
+        get_bt_bonding_key(index + BT_BASE_KEY, bt_bonding_key);
+        dataLength = sizeof(kv_data);
+
+        if (mtb_kvstore_read(&kvstore_obj, bt_bonding_key, kv_data, &dataLength) == CY_RSLT_SUCCESS)
         {
-            if(dataLength == (uint8_t)(sizeof(platform_bt_nvram_access_entry_t) -1 + sizeof(wiced_bt_device_sec_keys_t)))
+            if (dataLength == ((uint8_t)(sizeof(platform_bt_nvram_access_entry_t) -1 +
+                               sizeof(wiced_bt_device_sec_keys_t))))
             {
                 wiced_bt_device_sec_keys_t *keys_ptr;
                 display_blob_element("Device BD address", &kv_data[0], sizeof(wiced_bt_device_address_t));

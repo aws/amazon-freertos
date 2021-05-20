@@ -6,6 +6,8 @@
  */
 
 #include <string.h>
+
+#include "cmsis_compiler.h"
 #include "tfm_ns_mailbox.h"
 
 /* The pointer to NSPE mailbox queue */
@@ -121,18 +123,28 @@ static void set_msg_owner(uint8_t idx, const void *owner)
 }
 
 #ifdef TFM_MULTI_CORE_TEST
+/*
+ * When NSPE mailbox only covers a single non-secure core, spinlock is only
+ * required to disable IRQ.
+ */
+static inline void ns_mailbox_spin_lock(void)
+{
+    __disable_irq();
+}
+
+static inline void ns_mailbox_spin_unlock(void)
+{
+    __enable_irq();
+}
+
 void tfm_ns_mailbox_tx_stats_init(void)
 {
     if (!mailbox_queue_ptr) {
         return;
     }
 
-    tfm_ns_mailbox_hal_enter_critical();
-
     mailbox_queue_ptr->nr_tx = 0;
     mailbox_queue_ptr->nr_used_slots = 0;
-
-    tfm_ns_mailbox_hal_exit_critical();
 }
 
 static void mailbox_tx_stats_update(struct ns_mailbox_queue_t *ns_queue)
@@ -145,9 +157,6 @@ static void mailbox_tx_stats_update(struct ns_mailbox_queue_t *ns_queue)
     }
 
     tfm_ns_mailbox_hal_enter_critical();
-
-    ns_queue->nr_tx++;
-
     /* Count the number of used slots when this tx arrives */
     empty_status = ns_queue->empty_slots;
     tfm_ns_mailbox_hal_exit_critical();
@@ -160,9 +169,10 @@ static void mailbox_tx_stats_update(struct ns_mailbox_queue_t *ns_queue)
         }
     }
 
-    tfm_ns_mailbox_hal_enter_critical();
+    ns_mailbox_spin_lock();
     ns_queue->nr_used_slots += (NUM_MAILBOX_QUEUE_SLOT - nr_empty);
-    tfm_ns_mailbox_hal_exit_critical();
+    ns_queue->nr_tx++;
+    ns_mailbox_spin_unlock();
 }
 
 void tfm_ns_mailbox_stats_avg_slot(struct ns_mailbox_stats_res_t *stats_res)
@@ -173,10 +183,8 @@ void tfm_ns_mailbox_stats_avg_slot(struct ns_mailbox_stats_res_t *stats_res)
         return;
     }
 
-    tfm_ns_mailbox_hal_enter_critical();
     nr_used_slots = mailbox_queue_ptr->nr_used_slots;
     nr_tx = mailbox_queue_ptr->nr_tx;
-    tfm_ns_mailbox_hal_exit_critical();
 
     stats_res->avg_nr_slots = nr_used_slots / nr_tx;
     nr_used_slots %= nr_tx;
