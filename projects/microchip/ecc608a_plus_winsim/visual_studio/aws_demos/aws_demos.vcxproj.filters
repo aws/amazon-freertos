@@ -128,6 +128,7 @@
 		<Filter Include="libraries\coreMQTT-Agent\source"/>
 		<Filter Include="libraries\coreMQTT-Agent"/>
 		<Filter Include="libraries\coreMQTT-Agent\source\include"/>
+		<Filter Include="demos\common\mqtt_subscription_manager"/>
 		<Filter Include="libraries\abstractions\mqtt_agent"/>
 		<Filter Include="libraries\coreJSON\source"/>
 		<Filter Include="libraries\coreJSON"/>
@@ -158,7 +159,6 @@
 		<Filter Include="libraries\ota_for_aws\source\dependency\3rdparty"/>
 		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports\ota_pal_for_aws"/>
 		<Filter Include="demos\common\ota_demo_helpers"/>
-		<Filter Include="demos\common\mqtt_subscription_manager"/>
 		<Filter Include="demos\coreHTTP"/>
 		<Filter Include="demos\coreMQTT"/>
 		<Filter Include="demos\coreMQTT_Agent"/>
@@ -747,9 +747,6 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_demo_helpers.h">
 			<Filter>demos\common\ota_demo_helpers</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.h">
-			<Filter>demos\coreMQTT_Agent</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\device_defender_for_aws\report_builder.h">
 			<Filter>demos\device_defender_for_aws</Filter>
@@ -1533,6 +1530,9 @@
 		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent_command_functions.c">
 			<Filter>libraries\coreMQTT-Agent\source</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_subscription_manager\subscription_manager.c">
+			<Filter>demos\common\mqtt_subscription_manager</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_agent_message.c">
 			<Filter>libraries\abstractions\mqtt_agent</Filter>
 		</ClCompile>
@@ -1614,9 +1614,6 @@
 		<ClCompile Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_demo_helpers.c">
 			<Filter>demos\common\ota_demo_helpers</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_subscription_manager\subscription_manager.c">
-			<Filter>demos\common\mqtt_subscription_manager</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_mutual_auth.c">
 			<Filter>demos\coreHTTP</Filter>
 		</ClCompile>
@@ -1636,9 +1633,6 @@
 			<Filter>demos\coreMQTT_Agent</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreMQTT_Agent\simple_sub_pub_demo.c">
-			<Filter>demos\coreMQTT_Agent</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.c">
 			<Filter>demos\coreMQTT_Agent</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\device_defender_for_aws\defender_demo.c">
