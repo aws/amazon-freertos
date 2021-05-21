@@ -50,10 +50,6 @@
 #include "optiga/ifx_i2c/ifx_i2c_config.h"
 #include "ecdsa_utils.h"
 
-#if ( pkcs11configOTA_SUPPORTED == 1 )
-    #include "aws_ota_codesigner_certificate.h"
-#endif
-
 /* C runtime includes. */
 #include <stdio.h>
 #include <string.h>
