@@ -104,10 +104,10 @@
     #endif
     #if defined( democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY )
         #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY
+        #define democonfigDEMO_PRIORITY    democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY
     #endif
 #elif defined( CONFIG_POSIX_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              vStartPOSIXDemo
+    #define DEMO_entryFUNCTION             vStartPOSIXDemo
 #elif defined( CONFIG_BLE_GATT_SERVER_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vGattDemoSvcInit
     #if defined( democonfigNETWORK_TYPES )
