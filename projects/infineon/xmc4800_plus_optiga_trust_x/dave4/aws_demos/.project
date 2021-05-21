@@ -1009,11 +1009,6 @@
 			<locationURI>AFR_HOME/demos/include/aws_iot_demo_network.h</locationURI>
 		</link>
 		<link>
-			<name>demos/include/aws_ota_codesigner_certificate.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/include/aws_ota_codesigner_certificate.h</locationURI>
-		</link>
-		<link>
 			<name>demos/include/iot_config_common.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/include/iot_config_common.h</locationURI>
@@ -1972,11 +1967,6 @@
 			<name>config_files/aws_iot_network_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/aws_iot_network_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/aws_ota_agent_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files/aws_ota_agent_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_shadow_config.h</name>
