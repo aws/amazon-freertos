@@ -69,4 +69,34 @@
  */
 #include "aws_test_ota_pal_ecdsa_sha256_signature.h"
 
+/**
+ * @brief Major version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#ifndef APP_VERSION_MAJOR
+    #define APP_VERSION_MAJOR    0
+#endif
+
+/**
+ * @brief Minor version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#ifndef APP_VERSION_MINOR
+    #define APP_VERSION_MINOR    9
+#endif
+
+/**
+ * @brief Build version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#ifndef APP_VERSION_BUILD
+    #define APP_VERSION_BUILD    0
+#endif
+
 #endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */
