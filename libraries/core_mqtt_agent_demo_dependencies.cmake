@@ -82,6 +82,7 @@ afr_module_dependencies(
     PUBLIC
         AFR::core_mqtt
         AFR::core_mqtt_agent
+        AFR::mqtt_subscription_manager
         AFR::backoff_algorithm
         AFR::mqtt_agent_interface
         AFR::core_mqtt_demo_dependencies
