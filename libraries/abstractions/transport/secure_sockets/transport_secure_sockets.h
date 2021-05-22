@@ -121,11 +121,6 @@ typedef struct SocketsConfig
     const char * pAlpnProtos;
 
     /**
-     * @brief Length of the ALPN protocols array.
-     */
-    uint32_t alpnProtosLen;
-
-    /**
      * @brief Disable server name indication (SNI) for a TLS session.
      */
     bool disableSni;
