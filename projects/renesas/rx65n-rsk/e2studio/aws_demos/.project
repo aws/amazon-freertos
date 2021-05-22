@@ -1877,6 +1877,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</locationURI>
 		</link>
 		<link>
+			<name>demos/common/mqtt_subscription_manager/subscription_manager.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/common/mqtt_subscription_manager/subscription_manager.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/mqtt_agent/freertos_agent_message.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/mqtt_agent/freertos_agent_message.c</locationURI>
@@ -2010,16 +2015,6 @@
 			<name>demos/coreMQTT_Agent/simple_sub_pub_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/simple_sub_pub_demo.c</locationURI>
-		</link>
-		<link>
-			<name>demos/coreMQTT_Agent/subscription_manager.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/subscription_manager.c</locationURI>
-		</link>
-		<link>
-			<name>demos/coreMQTT_Agent/subscription_manager.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/subscription_manager.h</locationURI>
 		</link>
 		<link>
 			<name>demos/device_defender_for_aws/defender_demo.c</name>

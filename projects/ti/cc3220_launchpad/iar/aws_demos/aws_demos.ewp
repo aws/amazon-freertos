@@ -393,6 +393,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_subscription_manager</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
@@ -2786,6 +2787,12 @@
 				</file>
 			</group>
 			<group>
+				<name>mqtt_subscription_manager</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_subscription_manager\subscription_manager.c</name>
+				</file>
+			</group>
+			<group>
 				<name>mqtt_demo_helpers</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c</name>
@@ -2820,12 +2827,6 @@
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT_Agent\simple_sub_pub_demo.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.h</name>
 			</file>
 		</group>
 		<group>
