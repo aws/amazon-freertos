@@ -2029,30 +2029,6 @@ void prvSubscribeTask( void * pvParameters )
             ulWaitCounter = 0;
         }
 
-        /* Since this is an infinite loop, we want to break if all publishes have
-         * been received. */
-        if( usNumReceived >= mqttexamplePUBLISH_COUNT )
-        {
-            break;
-        }
-
-        /* Break if we have been stuck in this loop for too long. The total wait
-         * here will be ( (loop delay + queue check delay) * `mqttexampleMAX_WAIT_ITERATIONS` ).
-         * For example, with a 1000 ms queue delay, a 400 ms loop delay, and a
-         * maximum iteration of 20, this will wait 28 seconds after receiving
-         * the last publish. */
-        if( ++ulWaitCounter > mqttexampleMAX_WAIT_ITERATIONS )
-        {
-            LogError( ( "Publish receive loop exceeded maximum wait time.\n" ) );
-            status = EXIT_FAILURE;
-            break;
-        }
-
-        /* Delay a bit to give more time for publish messages to be received. */
-        LogInfo( ( "No messages queued, received %u publish%s, sleeping for %d ms\n",
-                   usNumReceived,
-                   ( usNumReceived == 1 ) ? "" : "es",
-                   mqttexampleSUBSCRIBE_TASK_DELAY_MS ) );
         vTaskDelay( pdMS_TO_TICKS( mqttexampleSUBSCRIBE_TASK_DELAY_MS ) );
     }
 
@@ -2103,7 +2079,7 @@ void prvSubscribeTask( void * pvParameters )
 }
 
 /*-----------------------------------------------------------*/
-
+// Modify this demo and add device shadow concept to it as well
 int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
                                       const char * pIdentifier,
                                       void * pNetworkServerInfo,
@@ -2264,6 +2240,10 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
         LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
         vTaskDelay( mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS );
     }
+
+
+
+    // Cleanup 
 
     /* Delete queues. */
     if( xCommandQueue != NULL )
