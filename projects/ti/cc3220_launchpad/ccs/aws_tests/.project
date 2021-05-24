@@ -983,6 +983,46 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/core_mqtt_agent.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/mqtt_subscription_manager/subscription_manager.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/mqtt_subscription_manager/subscription_manager.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_agent_message.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/mqtt_agent/freertos_agent_message.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_command_pool.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/mqtt_agent/freertos_command_pool.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/coreJSON/source/core_json.c</locationURI>
@@ -991,16 +1031,6 @@
 			<name>libraries/coreJSON/source/include/core_json.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/coreJSON/source/include/core_json.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreJSON/source/include/stdbool.readme</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreJSON/source/include/stdbool.readme</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreJSON/source/include/stdint.readme</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreJSON/source/include/stdint.readme</locationURI>
 		</link>
 		<link>
 			<name>libraries/device_shadow_for_aws/source/shadow.c</name>
@@ -1063,42 +1093,7 @@
 			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/ota_cbor.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/core_mqtt_agent.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/mqtt_agent/freertos_agent_message.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/mqtt_agent/freertos_agent_message.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/mqtt_agent/freertos_command_pool.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/mqtt_agent/freertos_command_pool.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreJSON/source/core_json.c</name>
+			<name>libraries/ota_for_aws/source/include/ota_mqtt_private.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_mqtt_private.h</locationURI>
 		</link>
@@ -1208,6 +1203,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborparser_dup_string.c</locationURI>
 		</link>
 		<link>
+			<name>vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws/ota_pal.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws/ota_pal.c</locationURI>
+		</link>
+		<link>
 			<name>demos/common/ota_demo_helpers/ota_demo_helpers.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/common/ota_demo_helpers/ota_demo_helpers.c</locationURI>
@@ -1216,51 +1216,6 @@
 			<name>demos/common/ota_demo_helpers/ota_demo_helpers.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/common/ota_demo_helpers/ota_demo_helpers.h</locationURI>
-		</link>
-		<link>
-			<name>demos/common/mqtt_subscription_manager/subscription_manager.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/common/mqtt_subscription_manager/subscription_manager.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTTAgent/source/freertos_mqtt_agent.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTTAgent/source/freertos_mqtt_agent.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTTAgent/source/agent_command_pool.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTTAgent/source/agent_command_pool.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTTAgent/source/agent_message.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTTAgent/source/agent_message.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTTAgent/source/include/agent_command_pool.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTTAgent/source/include/agent_command_pool.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTTAgent/source/include/agent_message.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTTAgent/source/include/agent_message.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTTAgent/source/include/core_mqtt_agent_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTTAgent/source/include/core_mqtt_agent_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreMQTTAgent/source/include/freertos_mqtt_agent.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/coreMQTTAgent/source/include/freertos_mqtt_agent.h</locationURI>
-		</link>
-		<link>
-			<name>vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws/ota_pal.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws/ota_pal.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
@@ -1628,6 +1583,11 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/core_http_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/core_mqtt_agent_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/core_mqtt_agent_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/core_mqtt_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/core_mqtt_config.h</locationURI>
@@ -1671,6 +1631,11 @@
 			<name>config_files/iot_secure_sockets_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/iot_secure_sockets_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/ota_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/ota_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/shadow_config.h</name>
