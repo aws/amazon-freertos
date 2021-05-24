@@ -56,14 +56,8 @@
 
 /************ End of logging configuration ****************/
 
-/* Include config file used for testing the OTA PAL. This config file defines
- * the otapalconfigCODE_SIGNING_CERTIFICATE macro. */
-#include "aws_test_ota_config.h"
-
-/**
- * @brief The number of words allocated to the stack for the OTA agent.
- */
-#define otaconfigSTACK_SIZE                     630U
+/* Include OTA demo configurations. */
+#include "ota_demo_config.h"
 
 /**
  * @brief Log base 2 of the size of the file data block message (excluding the header).
@@ -71,6 +65,11 @@
  * 10 bits yields a data block size of 1KB.
  */
 #define otaconfigLOG2_FILE_BLOCK_SIZE           10UL
+
+/**
+  * @brief Size of the file data block message (excluding the header).
+  */
+#define otaconfigFILE_BLOCK_SIZE                ( 1UL << otaconfigLOG2_FILE_BLOCK_SIZE )
 
 /**
  * @brief Milliseconds to wait for the self test phase to succeed before we force reset.
@@ -84,11 +83,6 @@
  * the request message after being idle for this amount of time.
  */
 #define otaconfigFILE_REQUEST_WAIT_MS           10000U
-
-/**
- * @brief The OTA agent task priority. Normally it runs at a low priority.
- */
-#define otaconfigAGENT_PRIORITY                 tskIDLE_PRIORITY
 
 /**
  * @brief The maximum allowed length of the thing name used by the OTA agent.
