@@ -132,14 +132,15 @@ static void prvRollbackRxFile( OtaFileContext_t * C )
 
 /* Abort access to an existing open file. This is only valid after a job starts successfully. */
 
-OtaErr_t otaPal_Abort( OtaFileContext_t * const C )
+OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const C )
 {
     /* Use this signature to abort a file transfer on the TI CC3220SF platform. */
     static _u8 pcTI_AbortSig[] = "A";
 
 	int32_t lResult;
     /* Calling this function with a NULL file handle is not an error. */
-    OtaErr_t xReturnCode = OTA_ERR_NONE;
+    OtaPalMainStatus_t mainErr = OtaPalUninitialized;
+    OtaPalSubStatus_t subErr = 0;
 
     /* Check for null file handle since the agent may legitimately call this before a file is opened. */
     if( C->pFile != ( int32_t ) NULL )
@@ -149,11 +150,12 @@ OtaErr_t otaPal_Abort( OtaFileContext_t * const C )
 
 		if ( lResult != 0 )
 		{
-            xReturnCode = ( uint32_t ) OTA_ERR_ABORT_FAILED | ( ( ( uint32_t ) lResult ) & ( uint32_t ) OTA_PAL_ERR_MASK );
+            mainErr = OtaPalAbortFailed;
+            subErr = lResult;
 		}
 		else
 		{
-            xReturnCode = OTA_ERR_NONE;
+            mainErr = OtaPalSuccess;
 		}
 
 	    /* We aborted the file so attempt to roll back the entire bundle. This function
@@ -163,19 +165,20 @@ OtaErr_t otaPal_Abort( OtaFileContext_t * const C )
 	    prvRollbackBundle( );
 	}
 
-	return xReturnCode;
+	return OTA_PAL_COMBINE_ERR( mainErr, subErr );;
 }
 
 
 /* Attempt to create a new receive file to write the file chunks to as they come in. */
 
-OtaErr_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
+OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
 {
 
     _u32        ulToken = OTA_VENDOR_TOKEN;     /* TI platform requires file tokens. We use a vendor token. */
     uint32_t    ulFlags;                        /* Flags used when opening the OTA FW image file. */
     int32_t     lResult, lRetry;
-    OtaErr_t xReturnCode = OTA_ERR_UNINITIALIZED;
+    OtaPalMainStatus_t mainErr = OtaPalUninitialized;
+    OtaPalSubStatus_t subErr = 0;
 
     C->pFile = ( int32_t ) NULL;
 
@@ -201,7 +204,7 @@ OtaErr_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
                 {
                     LogInfo( ( "Receive file created. Token: %u", ulToken ) );
                     C->pFile = lResult;
-                    xReturnCode = OTA_ERR_NONE;
+                    mainErr = OtaPalSuccess;
                 }
                 else
                 {
@@ -210,7 +213,7 @@ OtaErr_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
                     if ( lResult == SL_ERROR_FS_FILE_IS_ALREADY_OPENED )
                     {
                         /* System is in an inconsistent state and must be rebooted. */
-                        if( otaPal_ResetDevice( C ) != OTA_ERR_NONE )
+                        if( otaPal_ResetDevice( C ) != OtaPalSuccess )
                         {
                             LogError( ( "Failed to reset the device via software." ) );
                         }
@@ -227,24 +230,27 @@ OtaErr_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
                     }
 
                     lRetry++;
-                    xReturnCode = ( uint32_t ) OTA_ERR_RX_FILE_CREATE_FAILED | ( ( ( uint32_t ) lResult ) & ( uint32_t ) OTA_PAL_ERR_MASK );
+                    mainErr = OtaPalRxFileCreateFailed;
+                    subErr = lResult;
                 }
-            } while( ( xReturnCode != OTA_ERR_NONE ) && ( lRetry <= ( int32_t ) OTA_MAX_CREATE_RETRIES ) );
+            } while( ( mainErr != OtaPalSuccess ) && ( lRetry <= ( int32_t ) OTA_MAX_CREATE_RETRIES ) );
         }
         else
         {
             /* Failed to create bootinfo file. */
-            xReturnCode = ( uint32_t ) OTA_ERR_BOOT_INFO_CREATE_FAILED | ( ( ( uint32_t ) lResult ) & ( uint32_t ) OTA_PAL_ERR_MASK );
+            mainErr = OtaPalBootInfoCreateFailed;
+            subErr = lResult;
         }
     }
     else
     {
         /* File is too big for the platform. */
         LogError( ( "Error (%d) trying to create receive file.", SL_ERROR_FS_FILE_MAX_SIZE_EXCEEDED ) );
-        xReturnCode = ( uint32_t ) OTA_ERR_RX_FILE_TOO_LARGE | ( OTA_MAX_MCU_IMAGE_SIZE & ( uint32_t ) OTA_PAL_ERR_MASK );
+        mainErr = OtaPalRxFileTooLarge;
+        subErr = OTA_MAX_MCU_IMAGE_SIZE;
     }
 
-    return xReturnCode;
+    return OTA_PAL_COMBINE_ERR( mainErr, subErr );
 }
 
 
@@ -310,11 +316,12 @@ static int32_t prvCreateBootInfoFile( void )
 
 /* Close the specified file. This will also authenticate the file if it is marked as secure. */
 
-OtaErr_t otaPal_CloseFile( OtaFileContext_t * const C )
+OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C )
 {
 
 	int32_t lResult;
-    OtaErr_t xReturnCode = OTA_ERR_UNINITIALIZED;
+    OtaPalMainStatus_t mainErr = OtaPalUninitialized;
+    OtaPalSubStatus_t subErr = 0;
 
 	/* Let SimpleLink API handle error checks so we get an error code for free. */
     LogInfo( ( "Authenticating and closing file." ) );
@@ -323,7 +330,7 @@ OtaErr_t otaPal_CloseFile( OtaFileContext_t * const C )
 	switch ( lResult )
 	{
 	    case 0L:
-            xReturnCode = OTA_ERR_NONE;
+            mainErr = OtaPalSuccess;
             break;
 
 	    case SL_ERROR_FS_WRONG_SIGNATURE_SECURITY_ALERT:
@@ -336,21 +343,23 @@ OtaErr_t otaPal_CloseFile( OtaFileContext_t * const C )
 	    case SL_ERROR_FS_ILLEGAL_SIGNATURE:
 	    case SL_ERROR_FS_WRONG_CERTIFICATE_FILE_NAME:
 	    case SL_ERROR_FS_NO_CERTIFICATE_STORE:
-            xReturnCode = ( uint32_t ) OTA_ERR_SIGNATURE_CHECK_FAILED | ( ( ( uint32_t ) lResult ) & ( uint32_t ) OTA_PAL_ERR_MASK ); /*lint !e571 intentionally cast lResult to larger composite error code. */
+            mainErr = OtaPalSignatureCheckFailed;
+            subErr = lResult;
             break;
 
 	    default:    /*lint -e788 Keep lint quiet about the obvious unused states we're catching here. */
-            xReturnCode = ( uint32_t ) OTA_ERR_FILE_CLOSE | ( ( ( uint32_t ) lResult ) & ( uint32_t ) OTA_PAL_ERR_MASK ); /*lint !e571 intentionally cast lResult to larger composite error code. */
+            mainErr = OtaPalFileClose;
+            subErr = lResult;
 	        break;
 	    }
 
-	return xReturnCode;
+	return OTA_PAL_COMBINE_ERR( mainErr, subErr );
 }
 
 
 /* Reset the device. */
 
-OtaErr_t otaPal_ResetDevice( OtaFileContext_t * const C )
+OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const C )
 {
     ( void ) C;
 
@@ -366,13 +375,13 @@ OtaErr_t otaPal_ResetDevice( OtaFileContext_t * const C )
     /* We shouldn't actually get here if the board supports the auto reset.
      * But, it doesn't hurt anything if we do although someone will need to
      * reset the device for the new image to boot. */
-    return OTA_ERR_RESET_NOT_SUPPORTED;
+    return OtaPalActivateFailed;
 }
 
 
 /* Activate the new MCU image by resetting the device. */
 
-OtaErr_t otaPal_ActivateNewImage( OtaFileContext_t * const C )
+OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const C )
 {
     LogInfo( ( "Activating the new MCU image." ) );
     return otaPal_ResetDevice( C );
@@ -383,7 +392,7 @@ OtaErr_t otaPal_ActivateNewImage( OtaFileContext_t * const C )
  * For the TI CC3220SF, commit the file bundle if the state == eOTA_ImageState_Accepted.
  */
 
-OtaErr_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
+OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
                                        OtaImageState_t eState )
 {
 
@@ -391,7 +400,8 @@ OtaErr_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
     SlFsControl_t FsControl;
 
     FsControl.IncludeFilters = 0U;
-    OtaErr_t xReturnCode = OTA_ERR_UNINITIALIZED;
+    OtaPalMainStatus_t mainErr = OtaPalUninitialized;
+    OtaPalSubStatus_t subErr = 0;
 
     ( void ) C;
 
@@ -403,12 +413,13 @@ OtaErr_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
 		if (lResult != 0)
 		{
             LogWarn( ( "Accepted final image but commit failed (%d).", lResult ) );
-            xReturnCode = ( uint32_t ) OTA_ERR_COMMIT_FAILED | ( ( ( uint32_t ) lResult ) & ( uint32_t ) OTA_PAL_ERR_MASK );
+            mainErr = OtaPalCommitFailed;
+            subErr = lResult;
 		}
 		else
 		{	/* Success. */
             LogInfo( ( "Accepted and committed final image." ) );
-            xReturnCode = OTA_ERR_NONE;
+            mainErr = OtaPalSuccess;
 		}
 	}
     else if( eState == OtaImageStateRejected )
@@ -418,12 +429,13 @@ OtaErr_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
         if (lResult != 0)
         {
             LogError( ( "Bundle rollback failed after reject (%d).", lResult ) );
-            xReturnCode = ( uint32_t ) OTA_ERR_REJECT_FAILED | ( ( ( uint32_t ) lResult ) & ( uint32_t ) OTA_PAL_ERR_MASK );
+            mainErr = OtaPalRejectFailed;
+            subErr = lResult;
         }
         else
         {   /* Success. */
             LogWarn( ( "Image was rejected and bundle files rolled back." ) );
-            xReturnCode = OTA_ERR_NONE;
+            mainErr = OtaPalSuccess;
         }
     }
     else if( eState == OtaImageStateAborted )
@@ -433,25 +445,26 @@ OtaErr_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
         if (lResult != 0)
         {
             LogError( ( "Bundle rollback failed after abort (%d).", lResult ) );
-            xReturnCode = ( uint32_t ) OTA_ERR_ABORT_FAILED | ( ( ( uint32_t ) lResult ) & ( uint32_t ) OTA_PAL_ERR_MASK );
+            mainErr = OtaPalAbortFailed;
+            subErr = lResult;
         }
         else
         {   /* Success. */
             LogWarn( ( "Agent aborted and bundle files rolled back." ) );
-            xReturnCode = OTA_ERR_NONE;
+            mainErr = OtaPalSuccess;
         }
     }
     else if( eState == OtaImageStateTesting )
     {
-        xReturnCode = OTA_ERR_NONE;
+        mainErr = OtaPalSuccess;
     }
     else
     {
         LogError( ( "Unknown state received %d.", ( int32_t ) eState ) );
-        xReturnCode = OTA_ERR_BAD_IMAGE_STATE;
+        mainErr = OtaPalBadImageState;
     }
 
-	return xReturnCode;
+	return OTA_PAL_COMBINE_ERR( mainErr, subErr );
 }
 
 /* Get the state of the currently running image.
@@ -514,10 +527,6 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const C )
     return eState;
 }
 
-#ifdef FREERTOS_ENABLE_UNIT_TESTS
-#include "aws_ota_pal_test_access_define.h"
-#endif
-
 /* Write a block of data to the specified file.
  * Returns the most recent number of bytes written upon success or a negative error code.
  */
@@ -566,3 +575,8 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const C,
 
     return lReturnVal;
 }
+
+/* Provide access to private members for testing. */
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
+    #include "aws_ota_pal_test_access_define.h"
+#endif

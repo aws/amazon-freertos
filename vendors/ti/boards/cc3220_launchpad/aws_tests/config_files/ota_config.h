@@ -56,8 +56,9 @@
 
 /************ End of logging configuration ****************/
 
-/* Include OTA demo configurations. */
-#include "ota_demo_config.h"
+/* Include config file used for testing the OTA PAL. This config file defines
+ * the otapalconfigCODE_SIGNING_CERTIFICATE macro. */
+#include "aws_test_ota_config.h"
 
 /**
  * @brief The number of words allocated to the stack for the OTA agent.
