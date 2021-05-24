@@ -681,13 +681,6 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
 
     IotLogDebug( "(MQTT connection %p) Keep-alive job started.", pMqttConnection );
 
-    /* Re-create the keep-alive job for rescheduling. This should never fail. */
-    taskPoolStatus = IotTaskPool_CreateJob( _IotMqtt_ProcessKeepAlive,
-                                            pContext,
-                                            IotTaskPool_GetJobStorageFromHandle( pKeepAliveJob ),
-                                            &pKeepAliveJob );
-    IotMqtt_Assert( taskPoolStatus == IOT_TASKPOOL_SUCCESS );
-
     IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
 
     /* Determine whether to send a PINGREQ or check for PINGRESP. */
@@ -810,6 +803,13 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
      * response shortly. */
     if( status == true )
     {
+        /* Re-create the keep-alive job for rescheduling. This should never fail. */
+        taskPoolStatus = IotTaskPool_CreateJob( _IotMqtt_ProcessKeepAlive,
+                                                pContext,
+                                                IotTaskPool_GetJobStorageFromHandle( pKeepAliveJob ),
+                                                &pKeepAliveJob );
+        IotMqtt_Assert( taskPoolStatus == IOT_TASKPOOL_SUCCESS );
+
         if( scheduleDelay == 0U )
         {
             scheduleDelay = pMqttConnection->nextKeepAliveMs;

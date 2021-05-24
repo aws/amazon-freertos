@@ -125,6 +125,11 @@
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
+		<Filter Include="libraries\coreMQTT-Agent\source"/>
+		<Filter Include="libraries\coreMQTT-Agent"/>
+		<Filter Include="libraries\coreMQTT-Agent\source\include"/>
+		<Filter Include="demos\common\mqtt_subscription_manager"/>
+		<Filter Include="libraries\abstractions\mqtt_agent"/>
 		<Filter Include="libraries\coreJSON\source"/>
 		<Filter Include="libraries\coreJSON"/>
 		<Filter Include="libraries\coreJSON\source\include"/>
@@ -155,11 +160,6 @@
 		<Filter Include="libraries\ota_for_aws\source\dependency\3rdparty"/>
 		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports\ota_pal_for_aws"/>
 		<Filter Include="demos\common\ota_demo_helpers"/>
-		<Filter Include="demos\common\mqtt_agent_interface"/>
-		<Filter Include="libraries\coreMQTT-Agent\source"/>
-		<Filter Include="libraries\coreMQTT-Agent"/>
-		<Filter Include="libraries\coreMQTT-Agent\source\include"/>
-		<Filter Include="demos\common\mqtt_subscription_manager"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\unit"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\system"/>
@@ -694,6 +694,15 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent.h">
+			<Filter>libraries\coreMQTT-Agent\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_command_functions.h">
+			<Filter>libraries\coreMQTT-Agent\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_message_interface.h">
+			<Filter>libraries\coreMQTT-Agent\source\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h">
 			<Filter>libraries\coreJSON\source\include</Filter>
 		</ClInclude>
@@ -759,21 +768,6 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_demo_helpers.h">
 			<Filter>demos\common\ota_demo_helpers</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\demos\common\mqtt_agent_interface\freertos_agent_message.h">
-			<Filter>demos\common\mqtt_agent_interface</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\demos\common\mqtt_agent_interface\freertos_command_pool.h">
-			<Filter>demos\common\mqtt_agent_interface</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\agent_message.h">
-			<Filter>libraries\coreMQTT-Agent\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\mqtt_agent.h">
-			<Filter>libraries\coreMQTT-Agent\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\mqtt_agent_command_functions.h">
-			<Filter>libraries\coreMQTT-Agent\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\tests\integration_test\ota_pal\aws_ota_pal_test_access_declare.h">
 			<Filter>tests\integration_test\ota_pal</Filter>
@@ -1566,6 +1560,21 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent.c">
+			<Filter>libraries\coreMQTT-Agent\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent_command_functions.c">
+			<Filter>libraries\coreMQTT-Agent\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_subscription_manager\subscription_manager.c">
+			<Filter>demos\common\mqtt_subscription_manager</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_agent_message.c">
+			<Filter>libraries\abstractions\mqtt_agent</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_command_pool.c">
+			<Filter>libraries\abstractions\mqtt_agent</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
 			<Filter>libraries\coreJSON\source</Filter>
 		</ClCompile>
@@ -1640,21 +1649,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_demo_helpers.c">
 			<Filter>demos\common\ota_demo_helpers</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_agent_interface\freertos_agent_message.c">
-			<Filter>demos\common\mqtt_agent_interface</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_agent_interface\freertos_command_pool.c">
-			<Filter>demos\common\mqtt_agent_interface</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\mqtt_agent.c">
-			<Filter>libraries\coreMQTT-Agent\source</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\mqtt_agent_command_functions.c">
-			<Filter>libraries\coreMQTT-Agent\source</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_subscription_manager\subscription_manager.c">
-			<Filter>demos\common\mqtt_subscription_manager</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">
 			<Filter>libraries\c_sdk\aws\defender\test\unit</Filter>

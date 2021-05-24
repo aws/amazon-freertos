@@ -10,7 +10,7 @@ set(JSON_HEADER_FILES "")
 foreach(json_public_include_dir ${JSON_INCLUDE_PUBLIC_DIRS})
     file(GLOB json_public_include_header_files
               LIST_DIRECTORIES false
-              ${json_public_include_dir}/* )
+              ${json_public_include_dir}/*.h )
     list(APPEND JSON_HEADER_FILES ${json_public_include_header_files})
 endforeach()
 

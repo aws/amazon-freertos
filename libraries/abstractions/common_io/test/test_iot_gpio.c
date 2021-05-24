@@ -416,7 +416,9 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioSpeed )
                 ulPerfCountFastDelta = 0xFFFFFFFF - ulPerfCount0 + ulPerfCount1 + 1;
             }
 
-            TEST_ASSERT_GREATER_THAN( ulPerfCountSlowDelta, ulPerfCountFastDelta );
+            /* The count is a reference to how long the read takes
+             *  so when running faster the count should be smaller. */
+            TEST_ASSERT_GREATER_THAN( ulPerfCountFastDelta, ulPerfCountSlowDelta );
         }
     }
 

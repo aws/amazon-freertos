@@ -490,6 +490,17 @@ BTStatus_t IotBle_StartAdv( IotBle_StartAdvCallback_t pStartAdvCb );
 /* @[declare_iotble_startadv] */
 
 /**
+ * @brief Sets an application defined callback invoked when an advertisement duration has ended or
+ * advertisement stops due to an error.
+ *
+ * @param pStopAdvCb The application defined callback to be invoked when advertisement is stopped.
+ * @return Returns eBTStatusSuccess on successful call.
+ */
+/* @[declare_iotble_setstopadvcallback] */
+BTStatus_t IotBle_SetStopAdvCallback( IotBle_StopAdvCallback_t pStopAdvCb );
+/* @[declare_iotble_setstopadvcallback] */
+
+/**
  * @brief Stop advertisements to listen for incoming connections.
  * Triggers IotBle_StopAdvCallback_t
  * @return Returns eBTStatusSuccess on successful call.
@@ -517,6 +528,7 @@ BTStatus_t IotBle_ConnParameterUpdateRequest( const BTBdaddr_t * pRemoteBdAddr,
  * For example, one service could require knowledge of connection status,
  * the it would subscribe to connectionCallback event. That API is giving the
  * flexibility of having more than one service listening to the same event.
+ * Note: API should not be invoked from within the event callback.
  *
  * @param[in] event The event.
  * @param[in] bleEventsCallbacks Callback returning status of the operation.
@@ -529,6 +541,7 @@ BTStatus_t IotBle_RegisterEventCb( IotBleEvents_t event,
 
 /**
  * @brief Remove a subscription to an event.
+ * Note: API should not be invoked from within the event callback.
  *
  * @param[in] event The event.
  * @param[in] bleEventsCallbacks The subscription to remove.

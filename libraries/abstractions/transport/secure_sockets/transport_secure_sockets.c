@@ -549,7 +549,8 @@ TransportSocketStatus_t SecureSocketsTransport_Connect( NetworkContext_t * pNetw
 
 TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkContext )
 {
-    TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
+    TransportSocketStatus_t shutdownStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
+    TransportSocketStatus_t closeStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
     int32_t transportSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
     SecureSocketsTransportParams_t * pSecureSocketsTransportParams = NULL;
 
@@ -563,22 +564,29 @@ TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_
         if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
             LogError( ( "Failed to close connection: SOCKETS_Shutdown call failed. %d", transportSocketStatus ) );
-            returnStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
+            shutdownStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
         }
         else
         {
-            /* Call Secure Sockets close function to close socket. */
-            transportSocketStatus = SOCKETS_Close( pSecureSocketsTransportParams->tcpSocket );
+            shutdownStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
+        }
 
-            if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
-            {
-                LogError( ( "Failed to close connection: SOCKETS_Close call failed. transportSocketStatus %d", transportSocketStatus ) );
-                returnStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
-            }
-            else
-            {
-                returnStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
-            }
+        /* Call Secure Sockets close function to close socket. */
+        transportSocketStatus = SOCKETS_Close( pSecureSocketsTransportParams->tcpSocket );
+
+        if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        {
+            LogError( ( "Failed to close connection: SOCKETS_Close call failed. transportSocketStatus %d", transportSocketStatus ) );
+            closeStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
+        }
+        else
+        {
+            closeStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
+        }
+
+        if( ( shutdownStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) || ( closeStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) )
+        {
+            shutdownStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
         }
     }
     else
@@ -586,7 +594,7 @@ TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_
         LogError( ( "Failed to close connection: pTransportInterface is NULL." ) );
     }
 
-    return returnStatus;
+    return shutdownStatus;
 }
 
 /*-----------------------------------------------------------*/

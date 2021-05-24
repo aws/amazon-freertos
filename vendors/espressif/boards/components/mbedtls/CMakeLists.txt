@@ -62,6 +62,14 @@ set(
     "${MBEDTLS_DIR}/port/esp_timing.c"
 )
 
+if(NOT AFR_FREERTOS_TCP)
+    list(
+        APPEND
+        mbedtls_srcs
+        "${esp_idf_dir}/components/mbedtls/port/net_sockets.c"
+        )
+endif()
+
 if(CONFIG_MBEDTLS_DYNAMIC_BUFFER)
     list(APPEND mbedtls_srcs
     "${MBEDTLS_DIR}/port/dynamic/esp_mbedtls_dynamic_impl.c"

@@ -413,11 +413,15 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT_Agent</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\device_defender_for_aws</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
@@ -1858,9 +1862,6 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\FreeRTOSIPConfig.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_bufferpool_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_demo_config.h</name>
 							</file>
 							<file>
@@ -1870,13 +1871,7 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_iot_network_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_mqtt_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_ota_agent_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_secure_sockets_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_shadow_config.h</name>
@@ -1912,16 +1907,25 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\http_demo_s3_upload_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_bufferpool_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_mqtt_agent_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_mqtt_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_secure_sockets_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\jobs_demo_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\mqtt_demo_connection_sharing_config.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\mqtt_agent_demo_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\mqtt_demo_mutual_auth_config.h</name>
@@ -2059,8 +2063,20 @@
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_mutual_auth.c</name>
 			</file>
+		</group>
+		<group>
+			<name>coreMQTT_Agent</name>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT\mqtt_demo_connection_sharing.c</name>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT_Agent\mqtt_agent_task.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT_Agent\simple_sub_pub_demo.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.h</name>
 			</file>
 		</group>
 		<group>
@@ -2526,6 +2542,15 @@
 						</file>
 					</group>
 				</group>
+			</group>
+			<group>
+				<name>mqtt_agent</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_agent_message.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_command_pool.c</name>
+				</file>
 			</group>
 		</group>
 		<group>
@@ -3319,6 +3344,30 @@
 					<name>interface</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h</name>
+					</file>
+				</group>
+			</group>
+		</group>
+		<group>
+			<name>coreMQTT-Agent</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent_command_functions.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_command_functions.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_message_interface.h</name>
 					</file>
 				</group>
 			</group>

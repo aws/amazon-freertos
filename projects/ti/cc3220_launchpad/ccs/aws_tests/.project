@@ -1063,7 +1063,42 @@
 			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/ota_cbor.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/ota_for_aws/source/include/ota_mqtt_private.h</name>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/core_mqtt_agent.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_agent_message.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/mqtt_agent/freertos_agent_message.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_command_pool.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/mqtt_agent/freertos_command_pool.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreJSON/source/core_json.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_mqtt_private.h</locationURI>
 		</link>

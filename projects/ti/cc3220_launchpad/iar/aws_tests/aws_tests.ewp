@@ -403,6 +403,9 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers</state>
@@ -1638,6 +1641,15 @@
 					</file>
 				</group>
 			</group>
+			<group>
+				<name>mqtt_agent</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_agent_message.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_command_pool.c</name>
+				</file>
+			</group>
 		</group>
 		<group>
 			<name>freertos_plus</name>
@@ -2861,6 +2873,30 @@
 			</group>
 		</group>
 		<group>
+			<name>coreMQTT-Agent</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent_command_functions.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_command_functions.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_message_interface.h</name>
+					</file>
+				</group>
+			</group>
+		</group>
+		<group>
 			<name>coreJSON</name>
 			<group>
 				<name>source</name>
@@ -3204,6 +3240,12 @@
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_subscription_manager\subscription_manager.c</name>
 				</file>
 			</group>
+		</group>
+		<group>
+			<name>include</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\aws_iot_metrics.h</name>
+			</file>
 		</group>
 		<group>
 			<name>include</name>

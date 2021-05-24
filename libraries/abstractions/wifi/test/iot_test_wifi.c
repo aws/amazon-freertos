@@ -1121,7 +1121,7 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_DomainNameLengthExceeded )
 
     if( TEST_PROTECT() )
     {
-        xWiFiStatus = WIFI_GetHostIP( testwifiTEST_INVALID_DOMAIN_NAME, ucIPAddr );
+        xWiFiStatus = WIFI_GetHostIP( cDomainNameLengthExceeded, ucIPAddr );
 
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
 

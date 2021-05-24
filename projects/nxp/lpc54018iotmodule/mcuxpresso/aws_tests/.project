@@ -1653,6 +1653,41 @@
 			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT-Agent/source/core_mqtt_agent.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_agent_message.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/mqtt_agent/freertos_agent_message.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_command_pool.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/mqtt_agent/freertos_command_pool.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/coreJSON/source/core_json.c</locationURI>
@@ -1676,6 +1711,16 @@
 			<name>libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/device_shadow_for_aws/source/include/shadow_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
+		</link>
+		<link>
+			<name>demos/include/aws_iot_metrics.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/include/aws_iot_metrics.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/device_defender_for_aws/source/defender.c</name>
@@ -1983,29 +2028,14 @@
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/FreeRTOSIPConfig.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/iot_bufferpool_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/iot_bufferpool_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_ggd_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/aws_ggd_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/iot_mqtt_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/iot_mqtt_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_ota_agent_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/aws_ota_agent_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/iot_secure_sockets_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/iot_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_shadow_config.h</name>
@@ -2063,6 +2093,11 @@
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/defender_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/iot_bufferpool_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/iot_bufferpool_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/iot_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/iot_config.h</locationURI>
@@ -2071,6 +2106,16 @@
 			<name>config_files/iot_mqtt_agent_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/iot_mqtt_agent_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_mqtt_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/iot_mqtt_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_secure_sockets_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files/iot_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/shadow_config.h</name>

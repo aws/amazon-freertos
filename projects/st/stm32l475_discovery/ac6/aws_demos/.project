@@ -1933,6 +1933,41 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/uart/FreeRTOS_CLI_UART.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT-Agent/source/core_mqtt_agent.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_agent_message.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/mqtt_agent/freertos_agent_message.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_command_pool.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/mqtt_agent/freertos_command_pool.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreJSON/source/core_json.c</locationURI>
@@ -2023,9 +2058,24 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT/mqtt_demo_mutual_auth.c</locationURI>
 		</link>
 		<link>
-			<name>demos/coreMQTT/mqtt_demo_connection_sharing.c</name>
+			<name>demos/coreMQTT_Agent/mqtt_agent_task.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT/mqtt_demo_connection_sharing.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/mqtt_agent_task.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT_Agent/simple_sub_pub_demo.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/simple_sub_pub_demo.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT_Agent/subscription_manager.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/subscription_manager.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT_Agent/subscription_manager.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/subscription_manager.h</locationURI>
 		</link>
 		<link>
 			<name>demos/device_defender_for_aws/defender_demo.c</name>
@@ -2188,11 +2238,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/FreeRTOSIPConfig.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/iot_bufferpool_config.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/iot_bufferpool_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_demo_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/aws_demo_config.h</locationURI>
@@ -2206,16 +2251,6 @@
 			<name>config_files/aws_iot_network_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/aws_iot_network_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/iot_mqtt_config.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/iot_mqtt_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/iot_secure_sockets_config.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/iot_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_shadow_config.h</name>
@@ -2273,6 +2308,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/http_demo_s3_upload_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/iot_bufferpool_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/iot_bufferpool_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/iot_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/iot_config.h</locationURI>
@@ -2283,14 +2323,24 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/iot_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/iot_mqtt_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/iot_mqtt_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_secure_sockets_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/iot_secure_sockets_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/jobs_demo_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/jobs_demo_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/mqtt_demo_connection_sharing_config.h</name>
+			<name>config_files/mqtt_agent_demo_config.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_demos/config_files/mqtt_agent_demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/mqtt_demo_mutual_auth_config.h</name>

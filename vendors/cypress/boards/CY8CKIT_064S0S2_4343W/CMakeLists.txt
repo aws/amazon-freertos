@@ -47,7 +47,11 @@ set(ENV{LINKER_SCRIPT_NAME} "cyb06xxa_cm4_dual")
 
 # These must be in parent scope so the rest of the cmake flow sees them
 set(ENV{CY_TFM_HEX} "${cy_psoc6_dir}/psoc64tfm/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex")
+if (CY_TFM_POLICY_VER_ES100)
+set(ENV{CY_TFM_POLICY_FILE} "${cy_psoc6_dir}/psoc64tfm/security/policy/policy_multi_CM0_CM4_jitp_es100.json")
+else()
 set(ENV{CY_TFM_POLICY_FILE} "${cy_psoc6_dir}/psoc64tfm/security/policy/policy_multi_CM0_CM4_jitp.json")
+endif()
 set(ENV{CY_DEVICE_NAME} "cy8ckit-064s0s2-4343w")
 
 #Features
@@ -160,7 +164,7 @@ cy_add_link_libraries(
     BSP_DIR "${app_dir}/application_code/cy_code"
     CONFIG_DIRS "${include_dirs}"
     COMPONENTS "4343W;CAPSENSE;TFM_NS_FREERTOS_WRAPPER;TFM_NS_INTERFACE"
-    DEFINES "CY_USE_LWIP;CY_TFM_PSA_SUPPORTED;TFM_MULTI_CORE_MULTI_CLIENT_CALL;CY_TFM_VERSION_1_0"
+    DEFINES "CY_USE_LWIP;CY_TFM_PSA_SUPPORTED;TFM_MULTI_CORE_MULTI_CLIENT_CALL"
 )
 
 # TODO: remove this once whd is updated to new version

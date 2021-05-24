@@ -179,7 +179,7 @@ OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const C );
  *   OtaPalCommitFailed: failed to make the update image permanent as requested by OtaImageStateAccepted.
  */
 OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
-                                       OtaImageState_t eState );
+                                             OtaImageState_t eState );
 
 /**
  * @brief Get the state of the OTA update image.
