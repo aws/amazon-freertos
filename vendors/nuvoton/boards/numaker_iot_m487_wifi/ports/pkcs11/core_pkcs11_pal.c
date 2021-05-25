@@ -479,6 +479,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         if( pdTRUE != prvFLASH_ReadFile( pcFileName, ppucData, pulDataSize) )
         {
             xHandle = eInvalidHandle;
+            ulReturn = CKR_KEY_HANDLE_INVALID;
         }
     }
     return ulReturn;
