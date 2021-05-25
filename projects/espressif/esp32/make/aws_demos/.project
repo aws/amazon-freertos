@@ -2402,11 +2402,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/test/iot_test_wifi_provisioning.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/iot_appversion32.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/iot_appversion32.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_atomic.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/iot_atomic.h</locationURI>

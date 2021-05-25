@@ -1072,11 +1072,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo_network_addr.c</locationURI>
 		</link>
 		<link>
-			<name>demos/demo_runner/aws_demo_version.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo_version.c</locationURI>
-		</link>
-		<link>
 			<name>demos/demo_runner/aws_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo.c</locationURI>
@@ -1105,11 +1100,6 @@
 			<name>demos/demo_runner/iot_demo_runner.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/iot_demo_runner.c</locationURI>
-		</link>
-		<link>
-			<name>demos/include/aws_application_version.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_application_version.h</locationURI>
 		</link>
 		<link>
 			<name>demos/include/aws_clientcredential.h</name>
@@ -1155,11 +1145,6 @@
 			<name>libraries/c_sdk/standard/common/iot_init.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/iot_init.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/iot_appversion32.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/iot_appversion32.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_init.h</name>
@@ -1857,86 +1842,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/include/aws_iot_ota_types.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/include/aws_iot_ota_types.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent_internal.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent_internal.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_pal.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/aws_iot_ota_pal.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/mbedtls/library/base64.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/base64.c</locationURI>
-		</link>
-		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/ports/ota/aws_ota_pal.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/ports/ota/aws_ota_pal.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor_internal.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor_internal.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</locationURI>
@@ -1970,6 +1875,11 @@
 			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/mqtt_subscription_manager/subscription_manager.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/common/mqtt_subscription_manager/subscription_manager.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/mqtt_agent/freertos_agent_message.c</name>
@@ -2107,16 +2017,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/simple_sub_pub_demo.c</locationURI>
 		</link>
 		<link>
-			<name>demos/coreMQTT_Agent/subscription_manager.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/subscription_manager.c</locationURI>
-		</link>
-		<link>
-			<name>demos/coreMQTT_Agent/subscription_manager.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/subscription_manager.h</locationURI>
-		</link>
-		<link>
 			<name>demos/device_defender_for_aws/defender_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/device_defender_for_aws/defender_demo.c</locationURI>
@@ -2155,11 +2055,6 @@
 			<name>demos/jobs_for_aws/jobs_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/jobs_for_aws/jobs_demo.c</locationURI>
-		</link>
-		<link>
-			<name>demos/ota/aws_iot_ota_update_demo.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/ota/aws_iot_ota_update_demo.c</locationURI>
 		</link>
 		<link>
 			<name>demos/tcp/aws_tcp_echo_client_single_task.c</name>
@@ -2350,6 +2245,11 @@
 			<name>libraries/3rdparty/mbedtls/library/asn1write.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/asn1write.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/base64.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/base64.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/bignum.c</name>

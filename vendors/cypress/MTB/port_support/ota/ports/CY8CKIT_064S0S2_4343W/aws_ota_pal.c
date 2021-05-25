@@ -72,7 +72,7 @@
  *          APP_VERSION_BUILD
  */
 #ifdef CY_TEST_APP_VERSION_IN_TAR
-#include "aws_application_version.h"
+#include "ota_config.h"
 #endif
 
 /* For tarball support */

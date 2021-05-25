@@ -674,7 +674,7 @@ function(cy_kit_generate)
             # Normal OTA build
             # Add extra sources for our port
             target_sources(AFR::ota::mcu_port INTERFACE
-                "${AFR_DEMOS_DIR}/demo_runner/aws_demo_version.c"
+                "${AFR_DEMOS_DIR}/demos/common/ota_demo_helpers/ota_application_version.c"
                 "${AFR_DEMOS_DIR}/demo_runner/iot_demo_freertos.c"
                 "${AFR_DEMOS_DIR}/demo_runner/iot_demo_runner.c"
                 "${AFR_DEMOS_DIR}/network_manager/aws_iot_demo_network.c"

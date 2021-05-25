@@ -247,9 +247,6 @@
 		<ClInclude Include="..\..\..\..\..\demos\network_manager\iot_network_manager_private.h">
 			<Filter>demos\network_manager</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\demos\include\aws_application_version.h">
-			<Filter>demos\include</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_clientcredential.h">
 			<Filter>demos\include</Filter>
 		</ClInclude>
@@ -273,9 +270,6 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_demo_runner.h">
 			<Filter>demos\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h">
-			<Filter>libraries\c_sdk\standard\common\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h">
 			<Filter>libraries\c_sdk\standard\common\include</Filter>
@@ -1038,9 +1032,6 @@
 		<ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo_network_addr.c">
 			<Filter>demos\demo_runner</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo_version.c">
-			<Filter>demos\demo_runner</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo.c">
 			<Filter>demos\demo_runner</Filter>
 		</ClCompile>
@@ -1612,6 +1603,9 @@
 			<Filter>vendors\microchip\boards\ecc608a_plus_winsim\ports\ota_pal_for_aws</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_demo_helpers.c">
+			<Filter>demos\common\ota_demo_helpers</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_application_version.c">
 			<Filter>demos\common\ota_demo_helpers</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_mutual_auth.c">
