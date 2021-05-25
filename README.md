@@ -123,4 +123,4 @@ The ```./projects``` folder contains the IDE test and demo projects for each ven
 This repository uses Mbed TLS under Apache 2.0.
 
 ## amazon-freerTOS/vendors License
-The vendor directory contains content that may be subject to different license terms. For vendor licensing information, see the LICENSE files or source header documentation for each vendor directory.
+The `./vendor` directory contains content that may be subject to different license terms. For vendor licensing information, see the LICENSE files or source header documentation for each vendor directory.
