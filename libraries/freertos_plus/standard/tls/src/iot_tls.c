@@ -141,7 +141,9 @@ typedef struct TLSContext
 
 #define TLS_PRINT( X )    configPRINTF( X )
 
-static BaseType_t prvDefault_DateIsInThePast(BaseType_t day, BaseType_t month, BaseType_t year);
+static BaseType_t prvDefault_DateIsInThePast( BaseType_t day,
+                                              BaseType_t month,
+                                              BaseType_t year );
 static dateIsInThePast_t pDateIsInThePast = prvDefault_DateIsInThePast;
 
 /*-----------------------------------------------------------*/
@@ -178,7 +180,9 @@ static void prvFreeContext( TLSContext_t * pxCtx )
     }
 }
 
-static BaseType_t prvDefault_DateIsInThePast(BaseType_t day, BaseType_t month, BaseType_t year)
+static BaseType_t prvDefault_DateIsInThePast( BaseType_t day,
+                                              BaseType_t month,
+                                              BaseType_t year )
 {
     return 0; /* Assume the certificate is valid. */
 }
@@ -279,8 +283,8 @@ static int prvCheckCertificate( void * pvContext,
     BaseType_t day = pxCertificate->valid_to.day;
     BaseType_t month = pxCertificate->valid_to.mon;
     BaseType_t year = pxCertificate->valid_to.year;
-    
-    if( pDateIsInThePast(day, month, year) != 0 )
+
+    if( pDateIsInThePast( day, month, year ) != 0 )
     {
         *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
     }
@@ -875,7 +879,6 @@ BaseType_t TLS_Connect( void * pvContext )
     }
 
     #ifdef MBEDTLS_DEBUG_C
-
         /* If mbedTLS is being compiled with debug support, assume that the
          * runtime configuration should use verbose output. */
         mbedtls_ssl_conf_dbg( &pxCtx->xMbedSslConfig, prvTlsDebugPrint, NULL );
@@ -1086,7 +1089,7 @@ void TLS_Cleanup( void * pvContext )
 
 /*-----------------------------------------------------------*/
 
-void TLS_setDateIsInThePastFunction(dateIsInThePast_t DateIsInThePast)
+void TLS_setDateIsInThePastFunction( dateIsInThePast_t DateIsInThePast )
 {
     pDateIsInThePast = DateIsInThePast;
 }
