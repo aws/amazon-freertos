@@ -120,7 +120,7 @@ In addition, AWS supports the following boards with FreeRTOS Build Integration a
 The ```./projects``` folder contains the IDE test and demo projects for each vendor and their boards. The majority of boards can be built with both IDE and cmake (there are some exceptions!). Please refer to the Getting Started Guides above for board specific instructions.
 
 ## Mbed TLS License
-This repository uses Mbed TLS under Apache 2.0
+This repository uses Mbed TLS under Apache 2.0.
 
 ## amazon-freerTOS/vendors License
-The ```./vendors``` folder contains source code from our vendors. Refer to ```./vendors/VENDOR_LICENSES``` for details
+The ```./vendors``` folder contains source code from our vendors. Refer to ```./vendors/VENDOR_LICENSES``` for details.
