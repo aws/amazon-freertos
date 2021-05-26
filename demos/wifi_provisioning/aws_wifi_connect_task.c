@@ -34,6 +34,11 @@
 #include "task.h"
 #include "semphr.h"
 #include "aws_demo_config.h"
+
+#if BLE_ENABLED
+#include "iot_ble_config.h"
+#endif
+
 #include "aws_wifi_connect_task.h"
 #include "iot_network_manager_private.h"
 
@@ -44,13 +49,28 @@
     #include "iot_ble_wifi_provisioning.h"
 #endif
 
+
 #define wifiConnectTASK_NAME        "WiFiConnectTask"
 
 /**
  * @brief Delay in milliseconds between connecting to the provisioned WiFi networks.
  */
-#define wifiConnectDELAY_SECONDS    ( 1 )
+#define wifiConnectDELAY_MILLISECONDS    ( 1000 )
 
+/**
+ * @brief Semaphore used to notify the WiFI provisioning task that WIFI is disconnected.
+ */
+static SemaphoreHandle_t xWiFiDisconnectedSemaphore = NULL;
+
+/**
+ * @brief Task handle used for WiFi provisioning task.
+ */
+static TaskHandle_t xWifiConnectionTask = NULL;
+
+/**
+ * @brief Handle used to store network manager subscription.
+ */
+static IotNetworkManagerSubscription_t xHandle = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
 
 /**
  * @brief Task for WiFi Reconnection. The task loops through the provisioned wifi networks in priority order
@@ -68,75 +88,113 @@ static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType,
                                                void * pvContext );
 
 /**
- * @brief Semaphore used to trigger reconnection to WiFi networks.
+ * @brief The function loops through all provisioned WiFi access points and tries
+ * to connect in a priority order. It tries to connect to each network once and returns pdFALSE 
+ * if all tries fails.
+ * 
+ * @return pdTRUE if WiFi connection is established successfully. 
+ * 
  */
-static SemaphoreHandle_t xWiFiConnectLock = NULL;
-static TaskHandle_t xWifiConnectionTask = NULL;
-static IotNetworkManagerSubscription_t xHandle = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
+static BaseType_t prvConnectToProvisionedWiFiNetworks( void );
 
 static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType,
                                                AwsIotNetworkState_t xNetworkState,
                                                void * pvContext )
 {
-    if( xNetworkState == eNetworkStateDisabled )
+    bool status;
+    if( xNetworkState == eNetworkStateEnabled )
     {
-        xSemaphoreGive( xWiFiConnectLock );
+        #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+            status = IotBleWifiProv_Stop();
+            configASSERT( status == true );
+        #endif
     }
+    else
+    {
+        /**
+         * Sent a notification to the WiFi connect task to trigger a reconnection or start
+         * WiFi provisioning loop.
+         */
+        if( xWifiConnectionTask != NULL )
+        {
+            xTaskNotifyGiveIndexed( xWifiConnectionTask, 0 );
+        }
+        
+    }
+}
+
+static BaseType_t prvConnectToProvisionedNetworks( void )
+{
+    BaseType_t xStatus = pdFALSE;
+    uint16_t usNumNetworks, usPriority;
+
+    #if ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1 )
+        usNumNetworks = IotWifiSoftAPProv_GetNumNetworks();
+    #elif ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+        usNumNetworks = IotBleWifiProv_GetNumNetworks();
+    #else
+        #error "Either Soft AP WiFi provisioning or BLE WiFi provisioning should be enabled."
+    #endif
+    
+    for( usPriority = 0; usPriority < usNumNetworks; usPriority++ )
+    {
+        configPRINTF( ( "Connecting to provisioned WiFi network at index %d", usPriority  ) );
+
+        #if ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1 )
+            xStatus = IotWifiSoftAPProv_Connect( usPriority );
+        #elif ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+            xStatus = IotBleWifiProv_Connect( usPriority );
+        #else
+            #error "Either Soft AP WiFi provisioning or BLE WiFi provisioning should be enabled."
+        #endif
+
+        if( xStatus == pdTRUE )
+        {
+            configPRINTF( ( "Successfully connected to provisioned WiFi network at index %d", usPriority ) );
+            break;
+        }
+
+        vTaskDelay( pdMS_TO_TICKS( wifiConnectDELAY_MILLISECONDS ) );
+    }
+    return xStatus;
 }
 
 void prvWiFiConnectTask( void * pvParams )
 {
-    uint16_t ulNumNetworks, ulNetworkIndex;
-    TickType_t xWifiConnectionDelay = pdMS_TO_TICKS( wifiConnectDELAY_SECONDS * 1000 );
-    BaseType_t xWiFiConnected;
-
+    bool status;
     for( ; ; )
     {
-        if( xSemaphoreTake( xWiFiConnectLock, portMAX_DELAY ) == pdTRUE )
+        /* Checks if WiFi is already connected to an access point. */
+        if( WIFI_IsConnected() == pdFALSE )
         {
-            xWiFiConnected = pdFALSE;
 
-            while( xWiFiConnected == pdFALSE )
+            /* Goes through the list of all provisioned networks and tries to connect them in priority order. */
+            if( prvConnectToProvisionedNetworks() == pdFALSE )
             {
-                ulNumNetworks = 0;
-                #if IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1
-                    ulNumNetworks += IotWifiSoftAPProv_GetNumNetworks();
-                #endif
-                #if IOT_BLE_ENABLE_WIFI_PROVISIONING == 1
-                    ulNumNetworks += IotBleWifiProv_GetNumNetworks();
-                #endif
-
-                if( ulNumNetworks > 0 )
-                {
-                    for( ulNetworkIndex = 0; ulNetworkIndex < ulNumNetworks; ulNetworkIndex++ )
+                /**
+                 * If none of the connections are successfull, switches back into provisioning mode by runnning
+                 * the provisioning process loop function. Function runs in a loop which awaits for provisioing
+                 * commands from an external application. User can scan nearby access points, connect to an access point or save
+                 * the access point credentials at this time. Upon successfull connection to a WiFi network, the demo network manager
+                 * callback will be invoked with WiFi state as enabled. Callback then calls IotBleWifiProv_Stop() API which stops
+                 * and returns from the process loop function.
+                 */
+                #if( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+                    status = IotBleWifiProv_RunProcessLoop();
+                    if( status == false )
                     {
-                        if( WIFI_IsConnected( NULL ) == pdFALSE )
-                        {
-                            #if IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1
-                                xWiFiConnected = IotWifiSoftAPProv_Connect( ulNetworkIndex );
-                            #else
-                                xWiFiConnected = IotBleWifiProv_Connect( ulNetworkIndex );
-                            #endif
-                        }
-                        else
-                        {
-                            xWiFiConnected = pdTRUE;
-                        }
-
-                        if( xWiFiConnected == pdTRUE )
-                        {
-                            break;
-                        }
-
-                        vTaskDelay( xWifiConnectionDelay );
+                        configPRINTF(( "Failed to run process loop function of WiFi provisioning. Exiting demo task.\r\n" ));
+                        break;
                     }
-                }
-                else
-                {
-                    break;
-                }
+                #endif
             }
         }
+        else
+        {
+            /* Wait for a WiFi disconnection notification from the network manager callback. */
+            ( void ) ulTaskNotifyTakeIndexed( 0, pdTRUE, portMAX_DELAY );
+        }
+        
     }
 
     vTaskDelete( NULL );
@@ -144,59 +202,71 @@ void prvWiFiConnectTask( void * pvParams )
 
 BaseType_t xWiFiConnectTaskInitialize( void )
 {
-    BaseType_t xRet = pdTRUE;
 
-    xWiFiConnectLock = xSemaphoreCreateBinary();
+    BaseType_t xStatus = pdTRUE;
 
-    if( xWiFiConnectLock != NULL )
-    {
-        xRet = xSemaphoreGive( xWiFiConnectLock );
-    }
-    else
-    {
-        xRet = pdFALSE;
-    }
+    /* Initialize WiFi Provisioning over Soft AP or BLE. */
+    #if ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1 )
+        xStatus = IotWifiSoftAPProv_Init();
+    #elif  ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+        if( IotBleWifiProv_Init() != true )
+        {
+            xStatus = pdFALSE;
+        }
+    #endif
 
-    if( xRet == pdTRUE )
+    if( xStatus == pdTRUE )
     {
-        xRet = AwsIotNetworkManager_SubscribeForStateChange(
+        /* Subscribe a callback for WiFi network connect/disconnect events from network manager. */
+        xStatus = AwsIotNetworkManager_SubscribeForStateChange(
             AWSIOT_NETWORK_TYPE_WIFI,
             prvWiFiNetworkStateChangeCallback,
             NULL,
             &xHandle );
     }
 
-    if( xRet == pdTRUE )
+    if( xStatus == pdTRUE )
     {
-        xRet = xTaskCreate(
-            prvWiFiConnectTask,
-            wifiConnectTASK_NAME,
-            democonfigDEMO_STACKSIZE,
-            NULL,
-            democonfigDEMO_PRIORITY,
-            &xWifiConnectionTask );
+        /**
+         *  Creates the task which starts managing WiFi connection for the device. Task tries to connect to already provisioned
+         * networks in a priority order. If connection is not successfull it enters the provisioning mode.
+         */
+        xStatus = xTaskCreate( prvWiFiConnectTask,
+                            wifiConnectTASK_NAME,
+                            democonfigDEMO_STACKSIZE,
+                            NULL,
+                            democonfigDEMO_PRIORITY,
+                            &xWifiConnectionTask );
     }
 
-    return xRet;
+    return xStatus;
 }
 
 void vWiFiConnectTaskDestroy( void )
 {
+    bool status;
     if( xHandle != NULL )
     {
         AwsIotNetworkManager_RemoveSubscription( xHandle );
         xHandle = NULL;
     }
 
+    /* Stop the WiFi provisioning process loop if its already running. */
+    #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+        ( void ) IotBleWifiProv_Stop();
+    #endif
+
+    /* Delete the WiFi connection management task. */
     if( xWifiConnectionTask != NULL )
     {
         vTaskDelete( xWifiConnectionTask );
         xWifiConnectionTask = NULL;
     }
 
-    if( xWiFiConnectLock != NULL )
-    {
-        vSemaphoreDelete( xWiFiConnectLock );
-        xWiFiConnectLock = NULL;
-    }
+    /* Teardown resources used by WiFi provisioning. */
+    #if ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1 )
+        ( void ) IotWifiSoftAPProv_Deinit();
+    #elif  ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+        ( void ) IotBleWifiProv_Deinit();
+    #endif
 }

@@ -68,6 +68,7 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         "${src_dir}/services/wifi_provisioning/iot_ble_wifi_provisioning.c"
+        "${src_dir}/services/wifi_provisioning/iot_ble_wifi_provisioning_serializer.c"
 )
 
 afr_module_include_dirs(
