@@ -398,7 +398,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
 
         if( pdTRUE != prvFLASH_ReadFile( pcFileName, &pucData, &dataSize) )
         {
-            if( pucData[0] == 0x0 )
+            if( ( pucData[0] == 0x00 ) || ( dataSize == 0 ) )
             {
                 xHandle = eInvalidHandle;
             }
@@ -479,7 +479,6 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         if( pdTRUE != prvFLASH_ReadFile( pcFileName, ppucData, pulDataSize) )
         {
             xHandle = eInvalidHandle;
-            ulReturn = CKR_KEY_HANDLE_INVALID;
         }
     }
     return ulReturn;
@@ -564,29 +563,31 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
 
     if( xResult == CKR_OK )
     {
-        /* Some ports return a pointer to memory for which using memset directly won't work. */
-        pxZeroedData = pvPortMalloc( ulObjectLength );
-
-        if( NULL != pxZeroedData )
+        if( ulObjectLength > 0 )
         {
-            /* Zero out the object. */
-            ( void ) memset( pxZeroedData, 0x0, ulObjectLength );
+            /* Some ports return a pointer to memory for which using memset directly won't work. */
+            pxZeroedData = pvPortMalloc( ulObjectLength );
 
-            /* Overwrite the object in NVM with zeros. */
-            xPalHandle2 = PKCS11_PAL_SaveObject( &xLabel, pxZeroedData, ( size_t ) ulObjectLength );
-
-            if( xPalHandle2 != xHandle )
+            if( NULL != pxZeroedData )
             {
-                xResult = CKR_GENERAL_ERROR;
+                /* Zero out the object. */
+                ( void ) memset( pxZeroedData, 0x0, ulObjectLength );
+
+                /* Overwrite the object in NVM with zeros. */
+                xPalHandle2 = PKCS11_PAL_SaveObject( &xLabel, pxZeroedData, ( size_t ) ulObjectLength );
+
+                if( xPalHandle2 != xHandle )
+                {
+                    xResult = CKR_GENERAL_ERROR;
+                }
+
+                vPortFree( pxZeroedData );
             }
-
-            vPortFree( pxZeroedData );
+            else
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
         }
-        else
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
-
         PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
     }
     else
