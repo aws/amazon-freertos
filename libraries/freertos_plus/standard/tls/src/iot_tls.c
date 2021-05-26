@@ -144,7 +144,7 @@ typedef struct TLSContext
 static BaseType_t prvDefault_DateIsInThePast( BaseType_t day,
                                               BaseType_t month,
                                               BaseType_t year );
-static dateIsInThePast_t pDateIsInThePast = prvDefault_DateIsInThePast;
+static DateIsInThePast_t pDateIsInThePast = prvDefault_DateIsInThePast;
 
 /*-----------------------------------------------------------*/
 
@@ -1089,7 +1089,7 @@ void TLS_Cleanup( void * pvContext )
 
 /*-----------------------------------------------------------*/
 
-void TLS_setDateIsInThePastFunction( dateIsInThePast_t DateIsInThePast )
+void TLS_setDateIsInThePastFunction( DateIsInThePast_t DateIsInThePast )
 {
     pDateIsInThePast = DateIsInThePast;
 }
