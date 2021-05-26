@@ -1163,46 +1163,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_http_private.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/ota_for_aws/source/dependency/coreJSON/source/core_json.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/dependency/coreJSON/source/core_json.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborpretty.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborpretty.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborpretty_stdio.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborpretty_stdio.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborencoder.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborencoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborerrorstrings.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborerrorstrings.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborparser.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborparser.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborparser_dup_string.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src/cborparser_dup_string.c</locationURI>
-		</link>
-		<link>
 			<name>vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws/ota_pal.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws/ota_pal.c</locationURI>

@@ -109,8 +109,6 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source/portable"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source/portable/os"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source/dependency/coreJSON/source/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source/dependency/3rdparty/tinycbor/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../tests/integration_test/ota_pal"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/common/ota_demo_helpers"/>
