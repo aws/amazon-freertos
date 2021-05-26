@@ -244,10 +244,6 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
     configASSERT( pHostName != NULL );
 
     /* ALPN options for AWS IoT. */
-    /* ppcALPNProtos is unused. putting here to align behavior in IotNetworkAfr_Create. */
-    /* coverity[misra_c_2012_rule_4_6_violation] */
-    /* coverity[misra_c_2012_rule_8_13_violation] */
-    const char * ppcALPNProtos[] = { socketsAWS_IOT_ALPN_MQTT };
 
     /* Set secured option. */
     secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
@@ -267,8 +263,8 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
         secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
                                                  0,
                                                  SOCKETS_SO_ALPN_PROTOCOLS,
-                                                 ppcALPNProtos,
-                                                 sizeof( ppcALPNProtos ) / sizeof( ppcALPNProtos[ 0 ] ) );
+                                                 pSocketsConfig->pAlpnProtos,
+                                                 sizeof( pSocketsConfig->pAlpnProtos ) );
 
         if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
