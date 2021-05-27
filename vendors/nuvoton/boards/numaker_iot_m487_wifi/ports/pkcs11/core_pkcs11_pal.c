@@ -112,12 +112,12 @@ static CK_RV prvFLASH_delete(uint32_t u32StartAddr, uint8_t * pucData, uint32_t 
 {
     uint32_t    u32Addr;               /* flash address */
     uint32_t    u32data;               /* flash data    */
-    uint32_t    *pDataSrc;             /* flash data    */    
+    uint32_t    *pDataSrc;             /* flash data    */
     uint32_t    u32EndAddr = (u32StartAddr + sizeof(P11CertData_t));
     uint32_t    u32Pattern = 0xFFFFFFFF;
 
-    
-    FMC_Erase(u32StartAddr);    
+
+    FMC_Erase(u32StartAddr);
      /* Verify if each data word from flash u32StartAddr to u32EndAddr be 0xFFFFFFFF.  */
     for (u32Addr = u32StartAddr; u32Addr < u32EndAddr; u32Addr += 4)
     {
@@ -129,21 +129,20 @@ static CK_RV prvFLASH_delete(uint32_t u32StartAddr, uint8_t * pucData, uint32_t 
             return -1;                 /* data verify failed */
         }
     }
-    
+
     memcpy( P11CertDataSave.cCertificateData, pucData, ulDataSize );
     /* Clean the mark and the size so that this will not be used again. */
     P11CertDataSave.ulDeviceCertificateMark = 0;
     P11CertDataSave.ulCertificateSize = 0;
     pDataSrc = (uint32_t *) &P11CertDataSave;
-    /* Fill flash range from u32StartAddr to u32EndAddr with data word u32Pattern. */
+    /* Fill flash range from u32StartAddr to u32EndAddr with P11CertDataSave. */
     for (u32Addr = u32StartAddr; u32Addr < u32EndAddr; u32Addr += 4)
     {
         FMC_Write(u32Addr, *pDataSrc);          /* Program flash */
         pDataSrc++;
-    }    
-    
+    }
+
     return ulDataSize;
-    
 }
 
 static CK_RV prvFLASH_update(uint32_t u32StartAddr, uint8_t * pucData, uint32_t ulDataSize)
@@ -236,12 +235,12 @@ static void prvLabelToFilenameHandle( uint8_t * pcLabel,
 }
 
 /**
- * @brief Delets a file from local storage by overwriting it.
+ * @brief Delete a file from local storage by overwriting it.
  *
  * Port-specific file write for crytographic information.
  *
- * @param[in] pcFileName    The name of the file to be written to.
- * @param[in] pucData       Data buffer to be written to file
+ * @param[in] pcFileName    The name of the file to be deleted.
+ * @param[in] pucData       Data buffer to be overwritten on the file.
  * @param[in] pulDataSize   Size (in bytes) of file data.
  *
  * @return pdTRUE if data was successfully overwritten,
@@ -254,13 +253,13 @@ static BaseType_t prvFLASH_DeleteFile( char * pcFileName,
     CK_RV xResult = pdFALSE;
     uint32_t certFlashAddr = 0;
     CK_RV xBytesWritten = 0;
-    
+
     /* enough room to store the certificate */
     if( ulDataSize > pkcs11OBJECT_CERTIFICATE_MAX_SIZE )
     {
-        return xResult;   
+        return xResult;
     }
-    
+
     /*
      * write client certificate.
      */
@@ -283,7 +282,7 @@ static BaseType_t prvFLASH_DeleteFile( char * pcFileName,
     else if( strcmp( pcFileName, pkcs11palFILE_NAME_RESERVE_KEY ) == 0 )
     {
         certFlashAddr = P11KeyConfig.ReserveKey;
-    }    
+    }
     else
     {
         certFlashAddr = NULL;
@@ -297,11 +296,11 @@ static BaseType_t prvFLASH_DeleteFile( char * pcFileName,
         {
             xResult = pdTRUE;
         }
-    }            
+    }
 
     FMC_DISABLE_AP_UPDATE();           /* Disable APROM update. */
-    SYS_LockReg();                     /* Lock protected registers */   
-    
+    SYS_LockReg();                     /* Lock protected registers */
+
     return xResult;
 }
 /*-----------------------------------------------------------*/
