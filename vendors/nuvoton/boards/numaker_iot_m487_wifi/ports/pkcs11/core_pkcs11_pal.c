@@ -108,6 +108,43 @@ static P11CertData_t P11CertDataSave;
                                 
 /*-----------------------------------------------------------*/
 
+static CK_RV prvFLASH_delete(uint32_t u32StartAddr, uint8_t * pucData, uint32_t ulDataSize)
+{
+    uint32_t    u32Addr;               /* flash address */
+    uint32_t    u32data;               /* flash data    */
+    uint32_t    *pDataSrc;             /* flash data    */    
+    uint32_t    u32EndAddr = (u32StartAddr + sizeof(P11CertData_t));
+    uint32_t    u32Pattern = 0xFFFFFFFF;
+
+    
+    FMC_Erase(u32StartAddr);    
+     /* Verify if each data word from flash u32StartAddr to u32EndAddr be 0xFFFFFFFF.  */
+    for (u32Addr = u32StartAddr; u32Addr < u32EndAddr; u32Addr += 4)
+    {
+        u32data = FMC_Read(u32Addr);   /* Read a flash word from address u32Addr. */
+
+        if (u32data != u32Pattern )     /* Verify if data matched. */
+        {
+            printf("\nFMC_Read data verify failed at address 0x%x, read=0x%x, expect=0x%x\n", u32Addr, u32data, u32Pattern);
+            return -1;                 /* data verify failed */
+        }
+    }
+    
+    memcpy( P11CertDataSave.cCertificateData, pucData, ulDataSize );
+    /* Clean the mark and the size so that this will not be used again. */
+    P11CertDataSave.ulDeviceCertificateMark = 0;
+    P11CertDataSave.ulCertificateSize = 0;
+    pDataSrc = (uint32_t *) &P11CertDataSave;
+    /* Fill flash range from u32StartAddr to u32EndAddr with data word u32Pattern. */
+    for (u32Addr = u32StartAddr; u32Addr < u32EndAddr; u32Addr += 4)
+    {
+        FMC_Write(u32Addr, *pDataSrc);          /* Program flash */
+        pDataSrc++;
+    }    
+    
+    return ulDataSize;
+    
+}
 
 static CK_RV prvFLASH_update(uint32_t u32StartAddr, uint8_t * pucData, uint32_t ulDataSize)
 {
@@ -197,6 +234,77 @@ static void prvLabelToFilenameHandle( uint8_t * pcLabel,
         }
     }
 }
+
+/**
+ * @brief Delets a file from local storage by overwriting it.
+ *
+ * Port-specific file write for crytographic information.
+ *
+ * @param[in] pcFileName    The name of the file to be written to.
+ * @param[in] pucData       Data buffer to be written to file
+ * @param[in] pulDataSize   Size (in bytes) of file data.
+ *
+ * @return pdTRUE if data was successfully overwritten,
+ * pdFALSE otherwise.
+ */
+static BaseType_t prvFLASH_DeleteFile( char * pcFileName,
+                                uint8_t * pucData,
+                                uint32_t ulDataSize )
+{
+    CK_RV xResult = pdFALSE;
+    uint32_t certFlashAddr = 0;
+    CK_RV xBytesWritten = 0;
+    
+    /* enough room to store the certificate */
+    if( ulDataSize > pkcs11OBJECT_CERTIFICATE_MAX_SIZE )
+    {
+        return xResult;   
+    }
+    
+    /*
+     * write client certificate.
+     */
+    SYS_UnlockReg();                   /* Unlock register lock protect */
+    FMC_Open();                        /* Enable FMC ISP function */
+    FMC_ENABLE_AP_UPDATE();            /* Enable APROM update. */
+
+    if( strcmp( pcFileName, pkcs11palFILE_NAME_CLIENT_CERTIFICATE ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.DeviceCertificate;
+    }
+    else if( strcmp( pcFileName, pkcs11palFILE_NAME_KEY ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.DeviceKey;
+    }
+    else if( strcmp( pcFileName, pkcs11palFILE_CODE_SIGN_PUBLIC_KEY ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.CodeSignKey;
+    }
+    else if( strcmp( pcFileName, pkcs11palFILE_NAME_RESERVE_KEY ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.ReserveKey;
+    }    
+    else
+    {
+        certFlashAddr = NULL;
+    }
+
+    if( certFlashAddr != NULL )
+    {
+        /* Delete the given file. */
+        xBytesWritten = prvFLASH_delete( certFlashAddr, pucData, ulDataSize );
+        if( xBytesWritten == ulDataSize )
+        {
+            xResult = pdTRUE;
+        }
+    }            
+
+    FMC_DISABLE_AP_UPDATE();           /* Disable APROM update. */
+    SYS_LockReg();                     /* Lock protected registers */   
+    
+    return xResult;
+}
+/*-----------------------------------------------------------*/
 
 
 /**
