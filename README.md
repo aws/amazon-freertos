@@ -1,11 +1,19 @@
 # FreeRTOS AWS Reference Integrations
 
-## Update (05/13/2021)
+## Update (05/26/2021)
 
-In the next few months, we will have an official release of the AWS Reference Integration repository which brings in the 202012.01-LTS libraries. In this release, we will carry the LTS libraries and remove legacy libraries. The legacy libraries will continue to be accessible through the release tags, and AWS will continue to support Github issues on these libraries on a case by case basis.
+In the next few months, we will have an official release of the AWS Reference Integration repository which brings in the 202012.01-LTS libraries. In this release, we will carry the LTS libraries and remove legacy ones. The legacy libraries will continue to be accessible through the [202012.00 release](https://github.com/aws/amazon-freertos/tree/202012.00), and AWS will continue to support Github issues on these libraries on a case by case basis. We also created [20210526_Archive](https://github.com/aws/amazon-freertos/tree/20210526_Archive) tag for archiving old libraries with the latest changes in main, but it is not an official release nor tested.
 
-All the libraries under /libraries/c_sdk (except BLE library which will be moved to other folder) will be removed. 
-OTAv1 library under libraries/freertos_plus/aws/ota will be removed.
+We're removing the following libraries under /libraries/c_sdk:
+*  defender under /c_sdk/aws. This is replaced by device_defender_for_aws library under /libraries.
+*  shadow under /c_sdk/aws. This is replaced by device_shadow_for_aws library under /libraries.
+*  mqtt under /c_sdk/standard. This is replace by coreMQTT library under /libraries.
+*  https under /c_sdk/standard. This is replace by coreHTTP library under /libraries.
+*  serializer under /c_sdk/standard.
+*  common under /c_sdk/standard.
+
+We're relocating BLE library from /libraries/c_sdk to libraries/ and removing /libraries/c_sdk folder.  
+We're also removing OTAv1 library under libraries/freertos_plus/aws and adding the new OTA LTS library.
 
 
 ## Cloning
