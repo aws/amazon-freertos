@@ -2,7 +2,7 @@
 
 ## Update (05/26/2021)
 
-In the next few months, we will have an official release of the AWS Reference Integration repository which brings in the 202012.01-LTS libraries. In this release, we will carry the LTS libraries and remove legacy ones. The legacy libraries will continue to be accessible through the [202012.00 release](https://github.com/aws/amazon-freertos/tree/202012.00), and AWS will continue to support Github issues on these libraries on a case by case basis. We also created [20210526_Archive](https://github.com/aws/amazon-freertos/tree/20210526_Archive) tag for archiving old libraries with the latest changes in main, but it is not an official release nor tested.
+In the next few months, we will have an official release of the AWS Reference Integration repository which brings in the 202012.01-LTS libraries. In this release, we will carry the LTS libraries and remove legacy ones from main branch. The legacy libraries will continue to be accessible through the [202012.00 release](https://github.com/aws/amazon-freertos/tree/202012.00), and AWS will continue to support Github issues on these libraries on a case by case basis. We also created [20210526_Archive](https://github.com/aws/amazon-freertos/tree/20210526_Archive) tag for archiving old libraries with the latest changes in main, but it is not an official release nor tested.
 
 We're removing the following libraries under /libraries/c_sdk:
 *  defender under /c_sdk/aws. This is replaced by device_defender_for_aws library under /libraries.
