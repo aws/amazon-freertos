@@ -58,7 +58,7 @@
     #define LIBRARY_LOG_NAME     "Transport_Secure_Sockets"
 #endif
 #ifndef LIBRARY_LOG_LEVEL
-    #define LIBRARY_LOG_LEVEL    LOG_DEBUG
+    #define LIBRARY_LOG_LEVEL    LOG_ERROR
 #endif
 
 /* Logging implementation header include. */
