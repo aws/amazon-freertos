@@ -67,8 +67,10 @@ typedef struct
  */
 typedef struct
 {
-    WIFINetworkProfile_t accessPointInfo;       /**< The configuration for the new WIFI access point. */
-    int16_t prirorityIndex;                    /**< Prirority index of an already provisioned WiFi access point. */
+    union {
+        WIFINetworkProfile_t network;    /**< The configuration for the new WIFI access point. */
+        int16_t index;                   /**< Prirority index of an already provisioned WiFi access point. */
+    } info;
     bool isProvisioned : 1;                    /**< true if the newtwork is already provisioned, a valid pirority index should be provided. */
     bool shouldConnect : 1;                    /**< true if the access point needs to be connected before provisioning. */
 } IotBleWifiProvAddNetworkRequest_t;
@@ -100,20 +102,22 @@ typedef struct
  * @ingroup ble_datatypes_structs
  * @brief Defines the structure used to hold the wifi provisioning information.
  */
-typedef struct IotBleWiFiProvListNetworkResponse
+typedef struct IotBleWifiProvResponse
 {
-    const uint8_t * pSSID;   /**< @brief The SSID of the WiFi network. */
-    size_t SSIDLength;       /**< @brief The SSID length in bytes. */
-    const uint8_t * pBSSID;  /**< BSSID of the Wi-Fi network. */
-    size_t BSSIDLength;      /**< BSSID of the Wi-Fi network. */
-    int32_t priorityIndex;   /**< The index at which to save the network. */
-    int8_t RSSI;             /**< The signal strength of the Wi-Fi network. */
-    WIFISecurity_t security; /**< The security type of the Wi-Fi network. */
-    WIFIReturnCode_t status; /**< The status of the Wi-Fi network. */
-    bool hidden;             /**< A flag to signify whether this is an hidden network. */
-    bool connected;          /**< A flag to signify whether this network is connected. */
+    IotBleWiFiProvRequest_t requestType;  /** Request type for which this response is sent. */
+    WIFIReturnCode_t status;              /**< The status of the response. */
+    union {
+        WIFIScanResult_t * scannedNetwork;   /**< Details of the scanned Network. */
+        struct {
+            WIFINetworkProfile_t * network;   /**< Details of the provisioned Network. */
+            uint16_t index;                   /**< The index (priority) at which network is provisioned. */
+        } savedNetwork;
+    } networkInfo;
+    bool isProvisioned:1;        /**< A flag to signify if the network is already provisioned. */
+    bool isHidden:1;             /**< A flag to signify whether this is an hidden network. */
+    bool isConnected:1;          /**< A flag to signify whether this network is connected. */
 
-} IotBleWiFiProvListNetworkResponse_t;
+} IotBleWifiProvResponse_t;
 
 /**
  * @ingroup ble_datatypes_enums
@@ -126,6 +130,35 @@ typedef enum
     IOT_BLE_WIFI_PROV_DELETED = 0x4,    /**<  eWIFIProvStopped Set when WiFi provisioning is deleted */                                                          /*!< IOT_BLE_WIFI_PROV_DELETED */
     IOT_BLE_WIFI_PROV_FAILED = 0x8      /**< IOT_BLE_WIFI_PROV_FAILED Set When WiFi provisioning failed */                                                         /*!< IOT_BLE_WIFI_PROV_FAILED */
 } IotBleWifiProvEvent_t;
+
+
+typedef struct {
+
+    bool ( * getRequestType ) ( const uint8_t * pMessage,
+                                size_t length,
+                                IotBleWiFiProvRequest_t * pRequeustType );
+
+    bool ( * deserializeListNetworkRequest ) ( const uint8_t * pData,
+                                        size_t length,
+                                        IotBleWifiProvListNetworksRequest_t * pListNetworksRequest );
+    
+    bool ( * deserializeAddNetworkRequest ) ( const uint8_t * pData,
+                                              size_t length,
+                                              IotBleWifiProvAddNetworkRequest_t * pAddNetworkRequest );
+    
+    bool ( * deserializeEditNetworkRequest ) ( const uint8_t * pData,
+                                               size_t length,
+                                               IotBleWifiProvEditNetworkRequest_t * pEditNetworkRequest );
+    
+    bool ( * deserializeDeleteNetworkRequest ) ( const uint8_t * pData,
+                                                 size_t length,
+                                                IotBleWifiProvDeleteNetworkRequest_t * pDeleteNetworkRequest );
+    
+    bool ( * getSerializedSizeForResponse ) ( const IotBleWifiProvResponse_t * pResponse, size_t * length );
+
+    bool ( * serializeResponse ) ( const IotBleWifiProvResponse_t * pResponse, uint8_t * pBuffer, size_t length );
+
+} IotBleWifiProvSerializer_t;
 
 /**
  * @functions_page{iotblewifiprov, WiFi Provisioning}
@@ -182,9 +215,12 @@ bool IotBleWifiProv_Init( void );
  * Process loop can be run within a task, it waits for the incoming requests from the 
  * transport interface as well as commands from the user application. Process loop terminates when
  * a stop command is sent from the application.
+ * 
+ * @return true if the process loop function ran successfully. false if process loop terminated due
+ *         to an error.
  */
 /* @[declare_iotblewifiprov_init] */
-void IotBleWifiProv_RunProcessLoop( void );
+bool IotBleWifiProv_RunProcessLoop( void );
 
 /**
  * @brief Gets the total number of provisioned networks.
@@ -250,5 +286,16 @@ bool IotBleWifiProv_EraseAllNetworks( void );
 /* @[declare_iotblewifiprov_delete] */
 void IotBleWifiProv_Deinit( void );
 /* @[declare_iotblewifiprov_delete] */
+
+/**
+ * @brief Gets the serializer interface used to serialize/deserialize packets over BLE.
+ * By default it uses the cbor based serialization compatible with FreeRTOS wiFi provisioning mobile App. User
+ * can provide a serializer for their custom message format as well.
+ *
+ * @return Serializer interface used
+ */
+/* @[declare_iotblewifiprov_getserializer] */
+IotBleWifiProvSerializer_t * IotBleWifiProv_GetSerializer( void );
+/* @[declare_iotblewifiprov_getserializer] */
 
 #endif /* _AWS_BLE_WIFI_PROVISIONING_H_ */

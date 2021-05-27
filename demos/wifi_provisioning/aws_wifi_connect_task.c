@@ -58,11 +58,6 @@
 #define wifiConnectDELAY_MILLISECONDS    ( 1000 )
 
 /**
- * @brief Semaphore used to notify the WiFI provisioning task that WIFI is disconnected.
- */
-static SemaphoreHandle_t xWiFiDisconnectedSemaphore = NULL;
-
-/**
  * @brief Task handle used for WiFi provisioning task.
  */
 static TaskHandle_t xWifiConnectionTask = NULL;
@@ -95,18 +90,17 @@ static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType,
  * @return pdTRUE if WiFi connection is established successfully. 
  * 
  */
-static BaseType_t prvConnectToProvisionedWiFiNetworks( void );
+static BaseType_t prvConnectToProvisionedNetworks( void );
+
 
 static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType,
                                                AwsIotNetworkState_t xNetworkState,
                                                void * pvContext )
 {
-    bool status;
     if( xNetworkState == eNetworkStateEnabled )
     {
         #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
-            status = IotBleWifiProv_Stop();
-            configASSERT( status == true );
+            configASSERT( IotBleWifiProv_Stop() == true );
         #endif
     }
     else
@@ -126,14 +120,12 @@ static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType,
 static BaseType_t prvConnectToProvisionedNetworks( void )
 {
     BaseType_t xStatus = pdFALSE;
-    uint16_t usNumNetworks, usPriority;
+    uint16_t usNumNetworks = 0, usPriority;
 
     #if ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1 )
         usNumNetworks = IotWifiSoftAPProv_GetNumNetworks();
     #elif ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
         usNumNetworks = IotBleWifiProv_GetNumNetworks();
-    #else
-        #error "Either Soft AP WiFi provisioning or BLE WiFi provisioning should be enabled."
     #endif
     
     for( usPriority = 0; usPriority < usNumNetworks; usPriority++ )
@@ -144,8 +136,6 @@ static BaseType_t prvConnectToProvisionedNetworks( void )
             xStatus = IotWifiSoftAPProv_Connect( usPriority );
         #elif ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
             xStatus = IotBleWifiProv_Connect( usPriority );
-        #else
-            #error "Either Soft AP WiFi provisioning or BLE WiFi provisioning should be enabled."
         #endif
 
         if( xStatus == pdTRUE )
@@ -161,7 +151,6 @@ static BaseType_t prvConnectToProvisionedNetworks( void )
 
 void prvWiFiConnectTask( void * pvParams )
 {
-    bool status;
     for( ; ; )
     {
         /* Checks if WiFi is already connected to an access point. */
@@ -172,12 +161,12 @@ void prvWiFiConnectTask( void * pvParams )
             if( prvConnectToProvisionedNetworks() == pdFALSE )
             {
                 /**
-                 * If none of the connections are successfull, switches back into provisioning mode by runnning
-                 * the provisioning process loop function. Function runs in a loop which awaits for provisioing
-                 * commands from an external application. User can scan nearby access points, connect to an access point or save
+                 * If none of the connections are successfull, switch to provisioning mode by runnning
+                 * the provisioning process loop function. Loop awaits for provisioing
+                 * requests from an external application. User can scan nearby access points, connect to an access point or save
                  * the access point credentials at this time. Upon successfull connection to a WiFi network, the demo network manager
-                 * callback will be invoked with WiFi state as enabled. Callback then calls IotBleWifiProv_Stop() API which stops
-                 * and returns from the process loop function.
+                 * callback will be invoked with WiFi state as enabled. Callback then calls IotBleWifiProv_Stop() API which pushes a command to
+                 * stop and returns from this process loop function.
                  */
                 #if( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
                     status = IotBleWifiProv_RunProcessLoop();
@@ -191,7 +180,7 @@ void prvWiFiConnectTask( void * pvParams )
         }
         else
         {
-            /* Wait for a WiFi disconnection notification from the network manager callback. */
+            /* Wait for a WiFi disconnection notification from the network manager callback to trigger a reconnect. */
             ( void ) ulTaskNotifyTakeIndexed( 0, pdTRUE, portMAX_DELAY );
         }
         
@@ -244,7 +233,6 @@ BaseType_t xWiFiConnectTaskInitialize( void )
 
 void vWiFiConnectTaskDestroy( void )
 {
-    bool status;
     if( xHandle != NULL )
     {
         AwsIotNetworkManager_RemoveSubscription( xHandle );
