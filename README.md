@@ -5,15 +5,15 @@
 In the next few months, we will have an official release of the AWS Reference Integration repository which brings in the 202012.01-LTS libraries. In this release, we will carry the LTS libraries and remove legacy ones from main branch. The legacy libraries will continue to be accessible through the [202012.00 release](https://github.com/aws/amazon-freertos/tree/202012.00), and AWS will continue to support Github issues on these libraries on a case by case basis. We also created [20210526_Archive](https://github.com/aws/amazon-freertos/tree/20210526_Archive) tag for archiving old libraries with the latest changes in main, but it is not an official release nor tested.
 
 We're removing the following libraries under /libraries/c_sdk:
-*  defender under /c_sdk/aws. This is replaced by device_defender_for_aws library under /libraries.
-*  shadow under /c_sdk/aws. This is replaced by device_shadow_for_aws library under /libraries.
-*  mqtt under /c_sdk/standard. This is replace by coreMQTT library under /libraries.
-*  https under /c_sdk/standard. This is replace by coreHTTP library under /libraries.
-*  serializer under /c_sdk/standard.
-*  common under /c_sdk/standard.
+*  Defender Client Library V3.0.3 (defender) under /c_sdk/aws. Please migrate to AWS IoT Device Defender v1.1.0 (device_defender_for_aws) under /libraries (minor change from v1.0.1 in 202012.00 release).
+*  Shadow V2.2.3 (shadow) under /c_sdk/aws. Please migrate to AWS IoT Device Shadow v1.0.2 (device_shadow_for_aws) under /libraries (no change from 202012.00 release)
+*  MQTT Client Library V2.3.1 (mqtt) under /c_sdk/standard. Please migrate to coreMQTT v1.1.0 (coreMQTT) under /libraries (no change from 202012.00 release).
+*  HTTPS Client Library V1.2.0 (https) under /c_sdk/standard. Please migrate to coreHTTP v2.0.0 (coreHTTP) under /libraries (no change from 202012.00 release).
+*  Serializer Library V1.1.2 (serializer) under /c_sdk/standard. All libraries included in the upcoming release no longer have dependencies on the serializer library.
+*  Common Libraries V1.2.0 (common) under /c_sdk/standard. All libraries included in the upcoming release no longer have dependencies on the common libraries.
 
 We're relocating BLE library from /libraries/c_sdk to libraries/ and removing /libraries/c_sdk folder.  
-We're also removing OTAv1 library under libraries/freertos_plus/aws and adding the new OTA LTS library.
+We're also removing Over the Air Update V1.2.1 (ota) under libraries/freertos_plus/aws and adding the new AWS IoT Over-the-air Update v3.0.0 (ota-for-aws-iot-embedded-sdk) under /libraries in the upcoming release.
 
 
 ## Cloning
