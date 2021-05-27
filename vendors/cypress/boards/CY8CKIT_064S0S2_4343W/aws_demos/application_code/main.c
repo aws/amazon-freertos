@@ -79,8 +79,8 @@
 #include "tfm_ns_mailbox.h"
 #endif
 
-/* For kvstore_init() */
-#include "kvstore.h"
+/* For Watchdog */
+#include "cyhal_wdt.h"
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 90 )
@@ -153,12 +153,32 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
 #endif /* CY_USE_FREERTOS_TCP */
 
 /**
+ * @brief Watchdog object and setting value.
+ * Watchdog timer initialized at start, must be cleared / reset before timer goes off.
+ *
+ * For IDT testing, this is needed for CONFIG_OTA_UPDATE_DEMO_ENABLED
+ */
+#define CY_WATCHDOG_TIMER_MILLISECONDS      (cyhal_wdt_get_max_timeout_ms())
+#define CY_WATCHDOG_KICK_TIME_MILLISECONDS  (CY_WATCHDOG_TIMER_MILLISECONDS / 2)    /* time between kicking WDT */
+#define CY_WATCHDOG_INITIAL_KICK_COUNT      (4)                                     /* number of times we kick WDT before giving up */
+static cyhal_wdt_t prvWatchdogTimerObj;
+static TaskHandle_t prvWatchdogTaskHandle;
+
+/**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
  * function. If you are not using Wi-Fi, this hook can be disabled by setting
  * configUSE_DAEMON_TASK_STARTUP_HOOK to 0.
  */
 void vApplicationDaemonTaskStartupHook( void );
+
+/**
+ * @brief Connects to Wi-Fi.
+ *
+ * returns eWiFiSuccess
+ *         eWiFiFailure
+ */
+static WIFIReturnCode_t prvWifiConnect( void );
 
 /**
  * @brief Initializes the board.
@@ -189,6 +209,71 @@ static void tfm_ns_multi_core_boot(void)
 #endif
 
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief Watchdog Timer Task
+ *
+ *  Loop prvWatchdogKickCount times, kick WDT every CY_WATCHDOG_KICK_TIME_MILLISECONDS.
+ *  When counter runs out, free WDT and exit.
+ *
+ */
+void prvWatchdogTask(void *arg)
+{
+    int prvWatchdogKickCount = CY_WATCHDOG_INITIAL_KICK_COUNT;
+    while(prvWatchdogKickCount-- > 0)
+    {
+        vTaskDelay(CY_WATCHDOG_KICK_TIME_MILLISECONDS);
+        cyhal_wdt_kick(&prvWatchdogTimerObj);
+    }
+    prvWatchdogTaskHandle = NULL;
+    printf("Exit Watchdog Kick task\n");
+    vTaskDelete(NULL);
+}
+
+/**
+ * @brief Start Watchdog Timer Task
+ *
+ * returns CY_RSLT_SUCCESS
+ *         CY_RSLT_TYPE_ERROR
+ */
+cy_rslt_t prvWatchdogTaskStart(void)
+{
+    /* Initialize WDT */
+    cy_rslt_t result;
+
+    configPRINTF(("Create Watchdog Timer\n"));
+    result = cyhal_wdt_init(&prvWatchdogTimerObj, CY_WATCHDOG_TIMER_MILLISECONDS);
+    if (result == CY_RSLT_WDT_ALREADY_INITIALIZED)
+    {
+        /* watchdog already started, just kick it */
+        cyhal_wdt_kick(&prvWatchdogTimerObj);
+        result = CY_RSLT_SUCCESS;
+    }
+    if (result == CY_RSLT_SUCCESS)
+    {
+        BaseType_t create_result;
+        create_result = xTaskCreate( prvWatchdogTask, "WDT", configMINIMAL_STACK_SIZE, NULL, IOT_THREAD_DEFAULT_PRIORITY, &prvWatchdogTaskHandle);
+        if (create_result != pdPASS)
+        {
+            /* failed to start the watchdog thread */
+            result = CY_RSLT_TYPE_ERROR;
+        }
+    }
+    return result;
+}
+
+/**
+ * @brief Stop Watchdog Timer Task
+ */
+void prvWatchdogTaskStop(void)
+{
+    if ( prvWatchdogTaskHandle != NULL)
+    {
+        vTaskDelete(prvWatchdogTaskHandle);
+        cyhal_wdt_free(&prvWatchdogTimerObj);
+    }
+    prvWatchdogTaskHandle = NULL;
+}
 
 /**
  * @brief Application runtime entry point.
@@ -250,6 +335,7 @@ static void prvMiscInitialization( void )
     cy_rslt_t result = cybsp_init();
     CY_ASSERT(CY_RSLT_SUCCESS == result);
 }
+
 /*-----------------------------------------------------------*/
 void vApplicationDaemonTaskStartupHook( void )
 {
@@ -292,6 +378,19 @@ void vApplicationDaemonTaskStartupHook( void )
         tcpip_init(NULL, NULL);
 #endif
 
+        result = prvWatchdogTaskStart();
+        if (result != CY_RSLT_SUCCESS)
+        {
+            printf( "Start Watchdog Task Failed.\r\n");
+        }
+
+        /* Connect to the Wi-Fi before running the tests. */
+        if (prvWifiConnect() == eWiFiSuccess)
+        {
+            /* We connected to an AP, or we are a SoftAP, stop the watchdog task */
+            prvWatchdogTaskStop();
+        }
+
 #if ( pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED == 0 )
         /* Provision the device with AWS certificate and private key. */
         xResult = vDevModeKeyProvisioning();
@@ -304,6 +403,170 @@ void vApplicationDaemonTaskStartupHook( void )
         }
     }
 }
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t prvWifiConnect( void )
+{
+    WIFINetworkParams_t xNetworkParams = { 0 };
+    WIFIReturnCode_t xWifiStatus = eWiFiSuccess;
+    WIFIIPConfiguration_t xIpConfig;
+    uint8_t *pucIPV4Byte;
+    size_t xSSIDLength, xPasswordLength;
+
+    xWifiStatus = WIFI_On();
+
+    if( xWifiStatus == eWiFiSuccess )
+    {
+
+        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP %s...\r\n", clientcredentialWIFI_SSID ) );
+    }
+    else
+    {
+        configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
+
+        /* Delay to allow the lower priority logging task to print the above status.
+            * The while loop below will block the above printing. */
+        vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
+
+        while( 1 )
+        {
+        }
+    }
+
+    /* Setup WiFi parameters to connect to access point. */
+    if( clientcredentialWIFI_SSID != NULL )
+    {
+        xSSIDLength = strlen( clientcredentialWIFI_SSID );
+        if( ( xSSIDLength > 0 ) && ( xSSIDLength <= wificonfigMAX_SSID_LEN ) )
+        {
+            xNetworkParams.ucSSIDLength = xSSIDLength;
+            memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
+        }
+        else
+        {
+            configPRINTF(( "Invalid WiFi SSID configured, empty or exceeds allowable length %d.\n", wificonfigMAX_SSID_LEN ));
+            xWifiStatus = eWiFiFailure;
+        }
+    }
+    else
+    {
+        configPRINTF(( "WiFi SSID is not configured.\n" ));
+        xWifiStatus = eWiFiFailure;
+    }
+
+    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
+    if( clientcredentialWIFI_SECURITY == eWiFiSecurityWPA2 )
+    {
+        if( clientcredentialWIFI_PASSWORD != NULL )
+        {
+            xPasswordLength = strlen( clientcredentialWIFI_PASSWORD );
+            if( ( xPasswordLength > 0 ) && ( xSSIDLength <= wificonfigMAX_PASSPHRASE_LEN ) )
+            {
+                xNetworkParams.xPassword.xWPA.ucLength = xPasswordLength;
+                memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xPasswordLength );
+            }
+            else
+            {
+                configPRINTF(( "Invalid WiFi password configured, empty password or exceeds allowable password length %d.\n", wificonfigMAX_PASSPHRASE_LEN ));
+                xWifiStatus = eWiFiFailure;
+            }
+        }
+        else
+        {
+            configPRINTF(( "WiFi password is not configured.\n" ));
+            xWifiStatus = eWiFiFailure;
+        }
+    }
+    xNetworkParams.ucChannel = 0;
+
+    if( xWifiStatus == eWiFiSuccess )
+    {
+        /* Try connecting using provided wifi credentials. */
+        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
+        if( xWifiStatus == eWiFiSuccess )
+        {
+            configPRINTF( ( "WiFi connected to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID ) );
+
+            /* Get IP address of the device. */
+            xWifiStatus = WIFI_GetIPInfo( &xIpConfig );
+            if( xWifiStatus == eWiFiSuccess )
+            {
+                pucIPV4Byte = ( uint8_t * ) ( &xIpConfig.xIPAddress.ulAddress[0] );
+                configPRINTF( ( "IP Address acquired %d.%d.%d.%d.\r\n",
+                        pucIPV4Byte[ 0 ], pucIPV4Byte[ 1 ], pucIPV4Byte[ 2 ], pucIPV4Byte[ 3 ] ) );
+            }
+        }
+        else
+        {
+            /* Connection failed configure softAP to allow user to set wifi credentials. */
+            configPRINTF( ( "WiFi failed to connect to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID  ) );
+        }
+    }
+
+    if( xWifiStatus != eWiFiSuccess )
+    {
+        /* Enter SOFT AP mode to provision access point credentials. */
+        configPRINTF(( "Entering soft access point WiFi provisioning mode.\n" ));
+        xWifiStatus = eWiFiSuccess;
+        if( wificonfigACCESS_POINT_SSID_PREFIX != NULL )
+        {
+            xSSIDLength = strlen( wificonfigACCESS_POINT_SSID_PREFIX );
+            if( ( xSSIDLength > 0 ) && ( xSSIDLength <= wificonfigMAX_SSID_LEN ) )
+            {
+                xNetworkParams.ucSSIDLength = xSSIDLength;
+                memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
+            }
+            else
+            {
+                configPRINTF(( "Invalid AP SSID configured, empty or exceeds allowable length %d.\n", wificonfigMAX_SSID_LEN ));
+                xWifiStatus = eWiFiFailure;
+            }
+        }
+        else
+        {
+            configPRINTF(( "WiFi AP SSID is not configured.\n" ));
+            xWifiStatus = eWiFiFailure;
+        }
+
+        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
+        if( wificonfigACCESS_POINT_SECURITY == eWiFiSecurityWPA2 )
+        {
+            if( wificonfigACCESS_POINT_PASSKEY != NULL )
+            {
+                xPasswordLength = strlen( wificonfigACCESS_POINT_PASSKEY );
+                if( ( xPasswordLength > 0 ) && ( xSSIDLength <= wificonfigMAX_PASSPHRASE_LEN ) )
+                {
+                    xNetworkParams.xPassword.xWPA.ucLength = xPasswordLength;
+                    memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, wificonfigACCESS_POINT_PASSKEY, xPasswordLength );
+                }
+                else
+                {
+                    configPRINTF(( "Invalid WiFi AP password, empty or exceeds allowable password length %d.\n", wificonfigMAX_PASSPHRASE_LEN ));
+                    xWifiStatus = eWiFiFailure;
+                }
+            }
+            else
+            {
+                configPRINTF(( "WiFi AP password is not configured.\n" ));
+                xWifiStatus = eWiFiFailure;
+            }
+        }
+        xNetworkParams.ucChannel = wificonfigACCESS_POINT_CHANNEL;
+        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
+        {
+            configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
+                            xNetworkParams.ucSSID, xNetworkParams.xPassword.xWPA.cPassphrase ) );
+        }
+        xWifiStatus = WIFI_StartAP();
+        if (xWifiStatus != eWiFiSuccess)
+        {
+            configPRINTF( ( "SoftAP Start failed \r\n") );
+        }
+    }
+
+    return xWifiStatus;
+}
+
 /*-----------------------------------------------------------*/
 
 /**

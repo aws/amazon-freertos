@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS
+ * Amazon FreeRTOS V1.4.8
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,35 +23,22 @@
  * http://www.FreeRTOS.org
  */
 
-
 /**
- * @file aws_iot_network_config.h
- * @brief Configuration file which enables different network types.
- */
-#ifndef AWS_IOT_NETWORK_CONFIG_H_
-#define AWS_IOT_NETWORK_CONFIG_H_
-
-/**
- * @brief Configuration flag used to specify all supported network types by the board.
- *
- * The configuration is fixed per board and should never be changed.
- * More than one network interfaces can be enabled by using 'OR' operation with flags for
- * each network types supported. Flags for all supported network types can be found
- * in "aws_iot_network.h"
+ * @file aws_bufferpool_config.h
+ * @brief Buffer Pool config options.
  */
 
-#define configSUPPORTED_NETWORKS    ( AWSIOT_NETWORK_TYPE_BLE )
+#ifndef _AWS_BUFFER_POOL_CONFIG_H_
+#define _AWS_BUFFER_POOL_CONFIG_H_
 
 /**
- * @brief Configuration flag which is used to enable one or more network interfaces for a board.
- *
- * The configuration can be changed any time to keep one or more network enabled or disabled.
- * More than one network interfaces can be enabled by using 'OR' operation with flags for
- * each network types supported. Flags for all supported network types can be found
- * in "aws_iot_network.h"
- *
+ * @brief The number of buffers in the static buffer pool.
  */
+#define bufferpoolconfigNUM_BUFFERS    ( 8 )
 
-#define configENABLED_NETWORKS      ( AWSIOT_NETWORK_TYPE_BLE )
+/**
+ * @brief The size of each buffer in the static buffer pool.
+ */
+#define bufferpoolconfigBUFFER_SIZE    ( 512 )
 
-#endif /* CONFIG_FILES_AWS_IOT_NETWORK_CONFIG_H_ */
+#endif /* _AWS_BUFFER_POOL_CONFIG_H_ */

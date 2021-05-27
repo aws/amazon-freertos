@@ -155,7 +155,7 @@ function(cy_add_link_libraries)
         TOOLCHAIN     "${AFR_TOOLCHAIN}"
     )
 
-    set(ENV{CY_COMPONENTS} "${AFR_BOARD_NAME};${ARG_COMPONENTS};SOFTFP;BSP_DESIGN_MODUS;PSOC6HAL;FREERTOS;$ENV{CY_CORE}")
+    set(ENV{CY_COMPONENTS} "${AFR_BOARD_NAME};${ARG_COMPONENTS};SOFTFP;BSP_DESIGN_MODUS;PSOC6HAL;FREERTOS;PSOC6;$ENV{CY_CORE}")
     set(CY_ARCH_DIR
         "${cy_libraries_clib_dir}"
         "${cy_psoc6_dir}"
@@ -278,15 +278,12 @@ function(cy_add_link_libraries)
         ${mtb_inc}
         "${AFR_KERNEL_DIR}/include"
         "${AFR_KERNEL_DIR}/portable/$ENV{CY_FREERTOS_TOOLCHAIN}/ARM_CM4F"	# for portmacro.h
-        "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include"
         "${ARG_BSP_DIR}/GeneratedSource"
         "${ARG_BSP_DIR}"
     )
 
     target_link_libraries(
         AFR::kernel::mcu_port
-        INTERFACE
-            3rdparty::tinycrypt
     )
 
     add_library(KVStore INTERFACE)
@@ -506,9 +503,8 @@ function(cy_add_link_libraries)
             "-DMCUBOOT_BOOTLOADER_SIZE=$ENV{MCUBOOT_BOOTLOADER_SIZE}"
             "-DCY_BOOT_PRIMARY_1_START=$ENV{CY_BOOT_PRIMARY_1_START}"
             "-DCY_BOOT_PRIMARY_1_SIZE=$ENV{CY_BOOT_PRIMARY_1_SIZE}"
+            "-DCY_BOOT_SECONDARY_1_START=$ENV{CY_BOOT_SECONDARY_1_START}"
             "-DCY_BOOT_SECONDARY_1_SIZE=$ENV{CY_BOOT_PRIMARY_1_SIZE}"
-            "-DCY_BOOT_SECONDARY_2_START=$ENV{CY_BOOT_SECONDARY_2_START}"
-            "-DCY_BOOT_SECONDARY_2_SIZE=$ENV{CY_BOOT_PRIMARY_2_SIZE}"
             "-DMCUBOOT_MAX_IMG_SECTORS=$ENV{MCUBOOT_MAX_IMG_SECTORS}"
             "-DCY_RETARGET_IO_CONVERT_LF_TO_CRLF=1"
         )
@@ -527,9 +523,13 @@ function(cy_add_link_libraries)
             )
         endif()
 
+        # is CY_MCUBOOT_SWAP_USING_STATUS set?
+        if ("$ENV{CY_MCUBOOT_SWAP_USING_STATUS}" STREQUAL "1")
+            target_compile_definitions(AFR::ota::mcu_port INTERFACE "-DCY_MCUBOOT_SWAP_USING_STATUS=$ENV{CY_MCUBOOT_SWAP_USING_STATUS}" )
+        endif()
+
         # common ota sources
         target_sources(AFR::ota::mcu_port INTERFACE
-            "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_map.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_psoc6.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/flash_qspi/flash_qspi.c"
@@ -579,11 +579,14 @@ function(cy_add_link_libraries)
                 "${AFR_3RDPARTY_DIR}/unity/extras/fixture/src"
                 "${AFR_ROOT_DIR}/demos/include"
                 "${AFR_ROOT_DIR}/demos/dev_mode_key_provisioning/include"
-                "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/pkcs11/include"
                 "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src/mqtt"
                 "${AFR_3RDPARTY_DIR}/pkcs11"
             )
         else()
+            target_sources(AFR::ota::mcu_port INTERFACE
+                "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
+            )
+
             # For aws_demos builds for OTA demos
             # add extra includes
             target_include_directories(AFR::ota::mcu_port INTERFACE

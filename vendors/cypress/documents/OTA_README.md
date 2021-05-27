@@ -225,6 +225,21 @@ Primary Slot      (Slot 0): start: 0x018000, size: 0x01c0000
 
 Secondary Slot (Slot 1): start: 0x18000000, size: 0x01c0000
 
+## Prepare for Building your OTA Application (PSoC® 64 MCU kits)
+
+For PSoC® 064 kits, mcuboot is installed in the device when the provisioning step is run using cysecuretools.
+The PSoC® 064 aws_demos Makefile and cmake flows have CY_MCUBOOT_SWAP_USING_STATUS defined as default.
+
+## Flash Partitioning (PSoC® 64 MCU kits)
+
+The slots are specified by the bootloader and are not changeable.
+
+Primary Slot   CM0 code: start: 0x10000000, size: 0x00050000    - Internal FLASH
+Primary Slot   CM4 code: start: 0x10050000, size: 0x0011C000    - Internal FLASH
+
+Secondary Slot CM0 code: start: 0x1016C000, size: 0x00050000    - Internal FLASH
+Secondary Slot CM4 code: start: 0x18024400, size: 0x0011C000    - External FLASH
+
 ## Limitations
 1. Be sure to have a reliable network connection before starting an OTA update. If your Network connection is poor, OTA update may fail due to lost packets or lost connection.
 
@@ -243,6 +258,7 @@ For PSoC 6 MCU devices, see [How to Design with PSoC 6 MCU - KBA223067](https://
 
 | Document Version | Description of Change                                      |
 | ---------------- | ---------------------------------------------------------- |
+| 1.3.0            | Updates for PSoC 064® build                                |
 | 1.2.0            | Added information on Python installations; added comment   |
 |                  | regarding setting OTA_SUPPORT flag to 1                    |
 | 1.1.0            | Added info for ARM and IAR builds                          |

@@ -92,6 +92,11 @@
                         "type": "STATUS_PARTITION",
                         "address": 270303232,
                         "size": 32768
+                    },
+                    {
+                        "type": "SCRATCH",
+                        "address": 405274624,
+                        "size": 524288
                     }
                 ]
             },
@@ -146,6 +151,7 @@
                 "id": 16,
                 "monotonic": 8,
                 "smif_id": 1,
+                "smif_sector_size": 262144,
                 "multi_image": 2,
                 "upgrade": true,
                 "version": "0.1",
@@ -168,7 +174,7 @@
                     },
                     {
                         "type": "UPGRADE",
-                        "address": 402653184,
+                        "address": 402801664,
                         "size": 1163264
                     }
                 ]

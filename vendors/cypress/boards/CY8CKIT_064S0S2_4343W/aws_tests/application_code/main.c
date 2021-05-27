@@ -66,7 +66,7 @@
 #endif
 #endif
 
-#if (BLE_SUPPORTED == 1)
+#if BLE_SUPPORTED
 #include "bt_hal_manager_types.h"
 #endif
 
