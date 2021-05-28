@@ -401,6 +401,12 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\portable</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\portable\os</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\ota_pal_for_aws</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\ota_demo_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT_Agent</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\device_defender_for_aws</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
@@ -1301,9 +1307,6 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\aws_iot_network_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\aws_ota_agent_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\aws_shadow_config.h</name>
 							</file>
 							<file>
@@ -1311,6 +1314,9 @@
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\core_http_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\core_mqtt_agent_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\core_mqtt_config.h</name>
@@ -1362,6 +1368,12 @@
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\mqtt_demo_plaintext_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\ota_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\ota_demo_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\shadow_config.h</name>
@@ -2652,12 +2664,6 @@
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include\core_json.h</name>
 					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include\stdbool.readme</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include\stdint.readme</name>
-					</file>
 				</group>
 			</group>
 		</group>
@@ -2773,78 +2779,6 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota_http.c</name>
 				</file>
-				<group>
-					<name>dependency</name>
-					<group>
-						<name>coreJSON</name>
-						<group>
-							<name>source</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\dependency\coreJSON\source\core_json.c</name>
-							</file>
-						</group>
-					</group>
-					<group>
-						<name>3rdparty</name>
-						<group>
-							<name>tinycbor</name>
-							<group>
-								<name>src</name>
-								<file>
-									<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\dependency\3rdparty\tinycbor\src\cborpretty.c</name>
-								</file>
-								<file>
-									<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\dependency\3rdparty\tinycbor\src\cborpretty_stdio.c</name>
-								</file>
-								<file>
-									<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\dependency\3rdparty\tinycbor\src\cborencoder.c</name>
-								</file>
-								<file>
-									<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\dependency\3rdparty\tinycbor\src\cborencoder_close_container_checked.c</name>
-								</file>
-								<file>
-									<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\dependency\3rdparty\tinycbor\src\cborerrorstrings.c</name>
-								</file>
-								<file>
-									<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\dependency\3rdparty\tinycbor\src\cborparser.c</name>
-								</file>
-								<file>
-									<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\dependency\3rdparty\tinycbor\src\cborparser_dup_string.c</name>
-								</file>
-							</group>
-						</group>
-					</group>
-				</group>
-			</group>
-		</group>
-		<group>
-			<name>coreMQTTAgent</name>
-			<group>
-				<name>source</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTTAgent\source\freertos_mqtt_agent.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTTAgent\source\agent_command_pool.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTTAgent\source\agent_message.c</name>
-				</file>
-				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTTAgent\source\include\agent_command_pool.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTTAgent\source\include\agent_message.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTTAgent\source\include\core_mqtt_agent_config_defaults.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTTAgent\source\include\freertos_mqtt_agent.h</name>
-					</file>
-				</group>
 			</group>
 		</group>
 	</group>
@@ -2953,11 +2887,8 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\ota_demo_helpers\ota_demo_helpers.h</name>
 				</file>
-			</group>
-			<group>
-				<name>mqtt_subscription_manager</name>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_subscription_manager\subscription_manager.c</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\ota_demo_helpers\ota_application_version.c</name>
 				</file>
 			</group>
 		</group>
