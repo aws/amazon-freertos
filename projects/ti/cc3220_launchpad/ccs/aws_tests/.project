@@ -1168,6 +1168,11 @@
 			<locationURI>BASE_DIR_ROOT/demos/common/ota_demo_helpers/ota_demo_helpers.h</locationURI>
 		</link>
 		<link>
+			<name>demos/common/ota_demo_helpers/ota_application_version.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/ota_demo_helpers/ota_application_version.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</locationURI>
