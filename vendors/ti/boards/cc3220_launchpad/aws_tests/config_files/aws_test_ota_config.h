@@ -69,6 +69,30 @@
 #include "aws_test_ota_pal_rsa_sha1_signature.h"
 
 /**
+ * @brief Major version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#define APP_VERSION_MAJOR    0
+
+/**
+ * @brief Minor version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#define APP_VERSION_MINOR    9
+
+/**
+ * @brief Build version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#define APP_VERSION_BUILD    0
+
+/**
  * @brief Define a valid and invalid signature verification method for this
  * platform (TI). These are used for generating test JSON docs.
  */
