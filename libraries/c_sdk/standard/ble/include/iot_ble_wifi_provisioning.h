@@ -40,11 +40,11 @@
  */
 typedef enum
 {
-    IotBleWiFiProvRequestListNetwork,    /**< Request sent from a WiFi provisioning app to the device to list the access points. */       
-    IotBleWiFiProvRequestAddNetwork,     /**< Request sent from a WiFi provisioning app to the device to provision an acess point. */
-    IotBleWiFiProvRequestEditNetwork,    /**< Request sent from a WiFi provisioning app to the device to change access point priority. */
-    IotBleWiFiProvRequestDeleteNetwork,  /**< Request sent from a WiFi provisioning app to the device to delete an access point. */
-    IotBleWiFiProvRequestStop            /**< Request sent from an application task to stop WiFi provisioning loop. */            
+    IotBleWiFiProvRequestListNetwork   = 1,    /**< Request sent from a WiFi provisioning app to the device to list the access points. */       
+    IotBleWiFiProvRequestAddNetwork    = 2,    /**< Request sent from a WiFi provisioning app to the device to provision an acess point. */
+    IotBleWiFiProvRequestEditNetwork   = 3,    /**< Request sent from a WiFi provisioning app to the device to change access point priority. */
+    IotBleWiFiProvRequestDeleteNetwork = 4,    /**< Request sent from a WiFi provisioning app to the device to delete an access point. */
+    IotBleWiFiProvRequestStop          = 5     /**< Request sent from an application task to stop WiFi provisioning loop. */            
 } IotBleWiFiProvRequest_t;
 /**
  * @ingroup ble_datatypes_structs
@@ -100,23 +100,29 @@ typedef struct
 
 /**
  * @ingroup ble_datatypes_structs
- * @brief Defines the structure used to hold the wifi provisioning information.
+ * @brief Defines the structure used to hold a scanned or saved network information.
+ */
+typedef struct {
+    union {
+        WIFIScanResult_t * pScannedNetwork;    /**< Details of the scanned Network. */
+        WIFINetworkProfile_t * pSavedNetwork;  /**< Details of the provisioned Network. */
+    } info;
+    uint16_t index;              /**< The index (priority) at which network is provisioned. */
+    bool isSavedNetwork: 1;      /**< A flag to signify whether this network is a saved network or scanned network. */
+    bool isConnected:1;          /**< A flag to signify whether this network is connected. */
+    bool isHidden:1;             /**< A flag to signify whether this is an hidden network. */
+} IotBleWifiProvNetworkInfo_t;
+
+/**
+ * @ingroup ble_datatypes_structs
+ * @brief Defines the structure used to hold the wifi provisioning response.
  */
 typedef struct IotBleWifiProvResponse
 {
-    IotBleWiFiProvRequest_t requestType;  /** Request type for which this response is sent. */
-    WIFIReturnCode_t status;              /**< The status of the response. */
-    union {
-        WIFIScanResult_t * scannedNetwork;   /**< Details of the scanned Network. */
-        struct {
-            WIFINetworkProfile_t * network;   /**< Details of the provisioned Network. */
-            uint16_t index;                   /**< The index (priority) at which network is provisioned. */
-        } savedNetwork;
-    } networkInfo;
-    bool isProvisioned:1;        /**< A flag to signify if the network is already provisioned. */
-    bool isHidden:1;             /**< A flag to signify whether this is an hidden network. */
-    bool isConnected:1;          /**< A flag to signify whether this network is connected. */
-
+    IotBleWiFiProvRequest_t requestType;       /** Request type for which this response is sent. */
+    WIFIReturnCode_t status;                   /**< The status of the response. */
+    IotBleWifiProvNetworkInfo_t networkInfo;   /**< Network info sent as part of response for list request. */
+    bool statusOnly:1;                         /**< A flag to signify if its a status only response. */
 } IotBleWifiProvResponse_t;
 
 /**

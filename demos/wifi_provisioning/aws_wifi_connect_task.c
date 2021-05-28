@@ -35,12 +35,12 @@
 #include "semphr.h"
 #include "aws_demo_config.h"
 
+#include "aws_wifi_connect_task.h"
+#include "iot_network_manager_private.h"
+
 #if BLE_ENABLED
 #include "iot_ble_config.h"
 #endif
-
-#include "aws_wifi_connect_task.h"
-#include "iot_network_manager_private.h"
 
 #if IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1
     #include "iot_softap_wifi_provisioning.h"
@@ -100,7 +100,8 @@ static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType,
     if( xNetworkState == eNetworkStateEnabled )
     {
         #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
-            configASSERT( IotBleWifiProv_Stop() == true );
+            configPRINTF(( "New WiFi network connected. Stopping WiFi provisioning.\r\n" ));
+            //configASSERT( IotBleWifiProv_Stop() == true );
         #endif
     }
     else
@@ -153,13 +154,17 @@ void prvWiFiConnectTask( void * pvParams )
 {
     for( ; ; )
     {
+        configPRINTF(( "Checking wifi is connected.\r\n" ));
         /* Checks if WiFi is already connected to an access point. */
-        if( WIFI_IsConnected() == pdFALSE )
+        if( WIFI_IsConnected( NULL ) == pdFALSE )
         {
+
+            configPRINTF(( "Wifi connected is false.\r\n" ));
 
             /* Goes through the list of all provisioned networks and tries to connect them in priority order. */
             if( prvConnectToProvisionedNetworks() == pdFALSE )
             {
+                configPRINTF(( "Not able to connect to any networks.\r\n" ));
                 /**
                  * If none of the connections are successfull, switch to provisioning mode by runnning
                  * the provisioning process loop function. Loop awaits for provisioing
@@ -169,13 +174,14 @@ void prvWiFiConnectTask( void * pvParams )
                  * stop and returns from this process loop function.
                  */
                 #if( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
-                    status = IotBleWifiProv_RunProcessLoop();
-                    if( status == false )
+                    if( IotBleWifiProv_RunProcessLoop() == false )
                     {
                         configPRINTF(( "Failed to run process loop function of WiFi provisioning. Exiting demo task.\r\n" ));
                         break;
                     }
                 #endif
+
+                vTaskDelay( pdMS_TO_TICKS( 5000 ) );
             }
         }
         else
@@ -200,6 +206,7 @@ BaseType_t xWiFiConnectTaskInitialize( void )
     #elif  ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
         if( IotBleWifiProv_Init() != true )
         {
+            configPRINTF(( "Failed to initialize WiFi provisioning over BLE.\r\n" ));
             xStatus = pdFALSE;
         }
     #endif
