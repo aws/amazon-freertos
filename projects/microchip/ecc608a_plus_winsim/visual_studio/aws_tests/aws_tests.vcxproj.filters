@@ -262,9 +262,6 @@
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\portmacro.h">
 			<Filter>freertos_kernel\portable\MSVC-MingW</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\tests\include\aws_application_version.h">
-			<Filter>tests\include</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\tests\include\aws_clientcredential.h">
 			<Filter>tests\include</Filter>
 		</ClInclude>
@@ -288,9 +285,6 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\tests\include\iot_config_common.h">
 			<Filter>tests\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h">
-			<Filter>libraries\c_sdk\standard\common\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h">
 			<Filter>libraries\c_sdk\standard\common\include</Filter>
@@ -1648,6 +1642,9 @@
 			<Filter>vendors\microchip\boards\ecc608a_plus_winsim\ports\ota_pal_for_aws</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_demo_helpers.c">
+			<Filter>demos\common\ota_demo_helpers</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_application_version.c">
 			<Filter>demos\common\ota_demo_helpers</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">

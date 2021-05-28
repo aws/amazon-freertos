@@ -49,7 +49,6 @@
 #include "esp_interface.h"
 
 #include "driver/uart.h"
-#include "aws_application_version.h"
 #include "esp_netif.h"
 
 #include "iot_network_manager_private.h"

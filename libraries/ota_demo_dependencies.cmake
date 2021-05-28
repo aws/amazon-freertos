@@ -85,6 +85,7 @@ afr_module_dependencies(
     PUBLIC
         AFR::ota
         AFR::ota_demo_helpers
+        AFR::ota_demo_version
         AFR::mqtt_subscription_manager
         AFR::core_mqtt_agent
         AFR::core_mqtt_demo_dependencies

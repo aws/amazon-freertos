@@ -168,7 +168,7 @@ endif
 # Define CY_TEST_APP_VERSION_IN_TAR in Application Makefile
 # to test application version in TAR archive at start of OTA image download.
 # NOTE: This requires that the user set the version numbers in the Makefile and
-#          in aws_application_version.h and that they MATCH.
+#          in ota_demo_config.h and that they MATCH.
 # NOTE: This will create compile warnings such as
 #		'warning: "APP_VERSION_MAJOR" redefined'
 #
