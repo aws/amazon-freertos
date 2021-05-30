@@ -39,8 +39,8 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/lwip/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT_Agent/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreHTTP/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
@@ -57,6 +57,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/demos/common/http_demo_helpers\
 	$(CY_AFR_ROOT)/demos/common/mqtt_demo_helpers\
 	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers\
+	$(CY_AFR_ROOT)/demos/coreMQTT_Agent\
 	$(CY_AFR_ROOT)/demos/device_defender_for_aws\
 	$(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/lwip
 else
@@ -125,6 +126,7 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/mqtt_agent/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/transport/secure_sockets/*.c)
 	
 
@@ -145,6 +147,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/retry_utils\
+	$(CY_AFR_ROOT)/libraries/abstractions/mqtt_agent/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/transport/secure_sockets
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),1)
@@ -326,6 +329,15 @@ SOURCES+=\
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/source/include\
 	$(CY_AFR_ROOT)/libraries/coreMQTT/portable/
+
+################################################################################
+# core MQTT Agent
+################################################################################
+SOURCES+=\
+	$(wildcard $(CY_AFR_ROOT)/libraries/coreMQTT-Agent/source/*.c)
+
+INCLUDES+=\
+	$(CY_AFR_ROOT)/libraries/coreMQTT-Agent/source/include
 
 ################################################################################
 # core HTTP
