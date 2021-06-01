@@ -28,10 +28,10 @@
  * Implement APIs used for serializing messages between device and the WiFi provisioning application
  * over BLE network.
  */
+#include <string.h>
 
 #include "iot_ble_wifi_provisioning.h"
-#include "iot_serializer.h"
-
+#include "cbor.h"
 
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_GLOBAL
@@ -127,168 +127,311 @@
 #define IOT_BLE_WIFI_PROV_NETWORK_INDEX_DONT_USE     ( -1 )
 
 
-#define IS_VALID_SERIALIZER_RET( ret, pxSerializerBuf ) \
-    ( ( ret == IOT_SERIALIZER_SUCCESS ) ||              \
-      ( ( !pxSerializerBuf ) && ( ret == IOT_SERIALIZER_BUFFER_TOO_SMALL ) ) )
+#define SERIALIZER_STATUS( status, pBuffer )                      \
+    ( ( status == CborNoError ) ||                              \
+      ( ( !pBuffer ) && ( status == CborErrorOutOfMemory ) ) )
+
+static IotBleWiFiProvRequest_t prvToRequestType( int64_t value )
+
+{
+    IotBleWiFiProvRequest_t ret = IotBleWiFiProvRequestInvalid;
+    switch( value )
+    {
+        case IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ:
+            ret =  IotBleWiFiProvRequestListNetwork;
+            break;
+        case IOT_BLE_WIFI_PROV_MSG_TYPE_ADD_NETWORK_REQ:
+            ret =  IotBleWiFiProvRequestAddNetwork;
+            break;
+        case IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_REQ:
+            ret =  IotBleWiFiProvRequestEditNetwork;
+            break;
+        case IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_REQ:
+            ret =  IotBleWiFiProvRequestDeleteNetwork;
+            break;
+        default:
+            break;
+    }
+
+    return ret;
+}
+
+static bool prvToWiFiSecurityType( int64_t value, WIFISecurity_t *pResult )
+{
+    bool status = true;
+    switch( value )
+    {
+         case IOT_BLE_WIFI_SECURITY_TYPE_OPEN:
+            ( * pResult ) = eWiFiSecurityOpen;
+                        break;
+
+                    case IOT_BLE_WIFI_SECURITY_TYPE_WEP:
+                        ( * pResult ) = eWiFiSecurityWEP;
+                        break;
+
+                    case IOT_BLE_WIFI_SECURITY_TYPE_WPA:
+                        ( * pResult ) = eWiFiSecurityWPA;
+                        break;
+
+                    case IOT_BLE_WIFI_SECURITY_TYPE_WPA2:
+                        ( * pResult ) = eWiFiSecurityWPA2;
+                        break;
+
+                    case IOT_BLE_WIFI_SECURITY_TYPE_WPA2_ENT:
+                        ( * pResult ) = eWiFiSecurityWPA2;
+                        break;
+
+                    case IOT_BLE_WIFI_SECURITY_TYPE_WPA3:
+                        ( * pResult ) = eWiFiSecurityWPA2;
+                        break;
+
+                    default:
+                        status = false;
+                        break;
+                }
+    return status;
+}
+
+static CborError prvGetOrDefaultBooleanValueFromMap( CborValue * pMap, const char * key, bool * pResult, bool defaultValue )
+{
+    CborError status;
+    CborValue value;
+
+    status = cbor_value_map_find_value( pMap, key, &value );
+    if( status == CborNoError )
+    {
+        if( cbor_value_is_boolean( &value) )
+        {
+            status = cbor_value_get_boolean( &value, pResult );
+        }
+        else if( cbor_value_get_type( &value ) == CborInvalidType )
+        {
+            /* Element not found. Return default value. */
+            ( * pResult ) = defaultValue;
+        }
+        else
+        {
+            status = CborErrorImproperValue;
+        }
+    }
+
+    return status;
+}
+
+static CborError prvGetIntegerValueFromMap( CborValue * pMap, const char * key, int64_t * pValue )
+{
+    CborError status;
+    CborValue value;
+
+    status = cbor_value_map_find_value( pMap, key, &value );
+    if( status == CborNoError )
+    {
+        if( cbor_value_is_integer( &value) )
+        {
+            status = cbor_value_get_int64( &value, pValue );
+        }
+        else
+        {
+            status = CborErrorImproperValue;
+        }
+    }
+
+    return status;
+}
+
+static CborError prvGetTextStringValueFromMap( CborValue * pMap, const char * key, char * pBuffer, size_t * bufLength )
+{
+    CborError status;
+    size_t length;
+    CborValue value;
+
+    status = cbor_value_map_find_value( pMap, key, &value );
+    if( status == CborNoError )
+    {
+         if( cbor_value_is_text_string( &value ) )
+        {
+            if( cbor_value_is_length_known( &value ) )
+            {
+                status = cbor_value_get_string_length( &value, &length );
+            }
+            else
+            {
+                status = cbor_value_calculate_string_length( &value, &length );
+            }
+        }
+        else
+        {
+            status = CborErrorImproperValue;
+        }
+        
+        if( status == CborNoError )
+        {
+            if( length <= *bufLength )
+            {
+                status = cbor_value_copy_text_string( &value, pBuffer, bufLength, NULL );
+            }
+            else
+            {
+                status = CborErrorImproperValue;
+            }
+        }
+    }
+
+    return status;
+}
+
+static CborError prvGetByteStringValueFromMap( CborValue * pMap, const char * key, uint8_t * pBuffer, size_t * bufLength )
+{
+    CborError status;
+    size_t length;
+    CborValue value;
+
+    status = cbor_value_map_find_value( pMap, key, &value );
+    if( status == CborNoError )
+    {
+         if( cbor_value_is_byte_string( &value ) )
+        {
+            if( cbor_value_is_length_known( &value ) )
+            {
+                status = cbor_value_get_string_length( &value, &length );
+            }
+            else
+            {
+                status = cbor_value_calculate_string_length( &value, &length );
+            }
+        }
+        else
+        {
+            status = CborErrorImproperValue;
+        }
+        
+        if( status == CborNoError )
+        {
+            if( length <= ( * bufLength ) )
+            {
+                status = cbor_value_copy_byte_string( &value, pBuffer, bufLength, NULL );
+            }
+            else
+            {
+                status = CborErrorImproperValue;
+            }
+        }
+    }
+
+    return status;
+}
 
 
 static bool IotBleWiFiProv_GetRequestTypeCbor( const uint8_t * pMessage,
                                               size_t length,
-                                              IotBleWiFiProvRequest_t * pRequeustType )
+                                              IotBleWiFiProvRequest_t * pRequestType )
 {
-    IotSerializerDecoderObject_t decoderObj = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
-    IotSerializerDecoderObject_t value = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
-    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
+
+    CborParser parser = { 0 };
+    CborValue map = { 0 };
+    CborError status = CborNoError;
+    int64_t requestValue = 0L;
     bool result = true;
 
-    ret = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pMessage, length );
-
-    if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-        ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
+    status = cbor_parser_init( pMessage, length, 0, &parser, &map );
+    
+    if( status == CborNoError )
     {
-        IotLogError( "Failed to initialize the decoder, error = %d, object type = %d", ret, decoderObj.type );
-        result = false;
-    }
-
-    if( result == true )
-    {
-        ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_MSG_TYPE_KEY, &value );
-
-        if( ( ret == IOT_SERIALIZER_SUCCESS ) &&
-            ( value.type == IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( !cbor_value_is_map( &map ) )
         {
-            switch( value.u.value.u.signedInt )
-            {
-                case IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ:
-                    ( * pRequeustType ) =  IotBleWiFiProvRequestListNetwork;
-                    break;
-                case IOT_BLE_WIFI_PROV_MSG_TYPE_ADD_NETWORK_REQ:
-                    ( * pRequeustType ) =  IotBleWiFiProvRequestAddNetwork;
-                    break;
-                case IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_REQ:
-                    ( * pRequeustType ) =  IotBleWiFiProvRequestEditNetwork;
-                    break;
-                case IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_REQ:
-                    ( * pRequeustType ) =  IotBleWiFiProvRequestDeleteNetwork;
-                    break;
-                default:
-                    result = false;
-                    break;
-            }
-        }
-        else
-        {
-            IotLogError( "Failed to find message type, error = %d, value type = %d", ret, value.type );
-            result = false;
+            status = CborErrorImproperValue;
         }
     }
+
+    if( status == CborNoError )
+    {
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_WIFI_PROV_MSG_TYPE_KEY, &requestValue );
+        if( status == CborNoError )
+        {
+            ( * pRequestType ) = prvToRequestType( requestValue );
+        }
+    }
+    
+    IotLogInfo( "Decode cbor request message, status = %d", status );
 
     return result;
 }
 
-static bool IotBleWiFiProv_DeserializeListNetworkRequestCbor( const uint8_t * pData,
+static bool IotBleWiFiProv_DeserializeListNetworkRequestCbor( const uint8_t * pMessage,
                                                           size_t length,
                                                           IotBleWifiProvListNetworksRequest_t * pListNetworksRequest )
 {
-    IotSerializerDecoderObject_t decoderObj = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
-    IotSerializerDecoderObject_t value = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
-    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
-    bool result = true;
+    CborParser parser = { 0 };
+    CborValue map = { 0 };
+    CborError status = CborNoError;
+    int64_t val = 0;
 
-    ret = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pData, length );
+    memset( pListNetworksRequest, 0x00, sizeof( IotBleWifiProvListNetworksRequest_t ) );
+    status = cbor_parser_init( pMessage, length, 0, &parser, &map );
 
-    if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-        ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( status == CborNoError )
     {
-        IotLogError( "Failed to initialize the decoder, error = %d, object type = %d", ret, decoderObj.type );
-        result = false;
-    }
-
-    if( result == true )
-    {
-        ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_MAX_NETWORKS_KEY, &value );
-
-        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-            ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( !cbor_value_is_map( &map ) )
         {
-            IotLogError( "Failed to get max Networks parameter, error = %d, value type = %d", ret, value.type );
-            result = false;
-        }
-        else
-        {
-            if( ( value.u.value.u.signedInt <= 0 ) || ( value.u.value.u.signedInt > IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS ) )
-            {
-                IotLogWarn( "Networks %d exceeds configured value, truncating to  %d max network\n",
-                            ( uint16_t ) value.u.value.u.signedInt,
-                            IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS );
-                pListNetworksRequest->scanSize = IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS;
-            }
-            else
-            {
-                pListNetworksRequest->scanSize = value.u.value.u.signedInt;
-            }
+            status = CborErrorImproperValue;
         }
     }
 
-    if( result == true )
+    if( status == CborNoError )
     {
-        ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_SCAN_TIMEOUT_KEY, &value );
-
-        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-            ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_WIFI_PROV_MAX_NETWORKS_KEY, &val );
+        if( status == CborNoError )
         {
-            IotLogError( "Failed to get timeout parameter, error = %d, value type = %d", ret, value.type );
-            result = false;
-        }
-        else
-        {
-            pListNetworksRequest->scanTimeoutMS = value.u.value.u.signedInt;
+            pListNetworksRequest->scanSize = ( int16_t ) val;
         }
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
+    if( status == CborNoError  )
+    {
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_WIFI_PROV_SCAN_TIMEOUT_KEY, &val );
+        if( status == CborNoError )
+        {
+            pListNetworksRequest->scanTimeoutMS = ( int16_t ) val;
+        }
+    }
 
-    return result;
+    IotLogInfo( "Decode list network cbor message, status = %d", status );
+
+    return ( status == CborNoError );
 }
 
 /*-----------------------------------------------------------*/
 
-static bool IotBleWiFiProv_DeserializeAddNetworkRequestCbor( const uint8_t * pData,
+static bool IotBleWiFiProv_DeserializeAddNetworkRequestCbor( const uint8_t * pMessage,
                                                          size_t length,
                                                          IotBleWifiProvAddNetworkRequest_t * pAddNetworkReq )
 {
-    IotSerializerDecoderObject_t decoderObj = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
-    IotSerializerDecoderObject_t value = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
-    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
-    bool result = true;
 
+    CborParser parser = { 0 };
+    CborValue map = { 0 };
+    CborError status = CborNoError;
+    int64_t val = 0;
+    bool boolVal;
 
-    memset( pAddNetworkReq, 0x00, sizeof(IotBleWifiProvAddNetworkRequest_t) );
+    status = cbor_parser_init( pMessage, length, 0, &parser, &map );
+    memset( pAddNetworkReq, 0x00, sizeof( IotBleWifiProvAddNetworkRequest_t ) );
 
-    ret = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pData, length );
+     if( status == CborNoError )
+     {
+         if( !cbor_value_is_map( &map ) )
+         {
+             status = CborErrorImproperValue;
+         }
+     } 
 
-    if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-        ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( status == CborNoError )
     {
-        IotLogError( "Failed to initialize the decoder, error = %d, object type = %d", ret, decoderObj.type );
-        result = false;
-    }
-
-    if( result == true )
-    {
-        ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_INDEX_KEY, &value );
-
-        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-            ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_WIFI_PROV_INDEX_KEY, &val );
+        if( status == CborNoError )
         {
-            IotLogError( "Failed to get network index parameter, error = %d, value type = %d", ret, value.type );
-            result = false;
-        }
-        else
-        {
-            if( value.u.value.u.signedInt != IOT_BLE_WIFI_PROV_NETWORK_INDEX_DONT_USE )
+            if( val != IOT_BLE_WIFI_PROV_NETWORK_INDEX_DONT_USE )
             {
-                pAddNetworkReq->info.index = value.u.value.u.signedInt;
+                pAddNetworkReq->info.index = ( int16_t ) val;
                 pAddNetworkReq->isProvisioned = true;
             }
             else
@@ -300,291 +443,144 @@ static bool IotBleWiFiProv_DeserializeAddNetworkRequestCbor( const uint8_t * pDa
 
     if( pAddNetworkReq->isProvisioned == false )
     {
-
-        if( result == true )
+        if( status == CborNoError )
         {
-            value.u.value.u.string.pString = NULL;
-            value.u.value.u.string.length = 0;
-            ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_SSID_KEY, &value );
-
-            if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != IOT_SERIALIZER_SCALAR_TEXT_STRING ) )
+            length = sizeof( pAddNetworkReq->info.network.ucSSID );
+            status = prvGetTextStringValueFromMap( &map, IOT_BLE_WIFI_PROV_SSID_KEY, ( char * ) pAddNetworkReq->info.network.ucSSID, &length );
+            if( status == CborNoError )
             {
-                IotLogError( "Failed to get SSID parameter, error = %d, value type = %d", ret, value.type );
-                result = false;
+                pAddNetworkReq->info.network.ucSSIDLength = length;
             }
             else
             {
-                if( value.u.value.u.string.length > sizeof( pAddNetworkReq->info.network.ucSSID ) )
+                if( status == CborErrorOutOfMemory )
                 {
-                    IotLogError( "SSID, %.*s, exceeds maximum length %d",
-                                value.u.value.u.string.length,
-                                ( const char * ) value.u.value.u.string.pString,
+                    IotLogError( "SSID exceeds allowable length %d",
                                 sizeof( pAddNetworkReq->info.network.ucSSID ) );
-                    result = false;
-                }
-                else
-                {
-                    memcpy( pAddNetworkReq->info.network.ucSSID, value.u.value.u.string.pString, value.u.value.u.string.length );
-                    pAddNetworkReq->info.network.ucSSIDLength = ( value.u.value.u.string.length );
                 }
             }
         }
 
-        if( result == true )
+        if( status == CborNoError )
         {
-            value.type = IOT_SERIALIZER_SCALAR_BYTE_STRING;
-            value.u.value.u.string.pString = NULL;
-            value.u.value.u.string.length = 0;
-            ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_BSSID_KEY, &value );
-
-            if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
+            status = prvGetByteStringValueFromMap( &map, IOT_BLE_WIFI_PROV_BSSID_KEY, pAddNetworkReq->info.network.ucBSSID, &length );
+            if( length != sizeof( pAddNetworkReq->info.network.ucBSSID ) )
             {
-                IotLogError( "Failed to get BSSID parameter, error = %d, value type = %d", ret, value.type );
-                result = false;
+                status = CborErrorImproperValue;
             }
-            else
+        }
+        if( status == CborNoError )
+        {
+            status = prvGetIntegerValueFromMap( &map, IOT_BLE_WIFI_PROV_KEY_MGMT_KEY, &val );
+            if( prvToWiFiSecurityType( val, &pAddNetworkReq->info.network.xSecurity ) == false )
             {
-                if( value.u.value.u.string.length != sizeof( pAddNetworkReq->info.network.ucBSSID ) )
-                {
-                    IotLogError( "Parameter BSSID length (%d) does not match BSSID length %d",
-                                value.u.value.u.string.length,
-                                wificonfigMAX_BSSID_LEN );
-                    result = false;
-                }
-                else
-                {
-                    memcpy( pAddNetworkReq->info.network.ucBSSID, value.u.value.u.string.pString, value.u.value.u.string.length );
-                }
+                status = CborErrorImproperValue;
             }
         }
 
-        if( result == true )
+        if( status == CborNoError )
         {
-            ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_KEY_MGMT_KEY, &value );
-
-            if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+            length = sizeof( pAddNetworkReq->info.network.cPassword );
+            status = prvGetTextStringValueFromMap( &map, IOT_BLE_WIFI_PROV_PSK_KEY, ( char * ) pAddNetworkReq->info.network.cPassword, &length );
+            if( status == CborNoError )
             {
-                IotLogError( "Failed to get WIFI xSecurity parameter, error = %d, value type = %d", ret, value.type );
-                result = false;
-            }
-            else
-            {
-                switch( value.u.value.u.signedInt )
-                {
-                    case IOT_BLE_WIFI_SECURITY_TYPE_OPEN:
-                        pAddNetworkReq->info.network.xSecurity = eWiFiSecurityOpen;
-                        break;
-
-                    case IOT_BLE_WIFI_SECURITY_TYPE_WEP:
-                        pAddNetworkReq->info.network.xSecurity = eWiFiSecurityWEP;
-                        break;
-
-                    case IOT_BLE_WIFI_SECURITY_TYPE_WPA:
-                        pAddNetworkReq->info.network.xSecurity = eWiFiSecurityWPA;
-                        break;
-
-                    case IOT_BLE_WIFI_SECURITY_TYPE_WPA2:
-                        pAddNetworkReq->info.network.xSecurity = eWiFiSecurityWPA2;
-                        break;
-
-                    case IOT_BLE_WIFI_SECURITY_TYPE_WPA2_ENT:
-                        pAddNetworkReq->info.network.xSecurity = eWiFiSecurityWPA2;
-                        break;
-
-                    case IOT_BLE_WIFI_SECURITY_TYPE_WPA3:
-                        pAddNetworkReq->info.network.xSecurity = eWiFiSecurityWPA2;
-                        break;
-
-                    default:
-                        pAddNetworkReq->info.network.xSecurity = eWiFiSecurityNotSupported;
-                        break;
-                }
-            }
-        }
-
-        if( result == true )
-        {
-            value.u.value.u.string.pString = NULL;
-            value.u.value.u.string.length = 0;
-            ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_PSK_KEY, &value );
-
-            if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != IOT_SERIALIZER_SCALAR_TEXT_STRING ) )
-            {
-                IotLogError( "Failed to get password parameter, error = %d, value type = %d", ret, value.type );
-                result = false;
-            }
-            else
-            {
-                if( value.u.value.u.string.length > sizeof( pAddNetworkReq->info.network.cPassword ) )
-                {
-                    IotLogError( "SSID, %.*s, exceeds maximum length %d",
-                                value.u.value.u.string.length,
-                                ( const char * ) value.u.value.u.string.pString,
-                                sizeof( pAddNetworkReq->info.network.cPassword ) );
-                    result = false;
-                }
-                else
-                {
-                    memcpy( pAddNetworkReq->info.network.cPassword, value.u.value.u.string.pString, value.u.value.u.string.length );
-                    pAddNetworkReq->info.network.ucPasswordLength = ( uint8_t ) ( value.u.value.u.string.length );
-                }
+                pAddNetworkReq->info.network.ucPasswordLength = length;
             }
         }
     }
-
-    if( result == true )
+    if( status == CborNoError )
     {
-        ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_CONNECT_KEY, &value );
-
-        if( ( ret == IOT_SERIALIZER_SUCCESS ) &&
-            ( value.type == IOT_SERIALIZER_SCALAR_BOOL ) )
+        status = prvGetOrDefaultBooleanValueFromMap( &map, IOT_BLE_WIFI_PROV_CONNECT_KEY, &boolVal,  IOT_BLE_WIFI_PROV_DEFAULT_SHOULD_CONNECT );
+        if( status == CborNoError )
         {
-            pAddNetworkReq->shouldConnect = value.u.value.u.booleanValue;
-        }
-        else if( ret == IOT_SERIALIZER_NOT_FOUND )
-        {
-            IotLogInfo( "Connect flag not set in request, using default value, should connect = %d", IOT_BLE_WIFI_PROV_DEFAULT_SHOULD_CONNECT );
-            pAddNetworkReq->shouldConnect = IOT_BLE_WIFI_PROV_DEFAULT_SHOULD_CONNECT;
-        }
-        else
-        {
-            IotLogError( "Error in getting connect flag, error = %d, value type = %d", ret, value.type );
-            result = false;
+            pAddNetworkReq->shouldConnect = boolVal;
         }
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
+    IotLogInfo( "Decode add network cbor message, status = %d", status );
 
-    return result;
+    return ( status == CborNoError );
 }
 
 /*-----------------------------------------------------------*/
 
-static bool IotBleWiFiProv_DeserializeEditNetworkRequestCbor( const uint8_t * pData,
+static bool IotBleWiFiProv_DeserializeEditNetworkRequestCbor( const uint8_t * pMessage,
                                                    size_t length,
                                                    IotBleWifiProvEditNetworkRequest_t * pEditNetworkReq )
 {
-    IotSerializerDecoderObject_t decoderObj = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
-    IotSerializerDecoderObject_t value = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
-    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
-    bool result = true;
 
-    ret = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pData, length );
+    CborParser parser = { 0 };
+    CborValue map = { 0 };
+    CborError status = CborNoError;
+    int64_t val = 0;
 
-    if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-        ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
+    memset( pEditNetworkReq, 0x00, sizeof( IotBleWifiProvEditNetworkRequest_t ) );
+    status = cbor_parser_init( pMessage, length, 0, &parser, &map );
+
+    if( status == CborNoError )
     {
-        IotLogError( "Failed to initialize decoder, error = %d, object type = %d", ret, decoderObj.type );
-        result = false;
-    }
-
-    if( result == true )
-    {
-        ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_INDEX_KEY, &value );
-
-        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-            ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( !cbor_value_is_map( &map ) )
         {
-            IotLogError( "Failed to get network index parameter, error = %d, value type = %d", ret, value.type );
-            result = false;
-        }
-        else
-        {
-            if( ( value.u.value.u.signedInt >= 0 ) &&
-                ( value.u.value.u.signedInt < IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS ) )
-            {
-                pEditNetworkReq->currentPriorityIndex = value.u.value.u.signedInt;
-            }
-            else
-            {
-                IotLogError( "Network index parameter ( %lld ) is out of range", value.u.value.u.signedInt );
-                result = false;
-            }
+            status = CborErrorImproperValue;
         }
     }
 
-    if( result == true )
+    if( status == CborNoError )
     {
-        ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_NEWINDEX_KEY, &value );
-
-        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-            ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_WIFI_PROV_INDEX_KEY, &val );
+        if( status == CborNoError )
         {
-            IotLogError( "Failed to get new network index parameter, error = %d, value type = %d", ret, value.type );
-            result = false;
-        }
-        else
-        {
-            if( ( value.u.value.u.signedInt >= 0 ) &&
-                ( value.u.value.u.signedInt < IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS ) )
-            {
-                pEditNetworkReq->newPriorityIndex = value.u.value.u.signedInt;
-            }
-            else
-            {
-                IotLogError( "New Network index parameter ( %lld ) is out of range", value.u.value.u.signedInt );
-                result = false;
-            }
+            pEditNetworkReq->currentPriorityIndex = ( int16_t ) val;
         }
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
+    if( status == CborNoError )
+    {
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_WIFI_PROV_NEWINDEX_KEY, &val );
+        if( status == CborNoError )
+        {
+            pEditNetworkReq->newPriorityIndex = ( int16_t ) val;
+        }
+    }
 
-    return result;
+    IotLogInfo( "Decode edit network cbor message, status = %d", status );
+
+    return ( status == CborNoError );
 }
 
 
-
-static bool IotBleWiFiProv_DeserializeDeleteNetworkRequestCbor( const uint8_t * pData,
+static bool IotBleWiFiProv_DeserializeDeleteNetworkRequestCbor( const uint8_t * pMessage,
                                                      size_t length,
                                                      IotBleWifiProvDeleteNetworkRequest_t * pDeleteNetworkRequest )
 {
-    IotSerializerDecoderObject_t decoderObj = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
-    IotSerializerDecoderObject_t value = IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
-    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
-    bool result = true;
+    CborParser parser = { 0 };
+    CborValue map = { 0 };
+    CborError status = CborNoError;
+    int64_t val = 0;
 
-    ret = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pData, length );
+    memset( pDeleteNetworkRequest, 0x00, sizeof( IotBleWifiProvDeleteNetworkRequest_t ) );
+    status = cbor_parser_init( pMessage, length, 0, &parser, &map );
 
-    if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-        ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( status == CborNoError )
     {
-        IotLogError( "Failed to initialize decoder, error = %d, object type = %d", ret, decoderObj.type );
-        result = false;
-    }
-
-    if( result == true )
-    {
-        ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_INDEX_KEY, &value );
-
-        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
-            ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( !cbor_value_is_map( &map ) )
         {
-            IotLogError( "Failed to get network index parameter, error = %d, value type = %d", ret, value.type );
-            result = false;
-        }
-        else
-        {
-            if( ( value.u.value.u.signedInt >= 0 ) &&
-                ( value.u.value.u.signedInt < IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS ) )
-            {
-                pDeleteNetworkRequest->priorityIndex = ( int16_t ) value.u.value.u.signedInt;
-            }
-            else
-            {
-                IotLogError( "Network index parameter %lld is out of range", value.u.value.u.signedInt );
-                result = false;
-            }
+            status = CborErrorImproperValue;
         }
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
+    if( status == CborNoError )
+    {
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_WIFI_PROV_INDEX_KEY, &val );
+        if( status == CborNoError )
+        {
+            pDeleteNetworkRequest->priorityIndex = ( int16_t ) val;
+        }
+    }
 
-    return result;
+    IotLogInfo( "Decode delete network cbor message, status = %d", status );
+
+    return ( status == CborNoError );
 }
 
 static uint8_t prvToResponseType( IotBleWiFiProvRequest_t requestType ) 
@@ -613,155 +609,162 @@ static uint8_t prvToResponseType( IotBleWiFiProvRequest_t requestType )
 
 static bool prvSerializeResponseCbor( const IotBleWifiProvResponse_t * pResponse,
                                                   uint8_t * pBuffer,
-                                                  size_t * plength )
+                                                  size_t * pLength )
 {
-    IotSerializerEncoderObject_t container = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t networkMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t value = IOT_SERIALIZER_SCALAR_DATA_INITIALIZER;
-    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
-    size_t length = *plength;
-    size_t numParams = ( pResponse->statusOnly == true ) ? IOT_BLE_WIFI_PROV_STATUS_MESG_NUM_PARAMS 
-                                                           : IOT_BLE_WIFI_PROV_NETWORK_INFO_RESPONSE_NUM_PARAMS;
+    size_t length = *pLength;
+    size_t numParams =
+                    ( pResponse->statusOnly == true ) ? IOT_BLE_WIFI_PROV_STATUS_MESG_NUM_PARAMS 
+                                                        : IOT_BLE_WIFI_PROV_NETWORK_INFO_RESPONSE_NUM_PARAMS;
+    CborError status;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
-    ret = IOT_BLE_MESG_ENCODER.init( &container, pBuffer, length );
+    cbor_encoder_init( &encoder, pBuffer, length, 0 );
 
-    if( ret == IOT_SERIALIZER_SUCCESS )
+    status = cbor_encoder_create_map( &encoder, &mapEncoder, numParams );
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        ret = IOT_BLE_MESG_ENCODER.openContainer( &container, &networkMap, numParams );
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_WIFI_PROV_MSG_TYPE_KEY, strlen( IOT_BLE_WIFI_PROV_MSG_TYPE_KEY ) );
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_int( &mapEncoder, prvToResponseType( pResponse->requestType ) );
+        }
     }
 
-    if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        value.value.u.signedInt = prvToResponseType( pResponse->requestType );
-        ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_MSG_TYPE_KEY, value );
-    }
-
-    if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
-    {
-        value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        value.value.u.signedInt = pResponse->status;
-        ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_STATUS_KEY, value );
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_WIFI_PROV_STATUS_KEY, strlen( IOT_BLE_WIFI_PROV_STATUS_KEY ) );
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_int( &mapEncoder, pResponse->status );
+        }
     }
 
     if( pResponse->statusOnly == false )
     {
-        if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            value.type = IOT_SERIALIZER_SCALAR_TEXT_STRING;
-            if( pResponse->networkInfo.isSavedNetwork == true )
+            status = cbor_encode_text_string( &mapEncoder, IOT_BLE_WIFI_PROV_SSID_KEY, strlen( IOT_BLE_WIFI_PROV_SSID_KEY ) );
+            if( SERIALIZER_STATUS( status, pBuffer ) == true )
             {
-                value.value.u.string.pString = ( uint8_t * ) pResponse->networkInfo.info.pSavedNetwork->ucSSID;
-                value.value.u.string.length = pResponse->networkInfo.info.pSavedNetwork->ucSSIDLength;
+                if( pResponse->networkInfo.isSavedNetwork == true )
+                {
+                    status = cbor_encode_text_string( &mapEncoder,
+                                                      ( char * ) pResponse->networkInfo.info.pSavedNetwork->ucSSID,
+                                                      pResponse->networkInfo.info.pSavedNetwork->ucSSIDLength );
+                }
+                else
+                {
+                    status = cbor_encode_text_string( &mapEncoder,
+                                                      ( char * ) pResponse->networkInfo.info.pScannedNetwork->ucSSID,
+                                                      pResponse->networkInfo.info.pScannedNetwork->ucSSIDLength );
+                }
+                
             }
-            else
-            {
-                value.value.u.string.pString = ( uint8_t * ) pResponse->networkInfo.info.pScannedNetwork->ucSSID;
-                value.value.u.string.length = pResponse->networkInfo.info.pScannedNetwork->ucSSIDLength;
-            }
-            ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_SSID_KEY, value );
         }
 
-        if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            value.type = IOT_SERIALIZER_SCALAR_BYTE_STRING;
-
-            if( pResponse->networkInfo.isSavedNetwork == true )
+            status = cbor_encode_text_string( &mapEncoder, IOT_BLE_WIFI_PROV_BSSID_KEY, strlen( IOT_BLE_WIFI_PROV_BSSID_KEY ) );
+            if( SERIALIZER_STATUS( status, pBuffer ) == true )
             {
-                value.value.u.string.pString = ( uint8_t * ) pResponse->networkInfo.info.pSavedNetwork->ucBSSID;
-                value.value.u.string.length = sizeof( pResponse->networkInfo.info.pSavedNetwork->ucBSSID );
+                if( pResponse->networkInfo.isSavedNetwork == true )
+                {
+                    status = cbor_encode_byte_string( &mapEncoder,
+                                                      pResponse->networkInfo.info.pSavedNetwork->ucBSSID,
+                                                      sizeof( pResponse->networkInfo.info.pSavedNetwork->ucBSSID ) );
+                }
+                else
+                {
+                    status = cbor_encode_byte_string( &mapEncoder,
+                                                      pResponse->networkInfo.info.pScannedNetwork->ucBSSID,
+                                                      sizeof( pResponse->networkInfo.info.pScannedNetwork->ucBSSID ) );
+                }
             }
-            else
+        }
+        
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_text_string( &mapEncoder, IOT_BLE_WIFI_PROV_KEY_MGMT_KEY, strlen( IOT_BLE_WIFI_PROV_KEY_MGMT_KEY ) );
+            if( SERIALIZER_STATUS( status, pBuffer ) == true )
             {
-                value.value.u.string.pString = ( uint8_t * ) pResponse->networkInfo.info.pScannedNetwork->ucBSSID;
-                value.value.u.string.length = sizeof( pResponse->networkInfo.info.pScannedNetwork->ucBSSID );
+                if( pResponse->networkInfo.isSavedNetwork == true )
+                {
+                    status = cbor_encode_int( &mapEncoder, pResponse->networkInfo.info.pSavedNetwork->xSecurity );
+                }
+                else
+                {
+                    status = cbor_encode_int( &mapEncoder, pResponse->networkInfo.info.pScannedNetwork->xSecurity );
+                }
             }
-            ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_BSSID_KEY, value );
+        }
+        
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_text_string( &mapEncoder, IOT_BLE_WIFI_PROV_HIDDEN_KEY, strlen( IOT_BLE_WIFI_PROV_HIDDEN_KEY ) );
+            if( SERIALIZER_STATUS( status, pBuffer ) == true )
+            {
+                status = cbor_encode_boolean( &mapEncoder, pResponse->networkInfo.isHidden );
+            }
         }
 
-        if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-            if( pResponse->networkInfo.isSavedNetwork == true )
+            status = cbor_encode_text_string( &mapEncoder, IOT_BLE_WIFI_PROV_RSSI_KEY, strlen( IOT_BLE_WIFI_PROV_RSSI_KEY ) );
+            if( SERIALIZER_STATUS( status, pBuffer ) == true )
             {
-                value.value.u.signedInt = pResponse->networkInfo.info.pSavedNetwork->xSecurity;
+                if( pResponse->networkInfo.isSavedNetwork == true )
+                {
+                    status = cbor_encode_int( &mapEncoder, IOT_BLE_WIFI_PROV_RSSI_DONT_USE );
+                }
+                else
+                {
+                    status = cbor_encode_int( &mapEncoder, pResponse->networkInfo.info.pScannedNetwork->cRSSI );
+                }
             }
-            else
-            {
-                value.value.u.signedInt = pResponse->networkInfo.info.pScannedNetwork->xSecurity;
-            }
-            ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_KEY_MGMT_KEY, value );
         }
 
-        if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            value.type = IOT_SERIALIZER_SCALAR_BOOL;
-            value.value.u.booleanValue = pResponse->networkInfo.isHidden;
-            ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_HIDDEN_KEY, value );
+            status = cbor_encode_text_string( &mapEncoder, IOT_BLE_WIFI_PROV_CONNECTED_KEY, strlen( IOT_BLE_WIFI_PROV_CONNECTED_KEY ) );
+            if( SERIALIZER_STATUS( status, pBuffer ) == true )
+            {
+                status = cbor_encode_boolean( &mapEncoder, pResponse->networkInfo.isConnected );
+            }
         }
 
-        if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-            if( pResponse->networkInfo.isSavedNetwork == true )
+            status = cbor_encode_text_string( &mapEncoder, IOT_BLE_WIFI_PROV_INDEX_KEY, strlen( IOT_BLE_WIFI_PROV_INDEX_KEY ) );
+            if( SERIALIZER_STATUS( status, pBuffer ) == true )
             {
-                value.value.u.signedInt = IOT_BLE_WIFI_PROV_RSSI_DONT_USE;
+                if( pResponse->networkInfo.isSavedNetwork == true )
+                {
+                    status = cbor_encode_int( &mapEncoder, pResponse->networkInfo.index );
+                }
+                else
+                {
+                    status = cbor_encode_int( &mapEncoder, IOT_BLE_WIFI_PROV_NETWORK_INDEX_DONT_USE );
+                }
             }
-            else
-            {
-                value.value.u.signedInt = pResponse->networkInfo.info.pScannedNetwork->cRSSI;
-            }
-            ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_RSSI_KEY, value );
-        }
-
-        if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
-        {
-            value.type = IOT_SERIALIZER_SCALAR_BOOL;
-            value.value.u.booleanValue = pResponse->networkInfo.isConnected;
-            ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_CONNECTED_KEY, value );
-        }
-
-        if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
-        {
-            value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-            if( pResponse->networkInfo.isSavedNetwork == true )
-            {
-                value.value.u.signedInt = pResponse->networkInfo.index;
-            }
-            else
-            {
-                value.value.u.signedInt = IOT_BLE_WIFI_PROV_NETWORK_INDEX_DONT_USE;
-            }
-            ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_INDEX_KEY, value );
         }
     }
-
-    if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
+    
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        ret = IOT_BLE_MESG_ENCODER.closeContainer( &container, &networkMap );
+        status = cbor_encoder_close_container( &encoder, &mapEncoder );
     }
 
-    if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
+    if( pBuffer == NULL )
     {
-        if( pBuffer == NULL )
-        {
-            *plength = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &container );
-        }
-        else
-        {
-            *plength = IOT_BLE_MESG_ENCODER.getEncodedSize( &container, pBuffer );
-        }
-
-        IOT_BLE_MESG_ENCODER.destroy( &container );
-        ret = IOT_SERIALIZER_SUCCESS;
+        *pLength = cbor_encoder_get_extra_bytes_needed( &encoder );
     }
-
-    if( ret != IOT_SERIALIZER_SUCCESS )
+    else
     {
-        IotLogError( "Failed to serialize reponse, error = %d", ret );
+        *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer ) ;
     }
 
-    return ( ret == IOT_SERIALIZER_SUCCESS );
+    return SERIALIZER_STATUS( status, pBuffer );
 }
 
 static bool IotBleWifiProv_GetSerializeResponseSizeCbor( const IotBleWifiProvResponse_t * pResponse, size_t * pLength )
