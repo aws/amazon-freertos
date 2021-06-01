@@ -71,7 +71,7 @@ BLE_SUPPORTED=1
 
 # Set to 1 to add OTA defines, sources, and libraries (must be used with MCUBoot)
 # NOTE: Extra code must be called from your app to initialize AFR OTA Agent
-OTA_SUPPORT=1
+OTA_SUPPORT=0
 
 # This platform always uses EXTERNAL_FLASH
 OTA_USE_EXTERNAL_FLASH:=1
