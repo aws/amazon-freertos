@@ -31,7 +31,7 @@
  * @brief Certificate used for validating code signing signatures in the OTA PAL.
  */
 #ifndef otapalconfigCODE_SIGNING_CERTIFICATE
-    #define otapalconfigCODE_SIGNING_CERTIFICATE        "Insert code signing certificate..."
+    #define otapalconfigCODE_SIGNING_CERTIFICATE    "Insert code signing certificate..."
 #endif
 
 /**
@@ -61,7 +61,7 @@
  *        that is declared in the ota_appversion32.h file in the OTA library.
  */
 #ifndef APP_VERSION_BUILD
-    #define APP_VERSION_BUILD    0
+    #define APP_VERSION_BUILD    2
 #endif
 
 /**
@@ -84,6 +84,6 @@
  * "-----END CERTIFICATE-----\n"
  *
  */
-#define democonfigROOT_CA_PEM            tlsSTARFIELD_ROOT_CERTIFICATE_PEM
+#define democonfigROOT_CA_PEM    tlsSTARFIELD_ROOT_CERTIFICATE_PEM
 
 #endif /* _OTA_CONFIG_H_ */
