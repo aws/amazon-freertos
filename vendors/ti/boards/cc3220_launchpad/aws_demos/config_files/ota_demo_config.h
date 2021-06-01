@@ -1,5 +1,4 @@
 /*
- * FreeRTOS V1.1.4
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -18,55 +17,22 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
  */
 
 /**
- * @file aws_test_ota_config.h
- * @brief Port-specific variables for firmware Over-the-Air Update tests. */
-
-#ifndef _AWS_TEST_OTA_CONFIG_H_
-#define _AWS_TEST_OTA_CONFIG_H_
-
- /**
- * @brief Path to cert for OTA test PAL. Used to verify signature.
- * If applicable, the device must be pre-provisioned with this certificate. Please see
- * test/common/ota/test_files for the set of certificates.
+ * @file ota_demo_config.h
+ * @brief Configuration options for the OTA related demos.
  */
-#define otatestpalCERTIFICATE_FILE     "rsa-sha1-signer.crt.der"
+
+#ifndef _OTA_CONFIG_H_
+#define _OTA_CONFIG_H_
 
 /**
- * @brief Some boards have a hard-coded name for the firmware image to boot.
+ * @brief Certificate used for validating code signing signatures in the OTA PAL.
  */
-#define otatestpalFIRMWARE_FILE  "/sys/mcuflashimg.bin"
-
-/**
- * @brief Some boards will use aws_codesigner_certificate.h instead of a pre-provisioned
- * certificate.
- */
-#define otatestpalUSE_FILE_SYSTEM     1
-
-/**
- * @brief 1 if prvPAL_CheckFileSignature is implemented in aws_ota_pal.c.
- */
-#define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           0 
-
-/**
- * @brief 1 if prvPAL_ReadAndAssumeCertificate is implemented in the aws_ota_pal.c.
- */
-#define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    0 
-
-/**
- * @brief 1 if using PKCS #11 to access the code sign certificate from NVM.
- */
-#define otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11    0
-
-/**
- * @brief Include of signature testing data applicable to this device.
- */
-#include "aws_test_ota_pal_rsa_sha1_signature.h"
+#ifndef otapalconfigCODE_SIGNING_CERTIFICATE
+    #define otapalconfigCODE_SIGNING_CERTIFICATE    "Insert code signing certificate..."
+#endif
 
 /**
  * @brief Major version of the firmware.
@@ -74,7 +40,9 @@
  *        This is used in the OTA demo to set the appFirmwareVersion variable
  *        that is declared in the ota_appversion32.h file in the OTA library.
  */
-#define APP_VERSION_MAJOR    0
+#ifndef APP_VERSION_MAJOR
+    #define APP_VERSION_MAJOR    0
+#endif
 
 /**
  * @brief Minor version of the firmware.
@@ -82,7 +50,9 @@
  *        This is used in the OTA demo to set the appFirmwareVersion variable
  *        that is declared in the ota_appversion32.h file in the OTA library.
  */
-#define APP_VERSION_MINOR    9
+#ifndef APP_VERSION_MINOR
+    #define APP_VERSION_MINOR    9
+#endif
 
 /**
  * @brief Build version of the firmware.
@@ -90,13 +60,30 @@
  *        This is used in the OTA demo to set the appFirmwareVersion variable
  *        that is declared in the ota_appversion32.h file in the OTA library.
  */
-#define APP_VERSION_BUILD    2
+#ifndef APP_VERSION_BUILD
+    #define APP_VERSION_BUILD    2
+#endif
 
 /**
- * @brief Define a valid and invalid signature verification method for this
- * platform (TI). These are used for generating test JSON docs.
+ * @brief Server's root CA certificate.
+ *
+ * This certificate is used to identify the AWS IoT server and is publicly available.
+ * Refer to the AWS documentation available in the link below for information about the
+ * Server Root CAs.
+ * https://docs.aws.amazon.com/iot/latest/developerguide/server-authentication.html#server-authentication-certs
+ *
+ * @note The TI C3220 Launchpad board requires that the Root CA have its certificate self-signed. As mentioned in the
+ * above link, the Amazon Root CAs are cross-signed by the Starfield Root CA. Thus, ONLY the Starfield Root CA
+ * can be used to connect to the ATS endpoints on AWS IoT for the TI board.
+ *
+ * @note This certificate should be PEM-encoded.
+ *
+ * Must include the PEM header and footer:
+ * "-----BEGIN CERTIFICATE-----\n"\
+ * "...base64 data...\n"\
+ * "-----END CERTIFICATE-----\n"
+ *
  */
-#define otatestVALID_SIG_METHOD                         "sig-sha1-rsa"
-#define otatestINVALID_SIG_METHOD                       "sig-sha256-ecdsa"
+#define democonfigROOT_CA_PEM    tlsSTARFIELD_ROOT_CERTIFICATE_PEM
 
-#endif 
+#endif /* _OTA_CONFIG_H_ */
