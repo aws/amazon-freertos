@@ -155,13 +155,6 @@ endif()
 # -------------------------------------------------------------------------------------------------
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
-# Build an OTA test that only builds on Windows.
-afr_module_sources(
-    test_ota
-    INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/test/aws_test_ota_cbor.c"
-)
-
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
 else()
