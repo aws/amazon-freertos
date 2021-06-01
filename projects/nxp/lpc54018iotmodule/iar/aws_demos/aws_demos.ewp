@@ -1871,9 +1871,6 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_iot_network_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_ota_agent_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_shadow_config.h</name>
 							</file>
 							<file>
@@ -1990,9 +1987,6 @@
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\aws_iot_demo_network.h</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\aws_ota_codesigner_certificate.h</name>
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\iot_config_common.h</name>

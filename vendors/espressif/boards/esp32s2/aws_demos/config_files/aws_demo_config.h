@@ -40,7 +40,6 @@
  *          CONFIG_JOBS_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
- *          CONFIG_OTA_UPDATE_DEMO_ENABLED
  *          CONFIG_CLI_UART_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */

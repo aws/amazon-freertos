@@ -45,7 +45,6 @@ MINIMAL_REQUIRED_COMPONENTS = [
     os.path.join("libraries", "abstractions", "secure_sockets", "test"),
     os.path.join("libraries", "abstractions", "wifi", "test"),
     os.path.join("libraries", "c_sdk", "standard", "ble", "test"),
-    os.path.join("libraries", "freertos_plus", "aws", "ota", "test"),
     os.path.join("libraries", "freertos_plus", "standard", "tls", "test"),
 ]
 

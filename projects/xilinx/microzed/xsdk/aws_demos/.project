@@ -223,11 +223,6 @@
 			<locationURI>AFR_ROOT/demos/include/aws_iot_demo_network.h</locationURI>
 		</link>
 		<link>
-			<name>demos/include/aws_ota_codesigner_certificate.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/demos/include/aws_ota_codesigner_certificate.h</locationURI>
-		</link>
-		<link>
 			<name>demos/include/iot_config_common.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/demos/include/iot_config_common.h</locationURI>

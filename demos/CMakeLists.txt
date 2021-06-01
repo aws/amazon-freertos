@@ -19,14 +19,13 @@ afr_module_sources(
         "${AFR_DEMOS_DIR}/include/aws_clientcredential_keys.h"
         "${AFR_DEMOS_DIR}/include/aws_demo.h"
         "${AFR_DEMOS_DIR}/include/aws_iot_demo_network.h"
-        "${AFR_DEMOS_DIR}/include/aws_ota_codesigner_certificate.h"
         "${AFR_DEMOS_DIR}/include/iot_config_common.h"
         "${AFR_DEMOS_DIR}/include/iot_demo_logging.h"
         "${AFR_DEMOS_DIR}/include/iot_demo_runner.h"
 )
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    INTERFACE
+    INTERFACE 
         "${AFR_DEMOS_DIR}/include"
         "${AFR_DEMOS_DIR}/network_manager"
 )

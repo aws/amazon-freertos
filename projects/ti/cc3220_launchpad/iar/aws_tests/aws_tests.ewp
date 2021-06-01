@@ -374,7 +374,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
@@ -402,9 +401,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include</state>
@@ -418,6 +414,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils</state>
@@ -1254,12 +1251,6 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\wifi\iot_wifi.c</name>
 							</file>
 						</group>
-						<group>
-							<name>ota</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\ota\aws_ota_pal.c</name>
-							</file>
-						</group>
 					</group>
 					<group>
 						<name>aws_tests</name>
@@ -1311,13 +1302,7 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_iot_network_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_ota_agent_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_shadow_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_test_ota_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_test_runner_config.h</name>
@@ -1832,72 +1817,6 @@
 						</file>
 					</group>
 				</group>
-				<group>
-					<name>ota</name>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_types.h</name>
-						</file>
-					</group>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent_internal.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_pal.h</name>
-						</file>
-						<group>
-							<name>mqtt</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor_internal.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.h</name>
-							</file>
-						</group>
-						<group>
-							<name>http</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.h</name>
-							</file>
-						</group>
-					</group>
-					<group>
-						<name>test</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_agent.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal.c</name>
-						</file>
-					</group>
-				</group>
 			</group>
 		</group>
 		<group>
@@ -2272,12 +2191,45 @@
 				</file>
 			</group>
 			<group>
+				<name>unity</name>
+				<group>
+					<name>src</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity_internals.h</name>
+					</file>
+				</group>
+				<group>
+					<name>extras</name>
+					<group>
+						<name>fixture</name>
+						<group>
+							<name>src</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_internals.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h</name>
+							</file>
+						</group>
+					</group>
+				</group>
+			</group>
+			<group>
 				<name>mbedtls</name>
 				<group>
 					<name>library</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c</name>
-					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\aes.c</name>
 					</file>
@@ -2295,6 +2247,9 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1write.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\bignum.c</name>
@@ -2751,42 +2706,6 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\xtea.h</name>
 						</file>
-					</group>
-				</group>
-			</group>
-			<group>
-				<name>unity</name>
-				<group>
-					<name>src</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity.c</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity_internals.h</name>
-					</file>
-				</group>
-				<group>
-					<name>extras</name>
-					<group>
-						<name>fixture</name>
-						<group>
-							<name>src</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_internals.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h</name>
-							</file>
-						</group>
 					</group>
 				</group>
 			</group>
