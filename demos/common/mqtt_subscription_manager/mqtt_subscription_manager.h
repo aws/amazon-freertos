@@ -28,8 +28,8 @@
  * @file subscription_manager.h
  * @brief Functions for managing MQTT subscriptions.
  */
-#ifndef SUBSCRIPTION_MANAGER_H
-#define SUBSCRIPTION_MANAGER_H
+#ifndef MQTT_SUBSCRIPTION_MANAGER_H
+#define MQTT_SUBSCRIPTION_MANAGER_H
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -142,4 +142,4 @@ void removeSubscription( SubscriptionElement_t * pxSubscriptionList,
 bool handleIncomingPublishes( SubscriptionElement_t * pxSubscriptionList,
                               MQTTPublishInfo_t * pxPublishInfo );
 
-#endif /* SUBSCRIPTION_MANAGER_H */
+#endif /* MQTT_SUBSCRIPTION_MANAGER_H */

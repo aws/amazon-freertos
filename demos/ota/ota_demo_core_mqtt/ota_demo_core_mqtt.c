@@ -86,9 +86,6 @@
 #include "ota_os_freertos.h"
 #include "ota_mqtt_interface.h"
 
-/* Helper functions such as subscription management. */
-#include "ota_demo_helpers.h"
-
 /* PAL abstraction layer APIs. */
 #include "ota_pal.h"
 
@@ -944,7 +941,7 @@ static void prvIncomingPublishCallback( MQTTAgentContext_t * pxMqttAgentContext,
 
     /* Fan out the incoming publishes to the callbacks registered using
      * subscription manager. */
-    xPublishHandled = handleIncomingPublishes( ( SubscriptionElement_t * ) pxMqttAgentContext->pIncomingCallbackContext,
+    xPublishHandled = SubscriptionManager_HandleIncomingPublishes( ( SubscriptionElement_t * ) pxMqttAgentContext->pIncomingCallbackContext,
                                                pxPublishInfo );
 
     /* If there are no callbacks to handle the incoming publishes,
@@ -1086,7 +1083,7 @@ static void prvRegisterOTACallback( const char * pcTopicFilter,
         {
             /* Add subscription so that incoming publishes are routed to the
              * application callback. */
-            xSubscriptionAdded = addSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
+            xSubscriptionAdded = SubscriptionManager_AddSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
                                                   pcTopicFilter,
                                                   usTopicFilterLength,
                                                   xOtaTopicFilterCallbacks[ usIndex ].xCallback,
@@ -1141,7 +1138,7 @@ static void prvMQTTUnsubscribeCompleteCallback( MQTTAgentCommandContext_t * pxCo
 
         /* Add subscription so that incoming publishes are routed to the
          * application callback. */
-        removeSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
+        SubscriptionManager_RemoveSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
                             pxSubsribeArgs->pSubscribeInfo->pTopicFilter,
                             pxSubsribeArgs->pSubscribeInfo->topicFilterLength );
 
@@ -1859,7 +1856,7 @@ static BaseType_t prvRunOTADemo( void )
      * Remvove callback for receiving messages intended for OTA agent from broker,
      * for which the topic has not been subscribed for.
      */
-    removeSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
+    SubscriptionManager_RemoveSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
                         otaexampleDEFAULT_TOPIC_FILTER,
                         otaexampleDEFAULT_TOPIC_FILTER_LENGTH );
 

@@ -33,10 +33,10 @@
 #include <string.h>
 
 /* Subscription manager header include. */
-#include "subscription_manager.h"
+#include "mqtt_subscription_manager.h"
 
 
-bool addSubscription( SubscriptionElement_t * pxSubscriptionList,
+bool SubscriptionManager_AddSubscription( SubscriptionElement_t * pxSubscriptionList,
                       const char * pcTopicFilterString,
                       uint16_t usTopicFilterLength,
                       IncomingPubCallback_t pxIncomingPublishCallback,
@@ -98,7 +98,7 @@ bool addSubscription( SubscriptionElement_t * pxSubscriptionList,
 
 /*-----------------------------------------------------------*/
 
-void removeSubscription( SubscriptionElement_t * pxSubscriptionList,
+void SubscriptionManager_RemoveSubscription( SubscriptionElement_t * pxSubscriptionList,
                          const char * pcTopicFilterString,
                          uint16_t usTopicFilterLength )
 {
@@ -131,7 +131,7 @@ void removeSubscription( SubscriptionElement_t * pxSubscriptionList,
 
 /*-----------------------------------------------------------*/
 
-bool handleIncomingPublishes( SubscriptionElement_t * pxSubscriptionList,
+bool SubscriptionManager_HandleIncomingPublishes( SubscriptionElement_t * pxSubscriptionList,
                               MQTTPublishInfo_t * pxPublishInfo )
 {
     int32_t lIndex = 0;
