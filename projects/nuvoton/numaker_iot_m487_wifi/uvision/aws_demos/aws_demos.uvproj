@@ -623,7 +623,6 @@
 				<Group>
 					<GroupName>demos/demo_runner/</GroupName>
 					<Files>
-						</File>
 						<File>
 							<FileName>aws_demo.c</FileName>
 							<FileType>1</FileType>

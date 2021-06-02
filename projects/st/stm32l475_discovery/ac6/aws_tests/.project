@@ -1943,11 +1943,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</locationURI>
 		</link>
 		<link>
-			<name>demos/common/mqtt_subscription_manager/subscription_manager.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/common/mqtt_subscription_manager/subscription_manager.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/mqtt_agent/freertos_agent_message.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/mqtt_agent/freertos_agent_message.c</locationURI>
