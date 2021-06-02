@@ -158,12 +158,6 @@ struct NetworkContext
  */
 static uint32_t ulGlobalEntryTimeMs;
 
-/**
- * @brief Packet Identifier generated when Publish request was sent to the broker;
- * it is used to match received Publish ACK to the transmitted Publish packet.
- */
-static uint16_t usPublishPacketIdentifier;
-
 /* The maximum time to wait for an MQTT operation to complete.  Needs to be
  * long enough for the TLS negotiation to complete. */
 static const uint32_t _maxCommandTimeMs = 20000UL;
@@ -184,15 +178,89 @@ static MQTTFixedBuffer_t xBuffer =
     NETWORK_BUFFER_SIZE
 };
 
-static void sendMessageToGGC( MQTTContext_t * pxMQTTContext );
+/**
+ * @brief This function discovers the greengrass core device.
+ * It fetches the ip address and certificate of greengrass core device.
+ *
+ * @return EXIT_SUCCESS if device is successfully discovered, else EXIT_FAILURE .
+ */
 static int discoverGreengrassCore();
+
+/**
+ * @brief This function publish messages to the discovered greengrass core device.
+ *
+ * @param[in] pxMQTTContext MQTT context pointer.
+ */
+static void sendMessageToGGC( MQTTContext_t * pxMQTTContext );
+
+/**
+ * @brief The application callback function for getting the incoming publishes,
+ * incoming acks, and ping responses reported from the MQTT library.
+ *
+ * @param[in] pxMQTTContext MQTT context pointer.
+ * @param[in] pxPacketInfo Packet Info pointer for the incoming packet.
+ * @param[in] pxDeserializedInfo Deserialized information from the incoming packet.
+ */
 static void prvEventCallback( MQTTContext_t * pxMQTTContext,
                               MQTTPacketInfo_t * pxPacketInfo,
                               MQTTDeserializedInfo_t * pxDeserializedInfo );
+
+/**
+ * @brief The timer query function provided to the MQTT context.
+ *
+ * @return Time in milliseconds.
+ */
 static uint32_t prvGetTimeMs( void );
+
+/**
+ * @brief Calculate and perform an exponential backoff with jitter delay for
+ * the next retry attempt of a failed network operation with the server.
+ *
+ * The function generates a random number, calculates the next backoff period
+ * with the generated random number, and performs the backoff delay operation if the
+ * number of retries have not exhausted.
+ *
+ * @note The PKCS11 module is used to generate the random number as it allows access
+ * to a True Random Number Generator (TRNG) if the vendor platform supports it.
+ * It is recommended to seed the random number generator with a device-specific entropy
+ * source so that probability of collisions from devices in connection retries is mitigated.
+ *
+ * @note The backoff period is calculated using the backoffAlgorithm library.
+ *
+ * @param[in, out] pxRetryAttempts The context to use for backoff period calculation
+ * with the backoffAlgorithm library.
+ *
+ * @return pdPASS if calculating the backoff period was successful; otherwise pdFAIL
+ * if there was failure in random number generation OR all retry attempts had exhausted.
+ */
 static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams );
-static BaseType_t prvCreateMQTTConnectionWithBroker( GGD_HostAddressData_t * pxHostAddressData,
-                                                     MQTTContext_t * pxMQTTContext,
+
+/**
+ * @brief Connect to Greengrass core with reconnection retries.
+ *
+ * If connection fails, retry is attempted after a timeout.
+ * Timeout value will exponentially increase until maximum
+ * timeout value is reached or the number of attempts are exhausted.
+ *
+ * @param[in] pxHostAddressData Discovered Greengrass core device data.
+ * @param[in] pxMQTTContext MQTT context pointer.
+ * @param[out] pxNetworkContext The output parameter to return the created network context.
+ *
+ * @return pdFAIL on failure; pdPASS on successful TLS+TCP network connection.
+ */
+static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * pxHostAddressData,
+                                                        MQTTContext_t * pxMQTTContext,
+                                                        NetworkContext_t * pxNetworkContext );
+
+/**
+ * @brief Sends an MQTT Connect packet over the already connected TLS over TCP connection.
+ *
+ * @param[in, out] pxMQTTContext MQTT context pointer.
+ * @param[in] pxNetworkContext Network context.
+ *
+ * @return pdFAIL on failure; pdPASS on successful MQTT connection.
+ */
+static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTContext,
                                                      NetworkContext_t * pxNetworkContext );
 
 /*-----------------------------------------------------------*/
@@ -200,6 +268,10 @@ static void prvEventCallback( MQTTContext_t * pxMQTTContext,
                               MQTTPacketInfo_t * pxPacketInfo,
                               MQTTDeserializedInfo_t * pxDeserializedInfo )
 {
+    /* Unused parameters */
+    ( void ) pxMQTTContext;
+    ( void ) pxPacketInfo;
+    ( void ) pxDeserializedInfo;
     return;
 }
 
@@ -264,8 +336,7 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
     return xReturnStatus;
 }
 
-static BaseType_t prvCreateMQTTConnectionWithBroker( GGD_HostAddressData_t * pxHostAddressData,
-                                                     MQTTContext_t * pxMQTTContext,
+static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTContext,
                                                      NetworkContext_t * pxNetworkContext )
 {
     MQTTStatus_t xResult;
@@ -315,14 +386,8 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( GGD_HostAddressData_t * pxH
                             CONNACK_RECV_TIMEOUT_MS,
                             &xSessionPresent );
 
-    if( xResult != MQTTSuccess )
+    if( xResult == MQTTSuccess )
     {
-        LogError( ( "Failed to establish MQTT connection: Server=%s, MQTTStatus=%s", pxHostAddressData->pcHostAddress, MQTT_Status_strerror( xResult ) ) );
-    }
-    else
-    {
-        /* Successfully established MQTT connection with the broker. */
-        LogInfo( ( "An MQTT connection is established with %s.", pxHostAddressData->pcHostAddress ) );
         xStatus = pdPASS;
     }
 
@@ -330,16 +395,16 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( GGD_HostAddressData_t * pxH
 }
 
 static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * pxHostAddressData,
-                                                        NetworkContext_t * pxNetworkContext,
-                                                        MQTTContext_t * pxMQTTContext )
+                                                        MQTTContext_t * pxMQTTContext,
+                                                        NetworkContext_t * pxNetworkContext )
 {
     ServerInfo_t xServerInfo = { 0 };
 
     SocketsConfig_t xSocketsConfig = { 0 };
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     BackoffAlgorithmContext_t xReconnectParams;
-    BaseType_t xBackoffStatus = pdFALSE;
-    BaseType_t xMqttStatus = pdFALSE;
+    BaseType_t xBackoffStatus = pdFAIL;
+    BaseType_t xMqttStatus = pdFAIL;
 
     /* Set the credentials for establishing a TLS connection. */
     /* Initializer server information. */
@@ -364,13 +429,13 @@ static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * 
                                        RETRY_MAX_ATTEMPTS );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after
-     * a timeout. Timeout value will exponentially increase till maximum
+     * a timeout. Timeout value will exponentially increase until maximum
      * attempts are reached.
      */
     do
     {
         /* Establish a TLS session with the MQTT broker. This example connects to
-         * the MQTT broker as specified in pxHostAddressData->pcHostAddress and
+         * the Greengrass Core as specified in pxHostAddressData->pcHostAddress and
          * clientcredentialMQTT_BROKER_PORT at the top of this file. */
         LogInfo( ( "Creating a TLS connection to %s:%u.",
                    pxHostAddressData->pcHostAddress, clientcredentialMQTT_BROKER_PORT ) );
@@ -391,10 +456,12 @@ static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * 
         }
         else
         {
-            xMqttStatus = prvCreateMQTTConnectionWithBroker( pxHostAddressData, pxMQTTContext, pxNetworkContext );
+            xMqttStatus = prvCreateMQTTConnectionWithBroker( pxMQTTContext, pxNetworkContext );
 
             if( xMqttStatus != pdPASS )
             {
+                LogError( ( "Failed to establish MQTT connection: Server=%s", pxHostAddressData->pcHostAddress ) );
+
                 /* Calculate the backoff period for the next retry attempt and perform the wait operation. */
                 xBackoffStatus = prvBackoffForRetry( &xReconnectParams );
                 /* Close the network connection.  */
@@ -406,17 +473,22 @@ static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * 
                                 "StatusCode=%d.", ( int ) xNetworkStatus ) );
                 }
             }
+            else
+            {
+                /* Successfully established MQTT connection with the broker. */
+                LogInfo( ( "An MQTT connection is established with %s.", pxHostAddressData->pcHostAddress ) );
+            }
         }
-    } while ( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS || xMqttStatus != pdPASS ) && ( xBackoffStatus == pdPASS ) );
+    } while ( ( xMqttStatus != pdPASS ) && ( xBackoffStatus == pdPASS ) );
 
-    return ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS && xMqttStatus == pdPASS ) ? pdPASS : pdFAIL;
+    return xMqttStatus;
 }
 
-static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
+static void sendMessageToGGC( MQTTContext_t * pxMQTTContext )
 {
     MQTTStatus_t xResult;
     MQTTPublishInfo_t xMQTTPublishInfo;
-    BaseType_t xStatus = pdPASS;
+    BaseType_t xDemoStatus = pdPASS;
     uint32_t ulMessageCounter;
     char cBuffer[ ggdDEMO_MAX_MQTT_MSG_SIZE ];
     const char * pcTopic = ggdDEMO_MQTT_MSG_TOPIC;
@@ -435,12 +507,12 @@ static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
         xMQTTPublishInfo.pPayload = ( const void * ) cBuffer;
         xMQTTPublishInfo.payloadLength = ( uint32_t ) sprintf( cBuffer, ggdDEMO_MQTT_MSG_DISCOVERY, ( long unsigned int ) ulMessageCounter ); /*lint !e586 sprintf can be used for specific demo. */
 
-        /* Send PUBLISH packet. Packet ID is not used for a QoS1 publish. */
-        xResult = MQTT_Publish( pxMQTTContext, &xMQTTPublishInfo, usPublishPacketIdentifier );
+        /* Send PUBLISH packet. Packet ID is not used for a QoS0 publish. */
+        xResult = MQTT_Publish( pxMQTTContext, &xMQTTPublishInfo, 0 );
 
         if( xResult != MQTTSuccess )
         {
-            xStatus = pdFAIL;
+            xDemoStatus = pdFAIL;
             LogError( ( "Failed to send PUBLISH message to broker: Topic=%s, Error=%s",
                         pcTopic,
                         MQTT_Status_strerror( xResult ) ) );
@@ -448,21 +520,6 @@ static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
 
         LogInfo( ( "MQTT PUBLISH message sent successfully to the broker: Topic=%s", pcTopic ) );
         vTaskDelay( pdMS_TO_TICKS( _timeBetweenPublishMs ) );
-    }
-
-    return xStatus;
-}
-
-static void sendMessageToGGC( MQTTContext_t * pxMQTTContext )
-{
-    BaseType_t xDemoStatus = pdFAIL;
-
-    /* Call the MQTT PUBLISH function. */
-    xDemoStatus = prvMQTTPublishToTopic( pxMQTTContext );
-
-    if( xDemoStatus != pdPASS )
-    {
-        LogError( ( "mqtt_client - Failure to publish." ) );
     }
 }
 
@@ -508,20 +565,12 @@ static int discoverGreengrassCore()
          * the maximum number of attempts are reached or the maximum timeout value is reached.
          * The function returns a failure status if the TLS over TCP connection cannot be established
          * to the broker after the configured number of attempts. */
-        xDemoStatus = prvConnectToServerWithBackoffRetries( &xHostAddressData, &xNetworkContext, &xMQTTContext );
+        xDemoStatus = prvConnectToServerWithBackoffRetries( &xHostAddressData, &xMQTTContext, &xNetworkContext );
 
         if( xDemoStatus == pdPASS )
         {
             xIsConnectionEstablished = pdTRUE;
-        }
-        else
-        {
-            LogError( ( "Could not establish TLS session with MQTT broker." ) );
-            status = EXIT_FAILURE;
-        }
 
-        if( xDemoStatus == pdPASS )
-        {
             sendMessageToGGC( &xMQTTContext );
 
             LogInfo( ( "Disconnecting from broker." ) );
@@ -536,17 +585,14 @@ static int discoverGreengrassCore()
 
             /* We will always close the network connection, even if an error may have occurred during
              * demo execution, to clean up the system resources that it may have consumed. */
-            if( xIsConnectionEstablished == pdTRUE )
-            {
-                /* Close the network connection.  */
-                xNetworkStatus = SecureSocketsTransport_Disconnect( &xNetworkContext );
+            /* Close the network connection.  */
+            xNetworkStatus = SecureSocketsTransport_Disconnect( &xNetworkContext );
 
-                if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
-                {
-                    status = EXIT_FAILURE;
-                    LogError( ( "SecureSocketsTransport_Disconnect() failed to close the network connection. "
-                                "StatusCode=%d.", ( int ) xNetworkStatus ) );
-                }
+            if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
+            {
+                status = EXIT_FAILURE;
+                LogError( ( "SecureSocketsTransport_Disconnect() failed to close the network connection. "
+                            "StatusCode=%d.", ( int ) xNetworkStatus ) );
             }
 
             LogInfo( ( "Disconnected from the broker." ) );
