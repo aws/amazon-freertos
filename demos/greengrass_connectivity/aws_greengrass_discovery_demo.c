@@ -41,9 +41,6 @@
 /* Demo include. */
 #include "aws_demo_config.h"
 
-/* Set up logging for this demo. */
-#include "iot_demo_logging.h"
-
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -81,55 +78,55 @@
 /* Retry utilities include. */
 #include "backoff_algorithm.h"
 
-#define ggdDEMO_MAX_MQTT_MESSAGES                    3
-#define ggdDEMO_MAX_MQTT_MSG_SIZE                    500
-#define ggdDEMO_DISCOVERY_FILE_SIZE                  2500
-#define ggdDEMO_MQTT_MSG_TOPIC                       "freertos/demos/ggd"
-#define ggdDEMO_MQTT_MSG_DISCOVERY                   "{\"message\":\"Hello #%lu from FreeRTOS to Greengrass Core.\"}"
+#define ggdDEMO_MAX_MQTT_MESSAGES              3
+#define ggdDEMO_MAX_MQTT_MSG_SIZE              500
+#define ggdDEMO_DISCOVERY_FILE_SIZE            2500
+#define ggdDEMO_MQTT_MSG_TOPIC                 "freertos/demos/ggd"
+#define ggdDEMO_MQTT_MSG_DISCOVERY             "{\"message\":\"Hello #%lu from FreeRTOS to Greengrass Core.\"}"
 
-#define ggdDEMO_KEEP_ALIVE_INTERVAL_SECONDS          1200
+#define ggdDEMO_KEEP_ALIVE_INTERVAL_SECONDS    1200
 /* Number of times to try MQTT connection. */
-#define ggdDEMO_NUM_TRIES                            3
-#define ggdDEMO_RETRY_WAIT_MS                        2000
+#define ggdDEMO_NUM_TRIES                      3
+#define ggdDEMO_RETRY_WAIT_MS                  2000
 
-#define NETWORK_BUFFER_SIZE                          ( 1024U )
+#define NETWORK_BUFFER_SIZE                    ( 1024U )
 
 /**
  * @brief Milliseconds per second.
  */
-#define MILLISECONDS_PER_SECOND                      ( 1000U )
+#define MILLISECONDS_PER_SECOND                ( 1000U )
 
 /**
  * @brief Milliseconds per FreeRTOS tick.
  */
-#define MILLISECONDS_PER_TICK                        ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+#define MILLISECONDS_PER_TICK                  ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
 
 /**
  * @brief The maximum number of retries for network operation with server.
  */
-#define RETRY_MAX_ATTEMPTS                           ( 5U )
+#define RETRY_MAX_ATTEMPTS                     ( 5U )
 
 /**
  * @brief The maximum back-off delay (in milliseconds) for retrying failed operation
  *  with server.
  */
-#define RETRY_MAX_BACKOFF_DELAY_MS                   ( 5000U )
+#define RETRY_MAX_BACKOFF_DELAY_MS             ( 5000U )
 
 /**
  * @brief The base back-off delay (in milliseconds) to use for network operation retry
  * attempts.
  */
-#define RETRY_BACKOFF_BASE_MS                        ( 500U )
+#define RETRY_BACKOFF_BASE_MS                  ( 500U )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milliseconds.
  */
-#define mqttexampleCONNACK_RECV_TIMEOUT_MS           ( 1000U )
+#define CONNACK_RECV_TIMEOUT_MS                ( 1000U )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS    ( 500U )
+#define TRANSPORT_SEND_RECV_TIMEOUT_MS         ( 500U )
 
 /**
  * @brief Contains the user data for callback processing.
@@ -187,14 +184,15 @@ static MQTTFixedBuffer_t xBuffer =
     NETWORK_BUFFER_SIZE
 };
 
-static void _sendMessageToGGC( MQTTContext_t * pxMQTTContext );
-static int _discoverGreengrassCore();
+static void sendMessageToGGC( MQTTContext_t * pxMQTTContext );
+static int discoverGreengrassCore();
 static void prvEventCallback( MQTTContext_t * pxMQTTContext,
                               MQTTPacketInfo_t * pxPacketInfo,
                               MQTTDeserializedInfo_t * pxDeserializedInfo );
 static uint32_t prvGetTimeMs( void );
 static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams );
-static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTContext,
+static BaseType_t prvCreateMQTTConnectionWithBroker( GGD_HostAddressData_t * pxHostAddressData,
+                                                     MQTTContext_t * pxMQTTContext,
                                                      NetworkContext_t * pxNetworkContext );
 
 /*-----------------------------------------------------------*/
@@ -248,7 +246,7 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
 
         if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
         {
-            IotLogError( ( "All retry attempts have exhausted. Operation will not be retried" ) );
+            LogError( ( "All retry attempts have exhausted. Operation will not be retried" ) );
         }
         else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
         {
@@ -260,13 +258,14 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
     }
     else
     {
-        IotLogError( ( "Unable to retry operation with broker: Random number generation failed" ) );
+        LogError( ( "Unable to retry operation with broker: Random number generation failed" ) );
     }
 
     return xReturnStatus;
 }
 
-static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTContext,
+static BaseType_t prvCreateMQTTConnectionWithBroker( GGD_HostAddressData_t * pxHostAddressData,
+                                                     MQTTContext_t * pxMQTTContext,
                                                      NetworkContext_t * pxNetworkContext )
 {
     MQTTStatus_t xResult;
@@ -313,18 +312,17 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
     xResult = MQTT_Connect( pxMQTTContext,
                             &xConnectInfo,
                             NULL,
-                            mqttexampleCONNACK_RECV_TIMEOUT_MS,
+                            CONNACK_RECV_TIMEOUT_MS,
                             &xSessionPresent );
 
     if( xResult != MQTTSuccess )
     {
-        IotLogError( ( "Failed to establish MQTT connection: Server=%s, MQTTStatus=%s",
-                       clientcredentialMQTT_BROKER_ENDPOINT, MQTT_Status_strerror( xResult ) ) );
+        LogError( ( "Failed to establish MQTT connection: Server=%s, MQTTStatus=%s", pxHostAddressData->pcHostAddress, MQTT_Status_strerror( xResult ) ) );
     }
     else
     {
-        /* Successfully established and MQTT connection with the broker. */
-        IotLogInfo( ( "An MQTT connection is established with %s.", clientcredentialMQTT_BROKER_ENDPOINT ) );
+        /* Successfully established MQTT connection with the broker. */
+        LogInfo( ( "An MQTT connection is established with %s.", pxHostAddressData->pcHostAddress ) );
         xStatus = pdPASS;
     }
 
@@ -356,8 +354,8 @@ static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * 
     xSocketsConfig.disableSni = true;
     xSocketsConfig.pRootCa = pxHostAddressData->pcCertificate;
     xSocketsConfig.rootCaSize = ( size_t ) pxHostAddressData->ulCertificateSize;
-    xSocketsConfig.sendTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;
-    xSocketsConfig.recvTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;
+    xSocketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
+    xSocketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
 
     /* Initialize reconnect attempts and interval. */
     BackoffAlgorithm_InitializeParams( &xReconnectParams,
@@ -372,10 +370,10 @@ static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * 
     do
     {
         /* Establish a TLS session with the MQTT broker. This example connects to
-         * the MQTT broker as specified in clientcredentialMQTT_BROKER_ENDPOINT and
+         * the MQTT broker as specified in pxHostAddressData->pcHostAddress and
          * clientcredentialMQTT_BROKER_PORT at the top of this file. */
-        IotLogInfo( "Creating a TLS connection to %s:%u.",
-                    clientcredentialMQTT_BROKER_ENDPOINT, clientcredentialMQTT_BROKER_PORT );
+        LogInfo( ( "Creating a TLS connection to %s:%u.",
+                   pxHostAddressData->pcHostAddress, clientcredentialMQTT_BROKER_PORT ) );
         /* Attempt to create a mutually authenticated TLS connection. */
         xNetworkStatus = SecureSocketsTransport_Connect( pxNetworkContext,
                                                          &xServerInfo,
@@ -383,7 +381,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * 
 
         if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            IotLogWarn( ( "Connection to the broker failed. Attempting connection retry after backoff delay." ) );
+            LogWarn( ( "Connection to the broker failed. Attempting connection retry after backoff delay." ) );
 
             /* As the connection attempt failed, we will retry the connection after an
              * exponential backoff with jitter delay. */
@@ -393,7 +391,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * 
         }
         else
         {
-            xMqttStatus = prvCreateMQTTConnectionWithBroker( pxMQTTContext, pxNetworkContext );
+            xMqttStatus = prvCreateMQTTConnectionWithBroker( pxHostAddressData, pxMQTTContext, pxNetworkContext );
 
             if( xMqttStatus != pdPASS )
             {
@@ -404,8 +402,8 @@ static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * 
 
                 if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
                 {
-                    IotLogError( ( "SecureSocketsTransport_Disconnect() failed to close the network connection. "
-                                   "StatusCode=%d.", ( int ) xNetworkStatus ) );
+                    LogError( ( "SecureSocketsTransport_Disconnect() failed to close the network connection. "
+                                "StatusCode=%d.", ( int ) xNetworkStatus ) );
                 }
             }
         }
@@ -426,7 +424,7 @@ static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
     /* Some fields are not used by this demo so start with everything at 0. */
     ( void ) memset( ( void * ) &xMQTTPublishInfo, 0x00, sizeof( xMQTTPublishInfo ) );
 
-    /* This demo uses QoS1. */
+    /* This demo uses QoS0. */
     xMQTTPublishInfo.qos = MQTTQoS0;
     xMQTTPublishInfo.retain = false;
     xMQTTPublishInfo.pTopicName = pcTopic;
@@ -446,19 +444,19 @@ static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
         if( xResult != MQTTSuccess )
         {
             xStatus = pdFAIL;
-            IotLogError( ( "Failed to send PUBLISH message to broker: Topic=%s, Error=%s",
-                           pcTopic,
-                           MQTT_Status_strerror( xResult ) ) );
+            LogError( ( "Failed to send PUBLISH message to broker: Topic=%s, Error=%s",
+                        pcTopic,
+                        MQTT_Status_strerror( xResult ) ) );
         }
 
-        IotLogInfo( "MQTT PUBLISH message sent successfully to the broker: Topic=%s", pcTopic );
+        LogInfo( ( "MQTT PUBLISH message sent successfully to the broker: Topic=%s", pcTopic ) );
         vTaskDelay( pdMS_TO_TICKS( _timeBetweenPublishMs ) );
     }
 
     return xStatus;
 }
 
-static void _sendMessageToGGC( MQTTContext_t * pxMQTTContext )
+static void sendMessageToGGC( MQTTContext_t * pxMQTTContext )
 {
     BaseType_t xDemoStatus = pdFAIL;
 
@@ -467,11 +465,11 @@ static void _sendMessageToGGC( MQTTContext_t * pxMQTTContext )
 
     if( xDemoStatus != pdPASS )
     {
-        IotLogError( "mqtt_client - Failure to publish." );
+        LogError( ( "mqtt_client - Failure to publish." ) );
     }
 }
 
-static int _discoverGreengrassCore()
+static int discoverGreengrassCore()
 {
     int status = EXIT_SUCCESS;
     GGD_HostAddressData_t xHostAddressData;
@@ -487,7 +485,7 @@ static int _discoverGreengrassCore()
     memset( &xHostAddressData, 0, sizeof( xHostAddressData ) );
 
     /* Demonstrate automated connection. */
-    IotLogInfo( "Attempting automated selection of Greengrass device\r\n" );
+    LogInfo( ( "Attempting automated selection of Greengrass device\r\n" ) );
 
     if( GGD_GetGGCIPandCertificate( clientcredentialMQTT_BROKER_ENDPOINT,
                                     clientcredentialGREENGRASS_DISCOVERY_PORT,
@@ -497,7 +495,7 @@ static int _discoverGreengrassCore()
                                     &xHostAddressData )
         == pdPASS )
     {
-        IotLogInfo( "Greengrass device discovered." );
+        LogInfo( ( "Greengrass device discovered." ) );
 
         /* Set the entry time of the demo application. This entry time will be used
          * to calculate relative time elapsed in the execution of the demo application,
@@ -521,18 +519,23 @@ static int _discoverGreengrassCore()
         }
         else
         {
-            IotLogError( "Could not establish TLS session with MQTT broker." );
+            LogError( ( "Could not establish TLS session with MQTT broker." ) );
             status = EXIT_FAILURE;
         }
 
         if( xDemoStatus == pdPASS )
         {
-            _sendMessageToGGC( &xMQTTContext );
+            sendMessageToGGC( &xMQTTContext );
 
-            IotLogInfo( "Disconnecting from broker." );
+            LogInfo( ( "Disconnecting from broker." ) );
 
-            /* Call MQTT v2's DISCONNECT function. */
-            MQTT_Disconnect( &xMQTTContext );
+            /* Call MQTT DISCONNECT function. */
+            xMQTTStatus = MQTT_Disconnect( &xMQTTContext );
+
+            if( xMQTTStatus != MQTTSuccess )
+            {
+                LogError( ( "Failed to DISCONNECT MQTT connection: MQTTStatus=%s", MQTT_Status_strerror( xMQTTStatus ) ) );
+            }
 
             /* We will always close the network connection, even if an error may have occurred during
              * demo execution, to clean up the system resources that it may have consumed. */
@@ -543,18 +546,17 @@ static int _discoverGreengrassCore()
 
                 if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
                 {
-                    xDemoStatus = pdFAIL;
                     status = EXIT_FAILURE;
-                    IotLogError( ( "SecureSocketsTransport_Disconnect() failed to close the network connection. "
-                                   "StatusCode=%d.", ( int ) xNetworkStatus ) );
+                    LogError( ( "SecureSocketsTransport_Disconnect() failed to close the network connection. "
+                                "StatusCode=%d.", ( int ) xNetworkStatus ) );
                 }
             }
 
-            IotLogInfo( "Disconnected from the broker." );
+            LogInfo( ( "Disconnected from the broker." ) );
         }
         else
         {
-            IotLogError( "Could not connect to the Broker." );
+            LogError( ( "Could not connect to the Broker." ) );
             status = EXIT_FAILURE;
         }
 
@@ -569,7 +571,7 @@ static int _discoverGreengrassCore()
     }
     else
     {
-        IotLogError( "Auto-connect: Failed to retrieve Greengrass address and certificate." );
+        LogError( ( "Auto-connect: Failed to retrieve Greengrass address and certificate." ) );
         status = EXIT_FAILURE;
     }
 
@@ -593,7 +595,7 @@ int vStartGreenGrassDiscoveryTask( bool awsIotMqttMode,
     ( void ) pNetworkServerInfo;
     ( void ) pNetworkCredentialInfo;
 
-    status = _discoverGreengrassCore();
+    status = discoverGreengrassCore();
 
     return status;
 }
