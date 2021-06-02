@@ -117,3 +117,8 @@ endif()
 if(EXISTS ${AFR_MODULES_DIR}/abstractions/backoff_algorithm.cmake)
   include(${AFR_MODULES_DIR}/abstractions/backoff_algorithm.cmake)
 endif()
+
+# Add OTA module ONLY if present in FreeRTOS console download.
+if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/ota_demo_dependencies.cmake)
+  include(ota_demo_dependencies.cmake)
+endif()
