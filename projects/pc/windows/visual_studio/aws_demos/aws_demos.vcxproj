@@ -103,7 +103,6 @@
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\timers.h"/>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\portmacro.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\network_manager\iot_network_manager_private.h"/>
-		<ClInclude Include="..\..\..\..\..\demos\include\aws_application_version.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_clientcredential.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_clientcredential_keys.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_demo.h"/>
@@ -111,7 +110,6 @@
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_config_common.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_demo_logging.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_demo_runner.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_network_types.h"/>
@@ -306,7 +304,6 @@
 		<ClCompile Include="..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\port.c"/>
 		<ClCompile Include="..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo_network_addr.c"/>
-		<ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo_version.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\network_manager\aws_iot_network_manager.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\network_manager\aws_iot_demo_network.c"/>

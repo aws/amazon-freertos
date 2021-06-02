@@ -73,7 +73,6 @@
         <file file_name="../../../../../tests/common/iot_tests_network.c" />
       </folder>
       <folder Name="include">
-        <file file_name="../../../../../tests/include/aws_application_version.h" />
         <file file_name="../../../../../tests/include/aws_clientcredential.h" />
         <file file_name="../../../../../tests/include/aws_clientcredential_keys.h" />
         <file file_name="../../../../../tests/include/aws_test_framework.h" />
@@ -217,7 +216,6 @@
             <file file_name="../../../../../libraries/c_sdk/standard/common/iot_init.c" />
             <file file_name="../../../../../libraries/c_sdk/standard/common/iot_static_memory_common.c" />
             <folder Name="include">
-              <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_logging_setup.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_atomic.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_init.h" />

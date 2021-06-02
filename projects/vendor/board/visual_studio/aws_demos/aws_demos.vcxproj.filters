@@ -863,9 +863,6 @@
     <ClInclude Include="..\common\config_files\aws_ota_agent_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\common\include\aws_application_version.h">
-      <Filter>application_code\common_demos\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_util.h">
       <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
     </ClInclude>

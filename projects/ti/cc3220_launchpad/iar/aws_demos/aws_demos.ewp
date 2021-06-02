@@ -393,6 +393,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_subscription_manager</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
@@ -1748,9 +1749,6 @@
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h</name>
-						</file>
-						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h</name>
 						</file>
 						<file>
@@ -2705,9 +2703,6 @@
 		<group>
 			<name>demo_runner</name>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\demo_runner\aws_demo_version.c</name>
-			</file>
-			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\demo_runner\aws_demo.c</name>
 			</file>
 			<file>
@@ -2731,9 +2726,6 @@
 		</group>
 		<group>
 			<name>include</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\aws_application_version.h</name>
-			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\aws_clientcredential.h</name>
 			</file>
@@ -2789,6 +2781,12 @@
 				</file>
 			</group>
 			<group>
+				<name>mqtt_subscription_manager</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_subscription_manager\subscription_manager.c</name>
+				</file>
+			</group>
+			<group>
 				<name>mqtt_demo_helpers</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c</name>
@@ -2823,12 +2821,6 @@
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT_Agent\simple_sub_pub_demo.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.h</name>
 			</file>
 		</group>
 		<group>

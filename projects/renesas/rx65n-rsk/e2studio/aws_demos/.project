@@ -1072,11 +1072,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo_network_addr.c</locationURI>
 		</link>
 		<link>
-			<name>demos/demo_runner/aws_demo_version.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo_version.c</locationURI>
-		</link>
-		<link>
 			<name>demos/demo_runner/aws_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo.c</locationURI>
@@ -1105,11 +1100,6 @@
 			<name>demos/demo_runner/iot_demo_runner.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/iot_demo_runner.c</locationURI>
-		</link>
-		<link>
-			<name>demos/include/aws_application_version.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_application_version.h</locationURI>
 		</link>
 		<link>
 			<name>demos/include/aws_clientcredential.h</name>
@@ -1150,11 +1140,6 @@
 			<name>libraries/c_sdk/standard/common/iot_init.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/iot_init.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/iot_appversion32.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/iot_appversion32.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_init.h</name>
@@ -1887,6 +1872,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</locationURI>
 		</link>
 		<link>
+			<name>demos/common/mqtt_subscription_manager/subscription_manager.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/common/mqtt_subscription_manager/subscription_manager.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/mqtt_agent/freertos_agent_message.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/mqtt_agent/freertos_agent_message.c</locationURI>
@@ -2020,16 +2010,6 @@
 			<name>demos/coreMQTT_Agent/simple_sub_pub_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/simple_sub_pub_demo.c</locationURI>
-		</link>
-		<link>
-			<name>demos/coreMQTT_Agent/subscription_manager.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/subscription_manager.c</locationURI>
-		</link>
-		<link>
-			<name>demos/coreMQTT_Agent/subscription_manager.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/coreMQTT_Agent/subscription_manager.h</locationURI>
 		</link>
 		<link>
 			<name>demos/device_defender_for_aws/defender_demo.c</name>
