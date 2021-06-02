@@ -25,7 +25,7 @@
 
 /**
  * @file aws_iot_connection_task.h
- * @brief Header file contains APIs for managing the task which provisions WiFi networks onto 
+ * @brief Header file contains APIs for managing the task which provisions WiFi networks onto
  * device and auto reconnects to provisioned networks in case of a WiFi access point disconnect.
  */
 
@@ -35,9 +35,9 @@
 #include "FreeRTOS.h"
 
 /**
- * @brief Initializes WiFi provisioning and creates task which manages WiFi connection running 
+ * @brief Initializes WiFi provisioning and creates task which manages WiFi connection running
  * the WiFi provision loop or auto connecting to provisioned networks in case of WiFi disconnection.
- * 
+ *
  * @return pdTRUE If WiFi provisioning and the task is initialized successfully.
  */
 BaseType_t xWiFiConnectTaskInitialize( void );

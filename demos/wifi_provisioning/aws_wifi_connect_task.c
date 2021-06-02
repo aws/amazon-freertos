@@ -50,7 +50,7 @@
 #endif
 
 
-#define WIFI_PROVISION_TASK_NAME        "WiFiConnectTask"
+#define WIFI_PROVISION_TASK_NAME        "WiFiManagement"
 
 /**
  * @brief Interval in milliseconds between connecting to the provisioned WiFi networks.
@@ -165,12 +165,12 @@ void prvWiFiConnectTask( void * pvParams )
         /* Checks if WiFi is already connected to an access point. */
         if( WIFI_IsConnected( NULL ) == pdFALSE )
         {
-            configPRINTF( ( "WiFi is disconnected, try connecting to provisioned networks if any. \r\n" ) );
+            configPRINTF( ( "WiFi Disconnected. Trying to connect to provisioned networks.\r\n" ) );
 
             /* Goes through the list of all provisioned networks and tries to connect them in priority order. */
             if( prvConnectToProvisionedNetworks() == pdFALSE )
             {
-                configPRINTF( ( "Cannot connect to any provisioned networks, starting WiFi provisioning loop.\r\n" ) );
+                configPRINTF( ( "Unable to connect to any provisioned networks. Starting provisioning loop.\r\n" ) );
 
                 /**
                  * If none of the connections are successfull, switch to provisioning mode by runnning

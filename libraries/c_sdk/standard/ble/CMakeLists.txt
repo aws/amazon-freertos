@@ -54,7 +54,7 @@ afr_module_dependencies(
     PUBLIC
         AFR::ble_hal
         AFR::common
-        AFR::serializer
+        3rdparty::tinycbor
 )
 
 if( EXISTS ${CMAKE_CURRENT_LIST_DIR}/test )
@@ -81,9 +81,9 @@ afr_module_include_dirs(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
-        AFR::serializer
         AFR::ble
         AFR::wifi
+        3rdparty::tinycbor
 )
 
 #BLE Wifi provisioning test
