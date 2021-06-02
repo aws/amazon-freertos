@@ -435,9 +435,6 @@ static BaseType_t prvMQTTPublishToTopic( MQTTContext_t * pxMQTTContext )
         xMQTTPublishInfo.pPayload = ( const void * ) cBuffer;
         xMQTTPublishInfo.payloadLength = ( uint32_t ) sprintf( cBuffer, ggdDEMO_MQTT_MSG_DISCOVERY, ( long unsigned int ) ulMessageCounter ); /*lint !e586 sprintf can be used for specific demo. */
 
-        /* Get a unique packet id. */
-        usPublishPacketIdentifier = MQTT_GetPacketId( pxMQTTContext );
-
         /* Send PUBLISH packet. Packet ID is not used for a QoS1 publish. */
         xResult = MQTT_Publish( pxMQTTContext, &xMQTTPublishInfo, usPublishPacketIdentifier );
 

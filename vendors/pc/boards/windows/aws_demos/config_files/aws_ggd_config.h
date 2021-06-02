@@ -47,7 +47,7 @@
 
 /* Logging configuration for the Demo. */
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "MQTT_MutualAuth_Demo"
+    #define LIBRARY_LOG_NAME    "Greengrass_Discovery_Demo"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
