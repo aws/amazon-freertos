@@ -116,33 +116,39 @@ static CK_RV prvFLASH_delete(uint32_t u32StartAddr, uint8_t * pucData, uint32_t 
     uint32_t    u32EndAddr = (u32StartAddr + sizeof(P11CertData_t));
     uint32_t    u32Pattern = 0xFFFFFFFF;
 
-
-    FMC_Erase(u32StartAddr);
-     /* Verify if each data word from flash u32StartAddr to u32EndAddr be 0xFFFFFFFF.  */
-    for (u32Addr = u32StartAddr; u32Addr < u32EndAddr; u32Addr += 4)
+    if (ulDataSize <= FMC_FLASH_PAGE_SIZE)
     {
-        u32data = FMC_Read(u32Addr);   /* Read a flash word from address u32Addr. */
-
-        if (u32data != u32Pattern )     /* Verify if data matched. */
+        FMC_Erase(u32StartAddr);
+        /* Verify if each data word from flash u32StartAddr to u32EndAddr be 0xFFFFFFFF.  */
+        for (u32Addr = u32StartAddr; u32Addr < u32EndAddr; u32Addr += 4)
         {
-            printf("\nFMC_Read data verify failed at address 0x%x, read=0x%x, expect=0x%x\n", u32Addr, u32data, u32Pattern);
-            return -1;                 /* data verify failed */
+            u32data = FMC_Read(u32Addr);   /* Read a flash word from address u32Addr. */
+
+            if (u32data != u32Pattern )     /* Verify if data matched. */
+            {
+                printf("\nFMC_Read data verify failed at address 0x%x, read=0x%x, expect=0x%x\n", u32Addr, u32data, u32Pattern);
+                return -1;                 /* data verify failed */
+            }
         }
-    }
 
-    memcpy( P11CertDataSave.cCertificateData, pucData, ulDataSize );
-    /* Clean the mark and the size so that this will not be used again. */
-    P11CertDataSave.ulDeviceCertificateMark = 0;
-    P11CertDataSave.ulCertificateSize = 0;
-    pDataSrc = (uint32_t *) &P11CertDataSave;
-    /* Fill flash range from u32StartAddr to u32EndAddr with P11CertDataSave. */
-    for (u32Addr = u32StartAddr; u32Addr < u32EndAddr; u32Addr += 4)
+        memcpy( P11CertDataSave.cCertificateData, pucData, ulDataSize );
+        /* Clean the mark and the size so that this will not be used again. */
+        P11CertDataSave.ulDeviceCertificateMark = 0;
+        P11CertDataSave.ulCertificateSize = 0;
+        pDataSrc = (uint32_t *) &P11CertDataSave;
+        /* Fill flash range from u32StartAddr to u32EndAddr with P11CertDataSave. */
+        for (u32Addr = u32StartAddr; u32Addr < u32EndAddr; u32Addr += 4)
+        {
+            FMC_Write(u32Addr, *pDataSrc);          /* Program flash */
+            pDataSrc++;
+        }
+
+        return ulDataSize;
+    }
+    else
     {
-        FMC_Write(u32Addr, *pDataSrc);          /* Program flash */
-        pDataSrc++;
+        return 0;
     }
-
-    return ulDataSize;
 }
 
 static CK_RV prvFLASH_update(uint32_t u32StartAddr, uint8_t * pucData, uint32_t ulDataSize)
@@ -681,7 +687,18 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
                 ( void ) memset( pxZeroedData, 0x0, ulObjectLength );
 
                 /* Overwrite the object in NVM with zeros. */
-                xPalHandle2 = PKCS11_PAL_SaveObject( &xLabel, pxZeroedData, ( size_t ) ulObjectLength );
+                char *pcFileName = NULL;
+
+                /* Converts a label to its respective filename and handle. */
+                prvLabelToFilenameHandle( xLabel.pValue, &pcFileName, &xPalHandle2 );
+
+                if( pcFileName != NULL )
+                {
+                    if( prvFLASH_DeleteFile( pcFileName, pxZeroedData, ulObjectLength ) == pdFALSE )
+                    {
+                        xPalHandle2 = eInvalidHandle;
+                    }
+                }
 
                 if( xPalHandle2 != xHandle )
                 {
