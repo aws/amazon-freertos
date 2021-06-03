@@ -942,7 +942,7 @@ static void prvIncomingPublishCallback( MQTTAgentContext_t * pxMqttAgentContext,
     /* Fan out the incoming publishes to the callbacks registered using
      * subscription manager. */
     xPublishHandled = SubscriptionManager_HandleIncomingPublishes( ( SubscriptionElement_t * ) pxMqttAgentContext->pIncomingCallbackContext,
-                                               pxPublishInfo );
+                                                                   pxPublishInfo );
 
     /* If there are no callbacks to handle the incoming publishes,
      * handle it as an unsolicited publish. */
@@ -1084,10 +1084,10 @@ static void prvRegisterOTACallback( const char * pcTopicFilter,
             /* Add subscription so that incoming publishes are routed to the
              * application callback. */
             xSubscriptionAdded = SubscriptionManager_AddSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
-                                                  pcTopicFilter,
-                                                  usTopicFilterLength,
-                                                  xOtaTopicFilterCallbacks[ usIndex ].xCallback,
-                                                  NULL );
+                                                                      pcTopicFilter,
+                                                                      usTopicFilterLength,
+                                                                      xOtaTopicFilterCallbacks[ usIndex ].xCallback,
+                                                                      NULL );
 
             if( xSubscriptionAdded == false )
             {
@@ -1139,8 +1139,8 @@ static void prvMQTTUnsubscribeCompleteCallback( MQTTAgentCommandContext_t * pxCo
         /* Add subscription so that incoming publishes are routed to the
          * application callback. */
         SubscriptionManager_RemoveSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
-                            pxSubsribeArgs->pSubscribeInfo->pTopicFilter,
-                            pxSubsribeArgs->pSubscribeInfo->topicFilterLength );
+                                                pxSubsribeArgs->pSubscribeInfo->pTopicFilter,
+                                                pxSubsribeArgs->pSubscribeInfo->topicFilterLength );
 
         LogInfo( ( "Removed registration for topic %.*s.",
                    pxSubsribeArgs->pSubscribeInfo->topicFilterLength,
@@ -1857,8 +1857,8 @@ static BaseType_t prvRunOTADemo( void )
      * for which the topic has not been subscribed for.
      */
     SubscriptionManager_RemoveSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
-                        otaexampleDEFAULT_TOPIC_FILTER,
-                        otaexampleDEFAULT_TOPIC_FILTER_LENGTH );
+                                            otaexampleDEFAULT_TOPIC_FILTER,
+                                            otaexampleDEFAULT_TOPIC_FILTER_LENGTH );
 
     return xStatus;
 }

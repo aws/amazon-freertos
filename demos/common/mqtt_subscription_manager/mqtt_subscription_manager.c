@@ -37,10 +37,10 @@
 
 
 bool SubscriptionManager_AddSubscription( SubscriptionElement_t * pxSubscriptionList,
-                      const char * pcTopicFilterString,
-                      uint16_t usTopicFilterLength,
-                      IncomingPubCallback_t pxIncomingPublishCallback,
-                      void * pvIncomingPublishCallbackContext )
+                                          const char * pcTopicFilterString,
+                                          uint16_t usTopicFilterLength,
+                                          IncomingPubCallback_t pxIncomingPublishCallback,
+                                          void * pvIncomingPublishCallbackContext )
 {
     int32_t lIndex = 0;
     size_t xAvailableIndex = SUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS;
@@ -99,8 +99,8 @@ bool SubscriptionManager_AddSubscription( SubscriptionElement_t * pxSubscription
 /*-----------------------------------------------------------*/
 
 void SubscriptionManager_RemoveSubscription( SubscriptionElement_t * pxSubscriptionList,
-                         const char * pcTopicFilterString,
-                         uint16_t usTopicFilterLength )
+                                             const char * pcTopicFilterString,
+                                             uint16_t usTopicFilterLength )
 {
     int32_t lIndex = 0;
 
@@ -132,7 +132,7 @@ void SubscriptionManager_RemoveSubscription( SubscriptionElement_t * pxSubscript
 /*-----------------------------------------------------------*/
 
 bool SubscriptionManager_HandleIncomingPublishes( SubscriptionElement_t * pxSubscriptionList,
-                              MQTTPublishInfo_t * pxPublishInfo )
+                                                  MQTTPublishInfo_t * pxPublishInfo )
 {
     int32_t lIndex = 0;
     bool isMatched = false, publishHandled = false;
