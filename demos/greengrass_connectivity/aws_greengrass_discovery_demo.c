@@ -272,7 +272,6 @@ static void prvEventCallback( MQTTContext_t * pxMQTTContext,
     ( void ) pxMQTTContext;
     ( void ) pxPacketInfo;
     ( void ) pxDeserializedInfo;
-    return;
 }
 
 static uint32_t prvGetTimeMs( void )
@@ -479,7 +478,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * 
                 LogInfo( ( "An MQTT connection is established with %s.", pxHostAddressData->pcHostAddress ) );
             }
         }
-    } while ( ( xMqttStatus != pdPASS ) && ( xBackoffStatus == pdPASS ) );
+    } while( ( xMqttStatus != pdPASS ) && ( xBackoffStatus == pdPASS ) );
 
     return xMqttStatus;
 }
