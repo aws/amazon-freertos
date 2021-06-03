@@ -627,11 +627,6 @@
 							<FilePath>../../../../../demos/demo_runner/aws_demo_network_addr.c</FilePath>
 						</File>
 						<File>
-							<FileName>aws_demo_version.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/demo_runner/aws_demo_version.c</FilePath>
-						</File>
-						<File>
 							<FileName>aws_demo.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../demos/demo_runner/aws_demo.c</FilePath>
