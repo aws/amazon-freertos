@@ -33,7 +33,6 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
 	$(CY_AFR_ROOT)/demos/common/http_demo_helpers/http_demo_utils.c\
 	$(CY_AFR_ROOT)/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c\
-	$(CY_AFR_ROOT)/demos/common/ota_demo_helpers/ota_application_version.c\
 	$(CY_AFR_ROOT)/demos/common/pkcs11_helpers/pkcs11_helpers.c\
 	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/*.c)\
