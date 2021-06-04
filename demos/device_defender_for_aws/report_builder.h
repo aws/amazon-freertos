@@ -60,7 +60,7 @@ typedef struct ReportMetrics
     /* Custom metrics */
     uint32_t stackHighWaterMark;
     uint32_t * pTaskIdsArray;
-    uint32_t taskIdsArrayLength;
+    size_t taskIdsArrayLength;
 } ReportMetrics_t;
 
 /**
@@ -72,7 +72,7 @@ typedef struct ReportMetrics
  * @param[in] pMetrics Metrics to write in the generated report.
  * @param[in] majorReportVersion Major version of the report.
  * @param[in] minorReportVersion Minor version of the report.
- * @param[in] reportId Value to be used as the ulReportId in the generated report.
+ * @param[in] reportId Value to be used as the reportId in the generated report.
  * @param[out] pOutReportLength The length of the generated report.
  *
  * @return #ReportBuilderSuccess if the report is successfully generated;

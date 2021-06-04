@@ -79,7 +79,9 @@
 /**
  * @brief Size of the task numbers array.
  *
- * This must be at least the number of tasks used.
+ * This must be at least the number of tasks used. If the array is not big
+ * enough to store all the running tasks, uxTaskGetSystemState() will return
+ * 0 tasks written, and the task IDs will not be able to be sent.
  */
 #define CUSTOM_METRICS_TASKS_ARRAY_SIZE       20
 
@@ -152,13 +154,16 @@ static uint16_t openUdpPorts[ OPEN_UDP_PORTS_ARRAY_SIZE ];
 static Connection_t establishedConnections[ ESTABLISHED_CONNECTIONS_ARRAY_SIZE ];
 
 /**
- * @brief Task status array which will store status information of tasks
- * running in the system, which is used to generate custom metrics.
+ * @brief Array to store status information of tasks running in the system. This
+ * will be used to obtain the task IDs which well be sent as custom metrics to
+ * the AWS IoT Device Defender service.
  */
 static TaskStatus_t pTaskList[ CUSTOM_METRICS_TASKS_ARRAY_SIZE ];
 
 /**
- * @brief Task numbers custom metric array.
+ * @brief Array to store the IDs of tasks running on the system. This
+ * information will be sent to the AWS IoT Device Defender service as custom
+ * metrics.
  */
 static uint32_t pCustomMetricsTaskNumbers[ CUSTOM_METRICS_TASKS_ARRAY_SIZE ];
 
@@ -392,9 +397,9 @@ static BaseType_t collectDeviceMetrics( void )
 {
     BaseType_t status = pdFAIL;
     MetricsCollectorStatus_t metricsCollectorStatus;
-    uint32_t numOpenTcpPorts, numOpenUdpPorts, numEstablishedConnections, i;
-    UBaseType_t tasksWritten = { 0 };
-    TaskStatus_t pTaskStatus = { 0 };
+    uint32_t numOpenTcpPorts, numOpenUdpPorts, numEstablishedConnections;
+    UBaseType_t tasksWritten = 0U;
+    TaskStatus_t taskStatus = { 0 };
 
     /* Collect bytes and packets sent and received. */
     metricsCollectorStatus = GetNetworkStats( &( networkStats ) );
@@ -447,29 +452,41 @@ static BaseType_t collectDeviceMetrics( void )
         }
     }
 
-    /* Collect custom metrics. This demo sends this tasks stack high water mark
-     * as a number type custom metric and the current task ids as a list of
-     * numbers type custom metric. */
+    /* Collect custom metrics from the system to send to AWS IoT Device Defender.
+     * This demo sends this task's stack high water mark as a "number" type
+     * custom metric and the current task ids as a "list of numbers" type custom
+     * metric. */
     if( metricsCollectorStatus == MetricsCollectorSuccess )
     {
+        /* Get the current task's status information. The usStackHighWaterMark
+         * field of the task status will be included in the report as a "number"
+         * custom metric. */
         vTaskGetInfo(
             /* Query this task. */
             NULL,
-            &pTaskStatus,
+            &taskStatus,
             /* Include the stack high water mark value. */
             pdTRUE,
             /* Don't include the task state in the TaskStatus_t structure. */
             0 );
+
+        /* Get the task status information for all running tasks. The task IDs
+         * of each task is then extracted to include in the report as a "list of
+         * numbers" custom metric */
         tasksWritten = uxTaskGetSystemState( pTaskList, CUSTOM_METRICS_TASKS_ARRAY_SIZE, NULL );
 
         if( tasksWritten == 0 )
         {
+            /* If 0 is returned, the buffer was too small */
             metricsCollectorStatus = MetricsCollectorCollectionFailed;
-            LogError( ( "Failed to collect system state. uxTaskGetSystemState() failed due to insufficient buffer space.",
-                        metricsCollectorStatus ) );
+            LogError( ( "Failed to collect task IDs. uxTaskGetSystemState() failed due to insufficient buffer space. "
+                        "CUSTOM_METRICS_TASKS_ARRAY_SIZE is %u.",
+                        ( unsigned ) CUSTOM_METRICS_TASKS_ARRAY_SIZE ) );
         }
         else
         {
+            uint32_t i;
+            /* Populate the task IDs array from the collected system state array. */
             for( i = 0; i < tasksWritten; i++ )
             {
                 pCustomMetricsTaskNumbers[ i ] = pTaskList[ i ].xTaskNumber;
@@ -488,7 +505,7 @@ static BaseType_t collectDeviceMetrics( void )
         deviceMetrics.openUdpPortsArrayLength = numOpenUdpPorts;
         deviceMetrics.pEstablishedConnectionsArray = &( establishedConnections[ 0 ] );
         deviceMetrics.establishedConnectionsArrayLength = numEstablishedConnections;
-        deviceMetrics.stackHighWaterMark = pTaskStatus.usStackHighWaterMark;
+        deviceMetrics.stackHighWaterMark = taskStatus.usStackHighWaterMark;
         deviceMetrics.pTaskIdsArray = pCustomMetricsTaskNumbers;
         deviceMetrics.taskIdsArrayLength = tasksWritten;
     }

@@ -176,10 +176,10 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
 /**
  * @brief Write task ids array to the given buffer as a JSON array.
  *
- * @param[in] pBuffer The buffer to write the connections array.
+ * @param[in] pBuffer The buffer to write the array of task IDs.
  * @param[in] bufferLength The length of the buffer.
- * @param[in] pTaskIdsArray The array containing the task ids.
- * @param[in] pTaskIdsArrayLength Length of the pTaskIdsArray array.
+ * @param[in] pTaskIdsArray The array containing the task IDs.
+ * @param[in] taskIdsArrayLength Length of the pTaskIdsArray array.
  * @param[out] pOutCharsWritten Number of characters written to the buffer.
  *
  * @return #ReportBuilderSuccess if the array is successfully written;
@@ -188,7 +188,7 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
 static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
                                                 uint32_t bufferLength,
                                                 const uint32_t * pTaskIdsArray,
-                                                uint32_t pTaskIdsArrayLength,
+                                                size_t taskIdsArrayLength,
                                                 uint32_t * pOutCharsWritten );
 /*-----------------------------------------------------------*/
 
@@ -361,7 +361,7 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
 static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
                                                 uint32_t bufferLength,
                                                 const uint32_t * pTaskIdsArray,
-                                                uint32_t pTaskIdsArrayLength,
+                                                size_t taskIdsArrayLength,
                                                 uint32_t * pOutCharsWritten )
 {
     char * pCurrentWritePos = pBuffer;
@@ -386,7 +386,7 @@ static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
     }
 
     /* Write the array elements. */
-    for( i = 0; ( ( i < pTaskIdsArrayLength ) && ( status == ReportBuilderSuccess ) ); i++ )
+    for( i = 0; ( ( i < taskIdsArrayLength ) && ( status == ReportBuilderSuccess ) ); i++ )
     {
         charactersWritten = snprintf( pCurrentWritePos,
                                       remainingBufferLength,
@@ -408,7 +408,7 @@ static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
     if( status == ReportBuilderSuccess )
     {
         /* Discard the last comma. */
-        if( pTaskIdsArrayLength > 0 )
+        if( taskIdsArrayLength > 0 )
         {
             pCurrentWritePos -= 1;
             remainingBufferLength += 1;
@@ -460,7 +460,7 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
         ( pOutReportLength == NULL ) )
     {
         LogError( ( "Invalid parameters. pBuffer: %p, bufferLength: %u"
-                    " pMetrics: %p, pOutReprotLength: %p.",
+                    " pMetrics: %p, pOutReportLength: %p.",
                     pBuffer,
                     bufferLength,
                     pMetrics,
@@ -487,7 +487,10 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
 
         if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
         {
-            LogError( ( "Failed to write part 1." ) );
+            LogError( ( "Failed to write part 1 of JSON report to buffer. "
+                        "Remaining buffer space is %lu. Needed %lu.",
+                        ( unsigned long ) remainingBufferLength,
+                        ( unsigned long ) ( sizeof(JSON_REPORT_FORMAT_PART5) - 1 ) ) );
             status = ReportBuilderBufferTooSmall;
         }
         else
@@ -531,7 +534,10 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
 
         if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
         {
-            LogError( ( "Failed to write part 2." ) );
+            LogError( ( "Failed to write part 2 of JSON report to buffer. "
+                        "Remaining buffer space is %lu. Needed %lu.",
+                        ( unsigned long ) remainingBufferLength,
+                        ( unsigned long ) ( sizeof(JSON_REPORT_FORMAT_PART5) - 1 ) ) );
             status = ReportBuilderBufferTooSmall;
         }
         else
@@ -585,7 +591,10 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
 
         if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
         {
-            LogError( ( "Failed to write part 3." ) );
+            LogError( ( "Failed to write part 3 of JSON report to buffer. "
+                        "Remaining buffer space is %lu. Needed %lu.",
+                        ( unsigned long ) remainingBufferLength,
+                        ( unsigned long ) ( sizeof(JSON_REPORT_FORMAT_PART5) - 1 ) ) );
             status = ReportBuilderBufferTooSmall;
         }
         else
@@ -631,7 +640,10 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
 
         if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
         {
-            LogError( ( "Failed to write part 4." ) );
+            LogError( ( "Failed to write part 4 of JSON report to buffer. "
+                        "Remaining buffer space is %lu. Needed %lu.",
+                        ( unsigned long ) remainingBufferLength,
+                        ( unsigned long ) ( sizeof(JSON_REPORT_FORMAT_PART5) - 1 ) ) );
             status = ReportBuilderBufferTooSmall;
         }
         else
@@ -657,7 +669,8 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
         }
         else
         {
-            LogError( ( "Failed to write task ids array." ) );
+            LogError( ( "Failed to write the task ID list custom metric to the"
+                        "JSON report." ) );
         }
     }
 
@@ -670,7 +683,10 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
 
         if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
         {
-            LogError( ( "Failed to write part 5." ) );
+            LogError( ( "Failed to write part 5 of JSON report to buffer. "
+                        "Remaining buffer space is %lu. Needed %lu.",
+                        ( unsigned long ) remainingBufferLength,
+                        ( unsigned long ) ( sizeof(JSON_REPORT_FORMAT_PART5) - 1 ) ) );
             status = ReportBuilderBufferTooSmall;
         }
         else
