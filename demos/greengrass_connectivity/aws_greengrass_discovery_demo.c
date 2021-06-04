@@ -143,7 +143,7 @@ typedef struct
 } GGDUserData_t;
 
 /**
- * @brief Stub for Network Context.
+ * @brief Defines Network Context to be used in this demo.
  */
 struct NetworkContext
 {
