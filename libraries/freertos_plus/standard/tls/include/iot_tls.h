@@ -153,4 +153,26 @@ BaseType_t TLS_Send( void * pvContext,
  */
 void TLS_Cleanup( void * pvContext );
 
+/**
+ * @brief callback to verify the expiration date of the certificate
+ *
+ * This callback will return TRUE if the date provided is in the past.
+ *
+ * @param day the expiration date day to check
+ * @param month the expiration date month to check
+ * @param year the expiration date year to check.  Note: this is the full year i.e. 1932
+ *
+ * @return non-zero if the date is in the past
+ */
+typedef BaseType_t (* DateIsInThePast_t)( BaseType_t day,
+                                          BaseType_t month,
+                                          BaseType_t year );
+
+/**
+ * @brief function to set the callback for testing the expiration date of certificates
+ *
+ * @param DateIsInThePast a function that tests the expiration date against the current date
+ */
+void TLS_setDateIsInThePastFunction( DateIsInThePast_t dateIsInThePast );
+
 #endif /* ifndef __AWS__TLS__H__ */

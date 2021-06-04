@@ -141,6 +141,11 @@ typedef struct TLSContext
 
 #define TLS_PRINT( X )    configPRINTF( X )
 
+static BaseType_t prvDefault_DateIsInThePast( BaseType_t day,
+                                              BaseType_t month,
+                                              BaseType_t year );
+static DateIsInThePast_t pDateIsInThePast = prvDefault_DateIsInThePast;
+
 /*-----------------------------------------------------------*/
 
 /*
@@ -173,6 +178,13 @@ static void prvFreeContext( TLSContext_t * pxCtx )
 
         pxCtx->xTLSHandshakeState = TLS_HANDSHAKE_NOT_STARTED;
     }
+}
+
+static BaseType_t prvDefault_DateIsInThePast( BaseType_t day,
+                                              BaseType_t month,
+                                              BaseType_t year )
+{
+    return 0; /* Assume the certificate is valid. */
 }
 
 /*-----------------------------------------------------------*/
@@ -259,61 +271,20 @@ static int prvGenerateRandomBytes( void * pvCtx,
  *
  * @return Zero on success.
  */
-static int prvCheckCertificate( void * pvCtx,
+static int prvCheckCertificate( void * pvContext,
                                 mbedtls_x509_crt * pxCertificate,
                                 int lPathCount,
                                 uint32_t * pulFlags )
 {
-    int lCompilationYear = 0;
-
-#define tlsCOMPILER_DATE_STRING_MONTH_LENGTH    4
-#define tlsDATE_STRING_FIELD_COUNT              3
-    char cCompilationMonth[ tlsCOMPILER_DATE_STRING_MONTH_LENGTH ];
-    int lCompilationMonth = 0;
-    int lCompilationDay = 0;
-    const char cMonths[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
-
     /* Unreferenced parameters. */
-    ( void ) ( pvCtx );
+    ( void ) ( pvContext );
     ( void ) ( lPathCount );
 
-    /* Parse the date string fields. */
-    if( tlsDATE_STRING_FIELD_COUNT == sscanf( __DATE__,
-                                              "%3s %d %d",
-                                              cCompilationMonth,
-                                              &lCompilationDay,
-                                              &lCompilationYear ) )
-    {
-        cCompilationMonth[ tlsCOMPILER_DATE_STRING_MONTH_LENGTH - 1 ] = '\0';
+    BaseType_t day = pxCertificate->valid_to.day;
+    BaseType_t month = pxCertificate->valid_to.mon;
+    BaseType_t year = pxCertificate->valid_to.year;
 
-        /* Check for server expiration. First check the year. */
-        if( pxCertificate->valid_to.year < lCompilationYear )
-        {
-            *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
-        }
-        else if( pxCertificate->valid_to.year == lCompilationYear )
-        {
-            /* Convert the month. */
-            lCompilationMonth =
-                ( ( strstr( cMonths, cCompilationMonth ) - cMonths ) /
-                  ( tlsCOMPILER_DATE_STRING_MONTH_LENGTH - 1 ) ) + 1;
-
-            /* Check the month. */
-            if( pxCertificate->valid_to.mon < lCompilationMonth )
-            {
-                *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
-            }
-            else if( pxCertificate->valid_to.mon == lCompilationMonth )
-            {
-                /* Check the day. */
-                if( pxCertificate->valid_to.day < lCompilationDay )
-                {
-                    *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
-                }
-            }
-        }
-    }
-    else
+    if( pDateIsInThePast( day, month, year ) != 0 )
     {
         *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
     }
@@ -1115,4 +1086,11 @@ void TLS_Cleanup( void * pvContext )
         /* Free memory. */
         vPortFree( pxCtx );
     }
+}
+
+/*-----------------------------------------------------------*/
+
+void TLS_setDateIsInThePastFunction( DateIsInThePast_t DateIsInThePast )
+{
+    pDateIsInThePast = DateIsInThePast;
 }
