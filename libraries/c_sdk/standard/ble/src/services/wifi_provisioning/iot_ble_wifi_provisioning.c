@@ -40,14 +40,10 @@
 
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_GLOBAL
-    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL                           IOT_LOG_LEVEL_GLOBAL
 #else
-    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+    #define LIBRARY_LOG_LEVEL                           IOT_LOG_NONE
 #endif
-
-#undef LIBRARY_LOG_LEVEL
-#define LIBRARY_LOG_LEVEL                               IOT_LOG_DEBUG
-
 
 #define LIBRARY_LOG_NAME                                ( "BLE_WIFI_PROV" )
 #include "iot_logging_setup.h"
