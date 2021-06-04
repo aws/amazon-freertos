@@ -215,7 +215,7 @@ static BaseType_t collectDeviceMetrics( void );
  * @return pdPASS if the report is generated successfully;
  * pdFAIL otherwise.
  */
-static BaseType_t generateDeviceMetricsReport( uint32_t * pOutReportLength );
+static BaseType_t generateDeviceMetricsReport( size_t * pOutReportLength );
 
 /**
  * @brief Subscribe to the device defender topics.
@@ -250,11 +250,11 @@ static BaseType_t unsubscribeFromDefenderTopics( MQTTContext_t * pMqttContext );
  * false otherwise.
  */
 static bool validateDefenderResponse( const char * defenderResponse,
-                                      uint32_t defenderResponseLength );
+                                      size_t defenderResponseLength );
 /*-----------------------------------------------------------*/
 
 static bool validateDefenderResponse( const char * defenderResponse,
-                                      uint32_t defenderResponseLength )
+                                      size_t defenderResponseLength )
 {
     bool status = false;
     JSONStatus_t jsonResult = JSONSuccess;
@@ -274,7 +274,7 @@ static bool validateDefenderResponse( const char * defenderResponse,
 
     if( jsonResult == JSONSuccess )
     {
-        /* Search the reportId key in the response. */
+        /* Search for the reportId key in the response. */
         jsonResult = JSON_Search( ( char * ) defenderResponse,
                                   defenderResponseLength,
                                   "reportId",
@@ -299,17 +299,18 @@ static bool validateDefenderResponse( const char * defenderResponse,
          * published report? */
         if( reportIdInResponse == reportId )
         {
-            LogInfo( ( "A valid response with reportId %u received from the "
-                       "AWS IoT Device Defender Service.", reportId ) );
+            LogInfo( ( "A valid response with reportId %lu received from the "
+                       "AWS IoT Device Defender Service.",
+                       ( unsigned long ) reportId ) );
             status = true;
         }
         else
         {
             LogError( ( "Unexpected reportId found in the response from the AWS"
-                        "IoT Device Defender Service. Expected: %u, Found: %u, "
+                        "IoT Device Defender Service. Expected: %lu, Found: %lu, "
                         "Complete Response: %.*s.",
-                        reportIdInResponse,
-                        reportId,
+                        ( unsigned long ) reportIdInResponse,
+                        ( unsigned long ) reportId,
                         ( int ) defenderResponseLength,
                         defenderResponse ) );
         }
@@ -397,7 +398,7 @@ static BaseType_t collectDeviceMetrics( void )
 {
     BaseType_t status = pdFAIL;
     MetricsCollectorStatus_t metricsCollectorStatus;
-    uint32_t numOpenTcpPorts, numOpenUdpPorts, numEstablishedConnections;
+    size_t numOpenTcpPorts, numOpenUdpPorts, numEstablishedConnections;
     UBaseType_t tasksWritten = 0U;
     TaskStatus_t taskStatus = { 0 };
 
@@ -480,12 +481,12 @@ static BaseType_t collectDeviceMetrics( void )
             /* If 0 is returned, the buffer was too small */
             metricsCollectorStatus = MetricsCollectorCollectionFailed;
             LogError( ( "Failed to collect task IDs. uxTaskGetSystemState() failed due to insufficient buffer space. "
-                        "CUSTOM_METRICS_TASKS_ARRAY_SIZE is %u.",
-                        ( unsigned ) CUSTOM_METRICS_TASKS_ARRAY_SIZE ) );
+                        "CUSTOM_METRICS_TASKS_ARRAY_SIZE is %lu.",
+                        ( unsigned long ) CUSTOM_METRICS_TASKS_ARRAY_SIZE ) );
         }
         else
         {
-            uint32_t i;
+            size_t i;
             /* Populate the task IDs array from the collected system state array. */
             for( i = 0; i < tasksWritten; i++ )
             {
@@ -552,7 +553,7 @@ static BaseType_t unsubscribeFromDefenderTopics( MQTTContext_t * pMqttContext )
 }
 /*-----------------------------------------------------------*/
 
-static BaseType_t generateDeviceMetricsReport( uint32_t * pOutReportLength )
+static BaseType_t generateDeviceMetricsReport( size_t * pOutReportLength )
 {
     BaseType_t status = pdFAIL;
     ReportBuilderStatus_t reportBuilderStatus;
@@ -575,7 +576,7 @@ static BaseType_t generateDeviceMetricsReport( uint32_t * pOutReportLength )
     else
     {
         LogDebug( ( "Generated Report: %.*s.",
-                    *pOutReportLength,
+                    ( int ) ( *pOutReportLength ),
                     &( deviceMetricsJsonReport[ 0 ] ) ) );
         status = pdPASS;
     }
@@ -603,7 +604,8 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
                            const void * pNetworkInterface )
 {
     BaseType_t demoStatus = pdFAIL;
-    uint32_t reportLength = 0UL, i, mqttSessionEstablished = 0UL;
+    size_t reportLength = 0U, i;
+    bool mqttSessionEstablished = false;
     UBaseType_t demoRunCount = 0;
     BaseType_t retryDemoLoop = pdFALSE;
 
@@ -644,7 +646,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
         }
         else
         {
-            mqttSessionEstablished = 1;
+            mqttSessionEstablished = true;
         }
 
         if( demoStatus == pdPASS )
@@ -722,7 +724,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
          * protocol spec, it is okay to send UNSUBSCRIBE even if no corresponding
          * subscription exists on the broker. Therefore, it is okay to attempt
          * unsubscribe even if one more subscribe failed earlier. */
-        if( mqttSessionEstablished == 1 )
+        if( mqttSessionEstablished )
         {
             LogInfo( ( "Unsubscribing from defender topics..." ) );
             demoStatus = unsubscribeFromDefenderTopics( &mqttContext );
@@ -758,7 +760,7 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
 
                 /* Clear the flag indicating successful MQTT session establishment
                  * before attempting a retry. */
-                mqttSessionEstablished = 0;
+                mqttSessionEstablished = false;
 
                 LogInfo( ( "A short delay before the next demo iteration." ) );
                 vTaskDelay( DELAY_BETWEEEN_DEMO_ATTEMPTS_TICKS );

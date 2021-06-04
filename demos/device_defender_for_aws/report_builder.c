@@ -44,7 +44,7 @@
 #define JSON_ARRAY_OBJECT_SEPARATOR    ','
 
 /* Helper macro to check if snprintf was successful. */
-#define SNPRINTF_SUCCESS( retVal, bufLen )    ( ( retVal > 0 ) && ( ( uint32_t ) retVal < bufLen ) )
+#define SNPRINTF_SUCCESS( retVal, bufLen )    ( ( retVal > 0U ) && ( ( size_t ) retVal < bufLen ) )
 
 /* Formats used to generate the JSON report. */
 #define JSON_PORT_OBJECT_FORMAT \
@@ -137,10 +137,10 @@
  * #ReportBuilderBufferTooSmall if the buffer cannot hold the full array.
  */
 static ReportBuilderStatus_t writePortsArray( char * pBuffer,
-                                              uint32_t bufferLength,
+                                              size_t bufferLength,
                                               const uint16_t * pOpenPortsArray,
-                                              uint32_t openPortsArrayLength,
-                                              uint32_t * pOutCharsWritten );
+                                              size_t openPortsArrayLength,
+                                              size_t * pOutCharsWritten );
 
 /**
  * @brief Write established connections array to the given buffer in the format
@@ -168,10 +168,10 @@ static ReportBuilderStatus_t writePortsArray( char * pBuffer,
  * #ReportBuilderBufferTooSmall if the buffer cannot hold the full array.
  */
 static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
-                                                    uint32_t bufferLength,
+                                                    size_t bufferLength,
                                                     const Connection_t * pConnectionsArray,
-                                                    uint32_t connectionsArrayLength,
-                                                    uint32_t * pOutCharsWritten );
+                                                    size_t connectionsArrayLength,
+                                                    size_t * pOutCharsWritten );
 
 /**
  * @brief Write task ids array to the given buffer as a JSON array.
@@ -186,20 +186,20 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
  * #ReportBuilderBufferTooSmall if the buffer cannot hold the full array.
  */
 static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
-                                                uint32_t bufferLength,
+                                                size_t bufferLength,
                                                 const uint32_t * pTaskIdsArray,
                                                 size_t taskIdsArrayLength,
-                                                uint32_t * pOutCharsWritten );
+                                                size_t * pOutCharsWritten );
 /*-----------------------------------------------------------*/
 
 static ReportBuilderStatus_t writePortsArray( char * pBuffer,
-                                              uint32_t bufferLength,
+                                              size_t bufferLength,
                                               const uint16_t * pOpenPortsArray,
-                                              uint32_t openPortsArrayLength,
-                                              uint32_t * pOutCharsWritten )
+                                              size_t openPortsArrayLength,
+                                              size_t * pOutCharsWritten )
 {
     char * pCurrentWritePos = pBuffer;
-    uint32_t i, remainingBufferLength = bufferLength;
+    size_t i, remainingBufferLength = bufferLength;
     int32_t charactersWritten;
     ReportBuilderStatus_t status = ReportBuilderSuccess;
 
@@ -235,7 +235,7 @@ static ReportBuilderStatus_t writePortsArray( char * pBuffer,
         }
         else
         {
-            remainingBufferLength -= ( uint32_t ) charactersWritten;
+            remainingBufferLength -= charactersWritten;
             pCurrentWritePos += charactersWritten;
         }
     }
@@ -272,13 +272,13 @@ static ReportBuilderStatus_t writePortsArray( char * pBuffer,
 /*-----------------------------------------------------------*/
 
 static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
-                                                    uint32_t bufferLength,
+                                                    size_t bufferLength,
                                                     const Connection_t * pConnectionsArray,
-                                                    uint32_t connectionsArrayLength,
-                                                    uint32_t * pOutCharsWritten )
+                                                    size_t connectionsArrayLength,
+                                                    size_t * pOutCharsWritten )
 {
     char * pCurrentWritePos = pBuffer;
-    uint32_t i, remainingBufferLength = bufferLength;
+    size_t i, remainingBufferLength = bufferLength;
     int32_t charactersWritten;
     ReportBuilderStatus_t status = ReportBuilderSuccess;
     const Connection_t * pConn;
@@ -359,13 +359,13 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
 /*-----------------------------------------------------------*/
 
 static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
-                                                uint32_t bufferLength,
+                                                size_t bufferLength,
                                                 const uint32_t * pTaskIdsArray,
                                                 size_t taskIdsArrayLength,
-                                                uint32_t * pOutCharsWritten )
+                                                size_t * pOutCharsWritten )
 {
     char * pCurrentWritePos = pBuffer;
-    uint32_t i, remainingBufferLength = bufferLength;
+    size_t i, remainingBufferLength = bufferLength;
     int32_t charactersWritten;
     ReportBuilderStatus_t status = ReportBuilderSuccess;
 
@@ -400,7 +400,7 @@ static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
         }
         else
         {
-            remainingBufferLength -= ( uint32_t ) charactersWritten;
+            remainingBufferLength -= charactersWritten;
             pCurrentWritePos += charactersWritten;
         }
     }
@@ -437,15 +437,15 @@ static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
 /*-----------------------------------------------------------*/
 
 ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
-                                          uint32_t bufferLength,
+                                          size_t bufferLength,
                                           const ReportMetrics_t * pMetrics,
                                           uint32_t majorReportVersion,
                                           uint32_t minorReportVersion,
                                           uint32_t reportId,
-                                          uint32_t * pOutReportLength )
+                                          size_t * pOutReportLength )
 {
     char * pCurrentWritePos = pBuffer;
-    uint32_t remainingBufferLength = bufferLength, bufferWritten;
+    size_t remainingBufferLength = bufferLength, bufferWritten;
     ReportBuilderStatus_t status = ReportBuilderSuccess;
     int32_t charactersWritten;
 
@@ -459,10 +459,10 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
         ( pMetrics == NULL ) ||
         ( pOutReportLength == NULL ) )
     {
-        LogError( ( "Invalid parameters. pBuffer: %p, bufferLength: %u"
+        LogError( ( "Invalid parameters. pBuffer: %p, bufferLength: %lu"
                     " pMetrics: %p, pOutReportLength: %p.",
                     pBuffer,
-                    bufferLength,
+                    ( unsigned long ) bufferLength,
                     pMetrics,
                     pOutReportLength ) );
         status = ReportBuilderBadParameter;

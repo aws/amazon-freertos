@@ -52,11 +52,11 @@ typedef struct ReportMetrics
 {
     NetworkStats_t * pNetworkStats;
     uint16_t * pOpenTcpPortsArray;
-    uint32_t openTcpPortsArrayLength;
+    size_t openTcpPortsArrayLength;
     uint16_t * pOpenUdpPortsArray;
-    uint32_t openUdpPortsArrayLength;
+    size_t openUdpPortsArrayLength;
     Connection_t * pEstablishedConnectionsArray;
-    uint32_t establishedConnectionsArrayLength;
+    size_t establishedConnectionsArrayLength;
     /* Custom metrics */
     uint32_t stackHighWaterMark;
     uint32_t * pTaskIdsArray;
@@ -80,11 +80,11 @@ typedef struct ReportMetrics
  * #ReportBuilderBufferTooSmall if the buffer cannot hold the full report.
  */
 ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
-                                          uint32_t bufferLength,
+                                          size_t bufferLength,
                                           const ReportMetrics_t * pMetrics,
                                           uint32_t majorReportVersion,
                                           uint32_t minorReportVersion,
                                           uint32_t reportId,
-                                          uint32_t * pOutReportLength );
+                                          size_t * pOutReportLength );
 
 #endif /* ifndef REPORT_BUILDER_H_ */
