@@ -22,3 +22,10 @@ RemoteSystemsTempFiles/*
 # Ignore certificate files
 *.pem
 *.crt
+
+# Do not ignore OTA test certificates.
+!tests\integration_test\ota_pal\test_files\ecdsa-sha256-signer.crt.pem
+!tests\integration_test\ota_pal\test_files\rsa-sha1-root-ca-cert.pem
+!tests\integration_test\ota_pal\test_files\rsa-sha1-signer.crt.pem
+!tests\integration_test\ota_pal\test_files\rsa-sha256-signer.crt.pem
+!tests\integration_test\ota_pal\test_files\rsasigner.crt
