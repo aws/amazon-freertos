@@ -1103,7 +1103,7 @@ static void prvRegisterOTACallback( const char * pcTopicFilter,
 static void prvMQTTSubscribeCompleteCallback( MQTTAgentCommandContext_t * pxCommandContext,
                                               MQTTAgentReturnInfo_t * pxReturnInfo )
 {
-    MQTTAgentSubscribeArgs_t * pxSubsribeArgs;
+    MQTTAgentSubscribeArgs_t * pxSubscribeArgs;
 
     if( pxReturnInfo->returnCode == MQTTSuccess )
     {
