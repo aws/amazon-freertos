@@ -1653,8 +1653,8 @@ static void prvMQTTAgentTask( void * pParam )
     {
         /* MQTTAgent_CommandLoop() is effectively the agent implementation.  It
          * will manage the MQTT protocol until such time that an error occurs,
-         * which could be a disconnect.  If an error occurs the MQTT context on
-         * which the error happened is returned so there can be an attempt to
+         * which could be a disconnect.  If an error occurs the MQTT error code
+         * is returned and the queue left uncleared so there can be an attempt to
          * clean up and reconnect however the application writer prefers. */
         xMQTTStatus = MQTTAgent_CommandLoop( &xGlobalMqttAgentContext );
 
