@@ -412,7 +412,7 @@ static MQTTAgentMessageContext_t xCommandQueue;
 
 /**
  * @brief The interface context used to post commands to the agent.
- * For FreeRTOS its implemented using a FreeRTOS blocking queue.
+ * For FreeRTOS it's implemented using a FreeRTOS blocking queue.
  */
 static MQTTAgentMessageInterface_t xMessageInterface;
 
