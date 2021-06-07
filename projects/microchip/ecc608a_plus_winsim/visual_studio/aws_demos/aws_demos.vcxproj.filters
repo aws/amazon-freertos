@@ -112,18 +112,6 @@
 		<Filter Include="libraries\freertos_plus\aws\greengrass"/>
 		<Filter Include="libraries\freertos_plus\aws"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass\include"/>
-		<Filter Include="libraries\freertos_plus\aws\ota\include"/>
-		<Filter Include="libraries\freertos_plus\aws\ota"/>
-		<Filter Include="libraries\freertos_plus\aws\ota\src"/>
-		<Filter Include="libraries\3rdparty\mbedtls\library"/>
-		<Filter Include="libraries\3rdparty\mbedtls"/>
-		<Filter Include="libraries\3rdparty"/>
-		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports\ota"/>
-		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports"/>
-		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim"/>
-		<Filter Include="vendors\microchip\boards"/>
-		<Filter Include="libraries\freertos_plus\aws\ota\src\mqtt"/>
-		<Filter Include="libraries\freertos_plus\aws\ota\src\http"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli"/>
 		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX"/>
@@ -131,6 +119,9 @@
 		<Filter Include="libraries\abstractions\posix"/>
 		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX\sys"/>
 		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports\posix"/>
+		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports"/>
+		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim"/>
+		<Filter Include="vendors\microchip\boards"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
@@ -163,10 +154,12 @@
 		<Filter Include="demos\device_shadow_for_aws"/>
 		<Filter Include="demos\greengrass_connectivity"/>
 		<Filter Include="demos\jobs_for_aws"/>
-		<Filter Include="demos\ota"/>
 		<Filter Include="demos\tcp"/>
 		<Filter Include="application_code"/>
 		<Filter Include="libraries\3rdparty\tracealyzer_recorder"/>
+		<Filter Include="libraries\3rdparty"/>
+		<Filter Include="libraries\3rdparty\mbedtls\library"/>
+		<Filter Include="libraries\3rdparty\mbedtls"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include"/>
 		<Filter Include="libraries\3rdparty\mbedtls_utils"/>
@@ -250,9 +243,6 @@
 			<Filter>demos\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_iot_demo_network.h">
-			<Filter>demos\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\demos\include\aws_ota_codesigner_certificate.h">
 			<Filter>demos\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_config_common.h">
@@ -620,33 +610,6 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h">
 			<Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h">
-			<Filter>libraries\freertos_plus\aws\ota\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_types.h">
-			<Filter>libraries\freertos_plus\aws\ota\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent_internal.h">
-			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.h">
-			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_pal.h">
-			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor_internal.h">
-			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.h">
-			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.h">
-			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.h">
-			<Filter>libraries\freertos_plus\aws\ota\src\http</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\errno.h">
 			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
@@ -1475,27 +1438,6 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c">
 			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c">
-			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.c">
-			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c">
-			<Filter>libraries\3rdparty\mbedtls\library</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\ota\aws_ota_pal.c">
-			<Filter>vendors\microchip\boards\ecc608a_plus_winsim\ports\ota</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.c">
-			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.c">
-			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c">
-			<Filter>libraries\freertos_plus\aws\ota\src\http</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_cli\source</Filter>
 		</ClCompile>
@@ -1613,9 +1555,6 @@
 		<ClCompile Include="..\..\..\..\..\demos\jobs_for_aws\jobs_demo.c">
 			<Filter>demos\jobs_for_aws</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\ota\aws_iot_ota_update_demo.c">
-			<Filter>demos\ota</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_task.c">
 			<Filter>demos\tcp</Filter>
 		</ClCompile>
@@ -1653,6 +1592,9 @@
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1write.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\bignum.c">

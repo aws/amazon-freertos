@@ -423,30 +423,6 @@ target_compile_definitions(
 )
 endif()
 
-# OTA
-# Need to get this validated
-afr_mcu_port(ota)
-target_sources(
-    AFR::ota::mcu_port
-    INTERFACE
-        "${afr_ports_dir}/ota/aws_ota_pal.c"
-        "${afr_ports_dir}/ota/aws_esp_ota_ops.c"
-        "${afr_ports_dir}/ota/aws_esp_ota_ops.h"
-)
-target_include_directories(
-    AFR::ota::mcu_port
-    INTERFACE
-        "${esp_idf_dir}/components/soc/soc/include"
-)
-target_link_libraries(
-    AFR::ota::mcu_port
-    INTERFACE
-        AFR::crypto
-        AFR::pkcs11
-        AFR::ota_mqtt
-        AFR::ota_http
-)
-
 # Add extra components to metadata
 afr_files_to_console_metadata(
     "${extra_components_dir}"
@@ -524,16 +500,6 @@ set_source_files_properties(
 set_source_files_properties(${AFR_DEMOS_DIR}/logging/iot_logging_task_dynamic_buffers.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-format -Wno-uninitialized"
-)
-
-set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_pal.c
-    PROPERTIES COMPILE_FLAGS
-    "-Wno-pointer-sign -Wno-sizeof-pointer-memaccess"
-)
-
-set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_agent.c
-    PROPERTIES COMPILE_FLAGS
-    "-Wno-pointer-sign"
 )
 
 set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c

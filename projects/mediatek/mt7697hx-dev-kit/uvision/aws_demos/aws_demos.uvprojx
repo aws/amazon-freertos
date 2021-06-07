@@ -995,11 +995,6 @@
 							<FilePath>../../../../../demos/include/aws_iot_demo_network.h</FilePath>
 						</File>
 						<File>
-							<FileName>aws_ota_codesigner_certificate.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../demos/include/aws_ota_codesigner_certificate.h</FilePath>
-						</File>
-						<File>
 							<FileName>iot_config_common.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../demos/include/iot_config_common.h</FilePath>

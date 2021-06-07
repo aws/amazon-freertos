@@ -241,7 +241,7 @@ static void prvLabelToFilenameHandle( uint8_t * pcLabel,
  * pdFALSE otherwise.
  */
 static BaseType_t prvFLASH_DeleteFile( char * pcFileName,
-                                uint32_t ulDataSize )
+                              uint32_t ulDataSize )
 {
     CK_RV xResult = pdFALSE;
     uint32_t certFlashAddr = 0;
@@ -285,6 +285,7 @@ static BaseType_t prvFLASH_DeleteFile( char * pcFileName,
     {
         /* Delete the given file. */
         xBytesWritten = prvFLASH_delete( certFlashAddr, ulDataSize );
+
         if( xBytesWritten == ulDataSize )
         {
             xResult = pdTRUE;

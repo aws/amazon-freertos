@@ -42,7 +42,6 @@
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
  *          CONFIG_POSIX_DEMO_ENABLED
- *          CONFIG_OTA_UPDATE_DEMO_ENABLED
  *          CONFIG_BLE_GATT_SERVER_DEMO_ENABLED
  *          CONFIG_BLE_NUMERIC_COMPARISON_DEMO_ENABLED
  *
@@ -81,9 +80,7 @@
 #define democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE              ( configMINIMAL_STACK_SIZE * 4 )
 #define democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 
-/* OTA Update task example parameters. */
-#define democonfigOTA_UPDATE_TASK_STACK_SIZE                         ( 4 * configMINIMAL_STACK_SIZE )
-#define democonfigOTA_UPDATE_TASK_TASK_PRIORITY                      ( tskIDLE_PRIORITY )
+
 
 /* Simple TCP Echo Server task example parameters */
 #define democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE                    ( configMINIMAL_STACK_SIZE * 6 )

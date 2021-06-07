@@ -137,32 +137,11 @@ target_link_libraries(
     INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
 
-# OTA
-afr_mcu_port(ota)
-target_sources(
-    AFR::ota::mcu_port
-    INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
-)
-target_link_libraries(
-    AFR::ota::mcu_port
-    INTERFACE
-        AFR::crypto
-        AFR::ota_mqtt
-        AFR::ota_http
-)
-
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
-
-# Build an OTA test that only builds on Windows.
-afr_module_sources(
-    test_ota
-    INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/test/aws_test_ota_cbor.c"
-)
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)

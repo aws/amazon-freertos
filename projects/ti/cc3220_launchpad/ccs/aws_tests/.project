@@ -973,86 +973,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/include/aws_iot_ota_types.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/include/aws_iot_ota_types.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent_internal.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent_internal.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_pal.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/aws_iot_ota_pal.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/mbedtls/library/base64.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/base64.c</locationURI>
-		</link>
-		<link>
-			<name>vendors/ti/boards/cc3220_launchpad/ports/ota/aws_ota_pal.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/ota/aws_ota_pal.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor_internal.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor_internal.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</locationURI>
@@ -1298,16 +1218,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/greengrass/test/aws_test_helper_secure_connect.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_agent.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/aws_test_ota_agent.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_pal.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/aws_test_ota_pal.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</locationURI>
@@ -1463,19 +1373,9 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_iot_network_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_ota_agent_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_ota_agent_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_shadow_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_shadow_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/aws_test_ota_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_test_ota_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_test_runner_config.h</name>
@@ -1631,6 +1531,11 @@
 			<name>libraries/3rdparty/mbedtls/library/asn1write.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/asn1write.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/base64.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/base64.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/bignum.c</name>

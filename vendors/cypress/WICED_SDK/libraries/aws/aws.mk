@@ -133,6 +133,8 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt.c                                                \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt_state.c                                          \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt_serializer.c                                     \
+                    $(AFR_LIBRARIES_PATH)coreMQTT-Agent/source/core_mqtt_agent.c                                    \
+                    $(AFR_LIBRARIES_PATH)coreMQTT-Agent/source/core_mqtt_agent_command_functions.c                  \
                     $(AFR_LIBRARIES_PATH)coreJSON/source/core_json.c                                                \
                     $(AFR_LIBRARIES_PATH)device_shadow_for_aws/source/shadow.c                     \
                     $(AFR_LIBRARIES_PATH)coreHTTP/source/core_http_client.c                                         \
@@ -153,6 +155,8 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c                              \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/core_pki_utils.c                              \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/core_pkcs11.c                              \
+                    $(AFR_ABSTRACTIONS_PATH)mqtt_agent/freertos_command_pool.c                                      \
+                    $(AFR_ABSTRACTIONS_PATH)mqtt_agent/freertos_agent_message.c                                     \
                     $(AFR_THIRDPARTY_PATH)mbedtls_utils/mbedtls_utils.c                              \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/src/iot_crypto.c                                               \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/core_pkcs11_pal.c   \
@@ -163,6 +167,7 @@ GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_C_SDK_STANDARD_PATH)logging_stack \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/interface \
+                    $(AFR_LIBRARIES_PATH)coreMQTT-Agent/source/include \
                     $(AFR_LIBRARIES_PATH)coreJSON/source/include \
                     $(AFR_LIBRARIES_PATH)device_shadow_for_aws/source/include \
                     $(AFR_LIBRARIES_PATH)coreHTTP/source/include \
@@ -186,6 +191,7 @@ GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets \
                     $(AFR_ABSTRACTIONS_PATH)backoff_algorithm \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/include \
+                    $(AFR_ABSTRACTIONS_PATH)mqtt_agent/include \
                     $(AFR_THIRDPARTY_PATH)jsmn \
                     $(AFR_THIRDPARTY_PATH)mbedtls_config \
                     $(AFR_THIRDPARTY_PATH)mbedtls/include \

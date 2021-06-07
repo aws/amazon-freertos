@@ -163,19 +163,6 @@ target_sources(
     INTERFACE "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
 )
 
-# OTA
-afr_mcu_port(ota)
-target_sources(
-    AFR::ota::mcu_port
-    INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
-)
-target_link_libraries(
-    AFR::ota::mcu_port
-    INTERFACE
-        AFR::ota_mqtt
-        AFR::ota_http
-)
-
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
