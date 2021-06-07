@@ -4,16 +4,16 @@ Please provision your device with the correct certificates in \<root-directory\>
 
 The names of the files correspond to the signing algorithm associated with that certificate.
 
-If your OTA PAL layer port defines "otapalconfigCODE_SIGNING_CERTIFICATE" variable in ota_pal.c, then please copy in the certificate, with the applicable signing algorithm for your device, located under \<root-directory\>/tests/integration_tests/ota_pal/test_files. Currently the "otapalconfigCODE_SIGNING_CERTIFICATE" variable is set to use the ecdsa-sha256-signer.crt.pem certificate located under \<root-directory\>/tests/ota_pal/test_files by default.
+If your OTA PAL layer port defines "otapalconfigCODE_SIGNING_CERTIFICATE" variable in ota_pal.c, then please copy in the certificate, with the applicable signing algorithm for your device, located under \<root-directory\>/tests/integration_tests/ota_pal/test_files. Currently the "otapalconfigCODE_SIGNING_CERTIFICATE" variable is set to use the ecdsa-sha256-signer.crt.pem.test certificate located under \<root-directory\>/tests/integration_tests/ota_pal/test_files by default.
 
 ## OTA PAL Device Certificates File information
 
 Self signed SHA256 with RSA certificates.
-   File: **rsa-sha256-signer.crt.pem** - Certificate
+   File: **rsa-sha256-signer.crt.pem.test** - Certificate
 
 This RSA with SHA1 certificate, was signed with the accompanying root CA certificates.
-   File: **rsa-sha1-root-ca-cert.pem** - Root CA certificate
-   File: **rsa-sha1-signer.crt.pem** - Certificate
+   File: **rsa-sha1-root-ca-cert.pem.test** - Root CA certificate
+   File: **rsa-sha1-signer.crt.pem.test** - Certificate
 
 Self signed ECDSA with SHA256 signatures.
-   File: **ecdsa-sha256-signer.crt.pem** - Certificate
+   File: **ecdsa-sha256-signer.crt.pem.test** - Certificate
