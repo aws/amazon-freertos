@@ -1,10 +1,10 @@
-#OTA PAL Testing
+# OTA PAL Testing
 
-Please provision your device with the correct certificates in \<root-directory\>/tests/integration_test/ota_pal/test_files before running any OTA PAL tests( these tests are enabled by setting testrunnerFULL_OTA_PAL_ENABLED to 1, see aws_test_runner_config.h ).
+Please provision your device with the correct certificates in `<root-directory>/tests/integration_test/ota_pal/test_files/` before running any OTA PAL tests( these tests are enabled by setting `testrunnerFULL_OTA_PAL_ENABLED` to 1, see `aws_test_runner_config.h` ).
 
 The names of the files correspond to the signing algorithm associated with that certificate.
 
-If your OTA PAL layer port defines "otapalconfigCODE_SIGNING_CERTIFICATE" variable in ota_pal.c, then please copy in the certificate, with the applicable signing algorithm for your device, located under \<root-directory\>/tests/integration_tests/ota_pal/test_files. Currently the "otapalconfigCODE_SIGNING_CERTIFICATE" variable is set to use the ecdsa-sha256-signer.crt.pem.test certificate located under \<root-directory\>/tests/integration_tests/ota_pal/test_files by default.
+If your OTA PAL layer port defines `otapalconfigCODE_SIGNING_CERTIFICATE` variable in `ota_pal.c`, then please copy in the certificate, with the applicable signing algorithm for your device, located under `<root-directory>/tests/integration_test/ota_pal/test_files/`. The `otapalconfigCODE_SIGNING_CERTIFICATE` variable is set to use the `<root-directory>/tests/integration_test/ota_pal/test_files/ecdsa-sha256-signer.crt.pem.test` certificate by default.
 
 ## OTA PAL Device Certificates File information
 
