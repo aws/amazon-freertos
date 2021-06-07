@@ -37,27 +37,27 @@
 BaseType_t test_HandleListNetworkRequest( uint8_t * data,
                                           size_t length )
 {
-    return _handleListNetworkRequest( data, length );
+    return prvHandleListNetworkRequest( data, length );
 }
 
 BaseType_t test_HandleSaveNetworkRequest( uint8_t * data,
                                           size_t length )
 {
-    return _handleSaveNetworkRequest( data, length );
+    return prvHandleAddNetworkRequest( data, length );
 }
 
 
 BaseType_t test_HandleEditNetworkRequest( uint8_t * data,
                                           size_t length )
 {
-    return _handleEditNetworkRequest( data, length );
+    return prvHandleEditNetworkRequest( data, length );
 }
 
 
 BaseType_t test_HandleDeleteNetworkRequest( uint8_t * data,
                                             size_t length )
 {
-    return _handleDeleteNetworkRequest( data, length );
+    return prvHandleDeleteNetworkRequest( data, length );
 }
 
 WIFIReturnCode_t test_AppendNetwork( WIFINetworkProfile_t * pProfile )

@@ -34,7 +34,7 @@
 
 
 #include "iot_ble_config.h"
-#include "iot_serializer.h"
+#include "cbor.h"
 #include "iot_ble_mqtt_serialize.h"
 #include "aws_clientcredential.h"
 
@@ -43,13 +43,13 @@
 
 
 #define TEST_TOPIC                "/topic1"
-#define TEST_TOPIC_LENGTH         11
+#define TEST_TOPIC_LENGTH         7
 
 #define TEST_TOPIC2               "/topic2"
-#define TEST_TOPIC2_LENGTH        12
+#define TEST_TOPIC2_LENGTH        7
 
 #define TEST_DATA                 "HelloWorld"
-#define TEST_DATA_LENGTH          15
+#define TEST_DATA_LENGTH          10
 
 #define TEST_CLIENTID             "clientID"
 #define TEST_USER_NAME            "user"
@@ -104,10 +104,12 @@ TEST( BLE_Unit_MQTT_Serialize, SerializeCONNECT )
 {
     MQTTBLEConnectInfo_t connectInfo = { 0 };
     volatile MQTTBLEStatus_t status;
-    char * pMesg;
+    uint8_t * pMesg;
     size_t bufLen;
-    IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
-    IotSerializerError_t xResult;
+    CborParser parser = { 0 };
+    CborValue map = { 0 }, value = { 0 };
+    int val = 0;
+    bool boolVal = false;
 
 
     connectInfo.clientIdentifierLength = strlen( TEST_CLIENTID );
@@ -119,47 +121,35 @@ TEST( BLE_Unit_MQTT_Serialize, SerializeCONNECT )
 
     if( TEST_PROTECT() )
     {
-        status = IotBleMqtt_SerializeConnect( &connectInfo, ( uint8_t ** ) &pMesg, &bufLen );
+        status = IotBleMqtt_SerializeConnect( &connectInfo, &pMesg, &bufLen );
         TEST_ASSERT_EQUAL( MQTTBLESuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
         /*Verify its in proper encoded format */
-        xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_parser_init( pMesg, bufLen, 0, &parser, &map ) );
+        TEST_ASSERT_TRUE( cbor_value_is_map( &map ) );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_CONNECT, xValue.u.value.u.signedInt );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_MSG_TYPE, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_CONNECT, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_CLIENT_ID, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, xValue.type );
-        TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.u.value.u.string.pString, TEST_CLIENTID, xValue.u.value.u.string.length ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_CLIENT_ID, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_text_string( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_string_length( &value, &val ) );
+        TEST_ASSERT_EQUAL( strlen( TEST_CLIENTID ), val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_BROKER_EP, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, xValue.type );
-        TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.u.value.u.string.pString, clientcredentialMQTT_BROKER_ENDPOINT, xValue.u.value.u.string.length ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_BROKER_EP, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_text_string( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_string_length( &value, &val ) );
+        TEST_ASSERT_EQUAL( strlen( clientcredentialMQTT_BROKER_ENDPOINT ), val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_CLEAN_SESSION, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_BOOL, xValue.type );
-        TEST_ASSERT_EQUAL( true, xValue.u.value.u.booleanValue );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_CLIENT_ID, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, xValue.type );
-        TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.u.value.u.string.pString, TEST_CLIENTID, xValue.u.value.u.string.length ) );
-
-        IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_CLEAN_SESSION, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_boolean( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_boolean( &value, &boolVal ) );
+        TEST_ASSERT_EQUAL( true, boolVal );
     }
 
     if( status == MQTTBLESuccess )
@@ -172,11 +162,13 @@ TEST( BLE_Unit_MQTT_Serialize, SerializePUBLISH )
 {
     MQTTBLEPublishInfo_t publishInfo = { 0 };
     volatile MQTTBLEStatus_t status;
-    char * pMesg;
+    uint8_t * pMesg;
     size_t bufLen;
-    IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
-    IotSerializerError_t xResult;
+    CborParser parser = { 0 };
+    CborValue map = { 0 }, value = { 0 };
+    int val = 0;
     uint16_t packetIdentifier = 2;
+
 
     publishInfo.qos = TEST_QOS1;
     publishInfo.pPayload = ( uint8_t * ) TEST_DATA;
@@ -192,41 +184,33 @@ TEST( BLE_Unit_MQTT_Serialize, SerializePUBLISH )
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
-        xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_parser_init( pMesg, bufLen, 0, &parser, &map ) );
+        TEST_ASSERT_TRUE( cbor_value_is_map( &map ) );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_PUBLISH, xValue.u.value.u.signedInt );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_MSG_TYPE, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_PUBLISH, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_TOPIC, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, xValue.type );
-        TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.u.value.u.string.pString, TEST_TOPIC, xValue.u.value.u.string.length ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_TOPIC, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_text_string( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_string_length( &value, &val ) );
+        TEST_ASSERT_EQUAL( TEST_TOPIC_LENGTH, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_PAYLOAD, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_BYTE_STRING, xValue.type );
-        TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.u.value.u.string.pString, TEST_DATA, xValue.u.value.u.string.length ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_PAYLOAD, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_byte_string( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_string_length( &value, &val ) );
+        TEST_ASSERT_EQUAL( TEST_DATA_LENGTH, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_QOS, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( TEST_QOS1, xValue.u.value.u.signedInt );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_QOS, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( TEST_QOS1, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MESSAGE_ID, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( packetIdentifier, xValue.u.value.u.signedInt );
-
-        IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_MESSAGE_ID, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( packetIdentifier, val );
     }
 
     if( status == MQTTBLESuccess )
@@ -239,11 +223,12 @@ TEST( BLE_Unit_MQTT_Serialize, SerializePUBLISH_QOS0 )
 {
     MQTTBLEPublishInfo_t publishInfo = { 0 };
     volatile MQTTBLEStatus_t status;
-    char * pMesg;
+    uint8_t * pMesg;
     size_t bufLen;
-    IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
-    IotSerializerError_t xResult;
     uint16_t packetIdentifier = 0;
+    CborParser parser = { 0 };
+    CborValue map = { 0 }, value = { 0 };
+    int val = 0;
 
     publishInfo.qos = TEST_QOS0;
     publishInfo.pPayload = ( uint8_t * ) TEST_DATA;
@@ -254,40 +239,36 @@ TEST( BLE_Unit_MQTT_Serialize, SerializePUBLISH_QOS0 )
 
     if( TEST_PROTECT() )
     {
-        status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t ** ) &pMesg, &bufLen, packetIdentifier );
+        status = IotBleMqtt_SerializePublish( &publishInfo, &pMesg, &bufLen, packetIdentifier );
         TEST_ASSERT_EQUAL( MQTTBLESuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
-        xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_parser_init( pMesg, bufLen, 0, &parser, &map ) );
+        TEST_ASSERT_TRUE( cbor_value_is_map( &map ) );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_PUBLISH, xValue.u.value.u.signedInt );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_MSG_TYPE, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_PUBLISH, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_TOPIC, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, xValue.type );
-        TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.u.value.u.string.pString, TEST_TOPIC, xValue.u.value.u.string.length ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_TOPIC, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_text_string( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_string_length( &value, &val ) );
+        TEST_ASSERT_EQUAL( TEST_TOPIC_LENGTH, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_PAYLOAD, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_BYTE_STRING, xValue.type );
-        TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.u.value.u.string.pString, TEST_DATA, xValue.u.value.u.string.length ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_PAYLOAD, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_byte_string( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_string_length( &value, &val ) );
+        TEST_ASSERT_EQUAL( TEST_DATA_LENGTH, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_QOS, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( TEST_QOS0, xValue.u.value.u.signedInt );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_QOS, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( TEST_QOS0, val );
 
-        IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_MESSAGE_ID, &value ) );
+        TEST_ASSERT_EQUAL( CborInvalidType, cbor_value_get_type( &value ) );
     }
 
     if( status == MQTTBLESuccess )
@@ -300,11 +281,12 @@ TEST( BLE_Unit_MQTT_Serialize, SerializeSUBSCRIBE )
 {
     MQTTBLESubscribeInfo_t subscriptionList[ 2 ] = { 0 };
     volatile MQTTBLEStatus_t status;
-    char * pMesg;
+    uint8_t * pMesg;
     size_t bufLen;
-    IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
-    IotSerializerError_t xResult;
     uint16_t packetIdentifier = 1;
+    CborParser parser = { 0 };
+    CborValue map = { 0 }, value = { 0 };
+    int val = 0;
 
     subscriptionList[ 0 ].qos = TEST_QOS1;
     subscriptionList[ 0 ].pTopicFilter = TEST_TOPIC;
@@ -315,40 +297,33 @@ TEST( BLE_Unit_MQTT_Serialize, SerializeSUBSCRIBE )
 
     if( TEST_PROTECT() )
     {
-        status = IotBleMqtt_SerializeSubscribe( subscriptionList, 2, ( uint8_t ** ) &pMesg, &bufLen, &packetIdentifier );
+        status = IotBleMqtt_SerializeSubscribe( subscriptionList, 2, &pMesg, &bufLen, &packetIdentifier );
         TEST_ASSERT_EQUAL( MQTTBLESuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
-        xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_parser_init( pMesg, bufLen, 0, &parser, &map ) );
+        TEST_ASSERT_TRUE( cbor_value_is_map( &map ) );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_SUBSCRIBE, xValue.u.value.u.signedInt );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_MSG_TYPE, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_SUBSCRIBE, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MESSAGE_ID, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( packetIdentifier, xValue.u.value.u.signedInt );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_MESSAGE_ID, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( packetIdentifier, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_TOPIC_LIST, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_ARRAY, xValue.type );
-        IOT_BLE_MESG_DECODER.destroy( &xValue );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_TOPIC_LIST, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_array( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_array_length( &value, &val ) );
+        TEST_ASSERT_EQUAL( 2, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_QOS_LIST, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_ARRAY, xValue.type );
-        IOT_BLE_MESG_DECODER.destroy( &xValue );
-
-        IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_QOS_LIST, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_array( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_array_length( &value, &val ) );
+        TEST_ASSERT_EQUAL( 2, val );
     }
 
     if( status == MQTTBLESuccess )
@@ -361,11 +336,12 @@ TEST( BLE_Unit_MQTT_Serialize, SerializeUNSUBSCRIBE )
 {
     MQTTBLESubscribeInfo_t subscriptionList[ 2 ] = { 0 };
     volatile MQTTBLEStatus_t status;
-    char * pMesg;
+    __UINT_LEAST8_TYPE__ * pMesg;
     size_t bufLen;
-    IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
-    IotSerializerError_t xResult;
     uint16_t packetIdentifier = 1;
+    CborParser parser = { 0 };
+    CborValue map = { 0 }, value = { 0 };
+    int val = 0;
 
     subscriptionList[ 0 ].qos = TEST_QOS1;
     subscriptionList[ 0 ].pTopicFilter = TEST_TOPIC;
@@ -376,34 +352,28 @@ TEST( BLE_Unit_MQTT_Serialize, SerializeUNSUBSCRIBE )
 
     if( TEST_PROTECT() )
     {
-        status = IotBleMqtt_SerializeUnsubscribe( subscriptionList, 2, ( uint8_t ** ) &pMesg, &bufLen, &packetIdentifier );
+        status = IotBleMqtt_SerializeUnsubscribe( subscriptionList, 2, &pMesg, &bufLen, &packetIdentifier );
         TEST_ASSERT_EQUAL( MQTTBLESuccess, status );
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
-        xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_parser_init( pMesg, bufLen, 0, &parser, &map ) );
+        TEST_ASSERT_TRUE( cbor_value_is_map( &map ) );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_UNSUBSCRIBE, xValue.u.value.u.signedInt );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_MSG_TYPE, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_UNSUBSCRIBE, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MESSAGE_ID, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( packetIdentifier, xValue.u.value.u.signedInt );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_MESSAGE_ID, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( packetIdentifier, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_TOPIC_LIST, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_ARRAY, xValue.type );
-        IOT_BLE_MESG_DECODER.destroy( &xValue );
-
-        IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_TOPIC_LIST, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_array( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_array_length( &value, &val ) );
+        TEST_ASSERT_EQUAL( 2, val );
     }
 
     if( status == MQTTBLESuccess )
@@ -418,8 +388,9 @@ TEST( BLE_Unit_MQTT_Serialize, SerializePUBACK )
     volatile MQTTBLEStatus_t status;
     char * pMesg;
     size_t bufLen;
-    IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
-    IotSerializerError_t xResult;
+    CborParser parser = { 0 };
+    CborValue map = { 0 }, value = { 0 };
+    int val = 0;
 
     if( TEST_PROTECT() )
     {
@@ -428,23 +399,18 @@ TEST( BLE_Unit_MQTT_Serialize, SerializePUBACK )
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
-        xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_parser_init( pMesg, bufLen, 0, &parser, &map ) );
+        TEST_ASSERT_TRUE( cbor_value_is_map( &map ) );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_PUBACK, xValue.u.value.u.signedInt );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_MSG_TYPE, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_PUBACK, val );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MESSAGE_ID, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, xValue.u.value.u.signedInt );
-
-        IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_MESSAGE_ID, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, val );
     }
 
     if( status == MQTTBLESuccess )
@@ -458,8 +424,9 @@ TEST( BLE_Unit_MQTT_Serialize, SerializeDISCONNECT )
     volatile MQTTBLEStatus_t status;
     char * pMesg;
     size_t bufLen;
-    IotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
-    IotSerializerError_t xResult;
+    CborParser parser = { 0 };
+    CborValue map = { 0 }, value = { 0 };
+    int val = 0;
 
     if( TEST_PROTECT() )
     {
@@ -468,17 +435,13 @@ TEST( BLE_Unit_MQTT_Serialize, SerializeDISCONNECT )
         TEST_ASSERT_NOT_NULL( pMesg );
         TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
-        xResult = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( const uint8_t * ) pMesg, bufLen );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_parser_init( pMesg, bufLen, 0, &parser, &map ) );
+        TEST_ASSERT_TRUE( cbor_value_is_map( &map ) );
 
-        xValue.u.value.u.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_DISCONNECT, xValue.u.value.u.signedInt );
-
-        IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_map_find_value( &map, IOT_BLE_MQTT_MSG_TYPE, &value ) );
+        TEST_ASSERT_TRUE( cbor_value_is_integer( &value ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int( &value, &val ) );
+        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_DISCONNECT, val );
     }
 
     if( status == MQTTBLESuccess )
@@ -492,41 +455,23 @@ static void prvCreateCONNACKPacket( uint8_t * pBuffer,
                                     int64_t respCode,
                                     uint16_t numParams )
 {
-    IotSerializerEncoderObject_t xEncoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t xConnAackMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t xData = { 0 };
-    IotSerializerError_t xError;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
-    xError = IOT_BLE_MESG_ENCODER.init( &xEncoderObj, pBuffer, *pLength );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
-
-    xError = IOT_BLE_MESG_ENCODER.openContainer(
-        &xEncoderObj,
-        &xConnAackMap,
-        ( numParams + 1 ) );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
-
-    xData.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-    xData.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_CONNACK;
-    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xConnAackMap, IOT_BLE_MQTT_MSG_TYPE, xData );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+    cbor_encoder_init( &encoder, pBuffer, *pLength, 0 );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encoder_create_map( &encoder, &mapEncoder, ( numParams + 1 ) ) );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE, strlen( IOT_BLE_MQTT_MSG_TYPE ) ) );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encode_int( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE_CONNACK ) );
 
     if( respCode != -1 )
     {
-        xData.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.u.signedInt = respCode;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xConnAackMap, IOT_BLE_MQTT_STATUS, xData );
-        TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_STATUS, strlen( IOT_BLE_MQTT_STATUS ) ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_int( &mapEncoder, respCode ) );
     }
 
-    xError = IOT_BLE_MESG_ENCODER.closeContainer( &xEncoderObj, &xConnAackMap );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encoder_close_container( &encoder, &mapEncoder ) );
 
-    *pLength = IOT_BLE_MESG_ENCODER.getEncodedSize( &xEncoderObj, pBuffer );
-
+    *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer );
     TEST_ASSERT_NOT_EQUAL( 0, *pLength );
-
-    IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
 }
 
 TEST( BLE_Unit_MQTT_Serialize, DeserializeCONNACK )
@@ -587,67 +532,41 @@ static void prvCreatePUBLISHPacket( uint8_t * pBuffer,
                                     int32_t packetId,
                                     uint16_t numParams )
 {
-    IotSerializerEncoderObject_t xEncoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t xPubMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t xData = { 0 };
-    IotSerializerError_t xError;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
-    xError = IOT_BLE_MESG_ENCODER.init( &xEncoderObj, pBuffer, *pLength );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
-
-    xError = IOT_BLE_MESG_ENCODER.openContainer(
-        &xEncoderObj,
-        &xPubMap,
-        ( numParams + 1 ) );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
-
-
-    xData.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-    xData.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_PUBLISH;
-    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, IOT_BLE_MQTT_MSG_TYPE, xData );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+    cbor_encoder_init( &encoder, pBuffer, *pLength, 0 );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encoder_create_map( &encoder, &mapEncoder, ( numParams + 1 ) ) );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE, strlen( IOT_BLE_MQTT_MSG_TYPE ) ) );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encode_int( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE_PUBLISH ) );
 
     if( pTopic != NULL )
     {
-        xData.type = IOT_SERIALIZER_SCALAR_TEXT_STRING;
-        xData.value.u.string.pString = ( uint8_t * ) pTopic;
-        xData.value.u.string.length = topicLen;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, IOT_BLE_MQTT_TOPIC, xData );
-        TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_TOPIC, strlen( IOT_BLE_MQTT_TOPIC ) ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, pTopic, topicLen ) );
     }
 
     if( pPayload != NULL )
     {
-        xData.type = IOT_SERIALIZER_SCALAR_BYTE_STRING;
-        xData.value.u.string.pString = ( uint8_t * ) pPayload;
-        xData.value.u.string.length = payloadLen;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, IOT_BLE_MQTT_PAYLOAD, xData );
-        TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_PAYLOAD, strlen( IOT_BLE_MQTT_PAYLOAD ) ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_byte_string( &mapEncoder, pPayload, payloadLen ) );
     }
 
     if( qos != -1 )
     {
-        xData.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.u.signedInt = qos;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, IOT_BLE_MQTT_QOS, xData );
-        TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_QOS, strlen( IOT_BLE_MQTT_QOS ) ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_int( &mapEncoder, qos ) );
     }
 
     if( packetId != -1 )
     {
-        xData.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.u.signedInt = packetId;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, IOT_BLE_MQTT_MESSAGE_ID, xData );
-        TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MESSAGE_ID, strlen( IOT_BLE_MQTT_MESSAGE_ID ) ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_int( &mapEncoder, packetId ) );
     }
 
-    xError = IOT_BLE_MESG_ENCODER.closeContainer( &xEncoderObj, &xPubMap );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encoder_close_container( &encoder, &mapEncoder ) );
 
-    *pLength = IOT_BLE_MESG_ENCODER.getEncodedSize( &xEncoderObj, pBuffer );
+    *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer );
     TEST_ASSERT_NOT_EQUAL( 0, *pLength );
-
-    IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
 }
 
 TEST( BLE_Unit_MQTT_Serialize, DeserializePUBLISH )
@@ -792,49 +711,29 @@ static void prvCreateSUBACKPacket( uint8_t * pBuffer,
                                    int32_t packetId,
                                    uint16_t numParams )
 {
-    IotSerializerEncoderObject_t xEncoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t xSubackMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t xData = { 0 };
-    IotSerializerError_t xError;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
-    xError = IOT_BLE_MESG_ENCODER.init( &xEncoderObj, pBuffer, *pLength );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
-
-    xError = IOT_BLE_MESG_ENCODER.openContainer(
-        &xEncoderObj,
-        &xSubackMap,
-        ( numParams + 1 ) );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
-
-
-    xData.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-    xData.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_SUBACK;
-    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubackMap, IOT_BLE_MQTT_MSG_TYPE, xData );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+    cbor_encoder_init( &encoder, pBuffer, *pLength, 0 );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encoder_create_map( &encoder, &mapEncoder, ( numParams + 1 ) ) );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE, strlen( IOT_BLE_MQTT_MSG_TYPE ) ) );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encode_int( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE_SUBACK ) );
 
     if( status != -1 )
     {
-        xData.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.u.signedInt = status;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubackMap, IOT_BLE_MQTT_STATUS, xData );
-        TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_STATUS, strlen( IOT_BLE_MQTT_STATUS ) ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_int( &mapEncoder, status ) );
     }
 
     if( packetId != -1 )
     {
-        xData.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.u.signedInt = packetId;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubackMap, IOT_BLE_MQTT_MESSAGE_ID, xData );
-        TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MESSAGE_ID, strlen( IOT_BLE_MQTT_MESSAGE_ID ) ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_int( &mapEncoder, packetId ) );
     }
 
-    xError = IOT_BLE_MESG_ENCODER.closeContainer( &xEncoderObj, &xSubackMap );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encoder_close_container( &encoder, &mapEncoder ) );
 
-    *pLength = IOT_BLE_MESG_ENCODER.getEncodedSize( &xEncoderObj, pBuffer );
+    *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer );
     TEST_ASSERT_NOT_EQUAL( 0, *pLength );
-
-    IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
 }
 
 TEST( BLE_Unit_MQTT_Serialize, DeserializeSUBACK )
@@ -881,41 +780,23 @@ static void prvCreatePUBACKPacket( uint8_t * pBuffer,
                                    int32_t packetId,
                                    uint16_t numParams )
 {
-    IotSerializerEncoderObject_t xEncoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t xPubackMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t xData = { 0 };
-    IotSerializerError_t xError;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
-    xError = IOT_BLE_MESG_ENCODER.init( &xEncoderObj, pBuffer, *pLength );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
-
-    xError = IOT_BLE_MESG_ENCODER.openContainer(
-        &xEncoderObj,
-        &xPubackMap,
-        ( numParams + 1 ) );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
-
-
-    xData.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-    xData.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_PUBACK;
-    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubackMap, IOT_BLE_MQTT_MSG_TYPE, xData );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+    cbor_encoder_init( &encoder, pBuffer, *pLength, 0 );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encoder_create_map( &encoder, &mapEncoder, ( numParams + 1 ) ) );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE, strlen( IOT_BLE_MQTT_MSG_TYPE ) ) );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encode_int( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE_PUBACK ) );
 
     if( packetId != -1 )
     {
-        xData.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.u.signedInt = packetId;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubackMap, IOT_BLE_MQTT_MESSAGE_ID, xData );
-        TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MESSAGE_ID, strlen( IOT_BLE_MQTT_MESSAGE_ID ) ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_int( &mapEncoder, packetId ) );
     }
 
-    xError = IOT_BLE_MESG_ENCODER.closeContainer( &xEncoderObj, &xPubackMap );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encoder_close_container( &encoder, &mapEncoder ) );
 
-    *pLength = IOT_BLE_MESG_ENCODER.getEncodedSize( &xEncoderObj, pBuffer );
+    *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer );
     TEST_ASSERT_NOT_EQUAL( 0, *pLength );
-
-    IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
 }
 
 
@@ -953,41 +834,23 @@ static void prvCreateUNSUBACKPacket( uint8_t * pBuffer,
                                      int32_t packetId,
                                      uint16_t numParams )
 {
-    IotSerializerEncoderObject_t xEncoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t xUnsubackMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t xData = { 0 };
-    IotSerializerError_t xError;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
-    xError = IOT_BLE_MESG_ENCODER.init( &xEncoderObj, pBuffer, *pLength );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
-
-    xError = IOT_BLE_MESG_ENCODER.openContainer(
-        &xEncoderObj,
-        &xUnsubackMap,
-        ( numParams + 1 ) );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
-
-
-    xData.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-    xData.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_UNSUBACK;
-    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xUnsubackMap, IOT_BLE_MQTT_MSG_TYPE, xData );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+    cbor_encoder_init( &encoder, pBuffer, *pLength, 0 );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encoder_create_map( &encoder, &mapEncoder, ( numParams + 1 ) ) );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE, strlen( IOT_BLE_MQTT_MSG_TYPE ) ) );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encode_int( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE_UNSUBACK ) );
 
     if( packetId != -1 )
     {
-        xData.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.u.signedInt = packetId;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xUnsubackMap, IOT_BLE_MQTT_MESSAGE_ID, xData );
-        TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MESSAGE_ID, strlen( IOT_BLE_MQTT_MESSAGE_ID ) ) );
+        TEST_ASSERT_EQUAL( CborNoError, cbor_encode_int( &mapEncoder, packetId ) );
     }
 
-    xError = IOT_BLE_MESG_ENCODER.closeContainer( &xEncoderObj, &xUnsubackMap );
-    TEST_ASSERT_EQUAL( xError, IOT_SERIALIZER_SUCCESS );
+    TEST_ASSERT_EQUAL( CborNoError, cbor_encoder_close_container( &encoder, &mapEncoder ) );
 
-    *pLength = IOT_BLE_MESG_ENCODER.getEncodedSize( &xEncoderObj, pBuffer );
+    *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer );
     TEST_ASSERT_NOT_EQUAL( 0, *pLength );
-
-    IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
 }
 
 TEST( BLE_Unit_MQTT_Serialize, DeserializeUNSUBACK )

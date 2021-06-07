@@ -40,9 +40,9 @@
 #include "iot_ble_config.h"
 
 /* MQTT internal includes. */
-#include "iot_serializer.h"
 #include "iot_ble_data_transfer.h"
 #include "iot_ble_mqtt_serialize.h"
+#include "cbor.h"
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -67,9 +67,9 @@
 #endif
 #include "logging_stack.h"
 
-#define _IS_VALID_SERIALIZER_RET( ret, pSerializerBuf ) \
-    ( ( ret == IOT_SERIALIZER_SUCCESS ) ||              \
-      ( ( !pSerializerBuf ) && ( ret == IOT_SERIALIZER_BUFFER_TOO_SMALL ) ) )
+#define SERIALIZER_STATUS( status, pBuffer ) \
+    ( ( status == CborNoError ) ||           \
+      ( ( !pBuffer ) && ( status == CborErrorOutOfMemory ) ) )
 
 #define _NUM_CONNECT_PARMAS            ( 4 )
 #define _NUM_DEFAULT_PUBLISH_PARMAS    ( 4 )
@@ -85,307 +85,309 @@ static inline uint16_t _getNumPublishParams( const MQTTBLEPublishInfo_t * const 
     return ( pPublish->qos > 0 ) ? ( _NUM_DEFAULT_PUBLISH_PARMAS + 1 ) : _NUM_DEFAULT_PUBLISH_PARMAS;
 }
 
-static IotSerializerError_t _serializeConnect( const MQTTBLEConnectInfo_t * const pConnectInfo,
-                                               uint8_t * const pBuffer,
-                                               size_t * const pSize );
-static IotSerializerError_t _serializePublish( const MQTTBLEPublishInfo_t * const pPublishInfo,
-                                               uint8_t * pBuffer,
-                                               size_t * pSize,
-                                               uint16_t packetIdentifier );
-static IotSerializerError_t _serializePubAck( uint16_t packetIdentifier,
-                                              uint8_t * pBuffer,
-                                              size_t * pSize );
+static CborError prvSerializeConnect( const MQTTBLEConnectInfo_t * const pConnectInfo,
+                                      uint8_t * const pBuffer,
+                                      size_t * const pSize );
+static CborError prvSerializePublish( const MQTTBLEPublishInfo_t * const pPublishInfo,
+                                      uint8_t * pBuffer,
+                                      size_t * pSize,
+                                      uint16_t packetIdentifier );
+static CborError prvSerializePubAck( uint16_t packetIdentifier,
+                                     uint8_t * pBuffer,
+                                     size_t * pSize );
 
-static IotSerializerError_t _serializeSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
-                                                 size_t subscriptionCount,
-                                                 uint8_t * const pBuffer,
-                                                 size_t * const pSize,
-                                                 uint16_t packetIdentifier );
+static CborError prvSerializeSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
+                                        size_t subscriptionCount,
+                                        uint8_t * const pBuffer,
+                                        size_t * const pSize,
+                                        uint16_t packetIdentifier );
 
-static IotSerializerError_t _serializeUnSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
-                                                   size_t subscriptionCount,
-                                                   uint8_t * const pBuffer,
-                                                   size_t * const pSize,
-                                                   uint16_t packetIdentifier );
+static CborError prvSerializeUnSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
+                                          size_t subscriptionCount,
+                                          uint8_t * const pBuffer,
+                                          size_t * const pSize,
+                                          uint16_t packetIdentifier );
 
-static IotSerializerError_t _serializeDisconnect( uint8_t * const pBuffer,
-                                                  size_t * const pSize );
-
-
-static IotSerializerError_t _serializePingRequest( uint8_t * const pBuffer,
-                                                   size_t * const pSize );
+static CborError prvSerializeDisconnect( uint8_t * const pBuffer,
+                                         size_t * const pSize );
 
 
-/* Declaration of snprintf. The header stdio.h is not included because it
- * includes conflicting symbols on some platforms. */
-extern int snprintf( char * s,
-                     size_t n,
-                     const char * format,
-                     ... );
+static CborError prvSerializePingRequest( uint8_t * const pBuffer,
+                                          size_t * const pSize );
 
 /*-----------------------------------------------------------*/
 
-static IotSerializerError_t _serializeConnect( const MQTTBLEConnectInfo_t * pConnectInfo,
-                                               uint8_t * const pBuffer,
-                                               size_t * const pSize )
+static CborError prvSerializeConnect( const MQTTBLEConnectInfo_t * pConnectInfo,
+                                      uint8_t * const pBuffer,
+                                      size_t * const pLength )
 {
-    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
-    IotSerializerEncoderObject_t encoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t connectMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t data = { 0 };
+    size_t length = *pLength;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
-    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
+    cbor_encoder_init( &encoder, pBuffer, length, 0 );
 
-    if( error == IOT_SERIALIZER_SUCCESS )
+    status = cbor_encoder_create_map( &encoder, &mapEncoder, _NUM_CONNECT_PARMAS );
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        error = IOT_BLE_MESG_ENCODER.openContainer(
-            &encoderObj,
-            &connectMap,
-            _NUM_CONNECT_PARMAS );
-    }
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE, strlen( IOT_BLE_MQTT_MSG_TYPE ) );
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        data.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_CONNECT;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &connectMap, IOT_BLE_MQTT_MSG_TYPE, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_TEXT_STRING;
-        data.value.u.string.pString = ( uint8_t * ) pConnectInfo->pClientIdentifier;
-        data.value.u.string.length = pConnectInfo->clientIdentifierLength;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &connectMap, IOT_BLE_MQTT_CLIENT_ID, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_TEXT_STRING;
-        data.value.u.string.pString = ( uint8_t * ) clientcredentialMQTT_BROKER_ENDPOINT;
-        data.value.u.string.length = strlen( clientcredentialMQTT_BROKER_ENDPOINT );
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &connectMap, IOT_BLE_MQTT_BROKER_EP, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_BOOL;
-        data.value.u.booleanValue = pConnectInfo->cleanSession;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &connectMap, IOT_BLE_MQTT_CLEAN_SESSION, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &connectMap );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        if( pBuffer == NULL )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
+            status = cbor_encode_int( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE_CONNECT );
         }
-        else
-        {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
-        }
-
-        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
-        error = IOT_SERIALIZER_SUCCESS;
     }
 
-    return error;
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_CLIENT_ID, strlen( IOT_BLE_MQTT_CLIENT_ID ) );
+
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_text_string( &mapEncoder, pConnectInfo->pClientIdentifier, pConnectInfo->clientIdentifierLength );
+        }
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_BROKER_EP, strlen( IOT_BLE_MQTT_BROKER_EP ) );
+
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_text_string( &mapEncoder, clientcredentialMQTT_BROKER_ENDPOINT, strlen( clientcredentialMQTT_BROKER_ENDPOINT ) );
+        }
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_CLEAN_SESSION, strlen( IOT_BLE_MQTT_CLEAN_SESSION ) );
+
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_boolean( &mapEncoder, pConnectInfo->cleanSession );
+        }
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encoder_close_container( &encoder, &mapEncoder );
+    }
+
+    if( pBuffer == NULL )
+    {
+        *pLength = cbor_encoder_get_extra_bytes_needed( &encoder );
+    }
+    else
+    {
+        *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer );
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        result = CborNoError;
+    }
+    else
+    {
+        result = status;
+    }
+
+    return result;
 }
 
-static IotSerializerError_t _serializePublish( const MQTTBLEPublishInfo_t * const pPublishInfo,
-                                               uint8_t * pBuffer,
-                                               size_t * pSize,
-                                               uint16_t packetIdentifier )
+static CborError prvSerializePublish( const MQTTBLEPublishInfo_t * const pPublishInfo,
+                                      uint8_t * pBuffer,
+                                      size_t * pLength,
+                                      uint16_t packetIdentifier )
 {
-    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
-    IotSerializerEncoderObject_t encoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t publishMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t data = { 0 };
+    size_t length = *pLength;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 };
     uint16_t numPublishParams = _getNumPublishParams( pPublishInfo );
 
-    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
+    cbor_encoder_init( &encoder, pBuffer, length, 0 );
 
-    if( error == IOT_SERIALIZER_SUCCESS )
-    {
-        error = IOT_BLE_MESG_ENCODER.openContainer(
-            &encoderObj,
-            &publishMap,
-            numPublishParams );
-    }
+    status = cbor_encoder_create_map( &encoder, &mapEncoder, numPublishParams );
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        data.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_PUBLISH;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &publishMap, IOT_BLE_MQTT_MSG_TYPE, data );
-    }
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE, strlen( IOT_BLE_MQTT_MSG_TYPE ) );
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_TEXT_STRING;
-        data.value.u.string.pString = ( uint8_t * ) pPublishInfo->pTopicName;
-        data.value.u.string.length = pPublishInfo->topicNameLength;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &publishMap, IOT_BLE_MQTT_TOPIC, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        data.value.u.signedInt = pPublishInfo->qos;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &publishMap, IOT_BLE_MQTT_QOS, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_BYTE_STRING;
-        data.value.u.string.pString = ( uint8_t * ) pPublishInfo->pPayload;
-        data.value.u.string.length = pPublishInfo->payloadLength;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &publishMap, IOT_BLE_MQTT_PAYLOAD, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        if( pPublishInfo->qos != 0 )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-            data.value.u.signedInt = packetIdentifier;
-            error = IOT_BLE_MESG_ENCODER.appendKeyValue( &publishMap, IOT_BLE_MQTT_MESSAGE_ID, data );
+            status = cbor_encode_int( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE_PUBLISH );
         }
     }
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &publishMap );
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_TOPIC, strlen( IOT_BLE_MQTT_TOPIC ) );
+
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_text_string( &mapEncoder, pPublishInfo->pTopicName, pPublishInfo->topicNameLength );
+        }
     }
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        if( pBuffer == NULL )
-        {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
-        }
-        else
-        {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
-        }
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_QOS, strlen( IOT_BLE_MQTT_QOS ) );
 
-        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
-        error = IOT_SERIALIZER_SUCCESS;
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_int( &mapEncoder, pPublishInfo->qos );
+        }
     }
 
-    return error;
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_PAYLOAD, strlen( IOT_BLE_MQTT_PAYLOAD ) );
+
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_byte_string( &mapEncoder, pPublishInfo->pPayload, pPublishInfo->payloadLength );
+        }
+    }
+
+    if( pPublishInfo->qos != 0 )
+    {
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MESSAGE_ID, strlen( IOT_BLE_MQTT_MESSAGE_ID ) );
+
+            if( SERIALIZER_STATUS( status, pBuffer ) == true )
+            {
+                status = cbor_encode_int( &mapEncoder, packetIdentifier );
+            }
+        }
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encoder_close_container( &encoder, &mapEncoder );
+    }
+
+    if( pBuffer == NULL )
+    {
+        *pLength = cbor_encoder_get_extra_bytes_needed( &encoder );
+    }
+    else
+    {
+        *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer );
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        result = CborNoError;
+    }
+    else
+    {
+        result = status;
+    }
+
+    return result;
 }
 
-static IotSerializerError_t _serializePubAck( uint16_t packetIdentifier,
-                                              uint8_t * pBuffer,
-                                              size_t * pSize )
+static CborError prvSerializePubAck( uint16_t packetIdentifier,
+                                     uint8_t * pBuffer,
+                                     size_t * pLength )
 
 {
-    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
-    IotSerializerEncoderObject_t encoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t pubAckMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t data = { 0 };
+    size_t length = *pLength;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
-    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
+    cbor_encoder_init( &encoder, pBuffer, length, 0 );
 
-    if( error == IOT_SERIALIZER_SUCCESS )
+    status = cbor_encoder_create_map( &encoder, &mapEncoder, _NUM_PUBACK_PARMAS );
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        error = IOT_BLE_MESG_ENCODER.openContainer(
-            &encoderObj,
-            &pubAckMap,
-            _NUM_PUBACK_PARMAS );
-    }
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE, strlen( IOT_BLE_MQTT_MSG_TYPE ) );
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        data.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_PUBACK;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &pubAckMap, IOT_BLE_MQTT_MSG_TYPE, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        data.value.u.signedInt = packetIdentifier;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &pubAckMap, IOT_BLE_MQTT_MESSAGE_ID, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &pubAckMap );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        if( pBuffer == NULL )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
+            status = cbor_encode_int( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE_PUBACK );
         }
-        else
-        {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
-        }
-
-        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
-        error = IOT_SERIALIZER_SUCCESS;
     }
 
-    return error;
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MESSAGE_ID, strlen( IOT_BLE_MQTT_MESSAGE_ID ) );
+
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_int( &mapEncoder, packetIdentifier );
+        }
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encoder_close_container( &encoder, &mapEncoder );
+    }
+
+    if( pBuffer == NULL )
+    {
+        *pLength = cbor_encoder_get_extra_bytes_needed( &encoder );
+    }
+    else
+    {
+        *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer );
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        result = CborNoError;
+    }
+    else
+    {
+        result = status;
+    }
+
+    return result;
 }
 
 
-static IotSerializerError_t _serializeSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
-                                                 size_t subscriptionCount,
-                                                 uint8_t * const pBuffer,
-                                                 size_t * const pSize,
-                                                 uint16_t packetIdentifier )
+static CborError prvSerializeSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
+                                        size_t subscriptionCount,
+                                        uint8_t * const pBuffer,
+                                        size_t * const pLength,
+                                        uint16_t packetIdentifier )
 {
-    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
-    IotSerializerEncoderObject_t encoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t subscribeMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerEncoderObject_t subscriptionArray = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
-    IotSerializerScalarData_t data = { 0 };
-    uint16_t idx;
+    size_t length = *pLength;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 }, arrayEncoder = { 0 };
+    uint16_t index;
 
-    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
+    cbor_encoder_init( &encoder, pBuffer, length, 0 );
 
-    if( error == IOT_SERIALIZER_SUCCESS )
+    status = cbor_encoder_create_map( &encoder, &mapEncoder, _NUM_SUBACK_PARAMS );
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        error = IOT_BLE_MESG_ENCODER.openContainer(
-            &encoderObj,
-            &subscribeMap,
-            _NUM_SUBACK_PARAMS );
-    }
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE, strlen( IOT_BLE_MQTT_MSG_TYPE ) );
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        data.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_SUBSCRIBE;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &subscribeMap, IOT_BLE_MQTT_MSG_TYPE, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        error = IOT_BLE_MESG_ENCODER.openContainerWithKey(
-            &subscribeMap,
-            IOT_BLE_MQTT_TOPIC_LIST,
-            &subscriptionArray,
-            subscriptionCount );
-    }
-
-    for( idx = 0; idx < subscriptionCount; idx++ )
-    {
-        if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            data.type = IOT_SERIALIZER_SCALAR_TEXT_STRING;
-            data.value.u.string.pString = ( uint8_t * ) pSubscriptionList[ idx ].pTopicFilter;
-            data.value.u.string.length = pSubscriptionList[ idx ].topicFilterLength;
-            error = IOT_BLE_MESG_ENCODER.append( &subscriptionArray, data );
+            status = cbor_encode_int( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE_SUBSCRIBE );
+        }
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_TOPIC_LIST, strlen( IOT_BLE_MQTT_TOPIC_LIST ) );
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encoder_create_array( &mapEncoder, &arrayEncoder, subscriptionCount );
+    }
+
+    for( index = 0; index < subscriptionCount; index++ )
+    {
+        if( SERIALIZER_STATUS( status, pBuffer ) )
+        {
+            status = cbor_encode_text_string( &arrayEncoder, pSubscriptionList[ index ].pTopicFilter, pSubscriptionList[ index ].topicFilterLength );
         }
         else
         {
@@ -393,27 +395,26 @@ static IotSerializerError_t _serializeSubscribe( const MQTTBLESubscribeInfo_t * 
         }
     }
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        error = IOT_BLE_MESG_ENCODER.closeContainer( &subscribeMap, &subscriptionArray );
+        status = cbor_encoder_close_container( &mapEncoder, &arrayEncoder );
     }
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        error = IOT_BLE_MESG_ENCODER.openContainerWithKey(
-            &subscribeMap,
-            IOT_BLE_MQTT_QOS_LIST,
-            &subscriptionArray,
-            subscriptionCount );
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_QOS_LIST, strlen( IOT_BLE_MQTT_QOS_LIST ) );
     }
 
-    for( idx = 0; idx < subscriptionCount; idx++ )
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+        status = cbor_encoder_create_array( &mapEncoder, &arrayEncoder, subscriptionCount );
+    }
+
+    for( index = 0; index < subscriptionCount; index++ )
+    {
+        if( SERIALIZER_STATUS( status, pBuffer ) )
         {
-            data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-            data.value.u.signedInt = pSubscriptionList[ idx ].qos;
-            error = IOT_BLE_MESG_ENCODER.append( &subscriptionArray, data );
+            status = cbor_encode_int( &arrayEncoder, pSubscriptionList[ index ].qos );
         }
         else
         {
@@ -421,88 +422,87 @@ static IotSerializerError_t _serializeSubscribe( const MQTTBLESubscribeInfo_t * 
         }
     }
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        error = IOT_BLE_MESG_ENCODER.closeContainer( &subscribeMap, &subscriptionArray );
+        status = cbor_encoder_close_container( &mapEncoder, &arrayEncoder );
     }
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        data.value.u.signedInt = packetIdentifier;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &subscribeMap, IOT_BLE_MQTT_MESSAGE_ID, data );
-    }
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MESSAGE_ID, strlen( IOT_BLE_MQTT_MESSAGE_ID ) );
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &subscribeMap );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        if( pBuffer == NULL )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
+            status = cbor_encode_int( &mapEncoder, packetIdentifier );
         }
-        else
-        {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
-        }
-
-        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
-        error = IOT_SERIALIZER_SUCCESS;
     }
 
-    return error;
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encoder_close_container( &encoder, &mapEncoder );
+    }
+
+    if( pBuffer == NULL )
+    {
+        *pLength = cbor_encoder_get_extra_bytes_needed( &encoder );
+    }
+    else
+    {
+        *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer );
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        result = CborNoError;
+    }
+    else
+    {
+        result = status;
+    }
+
+    return result;
 }
 
-static IotSerializerError_t _serializeUnSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
-                                                   size_t subscriptionCount,
-                                                   uint8_t * const pBuffer,
-                                                   size_t * const pSize,
-                                                   uint16_t packetIdentifier )
+static CborError prvSerializeUnSubscribe( const MQTTBLESubscribeInfo_t * const pSubscriptionList,
+                                          size_t subscriptionCount,
+                                          uint8_t * const pBuffer,
+                                          size_t * const pLength,
+                                          uint16_t packetIdentifier )
 {
-    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
-    IotSerializerEncoderObject_t encoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t subscribeMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerEncoderObject_t subscriptionArray = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
-    IotSerializerScalarData_t data = { 0 };
-    uint16_t idx;
+    size_t length = *pLength;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 }, arrayEncoder = { 0 };
+    uint16_t index;
 
-    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
+    cbor_encoder_init( &encoder, pBuffer, length, 0 );
 
-    if( error == IOT_SERIALIZER_SUCCESS )
+    status = cbor_encoder_create_map( &encoder, &mapEncoder, _NUM_UNSUBACK_PARAMS );
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        error = IOT_BLE_MESG_ENCODER.openContainer(
-            &encoderObj,
-            &subscribeMap,
-            _NUM_UNSUBACK_PARAMS );
-    }
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE, strlen( IOT_BLE_MQTT_MSG_TYPE ) );
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        data.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_UNSUBSCRIBE;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &subscribeMap, IOT_BLE_MQTT_MSG_TYPE, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        error = IOT_BLE_MESG_ENCODER.openContainerWithKey(
-            &subscribeMap,
-            IOT_BLE_MQTT_TOPIC_LIST,
-            &subscriptionArray,
-            subscriptionCount );
-    }
-
-    for( idx = 0; idx < subscriptionCount; idx++ )
-    {
-        if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            data.type = IOT_SERIALIZER_SCALAR_TEXT_STRING;
-            data.value.u.string.pString = ( uint8_t * ) pSubscriptionList[ idx ].pTopicFilter;
-            data.value.u.string.length = pSubscriptionList[ idx ].topicFilterLength;
-            error = IOT_BLE_MESG_ENCODER.append( &subscriptionArray, data );
+            status = cbor_encode_int( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE_UNSUBSCRIBE );
+        }
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_TOPIC_LIST, strlen( IOT_BLE_MQTT_TOPIC_LIST ) );
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encoder_create_array( &mapEncoder, &arrayEncoder, subscriptionCount );
+    }
+
+    for( index = 0; index < subscriptionCount; index++ )
+    {
+        if( SERIALIZER_STATUS( status, pBuffer ) )
+        {
+            status = cbor_encode_text_string( &arrayEncoder, pSubscriptionList[ index ].pTopicFilter, pSubscriptionList[ index ].topicFilterLength );
         }
         else
         {
@@ -510,136 +510,265 @@ static IotSerializerError_t _serializeUnSubscribe( const MQTTBLESubscribeInfo_t 
         }
     }
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        error = IOT_BLE_MESG_ENCODER.closeContainer( &subscribeMap, &subscriptionArray );
+        status = cbor_encoder_close_container( &mapEncoder, &arrayEncoder );
     }
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        data.value.u.signedInt = packetIdentifier;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &subscribeMap, IOT_BLE_MQTT_MESSAGE_ID, data );
-    }
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MESSAGE_ID, strlen( IOT_BLE_MQTT_MESSAGE_ID ) );
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &subscribeMap );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        if( pBuffer == NULL )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
+            status = cbor_encode_int( &mapEncoder, packetIdentifier );
         }
-        else
-        {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
-        }
-
-        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
-        error = IOT_SERIALIZER_SUCCESS;
     }
 
-    return error;
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encoder_close_container( &encoder, &mapEncoder );
+    }
+
+    if( pBuffer == NULL )
+    {
+        *pLength = cbor_encoder_get_extra_bytes_needed( &encoder );
+    }
+    else
+    {
+        *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer );
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        result = CborNoError;
+    }
+    else
+    {
+        result = status;
+    }
+
+    return result;
 }
 
-static IotSerializerError_t _serializeDisconnect( uint8_t * const pBuffer,
-                                                  size_t * const pSize )
+static CborError prvSerializeDisconnect( uint8_t * const pBuffer,
+                                         size_t * const pLength )
 {
-    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
-    IotSerializerEncoderObject_t encoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t disconnectMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t data = { 0 };
+    size_t length = *pLength;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
-    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
+    cbor_encoder_init( &encoder, pBuffer, length, 0 );
 
-    if( error == IOT_SERIALIZER_SUCCESS )
+    status = cbor_encoder_create_map( &encoder, &mapEncoder, _NUM_DISCONNECT_PARAMS );
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        error = IOT_BLE_MESG_ENCODER.openContainer(
-            &encoderObj,
-            &disconnectMap,
-            _NUM_DISCONNECT_PARAMS );
-    }
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE, strlen( IOT_BLE_MQTT_MSG_TYPE ) );
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        data.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_DISCONNECT;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &disconnectMap, IOT_BLE_MQTT_MSG_TYPE, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &disconnectMap );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        if( pBuffer == NULL )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
+            status = cbor_encode_int( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE_DISCONNECT );
         }
-        else
-        {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
-        }
-
-        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
-        error = IOT_SERIALIZER_SUCCESS;
     }
 
-    return error;
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encoder_close_container( &encoder, &mapEncoder );
+    }
+
+    if( pBuffer == NULL )
+    {
+        *pLength = cbor_encoder_get_extra_bytes_needed( &encoder );
+    }
+    else
+    {
+        *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer );
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        result = CborNoError;
+    }
+    else
+    {
+        result = status;
+    }
+
+    return result;
 }
 
-static IotSerializerError_t _serializePingRequest( uint8_t * const pBuffer,
-                                                   size_t * const pSize )
+static CborError prvSerializePingRequest( uint8_t * const pBuffer,
+                                          size_t * const pLength )
 {
-    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
-    IotSerializerEncoderObject_t encoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    IotSerializerEncoderObject_t pingRequest = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    IotSerializerScalarData_t data = { 0 };
+    size_t length = *pLength;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
+    CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
-    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
+    cbor_encoder_init( &encoder, pBuffer, length, 0 );
 
-    if( error == IOT_SERIALIZER_SUCCESS )
+    status = cbor_encoder_create_map( &encoder, &mapEncoder, _NUM_PINGREQUEST_PARAMS );
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
     {
-        error = IOT_BLE_MESG_ENCODER.openContainer(
-            &encoderObj,
-            &pingRequest,
-            _NUM_PINGREQUEST_PARAMS );
-    }
+        status = cbor_encode_text_string( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE, strlen( IOT_BLE_MQTT_MSG_TYPE ) );
 
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        data.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_PINGREQ;
-        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &pingRequest, IOT_BLE_MQTT_MSG_TYPE, data );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &pingRequest );
-    }
-
-    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
-    {
-        if( pBuffer == NULL )
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
+            status = cbor_encode_int( &mapEncoder, IOT_BLE_MQTT_MSG_TYPE_PINGREQ );
+        }
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        status = cbor_encoder_close_container( &encoder, &mapEncoder );
+    }
+
+    if( pBuffer == NULL )
+    {
+        *pLength = cbor_encoder_get_extra_bytes_needed( &encoder );
+    }
+    else
+    {
+        *pLength = cbor_encoder_get_buffer_size( &encoder, pBuffer );
+    }
+
+    if( SERIALIZER_STATUS( status, pBuffer ) == true )
+    {
+        result = CborNoError;
+    }
+    else
+    {
+        result = status;
+    }
+
+    return result;
+}
+
+
+static CborError prvGetIntegerValueFromMap( CborValue * pMap,
+                                            const char * key,
+                                            int64_t * pValue )
+{
+    CborError status = CborErrorInternalError;
+    CborValue value = { 0 };
+
+    status = cbor_value_map_find_value( pMap, key, &value );
+
+    if( status == CborNoError )
+    {
+        if( cbor_value_is_integer( &value ) )
+        {
+            status = cbor_value_get_int64( &value, pValue );
         }
         else
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
+            status = CborErrorImproperValue;
         }
-
-        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
-        error = IOT_SERIALIZER_SUCCESS;
     }
 
-    return error;
+    return status;
 }
+
+/**
+ * The function is used to get the pointer to a text string value instead of copying the contents to a buffer.
+ * This function only works if the string value is encoded within a definite length map and the text string encoded is
+ * of definite length. Function returns the pointer to the start of the string and the length of the string.
+ */
+static CborError prvGetTextStringValueFromDefiniteLengthMap( CborValue * pMap,
+                                                             const char * key,
+                                                             const char ** pValue,
+                                                             size_t * valueLength )
+{
+    CborError status = CborErrorInternalError;
+    size_t length;
+    CborValue value = { 0 }, next = { 0 };
+
+    status = cbor_value_map_find_value( pMap, key, &value );
+
+    if( status == CborNoError )
+    {
+        if( cbor_value_is_text_string( &value ) )
+        {
+            if( cbor_value_is_length_known( &value ) )
+            {
+                status = cbor_value_get_string_length( &value, &length );
+            }
+            else
+            {
+                status = CborErrorImproperValue;
+            }
+        }
+        else
+        {
+            status = CborErrorImproperValue;
+        }
+
+        if( status == CborNoError )
+        { /* Advance to the next byte after this string value. */
+            status = cbor_value_copy_text_string( &value, NULL, &length, &next );
+
+            if( status == CborNoError )
+            {
+                ( *pValue ) = ( char * ) ( cbor_value_get_next_byte( &next ) - length );
+                ( *valueLength ) = length;
+            }
+        }
+    }
+
+    return status;
+}
+
+/**
+ * The function is used to get the pointer to a byte string value instead of copying the contents to a buffer.
+ * This function only works if the string value is encoded within a definite length map and the byte string encoded is
+ * of definite length. Function returns the pointer to the start of the string and the length of the string.
+ */
+static CborError prvGetByteStringValueFromDefiniteLengthMap( CborValue * pMap,
+                                                             const char * key,
+                                                             const void ** pValue,
+                                                             size_t * valueLength )
+{
+    CborError status = CborErrorInternalError;
+    size_t length = 0;
+    CborValue value = { 0 }, next = { 0 };
+
+    status = cbor_value_map_find_value( pMap, key, &value );
+
+    if( status == CborNoError )
+    {
+        if( cbor_value_is_byte_string( &value ) )
+        {
+            if( cbor_value_is_length_known( &value ) )
+            {
+                status = cbor_value_get_string_length( &value, &length );
+            }
+            else
+            {
+                status = CborErrorImproperValue;
+            }
+        }
+        else
+        {
+            status = CborErrorImproperValue;
+        }
+
+        if( status == CborNoError )
+        {
+            /* Advance to the next byte after this string value. */
+            status = cbor_value_copy_byte_string( &value, NULL, &length, &next );
+
+            if( status == CborNoError )
+            {
+                ( *pValue ) = ( void * ) ( cbor_value_get_next_byte( &next ) - length );
+                ( *valueLength ) = length;
+            }
+        }
+    }
+
+    return status;
+}
+
 
 MQTTBLEStatus_t IotBleMqtt_SerializeConnect( const MQTTBLEConnectInfo_t * const pConnectInfo,
                                              uint8_t ** const pConnectPacket,
@@ -647,91 +776,74 @@ MQTTBLEStatus_t IotBleMqtt_SerializeConnect( const MQTTBLEConnectInfo_t * const 
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    IotSerializerError_t error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
+    ( *pConnectPacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    error = _serializeConnect( pConnectInfo, NULL, &bufLen );
+    status = prvSerializeConnect( pConnectInfo, NULL, &bufLen );
 
-    if( error != IOT_SERIALIZER_SUCCESS )
-    {
-        LogError( ( "Failed to find length of serialized CONNECT message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
-
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
+        {
+            status = prvSerializeConnect( pConnectInfo, pBuffer, &bufLen );
+
+            if( status == CborNoError )
+            {
+                *pConnectPacket = pBuffer;
+                *pPacketSize = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize CONNECT message, error = %d", status ) );
+            }
+        }
+        else
         {
             LogError( ( "Failed to allocate memory for CONNECT packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = _serializeConnect( pConnectInfo, pBuffer, &bufLen );
-
-        if( error != IOT_SERIALIZER_SUCCESS )
-        {
-            LogError( ( "Failed to serialize CONNECT message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pConnectPacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        *pConnectPacket = NULL;
-        *pPacketSize = 0;
-
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
+        LogError( ( "Failed to find length of serialized CONNECT message, error = %d", status ) );
     }
 
     return ret;
 }
 
-MQTTBLEStatus_t IotBleMqtt_DeserializeConnack( const uint8_t * pBuffer,
+MQTTBLEStatus_t IotBleMqtt_DeserializeConnack( const uint8_t * pMessage,
                                                size_t length )
 {
-    IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
-    IotSerializerError_t error;
+    CborParser parser = { 0 };
+    CborValue map = { 0 };
+    CborError status = CborErrorInternalError;
+    int64_t respCode = 0;
     MQTTBLEStatus_t ret = MQTTBLESuccess;
-    int64_t respCode = 0L;
 
-    error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
+    status = cbor_parser_init( pMessage, length, 0, &parser, &map );
 
-    if( ( error != IOT_SERIALIZER_SUCCESS ) ||
-        ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( status == CborNoError )
     {
-        LogError( ( "Malformed CONNACK, decoding the packet failed, decoder error = %d, type: %d", error, decoderObj.type ) );
-        ret = MQTTBLEBadResponse;
+        if( !cbor_value_is_map( &map ) )
+        {
+            status = CborErrorImproperValue;
+        }
     }
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
-        error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_STATUS, &decoderValue );
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_MQTT_STATUS, &respCode );
 
-        if( ( error != IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( status == CborNoError )
         {
-            LogError( ( "Invalid CONNACK, response code decode failed, error = %d, decoded value type = %d", error, decoderValue.type ) );
-            ret = MQTTBLEBadResponse;
-        }
-        else
-        {
-            respCode = decoderValue.u.value.u.signedInt;
-
             if( ( respCode != IOT_BLE_MQTT_STATUS_CONNECTING ) &&
                 ( respCode != IOT_BLE_MQTT_STATUS_CONNECTED ) )
             {
@@ -740,10 +852,15 @@ MQTTBLEStatus_t IotBleMqtt_DeserializeConnack( const uint8_t * pBuffer,
         }
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
+    if( status != CborNoError )
+    {
+        LogError( ( "Decode connack failed with error = %d", status ) );
+        ret = MQTTBLEBadResponse;
+    }
 
     return ret;
 }
+
 MQTTBLEStatus_t IotBleMqtt_SerializePublish( const MQTTBLEPublishInfo_t * const pPublishInfo,
                                              uint8_t ** const pPublishPacket,
                                              size_t * const pPacketSize,
@@ -751,54 +868,44 @@ MQTTBLEStatus_t IotBleMqtt_SerializePublish( const MQTTBLEPublishInfo_t * const 
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    IotSerializerError_t error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
-    error = _serializePublish( pPublishInfo, NULL, &bufLen, packetIdentifier );
+    ( *pPublishPacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    if( error != IOT_SERIALIZER_SUCCESS )
-    {
-        LogError( ( "Failed to find size of serialized PUBLISH message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
+    status = prvSerializePublish( pPublishInfo, NULL, &bufLen, packetIdentifier );
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
+        {
+            status = prvSerializePublish( pPublishInfo, pBuffer, &bufLen, packetIdentifier );
+
+            if( status == CborNoError )
+            {
+                ( *pPublishPacket ) = pBuffer;
+                ( *pPacketSize ) = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize PUBLISH message, error = %d", status ) );
+            }
+        }
+        else
         {
             LogError( ( "Failed to allocate memory for PUBLISH packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = _serializePublish( pPublishInfo, pBuffer, &bufLen, packetIdentifier );
-
-        if( error != IOT_SERIALIZER_SUCCESS )
-        {
-            LogError( ( "Failed to serialize PUBLISH message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pPublishPacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
-
-        *pPublishPacket = NULL;
-        *pPacketSize = 0;
+        LogError( ( "Failed to find size of serialized PUBLISH message, error = %d", status ) );
     }
 
     return ret;
@@ -811,103 +918,67 @@ void IotBleMqtt_PublishSetDup( uint8_t * const pPublishPacket,
     /** TODO: Currently DUP flag is not supported by BLE SDKs **/
 }
 
-MQTTBLEStatus_t IotBleMqtt_DeserializePublish( uint8_t * pBuffer,
+MQTTBLEStatus_t IotBleMqtt_DeserializePublish( uint8_t * pMessage,
                                                size_t length,
                                                MQTTBLEPublishInfo_t * publishInfo,
                                                uint16_t * packetIdentifier )
 {
-    IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
-    IotSerializerError_t xSerializerRet;
+    CborParser parser = { 0 };
+    CborValue map = { 0 };
+    CborError status = CborNoError;
+    int64_t val = 0;
     MQTTBLEStatus_t ret = MQTTBLESuccess;
 
-    xSerializerRet = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
+    memset( publishInfo, 0x00, sizeof( MQTTBLEPublishInfo_t ) );
 
-    if( ( xSerializerRet != IOT_SERIALIZER_SUCCESS ) ||
-        ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
+    status = cbor_parser_init( pMessage, length, 0, &parser, &map );
+
+    if( status == CborNoError )
     {
-        LogError( ( "Decoding PUBLISH packet failed, decoder error = %d, object type = %d", xSerializerRet, decoderObj.type ) );
-        ret = MQTTBLEBadResponse;
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        xSerializerRet = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_QOS, &decoderValue );
-
-        if( ( xSerializerRet != IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( !cbor_value_is_map( &map ) )
         {
-            LogError( ( "QOS Value decode failed, error = %d, decoded value type = %d", xSerializerRet, decoderValue.type ) );
-            ret = MQTTBLEBadResponse;
-        }
-        else
-        {
-            publishInfo->qos = decoderValue.u.value.u.signedInt;
+            status = CborErrorImproperValue;
         }
     }
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
-        decoderValue.u.value.u.string.pString = NULL;
-        decoderValue.u.value.u.string.length = 0;
-        xSerializerRet = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_TOPIC, &decoderValue );
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_MQTT_QOS, &val );
 
-        if( ( xSerializerRet != IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderValue.type != IOT_SERIALIZER_SCALAR_TEXT_STRING ) )
+        if( status == CborNoError )
         {
-            LogError( ( "Topic value decode failed, error = %d", xSerializerRet ) );
-            ret = MQTTBLEBadResponse;
-        }
-        else
-        {
-            publishInfo->pTopicName = ( const char * ) decoderValue.u.value.u.string.pString;
-            publishInfo->topicNameLength = decoderValue.u.value.u.string.length;
+            publishInfo->qos = ( MQTTBLEQoS_t ) val;
         }
     }
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
-        decoderValue.u.value.u.string.pString = NULL;
-        decoderValue.u.value.u.string.length = 0;
-        xSerializerRet = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_PAYLOAD, &decoderValue );
-
-        if( ( xSerializerRet != IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderValue.type != IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
-        {
-            LogError( ( "Payload value decode failed, error = %d", xSerializerRet ) );
-            ret = MQTTBLEBadResponse;
-        }
-        else
-        {
-            publishInfo->pPayload = ( const char * ) decoderValue.u.value.u.string.pString;
-            publishInfo->payloadLength = decoderValue.u.value.u.string.length;
-        }
+        status = prvGetTextStringValueFromDefiniteLengthMap( &map, IOT_BLE_MQTT_TOPIC, &publishInfo->pTopicName, ( size_t * ) &publishInfo->topicNameLength );
     }
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
+    {
+        status = prvGetByteStringValueFromDefiniteLengthMap( &map, IOT_BLE_MQTT_PAYLOAD, &publishInfo->pPayload, &publishInfo->payloadLength );
+    }
+
+    if( status == CborNoError )
     {
         if( publishInfo->qos != 0 )
         {
-            xSerializerRet = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MESSAGE_ID, &decoderValue );
+            status = prvGetIntegerValueFromMap( &map, IOT_BLE_MQTT_MESSAGE_ID, &val );
 
-            if( ( xSerializerRet != IOT_SERIALIZER_SUCCESS ) ||
-                ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+            if( status == CborNoError )
             {
-                LogError( ( "Message identifier decode failed, error = %d, decoded value type = %d", xSerializerRet, decoderValue.type ) );
-                ret = MQTTBLEBadResponse;
-            }
-            else
-            {
-                *packetIdentifier = ( uint16_t ) decoderValue.u.value.u.signedInt;
+                ( *packetIdentifier ) = ( uint16_t ) ( val );
             }
         }
     }
 
-    if( ret == MQTTBLESuccess )
+    if( status != CborNoError )
     {
-        publishInfo->retain = false;
+        LogError( ( "Decode cbor publish message failed with error = %d", status ) );
+        ret = MQTTBLEBadResponse;
     }
-
-    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
     return ret;
 }
@@ -918,93 +989,84 @@ MQTTBLEStatus_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    IotSerializerError_t error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
-    error = _serializePubAck( packetIdentifier, NULL, &bufLen );
+    ( *pPubackPacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    if( error != IOT_SERIALIZER_SUCCESS )
-    {
-        LogError( ( "Failed to find size of serialized PUBACK message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
+    status = prvSerializePubAck( packetIdentifier, NULL, &bufLen );
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
         {
-            LogError( ( "Failed to allocate memory for PUBACK packet, packet identifier = %d", packetIdentifier ) );
+            status = prvSerializePubAck( packetIdentifier, pBuffer, &bufLen );
+
+            if( status == CborNoError )
+            {
+                ( *pPubackPacket ) = pBuffer;
+                ( *pPacketSize ) = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize PUBACK message, error = %d", status ) );
+            }
+        }
+        else
+        {
+            LogError( ( "Failed to allocate memory for PUBACK packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = _serializePubAck( packetIdentifier, pBuffer, &bufLen );
-
-        if( error != IOT_SERIALIZER_SUCCESS )
-        {
-            LogError( ( "Failed to find size of serialized PUBACK message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pPubackPacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
-
-        *pPubackPacket = NULL;
-        *pPacketSize = 0;
+        LogError( ( "Failed to find size of serialized PUBACK message, error = %d", status ) );
     }
 
     return ret;
 }
 
-MQTTBLEStatus_t IotBleMqtt_DeserializePuback( uint8_t * pBuffer,
+MQTTBLEStatus_t IotBleMqtt_DeserializePuback( uint8_t * pMessage,
                                               size_t length,
                                               uint16_t * packetIdentifier )
 {
-    IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
-    IotSerializerError_t error;
+    CborParser parser = { 0 };
+    CborValue map = { 0 };
+    CborError status = CborNoError;
+    int64_t val = 0;
     MQTTBLEStatus_t ret = MQTTBLESuccess;
 
-    error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
+    status = cbor_parser_init( pMessage, length, 0, &parser, &map );
 
-    if( ( error != IOT_SERIALIZER_SUCCESS ) ||
-        ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( status == CborNoError )
     {
-        LogError( ( "Malformed PUBACK, decoding the packet failed, decoder error = %d, object type: %d", error, decoderObj.type ) );
+        if( !cbor_value_is_map( &map ) )
+        {
+            status = CborErrorImproperValue;
+        }
+    }
+
+    if( status == CborNoError )
+    {
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_MQTT_MESSAGE_ID, &val );
+
+        if( status == CborNoError )
+        {
+            ( *packetIdentifier ) = ( uint16_t ) val;
+        }
+    }
+
+    if( status != CborNoError )
+    {
+        LogError( ( "Decode cbor puback message failed with error = %d", status ) );
         ret = MQTTBLEBadResponse;
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MESSAGE_ID, &decoderValue );
-
-        if( ( error != IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
-        {
-            LogError( ( "Message ID decode failed, error = %d, decoded value type = %d", error, decoderValue.type ) );
-            ret = MQTTBLEBadResponse;
-        }
-        else
-        {
-            *packetIdentifier = ( uint16_t ) decoderValue.u.value.u.signedInt;
-        }
-    }
-
-    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
     return ret;
 }
@@ -1017,110 +1079,95 @@ MQTTBLEStatus_t IotBleMqtt_SerializeSubscribe( const MQTTBLESubscribeInfo_t * co
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    IotSerializerError_t error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
-    error = _serializeSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
+    ( *pSubscribePacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    if( error != IOT_SERIALIZER_SUCCESS )
-    {
-        LogError( ( "Failed to find serialized length of SUBSCRIBE message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
+    status = prvSerializeSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
         {
-            LogError( ( "Failed to allocate memory for SUBSCRIBE message." ) );
+            status = prvSerializeSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
+
+            if( status == CborNoError )
+            {
+                ( *pSubscribePacket ) = pBuffer;
+                ( *pPacketSize ) = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize SUBSCRIBE message, error = %d", status ) );
+            }
+        }
+        else
+        {
+            LogError( ( "Failed to allocate memory for SUBSCRIBE packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = _serializeSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
-
-        if( error != IOT_SERIALIZER_SUCCESS )
-        {
-            LogError( ( "Failed to serialize SUBSCRIBE message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pSubscribePacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
-
-        *pSubscribePacket = NULL;
-        *pPacketSize = 0;
+        LogError( ( "Failed to find size of serialized SUBSCRIBE message, error = %d", status ) );
     }
 
     return ret;
 }
 
-MQTTBLEStatus_t IotBleMqtt_DeserializeSuback( const uint8_t * pBuffer,
+MQTTBLEStatus_t IotBleMqtt_DeserializeSuback( const uint8_t * pMessage,
                                               size_t length,
                                               uint16_t * packetIdentifier,
                                               uint8_t * pStatusCode )
 {
-    IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
-    IotSerializerError_t error;
+    CborParser parser = { 0 };
+    CborValue map = { 0 };
+    CborError status = CborNoError;
+    int64_t val = 0;
     MQTTBLEStatus_t ret = MQTTBLESuccess;
 
-    error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
+    status = cbor_parser_init( pMessage, length, 0, &parser, &map );
 
-    if( ( error != IOT_SERIALIZER_SUCCESS ) ||
-        ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( status == CborNoError )
     {
-        LogError( ( "Malformed SUBACK, decoding the packet failed, decoder error = %d, type: %d", error, decoderObj.type ) );
+        if( !cbor_value_is_map( &map ) )
+        {
+            status = CborErrorImproperValue;
+        }
+    }
+
+    if( status == CborNoError )
+    {
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_MQTT_MESSAGE_ID, &val );
+
+        if( status == CborNoError )
+        {
+            ( *packetIdentifier ) = ( uint16_t ) val;
+        }
+    }
+
+    if( status == CborNoError )
+    {
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_MQTT_STATUS, &val );
+
+        if( status == CborNoError )
+        {
+            ( *pStatusCode ) = ( uint8_t ) val;
+        }
+    }
+
+    if( status != CborNoError )
+    {
+        LogError( ( "Decode cbor suback message failed with error = %d", status ) );
         ret = MQTTBLEBadResponse;
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MESSAGE_ID, &decoderValue );
-
-        if( ( error != IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
-        {
-            LogError( ( "Message ID decode failed, error = %d, decoded value type = %d", error, decoderValue.type ) );
-            ret = MQTTBLEBadResponse;
-        }
-        else
-        {
-            *packetIdentifier = ( uint16_t ) decoderValue.u.value.u.signedInt;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_STATUS, &decoderValue );
-
-        if( ( error != IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
-        {
-            LogError( ( "Status code decode failed, error = %d, decoded value type = %d", error, decoderValue.type ) );
-            ret = MQTTBLEBadResponse;
-        }
-        else
-        {
-            *pStatusCode = ( uint8_t ) ( decoderValue.u.value.u.signedInt );
-        }
-    }
-
-    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
     return ret;
 }
@@ -1133,93 +1180,84 @@ MQTTBLEStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTBLESubscribeInfo_t * 
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    IotSerializerError_t error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
-    error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
+    ( *pUnsubscribePacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    if( error != IOT_SERIALIZER_SUCCESS )
-    {
-        LogError( ( "Failed to find serialized length of UNSUBSCRIBE message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
+    status = prvSerializeUnSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
         {
-            LogError( ( "Failed to allocate memory for UNSUBSCRIBE message." ) );
+            status = prvSerializeUnSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
+
+            if( status == CborNoError )
+            {
+                ( *pUnsubscribePacket ) = pBuffer;
+                ( *pPacketSize ) = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize UNSUBSCRIBE message, error = %d", status ) );
+            }
+        }
+        else
+        {
+            LogError( ( "Failed to allocate memory for UNSUBSCRIBE packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
-
-        if( error != IOT_SERIALIZER_SUCCESS )
-        {
-            LogError( ( "Failed to serialize UNSUBSCRIBE message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pUnsubscribePacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
-
-        *pUnsubscribePacket = NULL;
-        *pPacketSize = 0;
+        LogError( ( "Failed to find size of serialized UNSUBSCRIBE message, error = %d", status ) );
     }
 
     return ret;
 }
 
-MQTTBLEStatus_t IotBleMqtt_DeserializeUnsuback( uint8_t * pBuffer,
+MQTTBLEStatus_t IotBleMqtt_DeserializeUnsuback( uint8_t * pMessage,
                                                 size_t length,
                                                 uint16_t * packetIdentifier )
 {
-    IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
-    IotSerializerError_t error;
+    CborParser parser = { 0 };
+    CborValue map = { 0 };
+    CborError status = CborNoError;
+    int64_t val = 0;
     MQTTBLEStatus_t ret = MQTTBLESuccess;
 
-    error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
+    status = cbor_parser_init( pMessage, length, 0, &parser, &map );
 
-    if( ( error != IOT_SERIALIZER_SUCCESS ) ||
-        ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( status == CborNoError )
     {
-        LogError( ( "Malformed UNSUBACK, decoding the packet failed, decoder error = %d, type:%d ", error, decoderObj.type ) );
+        if( !cbor_value_is_map( &map ) )
+        {
+            status = CborErrorImproperValue;
+        }
+    }
+
+    if( status == CborNoError )
+    {
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_MQTT_MESSAGE_ID, &val );
+
+        if( status == CborNoError )
+        {
+            ( *packetIdentifier ) = ( uint16_t ) val;
+        }
+    }
+
+    if( status != CborNoError )
+    {
+        LogError( ( "Decode cbor unsuback message failed with error = %d", status ) );
         ret = MQTTBLEBadResponse;
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MESSAGE_ID, &decoderValue );
-
-        if( ( error != IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderValue.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
-        {
-            LogError( ( "UNSUBACK Message identifier decode failed, error = %d, decoded value type = %d", error, decoderValue.type ) );
-            ret = MQTTBLEBadResponse;
-        }
-        else
-        {
-            *packetIdentifier = ( uint16_t ) decoderValue.u.value.u.signedInt;
-        }
-    }
-
-    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
     return ret;
 }
@@ -1229,54 +1267,44 @@ MQTTBLEStatus_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPack
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    IotSerializerError_t error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
-    error = _serializeDisconnect( NULL, &bufLen );
+    ( *pDisconnectPacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    if( error != IOT_SERIALIZER_SUCCESS )
-    {
-        LogError( ( "Failed to find serialized length of DISCONNECT message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
+    status = prvSerializeDisconnect( NULL, &bufLen );
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
         {
-            LogError( ( "Failed to allocate memory for DISCONNECT message." ) );
+            status = prvSerializeDisconnect( pBuffer, &bufLen );
+
+            if( status == CborNoError )
+            {
+                ( *pDisconnectPacket ) = pBuffer;
+                ( *pPacketSize ) = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize DISCONNECT message, error = %d", status ) );
+            }
+        }
+        else
+        {
+            LogError( ( "Failed to allocate memory for DISCONNECT packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = _serializeDisconnect( pBuffer, &bufLen );
-
-        if( error != IOT_SERIALIZER_SUCCESS )
-        {
-            LogError( ( "Failed to serialize DISCONNECT message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pDisconnectPacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
-
-        *pDisconnectPacket = NULL;
-        *pPacketSize = 0;
+        LogError( ( "Failed to find size of serialized DISCONNECT message, error = %d", status ) );
     }
 
     return ret;
@@ -1293,37 +1321,39 @@ size_t IotBleMqtt_GetRemainingLength( IotBleDataTransferChannel_t * pNetworkConn
 }
 
 
-uint8_t IotBleMqtt_GetPacketType( const uint8_t * pBuffer,
+uint8_t IotBleMqtt_GetPacketType( const uint8_t * pMessage,
                                   size_t length )
 {
-    IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
-    IotSerializerError_t error;
-    uint8_t value, packetType = IOT_BLE_MQTT_MSG_TYPE_INVALID;
+    CborParser parser = { 0 };
+    CborValue map = { 0 };
+    CborError status = CborNoError;
+    int64_t val = 0;
+    uint8_t packetType = IOT_BLE_MQTT_MSG_TYPE_INVALID;
 
-    error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
+    status = cbor_parser_init( pMessage, length, 0, &parser, &map );
 
-    if( ( error == IOT_SERIALIZER_SUCCESS ) &&
-        ( decoderObj.type == IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( status == CborNoError )
     {
-        error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MSG_TYPE, &decoderValue );
-
-        if( ( error == IOT_SERIALIZER_SUCCESS ) &&
-            ( decoderValue.type == IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( !cbor_value_is_map( &map ) )
         {
-            value = ( uint16_t ) decoderValue.u.value.u.signedInt;
-            packetType = value;
-        }
-        else
-        {
-            LogError( ( "Packet type decode failed, error = %d, decoded value type = %d", error, decoderValue.type ) );
+            status = CborErrorImproperValue;
         }
     }
-    else
+
+    if( status == CborNoError )
     {
-        LogError( ( "Decoding the packet failed, decoder error = %d, type = %d", error, decoderObj.type ) );
+        status = prvGetIntegerValueFromMap( &map, IOT_BLE_MQTT_MSG_TYPE, &val );
+
+        if( status == CborNoError )
+        {
+            packetType = ( uint8_t ) val;
+        }
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
+    if( status != CborNoError )
+    {
+        LogError( ( "Decode cbor message failed with error = %d", status ) );
+    }
 
     return packetType;
 }
@@ -1333,54 +1363,44 @@ MQTTBLEStatus_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    IotSerializerError_t error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
-    error = _serializePingRequest( NULL, &bufLen );
+    ( *pPingreqPacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    if( error != IOT_SERIALIZER_SUCCESS )
-    {
-        LogError( ( "Failed to find serialized length of DISCONNECT message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
+    status = prvSerializePingRequest( NULL, &bufLen );
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
         {
-            LogError( ( "Failed to allocate memory for DISCONNECT message." ) );
+            status = prvSerializePingRequest( pBuffer, &bufLen );
+
+            if( status == CborNoError )
+            {
+                ( *pPingreqPacket ) = pBuffer;
+                ( *pPacketSize ) = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize PINGREQ message, error = %d", status ) );
+            }
+        }
+        else
+        {
+            LogError( ( "Failed to allocate memory for PINGREQ packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = _serializePingRequest( pBuffer, &bufLen );
-
-        if( error != IOT_SERIALIZER_SUCCESS )
-        {
-            LogError( ( "Failed to serialize DISCONNECT message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pPingreqPacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
-
-        *pPingreqPacket = NULL;
-        *pPacketSize = 0;
+        LogError( ( "Failed to find size of serialized PINGREQ message, error = %d", status ) );
     }
 
     return ret;
