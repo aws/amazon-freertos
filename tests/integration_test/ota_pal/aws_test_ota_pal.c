@@ -48,7 +48,7 @@
 
 /* Logging configuration for the Demo. */
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "TEST"
+    #define LIBRARY_LOG_NAME    "OTA_PAL_TEST"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
