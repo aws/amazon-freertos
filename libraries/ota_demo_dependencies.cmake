@@ -86,8 +86,7 @@ afr_module_dependencies(
         AFR::ota
         AFR::ota_demo_version
         AFR::mqtt_subscription_manager
-        AFR::core_mqtt_agent
-        AFR::core_mqtt_demo_dependencies
+        AFR::core_mqtt_agent_demo_dependencies
         AFR::core_http_demo_dependencies
         AFR::backoff_algorithm
         AFR::ota::mcu_port
