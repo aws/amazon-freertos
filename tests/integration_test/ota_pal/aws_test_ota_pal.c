@@ -706,9 +706,6 @@ TEST( Full_OTA_PAL, otaPal_SetPlatformImageState_SelfTestImageState )
         /* [**]All platforms need a reboot of a successfully close image in order to return
          * OtaPalImageStatePendingCommit from otaPal_GetPlatformImageState(). So this cannot be tested.
          */
-
-        /*ePalImageState = otaPal_GetPlatformImageState();
-         * TEST_ASSERT_EQUAL_INT( OtaPalImageStatePendingCommit, ePalImageState ); */
     }
 }
 
