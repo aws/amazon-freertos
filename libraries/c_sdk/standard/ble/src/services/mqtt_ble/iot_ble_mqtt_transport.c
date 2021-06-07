@@ -894,7 +894,7 @@ static MQTTBLEStatus_t handleIncomingPublish( StreamBufferHandle_t streamBuffer,
                                               size_t length )
 {
     MQTTBLEStatus_t status = MQTTBLESuccess;
-    MQTTBLEPublishInfo_t publishInfo ={0};
+    MQTTBLEPublishInfo_t publishInfo = { 0 };
     uint16_t packetIdentifier = 0;
 
     LogDebug( ( "Processing incoming PUBLISH from channel." ) );
