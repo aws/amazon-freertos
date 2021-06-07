@@ -23,6 +23,13 @@
  * http://www.FreeRTOS.org
  */
 
+/**
+ * @file aws_ota_pal_test_access_declare.h
+ * @brief Function wrappers that access private methods in ota_pal.c.
+ *
+ * Needed for testing private functions.
+ */
+
 #ifndef _AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_
 #define _AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_
 

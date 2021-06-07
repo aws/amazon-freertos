@@ -25,9 +25,11 @@
 
 /**
  * @file aws_ota_pal_test_access_define.h
- * @brief Function wrappers that access private methods in aws_ota_pal.c.
- *
- * Needed for testing private functions.
+ * @brief Definitions to function wrappers that access private methods in
+ *        ota_pal.c. This file must be included in ota_pal.c if either of the
+ *        following macros are defined:
+ *        - otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
+ *        - otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED
  */
 
 #ifndef _AWS_OTA_PAL_TEST_ACCESS_DEFINE_H_
