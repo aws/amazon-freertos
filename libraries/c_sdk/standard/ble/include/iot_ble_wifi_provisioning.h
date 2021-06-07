@@ -86,7 +86,7 @@ typedef struct
  */
 typedef struct
 {
-    int16_t currentPriorityIndex; /**< Current Prioruty index of the provisioned WiFi network.*/
+    int16_t currentPriorityIndex; /**< Current Priority index of the provisioned WiFi network.*/
     int16_t newPriorityIndex;     /**< New priority index of the provisioned WiFi network. */
 } IotBleWifiProvEditNetworkRequest_t;
 

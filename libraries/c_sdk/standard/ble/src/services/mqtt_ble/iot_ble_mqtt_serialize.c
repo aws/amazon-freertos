@@ -122,7 +122,7 @@ static CborError prvSerializeConnect( const MQTTBLEConnectInfo_t * pConnectInfo,
                                       size_t * const pLength )
 {
     size_t length = *pLength;
-    CborError status, result;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
     CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
     cbor_encoder_init( &encoder, pBuffer, length, 0 );
@@ -201,7 +201,7 @@ static CborError prvSerializePublish( const MQTTBLEPublishInfo_t * const pPublis
                                       uint16_t packetIdentifier )
 {
     size_t length = *pLength;
-    CborError status, result;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
     CborEncoder encoder = { 0 }, mapEncoder = { 0 };
     uint16_t numPublishParams = _getNumPublishParams( pPublishInfo );
 
@@ -294,7 +294,7 @@ static CborError prvSerializePubAck( uint16_t packetIdentifier,
 
 {
     size_t length = *pLength;
-    CborError status, result;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
     CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
     cbor_encoder_init( &encoder, pBuffer, length, 0 );
@@ -355,7 +355,7 @@ static CborError prvSerializeSubscribe( const MQTTBLESubscribeInfo_t * const pSu
                                         uint16_t packetIdentifier )
 {
     size_t length = *pLength;
-    CborError status, result;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
     CborEncoder encoder = { 0 }, mapEncoder = { 0 }, arrayEncoder = { 0 };
     uint16_t index;
 
@@ -470,7 +470,7 @@ static CborError prvSerializeUnSubscribe( const MQTTBLESubscribeInfo_t * const p
                                           uint16_t packetIdentifier )
 {
     size_t length = *pLength;
-    CborError status, result;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
     CborEncoder encoder = { 0 }, mapEncoder = { 0 }, arrayEncoder = { 0 };
     uint16_t index;
 
@@ -555,7 +555,7 @@ static CborError prvSerializeDisconnect( uint8_t * const pBuffer,
                                          size_t * const pLength )
 {
     size_t length = *pLength;
-    CborError status, result;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
     CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
     cbor_encoder_init( &encoder, pBuffer, length, 0 );
@@ -602,7 +602,7 @@ static CborError prvSerializePingRequest( uint8_t * const pBuffer,
                                           size_t * const pLength )
 {
     size_t length = *pLength;
-    CborError status, result;
+    CborError status = CborErrorInternalError, result = CborErrorInternalError;
     CborEncoder encoder = { 0 }, mapEncoder = { 0 };
 
     cbor_encoder_init( &encoder, pBuffer, length, 0 );
@@ -650,8 +650,8 @@ static CborError prvGetIntegerValueFromMap( CborValue * pMap,
                                             const char * key,
                                             int64_t * pValue )
 {
-    CborError status;
-    CborValue value;
+    CborError status = CborErrorInternalError;
+    CborValue value = { 0 };
 
     status = cbor_value_map_find_value( pMap, key, &value );
 
@@ -680,7 +680,7 @@ static CborError prvGetTextStringValueFromDefiniteLengthMap( CborValue * pMap,
                                                              const char ** pValue,
                                                              size_t * valueLength )
 {
-    CborError status;
+    CborError status = CborErrorInternalError;
     size_t length;
     CborValue value = { 0 }, next = { 0 };
 
@@ -729,8 +729,8 @@ static CborError prvGetByteStringValueFromDefiniteLengthMap( CborValue * pMap,
                                                              const void ** pValue,
                                                              size_t * valueLength )
 {
-    CborError status;
-    size_t length;
+    CborError status = CborErrorInternalError;
+    size_t length = 0;
     CborValue value = { 0 }, next = { 0 };
 
     status = cbor_value_map_find_value( pMap, key, &value );
@@ -776,55 +776,44 @@ MQTTBLEStatus_t IotBleMqtt_SerializeConnect( const MQTTBLEConnectInfo_t * const 
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    CborError error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
+    ( *pConnectPacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    error = prvSerializeConnect( pConnectInfo, NULL, &bufLen );
+    status = prvSerializeConnect( pConnectInfo, NULL, &bufLen );
 
-    if( error != CborNoError )
-    {
-        LogError( ( "Failed to find length of serialized CONNECT message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
-
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
+        {
+            status = prvSerializeConnect( pConnectInfo, pBuffer, &bufLen );
+
+            if( status == CborNoError )
+            {
+                *pConnectPacket = pBuffer;
+                *pPacketSize = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize CONNECT message, error = %d", status ) );
+            }
+        }
+        else
         {
             LogError( ( "Failed to allocate memory for CONNECT packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = prvSerializeConnect( pConnectInfo, pBuffer, &bufLen );
-
-        if( error != CborNoError )
-        {
-            LogError( ( "Failed to serialize CONNECT message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pConnectPacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        *pConnectPacket = NULL;
-        *pPacketSize = 0;
-
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
+        LogError( ( "Failed to find length of serialized CONNECT message, error = %d", status ) );
     }
 
     return ret;
@@ -835,7 +824,7 @@ MQTTBLEStatus_t IotBleMqtt_DeserializeConnack( const uint8_t * pMessage,
 {
     CborParser parser = { 0 };
     CborValue map = { 0 };
-    CborError status = CborNoError;
+    CborError status = CborErrorInternalError;
     int64_t respCode = 0;
     MQTTBLEStatus_t ret = MQTTBLESuccess;
 
@@ -879,54 +868,44 @@ MQTTBLEStatus_t IotBleMqtt_SerializePublish( const MQTTBLEPublishInfo_t * const 
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    CborError error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
-    error = prvSerializePublish( pPublishInfo, NULL, &bufLen, packetIdentifier );
+    ( *pPublishPacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    if( error != CborNoError )
-    {
-        LogError( ( "Failed to find size of serialized PUBLISH message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
+    status = prvSerializePublish( pPublishInfo, NULL, &bufLen, packetIdentifier );
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
+        {
+            status = prvSerializePublish( pPublishInfo, pBuffer, &bufLen, packetIdentifier );
+
+            if( status == CborNoError )
+            {
+                ( *pPublishPacket ) = pBuffer;
+                ( *pPacketSize ) = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize PUBLISH message, error = %d", status ) );
+            }
+        }
+        else
         {
             LogError( ( "Failed to allocate memory for PUBLISH packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = prvSerializePublish( pPublishInfo, pBuffer, &bufLen, packetIdentifier );
-
-        if( error != CborNoError )
-        {
-            LogError( ( "Failed to serialize PUBLISH message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pPublishPacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
-
-        *pPublishPacket = NULL;
-        *pPacketSize = 0;
+        LogError( ( "Failed to find size of serialized PUBLISH message, error = %d", status ) );
     }
 
     return ret;
@@ -1010,54 +989,44 @@ MQTTBLEStatus_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    CborError error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
-    error = prvSerializePubAck( packetIdentifier, NULL, &bufLen );
+    ( *pPubackPacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    if( error != CborNoError )
-    {
-        LogError( ( "Failed to find size of serialized PUBACK message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
+    status = prvSerializePubAck( packetIdentifier, NULL, &bufLen );
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
         {
-            LogError( ( "Failed to allocate memory for PUBACK packet, packet identifier = %d", packetIdentifier ) );
+            status = prvSerializePubAck( packetIdentifier, pBuffer, &bufLen );
+
+            if( status == CborNoError )
+            {
+                ( *pPubackPacket ) = pBuffer;
+                ( *pPacketSize ) = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize PUBACK message, error = %d", status ) );
+            }
+        }
+        else
+        {
+            LogError( ( "Failed to allocate memory for PUBACK packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = prvSerializePubAck( packetIdentifier, pBuffer, &bufLen );
-
-        if( error != CborNoError )
-        {
-            LogError( ( "Failed to find size of serialized PUBACK message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pPubackPacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
-
-        *pPubackPacket = NULL;
-        *pPacketSize = 0;
+        LogError( ( "Failed to find size of serialized PUBACK message, error = %d", status ) );
     }
 
     return ret;
@@ -1110,54 +1079,44 @@ MQTTBLEStatus_t IotBleMqtt_SerializeSubscribe( const MQTTBLESubscribeInfo_t * co
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    CborError error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
-    error = prvSerializeSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
+    ( *pSubscribePacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    if( error != CborNoError )
-    {
-        LogError( ( "Failed to find serialized length of SUBSCRIBE message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
+    status = prvSerializeSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
         {
-            LogError( ( "Failed to allocate memory for SUBSCRIBE message." ) );
+            status = prvSerializeSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
+
+            if( status == CborNoError )
+            {
+                ( *pSubscribePacket ) = pBuffer;
+                ( *pPacketSize ) = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize SUBSCRIBE message, error = %d", status ) );
+            }
+        }
+        else
+        {
+            LogError( ( "Failed to allocate memory for SUBSCRIBE packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = prvSerializeSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
-
-        if( error != CborNoError )
-        {
-            LogError( ( "Failed to serialize SUBSCRIBE message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pSubscribePacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
-
-        *pSubscribePacket = NULL;
-        *pPacketSize = 0;
+        LogError( ( "Failed to find size of serialized SUBSCRIBE message, error = %d", status ) );
     }
 
     return ret;
@@ -1221,54 +1180,44 @@ MQTTBLEStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTBLESubscribeInfo_t * 
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    CborError error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
-    error = prvSerializeUnSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
+    ( *pUnsubscribePacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    if( error != CborNoError )
-    {
-        LogError( ( "Failed to find serialized length of UNSUBSCRIBE message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
+    status = prvSerializeUnSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
         {
-            LogError( ( "Failed to allocate memory for UNSUBSCRIBE message." ) );
+            status = prvSerializeUnSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
+
+            if( status == CborNoError )
+            {
+                ( *pUnsubscribePacket ) = pBuffer;
+                ( *pPacketSize ) = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize UNSUBSCRIBE message, error = %d", status ) );
+            }
+        }
+        else
+        {
+            LogError( ( "Failed to allocate memory for UNSUBSCRIBE packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = prvSerializeUnSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
-
-        if( error != CborNoError )
-        {
-            LogError( ( "Failed to serialize UNSUBSCRIBE message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pUnsubscribePacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
-
-        *pUnsubscribePacket = NULL;
-        *pPacketSize = 0;
+        LogError( ( "Failed to find size of serialized UNSUBSCRIBE message, error = %d", status ) );
     }
 
     return ret;
@@ -1318,54 +1267,44 @@ MQTTBLEStatus_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPack
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    CborError error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
-    error = prvSerializeDisconnect( NULL, &bufLen );
+    ( *pDisconnectPacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    if( error != CborNoError )
-    {
-        LogError( ( "Failed to find serialized length of DISCONNECT message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
+    status = prvSerializeDisconnect( NULL, &bufLen );
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
         {
-            LogError( ( "Failed to allocate memory for DISCONNECT message." ) );
+            status = prvSerializeDisconnect( pBuffer, &bufLen );
+
+            if( status == CborNoError )
+            {
+                ( *pDisconnectPacket ) = pBuffer;
+                ( *pPacketSize ) = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize DISCONNECT message, error = %d", status ) );
+            }
+        }
+        else
+        {
+            LogError( ( "Failed to allocate memory for DISCONNECT packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = prvSerializeDisconnect( pBuffer, &bufLen );
-
-        if( error != CborNoError )
-        {
-            LogError( ( "Failed to serialize DISCONNECT message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pDisconnectPacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
-
-        *pDisconnectPacket = NULL;
-        *pPacketSize = 0;
+        LogError( ( "Failed to find size of serialized DISCONNECT message, error = %d", status ) );
     }
 
     return ret;
@@ -1424,54 +1363,44 @@ MQTTBLEStatus_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    CborError error;
-    MQTTBLEStatus_t ret = MQTTBLESuccess;
+    CborError status = CborErrorInternalError;
+    MQTTBLEStatus_t ret = MQTTBLEBadParameter;
 
-    error = prvSerializePingRequest( NULL, &bufLen );
+    ( *pPingreqPacket ) = NULL;
+    ( *pPacketSize ) = 0;
 
-    if( error != CborNoError )
-    {
-        LogError( ( "Failed to find serialized length of DISCONNECT message, error = %d", error ) );
-        ret = MQTTBLEBadParameter;
-    }
+    status = prvSerializePingRequest( NULL, &bufLen );
 
-    if( ret == MQTTBLESuccess )
+    if( status == CborNoError )
     {
         pBuffer = IotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
-        if( pBuffer == NULL )
+        if( pBuffer != NULL )
         {
-            LogError( ( "Failed to allocate memory for DISCONNECT message." ) );
+            status = prvSerializePingRequest( pBuffer, &bufLen );
+
+            if( status == CborNoError )
+            {
+                ( *pPingreqPacket ) = pBuffer;
+                ( *pPacketSize ) = bufLen;
+                ret = MQTTBLESuccess;
+            }
+            else
+            {
+                IotMqtt_FreeMessage( pBuffer );
+                LogError( ( "Failed to serialize PINGREQ message, error = %d", status ) );
+            }
+        }
+        else
+        {
+            LogError( ( "Failed to allocate memory for PINGREQ packet." ) );
             ret = MQTTBLENoMemory;
         }
     }
-
-    if( ret == MQTTBLESuccess )
-    {
-        error = prvSerializePingRequest( pBuffer, &bufLen );
-
-        if( error != CborNoError )
-        {
-            LogError( ( "Failed to serialize DISCONNECT message, error = %d", error ) );
-            ret = MQTTBLEBadParameter;
-        }
-    }
-
-    if( ret == MQTTBLESuccess )
-    {
-        *pPingreqPacket = pBuffer;
-        *pPacketSize = bufLen;
-    }
     else
     {
-        if( pBuffer != NULL )
-        {
-            IotMqtt_FreeMessage( pBuffer );
-        }
-
-        *pPingreqPacket = NULL;
-        *pPacketSize = 0;
+        LogError( ( "Failed to find size of serialized PINGREQ message, error = %d", status ) );
     }
 
     return ret;
