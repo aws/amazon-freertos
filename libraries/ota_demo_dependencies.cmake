@@ -50,8 +50,8 @@ afr_module_dependencies(
 # It represents a collection of module dependencies required
 # by the OTA demos.
 # This module enables the FreeRTOS console experience of enabling
-# library dependencies when selecting the MQTT library, so that the
-# coreMQTT demos can be downloaded.
+# library dependencies when selecting the OTA library, so that the
+# OTA demos can be downloaded.
 afr_module(NAME ota_demo_dependencies )
 afr_set_lib_metadata(ID "ota_demo_dependencies")
 afr_set_lib_metadata(DESCRIPTION "This library provides the interface to the over-the-air update agent, which allows devices to receive software updates securely via MQTT or HTTP.")
@@ -78,7 +78,7 @@ afr_module_include_dirs(
         ${OTA_INCLUDE_OS_FREERTOS_DIRS}
         ${OTA_INCLUDE_PRIVATE_DIRS}
 )
-# Add dependencies of the coreMQTT demos in this target
+# Add dependencies of the OTA demos in this target
 # to support metadata required for FreeRTOS console.
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

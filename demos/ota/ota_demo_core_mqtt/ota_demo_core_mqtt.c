@@ -45,11 +45,8 @@
 /* CoreMQTT-Agent include. */
 #include "core_mqtt_agent.h"
 
-/* CoreMQTT-Agent configuration file. */
-#include "core_mqtt_agent_config.h"
-
 /* Includes helpers for managing MQTT subscriptions. */
-#include "subscription_manager.h"
+#include "mqtt_subscription_manager.h"
 
 /* Retry utilities include. */
 #include "backoff_algorithm.h"
@@ -1107,8 +1104,8 @@ static void prvMQTTSubscribeCompleteCallback( MQTTAgentCommandContext_t * pxComm
 
     if( pxReturnInfo->returnCode == MQTTSuccess )
     {
-        pxSubsribeArgs = ( MQTTAgentSubscribeArgs_t * ) ( pxCommandContext->pArgs );
-        prvRegisterOTACallback( pxSubsribeArgs->pSubscribeInfo->pTopicFilter, pxSubsribeArgs->pSubscribeInfo->topicFilterLength );
+        pxSubscribeArgs = ( MQTTAgentSubscribeArgs_t * ) ( pxCommandContext->pArgs );
+        prvRegisterOTACallback( pxSubscribeArgs->pSubscribeInfo->pTopicFilter, pxSubscribeArgs->pSubscribeInfo->topicFilterLength );
     }
 
     /* Store the result in the application defined context so the task that
@@ -1130,21 +1127,21 @@ static void prvMQTTSubscribeCompleteCallback( MQTTAgentCommandContext_t * pxComm
 static void prvMQTTUnsubscribeCompleteCallback( MQTTAgentCommandContext_t * pxCommandContext,
                                                 MQTTAgentReturnInfo_t * pxReturnInfo )
 {
-    MQTTAgentSubscribeArgs_t * pxSubsribeArgs;
+    MQTTAgentSubscribeArgs_t * pxSubscribeArgs;
 
     if( pxReturnInfo->returnCode == MQTTSuccess )
     {
-        pxSubsribeArgs = ( MQTTAgentSubscribeArgs_t * ) ( pxCommandContext->pArgs );
+        pxSubscribeArgs = ( MQTTAgentSubscribeArgs_t * ) ( pxCommandContext->pArgs );
 
         /* Add subscription so that incoming publishes are routed to the
          * application callback. */
         SubscriptionManager_RemoveSubscription( ( SubscriptionElement_t * ) xGlobalMqttAgentContext.pIncomingCallbackContext,
-                                                pxSubsribeArgs->pSubscribeInfo->pTopicFilter,
-                                                pxSubsribeArgs->pSubscribeInfo->topicFilterLength );
+                                                pxSubscribeArgs->pSubscribeInfo->pTopicFilter,
+                                                pxSubscribeArgs->pSubscribeInfo->topicFilterLength );
 
         LogInfo( ( "Removed registration for topic %.*s.",
-                   pxSubsribeArgs->pSubscribeInfo->topicFilterLength,
-                   pxSubsribeArgs->pSubscribeInfo->pTopicFilter ) );
+                   pxSubscribeArgs->pSubscribeInfo->topicFilterLength,
+                   pxSubscribeArgs->pSubscribeInfo->pTopicFilter ) );
     }
 
     /* Store the result in the application defined context so the task that
@@ -1593,7 +1590,7 @@ static OtaMqttStatus_t prvMqttUnSubscribe( const char * pcTopicFilter,
     }
     else
     {
-        LogInfo( ( "Unsubsribed from topic %.*s to broker.\n\n",
+        LogInfo( ( "Unsubscribed from topic %.*s to broker.\n\n",
                    usTopicFilterLength,
                    pcTopicFilter ) );
     }
