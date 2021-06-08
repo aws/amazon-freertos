@@ -229,39 +229,49 @@
  * This is used to route all the packets for OTA reserved topics which OTA agent
  * has not subscribed for.
  */
-#define otaexampleDEFAULT_TOPIC_FILTER            otaexampleTOPIC_PREFIX "jobs/#"
+#define otaexampleDEFAULT_TOPIC_FILTER              otaexampleTOPIC_PREFIX "jobs/#"
 
 /**
  * @brief Length of default topic filter.
  */
-#define otaexampleDEFAULT_TOPIC_FILTER_LENGTH     ( ( uint16_t ) ( sizeof( otaexampleDEFAULT_TOPIC_FILTER ) - 1 ) )
+#define otaexampleDEFAULT_TOPIC_FILTER_LENGTH       ( ( uint16_t ) ( sizeof( otaexampleDEFAULT_TOPIC_FILTER ) - 1 ) )
 
 /**
  * @brief Stack size required for OTA agent task.
  */
-#define otaexampleAGENT_TASK_STACK_SIZE           ( 4000U )
+#define otaexampleAGENT_TASK_STACK_SIZE             ( 4000U )
 
 /**
  * @brief Priority required for OTA agent task.
  */
-#define otaexampleAGENT_TASK_PRIORITY             ( tskIDLE_PRIORITY )
+#define otaexampleAGENT_TASK_PRIORITY               ( tskIDLE_PRIORITY )
+
+/**
+ * @brief The number of ticks to wait for the OTA Agent to complete the shutdown.
+ */
+#define otaexampleOTA_SHUTDOWN_WAIT_TICKS           ( 0U )
+
+/**
+ * @brief Unsubscribe from the job topics when shutdown is called.
+ */
+#define otaexampleUNSUBSCRIBE_AFTER_OTA_SHUTDOWN    ( 1U )
 
 /**
  * @brief The maximum number of retries for network operation with server.
  */
-#define RETRY_MAX_ATTEMPTS                        ( 5U )
+#define RETRY_MAX_ATTEMPTS                          ( 5U )
 
 /**
  * @brief The maximum back-off delay (in milliseconds) for retrying failed
  * operation with server.
  */
-#define RETRY_MAX_BACKOFF_DELAY_MS                ( 5000U )
+#define RETRY_MAX_BACKOFF_DELAY_MS                  ( 5000U )
 
 /**
  * @brief The base back-off delay (in milliseconds) to use for network operation
  * retry attempts.
  */
-#define RETRY_BACKOFF_BASE_MS                     ( 500U )
+#define RETRY_BACKOFF_BASE_MS                       ( 500U )
 
 /**
  * @brief ALPN (Application-Layer Protocol Negotiation) protocol name for AWS
@@ -272,17 +282,17 @@
  * endpoint in the link below.
  * https://aws.amazon.com/blogs/iot/mqtt-with-tls-client-authentication-on-port-443-why-it-is-useful-and-how-it-works/
  */
-#define AWS_IOT_MQTT_ALPN                         "\x0ex-amzn-mqtt-ca"
+#define AWS_IOT_MQTT_ALPN                           "\x0ex-amzn-mqtt-ca"
 
 /**
  * @brief Length of ALPN protocol name.
  */
-#define AWS_IOT_MQTT_ALPN_LENGTH                  ( ( uint16_t ) ( sizeof( AWS_IOT_MQTT_ALPN ) - 1 ) )
+#define AWS_IOT_MQTT_ALPN_LENGTH                    ( ( uint16_t ) ( sizeof( AWS_IOT_MQTT_ALPN ) - 1 ) )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milli seconds.
  */
-#define CONNACK_RECV_TIMEOUT_MS                   ( 2000U )
+#define CONNACK_RECV_TIMEOUT_MS                     ( 2000U )
 
 /**
  * @brief The maximum time interval in seconds which is allowed to elapse
@@ -293,65 +303,65 @@
  * absence of sending any other Control Packets, the Client MUST send a
  * PINGREQ Packet.
  */
-#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS          ( 60U )
+#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS            ( 60U )
 
 /**
  * @brief Stack size required for MQTT agent task.
  * MQTT agent task takes care of TLS connection and reconnection, keeping task
  * stack size to high enough required for TLS connection.
  */
-#define MQTT_AGENT_TASK_STACK_SIZE                ( 6000U )
+#define MQTT_AGENT_TASK_STACK_SIZE                  ( 6000U )
 
 /**
  * @brief Priority required for OTA statistics task.
  */
-#define MQTT_AGENT_TASK_PRIORITY                  ( tskIDLE_PRIORITY )
+#define MQTT_AGENT_TASK_PRIORITY                    ( tskIDLE_PRIORITY )
 
 /**
  * @brief The maximum amount of time in milliseconds to wait for the commands
  * to be posted to the MQTT agent should the MQTT agent's command queue be full.
  * Tasks wait in the Blocked state, so don't use any CPU time.
  */
-#define MQTT_AGENT_SEND_BLOCK_TIME_MS             ( 200U )
+#define MQTT_AGENT_SEND_BLOCK_TIME_MS               ( 200U )
 
 /**
  * @brief This demo uses task notifications to signal tasks from MQTT callback
  * functions.  mqttexampleMS_TO_WAIT_FOR_NOTIFICATION defines the time, in ticks,
  * to wait for such a callback.
  */
-#define MQTT_AGENT_MS_TO_WAIT_FOR_NOTIFICATION    ( 5000U )
+#define MQTT_AGENT_MS_TO_WAIT_FOR_NOTIFICATION      ( 5000U )
 
 /**
  * @brief The maximum back-off delay (in milliseconds) for retrying connection
  * to server.
  */
-#define CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS     ( 5000U )
+#define CONNECTION_RETRY_MAX_BACKOFF_DELAY_MS       ( 5000U )
 
 /**
  * @brief The base back-off delay (in milliseconds) to use for connection retry
  * attempts.
  */
-#define CONNECTION_RETRY_BACKOFF_BASE_MS          ( 500U )
+#define CONNECTION_RETRY_BACKOFF_BASE_MS            ( 500U )
 
 /**
  * @brief The maximum number of retries for connecting to server.
  */
-#define CONNECTION_RETRY_MAX_ATTEMPTS             ( 5U )
+#define CONNECTION_RETRY_MAX_ATTEMPTS               ( 5U )
 
 /**
  * @brief Number of milliseconds in a second.
  */
-#define NUM_MILLISECONDS_IN_SECOND                ( 1000U )
+#define NUM_MILLISECONDS_IN_SECOND                  ( 1000U )
 
 /**
  * @brief Milliseconds per second.
  */
-#define MILLISECONDS_PER_SECOND                   ( 1000U )
+#define MILLISECONDS_PER_SECOND                     ( 1000U )
 
 /**
  * @brief Milliseconds per FreeRTOS tick.
  */
-#define MILLISECONDS_PER_TICK                     ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+#define MILLISECONDS_PER_TICK                       ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
 
 /**
  * @brief Each compilation unit that consumes the NetworkContext must define it.
@@ -859,7 +869,7 @@ static void prvOtaAppCallback( OtaJobEvent_t xEvent,
              * performed while shutting down please set the second parameter to
              * 0 instead of 1.
              */
-            OTA_Shutdown( 0, 1 );
+            OTA_Shutdown( otaexampleOTA_SHUTDOWN_WAIT_TICKS, otaexampleUNSUBSCRIBE_AFTER_OTA_SHUTDOWN );
 
             /* Requires manual activation of new image.*/
             LogError( ( "New image activation failed." ) );
@@ -915,7 +925,7 @@ static void prvOtaAppCallback( OtaJobEvent_t xEvent,
              * If it is required that the unsubscribe operations are not
              * performed while shutting down please set the second parameter to 0 instead of 1
              */
-            OTA_Shutdown( 0, 1 );
+            OTA_Shutdown( otaexampleOTA_SHUTDOWN_WAIT_TICKS, otaexampleUNSUBSCRIBE_AFTER_OTA_SHUTDOWN );
 
             break;
 
@@ -1685,8 +1695,8 @@ static void prvMQTTAgentTask( void * pParam )
 static BaseType_t prvSuspendOTA( void )
 {
     /* OTA library return status. */
-    OtaErr_t xOtaError = OtaErrNone;
-    BaseType_t xStatus = pdPASS;
+    OtaErr_t xOtaError = OtaErrUninitialized;
+    BaseType_t xStatus = pdFAIL;
     uint32_t ulSuspendTimeout;
 
     xOtaError = OTA_Suspend();
@@ -1705,13 +1715,15 @@ static BaseType_t prvSuspendOTA( void )
         if( OTA_GetState() != OtaAgentStateSuspended )
         {
             LogError( ( "Failed to suspend OTA." ) );
-            xStatus = pdFAIL;
+        }
+        else
+        {
+            xStatus = pdPASS;
         }
     }
     else
     {
         LogError( ( "Error while trying to suspend OTA agent %d", xOtaError ) );
-        xStatus = pdFAIL;
     }
 
     return xStatus;
@@ -1721,8 +1733,8 @@ static BaseType_t prvSuspendOTA( void )
 static BaseType_t prvResumeOTA( void )
 {
     /* OTA library return status. */
-    OtaErr_t xOtaError = OtaErrNone;
-    BaseType_t xStatus = pdPASS;
+    OtaErr_t xOtaError = OtaErrUninitialized;
+    BaseType_t xStatus = pdFAIL;
     uint32_t ulSuspendTimeout;
 
     xOtaError = OTA_Resume();
@@ -1741,13 +1753,15 @@ static BaseType_t prvResumeOTA( void )
         if( OTA_GetState() == OtaAgentStateSuspended )
         {
             LogError( ( "Failed to resume OTA." ) );
-            xStatus = pdFAIL;
+        }
+        else
+        {
+            xStatus = pdPASS;
         }
     }
     else
     {
         LogError( ( "Error while trying to resume OTA agent %d", xOtaError ) );
-        xStatus = pdFAIL;
     }
 
     return xStatus;
@@ -1757,10 +1771,10 @@ static BaseType_t prvResumeOTA( void )
 static BaseType_t prvRunOTADemo( void )
 {
     /* Status indicating a successful demo or not. */
-    BaseType_t xStatus = pdPASS;
+    BaseType_t xStatus = pdFAIL;
 
     /* OTA library return status. */
-    OtaErr_t xOtaError = OtaErrNone;
+    OtaErr_t xOtaError = OtaErrUninitialized;
 
     /* OTA event message used for sending event to OTA Agent.*/
     OtaEventMsg_t xEventMsg = { 0 };
@@ -1779,18 +1793,17 @@ static BaseType_t prvRunOTADemo( void )
 
     /*************************** Init OTA Library. ***************************/
 
-    if( xStatus == pdPASS )
+    if( ( xOtaError = OTA_Init( &xOtaBuffer,
+                                &xOtaInterfaces,
+                                ( const uint8_t * ) ( democonfigCLIENT_IDENTIFIER ),
+                                prvOtaAppCallback ) ) != OtaErrNone )
     {
-        if( ( xOtaError = OTA_Init( &xOtaBuffer,
-                                    &xOtaInterfaces,
-                                    ( const uint8_t * ) ( democonfigCLIENT_IDENTIFIER ),
-                                    prvOtaAppCallback ) ) != OtaErrNone )
-        {
-            LogError( ( "Failed to initialize OTA Agent, exiting = %u.",
-                        xOtaError ) );
-
-            xStatus = pdFAIL;
-        }
+        LogError( ( "Failed to initialize OTA Agent, exiting = %u.",
+                    xOtaError ) );
+    }
+    else
+    {
+        xStatus = pdPASS;
     }
 
     /************************ Create OTA Agent Task. ************************/
@@ -1880,7 +1893,7 @@ int RunOtaCoreMqttDemo( bool xAwsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pxNetworkInterface;
 
-    BaseType_t xDemoStatus = pdPASS;
+    BaseType_t xDemoStatus = pdFAIL;
     BaseType_t xMqttInitialized = pdFALSE;
 
     LogInfo( ( "OTA over MQTT demo, Application version %u.%u.%u",
@@ -1894,7 +1907,10 @@ int RunOtaCoreMqttDemo( bool xAwsIotMqttMode,
     if( xBufferSemaphore == NULL )
     {
         LogError( ( "Failed to initialize buffer semaphore." ) );
-        xDemoStatus = pdFAIL;
+    }
+    else
+    {
+        xDemoStatus = pdPASS;
     }
 
     /****************************** Init MQTT ******************************/
