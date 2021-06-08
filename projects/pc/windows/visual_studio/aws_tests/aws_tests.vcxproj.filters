@@ -237,9 +237,6 @@
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\portmacro.h">
 			<Filter>freertos_kernel\portable\MSVC-MingW</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\tests\include\aws_application_version.h">
-			<Filter>tests\include</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\tests\include\aws_clientcredential.h">
 			<Filter>tests\include</Filter>
 		</ClInclude>
@@ -263,9 +260,6 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\tests\include\iot_config_common.h">
 			<Filter>tests\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h">
-			<Filter>libraries\c_sdk\standard\common\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h">
 			<Filter>libraries\c_sdk\standard\common\include</Filter>

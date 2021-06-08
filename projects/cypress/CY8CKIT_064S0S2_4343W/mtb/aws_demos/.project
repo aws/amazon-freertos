@@ -112,11 +112,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/demos/demo_runner/aws_demo.c</locationURI>
 		</link>
 		<link>
-			<name>demos/demo_runner/aws_demo_version.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/demos/demo_runner/aws_demo_version.c</locationURI>
-		</link>
-		<link>
 			<name>demos/demo_runner/iot_demo_freertos.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/demos/demo_runner/iot_demo_freertos.c</locationURI>

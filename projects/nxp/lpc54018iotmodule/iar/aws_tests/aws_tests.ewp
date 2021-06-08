@@ -1945,9 +1945,6 @@
 		<group>
 			<name>include</name>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\tests\include\aws_application_version.h</name>
-			</file>
-			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\tests\include\aws_clientcredential.h</name>
 			</file>
 			<file>
@@ -1998,9 +1995,6 @@
 					</file>
 					<group>
 						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h</name>
-						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h</name>
 						</file>

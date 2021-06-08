@@ -29,7 +29,6 @@ INCLUDES+=\
 ifeq ($(CY_AFR_IS_TESTING), 0)
 SOURCES+=\
 	$(CY_AFR_ROOT)/demos/demo_runner/aws_demo.c\
-	$(CY_AFR_ROOT)/demos/demo_runner/aws_demo_version.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
 	$(CY_AFR_ROOT)/demos/common/http_demo_helpers/http_demo_utils.c\

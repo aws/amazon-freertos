@@ -1173,11 +1173,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/tests/common/iot_tests_network.c</locationURI>
 		</link>
 		<link>
-			<name>tests/include/aws_application_version.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/tests/include/aws_application_version.h</locationURI>
-		</link>
-		<link>
 			<name>tests/include/aws_clientcredential.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/tests/include/aws_clientcredential.h</locationURI>
@@ -1221,11 +1216,6 @@
 			<name>libraries/c_sdk/standard/common/iot_init.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/iot_init.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/iot_appversion32.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/iot_appversion32.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_init.h</name>
