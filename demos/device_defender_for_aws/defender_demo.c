@@ -487,6 +487,7 @@ static BaseType_t collectDeviceMetrics( void )
         else
         {
             size_t i;
+
             /* Populate the task IDs array from the collected system state array. */
             for( i = 0; i < tasksWritten; i++ )
             {

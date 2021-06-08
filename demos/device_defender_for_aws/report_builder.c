@@ -490,7 +490,7 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
             LogError( ( "Failed to write part 1 of JSON report to buffer. "
                         "Remaining buffer space is %lu. Needed %lu.",
                         ( unsigned long ) remainingBufferLength,
-                        ( unsigned long ) ( sizeof(JSON_REPORT_FORMAT_PART5) - 1 ) ) );
+                        ( unsigned long ) ( sizeof( JSON_REPORT_FORMAT_PART5 ) - 1 ) ) );
             status = ReportBuilderBufferTooSmall;
         }
         else
@@ -537,7 +537,7 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
             LogError( ( "Failed to write part 2 of JSON report to buffer. "
                         "Remaining buffer space is %lu. Needed %lu.",
                         ( unsigned long ) remainingBufferLength,
-                        ( unsigned long ) ( sizeof(JSON_REPORT_FORMAT_PART5) - 1 ) ) );
+                        ( unsigned long ) ( sizeof( JSON_REPORT_FORMAT_PART5 ) - 1 ) ) );
             status = ReportBuilderBufferTooSmall;
         }
         else
@@ -594,7 +594,7 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
             LogError( ( "Failed to write part 3 of JSON report to buffer. "
                         "Remaining buffer space is %lu. Needed %lu.",
                         ( unsigned long ) remainingBufferLength,
-                        ( unsigned long ) ( sizeof(JSON_REPORT_FORMAT_PART5) - 1 ) ) );
+                        ( unsigned long ) ( sizeof( JSON_REPORT_FORMAT_PART5 ) - 1 ) ) );
             status = ReportBuilderBufferTooSmall;
         }
         else
@@ -643,7 +643,7 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
             LogError( ( "Failed to write part 4 of JSON report to buffer. "
                         "Remaining buffer space is %lu. Needed %lu.",
                         ( unsigned long ) remainingBufferLength,
-                        ( unsigned long ) ( sizeof(JSON_REPORT_FORMAT_PART5) - 1 ) ) );
+                        ( unsigned long ) ( sizeof( JSON_REPORT_FORMAT_PART5 ) - 1 ) ) );
             status = ReportBuilderBufferTooSmall;
         }
         else
@@ -686,7 +686,7 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
             LogError( ( "Failed to write part 5 of JSON report to buffer. "
                         "Remaining buffer space is %lu. Needed %lu.",
                         ( unsigned long ) remainingBufferLength,
-                        ( unsigned long ) ( sizeof(JSON_REPORT_FORMAT_PART5) - 1 ) ) );
+                        ( unsigned long ) ( sizeof( JSON_REPORT_FORMAT_PART5 ) - 1 ) ) );
             status = ReportBuilderBufferTooSmall;
         }
         else
