@@ -133,27 +133,55 @@ typedef struct
  */
 typedef enum
 {
-    eBTauthSuccess,                /**< eBTauthSuccess. */
-    eBTauthFailLmpRespTimeout,     /**< eBTauthFailLmpRespTimeout. */
-    eBTauthFailKeyMissing,         /**< eBTauthFailKeyMissing. */
-    eBTauthFailEncrypMode,         /**< eBTauthFailEncrypMode. */
-    eBTauthFailUnitKey,            /**< eBTauthFailUnitKey. */
-    eBTauthFailSmpCfrmValue,       /**< eBTauthFailSmpCfrmValue. */
-    eBTauthFailSmpEnc,             /**< eBTauthFailSmpEnc. */
-    eBTauthFailSmpTimeout,         /**< eBTauthFailSmpTimeout. */
-    eBTauthFailPageTimeout,        /**< eBTauthFailPageTimeout. */
-    eBTauthFailSmpPasskeyFail,     /**< eBTauthFailSmpPasskeyFail. */
-    eBTauthFailSmpOobFail,         /**< eBTauthFailSmpOobFail. */
-    eBTauthFailSmpFail,            /**< eBTauthFailSmpFail. */
-    eBTauthFailConnTimeout,        /**< eBTauthFailConnTimeout. */
-    eBTauthFailSmp,                /**< eBTauthFailSmp. */
-    eBTauthFailSmpPairNotSupport,  /**< eBTauthFailSmpPairNotSupport. */
-    eBTauthFailSmpUnknownIo,       /**< eBTauthFailSmpUnknownIo. */
-    eBTauthFailSmpUnknown,         /**< eBTauthFailSmpUnknown. */
-    eBTauthFailHostRejectSecurity, /**< eBTauthFailHostRejectSecurity. */
-    eBTauthFailInsuffSecurity,     /**< eBTauthFailInsuffSecurity. */
-    eBTauthFailPeerUser,           /**< eBTauthFailPeerUser. */
-    eBTauthFailUnspecified,        /**< eBTauthFailUnspecified. */
+    eBTauthSuccess,                     /**< eBTauthSuccess. */
+    eBTauthFailLmpRespTimeout,          /**< eBTauthFailLmpRespTimeout. */
+    eBTauthFailKeyMissing,              /**< eBTauthFailKeyMissing. */
+    eBTauthFailEncrypMode,              /**< eBTauthFailEncrypMode. */
+    eBTauthFailUnitKey,                 /**< eBTauthFailUnitKey. */
+    eBTauthFailSmpCfrmValue,            /**< eBTauthFailSmpCfrmValue. */
+    eBTauthFailSmpEnc,                  /**< eBTauthFailSmpEnc. */
+    eBTauthFailSmpTimeout,              /**< eBTauthFailSmpTimeout. */
+    eBTauthFailPageTimeout,             /**< eBTauthFailPageTimeout. */
+    eBTauthFailSmpPasskeyFail,          /**< eBTauthFailSmpPasskeyFail. */
+    eBTauthFailSmpOobFail,              /**< eBTauthFailSmpOobFail. */
+    eBTauthFailSmpFail,                 /**< eBTauthFailSmpFail. */
+    eBTauthFailConnTimeout,             /**< eBTauthFailConnTimeout. */
+    eBTauthFailSmp,                     /**< eBTauthFailSmp. */
+    eBTauthFailSmpPairNotSupport,       /**< eBTauthFailSmpPairNotSupport. */
+    eBTauthFailSmpUnknownIo,            /**< eBTauthFailSmpUnknownIo. */
+    eBTauthFailSmpUnknown,              /**< eBTauthFailSmpUnknown. */
+    eBTauthFailHostRejectSecurity,      /**< eBTauthFailHostRejectSecurity. */
+    eBTauthFailInsuffSecurity,          /**< eBTauthFailInsuffSecurity. */
+    eBTauthFailPeerUser,                /**< eBTauthFailPeerUser. */
+    eBTauthFailUnspecified,             /**< eBTauthFailUnspecified. */
+    eBTauthFailSmpAuthReqFail,          /**< eBTauthFailSmpAuthReqFail. */
+    eBTauthFailSmpConfirmValueFail,     /**< eBTauthFailSmpConfirmValueFail. */
+    eBTauthFailSmpEncKeySize,           /**< eBTauthFailSmpEncKeySize. */
+    eBTauthFailSmpCmdNotSupport,        /**< eBTauthFailSmpCmdNotSupport. */
+    eBTauthFailSmpUnspecified,          /**< eBTauthFailSmpUnspecified. */
+    eBTauthFailSnpRepeatedAttempt,      /**< eBTauthFailSnpRepeatedAttempt. */
+    eBTauthFailSmpInvalidParameters,    /**< eBTauthFailSmpInvalidParameters. */
+    eBTauthFailSmpDhkeyCheckFail,       /**< eBTauthFailSmpDhkeyCheckFail. */
+    eBTauthFailSmpNumericComparFail,    /**< eBTauthFailSmpNumericComparFail. */
+    eBTauthFailSmpBrPairInProg,         /**< eBTauthFailSmpBrPairInProg. */
+    eBTauthFailSmpXtransDeriveNotAllow, /**< eBTauthFailSmpXtransDeriveNotAllow. */
+    eBTauthFailSmpInternalErr,          /**< eBTauthFailSmpInternalErr. */
+    eBTauthFailSmpInitFail,             /**< eBTauthFailSmpInitFail. */
+    eBTauthFailSmpConfirmFail,          /**< eBTauthFailSmpConfirmFail. */
+    eBTauthFailSmpBusy,                 /**< eBTauthFailSmpBusy. */
+    eBTauthFailSmpEncFail,              /**< eBTauthFailSmpEncFail. */
+    eBTauthFailSmpRspTimeout,           /**< eBTauthFailSmpRspTimeout. */
+    eBTauthFailSmpConnTimeout,          /**< eBTauthFailSmpConnTimeout. */
+    eBTauthFailSmpStarted,              /**< eBTauthFailSmpStarted. */
+    eBTauthFailSmpDivNotAvail,          /**< eBTauthFailSmpDivNotAvail. */
+    eBTauthFailSmpUndefined,            /**< eBTauthFailSmpUndefined. */
+    eBTbondFailHidNameFail,             /**< eBTbondFailHidNameFail. */
+    eBTbondFailHidConnectFail,          /**< eBTbondFailHidConnectFail. */
+    eBTbondFailHidOpenFail,             /**< eBTbondFailHidOpenFail. */
+    eBTbondFailTemporary,               /**< eBTbondFailTemporary. */
+    eBTbondFailCancelSuccess,           /**< eBTbondFailCancelSuccess. */
+    eBTbondFailCancelFail,              /**< eBTbondFailCancelFail. */
+    eBTauthFailHciErrStart = 1000       /**< eBTauthFailHciErrStart. */
 } BTAuthFailureReason_t;
 
 
