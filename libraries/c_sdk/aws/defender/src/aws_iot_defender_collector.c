@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Defender V3.0.2
+ * FreeRTOS Defender V3.0.3
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -83,7 +83,7 @@ static void _assertSuccessOrBufferToSmall( IotSerializerError_t error );
 
 static void _copyMetricsFlag( void );
 
-static void _serialize( void );
+static void serializeReport( void );
 
 static void _serializeTcpConnections( void * param1,
                                       const IotListDouble_t * pTcpConnectionsMetricsList );
@@ -145,7 +145,7 @@ bool AwsIotDefenderInternal_CreateReport( void )
     _AwsIotDefenderReportId = IotClock_GetTimeMs();
 
     /* Dry-run serialization to calculate the required size. */
-    _serialize();
+    serializeReport();
 
     /* Get the calculated required size. */
     dataSize = _pAwsIotDefenderEncoder->getExtraBufferSizeNeeded( pEncoderObject );
@@ -162,7 +162,7 @@ bool AwsIotDefenderInternal_CreateReport( void )
         _report.size = dataSize;
 
         /* Actual serialization. */
-        _serialize();
+        serializeReport();
 
         /* Ouput the report to stdout if debugging mode is enabled. */
         #if DEBUG_CBOR_PRINT == 1
@@ -205,7 +205,7 @@ void AwsIotDefenderInternal_DeleteReport( void )
  *  }
  * }
  */
-static void _serialize( void )
+static void serializeReport( void )
 {
     IotSerializerError_t serializerError = IOT_SERIALIZER_SUCCESS;
 

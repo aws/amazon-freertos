@@ -1,5 +1,5 @@
 /*
- * FreeRTOS HTTPS Client V1.1.3
+ * FreeRTOS HTTPS Client V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -240,7 +240,6 @@ static IotHttpsConnectionInfo_t _connInfo =
     .pAddress             = IOT_TEST_HTTPS_SERVER_HOST_NAME,
     .addressLen           = sizeof( IOT_TEST_HTTPS_SERVER_HOST_NAME ) - 1,
     .port                 = IOT_TEST_HTTPS_PORT,
-    .flags                = 0,
     .userBuffer.pBuffer   = _pConnUserBuffer,
     .userBuffer.bufferLen = sizeof( _pConnUserBuffer ),
     #if IOT_TEST_SECURED_CONNECTION == 1
@@ -252,7 +251,10 @@ static IotHttpsConnectionInfo_t _connInfo =
         .privateKeyLen    = sizeof( IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY ),
         .pAlpnProtocols   = IOT_TEST_HTTPS_ALPN_PROTOCOLS,
         .alpnProtocolsLen = sizeof( IOT_TEST_HTTPS_ALPN_PROTOCOLS ),
-    #endif
+        .flags            = 0,
+    #else
+        .flags            = IOT_HTTPS_IS_NON_TLS_FLAG,
+    #endif /* if IOT_TEST_SECURED_CONNECTION == 1 */
     .pNetworkInterface    = NULL /* This will be set during TEST_SETUP(). */
 };
 

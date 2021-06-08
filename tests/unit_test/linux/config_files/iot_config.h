@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -60,21 +60,6 @@
 /* Platform thread stack size and priority. */
 #define IOT_THREAD_DEFAULT_STACK_SIZE           6000
 #define IOT_THREAD_DEFAULT_PRIORITY             5
-
-/* This board supports MQTT-over-BLE, which uses a different serializer than normal
- * MQTT 3.1.1. Enable the serializer overrides of the MQTT library. */
-#define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
-
-/* Provide additional serializer initialization functions. */
-extern bool IotBleMqtt_InitSerialize( void );
-extern void IotBleMqtt_CleanupSerialize( void );
-#define _IotMqtt_InitSerializeAdditional       IotBleMqtt_InitSerialize
-#define _IotMqtt_CleanupSerializeAdditional    IotBleMqtt_CleanupSerialize
-
-/* Provide a function to retrieve the serializer function pointers in the MQTT demo. */
-typedef struct IotMqttSerializer IotMqttSerializer_t;
-extern const IotMqttSerializer_t * demoGetMqttSerializer( void );
-#define IOT_DEMO_MQTT_SERIALIZER    demoGetMqttSerializer()
 
 #define iotconfigUSE_PORT_SPECIFIC_HOOKS
 

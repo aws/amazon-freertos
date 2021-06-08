@@ -23,7 +23,6 @@ AUTOLINK_SUPPORT = NO
 
 # External tag files required by this library.
 TAGFILES = doc/output/platform.tag=../platform \
-           doc/output/https.tag=../https \
            doc/output/posix.tag=../posix \
            doc/output/wifi.tag=../wifi \
            doc/output/secure_sockets.tag=../secure_sockets

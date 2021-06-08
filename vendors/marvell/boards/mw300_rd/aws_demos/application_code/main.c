@@ -57,17 +57,14 @@ const AppVersion32_t xAppFirmwareVersion = {
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
-#define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
+#define mainLOGGING_TASK_STACK_SIZE         ( 512 )
 
 /* Startup defines. */
-#define mainSTARTUP_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 4 )
+#define mainSTARTUP_TASK_STACK_SIZE     ( 1024 )
 
 /* The task delay for allowing the lower priority logging task to print out Wi-Fi 
  * failure status before blocking indefinitely. */
 #define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
-
-/* Unit test defines. */
-#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 16 )
 
 /* The name of the devices for xApplicationDNSQueryHook. */
 #define mainDEVICE_NICK_NAME				"mw300_rd" /* FIX ME.*/
@@ -126,14 +123,12 @@ void wm_printf(const char *format, ...)
 		&format[0]);
     UART_WriteLine(UART0_ID, (uint8_t *) ll_msg_buf_);
 }
+
 /**
- * @brief Application task startup hook for applications using Wi-Fi. If you are not 
- * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
- * function. If you are not using Wi-Fi, this hook can be disabled by setting
- * configUSE_DAEMON_TASK_STARTUP_HOOK to 0.
+ * @brief Application startup task that provisions board with credentials and initiates demo run.
  */
 //void vApplicationDaemonTaskStartupHook( void );
-void vStartupHook( void *pvParameters);
+void vStartupTask( void *pvParameters);
 
 /**
  * @brief Application IP network event hook called by the FreeRTOS+TCP stack for
@@ -142,11 +137,6 @@ void vStartupHook( void *pvParameters);
  * network status is up.
  */
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent );
-
-/**
- * @brief Connects to Wi-Fi.
- */
-static void prvWifiConnect( void );
 
 /**
  * @brief Initializes the board.
@@ -173,11 +163,11 @@ int main( void )
 
     /* FreeRTOS+TCP stack init */
     vApplicationIPInit();
-
-    /* Create the task to run unit tests. */
-    xTaskCreate( vStartupHook,
-                 "Startup Hook",
-		             mainSTARTUP_TASK_STACK_SIZE,
+    
+    /* Create a task to initialize system and run demos. */
+    xTaskCreate( vStartupTask,
+                 "Startup Task",
+                 mainSTARTUP_TASK_STACK_SIZE,
                  NULL,
                  tskIDLE_PRIORITY + 2,
                  NULL );
@@ -246,19 +236,19 @@ static void prvMiscInitialization( void )
 
     configPRINT_STRING("FreeRTOS Started\r\n");
 }
+
 /*-----------------------------------------------------------*/
 
 //void vApplicationDaemonTaskStartupHook( void )
-void vStartupHook( void *pvParameters)
+void vStartupTask( void * pvParameters )
 {
-    configPRINT("\r\nApplication Daemon Startup \r\n");
+    configPRINT( "\r\nApplication Daemon Startup \r\n" );
 
-    if( SYSTEM_Init() == pdPASS ) {
-        /* Connect to the Wi-Fi before running the tests. */
-        prvWifiConnect();
-    } else {
-        configPRINT("\r\nSystem Init failed \r\n");
+    if( SYSTEM_Init() != pdPASS )
+    {
+        configPRINT( "\r\nSystem Init failed \r\n" );
     }
+
     /* A simple example to demonstrate key and certificate provisioning in
      * flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
@@ -266,8 +256,10 @@ void vStartupHook( void *pvParameters)
 
     /* Start the demo tasks. */
     DEMO_RUNNER_RunDemos();
+
     vTaskDelete(NULL);
 }
+
 /*-----------------------------------------------------------*/
 #include <FreeRTOS_Sockets.h>
 #include <FreeRTOS_DHCP.h>
@@ -361,68 +353,6 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         }
     }
 }
-/*-----------------------------------------------------------*/
-
-void prvWifiConnect( void )
-{
-
-    WIFINetworkParams_t xNetworkParams;
-    WIFIReturnCode_t xWifiStatus;
-    uint8_t ucTempIp[4] = { 0 };
-
-    configPRINT("\r\nWill attempt to start wlan \r\n");
-    xWifiStatus = WIFI_On();
-
-    if( xWifiStatus == eWiFiSuccess ) {
-        configPRINT( "\r\nWi-Fi module initialized. Connecting to AP...\r\n" );
-    } else {
-        configPRINT( "\r\nWi-Fi module failed to initialize.\r\n");
-
-        /* Delay to allow the lower priority logging task to print the above status.
-         * The while loop below will block the above printing. */
-        vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
-
-        while( 1 ) {
-        }
-    }
-
-    /* Setup parameters. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    xNetworkParams.cChannel = 0;
-
-    xWifiStatus = WIFI_ConnectAP(&xNetworkParams);
-    if( xWifiStatus == eWiFiSuccess ) {
-        configPRINT( "\r\nWi-Fi Connected to AP. Creating tasks which use network...\r\n" );
-        xWifiStatus = WIFI_GetIP( ucTempIp );
-        if ( eWiFiSuccess == xWifiStatus ) {
-            wmprintf( "IP Address acquired %d.%d.%d.%d\r\n",
-                ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] );
-        }
-    } else {
-        /* Connection failed, configure SoftAP. */
-        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
-        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
-        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
-        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
-
-        configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
-                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-
-        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess ) {
-                configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
-                                xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-        }
-
-        configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
-    }
-}
-
 /*-----------------------------------------------------------*/
 
 

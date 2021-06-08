@@ -196,6 +196,8 @@ struct mtk_wifi_state_t
     bool                connected;
 
     uint16_t            ssid_not_found;
+		uint8_t 						ucSSID[ wificonfigMAX_SSID_LEN ];
+		uint32_t 					  ucSSIDLength;
 
     uint16_t            connect_fail_result_code;
 
@@ -381,6 +383,8 @@ static void _ip_init( uint8_t op_mode )
     _g_state.sta_ip_mode                 = STA_IP_MODE_DHCP;
     _g_state.sta_ip_ready_wait           = false;
     _g_state.sta_ip_ready                = false;
+		memset( _g_state.ucSSID, 0, sizeof( _g_state.ucSSID ) );
+		_g_state.ucSSIDLength = 0;
 
     tcpip_config_init( &tcpip_config );
     lwip_tcpip_init  ( &tcpip_config, op_mode );
@@ -926,9 +930,8 @@ static bool _mtk_wifi_apply_setting( uint8_t port,
     /* check ssid */
 
     if( NULL == pxNetworkParams ||
-        NULL == pxNetworkParams->pcSSID ||
-        pxNetworkParams->ucSSIDLength <= 1 ||
-        pxNetworkParams->ucSSIDLength > ( wificonfigMAX_SSID_LEN + 1 ) )
+        0 == pxNetworkParams->ucSSIDLength ||
+        pxNetworkParams->ucSSIDLength > wificonfigMAX_SSID_LEN )
     {
         return false;
     }
@@ -942,26 +945,26 @@ static bool _mtk_wifi_apply_setting( uint8_t port,
             pxNetworkParams->xSecurity != eWiFiSecurityWPA2 )
             return false;
 
-        if( NULL == pxNetworkParams->pcPassword )
+        if( 0 == pxNetworkParams->xPassword.xWPA.ucLength )
             return false;
 
-        if( pxNetworkParams->ucPasswordLength > ( wificonfigMAX_PASSPHRASE_LEN + 1 ) ||
-            pxNetworkParams->ucPasswordLength <= 1 )
+        if( pxNetworkParams->xPassword.xWPA.ucLength > wificonfigMAX_PASSPHRASE_LEN ||
+            pxNetworkParams->xPassword.xWPA.ucLength <= 0 )
             return false;
     }
 
     mtk_auth = _aws_security_to_mtk_auth   ( pxNetworkParams->xSecurity );
     mtk_ciph = _aws_security_to_mtk_encrypt( pxNetworkParams->xSecurity );
 
-    if( port == WIFI_PORT_AP && wifi_config_set_channel( port, pxNetworkParams->cChannel ) < 0 )
+    if( port == WIFI_PORT_AP && wifi_config_set_channel( port, pxNetworkParams->ucChannel ) < 0 )
     {
         LOG_E( wifi, "%s: set CHANNEL fail\n", __FUNCTION__ );
         return false;
     }
 
     if( wifi_config_set_ssid( port,
-                              (uint8_t *) pxNetworkParams->pcSSID,
-                              (uint8_t) pxNetworkParams->ucSSIDLength - 1) < 0 )
+                              (uint8_t *) pxNetworkParams->ucSSID,
+                              (uint8_t) pxNetworkParams->ucSSIDLength ) < 0 )
     {
         LOG_E( wifi, "%s: set SSID fail\n", __FUNCTION__ );
         return false;
@@ -981,13 +984,13 @@ static bool _mtk_wifi_apply_setting( uint8_t port,
         memset( &wep_keys, 0, sizeof( wep_keys ) );
 
         if( WIFI_ENCRYPT_TYPE_WEP_ENABLED == mtk_ciph &&
-            NULL != pxNetworkParams->pcPassword )
+            0 != pxNetworkParams->xPassword.xWEP[ 0 ].ucLength )
         {
             memcpy( &wep_keys.wep_key[ 0 ],
-                    pxNetworkParams->pcPassword,
-                    pxNetworkParams->ucPasswordLength - 1 );
+                    pxNetworkParams->xPassword.xWEP[ 0 ].cKey,
+                    pxNetworkParams->xPassword.xWEP[ 0 ].ucLength );
 
-            wep_keys.wep_key_length[ 0 ] = pxNetworkParams->ucPasswordLength;
+            wep_keys.wep_key_length[ 0 ] = pxNetworkParams->xPassword.xWEP[ 0 ].ucLength;
             wep_keys.wep_tx_key_index    = 0;
         }
 
@@ -1000,8 +1003,8 @@ static bool _mtk_wifi_apply_setting( uint8_t port,
     else if( WIFI_ENCRYPT_TYPE_TKIP_AES_MIX == mtk_ciph )
     {
         if( wifi_config_set_wpa_psk_key( port,
-                                         (uint8_t *)pxNetworkParams->pcPassword,
-                                         (uint8_t)pxNetworkParams->ucPasswordLength ) < 0 )
+                                         (uint8_t *)pxNetworkParams->xPassword.xWPA.cPassphrase,
+                                         (uint8_t)pxNetworkParams->xPassword.xWPA.ucLength ) < 0 )
         {
             LOG_E( wifi, "%s: set WPA/WPA2 PSK KEY fail\n", __FUNCTION__ );
             return false;
@@ -1071,7 +1074,7 @@ static WIFIReturnCode_t _mtk_wifi_bootstrap( void )
     config_ext.sta_wep_key_index_present    = 0;
     config_ext.sta_wep_key_index            = 0;
     config_ext.sta_auto_connect_present     = 1;
-	config_ext.sta_auto_connect             = 0;
+		config_ext.sta_auto_connect             = 0;
 
     config_ext.ap_wep_key_index_present     = 0;
     config_ext.ap_wep_key_index             = 0;
@@ -1160,7 +1163,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
 {
     LOG_I( wifi, "%s: connecting\n", __FUNCTION__ );
 
-    if( NULL == pxNetworkParams || NULL == pxNetworkParams->pcSSID )
+    if( NULL == pxNetworkParams || 0 == pxNetworkParams->ucSSIDLength )
     {
         return eWiFiFailure;
     }
@@ -1170,7 +1173,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         return eWiFiFailure;
     }
 
-    if( NULL == pxNetworkParams->pcPassword &&
+    if( 0 == pxNetworkParams->xPassword.xWPA.ucLength &&
         eWiFiSecurityOpen != pxNetworkParams->xSecurity )
     {
         return eWiFiFailure;
@@ -1181,7 +1184,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         return eWiFiFailure;
     }
 
-    if ( pxNetworkParams->ucPasswordLength > wificonfigMAX_PASSPHRASE_LEN )
+    if ( pxNetworkParams->xPassword.xWPA.ucLength > wificonfigMAX_PASSPHRASE_LEN )
     {
         return eWiFiFailure;
     }
@@ -1231,6 +1234,9 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         return eWiFiFailure;
     }
 
+		memcpy( _g_state.ucSSID, pxNetworkParams->ucSSID, wificonfigMAX_SSID_LEN);
+		_g_state.ucSSIDLength = pxNetworkParams->ucSSIDLength;
+		
     LOG_I( wifi, "%s: IP ready\n", __FUNCTION__ );
 
     xSemaphoreGive( _g_state.critical_section );
@@ -1448,7 +1454,7 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
                              (uint32_t)usCount,
                              ulIntervalMS);
 
-    if( count < 0 )
+    if( count <= 0 )
         return eWiFiFailure;
 
     if( count != usCount )
@@ -1461,12 +1467,12 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_GetIP( uint8_t * pxIPAddr )
+WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * pxIPConfig )
 {
     ip4_addr_t      ip4_addr;
     struct netif    *iface;
 
-    if( NULL == pxIPAddr || NULL == ( iface = netif_find( "st2" ) ) )
+    if( NULL == ( iface = netif_find( "st2" ) ) || NULL == pxIPConfig )
     {
         return eWiFiFailure;
     }
@@ -1483,7 +1489,7 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pxIPAddr )
         ip4_addr = iface->ip_addr;
     }
 
-    memcpy( pxIPAddr, &ip4_addr.addr, sizeof( ip4_addr.addr ) );
+    memcpy( ( uint8_t *)&pxIPConfig->xIPAddress.ulAddress[ 0 ] , &ip4_addr.addr, sizeof( ip4_addr.addr ) );
 
     return eWiFiSuccess;
 }
@@ -1680,9 +1686,11 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     {
         if( pxApList[ i ].is_valid ) {
             /* SSID */
-            memcpy( &pxBuffer[ j ].cSSID[ 0 ],
+            memcpy( &pxBuffer[ j ].ucSSID[ 0 ],
                     &pxApList[ i ].ssid [ 0 ],
                     wificonfigMAX_SSID_LEN > WIFI_MAX_LENGTH_OF_SSID ? WIFI_MAX_LENGTH_OF_SSID : wificonfigMAX_SSID_LEN );
+						pxBuffer[ j ].ucSSIDLength = pxApList[ i ].ssid_length;
+					
             /* BSSID */
             memcpy( &pxBuffer[ j ].ucBSSID[ 0 ],
                     &pxApList[ i ].bssid  [ 0 ],
@@ -1696,10 +1704,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
             pxBuffer[ j ].cRSSI = pxApList[ i ].rssi;
 
             /* channel */
-            pxBuffer[ j ].cChannel = pxApList[ i ].channel;
-
-            /* hidden SSID */
-            pxBuffer[ j ].ucHidden = pxApList[ i ].is_hidden;
+            pxBuffer[ j ].ucChannel = pxApList[ i ].channel;
 
             j++;
         }
@@ -1766,13 +1771,132 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 
 /*-----------------------------------------------------------*/
 
-BaseType_t WIFI_IsConnected( void )
+BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
 {
-	return _g_state.sta_ip_ready == true;
+		BaseType_t xIsConnected = pdFALSE;
+	
+		if( _g_state.sta_ip_ready == true )
+		{
+				if( pxNetworkParams )
+				{
+						if( pxNetworkParams->ucSSIDLength > 0
+								&& pxNetworkParams->ucSSIDLength <= wificonfigMAX_SSID_LEN
+								&& pxNetworkParams->ucSSIDLength == _g_state.ucSSIDLength
+								&& 0 == memcmp( pxNetworkParams->ucSSID, _g_state.ucSSID, pxNetworkParams->ucSSIDLength ) )
+						{
+								xIsConnected = pdTRUE;
+						}
+				}
+				else
+				{
+						xIsConnected = pdTRUE;
+				}
+		}
+		
+    return xIsConnected;
 }
 
-WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEvent, WIFIEventHandler_t xHandler  )
 {
     /** Needs to implement dispatching network state change events **/
     return eWiFiNotSupported;
+}
+
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StartAP( void )
+{
+		return eWiFiNotSupported;
+}
+
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StartScan( WIFIScanConfig_t * pxScanConfig )
+{
+		return eWiFiNotSupported;
+}
+
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetScanResults( const WIFIScanResult_t ** pxBuffer,
+                                      uint16_t * ucNumNetworks )
+{
+		return eWiFiNotSupported;
+}
+
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StartConnectAP( const WIFINetworkParams_t * pxNetworkParams )
+{
+		return eWiFiNotSupported;
+}
+
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StartDisconnect( void )
+{
+		return eWiFiNotSupported;
+}
+
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetRSSI( int8_t * pcRSSI )
+{
+		return eWiFiNotSupported; 
+}
+
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetStationList( WIFIStationInfo_t * pxStationList,
+                                      uint8_t * pcStationListSize )
+{
+		return eWiFiNotSupported; 
+}
+
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StartDisconnectStation( uint8_t * pucMac )
+{
+		return eWiFiNotSupported; 
+}
+
+/*-----------------------------------------------------------*/
+
+
+WIFIReturnCode_t WIFI_SetMAC( uint8_t * pucMac )
+{
+		return eWiFiNotSupported; 
+}
+
+/*-----------------------------------------------------------*/
+
+
+WIFIReturnCode_t WIFI_SetCountryCode( const char * pcCountryCode )
+{
+		return eWiFiNotSupported; 
+}
+
+/*-----------------------------------------------------------*/
+
+
+WIFIReturnCode_t WIFI_GetCountryCode( char * pcCountryCode )
+{
+		return eWiFiNotSupported; 
+}
+
+/*-----------------------------------------------------------*/
+
+
+WIFIReturnCode_t WIFI_GetStatistic( WIFIStatisticInfo_t * pxStats )
+{
+		return eWiFiNotSupported; 
+}
+
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetCapability( WIFICapabilityInfo_t * pxCaps )
+{
+		return eWiFiNotSupported; 
 }

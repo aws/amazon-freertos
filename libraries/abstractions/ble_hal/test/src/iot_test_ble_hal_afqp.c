@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE HAL V5.0.0
+ * FreeRTOS BLE HAL V5.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,7 @@
  * @file aws_test_ble.c
  * @brief Tests for ble.
  */
+#include "iot_ble_config.h"
 #include "iot_test_ble_hal_afqp.h"
 
 extern BTGattServerInterface_t * _pxGattServerInterface;
@@ -259,25 +260,41 @@ TEST( Full_BLE, BLE_Connection_Mode1Level2 )
     BTStatus_t xStatus;
     BLETESTPairingStateChangedCallback_t xPairingStateChangedEvent;
     BLETESTsspRequestCallback_t xSSPrequestEvent;
+    BLEHALEventsTypes_t xEventsReceived;
 
     IotTestBleHal_ClearEventQueue();
 
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_WaitConnection( true );
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventSSPrequestCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
-    TEST_ASSERT_EQUAL( eBTsspVariantConsent, xSSPrequestEvent.xPairingVariant );
+    /* SSP Pairing request callback is optional for a board to support. Some boards handle the requeust directly in stack and will emit only Pairing state change callback. */
+    xEventsReceived = IotTestBleHal_WaitForEvents( ( eBLEHALEventSSPrequestCb | eBLEHALEventPairingStateChangedCb ), BLE_TESTS_WAIT );
+    TEST_ASSERT_NOT_EQUAL( eBLEHALEventNone, xEventsReceived );
 
-    xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    if( ( xEventsReceived & eBLEHALEventSSPrequestCb ) == eBLEHALEventSSPrequestCb )
+    {
+        xStatus = IotTestBleHal_GetEventFromQueueWithMatch( eBLEHALEventSSPrequestCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), NULL );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+        TEST_ASSERT_EQUAL( eBTsspVariantConsent, xSSPrequestEvent.xPairingVariant );
 
-    xStatus = IotTestBleHal_WaitEventFromQueueWithMatch( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), bletestWAIT_MODE1_LEVEL2_QUERY, IotTestBleHal_CheckBondState );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );                        /* Pairing should never come since it is secure connection only */
-    TEST_ASSERT_EQUAL( eBTStatusFail, xPairingStateChangedEvent.xStatus ); /* Pairing should never come since it is secure connection only */
-    /* @TODO add correct flag */
-    /* TEST_ASSERT_EQUAL(eBTauthFailInsuffSecurity, xPairingStateChangedEvent.xReason); */ /* Pairing should never come since it is secure connection only */
+        xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+        xStatus = IotTestBleHal_WaitEventFromQueueWithMatch( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), bletestWAIT_MODE1_LEVEL2_QUERY, IotTestBleHal_CheckBondState );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );                        /* Pairing should never come since it is secure connection only */
+        TEST_ASSERT_EQUAL( eBTStatusFail, xPairingStateChangedEvent.xStatus ); /* Pairing should never come since it is secure connection only */
+        /* @TODO add correct flag */
+        /* TEST_ASSERT_EQUAL(eBTauthFailInsuffSecurity, xPairingStateChangedEvent.xReason); */ /* Pairing should never come since it is secure connection only */
+    }
+    else
+    {
+        xStatus = IotTestBleHal_GetEventFromQueueWithMatch( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), IotTestBleHal_CheckBondState );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );                        /* Pairing should never come since it is secure connection only */
+        TEST_ASSERT_EQUAL( eBTStatusFail, xPairingStateChangedEvent.xStatus ); /* Pairing should never come since it is secure connection only */
+        /* @TODO add correct flag */
+        /* TEST_ASSERT_EQUAL(eBTauthFailInsuffSecurity, xPairingStateChangedEvent.xReason); */ /* Pairing should never come since it is secure connection only */
+    }
 }
 
 TEST( Full_BLE, BLE_Connection_RemoveBonding )
@@ -764,7 +781,7 @@ TEST( Full_BLE, BLE_Connection_SimpleConnection )
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventMtuChangedCb, NO_HANDLE, ( void * ) &xMtuChangedEvent, sizeof( BLETESTMtuChangedCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( _usBLEConnId, xMtuChangedEvent.usConnId );
-    TEST_ASSERT_EQUAL( bletestsMTU_SIZE1, xMtuChangedEvent.usMtu );
+    TEST_ASSERT_EQUAL( IOT_BLE_PREFERRED_MTU_SIZE, xMtuChangedEvent.usMtu );
 }
 
 

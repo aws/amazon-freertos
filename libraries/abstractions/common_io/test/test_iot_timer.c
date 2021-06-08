@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common IO V0.1.2
+ * FreeRTOS Common IO V0.1.3
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,8 +40,14 @@
 #include "semphr.h"
 #include "task.h"
 
-#define testIotTIMER_DEFAULT_DELAY_US    500
-#define testIotTIMER_SLEEP_DELAY_MS      1
+#define testIotTIMER_DEFAULT_DELAY_US     500
+#define testIotTIMER_SLEEP_DELAY_MS       1
+
+/*
+ * @brief timeout for the semaphore to be invoked by the iot_timer. 4 times larger to account
+ * for timer resolution variances.
+ */
+#define testIotTIMER_CALLBACK_DELAY_US    ( testIotTIMER_DEFAULT_DELAY_US * 4 )
 
 
 /*-----------------------------------------------------------*/
@@ -86,7 +92,6 @@ static void prvTimerCallback( void * pvUserContext )
     BaseType_t xHigherPriorityTaskWoken;
 
     xSemaphoreGiveFromISR( xtestIotTimerSemaphore, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 /*-----------------------------------------------------------*/
@@ -299,7 +304,7 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_Callback )
         TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
         /* Wait for the Delay callback to be called. */
-        lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, portMAX_DELAY );
+        lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, testIotTIMER_CALLBACK_DELAY_US );
         TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
         /* Get the time in micro seconds
@@ -358,7 +363,7 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_NoCallback )
         if( lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED )
         {
             /* Wait for the Delay.  Make sure callback is not called. */
-            lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, 2 * testIotTIMER_DEFAULT_DELAY_US );
+            lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, testIotTIMER_CALLBACK_DELAY_US );
             TEST_ASSERT_NOT_EQUAL( pdTRUE, lRetVal );
         }
     }
@@ -411,7 +416,7 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_StartAgain )
         if( lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED )
         {
             /* Wait for the Delay.  Make sure callback is not called. */
-            lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, 2 * testIotTIMER_DEFAULT_DELAY_US );
+            lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, testIotTIMER_CALLBACK_DELAY_US );
             TEST_ASSERT_NOT_EQUAL( pdTRUE, lRetVal );
 
             /* Start the timer again*/
@@ -419,7 +424,7 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_StartAgain )
             TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
             /* Wait for the Delay.  Make sure callback is called. */
-            lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, 2 * testIotTIMER_DEFAULT_DELAY_US );
+            lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, testIotTIMER_CALLBACK_DELAY_US );
             TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
         }
     }
@@ -470,7 +475,7 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_Cancel )
             TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
             /* Wait for the Delay.  Make sure callback is not called. */
-            lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, 2 * testIotTIMER_DEFAULT_DELAY_US );
+            lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, testIotTIMER_CALLBACK_DELAY_US );
             TEST_ASSERT_NOT_EQUAL( pdTRUE, lRetVal );
         }
     }

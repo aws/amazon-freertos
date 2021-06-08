@@ -1,3 +1,6 @@
+#ifndef __CBMC_H__
+#define __CBMC_H__
+
 /* Standard includes. */
 #include <stdint.h>
 #include <stdio.h>
@@ -24,8 +27,10 @@
   * the maximum offset into an object in CBMC, and hence a bound on the
   * size of objects in CBMC.
   */
-#define CBMC_BITS               7
-#define CBMC_MAX_OBJECT_SIZE    ( 0xFFFFFFFF >> ( CBMC_BITS + 1 ) )
+#ifndef CBMC_OBJECT_BITS
+#define CBMC_OBJECT_BITS        7
+#endif
+#define CBMC_MAX_OBJECT_SIZE    ( 0xFFFFFFFF >> ( CBMC_OBJECT_BITS + 1 ) )
 
 #define IMPLIES( a, b )    ( !( a ) || ( b ) )
 
@@ -98,3 +103,5 @@ void vPortFree( void * pv )
     ( void ) pv;
     free( pv );
 }
+
+#endif

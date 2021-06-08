@@ -928,6 +928,6 @@ static BaseType_t prvCheckForContentLengthString( uint8_t * pucIndex,
 }
 /*-----------------------------------------------------------*/
 /* Provide access to private members for testing. */
-#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
     #include "aws_greengrass_discovery_test_access_define.h"
 #endif

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE HAL V5.0.0
+ * FreeRTOS BLE HAL V5.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -120,16 +120,16 @@ typedef struct
     BTGattAdvName_t ucName;
     bool bSetScanRsp;
     uint32_t ulAppearance;
-    uint32_t ulMinInterval;    /**< Minimum Connection Interval. If set to 0, minimum connection interval is not included in advertisement/scan response data. */
-    uint32_t ulMaxInterval;    /**< Maximum Connection Interval. If set to 0, maximum connection interval is not included in advertisement/scan response data. */
-    uint16_t usMinAdvInterval; /**< Minimum Advertising Interval in units of 0.625ms.
-                                *   Range: 0x0020 to 0x4000. Time Range: 20 ms to 10.24 s.
-                                *   If set to 0, stack specific default values will be used. */
+    uint32_t ulMinInterval;            /**< Minimum Connection Interval. If set to 0, minimum connection interval is not included in advertisement/scan response data. */
+    uint32_t ulMaxInterval;            /**< Maximum Connection Interval. If set to 0, maximum connection interval is not included in advertisement/scan response data. */
+    uint16_t usMinAdvInterval;         /**< Minimum Advertising Interval in units of 0.625ms.
+                                        *   Range: 0x0020 to 0x4000. Time Range: 20 ms to 10.24 s.
+                                        *   If set to 0, stack specific default values will be used. */
 
-    uint16_t usMaxAdvInterval; /**< Maximum Advertising Interval in units of 0.625ms.
-                                *   Range: 0x0020 to 0x4000. Time Range: 20 ms to 10.24 s.
-                                *   If set to 0, stack specific default values will be used. */
-    uint8_t ucChannelMap;
+    uint16_t usMaxAdvInterval;         /**< Maximum Advertising Interval in units of 0.625ms.
+                                        *   Range: 0x0020 to 0x4000. Time Range: 20 ms to 10.24 s.
+                                        *   If set to 0, stack specific default values will be used. */
+    uint8_t ucChannelMap;              /**< The bit map to specify channel indices for advertising. If set to 0, stack specific values will be used. */
     uint8_t ucTxPower;
     uint8_t ucTimeout;                 /**< This is deprecated. Use usTimeout for advertisement duration value*/
     uint16_t usTimeout;                /**< Advertisement duration value in units of 10ms. Set to 0 for infinite timeout for advertisements. */
@@ -959,6 +959,19 @@ typedef struct
                                                bool bSetScanRsp,
                                                uint8_t * pucData,
                                                size_t xDataLen );
+
+    /**
+     *
+     * @brief Sets the LE background scan interval and window in units of N*0.625 msec.
+     *
+     * @param[in] ucAdapterIf Adapter interface ID. Returned from BTRegisterBleAdapterCallback_t after calling pxRegisterBleApp.
+     * @param[in] ulScanIntervalTime scan interval time in units of 0.625Ms
+     * @param[in] ulScanWindowTime scan window time in units of 0.625Ms
+     * @return Returns eBTStatusSuccess on successful call.
+     */
+    BTStatus_t ( * pxSetBgScanParameters )( uint8_t ucAdapterIf,
+                                            uint32_t ulScanIntervalTime,
+                                            uint32_t ulScanWindowTime );
 } BTBleAdapter_t;
 
 #endif /* #ifndef _BT_HAL_MANAGER_ADAPTER_BLE_H_ */

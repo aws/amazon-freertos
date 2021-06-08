@@ -147,7 +147,7 @@ afr_mcu_port(pkcs11_implementation)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+        "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
 )
 target_link_libraries(
     AFR::pkcs11_implementation::mcu_port
@@ -161,19 +161,6 @@ afr_mcu_port(secure_sockets)
 target_sources(
     AFR::secure_sockets::mcu_port
     INTERFACE "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
-)
-
-# OTA
-afr_mcu_port(ota)
-target_sources(
-    AFR::ota::mcu_port
-    INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
-)
-target_link_libraries(
-    AFR::ota::mcu_port
-    INTERFACE
-        AFR::ota_mqtt
-        AFR::ota_http
 )
 
 # -------------------------------------------------------------------------------------------------

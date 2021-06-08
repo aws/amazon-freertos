@@ -1,5 +1,212 @@
 # Change Log
-This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT.  The repository contains projects for many different microcontroller evaluation boards.
+This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT. The repository contains projects for many different microcontroller evaluation boards.
+
+## Changes since previous release
+
+### New Features
+
+### Updates
+- Fixes issues of thread-safety and message readability in the sample logging implementation. (Related PRs are [#2982](https://github.com/aws/amazon-freertos/pull/2982) and [#2953](https://github.com/aws/amazon-freertos/pull/2953).)
+- Update FreeRTOS Test Runner to support either a configurable delay (in [PR](https://github.com/aws/amazon-freertos/pull/2950)) or a FreeRTOS+CLI based serial prompt input command (in [PR](https://github.com/aws/amazon-freertos/pull/2955)) to being executing tests.
+- Upgrade of ESP-IDF SDK v4.2 for Espressif boards (in [PR](https://github.com/aws/amazon-freertos/pull/2893)). Refer to the instructions in [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html#setup-espressif-idf42) for using ESP-IDF v4.2.
+
+#### TLS Shim Layer V1.3.0
+
+- Added logic to support connecting to a TLS server that does not require mutual verification.
+- Provide a way for an application to determine if a certificate has expired. PR #3139
+
+## 202012.00 December 2020
+
+### New Features
+
+#### coreHTTP v2.0.0
+
+- The coreHTTP (https://github.com/FreeRTOS/coreHTTP) library provides the ability to establish an HTTP connection with a server over a customer-implemented transport layer, which can either be a secure channel like a TLS session (mutually authenticated or server-only authentication) or a non-secure channel like a plaintext TCP connection. The HTTP connection can be used to make "GET" (include range requests), "PUT", "POST" and "HEAD" requests. The library provides a mechanism to register a customer-defined callback for receiving parsed header fields in an HTTP response. The library has been refactored for memory optimization, and is a client implementation of a subset of the HTTP/1.1 (https://tools.ietf.org/html/rfc2616) standard.
+- See memory requirements for the latest release here (https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/standard/coreHTTP/docs/doxygen/output/html/index.html#http_memory_requirements).
+
+#### backoffAlgorithm v1.0.0
+
+- The backoffAlgorithm (https://github.com/FreeRTOS/backoffAlgorithm) library is a utility library to calculate backoff period for network operation retries (like failed network connection with server) using an exponential backoff with jitter algorithm. This library uses the "Full Jitter" strategy for the exponential backoff with jitter algorithm. More information about the algorithm can be seen in the Exponential Backoff and Jitter (https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/) AWS blog.
+- Exponential backoff with jitter is typically used when retrying a failed connection or network operation with the server. An exponential backoff with jitter helps to mitigate the request failures made to servers, that are caused due to network congestion or high load on the server, by spreading out retry requests across multiple devices. Besides, in an environment with poor connectivity, a client can get disconnected at any time. A backoff strategy helps the client to conserve battery by not repeatedly attempting reconnections when they are unlikely to succeed.
+- The backoffAlgorithm library has no dependencies on libraries other than the standard C library.
+
+#### AWS IoT Device Defender v1.0.1
+
+- The AWS IoT Device Defender (https://github.com/aws/device-defender-for-aws-iot-embedded-sdk) library enables you to interact with the AWS IoT Device Defender service to continuously monitor security metrics from devices for deviations from what you have defined as appropriate behavior for each device. If something doesn’t look right, AWS IoT Device Defender sends out an alert so you can take action to remediate the issue. More details about Device Defender can be found in AWS IoT Device Defender documentation (https://docs.aws.amazon.com/iot/latest/developerguide/device-defender.html).
+- The AWS IoT Device Defender library has no dependencies on additional libraries other than the standard C library. It also doesn’t have any platform dependencies, such as threading or synchronization. It can be used with any MQTT library and any JSON library (see demos (https://github.com/aws/amazon-freertos/tree/master/demos/device_defender_for_aws) with coreMQTT and coreJSON).
+- See memory requirements for the latest release here (https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/device-defender-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#defender_memory_requirements).
+
+#### AWS IoT Jobs v1.0.0
+
+- The AWS IoT Jobs (https://github.com/aws/jobs-for-aws-iot-embedded-sdk) library enables you to interact with the AWS IoT Jobs service which notifies one or more connected devices of a pending “Job”. A Job can be used to manage your fleet of devices, update firmware and security certificates on your devices, or perform administrative tasks such as restarting devices and performing diagnostics. For documentation of the service, please see the AWS IoT Developer Guide (https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html). Interactions with the Jobs service use the MQTT protocol. This library provides an API to compose and recognize the MQTT topic strings used by the Jobs service.
+- The AWS IoT Jobs library has no dependencies on additional libraries other than the standard C library. It also doesn’t have any platform dependencies, such as threading or synchronization. It can be used with any MQTT library and any JSON library (see demos (https://github.com/aws/amazon-freertos/tree/master/demos/jobs_for_aws) with coreMQTT and coreJSON).
+- See memory requirements for the latest release (https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/jobs-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#jobs_memory_requirements)here (https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/jobs-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#jobs_memory_requirements).
+
+#### HTTP Compatibility Layer v1.2.0
+
+- The HTTP Compatibility Layer provides backwards compatibility from coreHTTP library to HTTPS V1.x.x APIs. In addition, the HTTP Compatibility Layer maintains the dependency of the network abstraction and linear containers from the HTTPS V1.x.x library. The task pool dependency is removed in order to allow the user to allocate tasks on the stack rather than exclusively on the heap.
+- Configuration settings using C preprocessor constants, for the HTTP Compatibility Layer, are available in addition to the original configurations of the HTTPS V1.x.x library (https://docs.aws.amazon.com/freertos/latest/lib-ref/html2/https/https_config.html). They can be set with a #define in the config file (iot_config.h) or by using a compiler option such as -D in gcc. If a configuration setting is not defined, the HTTP Compatibility Layer will use a "sensible" default value (unless otherwise noted). Because they are compile-time constants, this HTTP Compatibility Layer must be rebuilt if a configuration setting is changed.
+    - IOT_HTTPS_DISPATCH_QUEUE_SIZE - The number of requests in the queue that are ready to be sent to the HTTP server.
+    - IOT_HTTPS_DISPATCH_TASK_COUNT - The number of tasks that are responsible for sending requests from the dispatch queue.
+    - IOT_HTTPS_DISPATCH_TASK_STACK_SIZE - The stack size of each dispatch task, sized appropriately for each board.
+    - IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY - If set to 1, the memory used by the dispatch task will be allocated statically by the library. Otherwise, memory will be allocated on the heap.
+    - IOT_HTTPS_DISPATCH_TASK_PRIORITY - The priority of each dispatch task. This priority is deliberately chosen to match the original taskpool's priority. Doing so prevents starvation of the network-receive task and tasks potentially used by other libraries.
+- See memory requirements for the latest release (https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/jobs-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#jobs_memory_requirements) here (https://github.com/aws/amazon-freertos/blob/master/libraries/c_sdk/standard/https/CODESIZE.md).
+
+### Updates
+
+#### FreeRTOS kernel V10.4.3
+
+- Includes FreeRTOS kernel V10.4.3
+- Additional details can be found here: https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/V10.4.3-kernel-only/History.txt
+
+#### FreeRTOS-Plus-TCP v2.3.2
+
+- When a protocol error occurs during the SYN-phase of a TCP connection, a child socket will now be closed (calling FreeRTOS_closesocket() ), instead of being given the eCLOSE_WAIT status.  A client socket, which calls connect() to establish a connection, will receive the eCLOSE_WAIT status, just like before.
+
+#### coreMQTT v1.1.0
+
+- Update logs and format specifiers to use standard C types.
+- Add dependence on stdbool.h
+- Introduce two new configuration macros for setting the timeout for transport reads and sends.
+
+#### coreJSON v3.0.0
+
+- Added an API function to iterate over a collection in a JSON document.
+
+#### corePKCS11 v3.0.0
+
+- Updated xFindObjectWithLabelAndClass to include a size parameter to allow passing in the size of the label, in order to avoid calling strlen in the library code.
+- Added CBMC memory proofs for all functions.
+- Removed threading_alt.h from corePKCS11.
+- Restructured third party folder in order to align with other core repositories. Folders located in “corePKCS11/3rdparty” are now in “corePKCS11/source/dependency/3rdparty”.
+- Updated logs and format specifiers to use standard C types.
+
+#### AWS IoT Device Shadow v1.0.2
+
+- Update logs and format specifiers to use standard C types.
+
+#### MQTT Compatibility Layer v2.3.1
+
+- Fixes for compiler warnings by removing unused functions and variables.
+
+## 202011.01 December 2020
+
+This release does not change any source files compared to 202011.00. It only fixes an issue with `checksums.json` file used by AWS IoT Device Tester to verify the integrity of FreeRTOS source files during the qualification process. This issue was present only on Windows while Linux and MacOS were unaffected.
+
+## 202011.00 November 2020
+
+### New Features
+
+This release includes refactored MQTT, JSON Parser, and AWS IoT Device Shadow libraries for optimized memory usage and modularity, and includes dependent libraries via GitHub submoduling. These libraries have gone through code quality checks including verification that no function has a [GNU Complexity](https://www.gnu.org/software/complexity/manual/complexity.html) score over 8, and checks against the [MISRA coding standard](https://www.misra.org.uk/MISRAHome/MISRAC2012/tabid/196/Default.aspx). Deviations from the MISRA C:2012 guidelines are documented under [MISRA Deviations](https://github.com/aws/aws-iot-device-sdk-embedded-C/blob/202009.00/MISRA.md). These libraries have also undergone both static code analysis from [Coverity static analysis](https://github.com/aws/aws-iot-device-sdk-embedded-C/blob/202009.00/MISRA.md), and validation of memory safety and functional correction proofs through the CBMC automated reasoning tool.
+
+The MQTT library in this release, coreMQTT, supports backward compatibility with the MQTT library in FreeRTOS version 201906.00 or higher via a [compatibility layer](https://github.com/aws/amazon-freertos/tree/202011.00/libraries/c_sdk/standard/mqtt). Therefore, MQTT-dependent libraries in FreeRTOS version 201906.00 or higher, including AWS IoT Device Shadow, AWS IoT Device Defender, and Greengrass Discovery, can use the coreMQTT library via the compatibility layer.
+
+#### AWS IoT Device Shadow V1.0.1
+
+- The [AWS IoT Device Shadow](https://github.com/aws/device-shadow-for-aws-iot-embedded-sdk) library enables you to store and retrieve the current state (the “shadow”) of every registered device. The device’s shadow is a persistent, virtual representation of your device that you can interact with from AWS IoT Core even if the device is offline. The device state captured as its “shadow” is itself a JSON document. The device can send commands over MQTT or HTTP to update its latest state. Each device’s shadow is uniquely identified by the name of the corresponding “thing”, a representation of a specific device or logical entity on AWS IoT. More details about AWS IoT Device Shadow can be found in [AWS IoT documentation](https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html).
+- The AWS IoT Device Shadow library has no dependencies on additional libraries other than the standard C library. It also doesn’t have any platform dependencies, such as threading or synchronization. It can be used with any MQTT library and any JSON library (see [demos](https://github.com/aws/aws-iot-device-sdk-embedded-C/tree/master/demos/shadow) with coreMQTT and coreJSON).
+- See memory requirements for the latest release [here](https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/aws/device-shadow-for-aws-iot-embedded-sdk/docs/doxygen/output/html/index.html#shadow_memory_requirements).
+
+#### coreJSON V2.0.0
+
+- The [coreJSON](https://github.com/FreeRTOS/coreJSON) library is a JSON parser that strictly enforces the [ECMA-404 JSON standard](https://www.json.org/json-en.html). It provides a function to validate a JSON document, and a function to search for a key and return its value. A search can descend into nested structures using a compound query key. A JSON document validation also checks for illegal UTF8 encodings and illegal Unicode escape sequences.
+- See memory requirements for the latest release [here](https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/standard/coreJSON/docs/doxygen/output/html/index.html#json_memory_requirements).
+
+#### coreMQTT V1.0.1
+
+- The [coreMQTT](https://github.com/FreeRTOS/coreMQTT) library provides the ability to establish an MQTT connection with a broker over a customer-implemented transport layer, which can either be a secure channel like a TLS session (mutually authenticated or server-only authentication) or a non-secure channel like a plaintext TCP connection. This MQTT connection can be used for performing publish operations to MQTT topics and subscribing to MQTT topics. The library provides a mechanism to register customer-defined callbacks for receiving incoming PUBLISH, acknowledgement and keep-alive response events from the broker. The library has been refactored for memory optimization and is compliant with the [MQTT 3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/mqtt-v3.1.1.html) standard. It has no dependencies on any additional libraries other than the standard C library, a customer-implemented network transport interface, and optionally a customer-implemented platform time function. The refactored design embraces different use-cases, ranging from resource-constrained platforms using only QoS 0 MQTT PUBLISH messages to resource-rich platforms using QoS 2 MQTT PUBLISH over TLS connections.
+- See memory requirements for the latest release [here](https://docs.aws.amazon.com/embedded-csdk/202011.00/lib-ref/libraries/standard/coreMQTT/docs/doxygen/output/html/index.html#mqtt_memory_requirements).
+
+#### OTA PAL for Renesas Starter Kit + RX65N-2MB
+
+- Added OTA PAL Port for Renesas RX65N-2MB board
+
+### Updates
+
+#### Bluetooth Low Energy (BLE) Hardware Abstraction Library (HAL) V5.1.0
+
+- Added ACL connection state change callback for BLE HAL
+
+#### Bluetooth Low Energy Management Library V2.2.0
+
+- Added transport interface for BLE library to send data to AWS IoT using the coreMQTT and AWS IoT Device Shadow client libraries. The transport interface utilizes a companion device mobile application implemented using FreeRTOS BLE Android and iOS SDKs to send data to AWS IoT.
+- Added coreMQTT and AWS IoT Device Shadow demos for BLE. The respective demos "MQTT BLE Transport Demo" and "Shadow BLE Transport Demo" can be found under `demos/ble` folder. The demo uses the new MQTT and Shadow client libraries and the BLE transport interface to send and receive data with AWS IoT.
+
+#### Common I/O Library V0.1.2
+
+- Added more peripherals to CMake.
+
+#### FreeRTOS+CLI V1.0.5
+
+- Added FreeRTOS+CLI V1.0.4 to Amazon FreeRTOS repository.
+- Added FreeRTOS Console API to interact with CLI over common IO or UDP interface.
+- Added sample which demonstrates executing commands using FreeRTOS+CLI and UART interface.
+
+#### FreeRTOS+TCP V2.3.1
+
+- Sub-moduled to the [FreeRTOS/FreeRTOS-Plus-TCP](https://github.com/FreeRTOS/FreeRTOS-Plus-TCP) repository. This is a breaking change for users using 202007.00 release of amazon-freertos due to change in folder structure.
+- Bug Fix for UDP only (`ipconfigUSE_TCP == 0`) compilation of FreeRTOS+TCP. Conditional compilation on the value of `ipconfigUSE_TCP` updated to exclude TCP only components.
+- Added descriptions for functions and variables in Doxygen compatible format.
+- Updated `prvParseDNSReply` function signature.
+
+#### FreeRTOS+POSIX Utils V1.2.0
+
+- The `iot_pki_utils.h` and `iot_pki_utils.c` are renamed to `core_pki_utils.h` and `core_pki_utils.c` respectively. They are also now a part of the corePKCS11 repository.
+
+#### Greengrass Discovery V2.0.2
+
+- Added more logging in library.
+
+#### MQTT Client Library V2.3.0
+
+- Refactored as compatibility layer for V2.x.x MQTT APIs using coreMQTT library. This is the library that supports backward compatibility with MQTT APIs present in between 201906.00 and 202007.00.
+
+#### Over the Air Update V1.2.1
+
+- Added check to abort the update if updating job status as self-test in service fails, this helps in early detection of mismatch in device and jobs states before activating new image.
+
+#### PKCS11 V2.1.1
+
+- Sub-moduled to the [FreeRTOS/corePKCS11](https://github.com/FreeRTOS/corePKCS11) repository.
+- Updated ECC608A and PSA library dependencies to corePKCS naming scheme. Refactored AFQP tests to support HSMs that have locked down credentials.
+
+#### Secure Sockets LwIP V1.3.0
+
+- Added new optional API `SOCKETS_Bind`.
+- Extended `SOCKETS_SetSockOpt` to support TCP keepalive settings.
+
+#### Shadow V2.2.3
+
+- Updated unit tests to work with the MQTT compatibility layer. This is the library that supports backward compatibility with Shadow APIs present in between 201906.00 and 202007.00.
+
+#### TLS Shim Layer V1.3.0
+
+- Added missing Max Fragment Length (MFL) runtime configuration if MFL macro is enabled.
+
+#### Wi-Fi V2.0.0
+
+- Updated WiFi APIs to support more granular error codes, WEP encryption, SoftAP provisioning, optional asynchronous APIs, event handling and set country code. This is a breaking change to the WIFI API. See more details [here](https://docs.aws.amazon.com/freertos/latest/lib-ref/html2/wifi/index.html).
+
+#### OTA PAL for Espressif ESP32-DevKitC
+
+- Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
+
+#### OTA PAL for Espressif ESP-WROVER-KIT
+
+- Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
+
+#### OTA PAL for Microsoft Windows Simulator
+
+- Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
+
+#### OTA PAL for Microchip ATECC608A with Windows Simulator
+
+- Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
+
+#### OTA PAL for Microchip Curiosity PIC32MZEF
+
+- Changed default configuration for number and size of blocks to be compatible with the size of the mbedTLS input buffer.
 
 ## 202007.00 July 2020
 
@@ -11,7 +218,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 - Updated the OTA demo to demonstrate how to suspend an in-progress OTA update should the MQTT connection disconnect, then resume the same update when the MQTT connection reconnects. In line with best practice, the reconnect logic uses an exponential backoff and jitter algorithm to prevent the MQTT server getting overwhelmed with connection requests if a fleet of devices get disconnected and then attempt to reconnect at the same time.
 - For testing purposes only, it is now possible to use the OTA agent to downgrade a version number or revert to an older version.  This new functionality is disabled by default.
 
-#### New Board: Cypress PSoC 64 Standard Secure AWS Wi-Fi Bluetooth Pioneer Kit 
+#### New Board: Cypress PSoC 64 Standard Secure AWS Wi-Fi Bluetooth Pioneer Kit
 - New Board: The <b>Cypress PSoC 64</b> board is now qualified with FreeRTOS.
 
 #### New Board: ESP32-WROOM-32SE
@@ -37,7 +244,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 #### PKCS#11 V2.1.0
 
 - Added doxygen to various PKCS #11 files.
-- Added improved logging for mbed TLS  return codes in iot_pkcs11_mbedtls.c. 
+- Added improved logging for mbed TLS  return codes in iot_pkcs11_mbedtls.c.
 
 #### Bluetooth Low Energy (BLE) Hardware Abstraction Library (HAL) V5.0.0
 
@@ -54,7 +261,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 #### FreeRTOS+TCP V2.3.0
 
 - Added ability to cache multiple IP addresses per DNS entry.
-- Defensive security improvements: 
+- Defensive security improvements:
     - In compliance with the UDP protocol specification, prior versions of FreeRTOS+TCP accepted UDP packets that had their checksum set to 0. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS`, that enables users to opt to drop UDP packets that have their checksum set to 0. **Note:** This new setting defaults to 0, so it defaults to dropping UDP packets that have their checksum set to 0.
     - Prior versions of FreeRTOS+TCP accept IP packets that contain IP options, although those options are not processed. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS`, that enables users to opt to drop IP packets that contain IP options.
     - Setting configuration parameter, `ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM`, to 1 offloads IP checksum and length checking to the hardware. From FreeRTOS+TCP V2.3.0, the length is checked in software even when it has already been checked in hardware.
@@ -66,14 +273,14 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 #### Over the Air Update V1.2.0
 
-- Fixed an issue encountered when an OTA job is force cancelled while the related download is in progress. It was caused due to the self-start timer starting after the OTA job document is received. The fix starts the self-start timer when the OTA agent on the device starts.  
+- Fixed an issue encountered when an OTA job is force cancelled while the related download is in progress. It was caused due to the self-start timer starting after the OTA job document is received. The fix starts the self-start timer when the OTA agent on the device starts.
 
 #### Espressif
 
 - Support OTA via HTTP over the BLE channel for ESP32 (when SPIRAM is enabled).
-- Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows provisioning devices with Wi-Fi credentials via a web-server running on the device and a provisioning mobile application.  This mode requires the use of lwIP as the networking stack. 
+- Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows provisioning devices with Wi-Fi credentials via a web-server running on the device and a provisioning mobile application.  This mode requires the use of lwIP as the networking stack.
 - Replaced ESP-IDF code to be a submodule pointer to the official ESP-IDF repository.
-- Updated LwIP as the default networking stack. 
+- Updated LwIP as the default networking stack.
 
 ## 202002.00 2/18/2020
 
@@ -551,7 +758,7 @@ Applications calling into PKCS #11 functions directly (rather than indirectly vi
 - Bug fix to support Amazon Trust Services endpoints. For more information, please see https://aws.amazon.com/blogs/iot/aws-iot-core-ats-endpoints/.
 
 #### Secure Sockets for CC3220SF-LAUNCHXL V1.0.5
-- Remove duplicate file name definitions.  See aws_secure_sockets_config.h for file name defines.
+- Remove duplicate file name definitions.  See iot_secure_sockets_config.h for file name defines.
 
 #### Shadow V1.0.5
 - Minor bug fixes.

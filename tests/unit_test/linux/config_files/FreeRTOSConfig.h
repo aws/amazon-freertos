@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -237,7 +237,7 @@ extern uint32_t ulRand();
 #define configRAND32()    ulRand()
 
 /* The platform that FreeRTOS is running on. */
-#define configPLATFORM_NAME    "WinSim"
+#define configPLATFORM_NAME    "Linux_ut"
 
 /* Header required for the tracealyzer recorder library. */
 #include "trcRecorder.h"

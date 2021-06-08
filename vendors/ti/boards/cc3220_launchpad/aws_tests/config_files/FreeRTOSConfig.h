@@ -191,4 +191,11 @@ function. */
 /* The platform FreeRTOS is running on. */
 #define configPLATFORM_NAME    "TICC3220"
 
+
+/* The size of the output buffer is set to maximum length required by the tests,
+ * which is the length enough to accomodate largest error string written to
+ * console from CLI.
+ */
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE    120
+
 #endif /* FREERTOS_CONFIG_H */

@@ -27,19 +27,23 @@ set(NETWORK_MANAGER_SOURCES
     "Network manager common source files."
 )
 
+option(BUILD_CLONE_SUBMODULES "Clone any required Git submodules. When OFF, submodules must be manually cloned." ON)
+
 # Set regular version and Git commit version.
 set(AFR_VERSION "${PROJECT_VERSION}")
 set(AFR_VERSION_VCS "Unknown" CACHE INTERNAL "")
 # Check if we're in a Git repository.
 find_package(Git)
 if(Git_FOUND AND EXISTS "${AFR_ROOT_DIR}/.git")
-    message(STATUS "Submodule update")
-    # TODO: Update submodule only if it hasn't been checked out (check if directory is empty).
-    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    RESULT_VARIABLE GIT_SUBMOD_RESULT)
-    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-        message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+    if(${BUILD_CLONE_SUBMODULES})
+        message(STATUS "Submodule update")
+        # TODO: Update submodule only if it hasn't been checked out (check if directory is empty).
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+        endif()
     endif()
     execute_process(
         COMMAND "${GIT_EXECUTABLE}" "describe" "--always" WORKING_DIRECTORY "${AFR_ROOT_DIR}"
@@ -75,7 +79,7 @@ endif()
 # Provide an option to enable unit tests with mocking
 option(AFR_ENABLE_UNIT_TESTS "Build tests for FreeRTOS. Requires recompiling whole library." OFF)
 if (AFR_ENABLE_UNIT_TESTS)
-     add_compile_definitions(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
+     add_compile_definitions(FREERTOS_ENABLE_UNIT_TESTS)
      add_compile_definitions(IOT_BUILD_TESTS=1)
      add_compile_definitions(AMAZON_FREERTOS_ENABLE_MOCKING)
 endif()
@@ -85,7 +89,7 @@ option(AFR_ENABLE_TESTS "Build tests for FreeRTOS. Requires recompiling whole li
 if(AFR_ENABLE_TESTS)
     # Turning off demo when tests are enabled.
     set(AFR_ENABLE_DEMOS 0 CACHE BOOL "Build demos for FreeRTOS." FORCE)
-    add_compile_definitions(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
+    add_compile_definitions(FREERTOS_ENABLE_UNIT_TESTS)
     add_compile_definitions(IOT_BUILD_TESTS=1)
     set(AFR_IS_TESTING 1 CACHE INTERNAL "")
 else()

@@ -62,6 +62,17 @@
 #define wificonfigMAX_PASSPHRASE_LEN          ( 32 )
 
 /**
+ * @brief Max number of WEP keys supported.
+ */
+
+#define wificonfigMAX_WEPKEYS                  ( 4 )
+
+/**
+ * @brief Max WEP key length
+ */
+#define wificonfigMAX_WEPKEY_LEN              ( 26 )
+
+/**
  * @brief Soft Access point SSID
  */
 #define wificonfigACCESS_POINT_SSID_PREFIX    ( "ConfigureMe" )

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.2.0
+ * FreeRTOS MQTT V2.3.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,7 +35,7 @@
  * providing MQTTConfig.h. All the config values in this case are
  * taken from MQTTConfigDefaults.h. */
 #ifndef mqttDO_NOT_USE_CUSTOM_CONFIG
-    #include "aws_mqtt_config.h"
+    #include "iot_mqtt_config.h"
 #endif
 #include "iot_mqtt_config_defaults.h"
 

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.2.0
+ * FreeRTOS MQTT V2.3.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,32 +26,32 @@
 /**
  * @file iot_test_access_mqtt_subscription.c
  * @brief Provides access to the internal functions and variables of
- * iot_mqtt_subscription.c
+ * iot_mqtt_subscription_container.c
  *
- * This file should only be included at the bottom of iot_mqtt_subscription.c
+ * This file should only be included at the bottom of iot_mqtt_subscription_container.c
  * and never compiled by itself.
  */
 
-bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
+bool IotTestMqtt_topicMatch( _mqttSubscription_t * pSubscription,
                              void * pMatch );
 
-bool IotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
+bool IotTestMqtt_packetMatch( _mqttSubscription_t * pSubscription,
                               void * pMatch );
 
 /*-----------------------------------------------------------*/
 
-bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
+bool IotTestMqtt_topicMatch( _mqttSubscription_t * pSubscription,
                              void * pMatch )
 {
-    return _topicMatch( pSubscriptionLink, pMatch );
+    return _topicMatch( pSubscription, pMatch );
 }
 
 /*-----------------------------------------------------------*/
 
-bool IotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
+bool IotTestMqtt_packetMatch( _mqttSubscription_t * pSubscription,
                               void * pMatch )
 {
-    return _packetMatch( pSubscriptionLink, pMatch );
+    return _packetMatch( pSubscription, pMatch );
 }
 
 /*-----------------------------------------------------------*/

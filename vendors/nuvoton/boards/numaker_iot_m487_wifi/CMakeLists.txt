@@ -117,6 +117,8 @@ target_sources(
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/sys.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/uart.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/retarget.c"
+        "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/gpio.c"
+        "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/spim.c"        
         "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
         "${AFR_KERNEL_DIR}/portable/RVDS/ARM_CM4F/port.c"
         "${board_dir}/application_code/nuvoton_code/entropy_hardware_poll.c"
@@ -132,7 +134,7 @@ target_include_directories(
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/inc"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/include"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/Keil"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/Keil"
         "${board_dir}/config_files"
         "${board_dir}/application_code/nuvoton_code"
         # Need aws_clientcredential.h
@@ -145,9 +147,32 @@ afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+        "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
 )
 
+# OTA
+afr_mcu_port(ota)
+target_sources(
+    AFR::ota::mcu_port
+    INTERFACE 
+        "${afr_ports_dir}/ota/aws_ota_pal.c"
+        "${afr_ports_dir}/ota/aws_ota_pal_spim.c"
+)
+target_include_directories(
+    AFR::ota::mcu_port
+    INTERFACE
+            "${AFR_ROOT_DIR}/libraries/abstractions/pkcs11/corePKCS11/source/include"
+            "${AFR_ROOT_DIR}/libraries/3rdparty/pkcs11"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/include"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src"
+)
+target_link_libraries(
+    AFR::ota::mcu_port
+    INTERFACE
+        AFR::crypto
+        AFR::ota_mqtt
+        AFR::ota_http
+)
 
 if(AFR_ENABLE_ETH)
 
@@ -156,15 +181,17 @@ if(AFR_ENABLE_ETH)
     target_sources(
         AFR::freertos_plus_tcp::mcu_port
         INTERFACE
-            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.c"
-            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/m480_eth.c"
-            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/NetworkInterface.c"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_1.c"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/M487/m480_eth.c"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/M487/NetworkInterface.c"
+            # Header file added to the target so that these are available in code downloaded from the FreeRTOS console.
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/M487/m480_eth.h"
     )
 
     target_include_directories(
         AFR::freertos_plus_tcp::mcu_port
         INTERFACE
-            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/M487"
             "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/inc"
     )
 

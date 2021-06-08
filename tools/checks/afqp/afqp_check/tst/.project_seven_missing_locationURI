@@ -182,14 +182,14 @@
 			<locationURI>AFR_HOME/lib/crypto/iot_crypto.c</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/pkcs11/iot_pkcs11_mbedtls.c</name>
+			<name>lib/aws/pkcs11/core_pkcs11_mbedtls.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/lib/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
+			<locationURI>AFR_HOME/lib/pkcs11/mbedtls/core_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/pkcs11/iot_pkcs11_pal.c</name>
+			<name>lib/aws/pkcs11/core_pkcs11_pal.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/lib/pkcs11/portable/infineon/xmc4800_iotkit/iot_pkcs11_pal.c</locationURI>
+			<locationURI>AFR_HOME/lib/pkcs11/portable/infineon/xmc4800_iotkit/core_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/secure_sockets/iot_secure_sockets.c</name>

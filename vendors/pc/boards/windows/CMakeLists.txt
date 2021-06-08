@@ -92,7 +92,7 @@ afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+        "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
 )
 
 # FreeRTOS Plus TCP
@@ -100,13 +100,17 @@ afr_mcu_port(freertos_plus_tcp)
 target_sources(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/WinPCap/NetworkInterface.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/WinPCap/NetworkInterface.c"
+        # Header files added to the target so that these are available in code downloaded from the FreeRTOS console.
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/MSVC/pack_struct_end.h"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/MSVC/pack_struct_start.h"
 )
+
 target_include_directories(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/MSVC"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/MSVC"
 )
 target_link_libraries(
     AFR::freertos_plus_tcp::mcu_port
@@ -120,31 +124,10 @@ target_link_libraries(
     INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
 
-# OTA
-afr_mcu_port(ota)
-target_sources(
-    AFR::ota::mcu_port
-    INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
-)
-target_link_libraries(
-    AFR::ota::mcu_port
-    INTERFACE
-        AFR::crypto
-        AFR::ota_mqtt
-        AFR::ota_http
-)
-
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
-
-# Build an OTA test that only builds on Windows.
-afr_module_sources(
-    test_ota
-    INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/test/aws_test_ota_cbor.c"
-)
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)

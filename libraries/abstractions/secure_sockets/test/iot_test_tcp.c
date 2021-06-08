@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Secure Sockets V1.2.0
+ * FreeRTOS Secure Sockets V1.3.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -127,9 +127,12 @@ static volatile EventGroupHandle_t xSyncEventGroup = NULL;
 /* Bit definitions used with the xSyncEventGroup event group to allow the
  * prvEchoClientTxTask() and prvEchoClientRxTask() tasks to synchronize before
  * commencing a new cycle with a different socket. */
-#define tcptestTX_TASK_BIT    ( 0x01 << 1 )
-#define tcptestRX_TASK_BIT    ( 0x01 << 2 )
+#define tcptestTX_TASK_BIT                                               ( 0x01 << 1 )
+#define tcptestRX_TASK_BIT                                               ( 0x01 << 2 )
 
+#ifndef tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE
+    #define tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE    tcptestTWICE_MAX_FRAME_SIZE
+#endif
 
 /* Array setup for 2x an Ethernet II data section */
 #define tcptestTWICE_MAX_FRAME_SIZE    ( 2 * 1500 )
@@ -423,7 +426,7 @@ typedef struct
 #define tcptestMAX_LOOPS_ECHO_TEST            tcptestMAX_ECHO_TEST_MODES
 
 #define tcptestECHO_TEST_LOW_PRIORITY         tskIDLE_PRIORITY
-#define tcptestECHO_TEST_HIGH_PRIORITY        ( configMAX_PRIORITIES - 1 )
+#define tcptestECHO_TEST_HIGH_PRIORITY        ( configMAX_PRIORITIES - 2 )
 
 #ifndef ipconfigTCP_MSS
     #define ipconfigTCP_MSS                   ( 256 )
@@ -641,6 +644,19 @@ static BaseType_t prvAwsIotBrokerConnectHelper( Socket_t xSocket,
         {
             tcptestFAILUREPRINTF( ( "%s: Failed to setSockOpt SOCKETS_SO_REQUIRE_TLS \r\n", __FUNCTION__ ) );
         }
+        else
+        {
+            /* Try to set SNI option. It does not matter if this passes or fails,
+             * in relation to the tests. The purpose of this is to allow devices
+             * that rely on SNI to authenticate, eg. AWS IoT Core's multi account
+             * registration.
+             */
+            ( void ) SOCKETS_SetSockOpt( xSocket,
+                                         0, /* Level - Unused. */
+                                         SOCKETS_SO_SERVER_NAME_INDICATION,
+                                         clientcredentialMQTT_BROKER_ENDPOINT,
+                                         sizeof( clientcredentialMQTT_BROKER_ENDPOINT ) );
+        }
     }
 
     return xResult;
@@ -800,23 +816,34 @@ static BaseType_t prvConnectHelperWithRetry( volatile Socket_t * pxSocket,
             {
                 xIsConnected = pdTRUE;
             }
+        }
+
+        /* If any step failed, do cleanup. */
+        if( xResult != SOCKETS_ERROR_NONE )
+        {
+            /* Close socket regardless of the number of retries. A new socket
+             * will be created if required. */
+            SOCKETS_Close( *pxSocket );
+
+            /* Mark the socket as invalid. */
+            *pxSocket = SOCKETS_INVALID_SOCKET;
+
+            if( xRetry < tcptestRETRY_CONNECTION_TIMES )
+            {
+                /* Reset the result. */
+                xResult = SOCKETS_ERROR_NONE;
+                xRetry++;
+
+                /* Delay the retry. */
+                vTaskDelay( xRetryTimeoutTicks );
+
+                /* Exponentially backoff the retry times */
+                xRetryTimeoutTicks *= 2; /*Arbitrarily chose 2*/
+            }
             else
             {
-                if( xRetry < tcptestRETRY_CONNECTION_TIMES )
-                {
-                    SOCKETS_Close( *pxSocket );
-                    *pxSocket = SOCKETS_INVALID_SOCKET;
-                    xResult = SOCKETS_ERROR_NONE;
-                    xRetry++;
-                    vTaskDelay( xRetryTimeoutTicks );
-                    /* Exponentially backoff the retry times */
-                    xRetryTimeoutTicks *= 2; /*Arbitrarily chose 2*/
-                }
-                else
-                {
-                    /* Too many failures. Give up. */
-                    break;
-                }
+                /* Maximum number of retires reached. Give up. */
+                break;
             }
         }
     }
@@ -885,9 +912,7 @@ static BaseType_t prvRecvHelper( Socket_t xSocket,
 
         if( xNumBytes == 0 )
         {
-            tcptestFAILUREPRINTF( ( "Timed out receiving from echo server \r\n" ) );
-            xResult = pdFAIL;
-            break;
+            tcptestFAILUREPRINTF( ( "Warning Timed out receiving from echo server \r\n" ) );
         }
         else if( xNumBytes < 0 )
         {
@@ -1060,7 +1085,7 @@ static BaseType_t prvCheckTimeout( TickType_t xStartTime,
     if( ( int32_t ) ( xEndTime - xStartTime ) < ( int32_t ) ( xTimeout - integrationtestportableTIMEOUT_UNDER_TOLERANCE ) )
     {
         xResult = pdFAIL;
-        tcptestFAILUREPRINTF( ( "Start Time: %d, End Time: %d, Timeout: %d \n", xStartTime, xEndTime, xTimeout ) );
+        tcptestFAILUREPRINTF( ( "UNDER TOLERANCE failure Start Time: %d, End Time: %d, Timeout: %d \n", xStartTime, xEndTime, xTimeout ) );
     }
 
     /* Did the function exit after a reasonable amount of time?
@@ -1068,7 +1093,7 @@ static BaseType_t prvCheckTimeout( TickType_t xStartTime,
     if( ( xEndTime - xStartTime ) > ( xTimeout + integrationtestportableTIMEOUT_OVER_TOLERANCE ) )
     {
         xResult = pdFAIL;
-        tcptestFAILUREPRINTF( ( "Start Time: %d, End Time: %d, Timeout: %d \n", xStartTime, xEndTime, xTimeout ) );
+        tcptestFAILUREPRINTF( ( "OVER TOLERANCE failure Start Time: %d, End Time: %d, Timeout: %d \n", xStartTime, xEndTime, xTimeout ) );
     }
 
     return xResult;
@@ -1470,7 +1495,6 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
     TickType_t xStartTime;
     TickType_t xEndTime;
     TickType_t xTimeout = 0;
-    TickType_t xWaitTime = 1000;
     uint8_t * pucTxBuffer = ( uint8_t * ) pcTxBuffer;
     uint8_t * pucRxBuffer = ( uint8_t * ) pcRxBuffer;
     size_t xMessageLength = 1200;
@@ -1531,12 +1555,18 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
                 xNumBytesReceived += lNumBytes;
             }
 
+            if( lNumBytes < 0 )
+            {
+                break;
+            }
+
             xEndTime = xTaskGetTickCount();
         }
-        while( ( ( xEndTime - xStartTime ) < xWaitTime ) && ( xMessageLength > xNumBytesReceived ) );
+        while( xMessageLength > xNumBytesReceived );
 
+        xResult = prvCheckTimeout( xStartTime, xEndTime, xTimeout );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Receive timeout was outside of acceptable range" );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( xMessageLength, xNumBytesReceived, "Data was not received \r\n" );
-
         xResult = prvCheckRxTxBuffers( pucTxBuffer, pucRxBuffer, xMessageLength );
 
         xResult = prvShutdownHelper( xSocket );
@@ -1936,6 +1966,7 @@ static void prvSOCKETS_SendRecv_VaryLength( Server_t xConn )
 
             TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Data failed to send\r\n" );
             memset( pucRxBuffer, tcptestRX_BUFFER_FILLER, tcptestBUFFER_SIZE );
+
             xResult = prvRecvHelper( xSocket,
                                      pucRxBuffer,
                                      xMessageLengths[ ulIndex ] );
@@ -2489,16 +2520,16 @@ static void prvServerDomainName( void )
     xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
 
+    /* Get the address struct for AWS Broker and SetSockOpt REQUIRE_TLS. */
+    xResult = prvAwsIotBrokerConnectHelper( xSocket, &xAwsBrokerAddress );
+    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed setup AWS Broker address struct." );
+
     /* Give the client an INVALID subject name to check against. */
     xResult = SOCKETS_SetSockOpt( xSocket,
                                   0,
                                   SOCKETS_SO_SERVER_NAME_INDICATION,
                                   cFakeAddress,
                                   sizeof( cFakeAddress ) );
-
-    /* Get the address struct for AWS Broker and SetSockOpt REQUIRE_TLS. */
-    xResult = prvAwsIotBrokerConnectHelper( xSocket, &xAwsBrokerAddress );
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed setup AWS Broker address struct." );
 
     xResult = SOCKETS_Connect( xSocket, &xAwsBrokerAddress, sizeof( SocketsSockaddr_t ) );
     TEST_ASSERT_LESS_THAN_INT32_MESSAGE( 0, xResult, "Connect worked when subject name check should have failed it." );
@@ -2707,11 +2738,10 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
                 xRecvLen = 1;
             }
 
-            while( xTotalReceived < tcptestTWICE_MAX_FRAME_SIZE )
+            while( xTotalReceived < tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE )
             {
                 xReturned = SOCKETS_Recv( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0 );
 
-                TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xReturned, "Timeout occurred" );
                 TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
 
                 /* Data was received. */
@@ -2803,7 +2833,7 @@ static void prvEchoClientTxTask( void * pvParameters )
                                                                                        /* Using % to avoid bug in case a new state is unknowingly added. */
 
         vTaskPrioritySet( NULL, tcptestECHO_TEST_HIGH_PRIORITY );
-        xMaxBufferSize = tcptestTWICE_MAX_FRAME_SIZE;
+        xMaxBufferSize = tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE;
 
         /* Set low priority if requested . */
         if( ( xMode == LARGE_BUFFER_LOW_PRIORITY ) || ( xMode == SMALL_BUFFER_LOW_PRIORITY ) )
@@ -2830,12 +2860,12 @@ static void prvEchoClientTxTask( void * pvParameters )
         xStatus = pdTRUE;
 
         /* Keep sending until the entire buffer has been sent. */
-        while( xTransmitted < tcptestTWICE_MAX_FRAME_SIZE )
+        while( xTransmitted < tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE )
         {
             /* How many bytes are left to send?  Attempt to send them
              * all at once (so the length is potentially greater than the
              * MSS). */
-            xLenToSend = tcptestTWICE_MAX_FRAME_SIZE - xTransmitted;
+            xLenToSend = tcptestTHREAD_SAFE_SAME_SOCKET_DIFFERENT_TASKS_FRAME_SIZE - xTransmitted;
 
             /* Every loop switch the size of the packet from maximum to smallest. */
             if( xLenToSend > xMaxBufferSize )
@@ -3040,7 +3070,7 @@ static void prvThreadSafeDifferentSocketsDifferentTasks( void * pvParameters )
                                           ipconfigTCP_MSS - xReceivedBytes,        /* The size of the buffer provided to receive the data. */
                                           0 );                                     /* No flags. */
 
-                if( xReturned <= 0 )
+                if( xReturned < 0 )
                 {
                     break;
                 }
@@ -3264,7 +3294,6 @@ TEST( Full_TCP, AFQP_SOCKETS_htons_HappyCase )
 
 TEST( Full_TCP_Extended, SOCKETS_dns_multiple_addresses )
 {
-    BaseType_t xResult = pdFAIL;
     uint32_t i;
     uint32_t j;
     uint32_t ulIPAddress;
@@ -3282,9 +3311,9 @@ TEST( Full_TCP_Extended, SOCKETS_dns_multiple_addresses )
      * call will return one of the addresses which the name resolves to.
      *
      * NOTE: Resolving addresses can take some time, so allow up to
-     *   60 seconds to collect all of them.
+     *   120 seconds to collect all of them.
      */
-    for( i = 0; ( i < 60 ) && ( ulNumUniqueIPAddresses < dnstestNUM_UNIQUE_IP_ADDRESSES ); i++ )
+    for( i = 0; ( i < 120 ) && ( ulNumUniqueIPAddresses < dnstestNUM_UNIQUE_IP_ADDRESSES ); i++ )
     {
         ulIPAddress = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
 
@@ -3310,12 +3339,8 @@ TEST( Full_TCP_Extended, SOCKETS_dns_multiple_addresses )
                     clientcredentialMQTT_BROKER_ENDPOINT ) );
 
     /* Require a minimum number of IP addresses for AWS IoT Core endpoints */
-    if( ulNumUniqueIPAddresses >= dnstestNUM_UNIQUE_IP_ADDRESSES )
-    {
-        xResult = pdPASS;
-    }
+    TEST_ASSERT_GREATER_OR_EQUAL_UINT32_MESSAGE( dnstestNUM_UNIQUE_IP_ADDRESSES, ulNumUniqueIPAddresses, "Incorrect number of IP addresses per entry" );
 
-    TEST_ASSERT_EQUAL_UINT32_MESSAGE( pdPASS, xResult, "Incorrect number of IP addresses per entry" );
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }
 

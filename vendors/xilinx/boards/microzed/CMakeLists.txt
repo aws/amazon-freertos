@@ -108,12 +108,12 @@ target_include_directories(
         "${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/include"
         "${AFR_KERNEL_DIR}/portable/GCC/ARM_CA9"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/include"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/GCC"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/include"
         "${AFR_3RDPARTY_DIR}/pkcs11"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/corePKCS11/source/include"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface"
         # Need aws_clientcredential.h
         "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
         ${compiler_specific_include}
@@ -128,7 +128,7 @@ afr_mcu_port(pkcs11_implementation)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+        "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
 )
 target_link_libraries(
     AFR::pkcs11_implementation::mcu_port
@@ -142,18 +142,25 @@ afr_mcu_port(freertos_plus_tcp)
 target_sources(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/NetworkInterface.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_dma.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/uncached_memory.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/NetworkInterface.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_dma.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_hw.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/uncached_memory.c"
+        # Header files added to the target so that these are available in code downloaded from the FreeRTOS console.
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_end.h"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/GCC/pack_struct_start.h"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_topology.h"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/uncached_memory.h"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif.h"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/Zynq/x_emacpsif_hw.h"
 )
 
 target_include_directories(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/GCC"
 )
 
 # Secure sockets

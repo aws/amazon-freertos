@@ -1,5 +1,5 @@
 /*
- * FreeRTOS PKCS #11 V2.1.0
+ * FreeRTOS PKCS #11 V2.2.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 
 #include "unity_fixture.h"
 #include "unity.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11.h"
 
 extern CK_SESSION_HANDLE xGlobalSession;
 extern CK_FUNCTION_LIST_PTR pxGlobalFunctionList;
@@ -51,6 +51,7 @@ void prvProvisionCredentialsWithKeyImport( CK_OBJECT_HANDLE_PTR pxPrivateKeyHand
                                            CK_OBJECT_HANDLE_PTR pxPublicKeyHandle );
 
 void prvProvisionRsaTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
+                                     CK_OBJECT_HANDLE_PTR pxPublicKeyHandle,
                                      CK_OBJECT_HANDLE_PTR pxCertificateHandle );
 
 void resetCredentials();

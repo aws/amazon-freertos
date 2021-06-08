@@ -104,7 +104,6 @@
  * Prototypes
  ******************************************************************************/
 
-static void prvWifiConnect( void );
 
 /*******************************************************************************
  * Code
@@ -236,92 +235,31 @@ int main( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
+    WIFIReturnCode_t xWifiStatus;
     /* A simple example to demonstrate key and certificate provisioning in
      * microcontroller flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
     vDevModeKeyProvisioning();
 
-    if( SYSTEM_Init() == pdPASS )
-    {
-        prvWifiConnect();
-
-        DEMO_RUNNER_RunDemos();
-    }
-}
-
-/*-----------------------------------------------------------*/
-
-static void prvWifiConnect( void )
-{
-    WIFINetworkParams_t xNetworkParams;
-    WIFIReturnCode_t xWifiStatus;
-    uint8_t ucTempIp[ 4 ];
-
-    /* Setup WiFi parameters to connect to access point. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    xNetworkParams.cChannel = 0;
-
-    configPRINTF( ( "Starting Wi-Fi...\r\n" ) );
-
     xWifiStatus = WIFI_On();
 
     if( xWifiStatus == eWiFiSuccess )
     {
-        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
-    }
-    else
-    {
-        configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
+        configPRINTF( ( "WiFi module initialized.\r\n" ) );
 
-        /* Delay to allow the lower priority logging task to print the above status. */
-        vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
-
-        while( 1 )
+        if( SYSTEM_Init() == pdPASS )
         {
+            DEMO_RUNNER_RunDemos();
         }
-    }
-
-    xWifiStatus = WIFI_ConnectAP( &xNetworkParams );
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "Wi-Fi connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-        xWifiStatus = WIFI_GetIP( ucTempIp );
-
-        if( eWiFiSuccess == xWifiStatus )
-        {
-            configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                            ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
-        }
-    }
-    else
-    {
-        /* Connection failed, configure SoftAP. */
-        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
-        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
-        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
-        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
-
-        configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
-                        xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-
-        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
-        {
-            configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
-                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-        }
-
-        configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
-    }
+   }
+   else
+   {
+       configPRINTF( ( "WiFi module failed to initialize.\r\n" ) );
+       /* Stop here if we fail to initialize WiFi. */
+       configASSERT( xWifiStatus == eWiFiSuccess );
+   }
+       
 }
-
 /*-----------------------------------------------------------*/
 
 void * pvPortCalloc( size_t xNum,

@@ -1,20 +1,6 @@
 # -------------------------------------------------------------------------------------------------
 # 3rdparty libraries
 # -------------------------------------------------------------------------------------------------
-# http_parser - HTTP message parser
-if(EXISTS "${AFR_3RDPARTY_DIR}/http_parser")
-    afr_3rdparty_module(http_parser)
-    target_sources(
-        3rdparty::http_parser INTERFACE
-        "${AFR_3RDPARTY_DIR}/http_parser/http_parser.h"
-        "${AFR_3RDPARTY_DIR}/http_parser/http_parser.c"
-    )
-    target_include_directories(
-        3rdparty::http_parser INTERFACE
-        "${AFR_3RDPARTY_DIR}/http_parser"
-    )
-endif()
-
 # jsmn - JSON parser
 if(EXISTS "${AFR_3RDPARTY_DIR}/jsmn")
     afr_3rdparty_module(jsmn)
@@ -139,7 +125,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
         "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_utils.c"
         "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.h"
         "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.c"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/threading_alt.h"
+        "${AFR_3RDPARTY_DIR}/mbedtls_config/threading_alt.h"
     )
     # The "${AFR_3RDPARTY_DIR}/pkcs11" directory must be included before
     # "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls". This is because mbedtls/include
@@ -156,7 +142,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
     target_include_directories(
         afr_3rdparty_mbedtls PUBLIC
         "${AFR_3RDPARTY_DIR}/mbedtls/include"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
+        "${AFR_3RDPARTY_DIR}/mbedtls_config"
         "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
         "${AFR_3RDPARTY_DIR}/mbedtls_utils"
     )

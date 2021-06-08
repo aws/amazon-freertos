@@ -12,6 +12,7 @@
             "${AFR_ROOT_DIR}/libraries/3rdparty/tracealyzer_recorder/Include"
             "${AFR_ROOT_DIR}/libraries/3rdparty/CMock/vendor/unity/src/"
             "${AFR_ROOT_DIR}/libraries/3rdparty/CMock/src"
+            "${AFR_ROOT_DIR}/libraries/coreMQTT/source/interface"
             )
     link_directories("${CMAKE_BINARY_DIR}/lib"
             )
@@ -53,6 +54,6 @@
 
     add_custom_target(coverage
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/tools/cmock/coverage.cmake
-            DEPENDS secure_sockets_utest cmock unity
+            DEPENDS transport_secure_sockets_utest secure_sockets_utest cmock unity
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
             )

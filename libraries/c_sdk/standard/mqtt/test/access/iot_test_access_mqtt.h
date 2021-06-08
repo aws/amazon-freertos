@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.2.0
+ * FreeRTOS MQTT V2.3.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -62,25 +62,12 @@ _mqttConnection_t * IotTestMqtt_createMqttConnection( bool awsIotMqttMode,
 
 /*----------------------- iot_mqtt_subscription.c -----------------------*/
 
-/* Internal data structures of iot_mqtt_subscription.c, redefined for the tests. */
-typedef struct _topicMatchParams
-{
-    const char * pTopicName;
-    uint16_t topicNameLength;
-    bool exactMatchOnly;
-} _topicMatchParams_t;
-typedef struct _packetMatchParams
-{
-    uint16_t packetIdentifier;
-    int32_t order;
-} _packetMatchParams_t;
-
 /**
  * @brief Test access function for #_topicMatch.
  *
  * @see #_topicMatch.
  */
-bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
+bool IotTestMqtt_topicMatch( _mqttSubscription_t * pSubscription,
                              void * pMatch );
 
 /**
@@ -88,7 +75,14 @@ bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
  *
  * @see #_packetMatch.
  */
-bool IotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
+bool IotTestMqtt_packetMatch( _mqttSubscription_t * pSubscription,
                               void * pMatch );
+
+/**
+ * @brief Test access function for #_IotMqtt_getFreeIndexFromContextConnectionArray.
+ *
+ * @see #_IotMqtt_getFreeIndexFromContextConnectionArray.
+ */
+int8_t IotTestMqtt_getFreeIndexFromContextConnectionArray( void );
 
 #endif /* ifndef IOT_TEST_ACCESS_MQTT_H_ */

@@ -29,7 +29,7 @@
 #include "serial_term_uart.h"
 
 /* Unity includes. */
-#if defined(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
+#if defined(FREERTOS_ENABLE_UNIT_TESTS)
 #include "unity_internals.h"
 #elif defined(ENABLE_UNIT_TESTS)
 #include "unity.h"
@@ -153,7 +153,7 @@ void vConfigureTimerForRunTimeStats( void );
  * functions. */
 #define configUSE_STATS_FORMATTING_FUNCTIONS    1
 
-#if defined(ENABLE_UNIT_TESTS) || defined(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
+#if defined(ENABLE_UNIT_TESTS) || defined(FREERTOS_ENABLE_UNIT_TESTS)
 /* unity testing */
 #define configASSERT( x ) do { if( ( x ) == 0 ) TEST_ABORT(); } while( 0 )
 #elif defined(CONFIG_FREERTOS_ASSERT_DISABLE) || defined(NDEBUG)

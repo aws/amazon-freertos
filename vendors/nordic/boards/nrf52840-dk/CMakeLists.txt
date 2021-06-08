@@ -99,6 +99,7 @@ set(c_flags
     "-mtp=soft"
     "-munaligned-access"
     "-nostdinc"
+    "-w"
     "-quiet"
     "-gdwarf-4"
     "-g3"
@@ -375,7 +376,7 @@ set(
     "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include"
     "${AFR_3RDPARTY_DIR}/jsmn"
     "${AFR_3RDPARTY_DIR}/pkcs11"
-    "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
+    "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/corePKCS11/source/include"
     ${nrf5_sdk_include}
     "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
@@ -416,24 +417,6 @@ target_include_directories(
     INTERFACE
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
         "${afr_ports_dir}/ble"
-)
-
-# OTA
-afr_mcu_port(ota)
-target_sources(
-    AFR::ota::mcu_port
-    INTERFACE
-        "${afr_ports_dir}/ota/aws_ota_pal.c"
-        "${afr_ports_dir}/ota/asn1utility.c"
-        "${afr_ports_dir}/ota/asn1utility.h"
-        "${afr_ports_dir}/ota/aws_ota_pal_settings.h"
-)
-
-target_link_libraries(
-    AFR::ota::mcu_port
-    INTERFACE
-        AFR::crypto
-        AFR::ota_mqtt
 )
 
 # POSIX
@@ -483,14 +466,9 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
        ${exe_target}
        PRIVATE
        "${nrf5_sdk}/external/nrf_cc310/lib/libnrf_cc310_0.9.10.a"
-       "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv5_d16_hard_t_le_eabi.a"
-       "${AFR_COMPILER_DIR}/../../../lib/libdebugio_mempoll_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
        "${AFR_COMPILER_DIR}/../../../lib/libm_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
        "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-       "${AFR_COMPILER_DIR}/../../../lib/libcpp_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
        "${AFR_COMPILER_DIR}/../../../lib/libdebugio_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-       "${AFR_COMPILER_DIR}/../../../lib/libvfprintf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
-       "${AFR_COMPILER_DIR}/../../../lib/libvfscanf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
     )
 
     if(AFR_METADATA_MODE)
@@ -524,6 +502,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
     function(nrf52840_build)
         set( build_target ${ARGV0} )
         set( build_mkld_flags ${${ARGV1}} )
+
         add_custom_command(
             TARGET ${build_target}
             PRE_LINK

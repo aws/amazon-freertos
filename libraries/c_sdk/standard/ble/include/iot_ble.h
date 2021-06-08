@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE V2.1.0
+ * FreeRTOS BLE V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,8 +28,8 @@
  * @brief BLE GAP and GATT API.
  */
 
-#ifndef _AWS_BLE_H_
-#define _AWS_BLE_H_
+#ifndef IOT_BLE_H
+#define IOT_BLE_H
 
 #include <stddef.h>
 #include "bt_hal_manager_adapter_ble.h"
@@ -100,7 +100,6 @@ typedef enum
     eBLERead,                      /**< Read event. */
     eBLEWrite,                     /**< Write event. */
     eBLEWriteNoResponse,           /**< Write event, no response required. */
-    eBLEWritePrepare,              /**< Prepare Write event. */
     eBLEExecWrite,                 /**< Execute Write event. */
     eBLEResponseConfirmation,      /**< Confirmation from remote device. */
     eBLEIndicationConfirmReceived, /**< Received confirm to indication from remote device. */
@@ -163,7 +162,7 @@ typedef struct
     uint32_t transId;           /**< Transaction ID. */
     BTBdaddr_t * pRemoteBdAddr; /**< Remote device address. */
     uint16_t connId;            /**< Connection ID. */
-    bool execWrite;             /**< Execute Write command. */
+    bool execWrite;             /**< Execute (true) or Cancel(false) the Write transaction. */
 } IotBleExecWriteEventParams_t;
 
 /**
@@ -315,7 +314,7 @@ typedef void ( * IotBle_NumericComparisonCallback_t )( BTBdaddr_t * pRemoteBdAdd
  */
 typedef enum
 {
-    eBLEMtuChanged,                         /**< eBLEMtuChanged Event triggering BLEMtuChangedCallback_t. */
+    eBLEMtuChanged = 0,                     /**< eBLEMtuChanged Event triggering BLEMtuChangedCallback_t. */
     eBLEConnection,                         /**< eBLEConnection Event  triggering BLEConnectionCallback_t. */
     eBLEPairingStateChanged,                /**< eBLEPairingStateChanged Event triggering BLEPairingStateChanged_t. */
     eBLEConnParameterUpdateRequestCallback, /**< eBLEConnParameterUpdateRequestCallback Event triggering BLEConnParameterUpdateRequestCallback_t.  */
@@ -431,8 +430,8 @@ typedef union
 
 /**
  * @cond DOXYGEN_IGNORE
- * @brief that implementation of this function need to be given when IOT_BLE_ADD_CUSTOM_SERVICES is true
- * and when the user needs to add his own services
+ * @brief The implementation of this function needs to be given when IOT_BLE_ADD_CUSTOM_SERVICES is set to
+ * 1 and when the user needs to add their own services.
  */
     void IotBle_AddCustomServicesCb( void );
 /** @endcond */
@@ -442,8 +441,8 @@ typedef union
 
 /**
  * @cond DOXYGEN_IGNORE
- * @brief the implementation of this function need to be given when IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG is true
- * and when the user needs to set his own advertisement/scan response message
+ * @brief The implementation of this function needs to be given when IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG is
+ * set to 1 and when the user needs to set their own advertisement/scan response message.
  *
  * @param[out] pAdvParams: Advertisment structure. Needs to be filled by the user.
  *  @param[out] pScanParams: Scan response structure. Needs to be filled by the user.
@@ -491,6 +490,17 @@ BTStatus_t IotBle_StartAdv( IotBle_StartAdvCallback_t pStartAdvCb );
 /* @[declare_iotble_startadv] */
 
 /**
+ * @brief Sets an application defined callback invoked when an advertisement duration has ended or
+ * advertisement stops due to an error.
+ *
+ * @param pStopAdvCb The application defined callback to be invoked when advertisement is stopped.
+ * @return Returns eBTStatusSuccess on successful call.
+ */
+/* @[declare_iotble_setstopadvcallback] */
+BTStatus_t IotBle_SetStopAdvCallback( IotBle_StopAdvCallback_t pStopAdvCb );
+/* @[declare_iotble_setstopadvcallback] */
+
+/**
  * @brief Stop advertisements to listen for incoming connections.
  * Triggers IotBle_StopAdvCallback_t
  * @return Returns eBTStatusSuccess on successful call.
@@ -518,6 +528,7 @@ BTStatus_t IotBle_ConnParameterUpdateRequest( const BTBdaddr_t * pRemoteBdAddr,
  * For example, one service could require knowledge of connection status,
  * the it would subscribe to connectionCallback event. That API is giving the
  * flexibility of having more than one service listening to the same event.
+ * Note: API should not be invoked from within the event callback.
  *
  * @param[in] event The event.
  * @param[in] bleEventsCallbacks Callback returning status of the operation.
@@ -530,6 +541,7 @@ BTStatus_t IotBle_RegisterEventCb( IotBleEvents_t event,
 
 /**
  * @brief Remove a subscription to an event.
+ * Note: API should not be invoked from within the event callback.
  *
  * @param[in] event The event.
  * @param[in] bleEventsCallbacks The subscription to remove.
@@ -660,4 +672,4 @@ BTStatus_t IotBle_SetDeviceName( const char * pName,
                                  size_t length );
 /* @[declare_iotble_setdevicename] */
 
-#endif /* _AWS_BLE_H_*/
+#endif /* IOT_BLE_H*/

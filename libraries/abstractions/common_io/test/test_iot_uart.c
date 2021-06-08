@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common IO V0.1.2
+ * FreeRTOS Common IO V0.1.3
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -387,6 +387,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncReadAsyncLoopbackTest )
     uint8_t cpBuffer[ testIotUART_BUFFER_LENGTH + 1 ] = { 0 };
     uint8_t cpBufferRead[ testIotUART_BUFFER_LENGTH + 1 ] = { 0 };
     uint8_t uStringCompare = 1;
+    BaseType_t xCallbackReturn;
 
     memcpy( cpBuffer, testIotUART_BUFFER_STRING, testIotUART_BUFFER_LENGTH );
 
@@ -395,18 +396,23 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncReadAsyncLoopbackTest )
 
     if( TEST_PROTECT() )
     {
+        iot_uart_set_callback( xUartHandle, prvReadWriteCallback, NULL );
+
         lRead = iot_uart_read_async( xUartHandle, cpBufferRead, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lRead );
 
         lWrite = iot_uart_write_async( xUartHandle, cpBuffer, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
 
+        xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
+        TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
+
+        xCallbackReturn = xSemaphoreTake( xReadCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
+        TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
+
         lIoctl = iot_uart_ioctl( xUartHandle, eGetTxNoOfbytes, &lTransferAmount );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
         TEST_ASSERT_GREATER_THAN( 0, lTransferAmount );
-
-        /* Delay for 1 sec. */
-        vTaskDelay( testIotUART_DELAY );
 
         uStringCompare = memcmp( cpBuffer, cpBufferRead, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( 0, uStringCompare );

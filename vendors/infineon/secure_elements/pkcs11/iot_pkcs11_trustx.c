@@ -35,13 +35,13 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "semphr.h"
-#include "iot_pkcs11_config.h"
-#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-    #include "iot_test_pkcs11_config.h"
+#include "core_pkcs11_config.h"
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
+    #include "core_test_pkcs11_config.h"
 #endif
 #include "iot_crypto.h"
-#include "iot_pkcs11.h"
-#include "iot_pkcs11_pal.h"
+#include "core_pkcs11.h"
+#include "core_pkcs11_pal.h"
 
 /* OPTIGA(TM) Trust X Includes */
 #include "optiga/optiga_crypt.h"
@@ -49,10 +49,6 @@
 #include "optiga/pal/pal_os_event.h"
 #include "optiga/ifx_i2c/ifx_i2c_config.h"
 #include "ecdsa_utils.h"
-
-#if ( pkcs11configOTA_SUPPORTED == 1 )
-    #include "aws_ota_codesigner_certificate.h"
-#endif
 
 /* C runtime includes. */
 #include <stdio.h>
@@ -361,7 +357,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
             }
         }
 
-        #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        #if FREERTOS_ENABLE_UNIT_TESTS
             else if( 0 == memcmp( pxLabel->pValue,
                                   &pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
                                   sizeof( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
@@ -381,7 +377,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
             /* We do assign a handle though, as the AWS can#t handle the lables without having a handle*/
             xHandle = eAwsDevicePrivateKey;
         }
-        #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        #if FREERTOS_ENABLE_UNIT_TESTS
             else if( 0 == memcmp( pxLabel->pValue,
                                   &pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                                   sizeof( pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
@@ -398,7 +394,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                 xHandle = eAwsDevicePublicKey;
             }
         }
-        #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        #if FREERTOS_ENABLE_UNIT_TESTS
             else if( 0 == memcmp( pxLabel->pValue,
                                   &pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                                   sizeof( pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
@@ -470,7 +466,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
         xHandle = eAwsDeviceCertificate;
     }
 
-    #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+    #if FREERTOS_ENABLE_UNIT_TESTS
         else if( 0 == memcmp( pLabel,
                               &pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
                               sizeof( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
@@ -487,7 +483,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
         /* We do assign a handle though, as the AWS can#t handle the lables without having a handle*/
         xHandle = eAwsDevicePrivateKey;
     }
-    #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+    #if FREERTOS_ENABLE_UNIT_TESTS
         else if( 0 == memcmp( pLabel,
                               &pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                               sizeof( pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
@@ -501,7 +497,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
     {
         xHandle = eAwsDevicePublicKey;
     }
-    #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+    #if FREERTOS_ENABLE_UNIT_TESTS
         else if( 0 == memcmp( pLabel,
                               &pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                               sizeof( pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
@@ -564,7 +560,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
             xOffset = 9;
             break;
 
-            #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+            #if FREERTOS_ENABLE_UNIT_TESTS
                 case eAwsTestCertificate:
                     lOptigaOid = strtol( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xEnd, 16 );
                     xOffset = 9;
@@ -574,7 +570,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
             lOptigaOid = strtol( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, &xEnd, 16 );
             break;
 
-            #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+            #if FREERTOS_ENABLE_UNIT_TESTS
                 case eAwsTestPublicKey:
                     lOptigaOid = strtol( pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, &xEnd, 16 );
                     break;
@@ -983,7 +979,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         if( pcLabel != NULL )
         {
             if( ( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
-                #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+                #if FREERTOS_ENABLE_UNIT_TESTS
                     ||
                     ( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
                 #endif
@@ -1019,7 +1015,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                     pcTempLabel = pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
                 }
 
-                #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+                #if FREERTOS_ENABLE_UNIT_TESTS
                     else if( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabelLength ) )
                     {
                         pcTempLabel = pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
@@ -1029,7 +1025,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                 {
                     pcTempLabel = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
                 }
-                #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+                #if FREERTOS_ENABLE_UNIT_TESTS
                     else if( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, xLabelLength ) )
                     {
                         pcTempLabel = pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS;
@@ -2240,8 +2236,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         }
         else if( ( xPalHandle == eAwsDevicePrivateKey ) || ( xPalHandle == eAwsTestPrivateKey ) )
         {
+            xResult = prvAddObjectToList( xPalHandle, pxObject, pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
             *pulObjectCount = 1;
-            xResult = CKR_OK;
         }
         else
         {

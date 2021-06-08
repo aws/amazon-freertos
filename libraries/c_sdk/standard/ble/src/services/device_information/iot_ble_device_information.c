@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE V2.1.0
+ * FreeRTOS BLE V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,7 +44,6 @@
  * @brief GATT Service, characteristic and descriptor UUIDs used by the Device information service.
  *
  */
-#define IOT_BLE_DEVICE_INFO_CHAR_UUID_BASE          IOT_BLE_DEVICE_INFO_SERVICE_UUID                        /**< @brief Base UUID. */
 #define IOT_BLE_DEVICE_INFO_VERSION_UUID            { 0x01, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief Firmware version. */
 #define IOT_BLE_DEVICE_INFO_CLOUD_ENDPOINT_UUID     { 0x02, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief Broker endpoint. */
 #define IOT_BLE_DEVICE_INFO_CHAR_MTU_UUID           { 0x03, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief MTU size. */

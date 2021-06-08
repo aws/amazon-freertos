@@ -27,9 +27,13 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "string.h"
 
 /* Test includes */
 #include "aws_test_runner.h"
+
+#include "iot_uart.h"
+#include "driver/uart.h"
 
 /* AWS library includes. */
 #include "iot_system_init.h"
@@ -42,7 +46,7 @@
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
 #endif
-#include "tcpip_adapter.h"
+#include "esp_netif.h"
 #include "aws_test_utils.h"
 #include "esp_bt.h"
 #include "esp_system.h"
@@ -140,6 +144,28 @@ static void prvMiscInitialization( void );
 
 /*-----------------------------------------------------------*/
 
+IotUARTHandle_t xConsoleUart;
+
+static void iot_uart_init( void )
+{
+    IotUARTConfig_t xUartConfig;
+    int32_t status = IOT_UART_SUCCESS;
+    
+    xConsoleUart = iot_uart_open( UART_NUM_0 );
+    configASSERT( xConsoleUart );
+    
+    status = iot_uart_ioctl( xConsoleUart, eUartGetConfig, &xUartConfig );
+    configASSERT( status == IOT_UART_SUCCESS );
+    
+    xUartConfig.ulBaudrate = 115200;
+    xUartConfig.xParity = eUartParityNone;
+    xUartConfig.xStopbits = eUartStopBitsOne;
+    xUartConfig.ucFlowControl = true;
+
+    status = iot_uart_ioctl( xConsoleUart, eUartSetConfig, &xUartConfig );
+    configASSERT( status == IOT_UART_SUCCESS );
+}
+
 /**
  * @brief Application runtime entry point.
  */
@@ -156,7 +182,7 @@ int app_main( void )
 
 #if AFR_ESP_LWIP
     configPRINTF( ("Initializing lwIP TCP stack\r\n") );
-    tcpip_adapter_init();
+    esp_netif_init();
 #else /* AFR_ESP_LWIP */
     configPRINTF( ("Initializing FreeRTOS TCP stack\r\n") );
     FreeRTOS_IPInit( ucIPAddress,
@@ -197,6 +223,9 @@ int app_main( void )
 
 static void prvMiscInitialization( void )
 {
+    /* Initialize UART. */
+    iot_uart_init();
+
     /* Initialize NVS */
     esp_err_t ret = nvs_flash_init();
 
@@ -214,6 +243,21 @@ static void prvMiscInitialization( void )
 
     ESP_ERROR_CHECK( ret );
 }
+
+/*-----------------------------------------------------------*/
+extern void esp_vApplicationTickHook();
+void IRAM_ATTR vApplicationTickHook()
+{
+    esp_vApplicationTickHook();
+}
+
+/*-----------------------------------------------------------*/
+extern void esp_vApplicationIdleHook();
+void vApplicationIdleHook()
+{
+    esp_vApplicationIdleHook();
+}
+
 /*-----------------------------------------------------------*/
 
 void vApplicationDaemonTaskStartupHook( void )
@@ -227,6 +271,9 @@ void prvWifiConnect( void )
     WIFIReturnCode_t eWiFiStatus;
     uint32_t ulInitialRetryPeriodMs = 500;
     BaseType_t xMaxRetries = 6;
+    size_t xSSIDLength = 0, xPasswordLength = 0;
+    const char *pcSSID = ( const char * ) clientcredentialWIFI_SSID;
+    const char *pcPassword = ( const char * ) clientcredentialWIFI_PASSWORD;
 
     eWiFiStatus = WIFI_On();
 
@@ -243,12 +290,57 @@ void prvWifiConnect( void )
         }
     }
 
+
     /* Setup parameters. */
-    xJoinAPParams.pcSSID = clientcredentialWIFI_SSID;
-    xJoinAPParams.ucSSIDLength = strlen( clientcredentialWIFI_SSID );
-    xJoinAPParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xJoinAPParams.ucPasswordLength = strlen( clientcredentialWIFI_PASSWORD );
+    if( ( pcSSID == NULL ) || ( strcmp( pcSSID, "") == 0 ) )
+    {
+        configPRINTF(( "[Error] WiFi SSID is not configured (either null or empty).\r\n" ));
+        while( 1 )
+        {
+        }
+    }
+    else
+    {
+        xSSIDLength = strlen( pcSSID );
+
+        if( xSSIDLength > sizeof( xJoinAPParams.ucSSID ) )
+        {
+            configPRINTF(( "[Error] WiFi SSID length exceeeds allowable size of %u bytes.", sizeof( xJoinAPParams.ucSSID ) ));
+            while( 1 )
+            {
+            }
+        } 
+    }
+
+    memcpy( xJoinAPParams.ucSSID, pcSSID, xSSIDLength );
+    xJoinAPParams.ucSSIDLength = xSSIDLength;
     xJoinAPParams.xSecurity = clientcredentialWIFI_SECURITY;
+
+    if ( ( xJoinAPParams.xSecurity == eWiFiSecurityWPA2 ) ||
+         ( xJoinAPParams.xSecurity == eWiFiSecurityWPA ) )
+    {
+        if( pcPassword != NULL )
+        {
+            xPasswordLength = strlen( pcPassword );
+            if( xPasswordLength > sizeof( xJoinAPParams.xPassword.xWPA.cPassphrase ) )
+            {
+                configPRINTF(( "[Error] WiFi password exceeds allowable size of %u bytes.\r\n", sizeof( xJoinAPParams.xPassword.xWPA.cPassphrase ) ));
+                while( 1 )
+                {
+                }
+            }
+            memcpy( xJoinAPParams.xPassword.xWPA.cPassphrase, pcPassword, xPasswordLength );
+            xJoinAPParams.xPassword.xWPA.ucLength = xPasswordLength;
+        }
+        else
+        {
+            configPRINTF(( "[Error] WiFi security is configured as WPA2 but password is not provided.\r\n" ));
+            while( 1 )
+            {
+            }
+        }
+        
+    }
 
     RETRY_EXPONENTIAL( eWiFiStatus = WIFI_ConnectAP( &( xJoinAPParams ) ),
                        eWiFiSuccess, ulInitialRetryPeriodMs, xMaxRetries );

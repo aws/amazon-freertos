@@ -71,6 +71,7 @@ extern uint8_t ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ];
  * 1 but a DHCP server could not be contacted.  See the online documentation for
  * more information.  In both cases the node can be discovered using
  * "ping RTOSDemo". */
+#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH )
 static const uint8_t ucIPAddress[ 4 ] =
 {
     configIP_ADDR0,
@@ -99,20 +100,12 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
     configDNS_SERVER_ADDR2,
     configDNS_SERVER_ADDR3
 };
-
+#endif
 
 /**
  * @brief Application task startup hook.
  */
 void vApplicationDaemonTaskStartupHook( void );
-
-
-/**
- * @brief Connects to Wi-Fi.
- */
-#if(configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_WIFI)
-static void prvWifiConnect( void );
-#endif
 
 /**
  * @brief Initializes the board.
@@ -158,8 +151,9 @@ int main( void )
     prvMiscInitialization();
     configPRINTF( ( "FreeRTOS App Ver:%x\n", xAppFirmwareVersion));    
     configPRINTF( ( "FreeRTOS_IPInit\n" ) );	
+#ifndef CONFIG_OTA_UPDATE_DEMO_ENABLED
     xTaskCreate( vCheckTask, "Check", mainCHECK_TASK_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY, NULL );	
-
+#endif
     /* A simple example to demonstrate key and certificate provisioning in
      * microcontroller flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
@@ -261,9 +255,6 @@ void vApplicationDaemonTaskStartupHook( void )
 #if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_WIFI )
     if( SYSTEM_Init() == pdPASS )
     {
-        /* Connect to the Wi-Fi before running the tests. */
-        prvWifiConnect();
-
         /* Start the demo tasks. */
         DEMO_RUNNER_RunDemos();
     }
@@ -271,79 +262,6 @@ void vApplicationDaemonTaskStartupHook( void )
     ;
 }
 /*-----------------------------------------------------------*/
-
-#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_WIFI )
-void prvWifiConnect( void )
-{
-    WIFINetworkParams_t  xNetworkParams;
-    WIFIReturnCode_t xWifiStatus;
-    uint8_t ucIpAddr[4] = { 0 };
-
-    xWifiStatus = WIFI_On();
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
-    }
-    else
-    {
-        configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
-
-        /* Delay to allow the lower priority logging task to print the above status. 
-         * The while loop below will block the above printing. */
-        Sleep( mainLOGGING_WIFI_STATUS_DELAY );
-
-        while( 1 )
-        {
-        }
-    }
-
-    /* Setup parameters. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    xNetworkParams.cChannel = 0;
-
-    xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
-
-        xWifiStatus = WIFI_GetIP( ucIpAddr );
-        if ( eWiFiSuccess == xWifiStatus ) 
-        {
-            configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                            ucIpAddr[ 0 ], ucIpAddr[ 1 ], ucIpAddr[ 2 ], ucIpAddr[ 3 ] ) );
-        }
-    }
-    else
-    {
-#if 0
-        /* Connection failed, configure SoftAP. */
-        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
-        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
-        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
-        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
-
-        configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
-                        xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-
-        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
-        {
-            configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
-                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-        }
-
-        configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
-#endif
-    }
-}
-#endif
 
 #if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH )
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
@@ -453,7 +371,6 @@ void vAssertCalled( const char * pcFile,
 
 void vApplicationIdleHook( void )
 {
-    const uint32_t ulMSToSleep = 1;
     const TickType_t xIdleCheckPeriod = pdMS_TO_TICKS( 1000UL );
     static TickType_t xTimeNow, xLastTimeCheck = 0;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -18,7 +18,7 @@ extern "C" {
  * \brief Creates a new semaphore
  *
  * \param[in] max_count       Highest count of the semaphore
- * \param[in] initial_count   Starting count of the semaphore
+ * \param[in] initial_count   Starting count of the available semaphore
  * \param[in] name            Name of the semaphore
  *
  * \return Returns handle of the semaphore created, or NULL in case of error
@@ -46,16 +46,6 @@ uint32_t os_wrapper_semaphore_acquire(void *handle, uint32_t timeout);
  *         \ref OS_WRAPPER_ERROR in case of error
  */
 uint32_t os_wrapper_semaphore_release(void *handle);
-
-/**
- * \brief Releases the semaphore in interrupt service route
- *
- * \param[in] hanlde Semaphore handle
- *
- * \return \ref 1 if schedule is requried
- *         \ref 0, otherwise
- */
-uint32_t os_wrapper_semaphore_release_isr(void *handle);
 
 /**
  * \brief Deletes the semaphore

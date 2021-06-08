@@ -211,6 +211,15 @@ cbmc-batch.yaml:
     if opsys != "windows":
         _makefile.write(target)
 
+def write_solver(opsys, _makefile):
+    conditional = """
+ifneq ($(strip $(EXTERNAL_SAT_SOLVER)),)
+   SOLVER ?= --external-sat-solver $(EXTERNAL_SAT_SOLVER)
+endif
+"""
+    if opsys != "windows":
+        _makefile.write(conditional)
+
 def makefile_from_template(opsys, template, defines, makefile="Makefile"):
     with open(makefile, "w") as _makefile:
         write_define(opsys, "FREERTOS", defines, _makefile)
@@ -218,6 +227,7 @@ def makefile_from_template(opsys, template, defines, makefile="Makefile"):
         write_common_defines(opsys, defines, _makefile)
         write_makefile(opsys, template, defines, _makefile)
         write_cbmcbatchyaml_target(opsys, _makefile)
+        write_solver(opsys, _makefile)
 
 ################################################################
 # Main

@@ -37,7 +37,7 @@ Includes   <System Includes> , "Project Includes"
 #include "platform.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#if defined(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
+#if defined(FREERTOS_ENABLE_UNIT_TESTS)
 #include "unity_internals.h"
 #elif defined(ENABLE_UNIT_TESTS)
 #include "unity.h"
@@ -280,7 +280,7 @@ void vAssertCalled(void)
         }
     }
     taskEXIT_CRITICAL();
-#elif defined(ENABLE_UNIT_TESTS) || defined(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
+#elif defined(ENABLE_UNIT_TESTS) || defined(FREERTOS_ENABLE_UNIT_TESTS)
     /* unity testing */
     /* TEST_ABORT() of unity_internal.h (and also TEST_PASS() of unity.h)
     jumps to the place where TEST_PROTECT() was executed. */

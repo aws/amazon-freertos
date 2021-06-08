@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v3.1.2
+ * Trace Recorder Library for Tracealyzer v4.3.11
  * Percepio AB, www.percepio.com
  *
  * trcRecorder.h
@@ -7,7 +7,7 @@
  * The public API of the trace recorder.
  *
  * Terms of Use
- * This file is part of the trace recorder library (RECORDER), which is the
+ * This file is part of the trace recorder library (RECORDER), which is the 
  * intellectual property of Percepio AB (PERCEPIO) and provided under a
  * license as follows.
  * The RECORDER may be used free of charge for the purpose of recording data
@@ -16,14 +16,14 @@
  * You may distribute the RECORDER in its original source code form, assuming
  * this text (terms of use, disclaimer, copyright notice) is unchanged. You are
  * allowed to distribute the RECORDER with minor modifications intended for
- * configuration or porting of the RECORDER, e.g., to allow using it on a
+ * configuration or porting of the RECORDER, e.g., to allow using it on a 
  * specific processor, processor family or with a specific communication
  * interface. Any such modifications should be documented directly below
- * this comment block.
+ * this comment block.  
  *
  * Disclaimer
  * The RECORDER is being delivered to you AS IS and PERCEPIO makes no warranty
- * as to its use or performance. PERCEPIO does not and cannot warrant the
+ * as to its use or performance. PERCEPIO does not and cannot warrant the 
  * performance or results you may obtain by using the RECORDER or documentation.
  * PERCEPIO make no warranties, express or implied, as to noninfringement of
  * third party rights, merchantability, or fitness for any particular purpose.
@@ -34,11 +34,11 @@
  * party. Some jurisdictions do not allow the exclusion or limitation of
  * incidental, consequential or special damages, or the exclusion of implied
  * warranties or limitations on how long an implied warranty may last, so the
- * above limitations may not apply to you.
+ * above limitations may not apply to you. 
  *
  * Tabs are used for indent in this file (1 tab = 4 spaces)
  *
- * Copyright Percepio AB, 2017.
+ * Copyright Percepio AB, 2018.
  * www.percepio.com
  ******************************************************************************/
 
@@ -49,28 +49,40 @@
 extern "C" {
 #endif
 
-#include <stdarg.h>
 #include <stdint.h>
+#include <stddef.h>
+#include <stdarg.h>
+
+#define TRC_ACKNOWLEDGED (0xABC99123)
+
 #include "trcConfig.h"
 #include "trcPortDefines.h"
 
-
-
 #if (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_SNAPSHOT)
+
 typedef uint16_t traceString;
 typedef uint8_t traceUBChannel;
 typedef uint8_t traceObjectClass;
 
 #if (TRC_CFG_USE_16BIT_OBJECT_HANDLES == 1)
 typedef uint16_t traceHandle;
-#else
+#else /* (TRC_CFG_USE_16BIT_OBJECT_HANDLES == 1) */
 typedef uint8_t traceHandle;
-#endif
-
+#endif /* (TRC_CFG_USE_16BIT_OBJECT_HANDLES == 1) */
+	
 #include "trcHardwarePort.h"
 #include "trcKernelPort.h"
 
-#endif
+/* Not yet available in snapshot mode */
+#define vTraceConsoleChannelPrintF(fmt, ...) (void)(fmt)
+#define prvTraceStoreEvent0(...)
+#define prvTraceStoreEvent1(...)
+#define prvTraceStoreEvent2(...)
+#define prvTraceStoreEvent3(...)
+#define prvTraceStoreEvent(...)
+#define prvTraceStoreStringEvent(...)
+
+#endif /* (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_SNAPSHOT) */
 
 #if (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_STREAMING)
 
@@ -81,9 +93,21 @@ typedef const void* traceHandle;
 #include "trcStreamingPort.h"
 #include "trcKernelPort.h"
 
-#endif
+#endif /* (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_STREAMING) */
 
 #if (TRC_USE_TRACEALYZER_RECORDER == 1)
+
+#define TRC_STATE_IN_STARTUP 0
+#define TRC_STATE_IN_TASKSWITCH 1
+#define TRC_STATE_IN_APPLICATION 2
+
+/* The user event channel for recorder warnings, must be defined in trcKernelPort.c */
+extern traceString trcWarningChannel;
+
+#define TRACE_GET_LOW16(value) ((uint16_t)((value) & 0x0000FFFF))
+#define TRACE_GET_HIGH16(value) ((uint16_t)(((value) >> 16) & 0x0000FFFF))
+#define TRACE_SET_LOW16(current, value)  (((current) & 0xFFFF0000) | (value))
+#define TRACE_SET_HIGH16(current, value) (((current) & 0x0000FFFF) | (((uint32_t)(value)) << 16))
 
 /******************************************************************************/
 /*** Common API - both Snapshot and Streaming mode ****************************/
@@ -95,13 +119,13 @@ typedef const void* traceHandle;
 * Initializes and optionally starts the trace, depending on the start option.
 * To use the trace recorder, the startup must call vTraceEnable before any RTOS
 * calls are made (including "create" calls). Three start options are provided:
-*
-* TRC_START: Starts the tracing directly. In snapshot mode this allows for
+* 
+* TRC_START: Starts the tracing directly. In snapshot mode this allows for 
 * starting the trace at any point in your code, assuming vTraceEnable(TRC_INIT)
 * has been called in the startup.
 * Can also be used for streaming without Tracealyzer control, e.g. to a local
 * flash file system (assuming such a "stream port", see trcStreamingPort.h).
-*
+* 
 * TRC_START_AWAIT_HOST: For streaming mode only. Initializes the trace recorder
 * if necessary and waits for a Start command from Tracealyzer ("Start Recording"
 * button). This call is intentionally blocking! By calling vTraceEnable with
@@ -113,7 +137,7 @@ typedef const void* traceHandle;
 * later.
 *
 * Usage examples:
-*
+* 
 * Snapshot trace, from startup:
 * 	<board init>
 * 	vTraceEnable(TRC_START);
@@ -125,9 +149,9 @@ typedef const void* traceHandle;
 * 	<RTOS init>
 * 	...
 * 	vTraceEnable(TRC_START); // e.g., in task context, at some relevant event
-*
+* 
 * Streaming trace, from startup:
-*	<board init>
+*	<board init>	
 *	vTraceEnable(TRC_START_AWAIT_HOST); // Blocks!
 *	<RTOS init>
 *
@@ -135,7 +159,7 @@ typedef const void* traceHandle;
 *	<board startup>
 *	vTraceEnable(TRC_INIT);
 *	<RTOS startup>
-*
+*	
 ******************************************************************************/
 void vTraceEnable(int startOption);
 
@@ -144,7 +168,7 @@ void vTraceEnable(int startOption);
  *
  * Generates "User Events", with formatted text and data, similar to a "printf".
  * User Events can be used for very efficient logging from your application code.
- * It is very fast since the actual string formatting is done on the host side,
+ * It is very fast since the actual string formatting is done on the host side, 
  * when the trace is displayed. The execution time is just some microseconds on
  * a 32-bit MCU.
  *
@@ -154,9 +178,9 @@ void vTraceEnable(int startOption);
  * Signal Plot" view, visualizing any data you log as User Events, discrete
  * states or control system signals (e.g. system inputs or outputs).
  *
- * You may group User Events into User Event Channels. The yellow User Event
+ * You may group User Events into User Event Channels. The yellow User Event 
  * labels show the logged string, preceded by the channel name within brackets.
- *
+ * 
  * Example:
  *
  *  "[MyChannel] Hello World!"
@@ -174,9 +198,9 @@ void vTraceEnable(int startOption);
  *				 ch, adc_reading);
  *
  * The following format specifiers are supported in both modes:
- * %d - signed integer.
+ * %d - signed integer. 
  * %u - unsigned integer.
- * %X - hexadecimal, uppercase.
+ * %X - hexadecimal, uppercase. 
  * %x - hexadecimal, lowercase.
  * %s - string (see comment below)
  *
@@ -191,12 +215,12 @@ void vTraceEnable(int startOption);
  *
  * Snapshot: vTracePrintF(myChn, "my string: %s", str);
  * Streaming: vTracePrintF(myChn, "my string: %s", xTraceRegisterString(str));
- *
+ * 
  * In snapshot mode you can specify 8-bit or 16-bit arguments to reduce RAM usage:
  *     %hd -> 16 bit (h) signed integer (d).
  *     %bu -> 8 bit (b) unsigned integer (u).
  *
- * However, in streaming mode all data arguments are assumed to be 32 bit wide.
+ * However, in streaming mode all data arguments are assumed to be 32 bit wide. 
  * Width specifiers (e.g. %hd) are accepted but ignored (%hd treated like %d).
  *
  * The maximum event size also differs between the modes. In streaming this is
@@ -207,10 +231,26 @@ void vTraceEnable(int startOption);
  *
  * In snapshot mode you are limited to maximum 15 arguments, that must not exceed
  * 32 bytes in total (not counting the format string). If exceeded, the recorder
- * logs an internal error (displayed when opening the trace) and stops recording.
+ * logs an internal error (displayed when opening the trace) and stops recording. 
+ ******************************************************************************/
+#if (TRC_CFG_SCHEDULING_ONLY == 0) && (TRC_CFG_INCLUDE_USER_EVENTS == 1)
+void vTracePrintF(traceString chn, const char* fmt, ...);
+#else
+#define vTracePrintF(chn, fmt, ...) (void)(chn), (void)(fmt) /* Comma operator is used to avoid "unused variable" compiler warnings in a single statement */
+#endif
+
+/******************************************************************************
+ * vTraceVPrintF
+ *
+ * vTracePrintF variant that accepts a va_list.
+ * See vTracePrintF documentation for further details.
  *
  ******************************************************************************/
-void vTracePrintF(traceString chn, const char* fmt, ...);
+#if (TRC_CFG_SCHEDULING_ONLY == 0) && (TRC_CFG_INCLUDE_USER_EVENTS == 1)
+void vTraceVPrintF(traceString eventLabel, const char* formatStr, va_list vl);
+#else
+#define vTraceVPrintF(chn, formatStr, vl) (void)(chn), (void)(formatStr), (void)(vl) /* Comma operator is used to avoid "unused variable" compiler warnings in a single statement */
+#endif
 
 /******************************************************************************
 * vTracePrint
@@ -222,9 +262,32 @@ void vTracePrintF(traceString chn, const char* fmt, ...);
 *	 traceString chn = xTraceRegisterString("MyChannel");
 *	 ...
 *	 vTracePrint(chn, "Hello World!");
-*
 ******************************************************************************/
+#if (TRC_CFG_SCHEDULING_ONLY == 0) && (TRC_CFG_INCLUDE_USER_EVENTS == 1)
 void vTracePrint(traceString chn, const char* str);
+#else
+#define vTracePrint(chn, str) (void)(chn), (void)(str) /* Comma operator is used to avoid "unused variable" compiler warnings in a single statement */
+#endif
+
+
+/*******************************************************************************
+* vTraceConsoleChannelPrintF
+*
+* Wrapper for vTracePrint, using the default channel. Can be used as a drop-in
+* replacement for printf and similar functions, e.g. in a debug logging macro.
+*
+* Example:
+*
+*	 // Old: #define LogString debug_console_printf
+*
+*    // New, log to Tracealyzer instead:
+*	 #define LogString vTraceConsoleChannelPrintF 
+*	 ...
+*	 LogString("My value is: %d", myValue);
+******************************************************************************/
+#if (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_STREAMING)
+void vTraceConsoleChannelPrintF(const char* fmt, ...);
+#endif
 
 /*******************************************************************************
 * xTraceRegisterString
@@ -235,9 +298,12 @@ void vTracePrint(traceString chn, const char* str);
 *	 myEventHandle = xTraceRegisterString("MyUserEvent");
 *	 ...
 *	 vTracePrintF(myEventHandle, "My value is: %d", myValue);
-*
 ******************************************************************************/
+#if (TRC_CFG_SCHEDULING_ONLY == 0) && (TRC_CFG_INCLUDE_USER_EVENTS == 1)
 traceString xTraceRegisterString(const char* name);
+#else
+#define xTraceRegisterString(x) ((void)(x), (traceString)0) /* Comma operator in parenthesis is used to avoid "unused variable" compiler warnings and return 0 in a single statement */
+#endif
 
 /*******************************************************************************
  * vTraceSet...Name(void* object, const char* name)
@@ -247,18 +313,8 @@ traceString xTraceRegisterString(const char* name);
  *
  * Kernel-specific functions for setting names of kernel objects, for display in
  * Tracealyzer.
- *
- * See trcKernelPort.h for details (since kernel-specific)
  ******************************************************************************/
-
-/*******************************************************************************
- * vTraceExclude...
- *
- * Kernel-specific macros for excluding specified events from the trace. Allows
- * for capturing longer traces in snapshot mode by selective tracing.
- *
- * See trcKernelPort.h for details (kernel-specific)
- ******************************************************************************/
+/* See trcKernelPort.h for details (kernel-specific) */
 
 /*******************************************************************************
  * xTraceSetISRProperties
@@ -277,7 +333,6 @@ traceString xTraceRegisterString(const char* name);
  *		 ...
  *		 vTraceStoreISREnd(0);
  *	 }
- *
  ******************************************************************************/
 traceHandle xTraceSetISRProperties(const char* name, uint8_t priority);
 
@@ -298,7 +353,6 @@ traceHandle xTraceSetISRProperties(const char* name, uint8_t priority);
  *		 ...
  *		 vTraceStoreISREnd(0);
  *	 }
- *
  ******************************************************************************/
 void vTraceStoreISRBegin(traceHandle handle);
 
@@ -308,7 +362,7 @@ void vTraceStoreISRBegin(traceHandle handle);
  * Registers the end of an Interrupt Service Routine.
  *
  * The parameter pendingISR indicates if the interrupt has requested a
- * task-switch (= 1), e.g., by signaling a semaphore. Otherwise (= 0) the
+ * task-switch (= 1), e.g., by signaling a semaphore. Otherwise (= 0) the 
  * interrupt is assumed to return to the previous context.
  *
  * Example:
@@ -323,7 +377,6 @@ void vTraceStoreISRBegin(traceHandle handle);
  *		 ...
  *		 vTraceStoreISREnd(0);
  *	 }
- *
  ******************************************************************************/
 void vTraceStoreISREnd(int isTaskSwitchRequired);
 
@@ -352,7 +405,7 @@ void vTraceInstanceFinishedNext(void);
 /*******************************************************************************
  * xTraceGetLastError
  *
- * Returns the last error, if any.
+ * Returns the last error or warning as a string, or NULL if none.
  *****************************************************************************/
 const char* xTraceGetLastError(void);
 
@@ -366,7 +419,7 @@ void vTraceClearError(void);
 /*******************************************************************************
 * vTraceStop
 *
-* Stops the recording. Intended for snapshot mode or if streaming without
+* Stops the recording. Intended for snapshot mode or if streaming without 
 * Tracealyzer control (e.g., to a device file system).
 ******************************************************************************/
 void vTraceStop(void);
@@ -394,16 +447,16 @@ void vTraceSetFrequency(uint32_t frequency);
 * control where the recorder trace buffer is allocated.
 *
 * When custom allocation is selected, use TRC_ALLOC_CUSTOM_BUFFER to make the
-* allocation (in global context) and then call vTraceSetRecorderDataBuffer to
+* allocation (in global context) and then call vTraceSetRecorderDataBuffer to 
 * register the allocated buffer. This supports both snapshot and streaming,
-* and has no effect if using other allocation modes than CUSTOM.
+* and has no effect if using other allocation modes than CUSTOM. 
 *
 * NOTE: vTraceSetRecorderDataBuffer must be called before vTraceEnable.
 ******************************************************************************/
 #if (TRC_CFG_RECORDER_BUFFER_ALLOCATION == TRC_RECORDER_BUFFER_ALLOCATION_CUSTOM)
 void vTraceSetRecorderDataBuffer(void* pRecorderData);
 #else
-#define vTraceSetRecorderDataBuffer(pRecorderData)
+#define vTraceSetRecorderDataBuffer(pRecorderData) /* If not CUSTOM, pRecorderData will be an undefined symbol (same as in TRC_ALLOC_CUSTOM_BUFFER), so no (void) here */
 #endif
 
 
@@ -414,37 +467,119 @@ void vTraceSetRecorderDataBuffer(void* pRecorderData);
 * setting TRC_RECORDER_BUFFER_ALLOCATION_CUSTOM), this macro allows you to declare
 * the trace buffer in a portable way that works both in snapshot and streaming.
 *
-* This macro has no effect if using another allocation mode, so you can easily
-* switch between different recording modes and configurations, using the same
+* This macro has no effect if using another allocation mode, so you can easily 
+* switch between different recording modes and configurations, using the same 
 * initialization code.
 *
 * This translates to a single static allocation, on which you can apply linker
 * directives to place it in a particular memory region.
+*
 * - Snapshot mode: "RecorderDataType <name>"
-* - Streaming mode: "char <name> [<size>]", with <size> from trcStreamingPort.h.
+*
+* - Streaming mode: "char <name> [<size>]", 
+*   where <size> is defined in trcStreamingConfig.h.
 *
 * Example:
 *
 *   // GCC example: place myTraceBuffer in section .tz, defined in the .ld file.
 *   TRC_ALLOC_CUSTOM_BUFFER(myTraceBuffer) __attribute__((section(".tz")));
-*
+*   
 *   int main(void)
 *   {
 *      ...
 *      vTraceSetRecorderDataBuffer(&myTraceBuffer); // Note the "&"
 *      ...
 *      vTraceEnable(TRC_INIT); // Initialize the data structure
-*
 ******************************************************************************/
-#ifndef TRC_ALLOC_CUSTOM_BUFFER
-/* Definition for snapshot mode only. Also defined in trcStreamingPort.h */
 #if (TRC_CFG_RECORDER_BUFFER_ALLOCATION == TRC_RECORDER_BUFFER_ALLOCATION_CUSTOM)
-#define TRC_ALLOC_CUSTOM_BUFFER(bufname) RecorderDataType bufname;
+	#if (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_SNAPSHOT)
+		#define TRC_ALLOC_CUSTOM_BUFFER(bufname) RecorderDataType bufname;
+	#elif (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_STREAMING)
+		#ifdef TRC_CFG_RTT_BUFFER_SIZE_UP /* J-Link RTT */
+			#define TRC_ALLOC_CUSTOM_BUFFER(bufname) char bufname [TRC_CFG_RTT_BUFFER_SIZE_UP];  /* Not static in this case, since declared in user code */
+		#else
+			#define TRC_ALLOC_CUSTOM_BUFFER(bufname) char bufname [(TRC_CFG_PAGED_EVENT_BUFFER_PAGE_COUNT) * (TRC_CFG_PAGED_EVENT_BUFFER_PAGE_SIZE)];
+		#endif
+	#endif
 #else
-#define TRC_ALLOC_CUSTOM_BUFFER(bufname)
-#endif
+	#define TRC_ALLOC_CUSTOM_BUFFER(bufname) /* If not CUSTOM, bufname will be an undefined symbol (same as in vTraceSetRecorderDataBuffer), so no (void) here */
 #endif
 
+/******************************************************************************
+* xTraceIsRecordingEnabled
+*
+* Returns true (1) if the recorder is enabled (i.e. is recording), otherwise 0.
+******************************************************************************/
+int xTraceIsRecordingEnabled(void);
+
+/*******************************************************************************
+* vTraceSetFilterGroup
+*
+* Sets the "filter group" to assign when creating RTOS objects, such as tasks,
+* queues, semaphores and mutexes. This together with vTraceSetFilterMask 
+* allows you to control what events that are recorded, based on the 
+* objects they refer to.
+*
+* There are 16 filter groups named FilterGroup0 .. FilterGroup15.
+*
+* Note: We don't recommend filtering out the Idle task, so make sure to call 
+* vTraceSetFilterGroup just before initializing the RTOS, in order to assign
+* such "default" objects to the right Filter Group (typically group 0).
+*
+* Example:
+*  
+*		// Assign tasks T1 to FilterGroup0 (default)
+*		<Create Task T1>  
+*
+*		// Assign Q1 and Q2 to FilterGroup1
+*		vTraceSetFilterGroup(FilterGroup1);
+*		<Create Queue Q1> 
+*		<Create Queue Q2>
+*
+*		// Assigns Q3 to FilterGroup2
+*		vTraceSetFilterGroup(FilterGroup2);
+*		<Create Queue Q3>
+*
+*		// Only include FilterGroup0 and FilterGroup2, exclude FilterGroup1 (Q1 and Q2) from the trace
+*		vTraceSetFilterMask( FilterGroup0 | FilterGroup2 );
+*
+*		// Assign the default RTOS objects (e.g. Idle task) to FilterGroup0
+*		vTraceSetFilterGroup(FilterGroup0);
+*		<Start the RTOS scheduler>
+*
+* Note that you may define your own names for the filter groups using
+* preprocessor definitions, to make the code easier to understand.
+*
+* Example:
+*
+*		#define BASE FilterGroup0
+*		#define USB_EVENTS FilterGroup1
+*		#define CAN_EVENTS FilterGroup2
+*
+* Note that filtering per event type (regardless of object) is also available
+* in trcConfig.h.
+******************************************************************************/
+void vTraceSetFilterGroup(uint16_t filterGroup);
+
+/******************************************************************************
+* vTraceSetFilterMask
+*
+* Sets the "filter mask" that is used to filter the events by object. This can
+* be used to reduce the trace data rate, i.e., if your streaming interface is
+* a bottleneck or if you want longer snapshot traces without increasing the
+* buffer size.
+*
+* Note: There are two kinds of filters in the recorder. The other filter type
+* excludes all events of certain kinds (e.g., OS ticks). See trcConfig.h.
+*
+* The filtering is based on bitwise AND with the Filter Group ID, assigned
+* to RTOS objects such as tasks, queues, semaphores and mutexes. 
+* This together with vTraceSetFilterGroup allows you to control what
+* events that are recorded, based on the objects they refer to.
+*
+* See example for vTraceSetFilterGroup.
+******************************************************************************/
+void vTraceSetFilterMask(uint16_t filterMask);
 
 #if (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_SNAPSHOT)
 
@@ -494,7 +629,6 @@ void vTraceSetStopHook(TRACE_STOP_HOOK stopHookFunction);
 * error. In that case, check xTraceGetLastError to get the error message.
 * Any error message is also presented when opening a trace file.
 *
-*
 * Snapshot mode only!
 ******************************************************************************/
 uint32_t uiTraceStart(void);
@@ -527,11 +661,7 @@ void vTraceClear(void);
 /*** INTERNAL SNAPSHOT FUNCTIONS *********************************************/
 /*****************************************************************************/
 
-#undef INCLUDE_xTaskGetSchedulerState
-#define INCLUDE_xTaskGetSchedulerState 1
-
-#undef INCLUDE_xTaskGetCurrentTaskHandle
-#define INCLUDE_xTaskGetCurrentTaskHandle 1
+#define TRC_UNUSED
 
 #ifndef TRC_CFG_INCLUDE_OBJECT_DELETE
 #define TRC_CFG_INCLUDE_OBJECT_DELETE 0
@@ -545,82 +675,127 @@ void vTraceClear(void);
 #define TRC_CFG_INCLUDE_OSTICK_EVENTS 0
 #endif
 
-#define TRC_UNUSED
-
-#if (TRC_CFG_INCLUDE_OBJECT_DELETE == 1)
-/* This macro will remove the task and store it in the event buffer */
-#undef trcKERNEL_HOOKS_TASK_DELETE
-#define trcKERNEL_HOOKS_TASK_DELETE(SERVICE, pxTCB) \
-	prvTraceStoreKernelCall(TRACE_GET_TASK_EVENT_CODE(SERVICE, SUCCESS, CLASS, pxTCB), TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB)); \
-	prvTraceStoreObjectNameOnCloseEvent(TRACE_GET_TASK_NUMBER(pxTCB), TRACE_CLASS_TASK); \
-	prvTraceStoreObjectPropertiesOnCloseEvent(TRACE_GET_TASK_NUMBER(pxTCB), TRACE_CLASS_TASK); \
-	prvTraceSetPriorityProperty(TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB), TRACE_GET_TASK_PRIORITY(pxTCB)); \
-	prvTraceSetObjectState(TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB), TASK_STATE_INSTANCE_NOT_ACTIVE); \
-	prvTraceFreeObjectHandle(TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB));
-#else /*(TRC_CFG_INCLUDE_OBJECT_DELETE == 1)*/
-#undef trcKERNEL_HOOKS_TASK_DELETE
-#define trcKERNEL_HOOKS_TASK_DELETE(SERVICE, pxTCB)
-#endif /*(TRC_CFG_INCLUDE_OBJECT_DELETE == 1)*/
-
-#if (TRC_CFG_INCLUDE_OBJECT_DELETE == 1)
-/* This macro will remove the object and store it in the event buffer */
-#undef trcKERNEL_HOOKS_OBJECT_DELETE
-#define trcKERNEL_HOOKS_OBJECT_DELETE(SERVICE, CLASS, pxObject) \
-	prvTraceStoreKernelCall(TRACE_GET_OBJECT_EVENT_CODE(SERVICE, SUCCESS, CLASS, pxObject), TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject)); \
-	prvTraceStoreObjectNameOnCloseEvent(TRACE_GET_OBJECT_NUMBER(CLASS, pxObject), TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject)); \
-	prvTraceStoreObjectPropertiesOnCloseEvent(TRACE_GET_OBJECT_NUMBER(CLASS, pxObject), TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject)); \
-	prvTraceFreeObjectHandle(TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject));
-#else /*TRC_CFG_INCLUDE_OBJECT_DELETE*/
-#undef trcKERNEL_HOOKS_OBJECT_DELETE
-#define trcKERNEL_HOOKS_OBJECT_DELETE(SERVICE, CLASS, pxObject)
-#endif /*TRC_CFG_INCLUDE_OBJECT_DELETE*/
-
 /* This macro will create a task in the object table */
 #undef trcKERNEL_HOOKS_TASK_CREATE
 #define trcKERNEL_HOOKS_TASK_CREATE(SERVICE, CLASS, pxTCB) \
-	TRACE_SET_TASK_NUMBER(pxTCB) \
+	TRACE_SET_OBJECT_NUMBER(TASK, pxTCB); \
+	TRACE_SET_OBJECT_FILTER(TASK, pxTCB, CurrentFilterGroup); \
 	prvTraceSetObjectName(TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB), TRACE_GET_TASK_NAME(pxTCB)); \
 	prvTraceSetPriorityProperty(TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB), TRACE_GET_TASK_PRIORITY(pxTCB)); \
-	prvTraceStoreKernelCall(TRACE_GET_TASK_EVENT_CODE(SERVICE, SUCCESS, CLASS, pxTCB), TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB));
+	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		if (TRACE_GET_OBJECT_FILTER(TASK, pxTCB) & CurrentFilterMask) \
+			prvTraceStoreKernelCall(SERVICE, TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB));
 
-/* This macro will create a failed create call to create a task */
-#undef trcKERNEL_HOOKS_TASK_CREATE_FAILED
-#define trcKERNEL_HOOKS_TASK_CREATE_FAILED(SERVICE, CLASS) \
-	prvTraceStoreKernelCall(TRACE_GET_TASK_EVENT_CODE(SERVICE, FAILED, CLASS, 0), TRACE_CLASS_TASK, 0);
+/* This macro will remove the task and store it in the event buffer */
+#undef trcKERNEL_HOOKS_TASK_DELETE
+#define trcKERNEL_HOOKS_TASK_DELETE(SERVICE, SERVICE_NAME, SERVICE_PROP, pxTCB) \
+	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		if (TRACE_GET_OBJECT_FILTER(TASK, pxTCB) & CurrentFilterMask) \
+			prvTraceStoreKernelCall(SERVICE, TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB)); \
+	prvTraceStoreObjectNameOnCloseEvent(SERVICE_NAME, TRACE_GET_TASK_NUMBER(pxTCB), TRACE_CLASS_TASK); \
+	prvTraceStoreObjectPropertiesOnCloseEvent(SERVICE_PROP, TRACE_GET_TASK_NUMBER(pxTCB), TRACE_CLASS_TASK); \
+	prvTraceSetPriorityProperty(TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB), TRACE_GET_TASK_PRIORITY(pxTCB)); \
+	prvTraceSetObjectState(TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB), TASK_STATE_INSTANCE_NOT_ACTIVE); \
+	prvTraceFreeObjectHandle(TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB));
+
 
 /* This macro will setup a task in the object table */
 #undef trcKERNEL_HOOKS_OBJECT_CREATE
 #define trcKERNEL_HOOKS_OBJECT_CREATE(SERVICE, CLASS, pxObject)\
 	TRACE_SET_OBJECT_NUMBER(CLASS, pxObject);\
+	TRACE_SET_OBJECT_FILTER(CLASS, pxObject, CurrentFilterGroup); \
 	prvMarkObjectAsUsed(TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject),  TRACE_GET_OBJECT_NUMBER(CLASS, pxObject));\
-	prvTraceStoreKernelCall(TRACE_GET_OBJECT_EVENT_CODE(SERVICE, SUCCESS, CLASS, pxObject), TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject)); \
+	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		if (TRACE_GET_OBJECT_FILTER(CLASS, pxObject) & CurrentFilterMask) \
+			prvTraceStoreKernelCall(SERVICE, TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject)); \
 	prvTraceSetObjectState(TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject), 0);
 
-/* This macro will create a failed create call to create an object */
-#undef trcKERNEL_HOOKS_OBJECT_CREATE_FAILED
-#define trcKERNEL_HOOKS_OBJECT_CREATE_FAILED(SERVICE, CLASS, kernelClass) \
-	prvTraceStoreKernelCall(TRACE_GET_CLASS_EVENT_CODE(SERVICE, FAILED, CLASS, kernelClass), TRACE_GET_CLASS_TRACE_CLASS(CLASS, kernelClass), 0);
+/* This macro will remove the object and store it in the event buffer */
+#undef trcKERNEL_HOOKS_OBJECT_DELETE
+#define trcKERNEL_HOOKS_OBJECT_DELETE(SERVICE, SERVICE_NAME, SERVICE_PROP, CLASS, pxObject) \
+	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		if (TRACE_GET_OBJECT_FILTER(CLASS, pxObject) & CurrentFilterMask) \
+			prvTraceStoreKernelCall(SERVICE, TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject)); \
+	prvTraceStoreObjectNameOnCloseEvent(SERVICE_NAME, TRACE_GET_OBJECT_NUMBER(CLASS, pxObject), TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject)); \
+	prvTraceStoreObjectPropertiesOnCloseEvent(SERVICE_PROP, TRACE_GET_OBJECT_NUMBER(CLASS, pxObject), TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject)); \
+	prvTraceFreeObjectHandle(TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject));
 
 /* This macro will create a call to a kernel service with a certain result, with an object as parameter */
 #undef trcKERNEL_HOOKS_KERNEL_SERVICE
-#define trcKERNEL_HOOKS_KERNEL_SERVICE(SERVICE, RESULT, CLASS, pxObject) \
-	prvTraceStoreKernelCall(TRACE_GET_OBJECT_EVENT_CODE(SERVICE, RESULT, CLASS, pxObject), TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject));
+#define trcKERNEL_HOOKS_KERNEL_SERVICE(SERVICE, CLASS, pxObject) \
+	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		if (TRACE_GET_OBJECT_FILTER(CLASS, pxObject) & CurrentFilterMask) \
+			prvTraceStoreKernelCall(SERVICE, TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject));
+
+/* This macro will create a call to a kernel service with a certain result, with a null object as parameter */
+#undef trcKERNEL_HOOKS_KERNEL_SERVICE_NULL_OBJECT
+#define trcKERNEL_HOOKS_KERNEL_SERVICE_NULL_OBJECT(SERVICE, TRACECLASS) \
+	if (TRACE_GET_TASK_FILTER(TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		prvTraceStoreKernelCall(SERVICE, TRACECLASS, 0);
+
+/* This macro will create a call to a kernel service with a certain result, with an object as parameter */
+#undef trcKERNEL_HOOKS_KERNEL_SERVICE_WITH_PARAM
+#define trcKERNEL_HOOKS_KERNEL_SERVICE_WITH_PARAM(SERVICE, CLASS, pxObject, param) \
+	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		if (TRACE_GET_OBJECT_FILTER(CLASS, pxObject) & CurrentFilterMask) \
+			prvTraceStoreKernelCallWithParam(SERVICE, TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject), (uint32_t)param);
+
+/* This macro will create a call to a kernel service with a certain result, with a null object and other value as parameter */
+#undef trcKERNEL_HOOKS_KERNEL_SERVICE_NULL_OBJECT_WITH_PARAM
+#define trcKERNEL_HOOKS_KERNEL_SERVICE_NULL_OBJECT_WITH_PARAM(SERVICE, TRACECLASS, param) \
+	if (TRACE_GET_TASK_FILTER(TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		prvTraceStoreKernelCallWithParam(SERVICE, TRACECLASS, 0, param);
+
+/* This macro will create a call to a kernel service with a certain result, with an object as parameter */
+#undef trcKERNEL_HOOKS_KERNEL_SERVICE_WITH_NUMERIC_PARAM_ONLY
+#define trcKERNEL_HOOKS_KERNEL_SERVICE_WITH_NUMERIC_PARAM_ONLY(SERVICE, param) \
+	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		prvTraceStoreKernelCallWithNumericParamOnly(SERVICE, (uint32_t)param);
+
+/* This macro will create a call to a kernel service with a certain result, with an object as parameter */
+#undef trcKERNEL_HOOKS_KERNEL_SERVICE_FROM_ISR
+#define trcKERNEL_HOOKS_KERNEL_SERVICE_FROM_ISR(SERVICE, CLASS, pxObject) \
+	if (TRACE_GET_OBJECT_FILTER(CLASS, pxObject) & CurrentFilterMask) \
+		prvTraceStoreKernelCall(SERVICE, TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject));
+
+/* This macro will create a call to a kernel service with a certain result, with a null object as parameter */
+#undef trcKERNEL_HOOKS_KERNEL_SERVICE_NULL_OBJECT_FROM_ISR
+#define trcKERNEL_HOOKS_KERNEL_SERVICE_NULL_OBJECT_FROM_ISR(SERVICE, TRACECLASS) \
+	prvTraceStoreKernelCall(SERVICE, TRACECLASS, 0);
+
+/* This macro will create a call to a kernel service with a certain result, with an object as parameter */
+#undef trcKERNEL_HOOKS_KERNEL_SERVICE_WITH_PARAM_FROM_ISR
+#define trcKERNEL_HOOKS_KERNEL_SERVICE_WITH_PARAM_FROM_ISR(SERVICE, CLASS, pxObject, param) \
+	if (TRACE_GET_OBJECT_FILTER(CLASS, pxObject) & CurrentFilterMask) \
+		prvTraceStoreKernelCallWithParam(SERVICE, TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject), (uint32_t)param);
+
+/* This macro will create a call to a kernel service with a certain result, with a null object and other value as parameter */
+#undef trcKERNEL_HOOKS_KERNEL_SERVICE_NULL_OBJECT_WITH_PARAM_FROM_ISR
+#define trcKERNEL_HOOKS_KERNEL_SERVICE_NULL_OBJECT_WITH_PARAM_FROM_ISR(SERVICE, TRACECLASS, param) \
+	prvTraceStoreKernelCallWithParam(SERVICE, TRACECLASS, 0, param);
+
+/* This macro will create a call to a kernel service with a certain result, with an object as parameter */
+#undef trcKERNEL_HOOKS_KERNEL_SERVICE_WITH_NUMERIC_PARAM_ONLY_FROM_ISR
+#define trcKERNEL_HOOKS_KERNEL_SERVICE_WITH_NUMERIC_PARAM_ONLY_FROM_ISR(SERVICE, param) \
+	prvTraceStoreKernelCallWithNumericParamOnly(SERVICE, (uint32_t)param);
 
 /* This macro will set the state for an object */
 #undef trcKERNEL_HOOKS_SET_OBJECT_STATE
 #define trcKERNEL_HOOKS_SET_OBJECT_STATE(CLASS, pxObject, STATE) \
-	prvTraceSetObjectState(TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject), STATE);
+	prvTraceSetObjectState(TRACE_GET_OBJECT_TRACE_CLASS(CLASS, pxObject), TRACE_GET_OBJECT_NUMBER(CLASS, pxObject), (uint8_t)STATE);
 
 /* This macro will flag a certain task as a finished instance */
 #undef trcKERNEL_HOOKS_SET_TASK_INSTANCE_FINISHED
 #define trcKERNEL_HOOKS_SET_TASK_INSTANCE_FINISHED() \
-	prvTraceSetTaskInstanceFinished(TRACE_GET_TASK_NUMBER(TRACE_GET_CURRENT_TASK()));
+	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		prvTraceSetTaskInstanceFinished(TRACE_GET_TASK_NUMBER(TRACE_GET_CURRENT_TASK()));
 
 #if (TRC_CFG_INCLUDE_READY_EVENTS == 1)
 /* This macro will create an event to indicate that a task became Ready */
 #undef trcKERNEL_HOOKS_MOVED_TASK_TO_READY_STATE
 #define trcKERNEL_HOOKS_MOVED_TASK_TO_READY_STATE(pxTCB) \
-	prvTraceStoreTaskReady(TRACE_GET_TASK_NUMBER(pxTCB));
+	if (TRACE_GET_OBJECT_FILTER(TASK, pxTCB) & CurrentFilterMask) \
+		prvTraceStoreTaskReady(TRACE_GET_TASK_NUMBER(pxTCB));
 #else /*(TRC_CFG_INCLUDE_READY_EVENTS == 1)*/
 #undef trcKERNEL_HOOKS_MOVED_TASK_TO_READY_STATE
 #define trcKERNEL_HOOKS_MOVED_TASK_TO_READY_STATE(pxTCB)
@@ -629,7 +804,11 @@ void vTraceClear(void);
 /* This macro will update the internal tick counter and call prvTracePortGetTimeStamp(0) to update the internal counters */
 #undef trcKERNEL_HOOKS_INCREMENT_TICK
 #define trcKERNEL_HOOKS_INCREMENT_TICK() \
-	{ extern uint32_t uiTraceTickCount; uiTraceTickCount++; prvTracePortGetTimeStamp(0); }
+	{ \
+		extern uint32_t uiTraceTickCount; \
+		uiTraceTickCount++; \
+		prvTracePortGetTimeStamp(0); \
+	}
 
 #if (TRC_CFG_INCLUDE_OSTICK_EVENTS == 1)
 /* This macro will create an event indicating that the OS tick count has increased */
@@ -644,48 +823,46 @@ void vTraceClear(void);
 /* This macro will create a task switch event to the currently executing task */
 #undef trcKERNEL_HOOKS_TASK_SWITCH
 #define trcKERNEL_HOOKS_TASK_SWITCH( pxTCB ) \
-	prvTraceStoreTaskswitch(TRACE_GET_TASK_NUMBER(pxTCB));
+	if (TRACE_GET_OBJECT_FILTER(TASK, pxTCB) & CurrentFilterMask) \
+		prvTraceStoreTaskswitch(TRACE_GET_TASK_NUMBER(pxTCB));
 
 /* This macro will create an event to indicate that the task has been suspended */
 #undef trcKERNEL_HOOKS_TASK_SUSPEND
 #define trcKERNEL_HOOKS_TASK_SUSPEND(SERVICE, pxTCB) \
-	prvTraceStoreKernelCall(SERVICE, TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB)); \
+	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		if (TRACE_GET_OBJECT_FILTER(TASK, pxTCB) & CurrentFilterMask) \
+			prvTraceStoreKernelCall(SERVICE, TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB)); \
 	prvTraceSetTaskInstanceFinished((uint8_t)TRACE_GET_TASK_NUMBER(pxTCB));
 
 /* This macro will create an event to indicate that a task has called a wait/delay function */
 #undef trcKERNEL_HOOKS_TASK_DELAY
 #define trcKERNEL_HOOKS_TASK_DELAY(SERVICE, pxTCB, xValue) \
-	prvTraceStoreKernelCallWithNumericParamOnly(SERVICE, xValue); \
-	prvTraceSetTaskInstanceFinished((uint8_t)TRACE_GET_TASK_NUMBER(pxTCB));
+	if (TRACE_GET_OBJECT_FILTER(TASK, pxTCB) & CurrentFilterMask) \
+	{ \
+		prvTraceStoreKernelCallWithNumericParamOnly(SERVICE, xValue); \
+		prvTraceSetTaskInstanceFinished((uint8_t)TRACE_GET_TASK_NUMBER(pxTCB)); \
+	}
 
 /* This macro will create an event to indicate that a task has gotten its priority changed */
 #undef trcKERNEL_HOOKS_TASK_PRIORITY_CHANGE
 #define trcKERNEL_HOOKS_TASK_PRIORITY_CHANGE(SERVICE, pxTCB, uxNewPriority) \
-	prvTraceStoreKernelCallWithParam(SERVICE, TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB), prvTraceGetPriorityProperty(TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB)));\
-	prvTraceSetPriorityProperty(TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB), (uint8_t)uxNewPriority);
+	if (TRACE_GET_OBJECT_FILTER(TASK, pxTCB) & CurrentFilterMask) \
+	{ \
+		prvTraceStoreKernelCallWithParam(SERVICE, TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB), prvTraceGetPriorityProperty(TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB)));\
+		prvTraceSetPriorityProperty(TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB), (uint8_t)uxNewPriority); \
+	}
 
 /* This macro will create an event to indicate that the task has been resumed */
 #undef trcKERNEL_HOOKS_TASK_RESUME
 #define trcKERNEL_HOOKS_TASK_RESUME(SERVICE, pxTCB) \
-	prvTraceStoreKernelCall(SERVICE, TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB));
+	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		if (TRACE_GET_OBJECT_FILTER(TASK, pxTCB) & CurrentFilterMask) \
+			prvTraceStoreKernelCall(SERVICE, TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB));
 
-#undef trcKERNEL_HOOKS_TIMER_EVENT
-#define trcKERNEL_HOOKS_TIMER_EVENT(SERVICE, pxTimer) \
-	prvTraceStoreKernelCall(SERVICE, TRACE_CLASS_TIMER, TRACE_GET_TIMER_NUMBER(pxTimer));
-
-/* This macro will create a timer in the object table and assign the timer a trace handle (timer number).*/
-#undef trcKERNEL_HOOKS_TIMER_CREATE
-#define trcKERNEL_HOOKS_TIMER_CREATE(SERVICE, pxTimer) \
-TRACE_SET_TIMER_NUMBER(pxTimer); \
-prvTraceSetObjectName(TRACE_CLASS_TIMER, TRACE_GET_TIMER_NUMBER(pxTimer), TRACE_GET_TIMER_NAME(pxTimer)); \
-prvTraceStoreKernelCall(SERVICE, TRACE_CLASS_TIMER, TRACE_GET_TIMER_NUMBER(pxTimer));
-
-#undef trcKERNEL_HOOKS_TIMER_DELETE
-#define trcKERNEL_HOOKS_TIMER_DELETE(SERVICE, pxTimer) \
-prvTraceStoreKernelCall(SERVICE, TRACE_CLASS_TIMER, TRACE_GET_TIMER_NUMBER(pxTimer)); \
-prvTraceStoreObjectNameOnCloseEvent(TRACE_GET_TIMER_NUMBER(pxTimer), TRACE_CLASS_TIMER); \
-prvTraceStoreObjectPropertiesOnCloseEvent(TRACE_GET_TIMER_NUMBER(pxTimer), TRACE_CLASS_TIMER); \
-prvTraceFreeObjectHandle(TRACE_CLASS_TIMER, TRACE_GET_TIMER_NUMBER(pxTimer));
+#undef trcKERNEL_HOOKS_TASK_RESUME_FROM_ISR
+#define trcKERNEL_HOOKS_TASK_RESUME_FROM_ISR(SERVICE, pxTCB) \
+	if (TRACE_GET_OBJECT_FILTER(TASK, pxTCB) & CurrentFilterMask) \
+		prvTraceStoreKernelCall(SERVICE, TRACE_CLASS_TASK, TRACE_GET_TASK_NUMBER(pxTCB));
 
 #if !defined TRC_CFG_INCLUDE_READY_EVENTS || TRC_CFG_INCLUDE_READY_EVENTS == 1
 	void prvTraceSetReadyEventsEnabled(int status);
@@ -715,6 +892,15 @@ void prvTraceStoreKernelCallWithParam(uint32_t evtcode, traceObjectClass objectC
 
 #endif
 
+/*******************************************************************************
+* prvTraceInitTraceData
+*
+* Allocates and initializes the recorder data structure, based on the constants
+* in trcConfig.h. This allows for allocating the data on the heap, instead of
+* using a static declaration.
+******************************************************************************/
+void prvTraceInitTraceData(void);
+
 void prvTraceSetTaskInstanceFinished(traceHandle handle);
 
 void prvTraceSetPriorityProperty(uint8_t objectclass, traceHandle id, uint8_t value);
@@ -725,15 +911,11 @@ void prvTraceSetObjectState(uint8_t objectclass, traceHandle id, uint8_t value);
 
 void prvMarkObjectAsUsed(traceObjectClass objectclass, traceHandle handle);
 
-
-#if (TRC_CFG_INCLUDE_OBJECT_DELETE == 1)
-
-void prvTraceStoreObjectNameOnCloseEvent(traceHandle handle,
+void prvTraceStoreObjectNameOnCloseEvent(uint8_t evtcode, traceHandle handle,
 										traceObjectClass objectclass);
 
-void prvTraceStoreObjectPropertiesOnCloseEvent(traceHandle handle,
+void prvTraceStoreObjectPropertiesOnCloseEvent(uint8_t evtcode, traceHandle handle,
 											 traceObjectClass objectclass);
-#endif
 
 /* Internal constants for task state */
 #define TASK_STATE_INSTANCE_NOT_ACTIVE 0
@@ -742,20 +924,17 @@ void prvTraceStoreObjectPropertiesOnCloseEvent(traceHandle handle,
 
 #if (TRC_CFG_INCLUDE_ISR_TRACING == 0)
 
-//void prvTraceIncreaseISRActive(void);
-
-//void prvTraceDecreaseISRActive(void);
 #undef vTraceSetISRProperties
-#define vTraceSetISRProperties(handle, name, priority)
+#define vTraceSetISRProperties(handle, name, priority) (void)(handle), (void)(name), (void)(priority) /* Comma operator is used to avoid "unused variable" compiler warnings in a single statement */
 
 #undef vTraceStoreISRBegin
-#define vTraceStoreISRBegin(x) (void)x
+#define vTraceStoreISRBegin(x) (void)(x)
 
 #undef vTraceStoreISREnd
-#define vTraceStoreISREnd(x) (void)x
+#define vTraceStoreISREnd(x) (void)(x)
 
 #undef xTraceSetISRProperties
-#define xTraceSetISRProperties(name, priority) 0
+#define xTraceSetISRProperties(name, priority) ((void)(name), (void)(priority), (traceHandle)0) /* Comma operator in parenthesis is used to avoid "unused variable" compiler warnings and return 0 in a single statement */
 
 #endif /*(TRC_CFG_INCLUDE_ISR_TRACING == 0)*/
 
@@ -794,17 +973,19 @@ void vTraceUBEvent(traceUBChannel channel);
 #else /*((TRC_CFG_INCLUDE_USER_EVENTS == 1) && (TRC_CFG_SCHEDULING_ONLY == 0))*/
 
 #undef vTracePrint
-#define vTracePrint(chn, ...) (void)chn
+#define vTracePrint(chn, ...) (void)(chn)
 #undef vTracePrintF
-#define vTracePrintF(chn, ...) (void)chn
+#define vTracePrintF(chn, fmt, ...) (void)(chn), (void)(fmt) /* Comma operator is used to avoid "unused variable" compiler warnings in a single statement */
+#undef vTraceVPrintF
+#define vTraceVPrintF(chn, formatStr, vl) (void)(chn), (void)(formatStr), (void)(vl) /* Comma operator is used to avoid "unused variable" compiler warnings in a single statement */
 #undef xTraceRegisterString
-#define xTraceRegisterString(x) 0; (void)x;
+#define xTraceRegisterString(x) ((void)(x), (traceString)0) /* Comma operator in parenthesis is used to avoid "unused variable" compiler warnings and return 0 in a single statement */
 #undef xTraceRegisterChannelFormat
-#define xTraceRegisterChannelFormat(eventLabel, formatStr) 0
+#define xTraceRegisterChannelFormat(eventLabel, formatStr) ((void)(eventLabel), (void)(formatStr), 0) /* Comma operator in parenthesis is used to avoid "unused variable" compiler warnings and return 0 in a single statement */
 #undef vTraceUBData
-#define vTraceUBData(label, ...) {}
+#define vTraceUBData(label, ...) (void)(label)
 #undef vTraceChannelPrint
-#define vTraceChannelPrint(label) {}
+#define vTraceChannelPrint(label) (void)(label)
 
 #endif /*(TRC_CFG_INCLUDE_USER_EVENTS == 1)*/
 
@@ -824,12 +1005,6 @@ void vTraceUBEvent(traceUBChannel channel);
 	#define trcCRITICAL_SECTION_END_ON_CORTEX_M_ONLY() recorder_busy--;
 #endif
 
-/* Structure to handle the exclude flags for all objects and tasks. We add some extra objects since index 0 is not used for each object class. */
-extern uint8_t trcExcludedObjects[(TRACE_KERNEL_OBJECT_COUNT + TRACE_NCLASSES) / 8 + 1];
-
-/* Structure to handle the exclude flags for all event codes */
-extern uint8_t trcExcludedEventCodes[NEventCodes / 8 + 1];
-
 /******************************************************************************
  * ObjectHandleStack
  * This data-structure is used to provide a mechanism for 1-byte trace object
@@ -838,6 +1013,7 @@ extern uint8_t trcExcludedEventCodes[NEventCodes / 8 + 1];
  * each object class active at any given moment. There can be more "historic"
  * objects, that have been deleted - that number is only limited by the size of
  * the symbol table.
+ *
  * Note that handle zero (0) is not used, it is a code for an invalid handle.
  *
  * This data structure keeps track of the FREE handles, not the handles in use.
@@ -851,7 +1027,6 @@ extern uint8_t trcExcludedEventCodes[NEventCodes / 8 + 1];
  * is not a valid handle, that is a signal of additional handles needed.
  * If a zero is received when popping a new handle, it is replaced by the
  * index of the popped handle instead.
- *
  *****************************************************************************/
 typedef struct
 {
@@ -884,6 +1059,7 @@ extern objectHandleStackType objectHandleStacks;
  * represent the current state. If a property is changed during runtime, the OLD
  * value should be stored in the trace buffer, not the new value (since the new
  * value is found in the Object Property Table).
+ *
  * For close events this mechanism is the old names are stored in the symbol
  * table), for "priority set" (the old priority is stored in the event data)
  * and for "isActive", where the value decides if the task switch event type
@@ -927,7 +1103,7 @@ typedef struct
 	uint32_t nextFreeSymbolIndex;
 
 	/* Size rounded up to closest multiple of 4, to avoid alignment issues*/
-	uint8_t symbytes[4*((TRC_CFG_SYMBOL_TABLE_SIZE+3)/4)];
+	uint8_t symbytes[4*(((TRC_CFG_SYMBOL_TABLE_SIZE)+3)/4)];
 
 	/* Used for lookups - Up to 64 linked lists within the symbol table
 	connecting all entries with the same 6 bit checksum.
@@ -979,8 +1155,8 @@ typedef struct
 typedef struct
 {
 	uint8_t type;
-	uint8_t objHandle;	/* the handle of the closed object */
-	uint16_t symbolIndex;		 /* the name of the closed object */
+	uint8_t objHandle;		/* the handle of the closed object */
+	uint16_t symbolIndex;	/* the name of the closed object */
 } ObjCloseNameEvent;
 
 typedef struct
@@ -1060,9 +1236,9 @@ typedef struct
 	uint8_t padding1;
 	uint8_t padding2;
 	uint8_t padding3;
-	ChannelFormatPair channels[TRC_CFG_UB_CHANNELS+1];
-	uint8_t channelBuffer[(TRC_CFG_SEPARATE_USER_EVENT_BUFFER_SIZE + 3) & 0xFFFFFFFC]; /* 1 byte per slot, with padding for 4 byte alignment */
-	uint8_t dataBuffer[TRC_CFG_SEPARATE_USER_EVENT_BUFFER_SIZE * 4]; /* 4 bytes per slot */
+	ChannelFormatPair channels[(TRC_CFG_UB_CHANNELS)+1];
+	uint8_t channelBuffer[((TRC_CFG_SEPARATE_USER_EVENT_BUFFER_SIZE) + 3) & 0xFFFFFFFC]; /* 1 byte per slot, with padding for 4 byte alignment */
+	uint8_t dataBuffer[(TRC_CFG_SEPARATE_USER_EVENT_BUFFER_SIZE) * 4]; /* 4 bytes per slot */
 
 } UserEventBuffer;
 #endif
@@ -1131,7 +1307,7 @@ typedef struct
 	following vTraceISRBegin is above isrTailchainingThreshold, we assume a
 	return to the previous context in between the ISRs, otherwise we assume
 	the have executed back-to-back and don't show any fragment of the previous
-	context in between. */
+	context in between. */ 
 	uint32_t isrTailchainingThreshold;
 
 	/* Not used, remains for compatibility and future use */
@@ -1182,7 +1358,7 @@ typedef struct
 	int32_t debugMarker3;
 
 	/* The event data, in 4-byte records */
-	uint8_t eventData[ TRC_CFG_EVENT_BUFFER_SIZE * 4 ];
+	uint8_t eventData[ (TRC_CFG_EVENT_BUFFER_SIZE) * 4 ];
 
 #if (TRC_CFG_USE_SEPARATE_USER_EVENT_BUFFER == 1)
 	UserEventBuffer userEventBuffer;
@@ -1249,14 +1425,6 @@ RecorderDataPtr->ObjectPropertyTable.objbytes[uiIndexOfObject(handle, objectclas
 RecorderDataPtr->ObjectPropertyTable.objbytes[uiIndexOfObject(handle, objectclass) \
 + RecorderDataPtr->ObjectPropertyTable.NameLengthPerClass[objectclass] + 1]
 
-#define TRACE_SET_FLAG_ISEXCLUDED(flags, bitIndex) flags[(bitIndex) >> 3] |= (1 << ((bitIndex) & 7))
-#define TRACE_CLEAR_FLAG_ISEXCLUDED(flags, bitIndex) flags[(bitIndex) >> 3] &= (uint8_t)(~(1 << ((bitIndex) & 7)))
-#define TRACE_GET_FLAG_ISEXCLUDED(flags, bitIndex) (flags[(bitIndex) >> 3] & (1 << ((bitIndex) & 7)))
-
-#define TRACE_SET_EVENT_CODE_FLAG_ISEXCLUDED(eventCode) TRACE_SET_FLAG_ISEXCLUDED(trcExcludedEventCodes, eventCode)
-#define TRACE_CLEAR_EVENT_CODE_FLAG_ISEXCLUDED(eventCode) TRACE_CLEAR_FLAG_ISEXCLUDED(trcExcludedEventCodes, eventCode)
-#define TRACE_GET_EVENT_CODE_FLAG_ISEXCLUDED(eventCode) TRACE_GET_FLAG_ISEXCLUDED(trcExcludedEventCodes, eventCode)
-
 /* DEBUG ASSERTS */
 #if defined TRC_CFG_USE_TRACE_ASSERT && TRC_CFG_USE_TRACE_ASSERT != 0
 #define TRACE_ASSERT(eval, msg, defRetVal) \
@@ -1273,12 +1441,353 @@ if (!(eval)) \
 
 #if (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_STREAMING)
 
+/******************************************************************************
+ * Default values for STREAM PORT macros
+ *
+ * As a normal user, this is nothing you don't need to bother about. This is
+ * only important if you want to define your own custom streaming interface.
+ *
+ * You may override these in your own trcStreamingPort.h to create a custom
+ * stream port, and thereby stream the trace on any host-target interface.
+ * These default values are suitable for most cases, except the J-Link port. 
+ ******************************************************************************/
+
+/******************************************************************************
+ * TRC_STREAM_PORT_USE_INTERNAL_BUFFER
+ *
+ * There are two kinds of stream ports, those that store the event to the 
+ * internal buffer (with periodic flushing by the TzCtrl task) and those that
+ * write directly to the streaming interface. Most stream ports use the 
+ * recorder's internal buffer, except for the SEGGER J-Link port (also uses a
+ * RAM buffer, but one defined in the SEGGER code).
+ *
+ * If the stream port (trcStreamingPort.h) defines this as zero (0), it is 
+ * expected to transmit the data directly using TRC_STREAM_PORT_COMMIT_EVENT.
+ * Otherwise it is expected that the trace data is stored in the internal buffer
+ * and the TzCtrl task will then send the buffer pages when they become full.
+ ******************************************************************************/
+#ifndef TRC_STREAM_PORT_USE_INTERNAL_BUFFER
+#define TRC_STREAM_PORT_USE_INTERNAL_BUFFER 1
+#endif
+
+ /******************************************************************************
+ * TRC_STREAM_PORT_ON_TRACE_BEGIN
+ *
+ * Defining any actions needed in the stream port when the recording is activated.
+ *******************************************************************************/
+#ifndef TRC_STREAM_PORT_ON_TRACE_BEGIN
+	#define TRC_STREAM_PORT_ON_TRACE_BEGIN() /* Do nothing */
+#endif
+
+ /******************************************************************************
+ * TRC_STREAM_PORT_ON_TRACE_END
+ *
+ * Defining any actions needed in the stream port when the tracing stops.
+ * Empty by default.
+ *******************************************************************************/
+#ifndef TRC_STREAM_PORT_ON_TRACE_END
+#define TRC_STREAM_PORT_ON_TRACE_END() /* Do nothing */
+#endif
+
+ /******************************************************************************
+ * TRC_STREAM_PORT_ALLOCATE_EVENT
+ *
+ * This macro is used to allocate memory for each event record, just before
+ * assigning the record fields.
+ * Depending on "TRC_STREAM_PORT_USE_INTERNAL_BUFFER", this either allocates
+ * space in the paged event buffer, or on the local stack. In the latter case,
+ * the COMMIT event is used to write the data to the streaming interface.
+ *
+ * The BLOCKING option is only used within vTraceEnable, to ensure the full
+ * header, object table and symbol table is transferred without data loss.
+ ******************************************************************************/
+#ifndef TRC_STREAM_PORT_ALLOCATE_EVENT
+#if (TRC_STREAM_PORT_USE_INTERNAL_BUFFER == 1)
+	#define TRC_STREAM_PORT_ALLOCATE_EVENT(_type, _ptrData, _size) \
+	_type* _ptrData; \
+	_ptrData = (_type*)prvPagedEventBufferGetWritePointer(_size);
+	
+	/**************************************************************************
+     If your application gets stuck in TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING,
+     it means it fails to transfer the header, object table or symbol table
+     during vTraceEnable.
+     This occurs if the trace buffer is too small to accomodate these in full,
+     i.e. before the streaming interface is started and begins to transfer.
+	 
+	 Note that this is intentionally blocking to avoid data loss, but only
+     used within vTraceEnable.
+    **************************************************************************/
+   
+	#define TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(_type, _ptrData, _size) \
+	_type* _ptrData; \
+	do { _ptrData = (_type*)prvPagedEventBufferGetWritePointer(_size); } while (_ptrData == NULL);
+
+#else
+	#define TRC_STREAM_PORT_ALLOCATE_EVENT(_type, _ptrData, _size) _type _tmpArray[_size / sizeof(_type)]; _type* _ptrData = _tmpArray;
+	#define TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(_type, _ptrData, _size) _type _tmpArray[_size / sizeof(_type)]; _type* _ptrData = _tmpArray;
+#endif
+#endif
+
+ /******************************************************************************
+ * TRC_STREAM_PORT_ALLOCATE_DYNAMIC_EVENT
+ *
+ * This macro is used to allocate memory for each event record, just before
+ * assigning the record fields. 
+ * This has the same purpose as TRC_STREAM_PORT_ALLOCATE_EVENT and by default
+ * it has the same definition as TRC_STREAM_PORT_ALLOCATE_EVENT. This is used
+ * for events carrying variable-sized payload, such as strings.
+ * In the SEGGER RTT port, we need this in order to make a worst-case
+ * allocation on the stack. 
+ ******************************************************************************/
+#ifndef TRC_STREAM_PORT_ALLOCATE_DYNAMIC_EVENT
+#if (TRC_STREAM_PORT_USE_INTERNAL_BUFFER == 1)
+	#define TRC_STREAM_PORT_ALLOCATE_DYNAMIC_EVENT(_type, _ptrData, _size) TRC_STREAM_PORT_ALLOCATE_EVENT(_type, _ptrData, _size) /* We do the same thing as for non-dynamic event sizes */
+#else
+	#define TRC_STREAM_PORT_ALLOCATE_DYNAMIC_EVENT(_type, _ptrData, _size) _type _tmpArray[sizeof(largestEventType) / sizeof(_type)]; _type* _ptrData = _tmpArray;
+#endif
+#endif
+
+ /******************************************************************************
+ * TRC_STREAM_PORT_COMMIT_EVENT
+ * TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING
+ *
+ * The COMMIT macro is used to write a single event record directly to the 
+ * streaming inteface, without first storing the event in the internal buffer.
+ * This is currently only used in the SEGGER J-Link RTT port. 
+ *
+ * The BLOCKING version is used when sending the initial trace header, which is
+ * important to receive in full. Otherwise, when using non-blocking RTT transfer
+ * this may be corrupted if using an RTT buffer smaller than the combined size
+ * of the header, object table and symbol table.
+ *
+ * This relies on the TRC_STREAM_PORT_WRITE_DATA macro, defined in by the 
+ * stream port in trcStreamingPort.h. The COMMIT macro calls 
+ * prvTraceWarning(TRC_STREAM_PORT_WRITE_DATA) if a non-zero value is returned
+ * from TRC_STREAM_PORT_WRITE_DATA. If zero (0) is returned, it is assumed 
+ * that all data was successfully written.
+ *
+ * In ports using the internal buffer, this macro has no purpose as the events
+ * are written to the internal buffer instead. They are then flushed to the
+ * streaming interface in the TzCtrl task using TRC_STREAM_PORT_WRITE_DATA.
+ ******************************************************************************/
+#ifndef TRC_STREAM_PORT_COMMIT_EVENT
+#if (TRC_STREAM_PORT_USE_INTERNAL_BUFFER == 1)
+	#define TRC_STREAM_PORT_COMMIT_EVENT(_ptrData, _size) /* Not used */
+	#define TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(_ptrData, _size) /* Not used */
+#else
+	#define TRC_STREAM_PORT_COMMIT_EVENT(_ptrData, _size) \
+	{ \
+		int32_t dummy = 0; \
+		(void)dummy; \
+		if (TRC_STREAM_PORT_WRITE_DATA(_ptrData, _size, &dummy) != 0) \
+		{ \
+			vTraceStop(); \
+		} \
+	}
+	
+	/* Only used during vTraceEnable */
+	#define TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(_ptrData, _size) \
+	{ \
+		char* ptrWrite = (char*)_ptrData; \
+		uint32_t writeSize = _size; \
+		uint32_t attemptCounter = 0; \
+		int32_t bytesWritten; \
+		int32_t status; \
+		do \
+		{ \
+			bytesWritten = 0; \
+			status = TRC_STREAM_PORT_WRITE_DATA(ptrWrite, writeSize, &bytesWritten); \
+			if (status != 0) \
+			{ \
+				prvTraceError(PSF_ERROR_STREAM_PORT_WRITE); \
+				break; \
+			} \
+			ptrWrite += bytesWritten; \
+			writeSize -= bytesWritten; \
+			attemptCounter++; \
+		} while (writeSize > 0); \
+		\
+		if (attemptCounter > 1) \
+		{ \
+			prvTraceWarning(PSF_WARNING_STREAM_PORT_INITIAL_BLOCKING); \
+		} \
+	}
+
+#endif
+#endif
+
+/******************************************************************************
+ * TRC_STREAM_PORT_READ_DATA (defined in trcStreamingPort.h)
+ *
+ * Defining how to read data from host (commands from Tracealyzer).
+ *
+ * If there is no direct interface to host (e.g., if streaming to a file
+ * system) this should be defined as 0. Instead use vTraceEnable(TRC_START) and
+ * vTraceStop() to control the recording from target.
+ *
+ * Parameters:
+ *
+ * - _ptrData: a pointer to a data buffer, where the received data shall be 
+ *             stored (TracealyzerCommandType*).
+ *
+ * - _size: the number of bytes to read (int).
+ *
+ * - _ptrBytesRead: a pointer to an integer (int), that should be assigned
+ *					with the number of bytes that was received.
+ *
+ * Example:
+ * 
+ * 	int32_t myRead(void* ptrData, uint32_t size, int32_t* ptrBytesRead);
+ * 
+ *	#define TRC_STREAM_PORT_READ_DATA(_ptrData, _size, _ptrBytesRead) \
+ *          myRead(_ptrData, _size, _ptrBytesRead)
+ *
+ * Your "myRead" function should return 0 if successful, i.e. if at least some 
+ * bytes were received. A non-zero value should be returned if the streaming
+ * interface returned an error (e.g. a closed socket), which results in the
+ * recorder calling prvTraceWarning with the error code 
+ * PSF_WARNING_STREAM_PORT_WRITE.
+ *
+ * If developing your own custom stream port and using the default internal
+ * buffer, it is important that the _ptrBytesRead parameter is assigned
+ * correctly by "myRead", i.e. with the number of bytes actually written. 
+ * Otherwise the data stream may get out of sync in case the streaming interface
+ * can't swallow all data at once. 
+ ******************************************************************************/
+#ifndef TRC_STREAM_PORT_READ_DATA
+#error "No definition for TRC_STREAM_PORT_READ_DATA (should be in trcStreamingPort.h)"
+#endif
+
+/******************************************************************************
+ * TRC_STREAM_PORT_WRITE_DATA (defined in trcStreamingPort.h)
+ *
+ * Defining how to write trace data to the streaming interface. 
+ *
+ * Parameters:
+ *
+ * - _ptrData: a pointer (void*) to the data to write.
+ *
+ * - _size: the number of bytes to write (uint32_t).
+ *
+ * - _ptrBytesWritten: a pointer to an integer (int32_t), that should be
+ *						assigned with the number of bytes actually written.
+ *
+ * Example:
+ *
+ * 	int32_t myWrite(void* ptrData, uint32_t size, int32_t* ptrBytesWritten);
+ *
+ *	#define TRC_STREAM_PORT_WRITE_DATA(_ptrData, _size, _ptrBytesWritten) \
+ *			myWrite(_ptrData, _size, _ptrBytesWritten) 
+ *  
+ * Your "myWrite" function should return 0 if successful, i.e. if at least some 
+ * bytes were sent. A non-zero value should be returned if the streaming interface
+ * returned an error (e.g. a closed socket), which results in the recorder calling
+ * prvTraceWarning with the error code PSF_WARNING_STREAM_PORT_WRITE.
+ * 
+ * If developing your own custom stream port and using the default internal
+ * buffer, it is important that the _ptrBytesWritten parameter is assigned
+ * correctly by "myWrite", i.e. with the number of bytes actually written. 
+ * Otherwise the data stream may get out of sync in case the streaming interface
+ * can't swallow all data at once.
+ *
+ * Assuming TRC_STREAM_PORT_USE_INTERNAL_BUFFER is 1 (default), the TzCtrl task
+ * will use this macro to send one buffer page at a time. In case all data can't
+ * be written at once (if _ptrBytesWritten is less than _size), the TzCtrl task
+ * is smart enough to make repeated calls (with updated parameters) in order to 
+ * send the remaining data.
+ * 
+ * However, if TRC_STREAM_PORT_USE_INTERNAL_BUFFER is 0, this is used from the
+ * COMMIT macro, directly in the "event functions". In that case, the
+ * _ptrBytesWritten parameter will be NULL and should be ignored by the write
+ * function. In this case, it is assumed that all data can be sent in a single
+ * call, otherwise the write function should return a non-zero error code.
+ ******************************************************************************/
+#ifndef TRC_STREAM_PORT_WRITE_DATA
+#error "No definition for TRC_STREAM_PORT_WRITE_DATA (should be in trcStreamingPort.h)"
+#endif
+
+/******************************************************************************
+* Data structure declaration, depending on  TRC_CFG_RECORDER_BUFFER_ALLOCATION
+*******************************************************************************/
+#if (TRC_CFG_RECORDER_BUFFER_ALLOCATION == TRC_RECORDER_BUFFER_ALLOCATION_STATIC)
+	
+	/* Static allocation. */
+	
+	/* If not defined in trcStreamingPort.h */
+	#ifndef TRC_STREAM_PORT_ALLOCATE_FIELDS
+		#define TRC_STREAM_PORT_ALLOCATE_FIELDS() \
+		char _TzTraceData[(TRC_CFG_PAGED_EVENT_BUFFER_PAGE_COUNT) * (TRC_CFG_PAGED_EVENT_BUFFER_PAGE_SIZE)];       	
+		extern char _TzTraceData[(TRC_CFG_PAGED_EVENT_BUFFER_PAGE_COUNT) * (TRC_CFG_PAGED_EVENT_BUFFER_PAGE_SIZE)];
+	#endif
+	
+	/* If not defined in trcStreamingPort.h */
+	#ifndef TRC_STREAM_PORT_MALLOC
+		#define TRC_STREAM_PORT_MALLOC() /* Static allocation. Not used. */
+	#endif
+#else
+	/* For Dynamic or Custom Allocation mode */
+	
+	/* If not defined in trcStreamingPort.h */
+	#ifndef TRC_STREAM_PORT_ALLOCATE_FIELDS
+		#define TRC_STREAM_PORT_ALLOCATE_FIELDS() char* _TzTraceData = NULL;
+		extern char* _TzTraceData;
+	#endif
+	
+	/* If not defined in trcStreamingPort.h */
+	#ifndef TRC_STREAM_PORT_MALLOC
+		#if (TRC_CFG_RECORDER_BUFFER_ALLOCATION == TRC_RECORDER_BUFFER_ALLOCATION_DYNAMIC)
+			#define TRC_STREAM_PORT_MALLOC() \
+			_TzTraceData = TRC_PORT_MALLOC((TRC_CFG_PAGED_EVENT_BUFFER_PAGE_COUNT) * (TRC_CFG_PAGED_EVENT_BUFFER_PAGE_SIZE));
+			extern char* _TzTraceData;
+		#else
+			#define TRC_STREAM_PORT_MALLOC()  /* Custom allocation. Not used. */
+		#endif
+	#endif
+#endif
+
+#ifndef TRC_STREAM_PORT_INIT
+	#define TRC_STREAM_PORT_INIT() \
+			TRC_STREAM_PORT_MALLOC(); /* Empty if static allocation mode */ \
+			prvPagedEventBufferInit(_TzTraceData);
+#endif
+
+
+/* Signal an error. */
+void prvTraceError(int errCode);
+
+/* Signal an warning (does not stop the recorder). */
+void prvTraceWarning(int errCode);
+
+/******************************************************************************/
+/*** ERROR AND WARNING CODES (check using xTraceGetLastError) *****************/
+/******************************************************************************/
+
+#define PSF_ERROR_NONE 0
+#define PSF_ERROR_EVENT_CODE_TOO_LARGE 1
+#define PSF_ERROR_ISR_NESTING_OVERFLOW 2
+#define PSF_ERROR_DWT_NOT_SUPPORTED 3
+#define PSF_ERROR_DWT_CYCCNT_NOT_SUPPORTED 4
+#define PSF_ERROR_TZCTRLTASK_NOT_CREATED 5
+#define PSF_ERROR_STREAM_PORT_WRITE 6
+
+#define PSF_WARNING_SYMBOL_TABLE_SLOTS 7
+#define PSF_WARNING_SYMBOL_MAX_LENGTH 8
+#define PSF_WARNING_OBJECT_DATA_SLOTS 9
+#define PSF_WARNING_STRING_TOO_LONG 10
+#define PSF_WARNING_STREAM_PORT_READ 11
+#define PSF_WARNING_STREAM_PORT_WRITE 12
+#define PSF_WARNING_STREAM_PORT_INITIAL_BLOCKING 13
+#define PSF_WARNING_STACKMON_NO_SLOTS 14
+
 /******************************************************************************/
 /*** INTERNAL STREAMING FUNCTIONS *********************************************/
 /******************************************************************************/
 
-/* Saves a symbol name (task name etc.) in symbol table */
-void prvTraceSaveSymbol(const void *address, const char *name);
+/* Saves a symbol name in the symbol table and returns the slot address */
+void* prvTraceSaveSymbol(const char *name);
+
+/* Saves a string in the symbol table for an object (task name etc.) */
+void prvTraceSaveObjectSymbol(void* address, const char *name);
 
 /* Deletes a symbol name (task name etc.) from symbol table */
 void prvTraceDeleteSymbol(void *address);
@@ -1320,10 +1829,7 @@ void prvPagedEventBufferInit(char* buffer);
 void* prvPagedEventBufferGetWritePointer(int sizeOfEvent);
 
 /* Transfer a full buffer page */
-int32_t prvPagedEventBufferTransfer(int32_t(*writeFunc)(void* data, uint32_t size, int32_t* ptrBytesWritten), int32_t* nofBytes);
-
-/* Resets the paged event buffer */
-void prvPagedEventBufferReset(void);
+uint32_t prvPagedEventBufferTransfer(void);
 
 /* The data structure for commands (a bit overkill) */
 typedef struct
@@ -1344,40 +1850,51 @@ int prvIsValidCommand(TracealyzerCommandType* cmd);
 /* Executed the received command (Start or Stop) */
 void prvProcessCommand(TracealyzerCommandType* cmd);
 
+#define vTraceSetStopHook(x) (void)(x)
 
 #endif /*(TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_STREAMING)*/
 
 #else /* when TRC_USE_TRACEALYZER_RECORDER == 0 */
 
-#define vTraceEnable(x)
-#define xTraceRegisterString(x) 0; (void)x;
-#define vTracePrint(chn, ...) (void)chn
-#define vTracePrintF(chn, ...) (void)chn
+#define vTraceEnable(x) (void)(x)
+#define xTraceRegisterString(x) ((void)(x), (traceString)0) /* Comma operator in parenthesis is used to avoid "unused variable" compiler warnings and return 0 in a single statement */
+#define vTracePrint(chn, ...) (void)(chn)
+#define vTracePrintF(chn, fmt, ...) (void)(chn), (void)(fmt) /* Comma operator is used to avoid "unused variable" compiler warnings in a single statement */
+#define vTraceVPrintF(chn, formatStr, vl) (void)(chn), (void)(formatStr), (void)(vl) /* Comma operator is used to avoid "unused variable" compiler warnings in a single statement */
 #define vTraceInstanceFinishedNow()
 #define vTraceInstanceFinishedNext()
-#define vTraceStoreISRBegin(x) (void)x
-#define vTraceStoreISREnd(x) (void)x
-#define xTraceSetISRProperties(a, b) 0
-#define vTraceStoreKernelObjectName(a, b)
-#define xTraceRegisterChannelFormat(eventLabel, formatStr) 0
-#define vTraceChannelPrint(label)
-#define vTraceUBData(label, ...)
+#define vTraceStoreISRBegin(x) (void)(x)
+#define vTraceStoreISREnd(x) (void)(x)
+#define xTraceSetISRProperties(a, b) ((void)(a), (void)(b), (traceHandle)0) /* Comma operator in parenthesis is used to avoid "unused variable" compiler warnings and return 0 in a single statement */
+#define vTraceStoreKernelObjectName(a, b) (void)(a), (void)(b) /* Comma operator is used to avoid "unused variable" compiler warnings in a single statement */
+#define xTraceRegisterChannelFormat(eventLabel, formatStr) ((void)(eventLabel), (void)(formatStr), 0) /* Comma operator in parenthesis is used to avoid "unused variable" compiler warnings and return 0 in a single statement */
+#define vTraceChannelPrint(label) (void)(label)
+#define vTraceUBData(label, ...) (void)(label)
 
-#define prvTraceSetReadyEventsEnabled(status)
+#define vTraceSetFilterGroup(x) (void)(x)
+#define vTraceSetFilterMask(x) (void)(x)
 
-#define vTraceExcludeTask(handle)
+#define prvTraceSetReadyEventsEnabled(status) (void)(status)
+
+#define vTraceExcludeTask(handle) (void)(handle)
 
 #define uiTraceStart() (1)
 #define vTraceStart()
 #define vTraceStop()
 
 #ifndef vTraceSetRecorderDataBuffer
-#define vTraceSetRecorderDataBuffer(pRecorderData)
+#define vTraceSetRecorderDataBuffer(pRecorderData) /* No (void) here - ignore parameter since undefined symbol if custom allocation is not used */
 #endif
+
+#define vTraceConsoleChannelPrintF(fmt, ...) (void)(fmt)
 
 #ifndef TRC_ALLOC_CUSTOM_BUFFER
 #define TRC_ALLOC_CUSTOM_BUFFER(bufname)
 #endif
+
+#define xTraceIsRecordingEnabled() (0)
+
+#define vTraceSetStopHook(x) (void)(x)
 
 #endif /*(TRC_USE_TRACEALYZER_RECORDER == 1)*/
 

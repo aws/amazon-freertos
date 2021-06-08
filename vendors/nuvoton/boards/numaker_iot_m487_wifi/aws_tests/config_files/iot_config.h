@@ -31,10 +31,10 @@
 #define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 10 )
 #define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 2 )
 
-#define IOT_MQTT_RESPONSE_WAIT_MS (1000)
+#define IOT_MQTT_RESPONSE_WAIT_MS            ( 1000 )
 
 /* Global logging configuration. */
-// #define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_INFO
+/* #define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_INFO */
 
 /* Uncomment one of these definitions to override the log level configuration for
  * a specific library. */
@@ -42,11 +42,22 @@
 /*#define IOT_LOG_LEVEL_NETWORK                IOT_LOG_INFO */
 /*#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO */
 /*#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO */
-// #define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO
+/* #define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO */
 
 /* Set the task pool stack size and priority */
-#define IOT_THREAD_DEFAULT_STACK_SIZE    2048
-#define IOT_THREAD_DEFAULT_PRIORITY      5
+#define IOT_THREAD_DEFAULT_STACK_SIZE           1024
+#define IOT_THREAD_DEFAULT_PRIORITY             5
+
+/* Dispatch task and queue configurations for HTTPS library. */
+#define IOT_HTTPS_DISPATCH_TASK_COUNT           1
+#define IOT_HTTPS_DISPATCH_QUEUE_SIZE           2
+#define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    1
+#define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
+
+/**
+ * Static network buffer size provided to coreMQTT library.
+ */
+#define NETWORK_BUFFER_SIZE                     512
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"

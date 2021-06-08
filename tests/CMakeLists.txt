@@ -6,6 +6,10 @@ afr_test_module(base)
 
 set(src_dir "${AFR_TESTS_DIR}/common")
 set(inc_dir "${AFR_TESTS_DIR}/include")
+ 
+if(AFR_ENABLE_TESTS OR FREERTOS_ENABLE_UNIT_TESTS)
+    add_subdirectory(integration_test)
+endif()
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -27,7 +31,8 @@ afr_module_sources(
 )
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    INTERFACE "${inc_dir}"
+    INTERFACE 
+        "${inc_dir}"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
@@ -36,6 +41,16 @@ afr_module_dependencies(
         AFR::common
         3rdparty::unity
 )
+
+if(TARGET AFR::common_io::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE
+            AFR::freertos_cli_plus_uart
+            AFR::common_io
+    )
+endif()
+
 if(TARGET AFR::pkcs11_implementation::mcu_port)
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}

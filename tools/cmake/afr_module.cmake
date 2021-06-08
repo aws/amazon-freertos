@@ -4,12 +4,14 @@
 # First we need to clean defined CACHE variables on previous CMake run.
 foreach(module IN LISTS AFR_MODULES)
     foreach(prop IN ITEMS SOURCES INCLUDES DEPENDS)
+        unset(AFR_MODULE_${module}_CMAKE_FILES CACHE)
         unset(AFR_MODULE_${module}_${prop}_PRIVATE CACHE)
         unset(AFR_MODULE_${module}_${prop}_PUBLIC CACHE)
         unset(AFR_MODULE_${module}_${prop}_INTERFACE CACHE)
         unset(AFR_MODULE_${module}_${prop}_ALL CACHE)
     endforeach()
 endforeach()
+unset(AFR_FILES_TO_CONSOLE_METADATA CACHE)
 
 # Global variables.
 set(AFR_MODULES                 "" CACHE INTERNAL "List of FreeRTOS modules.")
@@ -184,6 +186,19 @@ endfunction()
 # Specify dependencies of a module.
 function(afr_module_dependencies arg_module)
     __afr_module_prop(${arg_module} DEPENDS ${ARGN})
+endfunction()
+
+# Function to add module-specific CMake files to metadata.
+# This function should be used to add cmake files when:
+# 1. The module name does not match its parent folder name
+#                 OR/AND
+# 2. A non-CMakeLists.txt (like "core_json.cmake") file needs to be added to metadata.
+# Thif function sets the AFR_MODULE_${module_name}_CMAKE_FILES cache
+# variable.
+function(afr_module_cmake_files module_name)
+    set(prop_var AFR_MODULE_${module_name}_CMAKE_FILES)
+    set(${prop_var} "" CACHE INTERNAL "")
+    afr_cache_append(${prop_var} ${ARGN})
 endfunction()
 
 # -------------------------------------------------------------------------------------------------
@@ -396,7 +411,7 @@ function(afr_resolve_dependencies)
     # Disable all other modules that are not required.
     set(__dg_disabled "" CACHE INTERNAL "")
     foreach(module IN LISTS AFR_MODULES)
-        string(REGEX MATCH "(demo_|test_)" match "${module}")
+        string(REGEX MATCH "^(demo_|test_)" match "${module}")
         if("${match}" STREQUAL "" AND NOT ${module} IN_LIST AFR_MODULES_ENABLED)
             afr_cache_append(__dg_disabled ${module})
         endif()
@@ -404,7 +419,7 @@ function(afr_resolve_dependencies)
 
     # Enable available demos/tests.
     foreach(module IN LISTS AFR_MODULES)
-        string(REGEX MATCH "(demo_|test_)" match "${module}")
+        string(REGEX MATCH "^(demo_|test_)" match "${module}")
         if(NOT "${match}" STREQUAL "")
             __resolve_dependencies(${module} QUIET)
             if(NOT ${module} IN_LIST __dg_disabled)

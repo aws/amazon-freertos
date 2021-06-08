@@ -1,4 +1,8 @@
 {
+    "policy": {
+        "platform": "psoc64",
+        "version": 1.0
+    },
     "debug" :
     {
         "m0p" : {
@@ -32,12 +36,12 @@
             ],
             "destroy_flash" : [
                 {
-                    "start" : 270270464,
-                    "size" : 65536
+                    "start" : 270254080,
+                    "size" : 49152
                 },
                 {
                     "start" : 268763136,
-                    "size" : 1179648
+                    "size" : 1163264
                 }
             ],
             "key" : 5
@@ -60,11 +64,14 @@
                 "id": 0,
                 "launch": 1,
                 "acq_win": 100,
+                "wdt_timeout": 4000,
+                "wdt_enable": true,
                 "monotonic": 0,
                 "smif_id": 0,
                 "clock_flags": 578,
                 "protect_flags": 1,
                 "upgrade": false,
+                "upgrade_mode": "swap",
                 "resources": [
                     {
                         "type": "FLASH_PC1_SPM",
@@ -80,6 +87,16 @@
                         "type": "SRAM_DAP",
                         "address": 135184384,
                         "size": 16384
+                    },
+                    {
+                        "type": "STATUS_PARTITION",
+                        "address": 270303232,
+                        "size": 32768
+                    },
+                    {
+                        "type": "SCRATCH",
+                        "address": 405274624,
+                        "size": 524288
                     }
                 ]
             },
@@ -94,7 +111,10 @@
                 "monotonic": 0,
                 "smif_id": 0,
                 "acq_win": 100,
-                "multi_image" : 1,
+                "wdt_timeout": 5000,
+                "wdt_enable": true,
+                "set_img_ok": true,
+                "multi_image": 1,
                 "upgrade": true,
                 "version": "0.1",
                 "rollback_counter": 0,
@@ -116,7 +136,7 @@
                     },
                     {
                         "type": "UPGRADE",
-                        "address": 269942784,
+                        "address": 269926400,
                         "size": 327680
                     }
                 ]
@@ -131,7 +151,8 @@
                 "id": 16,
                 "monotonic": 8,
                 "smif_id": 1,
-                "multi_image" : 2,
+                "smif_sector_size": 262144,
+                "multi_image": 2,
                 "upgrade": true,
                 "version": "0.1",
                 "rollback_counter": 0,
@@ -149,12 +170,12 @@
                     {
                         "type": "BOOT",
                         "address": 268763136,
-                        "size": 1179648
+                        "size": 1163264
                     },
                     {
                         "type": "UPGRADE",
-                        "address": 402653184,
-                        "size": 1179648
+                        "address": 402801664,
+                        "size": 1163264
                     }
                 ]
             }
@@ -203,17 +224,27 @@
         },
         "its":
         {
-            "offset": 1835008,
+            "offset": 1818624,
             "size": 16384,
-            "num_assets": 10,
-            "max_asset_size": 512
+            "num_assets": 8,
+            "max_asset_size": 2048
         },
-        "sst":
+        "ps":
         {
-            "offset": 1851392,
-            "size": 20480,
+            "offset": 1835008,
+            "size": 24576,
             "num_assets": 10,
             "max_asset_size": 2008
+        },
+        "nv_counters":
+        {
+            "offset": 1866752,
+            "size": 1024
+        },
+        "debug_port":
+        {
+            "uart_base" : 1080360960,
+            "enabled" : true
         }
     }
 }

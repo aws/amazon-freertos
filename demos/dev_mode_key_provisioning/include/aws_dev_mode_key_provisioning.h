@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,8 +39,8 @@
 #ifndef _AWS_DEV_MODE_KEY_PROVISIONING_H_
 #define _AWS_DEV_MODE_KEY_PROVISIONING_H_
 
-#include "iot_pkcs11_config.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11_config.h"
+#include "core_pkcs11.h"
 
 typedef struct ProvisioningParams_t
 {
@@ -104,7 +104,7 @@ CK_RV vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
  *                                 or ASN.1 DER encoded.
  * \param[in] xPrivateKeyLength    Length of the data at pucPrivateKey, in bytes.
  * \param[in] pucLabel             PKCS #11 CKA_LABEL attribute value to be used for key.
- *                                 This should be a string values. See iot_pkcs11_config.h
+ *                                 This should be a string values. See core_pkcs11_config.h
  * \param[out] pxObjectHandle      Points to the location that receives the PKCS #11
  *                                 private key handle created.
  *
@@ -125,7 +125,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
  * \param[in] xKeyLength             Length of the data at pucPrivateKey, in bytes.
  * \param[in] xPublicKeyType         The type of key- either CKK_RSA or CKK_EC.
  * \param[in] pucPublicKeyLabel      PKCS #11 CKA_LABEL attribute value to be used for key.
- *                                   This should be a string values.  See iot_pkcs11_config.h.
+ *                                   This should be a string values.  See core_pkcs11_config.h.
  * \param[out] pxPublicKeyHandle     Points to the location that receives the PKCS #11 public
  *                                   key handle created.
  *
@@ -148,8 +148,8 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
  *                                  for help with formatting.
  * \param[in] xCertificateLength    Length of pucCertificate, in bytes.
  * \param[in] pucLabel              PKCS #11 label attribute value for certificate to be imported.
- *                                  This should be a string value. See iot_pkcs11.h.
- *                                  This should be a string value. See iot_pkcs11_config.h.
+ *                                  This should be a string value. See core_pkcs11.h.
+ *                                  This should be a string value. See core_pkcs11_config.h.
  * \param[out] pxObjectHandle       Points to the location that receives the PKCS #11
  *                                  certificate handle created.
  *
@@ -166,9 +166,9 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
  *
  * \param[in] xSession              A valid PKCS #11 session handle.
  * \param[in] pucPrivateKeyLabel    PKCS #11 label attribute value for private key to be created.
- *                                  This should be a string value. See iot_pkcs11_config.h.
+ *                                  This should be a string value. See core_pkcs11_config.h.
  * \param[in] pucPublicKeyLabel     PKCS #11 label attribute value for public key to be created.
- *                                  This should be a string value. See iot_pkcs11_config.h.
+ *                                  This should be a string value. See core_pkcs11_config.h.
  * \param[out] pxPrivateKeyHandle   Points to the location that receives the PKCS #11 private
  *                                  key handle created.
  * \param[out] pxPublicKeyHandle    Points to the location that receives the PKCS #11 public
@@ -187,9 +187,9 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
  *
  * \param[in] xSession              A valid PKCS #11 session handle.
  * \param[in] pucPrivateKeyLabel    PKCS #11 label attribute value for private key to be created.
- *                                  This should be a string value. See iot_pkcs11_config.h.
+ *                                  This should be a string value. See core_pkcs11_config.h.
  * \param[in] pucPublicKeyLabel     PKCS #11 label attribute value for public key to be created.
- *                                  This should be a string value. See iot_pkcs11_config.h.
+ *                                  This should be a string value. See core_pkcs11_config.h.
  * \param[out] pxPrivateKeyHandle   Points to the location that receives the PKCS #11 private
  *                                  key handle created.
  * \param[out] pxPublicKeyHandle    Points to the location that receives the PKCS #11 public

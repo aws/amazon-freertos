@@ -43,7 +43,7 @@ ifndef WICED_SDK_PATH
 export WICED_SDK_PATH := $(AMAZON_FREERTOS_PATH)/vendors/cypress/WICED_SDK
 endif
 
-export AMAZON_FREERTOS_ENABLE_UNIT_TESTS := 1
+export FREERTOS_ENABLE_UNIT_TESTS := 1
 
 export SOURCE_ROOT:=./
 export MAKEFILES_PATH := $(SOURCE_ROOT)/makefiles

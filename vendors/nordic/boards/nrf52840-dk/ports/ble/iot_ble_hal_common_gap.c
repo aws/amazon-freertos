@@ -321,11 +321,6 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
                 xErrCode = nrf_ble_gatt_att_mtu_periph_set( xGattHandler, xProperties.ulMtu );
             }
 
-            if( ( xErrCode == NRF_SUCCESS ) && bGattInitialized )
-            {
-                xErrCode = xBTGattUpdateMtu( xGattHandler, usGattConnHandle );
-            }
-
             if( xGattServerCb.pxConnectionCb )
             {
                 xGattServerCb.pxConnectionCb( p_ble_evt->evt.gap_evt.conn_handle,
@@ -527,21 +522,10 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
             break;
 
         case BLE_GATTC_EVT_EXCHANGE_MTU_RSP:
-
-            if( xGattServerCb.pxMtuChangedCb != NULL )
-            {
-                xGattServerCb.pxMtuChangedCb( p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gattc_evt.params.exchange_mtu_rsp.server_rx_mtu );
-            }
-
             break;
 
         case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
-
-            if( xGattServerCb.pxMtuChangedCb != NULL )
-            {
-                xGattServerCb.pxMtuChangedCb( p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gatts_evt.params.exchange_mtu_request.client_rx_mtu );
-            }
-
+            IotLogDebug( "MTU exchange request from GATT client, mtu = %d.", p_ble_evt->evt.gatts_evt.params.exchange_mtu_request.client_rx_mtu );
             break;
 
         case BLE_GAP_EVT_CONN_PARAM_UPDATE:
@@ -1051,16 +1035,11 @@ BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
             break;
 
         case eBTpropertyLocalMTUSize: /* TODO: Check if we should save gatt handler from connection even and update its MTU */
-            xProperties.ulMtu = *( ( uint32_t * ) pxProperty->pvVal );
+            xProperties.ulMtu = *( ( uint16_t * ) pxProperty->pvVal );
 
             if( bGattInitialized )
             {
                 xNRFstatus = nrf_ble_gatt_att_mtu_periph_set( xGattHandler, xProperties.ulMtu );
-
-                if( ( xNRFstatus == NRF_SUCCESS ) && bIsConnected )
-                {
-                    xNRFstatus = xBTGattUpdateMtu( xGattHandler, usGattConnHandle );
-                }
             }
 
             xStatus = BTNRFError( xNRFstatus );

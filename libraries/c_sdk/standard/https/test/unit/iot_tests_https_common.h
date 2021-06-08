@@ -1,5 +1,5 @@
 /*
- * FreeRTOS HTTPS Client V1.1.3
+ * FreeRTOS HTTPS Client V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -62,7 +62,7 @@
 /**
  * @brief Test address to share among the tests.
  */
-#define HTTPS_TEST_ADDRESS          "www.amazon.com "
+#define HTTPS_TEST_ADDRESS          "www.amazon.com"
 
 /**
  * @brief Test path to share among the tests.
@@ -109,7 +109,7 @@
 /**
  * @brief The size of the request user buffer to use among the tests.
  */
-#define HTTPS_TEST_REQ_USER_BUFFER_SIZE         ( 512 )
+#define HTTPS_TEST_REQ_USER_BUFFER_SIZE         ( sizeof( _httpsRequest_t ) + 256 )
 
 /**
  * @brief The size of the response user buffer to use among the tests.
@@ -121,7 +121,7 @@
 /**
  * @brief The size of the response body buffer to use among the tests.
  */
-#define HTTPS_TEST_RESP_BODY_BUFFER_SIZE        ( 256 )
+#define HTTPS_TEST_RESP_BODY_BUFFER_SIZE        ( 128 )
 
 /**
  * @brief The maximum length of the HTTP response message buffer shared among the test.
@@ -129,7 +129,7 @@
  * The buffer of this length is used to test a few scenarios where the headers or body are found in either the header
  * buffer or body buffer and need to be copied over appropriately.
  */
-#define HTTPS_TEST_RESPONSE_MESSAGE_LENGTH      ( 1024 )
+#define HTTPS_TEST_RESPONSE_MESSAGE_LENGTH      ( 512 )
 
 /**
  * @brief The length of the response header buffer shared among the tests.

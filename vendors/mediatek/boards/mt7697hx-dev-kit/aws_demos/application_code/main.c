@@ -23,6 +23,9 @@
  * http://www.FreeRTOS.org
  */
 
+/* Standard includes. */
+#include <string.h>
+
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -79,11 +82,6 @@ void vApplicationDaemonTaskStartupHook( void );
  */
     void vCliTaskStartup( void );
 #endif
-
-/**
- * @brief Connects to WiFi.
- */
-static void prvWifiConnect( void );
 
 /**
  * @brief Initializes the board.
@@ -183,9 +181,6 @@ void vApplicationDaemonTaskStartupHook( void )
 
     if( SYSTEM_Init() == pdPASS )
     {
-        /* Connect to the wifi before running real jobs. */
-        prvWifiConnect();
-
         /* Run all demos. */
         DEMO_RUNNER_RunDemos();
     }
@@ -194,53 +189,6 @@ void vApplicationDaemonTaskStartupHook( void )
         configPRINTF( ( "SYSTEM_Init failed\n" ) );
     }
 }
-
-/*-----------------------------------------------------------*/
-
-void prvWifiConnect( void )
-{
-    WIFINetworkParams_t xJoinAPParams;
-    WIFIReturnCode_t xWifiStatus;
-
-    xWifiStatus = WIFI_On();
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "WiFi module initialized. Connecting to AP...\r\n" ) );
-    }
-    else
-    {
-        configPRINTF( ( "WiFi module failed to initialize.\r\n" ) );
-
-        while( 1 )
-        {
-        }
-    }
-
-    /* Setup parameters. */
-    xJoinAPParams.pcSSID = clientcredentialWIFI_SSID;
-    xJoinAPParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xJoinAPParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xJoinAPParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-    xJoinAPParams.xSecurity = clientcredentialWIFI_SECURITY;
-
-    xWifiStatus = WIFI_ConnectAP( &( xJoinAPParams ) );
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "WiFi Connected to AP. Creating tasks which use network...\r\n" ) );
-    }
-    else
-    {
-        configPRINTF( ( "WiFi failed to connect to AP.\r\n" ) );
-
-        while( 1 )
-        {
-            taskYIELD();
-        }
-    }
-}
-
 /*-----------------------------------------------------------*/
 
 /**

@@ -6,17 +6,31 @@ The TCP tests can be found [here](https://github.com/aws/amazon-freertos/blob/ma
 1. Golang
 ## Prequisites
 ### Credential Creation
-#### Server
+#### **Server**
+##### **RSA**
 The following openssl command can be used to generate self-signed server certificate:
 ```bash
 openssl req -newkey rsa:2048 -nodes -x509 -sha256 -out certs/server.pem -keyout certs/server.key -days 365 -subj "/C=US/ST=WA/L=Place/O=YourCompany/OU=IT/CN=www.yours.com/emailAddress=yourEmail@your.com"
 ```
+##### **EC**
+```bash
+openssl req -new -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) -keyout certs/server.key -out certs/server.pem -days 365 -subj "/C=US/ST=WA/L=Place/O=YourCompany/OU=IT/CN=www.your-company-website.com/emailAddress=yourEmail@your-company-website.com"
+```
 #### Client
 The following openssl commands can be used to generate client certificate:
+##### **RSA**
 ```bash
 openssl genrsa -out certs/client.key 2048
 
 openssl req -new -key certs/client.key -out certs/client.csr -subj "/C=US/ST=WA/L=Place/O=YourCompany/OU=IT/CN=www.yours.com/emailAddress=yourEmail@your.com"
+
+openssl x509 -req -in certs/client.csr -CA certs/server.pem -CAkey certs/server.key -CAcreateserial -out certs/client.pem -days 365 -sha256
+```
+##### **EC**
+```bash
+ecparam -genkey -name prime256v1 -out certs/client.key
+
+openssl req -new -key certs/client.key -out certs/client.csr -subj "/C=US/ST=WA/L=Place/O=YourCompany/OU=IT/CN=www.your-company-website.com/emailAddress=yourEmail@your-company-website.com"
 
 openssl x509 -req -in certs/client.csr -CA certs/server.pem -CAkey certs/server.key -CAcreateserial -out certs/client.pem -days 365 -sha256
 ```

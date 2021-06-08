@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -62,6 +62,10 @@
 
 #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
     #include "iot_ble_wifi_provisioning.h"
+    #include "aws_wifi_connect_task.h"
+#endif
+#if ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1 )
+    #include "iot_softap_wifi_provisioning.h"
     #include "aws_wifi_connect_task.h"
 #endif
 
@@ -153,7 +157,7 @@ typedef struct IotNetworkManager
 
 #if WIFI_ENABLED
 
-    #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
+    #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 && IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 0 )
 
 /**
  * Connects to the WIFI using credentials configured statically
@@ -176,6 +180,12 @@ typedef struct IotNetworkManager
  * @return true if WIFI is disable successfully, false if already disabled
  */
     static bool _wifiDisable( void );
+
+/**
+ * @brief The callback invoked for WiFi events from the driver. The callback
+ * is used to change the WiFi state in network manager.
+ */
+    static void _wifiEventHandler( WIFIEvent_t * xEvent );
 
 #endif /* if WIFI_ENABLED */
 
@@ -278,7 +288,7 @@ static IotNetworkManager_t networkManager =
 
         if( status == eBTStatusSuccess )
         {
-            eventCallback.pGAPPairingStateChangedCb = &BLEGAPPairingStateChangedCb;
+            eventCallback.pGAPPairingStateChangedCb = &vDemoBLEGAPPairingStateChangedCb;
 
             if( unRegister == false )
             {
@@ -293,7 +303,7 @@ static IotNetworkManager_t networkManager =
         #if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
             if( status == eBTStatusSuccess )
             {
-                eventCallback.pNumericComparisonCb = &BLENumericComparisonCb;
+                eventCallback.pNumericComparisonCb = &vDemoBLENumericComparisonCb;
 
                 if( unRegister == false )
                 {
@@ -333,6 +343,19 @@ static IotNetworkManager_t networkManager =
                 IotLogError( "Failed to initialize BLE." );
                 ret = false;
             }
+
+            #if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
+                if( ret == true )
+                {
+                    vDemoBLENumericComparisonInit();
+                }
+            #endif
+        }
+
+        if( ret == true )
+        {
+            /* Register BLE Connection callback */
+            ret = _bleRegisterUnregisterCb( false );
         }
 
         if( ret == true )
@@ -344,12 +367,6 @@ static IotNetworkManager_t networkManager =
                 IotLogError( "Failed to toggle BLE on." );
                 ret = false;
             }
-        }
-
-        if( ret == true )
-        {
-            /* Register BLE Connection callback */
-            ret = _bleRegisterUnregisterCb( false );
         }
 
         if( ret == false )
@@ -409,59 +426,137 @@ static IotNetworkManager_t networkManager =
 /*-----------------------------------------------------------*/
 #if WIFI_ENABLED
 
-    #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
+    #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 && IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 0 )
 
         static bool _wifiConnectAccessPoint( void )
         {
-            bool ret = false;
-            static const WIFINetworkParams_t network =
-            {
-                .pcSSID           = clientcredentialWIFI_SSID,
-                .ucSSIDLength     = sizeof( clientcredentialWIFI_SSID ),
-                .pcPassword       = clientcredentialWIFI_PASSWORD,
-                .ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD ),
-                .xSecurity        = clientcredentialWIFI_SECURITY
-            };
-
+            bool status = true;
+            WIFINetworkParams_t xConnectParams;
+            size_t xSSIDLength, xPasswordLength;
+            const char * pcSSID = clientcredentialWIFI_SSID;
+            const char * pcPassword = clientcredentialWIFI_PASSWORD;
+            WIFISecurity_t xSecurity = clientcredentialWIFI_SECURITY;
             uint32_t numRetries = _NM_WIFI_CONNECTION_RETRIES;
             uint32_t delayMilliseconds = _NM_WIFI_CONNECTION_RETRY_INTERVAL_MS;
 
-
-            /* Try to connect to wifi access point with retry and exponential delay */
-            do
+            if( pcSSID != NULL )
             {
-                if( WIFI_ConnectAP( &( network ) ) == eWiFiSuccess )
+                xSSIDLength = strlen( pcSSID );
+
+                if( ( xSSIDLength > 0 ) && ( xSSIDLength < wificonfigMAX_SSID_LEN ) )
                 {
-                    ret = true;
-                    wifiNetwork.state = eNetworkStateEnabled;
-                    break;
+                    xConnectParams.ucSSIDLength = xSSIDLength;
+                    memcpy( xConnectParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
                 }
                 else
                 {
-                    if( numRetries > 0 )
-                    {
-                        IotClock_SleepMs( delayMilliseconds );
-                        delayMilliseconds = delayMilliseconds * 2;
-                    }
+                    status = false;
                 }
-            } while( numRetries-- > 0 );
+            }
+            else
+            {
+                status = false;
+            }
 
-            return ret;
+            xConnectParams.xSecurity = xSecurity;
+
+            switch( xSecurity )
+            {
+                case eWiFiSecurityWPA:
+                case eWiFiSecurityWPA2:
+
+                    if( pcPassword != NULL )
+                    {
+                        xPasswordLength = strlen( clientcredentialWIFI_PASSWORD );
+
+                        if( ( xPasswordLength > 0 ) && ( xPasswordLength < wificonfigMAX_PASSPHRASE_LEN ) )
+                        {
+                            xConnectParams.xPassword.xWPA.ucLength = xPasswordLength;
+                            memcpy( xConnectParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xPasswordLength );
+                        }
+                        else
+                        {
+                            status = false;
+                        }
+                    }
+                    else
+                    {
+                        status = false;
+                    }
+
+                    break;
+
+                case eWiFiSecurityOpen:
+                    /* Nothing to do. */
+                    break;
+
+                case eWiFiSecurityWPA3:
+                case eWiFiSecurityWPA2_ent:
+                case eWiFiSecurityWEP:
+                default:
+                    IotLogError( "The configured WiFi security option is not supported." );
+                    status = false;
+                    break;
+            }
+
+            if( status == true )
+            {
+                /* Try to connect to wifi access point with retry and exponential delay */
+                do
+                {
+                    if( WIFI_ConnectAP( &( xConnectParams ) ) == eWiFiSuccess )
+                    {
+                        wifiNetwork.state = eNetworkStateEnabled;
+                        break;
+                    }
+                    else
+                    {
+                        if( numRetries > 0 )
+                        {
+                            IotClock_SleepMs( delayMilliseconds );
+                            delayMilliseconds = delayMilliseconds * 2;
+                        }
+                        else
+                        {
+                            status = false;
+                        }
+                    }
+                } while( numRetries-- > 0 );
+            }
+
+            return status;
         }
 
-    #endif /* if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 ) */
+    #endif /* if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 && IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 0 ) */
 
 
     static bool _wifiEnable( void )
     {
         bool ret = true;
+        WIFIReturnCode_t wifiRet;
 
         if( WIFI_On() != eWiFiSuccess )
         {
             ret = false;
         }
 
-        #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
+        if( ret == true )
+        {
+            /* Register network state change callback with the Wi-Fi driver */
+            wifiRet = WIFI_RegisterEvent( eWiFiEventIPReady, _wifiEventHandler );
+
+            if( wifiRet == eWiFiSuccess )
+            {
+                wifiRet = WIFI_RegisterEvent( eWiFiEventDisconnected, _wifiEventHandler );
+            }
+
+            if( ( wifiRet != eWiFiSuccess ) && ( wifiRet != eWiFiNotSupported ) )
+            {
+                ret = false;
+            }
+        }
+
+        #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 && IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 0 )
             if( ret == true )
             {
                 ret = _wifiConnectAccessPoint();
@@ -469,20 +564,12 @@ static IotNetworkManager_t networkManager =
         #else
             if( ret == true )
             {
-                if( IotBleWifiProv_Init() != pdTRUE )
-                {
-                    ret = false;
-                }
-            }
-
-            if( ret == true )
-            {
                 if( xWiFiConnectTaskInitialize() != pdTRUE )
                 {
                     ret = false;
                 }
             }
-        #endif /* if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 ) */
+        #endif /* if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 && IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 0 ) */
 
         return ret;
     }
@@ -491,12 +578,11 @@ static IotNetworkManager_t networkManager =
     {
         bool ret = true;
 
-        #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+        #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 ) || ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1 )
             vWiFiConnectTaskDestroy();
-            IotBleWifiProv_Deinit();
         #endif
 
-        if( WIFI_IsConnected() == pdTRUE )
+        if( WIFI_IsConnected( NULL ) == pdTRUE )
         {
             if( WIFI_Disconnect() != eWiFiSuccess )
             {
@@ -513,6 +599,23 @@ static IotNetworkManager_t networkManager =
         }
 
         return ret;
+    }
+
+    static void _wifiEventHandler( WIFIEvent_t * pxEvent )
+    {
+        uint8_t * pucIpAddr;
+
+        if( pxEvent->xEventType == eWiFiEventIPReady )
+        {
+            pucIpAddr = ( uint8_t * ) ( &pxEvent->xInfo.xIPReady.xIPAddress.ulAddress[ 0 ] );
+            IotLogInfo( "Connected to WiFi access point, ip address: %d.%d.%d.%d.", pucIpAddr[ 0 ], pucIpAddr[ 1 ], pucIpAddr[ 2 ], pucIpAddr[ 3 ] );
+            _onNetworkStateChangeCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateEnabled );
+        }
+        else if( pxEvent->xEventType == eWiFiEventDisconnected )
+        {
+            IotLogInfo( "Disconnected from WiFi access point, reason code: %d.", pxEvent->xInfo.xDisconnected.xReason );
+            _onNetworkStateChangeCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateDisabled );
+        }
     }
 
 #endif /* if WIFI_ENABLED */
@@ -709,15 +812,7 @@ BaseType_t AwsIotNetworkManager_Init( void )
 
             #if WIFI_ENABLED
                 IotListDouble_InsertTail( &networkManager.networks, &wifiNetwork.link );
-
-                WIFIReturnCode_t retCode = WIFI_RegisterNetworkStateChangeEventCallback( _onNetworkStateChangeCallback );
-
-                /* One time registration of network event callback with the Wi-Fi driver */
-                if( ( retCode != eWiFiSuccess ) && ( retCode != eWiFiNotSupported ) )
-                {
-                    error = pdFALSE;
-                }
-            #endif
+            #endif /* if WIFI_ENABLED */
 
             #if ETH_ENABLED
                 IotListDouble_InsertTail( &networkManager.networks, &ethNetwork.link );

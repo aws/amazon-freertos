@@ -4,11 +4,13 @@
 * Description:
 * Simple wrapper header containing all generated files.
 * This file was automatically generated and should not be modified.
-* Device Configurator: 2.0.0.1483
-* Device Support Library (../../../../../../output/libs/COMPONENT_PSOC6/psoc6pdl): 1.5.0.1988
+* Tools Package 2.2.0.2801
+* psoc6pdl 1.6.1.4886
+* personalities_2.0 2.0.0.0
+* udd 1.2.0.473
 *
 ********************************************************************************
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2021 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

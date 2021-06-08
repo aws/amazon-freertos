@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.2.0
+ * FreeRTOS MQTT V2.3.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -150,23 +150,23 @@ static IotMqttNetworkInfo_t _networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
         .freePacket         = _IotMqtt_FreePacket,
         .serialize          =
         {
-            .connect        = _IotMqtt_SerializeConnect,
-            .publish        = _IotMqtt_SerializePublish,
+            .connect        = _IotMqtt_connectSerializeWrapper,
+            .publish        = _IotMqtt_publishSerializeWrapper,
             .publishSetDup  = _IotMqtt_PublishSetDup,
-            .puback         = _IotMqtt_SerializePuback,
-            .subscribe      = _IotMqtt_SerializeSubscribe,
-            .unsubscribe    = _IotMqtt_SerializeUnsubscribe,
-            .pingreq        = _IotMqtt_SerializePingreq,
-            .disconnect     = _IotMqtt_SerializeDisconnect
+            .puback         = _IotMqtt_pubackSerializeWrapper,
+            .subscribe      = _IotMqtt_subscribeSerializeWrapper,
+            .unsubscribe    = _IotMqtt_unsubscribeSerializeWrapper,
+            .pingreq        = _IotMqtt_pingreqSerializeWrapper,
+            .disconnect     = _IotMqtt_disconnectSerializeWrapper
         },
         .deserialize        =
         {
-            .connack        = _IotMqtt_DeserializeConnack,
-            .publish        = _IotMqtt_DeserializePublish,
-            .puback         = _IotMqtt_DeserializePuback,
-            .suback         = _IotMqtt_DeserializeSuback,
-            .unsuback       = _IotMqtt_DeserializeUnsuback,
-            .pingresp       = _IotMqtt_DeserializePingresp
+            .connack        = _IotMqtt_deserializeConnackWrapper,
+            .publish        = _IotMqtt_deserializePublishWrapper,
+            .puback         = _IotMqtt_deserializePubackWrapper,
+            .suback         = _IotMqtt_deserializeSubackWrapper,
+            .unsuback       = _IotMqtt_deserializeUnsubackWrapper,
+            .pingresp       = _IotMqtt_deserializePingrespWrapper
         }
     };
 
@@ -635,11 +635,14 @@ TEST_SETUP( MQTT_System )
     /* Clear the serializer override flags. */
     _freePacketOverride = false;
     _connectSerializerOverride = false;
-    _publishSerializerOverride = false;
-    _pubackSerializerOverride = false;
-    _subscribeSerializerOverride = false;
-    _unsubscribeSerializerOverride = false;
-    _disconnectSerializerOverride = false;
+
+    /* Setting following variables to true as we do not need serializer as a part of shim implementation
+     * using MQTT LTS library. So to pass the assert in the test these changes are required. */
+    _publishSerializerOverride = true;
+    _pubackSerializerOverride = true;
+    _subscribeSerializerOverride = true;
+    _unsubscribeSerializerOverride = true;
+    _disconnectSerializerOverride = true;
 
     /* Initialize SDK. */
     if( IotSdk_Init() == false )

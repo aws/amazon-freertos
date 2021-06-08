@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -52,12 +52,6 @@
  * @return true if the connection was created successfully
  */
         static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t * pxNetworkContext );
-
-
-/**
- * @brief serializer used for MQTT over BLE.
- */
-        extern const IotMqttSerializer_t IotBleMqttSerializer;
 
     #endif
 
@@ -199,7 +193,6 @@
                 pxNetworkInfo->createNetworkConnection = false;
                 pxNetworkInfo->u.pNetworkConnection = pConnection;
                 pxNetworkInfo->pNetworkInterface = &IotNetworkBle;
-                pxNetworkInfo->pMqttSerializer = &IotBleMqttSerializer;
 
                 pxNetworkContext->pvNetworkConnection = pConnection;
 

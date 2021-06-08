@@ -1,5 +1,5 @@
 /*
- * FreeRTOS TLS V1.2.0
+ * FreeRTOS TLS V1.3.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,12 +28,12 @@
 #include "FreeRTOSIPConfig.h"
 #include "iot_tls.h"
 #include "iot_crypto.h"
-#include "iot_pkcs11_config.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11_config.h"
+#include "core_pkcs11.h"
 #include "task.h"
 #include "aws_clientcredential_keys.h"
 #include "iot_default_root_certificates.h"
-#include "iot_pki_utils.h"
+#include "core_pki_utils.h"
 
 /* mbedTLS includes. */
 #include "mbedtls/platform.h"
@@ -44,6 +44,7 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/pk_internal.h"
 #include "mbedtls/debug.h"
+
 #ifdef MBEDTLS_DEBUG_C
     #define tlsDEBUG_VERBOSE    4
 #endif
@@ -140,6 +141,11 @@ typedef struct TLSContext
 
 #define TLS_PRINT( X )    configPRINTF( X )
 
+static BaseType_t prvDefault_DateIsInThePast( BaseType_t day,
+                                              BaseType_t month,
+                                              BaseType_t year );
+static DateIsInThePast_t pDateIsInThePast = prvDefault_DateIsInThePast;
+
 /*-----------------------------------------------------------*/
 
 /*
@@ -172,6 +178,13 @@ static void prvFreeContext( TLSContext_t * pxCtx )
 
         pxCtx->xTLSHandshakeState = TLS_HANDSHAKE_NOT_STARTED;
     }
+}
+
+static BaseType_t prvDefault_DateIsInThePast( BaseType_t day,
+                                              BaseType_t month,
+                                              BaseType_t year )
+{
+    return 0; /* Assume the certificate is valid. */
 }
 
 /*-----------------------------------------------------------*/
@@ -258,61 +271,20 @@ static int prvGenerateRandomBytes( void * pvCtx,
  *
  * @return Zero on success.
  */
-static int prvCheckCertificate( void * pvCtx,
+static int prvCheckCertificate( void * pvContext,
                                 mbedtls_x509_crt * pxCertificate,
                                 int lPathCount,
                                 uint32_t * pulFlags )
 {
-    int lCompilationYear = 0;
-
-#define tlsCOMPILER_DATE_STRING_MONTH_LENGTH    4
-#define tlsDATE_STRING_FIELD_COUNT              3
-    char cCompilationMonth[ tlsCOMPILER_DATE_STRING_MONTH_LENGTH ];
-    int lCompilationMonth = 0;
-    int lCompilationDay = 0;
-    const char cMonths[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
-
     /* Unreferenced parameters. */
-    ( void ) ( pvCtx );
+    ( void ) ( pvContext );
     ( void ) ( lPathCount );
 
-    /* Parse the date string fields. */
-    if( tlsDATE_STRING_FIELD_COUNT == sscanf( __DATE__,
-                                              "%3s %d %d",
-                                              cCompilationMonth,
-                                              &lCompilationDay,
-                                              &lCompilationYear ) )
-    {
-        cCompilationMonth[ tlsCOMPILER_DATE_STRING_MONTH_LENGTH - 1 ] = '\0';
+    BaseType_t day = pxCertificate->valid_to.day;
+    BaseType_t month = pxCertificate->valid_to.mon;
+    BaseType_t year = pxCertificate->valid_to.year;
 
-        /* Check for server expiration. First check the year. */
-        if( pxCertificate->valid_to.year < lCompilationYear )
-        {
-            *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
-        }
-        else if( pxCertificate->valid_to.year == lCompilationYear )
-        {
-            /* Convert the month. */
-            lCompilationMonth =
-                ( ( strstr( cMonths, cCompilationMonth ) - cMonths ) /
-                  ( tlsCOMPILER_DATE_STRING_MONTH_LENGTH - 1 ) ) + 1;
-
-            /* Check the month. */
-            if( pxCertificate->valid_to.mon < lCompilationMonth )
-            {
-                *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
-            }
-            else if( pxCertificate->valid_to.mon == lCompilationMonth )
-            {
-                /* Check the day. */
-                if( pxCertificate->valid_to.day < lCompilationDay )
-                {
-                    *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
-                }
-            }
-        }
-    }
-    else
+    if( pDateIsInThePast( day, month, year ) != 0 )
     {
         *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
     }
@@ -456,6 +428,7 @@ static int prvReadCertificateIntoContext( TLSContext_t * pxTlsContext,
     /* Get the handle of the certificate. */
     xResult = xFindObjectWithLabelAndClass( pxTlsContext->xP11Session,
                                             pcLabelName,
+                                            strlen( pcLabelName ),
                                             xClass,
                                             &xCertObj );
 
@@ -526,7 +499,6 @@ static int prvReadCertificateIntoContext( TLSContext_t * pxTlsContext,
 static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 {
     BaseType_t xResult = CKR_OK;
-    CK_ULONG xCount = 0;
     CK_ATTRIBUTE xTemplate[ 2 ];
     mbedtls_pk_type_t xKeyAlgo = ( mbedtls_pk_type_t ) ~0;
     char * pcJitrCertificate = keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
@@ -555,6 +527,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
         /* Get the handle of the device private key. */
         xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
                                                 pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) - 1,
                                                 CKO_PRIVATE_KEY,
                                                 &pxCtx->xP11PrivateKey );
     }
@@ -795,6 +768,7 @@ BaseType_t TLS_Init( void ** ppvContext,
 BaseType_t TLS_Connect( void * pvContext )
 {
     BaseType_t xResult = 0;
+    CK_RV xPKCSResult = CKR_OK;
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
 
     /* Initialize mbedTLS structures. */
@@ -831,8 +805,15 @@ BaseType_t TLS_Connect( void * pvContext )
             if( 0 == xResult )
             {
                 xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509CA,
-                                                  ( const unsigned char * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,
-                                                  tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH );
+                                                  ( const unsigned char * ) tlsATS3_ROOT_CERTIFICATE_PEM,
+                                                  tlsATS3_ROOT_CERTIFICATE_LENGTH );
+
+                if( 0 == xResult )
+                {
+                    xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509CA,
+                                                      ( const unsigned char * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,
+                                                      tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH );
+                }
             }
         }
 
@@ -877,8 +858,15 @@ BaseType_t TLS_Connect( void * pvContext )
         /* Set issuer certificate. */
         mbedtls_ssl_conf_ca_chain( &pxCtx->xMbedSslConfig, &pxCtx->xMbedX509CA, NULL );
 
-        /* Configure the SSL context for the device credentials. */
-        xResult = prvInitializeClientCredential( pxCtx );
+        /* Configure the SSL context to contain device credentials (eg device cert
+         * and private key) obtained from the PKCS #11 layer.  The result of
+         * loading device key and certificate is placed in a separate variable
+         * (xPKCSResult instead of xResult). The reason is that we want to
+         * attempt TLS handshake, even if the device key and certificate
+         * are not loaded. This allows the TLS layer to still connect to servers
+         * that do not require mutual authentication. If the server does
+         * require mutual authentication, the handshake will fail. */
+        xPKCSResult = prvInitializeClientCredential( pxCtx );
     }
 
     if( ( 0 == xResult ) && ( NULL != pxCtx->ppcAlpnProtocols ) )
@@ -903,6 +891,18 @@ BaseType_t TLS_Connect( void * pvContext )
         /* Set the resulting protocol configuration. */
         xResult = mbedtls_ssl_setup( &pxCtx->xMbedSslCtx, &pxCtx->xMbedSslConfig );
     }
+
+    #ifdef MBEDTLS_SSL_MAX_FRAGMENT_LENGTH
+        if( 0 == xResult )
+        {
+            /* Enable the max fragment extension. 4096 bytes is currently the largest fragment size permitted.
+             * See RFC 8449 https://tools.ietf.org/html/rfc8449 for more information.
+             *
+             * Smaller values can be found in "mbedtls/include/ssl.h".
+             */
+            xResult = mbedtls_ssl_conf_max_frag_len( &pxCtx->xMbedSslConfig, MBEDTLS_SSL_MAX_FRAG_LEN_4096 );
+        }
+    #endif
 
     /* Set the hostname, if requested. */
     if( ( 0 == xResult ) && ( NULL != pxCtx->pcDestination ) )
@@ -929,9 +929,25 @@ BaseType_t TLS_Connect( void * pvContext )
                  * ensure that upstream clean-up code doesn't accidentally use
                  * a context that failed the handshake. */
                 prvFreeContext( pxCtx );
-                TLS_PRINT( ( "ERROR: Handshake failed with error code %s : %s \r\n",
-                             mbedtlsHighLevelCodeOrDefault( xResult ),
-                             mbedtlsLowLevelCodeOrDefault( xResult ) ) );
+
+                if( xPKCSResult != CKR_OK )
+                {
+                    TLS_PRINT( ( "ERROR: The handshake failed and it is likely "
+                                 "due to a failure in PKCS #11. Consider enabling "
+                                 "error logging in PKCS #11 or checking if your device "
+                                 "is properly provisioned with client credentials. "
+                                 "PKCS #11 error=0x(%0X). TLS handshake error=%s : %s \r\n",
+                                 xPKCSResult,
+                                 mbedtlsHighLevelCodeOrDefault( xResult ),
+                                 mbedtlsLowLevelCodeOrDefault( xResult ) ) );
+                }
+                else
+                {
+                    TLS_PRINT( ( "ERROR: TLS handshake failed trying to connect. %s : %s \r\n",
+                                 mbedtlsHighLevelCodeOrDefault( xResult ),
+                                 mbedtlsLowLevelCodeOrDefault( xResult ) ) );
+                }
+
                 break;
             }
         }
@@ -1070,4 +1086,11 @@ void TLS_Cleanup( void * pvContext )
         /* Free memory. */
         vPortFree( pxCtx );
     }
+}
+
+/*-----------------------------------------------------------*/
+
+void TLS_setDateIsInThePastFunction( DateIsInThePast_t DateIsInThePast )
+{
+    pDateIsInThePast = DateIsInThePast;
 }

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS V202012.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,7 +43,8 @@
 #include "aws_demo.h"
 #include "aws_demo_config.h"
 
-/* Forward declaration of demo entry function to be renamed from #define in aws_demo_config.h */
+/* Forward declaration of demo entry function to be renamed from #define in
+ * aws_demo_config.h */
 int DEMO_entryFUNCTION( bool awsIotMqttMode,
                         const char * pIdentifier,
                         void * pNetworkServerInfo,
@@ -51,7 +52,8 @@ int DEMO_entryFUNCTION( bool awsIotMqttMode,
                         const IotNetworkInterface_t * pNetworkInterface );
 
 
-/* Forward declaration of network connected DEMO callback to be renamed from #define in aws_demo_config.h */
+/* Forward declaration of network connected DEMO callback to be renamed from
+ * #define in aws_demo_config.h */
 #ifdef DEMO_networkConnectedCallback
     void DEMO_networkConnectedCallback( bool awsIotMqttMode,
                                         const char * pIdentifier,

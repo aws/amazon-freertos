@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common IO V0.1.2
+ * FreeRTOS Common IO V0.1.3
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -54,7 +54,7 @@ struct IotAdcDescriptor;
 typedef struct IotAdcDescriptor * IotAdcHandle_t;
 
 /**
- * @brief adc notification callback type
+ * @brief ADC notification callback type
  *
  * @param[in] pvUserContext User Context passed when setting the callback.
  *            This is not used or modified by the driver.  The context is
@@ -108,8 +108,8 @@ int32_t iot_adc_close( IotAdcHandle_t const pxAdc );
  * @note If input handle or AdcChannel is invalid, or if callback function is NULL,
  *       this function silently takes no action.
  *
- * @param[in] pxAdc The Adc handle returned in the open() call.
- * @param[in] ucAdcChannel The Adc channel for which the callback is set
+ * @param[in] pxAdc The ADC handle returned in the open() call.
+ * @param[in] ucAdcChannel The ADC channel for which the callback is set
  * @param[in] xAdcCallback The callback function to be called on availability of ADC channel data.
  * @param[in] pvUserContext The user context to be passed when callback is called.
  *
@@ -122,7 +122,6 @@ int32_t iot_adc_close( IotAdcHandle_t const pxAdc );
  * {
  *     BaseType_t xHigherPriorityTaskWoken;
  *     xSemaphoreGiveFromISR( xIotAdcSemaphore, &xHigherPriorityTaskWoken );
- *     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
  * }
  * @endcode
  */
@@ -133,13 +132,13 @@ void iot_adc_set_callback( IotAdcHandle_t const pxAdc,
 
 /**
  * @brief Start data acquisition for ADC channel until iot_adc_stop API is called.
- *        data will be passed back to client using callback function.
- *        by default each callback will pass back one data sample, however if client has
+ *        Data will be passed back to client using callback function.
+ *        By default each callback will pass back one data sample, however if client has
  *        used ioctl to pass in data buffer, only when buffer is full will callback
- *        be triggered
+ *        be triggered.
  *
  * @warning iot_adc_set_callback() must be called prior to this in order to get notification
- *          when adc scan is complete and data is available
+ *          when ADC scan is complete and data is available.
  *
  * @note iot_adc_set_callback() must be called prior to iot_adc_start().
  *
@@ -177,7 +176,7 @@ void iot_adc_set_callback( IotAdcHandle_t const pxAdc,
  * lRetVal = iot_adc_start( xAdcHandle, lAdcChannel );
  *  // assert( IOT_ADC_SUCCESS == lRetVal );
  *
- *  // wait for the Adc operation to complete
+ *  // wait for the ADC operation to complete
  *  lRetVal = xSemaphoreTake( xIotAdcSemaphore, lIotAdcChWaitTime );
  *  // assert ( pdTRUE == lRetVal );
  *
@@ -202,7 +201,7 @@ int32_t iot_adc_start( IotAdcHandle_t const pxAdc,
  * @return
  * - IOT_ADC_SCUCCESS on success
  * - IOT_ADC_INVALID_VALUE, on NULL handle or invalid AdcChannel
- * - IOT_ADC_NOT_OPEN if Adc has been closed without re-opening.
+ * - IOT_ADC_NOT_OPEN if ADC has been closed without re-opening.
  */
 int32_t iot_adc_stop( IotAdcHandle_t const pxAdc,
                       uint8_t ucAdcChannel );
@@ -210,15 +209,15 @@ int32_t iot_adc_stop( IotAdcHandle_t const pxAdc,
 /**
  * @brief read one ADC data sample. This API will return one ADC sample.
  *
- * @param[in] pxAdc. The ADC handle returned in the open() call
- * @param[in] ucAdcChannel. The ADC channel to read data from
- * @param[out] pusAdcSample. ADC channel read sample value
+ * @param[in] pxAdc. The ADC handle returned in the open() call.
+ * @param[in] ucAdcChannel. The ADC channel to read data from.
+ * @param[out] pusAdcSample. ADC channel read sample value.
  *
  * @return
- * - IOT_ADC_SCUCCESS on success
- * - IOT_ADC_INVALID_VALUE, on NULL handle or invalid AdcChannel
+ * - IOT_ADC_SCUCCESS on success.
+ * - IOT_ADC_INVALID_VALUE, on NULL handle or invalid AdcChannel.
  * - IOT_ADC_CH_BUSY if ADC operation not complete.
- * - IOT_ADC_NOT_OPEN if Adc has been closed without re-opening.
+ * - IOT_ADC_NOT_OPEN if ADC has been closed without re-opening.
  * <b>Example Synchronous read</b>
  * @code{c}
  * // ADC Instance to open
@@ -265,8 +264,10 @@ typedef struct IotAdcConfig_s
 {
     uint32_t ulAdcSampleTime; /*!< Sample time in ADC clock cycles, apply to all channels.
                                *!< Shortest sample time maximize conversion speed for lower impedance input
-                               *!< Extending sample time improve sample accuracy for higher impedance input */
-    uint8_t ucAdcResolution;  /*!< ADC channel resolution, value = resolution bits; 12 = 12bit, 13 = 13bit, etc */
+                               *!< Extending sample time improve sample accuracy for higher impedance input.
+                               *!< Sample time is reported as the closest possible value, rounded up, the hardware can support. */
+    uint8_t ucAdcResolution;  /*!< ADC channel resolution, reported as the closest possible value, rounded up.
+                               *!< value = resolution bits; 12 = 12bit, 13 = 13bit, etc */
 } IotAdcConfig_t;
 
 typedef enum
@@ -306,7 +307,7 @@ typedef struct IotAdcChBuffer_s
  * @brief Some ADC host controller supports grouping multiple ADC channels into a chain.
  *        When the chain is triggered to sample ADC data, all ADC channels in the group
  *        are sampled in sequence so that client doesn't need to trigger each channel
- *        individually. Coverted ADC samples from such chain group can be passed back
+ *        individually. Converted ADC samples from such chain group can be passed back
  *        to the client with a single callback.
  *        This data structure is used for ioctl to define ADC chain setting.
  */
@@ -316,10 +317,10 @@ typedef struct IoTAdcChain_s
                            *!< that client uses the first ADC channel number in the group as its
                            *!< logical number which client can use later to trigger group sampling */
     void * pvBuffer;      /*!< data buffer used by driver to save converted sample data.
-                           *!< the buffer is allocated by client and passed to driver to use */
-    uint8_t ucBufLen;     /*!< data buffer length, shall be large enough to hold group sample data */
-    uint16_t usChainMask; /*!< define which ADC channels are in the chain group.
-                           *!< e.g. 'x' bit set to 1 means ADC channel x is inclued in the group.
+                           *!< The buffer is allocated by client and passed to driver to use. */
+    uint8_t ucBufLen;     /*!< Data buffer length, shall be large enough to hold group sample data. */
+    uint16_t usChainMask; /*!< Define which ADC channels are in the chain group.
+                           *!< e.g. 'x' bit set to 1 means ADC channel x is included in the group.
                            *!< Client shall manage potential ADC channel use conflict. */
 } IotAdcChain_t;
 
@@ -338,18 +339,18 @@ typedef enum IotAdcIoctlRequest_s
 /**
  * @brief Used for various ADC control functions.
  *
- * @param[in] pxAdc The Adc handle returned in the open() call.
- * @param[in] xRequest ioctl request defined by IotAdcIoctlRequest_s enums
- * @param[in/out] pvBuffer data buffer for ioctl request
- * @param[in] pvBuffer size
+ * @param[in] pxAdc The ADC handle returned in the open() call.
+ * @param[in] xRequest ioctl request defined by IotAdcIoctlRequest_s enums.
+ * @param[in/out] pvBuffer data buffer for ioctl request.
+ * @param[in] pvBuffer size.
  *
  * @return
  * - IOT_ADC_SCUCCESS on success
  * - IOT_ADC_INVALID_VALUE, on NULL handle or invalid request or NULL or invalid buffer pointer
  * - IOT_ADC_CH_BUSY if ADC operation not complete.
- * - IOT_ADC_NOT_OPEN if Adc has been closed without re-opening.
+ * - IOT_ADC_NOT_OPEN if ADC has been closed without re-opening.
  * - IOT_ADC_FAILED if invalid ADC chain is requested.
- * - IOT_ADC_FUNCTION_NOT_SUPPORTED only valid for eSetAdcChain, if feature not supported
+ * - IOT_ADC_FUNCTION_NOT_SUPPORTED only valid for eSetAdcChain, if feature is not supported.
  */
 int32_t iot_adc_ioctl( IotAdcHandle_t const pxAdc,
                        IotAdcIoctlRequest_t xRequest,

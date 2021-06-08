@@ -67,6 +67,7 @@ target_compile_definitions(
     -D__MTK_BLE_ONLY_ENABLE__
     -DMTK_SINGLE_SKU_SUPPORT
     -DHAL_DFS_MODULE_ENABLED
+    -DMT7697HX_DEV_KIT
     -DLWIP_NO_STDINT_H=1
     -DLWIP_TIMEVAL_PRIVATE=1
     # Needed by tinycbor to determine byte order
@@ -224,7 +225,7 @@ target_include_directories(
         "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/utils/include"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/corePKCS11/source/include"
         "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/Include"
         ${compiler_specific_include}
 )
@@ -285,8 +286,8 @@ afr_mcu_port(pkcs11_implementation)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/iot_pkcs11_mbedtls.c"
+        "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/src/iot_crypto.c"
 )
 target_link_libraries(
@@ -318,6 +319,8 @@ target_link_libraries(
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".axf")
+
+set(DEFENDER_METRICS_LWIP_SUPPORTED TRUE CACHE INTERNAL "LWIP Defender Metrics supported")
 
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/mediatek_code")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")

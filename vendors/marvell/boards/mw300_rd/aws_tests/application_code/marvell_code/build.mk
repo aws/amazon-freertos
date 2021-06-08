@@ -17,7 +17,7 @@ libcommontests-objs-y := \
 		../../../../../../../tests/common/aws_test_framework.c \
 		../../../../../../../libraries/c_sdk/standard/common/test/iot_memory_leak.c \
 		../../../../../../../tests/common/aws_test_runner.c \
-		../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_test_freertos_tcp.c \
+		../../../../../../../tests/integration_test/test_freertos_tcp.c \
 		../../../../../../../libraries/freertos_plus/standard/tls/test/iot_test_tls.c \
 		../../../../../../../libraries/abstractions/wifi/test/iot_test_wifi.c \
 		../../../../../../../libraries/abstractions/secure_sockets/test/iot_test_tcp.c \

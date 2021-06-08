@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.2.0
+ * FreeRTOS MQTT V2.3.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -19,8 +19,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
+ * https://github.com/freertos
+ * https://www.FreeRTOS.org
  */
 
 /**
@@ -42,6 +42,10 @@
 
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
+
+
+/* Using initialized connToContext variable. */
+extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
 /*-----------------------------------------------------------*/
 
@@ -277,8 +281,11 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
 static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConnection,
                                                   _mqttPacket_t * pIncomingPacket )
 {
-    IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_STATUS_PENDING );
     _mqttOperation_t * pOperation = NULL;
+    MQTTStatus_t mqttStatus = MQTTBadParameter;
+    MQTTPublishState_t publishRecordState = MQTTStateNull;
+    int8_t contextIndex = -1;
 
     /* Deserializer function. */
     IotMqttError_t ( * deserialize )( _mqttPacket_t * ) = NULL;
@@ -297,7 +304,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             IotLogDebug( "(MQTT connection %p) CONNACK in data stream.", pMqttConnection );
 
             /* Choose CONNACK deserializer. */
-            deserialize = _IotMqtt_DeserializeConnack;
+            deserialize = _IotMqtt_deserializeConnackWrapper;
 
             #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
                 if( pMqttConnection->pSerializer != NULL )
@@ -358,7 +365,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             }
 
             /* Choose a PUBLISH deserializer. */
-            deserialize = _IotMqtt_DeserializePublish;
+            deserialize = _IotMqtt_deserializePublishWrapper;
 
             #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
                 if( pMqttConnection->pSerializer != NULL )
@@ -463,7 +470,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             IotLogDebug( "(MQTT connection %p) PUBACK in data stream.", pMqttConnection );
 
             /* Choose PUBACK deserializer. */
-            deserialize = _IotMqtt_DeserializePuback;
+            deserialize = _IotMqtt_deserializePubackWrapper;
 
             #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
                 if( pMqttConnection->pSerializer != NULL )
@@ -485,18 +492,49 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             /* Deserialize PUBACK and notify of result. */
             status = deserialize( pIncomingPacket );
-            pOperation = _IotMqtt_FindOperation( pMqttConnection,
-                                                 IOT_MQTT_PUBLISH_TO_SERVER,
-                                                 &( pIncomingPacket->packetIdentifier ) );
+
+            if( status == IOT_MQTT_SUCCESS )
+            {
+                contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
+
+                if( contextIndex >= 0 )
+                {
+                    if( IotMutex_TakeRecursive( &( connToContext[ contextIndex ].contextMutex ) ) == false )
+                    {
+                        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+                    }
+
+                    /* Updating the status for the outgoing publishes after the corresponding puback is received. */
+                    mqttStatus = MQTT_UpdateStateAck( &( connToContext[ contextIndex ].context ),
+                                                      pIncomingPacket->packetIdentifier,
+                                                      MQTTPuback,
+                                                      MQTT_RECEIVE, &publishRecordState );
+
+                    status = convertReturnCode( mqttStatus );
+
+                    if( IotMutex_GiveRecursive( &( connToContext[ contextIndex ].contextMutex ) ) == false )
+                    {
+                        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+                    }
+                }
+                else
+                {
+                    IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
+                                 pMqttConnection );
+                }
+            }
+
+            if( status == IOT_MQTT_SUCCESS )
+            {
+                pOperation = _IotMqtt_FindOperation( pMqttConnection,
+                                                     IOT_MQTT_PUBLISH_TO_SERVER,
+                                                     &( pIncomingPacket->packetIdentifier ) );
+            }
 
             if( pOperation != NULL )
             {
                 pOperation->u.operation.status = status;
                 _IotMqtt_Notify( pOperation );
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
             }
 
             break;
@@ -505,7 +543,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             IotLogDebug( "(MQTT connection %p) SUBACK in data stream.", pMqttConnection );
 
             /* Choose SUBACK deserializer. */
-            deserialize = _IotMqtt_DeserializeSuback;
+            deserialize = _IotMqtt_deserializeSubackWrapper;
 
             #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
                 if( pMqttConnection->pSerializer != NULL )
@@ -548,7 +586,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             IotLogDebug( "(MQTT connection %p) UNSUBACK in data stream.", pMqttConnection );
 
             /* Choose UNSUBACK deserializer. */
-            deserialize = _IotMqtt_DeserializeUnsuback;
+            deserialize = _IotMqtt_deserializeUnsubackWrapper;
 
             #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
                 if( pMqttConnection->pSerializer != NULL )
@@ -570,9 +608,13 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             /* Deserialize UNSUBACK and notify of result. */
             status = deserialize( pIncomingPacket );
-            pOperation = _IotMqtt_FindOperation( pMqttConnection,
-                                                 IOT_MQTT_UNSUBSCRIBE,
-                                                 &( pIncomingPacket->packetIdentifier ) );
+
+            if( status == IOT_MQTT_SUCCESS )
+            {
+                pOperation = _IotMqtt_FindOperation( pMqttConnection,
+                                                     IOT_MQTT_UNSUBSCRIBE,
+                                                     &( pIncomingPacket->packetIdentifier ) );
+            }
 
             if( pOperation != NULL )
             {
@@ -592,7 +634,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             IotLogDebug( "(MQTT connection %p) PINGRESP in data stream.", pMqttConnection );
 
             /* Choose PINGRESP deserializer. */
-            deserialize = _IotMqtt_DeserializePingresp;
+            deserialize = _IotMqtt_deserializePingrespWrapper;
 
             #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
                 if( pMqttConnection->pSerializer != NULL )
@@ -636,7 +678,8 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             }
             else
             {
-                EMPTY_ELSE_MARKER;
+                /* Any error in deserializing a packet needs to be considered as a bad response. */
+                status = IOT_MQTT_BAD_RESPONSE;
             }
 
             break;
@@ -653,7 +696,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
         EMPTY_ELSE_MARKER;
     }
 
-    return status;
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 
 /*-----------------------------------------------------------*/
@@ -668,7 +711,7 @@ static void _sendPuback( _mqttConnection_t * pMqttConnection,
     /* Default PUBACK serializer and free packet functions. */
     IotMqttError_t ( * serializePuback )( uint16_t,
                                           uint8_t **,
-                                          size_t * ) = _IotMqtt_SerializePuback;
+                                          size_t * ) = _IotMqtt_pubackSerializeWrapper;
     void ( * freePacket )( uint8_t * ) = _IotMqtt_FreePacket;
 
     IotLogDebug( "(MQTT connection %p) Sending PUBACK for received PUBLISH %hu.",

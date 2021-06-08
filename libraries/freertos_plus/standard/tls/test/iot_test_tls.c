@@ -1,5 +1,5 @@
 /*
- * FreeRTOS TLS V1.2.0
+ * FreeRTOS TLS V1.3.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,13 +39,13 @@
 #include "iot_test_tls.h"
 
 /* Configuration includes. */
-#include "iot_pkcs11_config.h"
-#include "iot_test_pkcs11_config.h"
+#include "core_pkcs11_config.h"
+#include "core_test_pkcs11_config.h"
 
 /* Provisioning include. */
 #include "aws_dev_mode_key_provisioning.h"
-#include "iot_pkcs11_config.h"
-#include "iot_pkcs11.h"
+#include "core_pkcs11_config.h"
+#include "core_pkcs11.h"
 
 /*
  * Length of elliptic curve credentials included from aws_clientcredential_keys.h.
