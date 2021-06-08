@@ -108,7 +108,7 @@ static P11CertData_t P11CertDataSave;
                                 
 /*-----------------------------------------------------------*/
 
-static CK_RV prvFLASH_delete(uint32_t u32StartAddr, uint8_t * pucData, uint32_t ulDataSize)
+static CK_RV prvFLASH_delete(uint32_t u32StartAddr, uint32_t ulDataSize)
 {
     uint32_t    u32Addr;               /* flash address */
     uint32_t    u32data;               /* flash data    */
@@ -129,18 +129,6 @@ static CK_RV prvFLASH_delete(uint32_t u32StartAddr, uint8_t * pucData, uint32_t 
                 printf("\nFMC_Read data verify failed at address 0x%x, read=0x%x, expect=0x%x\n", u32Addr, u32data, u32Pattern);
                 return -1;                 /* data verify failed */
             }
-        }
-
-        memcpy( P11CertDataSave.cCertificateData, pucData, ulDataSize );
-        /* Clean the mark and the size so that this will not be used again. */
-        P11CertDataSave.ulDeviceCertificateMark = 0;
-        P11CertDataSave.ulCertificateSize = 0;
-        pDataSrc = (uint32_t *) &P11CertDataSave;
-        /* Fill flash range from u32StartAddr to u32EndAddr with P11CertDataSave. */
-        for (u32Addr = u32StartAddr; u32Addr < u32EndAddr; u32Addr += 4)
-        {
-            FMC_Write(u32Addr, *pDataSrc);          /* Program flash */
-            pDataSrc++;
         }
 
         return ulDataSize;
@@ -253,8 +241,7 @@ static void prvLabelToFilenameHandle( uint8_t * pcLabel,
  * pdFALSE otherwise.
  */
 static BaseType_t prvFLASH_DeleteFile( char * pcFileName,
-                                uint8_t * pucData,
-                                uint32_t ulDataSize )
+                              uint32_t ulDataSize )
 {
     CK_RV xResult = pdFALSE;
     uint32_t certFlashAddr = 0;
@@ -297,7 +284,8 @@ static BaseType_t prvFLASH_DeleteFile( char * pcFileName,
     if( certFlashAddr != NULL )
     {
         /* Delete the given file. */
-        xBytesWritten = prvFLASH_delete( certFlashAddr, pucData, ulDataSize );
+        xBytesWritten = prvFLASH_delete( certFlashAddr, ulDataSize );
+
         if( xBytesWritten == ulDataSize )
         {
             xResult = pdTRUE;
@@ -657,16 +645,11 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
     CK_OBJECT_HANDLE xPalHandle2 = CK_INVALID_HANDLE;
     CK_ULONG ulObjectLength = sizeof( CK_BYTE );
     char * pcLabel = NULL;
-    CK_ATTRIBUTE xLabel;
 
     prvHandleToLabel( &pcLabel, xHandle );
 
     if( pcLabel != NULL )
     {
-        xLabel.type = CKA_LABEL;
-        xLabel.pValue = pcLabel;
-        xLabel.ulValueLen = strlen( pcLabel );
-
         xResult = PKCS11_PAL_GetObjectValue( xHandle, &pxObject, &ulObjectLength, &xIsPrivate );
     }   
     else
@@ -678,39 +661,27 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
     {
         if( ulObjectLength > 0 )
         {
-            /* Some ports return a pointer to memory for which using memset directly won't work. */
-            pxZeroedData = pvPortMalloc( ulObjectLength );
+            char *pcFileName = NULL;
 
-            if( NULL != pxZeroedData )
+            /* Converts a label to its respective filename and handle. */
+            prvLabelToFilenameHandle( pcLabel, &pcFileName, &xPalHandle2 );
+
+            if( pcFileName != NULL )
             {
-                /* Zero out the object. */
-                ( void ) memset( pxZeroedData, 0x0, ulObjectLength );
-
-                /* Overwrite the object in NVM with zeros. */
-                char *pcFileName = NULL;
-
-                /* Converts a label to its respective filename and handle. */
-                prvLabelToFilenameHandle( xLabel.pValue, &pcFileName, &xPalHandle2 );
-
-                if( pcFileName != NULL )
+                if( prvFLASH_DeleteFile( pcFileName, ulObjectLength ) == pdFALSE )
                 {
-                    if( prvFLASH_DeleteFile( pcFileName, pxZeroedData, ulObjectLength ) == pdFALSE )
-                    {
-                        xPalHandle2 = eInvalidHandle;
-                    }
+                    xPalHandle2 = eInvalidHandle;
                 }
-
-                if( xPalHandle2 != xHandle )
-                {
-                    xResult = CKR_GENERAL_ERROR;
-                }
-
-                vPortFree( pxZeroedData );
             }
-            else
+
+            if( xPalHandle2 != xHandle )
             {
-                xResult = CKR_HOST_MEMORY;
+                xResult = CKR_GENERAL_ERROR;
             }
+        }
+        else
+        {
+            xResult = CKR_GENERAL_ERROR;
         }
         PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
     }
