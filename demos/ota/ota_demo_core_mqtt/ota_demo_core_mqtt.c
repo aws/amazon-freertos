@@ -1593,7 +1593,7 @@ static OtaMqttStatus_t prvMqttUnSubscribe( const char * pcTopicFilter,
 
     if( xCommandContext.xReturnStatus != MQTTSuccess )
     {
-        LogError( ( "Failed to send unsubsribe packet to broker with error = %u.", xCommandContext.xReturnStatus ) );
+        LogError( ( "Failed to send unsubscribe packet to broker with error = %u.", xCommandContext.xReturnStatus ) );
         xOtaMqttStatus = OtaMqttSubscribeFailed;
     }
     else
@@ -1663,7 +1663,7 @@ static void prvMQTTAgentTask( void * pParam )
          * clean up and reconnect however the application writer prefers. */
         xMQTTStatus = MQTTAgent_CommandLoop( &xGlobalMqttAgentContext );
 
-        /* Clear Agent queue so that no any pending MQTT operations are processed. */
+        /* Clear Agent queue so that any pending MQTT operations are not processed. */
         MQTTAgent_CancelAll( &xGlobalMqttAgentContext );
 
         /* Success is returned for application intiated disconnect or termination.

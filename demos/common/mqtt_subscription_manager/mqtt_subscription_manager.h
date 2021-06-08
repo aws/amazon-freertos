@@ -25,7 +25,7 @@
  */
 
 /**
- * @file subscription_manager.h
+ * @file mqtt_subscription_manager.h
  * @brief Functions for managing MQTT subscriptions.
  */
 #ifndef MQTT_SUBSCRIPTION_MANAGER_H
