@@ -104,9 +104,9 @@ static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType,
 {
     if( xNetworkState == eNetworkStateEnabled )
     {
-            configPRINTF( ( "Connected to a WiFi network, stopping WiFi provisioning loop.\r\n" ) );
-            /* Add a delay for WiFi provisioning app to query the status before stopping the WiFi provisioning loop. */
-            vTaskDelay( pdMS_TO_TICKS( WIFI_PROVISION_STOP_DELAY_MS ) );
+        configPRINTF( ( "Connected to a WiFi network, stopping WiFi provisioning loop.\r\n" ) );
+        /* Add a delay for WiFi provisioning app to query the status before stopping the WiFi provisioning loop. */
+        vTaskDelay( pdMS_TO_TICKS( WIFI_PROVISION_STOP_DELAY_MS ) );
         #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
             configASSERT( IotBleWifiProv_Stop() == true );
         #elif ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1 )
@@ -193,7 +193,7 @@ void prvWiFiConnectTask( void * pvParams )
                         configPRINTF( ( "Failed to start WiFi provisioning loop, exiting WiFi provisioning task.\r\n" ) );
                         break;
                     }
-                #endif
+                #endif /* if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 ) */
             }
         }
         else
@@ -223,7 +223,7 @@ BaseType_t xWiFiConnectTaskInitialize( void )
             configPRINTF( ( "Failed to initialize WiFi provisioning over BLE.\r\n" ) );
             xStatus = pdFALSE;
         }
-    #endif
+    #endif /* if ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1 ) */
 
     if( xStatus == pdTRUE )
     {
@@ -263,7 +263,7 @@ void vWiFiConnectTaskDestroy( void )
     /* Stop the WiFi provisioning process loop if its already running. */
     #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
         ( void ) IotBleWifiProv_Stop();
-    #elif ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1)
+    #elif ( IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 1 )
         ( void ) IotWifiSoftAPProv_Stop();
     #endif
 

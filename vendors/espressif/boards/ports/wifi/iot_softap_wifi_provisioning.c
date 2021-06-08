@@ -40,25 +40,25 @@ static const char * TAG = "WIFI_PROVISION";
  */
 typedef struct IotWifiSoftAPProvService
 {
-    TaskHandle_t taskHandle;                  /**< Handle for the task used for WiFi provisioing. */
-    protocomm_t * pxProtocomm;                /**< A pointer to the protocomm connection object. */
-    protocomm_security_pop_t xPop;            /**< Stores data about the Proof of Possession (POP) */
-    WIFINetworkProfile_t xProvisionedParams;  /**< Stores parameters for target AP */
-    int16_t connectedIdx;                     /**< Keeps track of the flash index of the network that is connected. */
-    QueueHandle_t messageQueue;               /**< Message queue use by the provisioning task to process incoming requests. */
-    SemaphoreHandle_t mutex;                  /**< Mutex used to synchronize between application task the provsioning task .*/
+    TaskHandle_t taskHandle;                 /**< Handle for the task used for WiFi provisioing. */
+    protocomm_t * pxProtocomm;               /**< A pointer to the protocomm connection object. */
+    protocomm_security_pop_t xPop;           /**< Stores data about the Proof of Possession (POP) */
+    WIFINetworkProfile_t xProvisionedParams; /**< Stores parameters for target AP */
+    int16_t connectedIdx;                    /**< Keeps track of the flash index of the network that is connected. */
+    QueueHandle_t messageQueue;              /**< Message queue use by the provisioning task to process incoming requests. */
+    SemaphoreHandle_t mutex;                 /**< Mutex used to synchronize between application task the provsioning task .*/
 } IotWifiSoftAPProvService_t;
 
-static IotWifiSoftAPProvService_t wifiProvisioning = 
+static IotWifiSoftAPProvService_t wifiProvisioning =
 {
-    .taskHandle = NULL,
-    .pxProtocomm = NULL,
-    .xPop = 
+    .taskHandle           = NULL,
+    .pxProtocomm          = NULL,
+    .xPop                 =
     {
-        .data = ( uint8_t * ) CONFIG_POP,
-        .len  = ( sizeof( CONFIG_POP ) - 1 )
+        .data             = ( uint8_t * ) CONFIG_POP,
+        .len              = ( sizeof( CONFIG_POP ) - 1 )
     },
-    .xProvisionedParams = 
+    .xProvisionedParams   =
     {
         .ucBSSID          = { 0 },
         .ucSSID           = { 0 },
@@ -67,9 +67,9 @@ static IotWifiSoftAPProvService_t wifiProvisioning =
         .cPassword        = { 0 },
         .ucPasswordLength = 0
     },
-    .connectedIdx = 0,
-    .messageQueue = NULL,
-    .mutex = NULL,
+    .connectedIdx         = 0,
+    .messageQueue         = NULL,
+    .mutex                = NULL,
 };
 
 /**
@@ -116,7 +116,7 @@ static esp_err_t prvStartProtocomHTTP( void )
     {
         protocomm_httpd_config_t xProtocommServiceConfig =
         {
-            .data =
+            .data       =
             {
                 .config = PROTOCOMM_HTTPD_DEFAULT_CONFIG()
             }
@@ -184,7 +184,7 @@ static esp_err_t prvGetProvisionStatus( wifi_prov_config_get_data_t * pxResponse
     {
         pxResponse->wifi_state = WIFI_PROV_STA_CONNECTED;
         strlcpy( pxResponse->conn_info.ssid,
-                 ( char * ) wifiProvisioning.xProvisionedParams.ucSSID, 
+                 ( char * ) wifiProvisioning.xProvisionedParams.ucSSID,
                  wifiProvisioning.xProvisionedParams.ucSSIDLength );
     }
 
@@ -264,6 +264,7 @@ bool prvServiceStart()
     };
 
     char pcMAC[ wificonfigMAX_BSSID_LEN ] = { 0 };
+
     WIFI_GetMAC( &pcMAC );
     xAPConfig.ucSSIDLength = snprintf( ( char * ) xAPConfig.ucSSID,
                                        sizeof( xAPConfig.ucSSID ),
@@ -308,6 +309,7 @@ bool IotWifiSoftAPProv_Init( void )
     wifiProvisioning.xProvisionedParams.xSecurity = eWiFiSecurityWPA2;
 
     wifiProvisioning.mutex = xSemaphoreCreateMutex();
+
     if( wifiProvisioning.mutex == NULL )
     {
         ESP_LOGE( TAG, "Failed to create mutex for WiFi provisioning task." );
@@ -324,7 +326,7 @@ bool IotWifiSoftAPProv_Init( void )
             ret = false;
         }
     }
-    
+
     return ret;
 }
 
@@ -347,7 +349,7 @@ bool IotWifiSoftAPProv_RunProcessLoop( void )
 
             if( message.type == IotWiFiSoftAPProvRequestStop )
             {
-                ESP_LOGI( TAG,  "Received stop.\r\n" );
+                ESP_LOGI( TAG, "Received stop.\r\n" );
                 xQueueReset( wifiProvisioning.messageQueue );
                 break;
             }
@@ -416,7 +418,7 @@ bool IotWifiSoftAPProv_Stop( void )
     };
 
     status = xQueueSend( wifiProvisioning.messageQueue, &message, pdMS_TO_TICKS( IOT_WIFI_SOFTAP_PROVISIONING_COMMAND_TIMEOUT_MS ) );
-    return ( status == pdTRUE );
+    return( status == pdTRUE );
 }
 
 void IotWifiSoftAPProv_Deinit( void )

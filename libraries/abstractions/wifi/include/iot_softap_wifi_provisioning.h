@@ -39,8 +39,8 @@
  */
 typedef enum
 {
-    IotWiFiSoftAPProvRequestInvalid,       /**< Type used to denote an invalid request. */
-    IotWiFiSoftAPProvRequestStop           /**< Request sent from an application task to stop WiFi provisioning loop. */
+    IotWiFiSoftAPProvRequestInvalid, /**< Type used to denote an invalid request. */
+    IotWiFiSoftAPProvRequestStop     /**< Request sent from an application task to stop WiFi provisioning loop. */
 } IotWiFiSoftAPProvRequest_t;
 
 /**
