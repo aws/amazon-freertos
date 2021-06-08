@@ -463,7 +463,7 @@ static BaseType_t collectDeviceMetrics( void )
          * field of the task status will be included in the report as a "number"
          * custom metric. */
         vTaskGetInfo(
-            /* Query this task. */
+            /* NULL has the function query this task. */
             NULL,
             &taskStatus,
             /* Include the stack high water mark value. */
