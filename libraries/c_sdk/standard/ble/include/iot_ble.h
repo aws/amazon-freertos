@@ -37,7 +37,7 @@
 #include "bt_hal_gatt_server.h"
 #include "bt_hal_gatt_types.h"
 #include "iot_ble_config.h"
-#include "iot_linear_containers.h"
+#include "iot_ble_linear_containers.h"
 
 /**
  * @ingroup ble_datatypes_structs

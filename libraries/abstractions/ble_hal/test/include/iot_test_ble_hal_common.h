@@ -35,10 +35,9 @@
 /* C standard library includes. */
 #include <stddef.h>
 #include <string.h>
-#include IOT_LINEAR_CONTAINERS
-#include IOT_THREADS
-#include IOT_CLOCK
-#include IOT_PLATFORM_TYPES
+#include "FreeRTOS.h"
+#include "list.h"
+
 #include IOT_BT_HAL_MANAGER_ADAPTER_BLE
 #include IOT_BT_HAL_MANAGER_ADAPTER
 #include IOT_BT_HAL_GATT_SERVER
@@ -236,7 +235,7 @@ typedef uint32_t BLEHALEventsTypes_t;
 
 typedef struct
 {
-    IotLink_t eventList;
+    ListItem_t eventList;
     BLEHALEventsTypes_t xEventTypes;
     int32_t lHandle;
 } BLEHALEventsInternals_t;
