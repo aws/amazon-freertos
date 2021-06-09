@@ -380,7 +380,7 @@ static BaseType_t collectDeviceMetrics( void )
     TaskStatus_t taskStatus = { 0 };
     TaskStatus_t * pTaskStatusArray;
     uint32_t * pTaskIdArray;
-    UBaseType_t arraySize;
+    UBaseType_t numTasksRunning;
 
     /* Collect bytes and packets sent and received. */
     metricsCollectorStatus = GetNetworkStats( &( networkStats ) );
@@ -436,14 +436,14 @@ static BaseType_t collectDeviceMetrics( void )
     if( metricsCollectorStatus == MetricsCollectorSuccess )
     {
         /* Get task count */
-        arraySize = uxTaskGetNumberOfTasks();
+        numTasksRunning = uxTaskGetNumberOfTasks();
 
         /* Allocate pTaskStatusArray */
-        pTaskStatusArray = pvPortMalloc( arraySize * sizeof( TaskStatus_t ) );
+        pTaskStatusArray = pvPortMalloc( numTasksRunning * sizeof( TaskStatus_t ) );
 
         if( pTaskStatusArray == NULL )
         {
-            LogError( ( "Allocating pTaskStatusArray failed." ) );
+            LogError( ( "Cannot allocate memory for pTaskStatusArray array: pvPortMalloc() failed." ) );
             metricsCollectorStatus = MetricsCollectorCollectionFailed;
         }
     }
@@ -451,11 +451,11 @@ static BaseType_t collectDeviceMetrics( void )
     if( metricsCollectorStatus == MetricsCollectorSuccess )
     {
         /* Allocate pTaskIdArray */
-        pTaskIdArray = pvPortMalloc( arraySize * sizeof( uint32_t ) );
+        pTaskIdArray = pvPortMalloc( numTasksRunning * sizeof( uint32_t ) );
 
         if( pTaskIdArray == NULL )
         {
-            LogError( ( "Allocating pTaskIdArray failed." ) );
+            LogError( ( "Cannot allocate memory for pTaskStatusArray array: pvPortMalloc() failed." ) );
             metricsCollectorStatus = MetricsCollectorCollectionFailed;
         }
     }
@@ -481,7 +481,7 @@ static BaseType_t collectDeviceMetrics( void )
         /* Get the task status information for all running tasks. The task IDs
          * of each task is then extracted to include in the report as a "list of
          * numbers" custom metric */
-        tasksWritten = uxTaskGetSystemState( pTaskStatusArray, arraySize, NULL );
+        tasksWritten = uxTaskGetSystemState( pTaskStatusArray, numTasksRunning, NULL );
 
         if( tasksWritten == 0 )
         {
