@@ -1,4 +1,5 @@
 /*
+ * FreeRTOS V202104.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,8 +25,8 @@
  * @brief Configuration options for the OTA related demos.
  */
 
-#ifndef _OTA_DEMO_CONFIG_H_
-#define _OTA_DEMO_CONFIG_H_
+#ifndef OTA_DEMO_CONFIG_H_
+#define OTA_DEMO_CONFIG_H_
 
 /**
  * @brief Certificate used for validating code signing signatures in the OTA PAL.
@@ -93,4 +94,4 @@
  */
 #define MQTT_AGENT_MAX_EVENT_QUEUE_WAIT_TIME    ( 1U ) /* FIX ME. */
 
-#endif /* _OTA_DEMO_CONFIG_H_ */
+#endif /* OTA_DEMO_CONFIG_H_ */

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V1.1.4
+ * FreeRTOS V202104.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,8 +27,8 @@
  * @file aws_test_ota_config.h
  * @brief Port-specific variables for firmware Over-the-Air Update tests. */
 
-#ifndef _AWS_TEST_OTA_CONFIG_H_
-#define _AWS_TEST_OTA_CONFIG_H_
+#ifndef AWS_TEST_OTA_CONFIG_H_
+#define AWS_TEST_OTA_CONFIG_H_
 
 /**
  * @brief Path to the OTA PAL test certificate used to verify the signature.
@@ -95,4 +95,4 @@
  */
 #define APP_VERSION_BUILD    0
 
-#endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */
+#endif /* ifndef AWS_TEST_OTA_CONFIG_H_ */
