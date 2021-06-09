@@ -31,7 +31,7 @@
  * @brief Certificate used for validating code signing signatures in the OTA PAL.
  */
 #ifndef otapalconfigCODE_SIGNING_CERTIFICATE
-    #define otapalconfigCODE_SIGNING_CERTIFICATE    "Insert code signing certificate..."
+    #define otapalconfigCODE_SIGNING_CERTIFICATE    "Insert code signing certificate..." /* FIX ME. */
 #endif
 
 /**
@@ -41,7 +41,7 @@
  * that is declared in the ota_appversion32.h file in the OTA library.
  */
 #ifndef APP_VERSION_MAJOR
-    #define APP_VERSION_MAJOR    0
+    #define APP_VERSION_MAJOR    0 /* FIX ME. */
 #endif
 
 /**
@@ -51,7 +51,7 @@
  * that is declared in the ota_appversion32.h file in the OTA library.
  */
 #ifndef APP_VERSION_MINOR
-    #define APP_VERSION_MINOR    9
+    #define APP_VERSION_MINOR    9 /* FIX ME. */
 #endif
 
 /**
@@ -61,7 +61,7 @@
  * that is declared in the ota_appversion32.h file in the OTA library.
  */
 #ifndef APP_VERSION_BUILD
-    #define APP_VERSION_BUILD    2
+    #define APP_VERSION_BUILD    2 /* FIX ME. */
 #endif
 
 /**
@@ -71,19 +71,19 @@
  * bytes are read from network interface. Keeping this timeout to a sufficiently
  * large value so as to account for delay of receipt of a large block of message.
  */
-#define MQTT_RECV_POLLING_TIMEOUT_MS            ( 1000U )
+#define MQTT_RECV_POLLING_TIMEOUT_MS            ( 1000U ) /* FIX ME. */
 
 /**
  * @brief The length of the queue used to hold commands for the agent.
  */
-#define MQTT_AGENT_COMMAND_QUEUE_LENGTH         ( 25 )
+#define MQTT_AGENT_COMMAND_QUEUE_LENGTH         ( 25 ) /* FIX ME. */
 
 /**
  * @brief Dimensions the buffer used to serialise and deserialise MQTT packets.
  * @note Specified in bytes. Must be large enough to hold the maximum
  * anticipated MQTT payload.
  */
-#define MQTT_AGENT_NETWORK_BUFFER_SIZE          ( 5000 )
+#define MQTT_AGENT_NETWORK_BUFFER_SIZE          ( 5000 ) /* FIX ME. */
 
 /**
  * @brief Maximum time MQTT agent waits in the queue for any pending MQTT
@@ -91,6 +91,6 @@
  * responsiveness of MQTT agent while processing  pending MQTT operations as
  * well as receive packets from network.
  */
-#define MQTT_AGENT_MAX_EVENT_QUEUE_WAIT_TIME    ( 1U )
+#define MQTT_AGENT_MAX_EVENT_QUEUE_WAIT_TIME    ( 1U ) /* FIX ME. */
 
 #endif /* _OTA_DEMO_CONFIG_H_ */
