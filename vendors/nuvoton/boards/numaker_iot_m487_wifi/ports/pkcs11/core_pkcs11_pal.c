@@ -108,6 +108,36 @@ static P11CertData_t P11CertDataSave;
                                 
 /*-----------------------------------------------------------*/
 
+static CK_RV prvFLASH_delete(uint32_t u32StartAddr, uint32_t ulDataSize)
+{
+    uint32_t    u32Addr;               /* flash address */
+    uint32_t    u32data;               /* flash data    */
+    uint32_t    *pDataSrc;             /* flash data    */
+    uint32_t    u32EndAddr = (u32StartAddr + sizeof(P11CertData_t));
+    uint32_t    u32Pattern = 0xFFFFFFFF;
+
+    if (ulDataSize <= FMC_FLASH_PAGE_SIZE)
+    {
+        FMC_Erase(u32StartAddr);
+        /* Verify if each data word from flash u32StartAddr to u32EndAddr be 0xFFFFFFFF.  */
+        for (u32Addr = u32StartAddr; u32Addr < u32EndAddr; u32Addr += 4)
+        {
+            u32data = FMC_Read(u32Addr);   /* Read a flash word from address u32Addr. */
+
+            if (u32data != u32Pattern )     /* Verify if data matched. */
+            {
+                printf("\nFMC_Read data verify failed at address 0x%x, read=0x%x, expect=0x%x\n", u32Addr, u32data, u32Pattern);
+                return -1;                 /* data verify failed */
+            }
+        }
+
+        return ulDataSize;
+    }
+    else
+    {
+        return 0;
+    }
+}
 
 static CK_RV prvFLASH_update(uint32_t u32StartAddr, uint8_t * pucData, uint32_t ulDataSize)
 {
@@ -197,6 +227,77 @@ static void prvLabelToFilenameHandle( uint8_t * pcLabel,
         }
     }
 }
+
+/**
+ * @brief Delete a file from local storage by overwriting it.
+ *
+ * Port-specific file write for crytographic information.
+ *
+ * @param[in] pcFileName    The name of the file to be deleted.
+ * @param[in] pucData       Data buffer to be overwritten on the file.
+ * @param[in] pulDataSize   Size (in bytes) of file data.
+ *
+ * @return pdTRUE if data was successfully overwritten,
+ * pdFALSE otherwise.
+ */
+static BaseType_t prvFLASH_DeleteFile( char * pcFileName,
+                              uint32_t ulDataSize )
+{
+    CK_RV xResult = pdFALSE;
+    uint32_t certFlashAddr = 0;
+    CK_RV xBytesWritten = 0;
+
+    /* enough room to store the certificate */
+    if( ulDataSize > pkcs11OBJECT_CERTIFICATE_MAX_SIZE )
+    {
+        return xResult;
+    }
+
+    /*
+     * write client certificate.
+     */
+    SYS_UnlockReg();                   /* Unlock register lock protect */
+    FMC_Open();                        /* Enable FMC ISP function */
+    FMC_ENABLE_AP_UPDATE();            /* Enable APROM update. */
+
+    if( strcmp( pcFileName, pkcs11palFILE_NAME_CLIENT_CERTIFICATE ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.DeviceCertificate;
+    }
+    else if( strcmp( pcFileName, pkcs11palFILE_NAME_KEY ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.DeviceKey;
+    }
+    else if( strcmp( pcFileName, pkcs11palFILE_CODE_SIGN_PUBLIC_KEY ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.CodeSignKey;
+    }
+    else if( strcmp( pcFileName, pkcs11palFILE_NAME_RESERVE_KEY ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.ReserveKey;
+    }
+    else
+    {
+        certFlashAddr = NULL;
+    }
+
+    if( certFlashAddr != NULL )
+    {
+        /* Delete the given file. */
+        xBytesWritten = prvFLASH_delete( certFlashAddr, ulDataSize );
+
+        if( xBytesWritten == ulDataSize )
+        {
+            xResult = pdTRUE;
+        }
+    }
+
+    FMC_DISABLE_AP_UPDATE();           /* Disable APROM update. */
+    SYS_LockReg();                     /* Lock protected registers */
+
+    return xResult;
+}
+/*-----------------------------------------------------------*/
 
 
 /**
@@ -398,7 +499,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
 
         if( pdTRUE != prvFLASH_ReadFile( pcFileName, &pucData, &dataSize) )
         {
-            if( pucData[0] == 0x0 )
+            if( ( pucData[0] == 0x00 ) || ( dataSize == 0 ) )
             {
                 xHandle = eInvalidHandle;
             }
@@ -544,16 +645,11 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
     CK_OBJECT_HANDLE xPalHandle2 = CK_INVALID_HANDLE;
     CK_ULONG ulObjectLength = sizeof( CK_BYTE );
     char * pcLabel = NULL;
-    CK_ATTRIBUTE xLabel;
 
     prvHandleToLabel( &pcLabel, xHandle );
 
     if( pcLabel != NULL )
     {
-        xLabel.type = CKA_LABEL;
-        xLabel.pValue = pcLabel;
-        xLabel.ulValueLen = strlen( pcLabel );
-
         xResult = PKCS11_PAL_GetObjectValue( xHandle, &pxObject, &ulObjectLength, &xIsPrivate );
     }   
     else
@@ -563,29 +659,30 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
 
     if( xResult == CKR_OK )
     {
-        /* Some ports return a pointer to memory for which using memset directly won't work. */
-        pxZeroedData = pvPortMalloc( ulObjectLength );
-
-        if( NULL != pxZeroedData )
+        if( ulObjectLength > 0 )
         {
-            /* Zero out the object. */
-            ( void ) memset( pxZeroedData, 0x0, ulObjectLength );
+            char *pcFileName = NULL;
 
-            /* Overwrite the object in NVM with zeros. */
-            xPalHandle2 = PKCS11_PAL_SaveObject( &xLabel, pxZeroedData, ( size_t ) ulObjectLength );
+            /* Converts a label to its respective filename and handle. */
+            prvLabelToFilenameHandle( pcLabel, &pcFileName, &xPalHandle2 );
+
+            if( pcFileName != NULL )
+            {
+                if( prvFLASH_DeleteFile( pcFileName, ulObjectLength ) == pdFALSE )
+                {
+                    xPalHandle2 = eInvalidHandle;
+                }
+            }
 
             if( xPalHandle2 != xHandle )
             {
                 xResult = CKR_GENERAL_ERROR;
             }
-
-            vPortFree( pxZeroedData );
         }
         else
         {
-            xResult = CKR_HOST_MEMORY;
+            xResult = CKR_GENERAL_ERROR;
         }
-
         PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
     }
     else

@@ -315,7 +315,6 @@
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\x509_crt.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\x509_csr.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\xtea.h" />
-    <ClInclude Include="..\..\..\common\include\aws_application_version.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential_keys.h" />
     <ClInclude Include="..\..\..\common\include\aws_demo.h" />

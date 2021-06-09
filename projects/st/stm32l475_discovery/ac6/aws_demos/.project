@@ -1148,11 +1148,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/portable/MemMang/heap_5.c</locationURI>
 		</link>
 		<link>
-			<name>demos/demo_runner/aws_demo_version.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo_version.c</locationURI>
-		</link>
-		<link>
 			<name>demos/demo_runner/aws_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo.c</locationURI>
@@ -1181,11 +1176,6 @@
 			<name>demos/demo_runner/iot_demo_runner.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/iot_demo_runner.c</locationURI>
-		</link>
-		<link>
-			<name>demos/include/aws_application_version.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_application_version.h</locationURI>
 		</link>
 		<link>
 			<name>demos/include/aws_clientcredential.h</name>
@@ -1226,11 +1216,6 @@
 			<name>libraries/c_sdk/standard/common/iot_init.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/iot_init.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/iot_appversion32.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/iot_appversion32.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_init.h</name>
