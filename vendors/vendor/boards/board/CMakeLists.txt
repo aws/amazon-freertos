@@ -200,7 +200,7 @@ afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 #     INTERFACE "${portable_dir}/secure_sockets/iot_secure_sockets.c"
 # )
 
-# OTA
+# Over-the-air Updates
 #afr_mcu_port(ota)
 #target_sources(
 #    AFR::ota::mcu_port
