@@ -378,7 +378,7 @@ static BaseType_t collectDeviceMetrics( void )
     size_t numOpenTcpPorts, numOpenUdpPorts, numEstablishedConnections;
     UBaseType_t tasksWritten = 0U;
     TaskStatus_t taskStatus = { 0 };
-    TaskStatus_t * pTaskStatusArray;
+    TaskStatus_t * pTaskStatusArray = NULL;
     UBaseType_t numTasksRunning;
 
     /* Collect bytes and packets sent and received. */
