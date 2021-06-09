@@ -37,10 +37,10 @@
  * Please see tests/integration_test/ota_pal/test_files for the set of
  * certificates.
  */
-#define otatestpalCERTIFICATE_FILE                         "ecdsa-sha256-signer.crt.pem" /* FIX ME. */
+#define otatestpalCERTIFICATE_FILE                         "tests\\integration_test\\ota_pal\\test_files\\ecdsa-sha256-signer.crt.pem.test"
 
 /**
- * @brief Some boards have a hard-coded name for the firmware image to boot.
+ * @brief Some devices have a hard-coded name for the firmware image to boot.
  */
 #define otatestpalFIRMWARE_FILE                            "dummy.bin"
 
@@ -69,6 +69,30 @@
 /**
  * @brief Include of signature testing data applicable to this device.
  */
-#include "aws_test_ota_pal_ecdsa_sha256_signature.h" /* FIX ME. */
+#include "aws_test_ota_pal_ecdsa_sha256_signature.h"
+
+/**
+ * @brief Major version of the firmware.
+ *
+ * This is used in the OTA demo to set the appFirmwareVersion variable that is
+ * declared in the ota_appversion32.h file in the OTA library.
+ */
+#define APP_VERSION_MAJOR    0
+
+/**
+ * @brief Minor version of the firmware.
+ *
+ * This is used in the OTA demo to set the appFirmwareVersion variable that is
+ * declared in the ota_appversion32.h file in the OTA library.
+ */
+#define APP_VERSION_MINOR    9
+
+/**
+ * @brief Build version of the firmware.
+ *
+ * This is used in the OTA demo to set the appFirmwareVersion variable that is
+ * declared in the ota_appversion32.h file in the OTA library.
+ */
+#define APP_VERSION_BUILD    0
 
 #endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */
