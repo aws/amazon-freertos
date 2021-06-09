@@ -13,7 +13,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 #### TLS Shim Layer V1.3.0
 
 - Added logic to support connecting to a TLS server that does not require mutual verification.
-
+- Provide a way for an application to determine if a certificate has expired. PR #3139
 
 ## 202012.00 December 2020
 

@@ -87,7 +87,7 @@
  */
 #define PUBLISH_FLAG_RETAIN_MASK    BIT_MASK( 0 )                           /**< @brief MQTT PUBLISH retain flag. */
 #define PUBLISH_FLAG_QOS_MASK       ( BIT_MASK( 1 ) | BIT_MASK( 2 ) )       /**< @brief MQTT PUBLISH QoS1 flag. */
-#define PUBLISH_FLAG_DUP_MASK       BIT_MASK( 2 )                           /**< @brief MQTT PUBLISH duplicate flag. */
+#define PUBLISH_FLAG_DUP_MASK       BIT_MASK( 3 )                           /**< @brief MQTT PUBLISH duplicate flag. */
 #define PUBLISH_FLAG_QOS1_MASK      BIT_MASK( 1 )                           /**< @brief MQTT PUBLISH QoS1 flag. */
 #define PUBLISH_FLAG_QOS2_MASK      BIT_MASK( 2 )                           /**< @brief MQTT PUBLISH QoS2 flag. */
 
@@ -894,7 +894,7 @@ static MQTTBLEStatus_t handleIncomingPublish( StreamBufferHandle_t streamBuffer,
                                               size_t length )
 {
     MQTTBLEStatus_t status = MQTTBLESuccess;
-    MQTTBLEPublishInfo_t publishInfo;
+    MQTTBLEPublishInfo_t publishInfo = { 0 };
     uint16_t packetIdentifier = 0;
 
     LogDebug( ( "Processing incoming PUBLISH from channel." ) );

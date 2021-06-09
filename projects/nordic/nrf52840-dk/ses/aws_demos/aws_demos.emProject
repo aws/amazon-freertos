@@ -31,7 +31,6 @@
     <folder Name="application_code">
       <folder Name="common_demos">
         <folder Name="include">
-          <file file_name="../../../../../demos/include/aws_application_version.h" />
           <file file_name="../../../../../demos/include/iot_ble_gatt_server_demo.h" />
           <file file_name="../../../../../demos/include/aws_clientcredential.h" />
           <file file_name="../../../../../demos/include/aws_clientcredential_keys.h" />
@@ -68,7 +67,6 @@
         </folder>
         <folder Name="demo_runner">
           <file file_name="../../../../../demos/demo_runner/aws_demo.c" />
-          <file file_name="../../../../../demos/demo_runner/aws_demo_version.c" />
           <file file_name="../../../../../demos/demo_runner/iot_demo_runner.c" />
           <file file_name="../../../../../demos/demo_runner/iot_demo_freertos.c" />
         </folder>
@@ -213,7 +211,6 @@
             <file file_name="../../../../../libraries/c_sdk/standard/common/iot_init.c" />
             <file file_name="../../../../../libraries/c_sdk/standard/common/iot_static_memory_common.c" />
             <folder Name="include">
-              <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_logging_setup.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_atomic.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_init.h" />

@@ -9,7 +9,6 @@ afr_module_sources(
     PRIVATE
         # Common files
         "${src_dir}/iot_init.c"
-        "${inc_dir}/iot_appversion32.h"
         "${inc_dir}/iot_init.h"
         "${inc_dir}/iot_linear_containers.h"
         
