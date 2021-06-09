@@ -26,6 +26,10 @@
 #ifndef REPORT_BUILDER_H_
 #define REPORT_BUILDER_H_
 
+/* Kernel includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+
 /* Metrics collector. */
 #include "metrics_collector.h"
 
@@ -59,8 +63,8 @@ typedef struct ReportMetrics
     size_t establishedConnectionsArrayLength;
     /* Custom metrics */
     uint32_t stackHighWaterMark;
-    uint32_t * pTaskIdsArray;
-    size_t taskIdsArrayLength;
+    TaskStatus_t * pTaskStatusArray;
+    size_t taskStatusArrayLength;
 } ReportMetrics_t;
 
 /**

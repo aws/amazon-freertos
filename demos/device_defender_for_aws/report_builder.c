@@ -28,10 +28,6 @@
 #include <string.h>
 #include <stdint.h>
 
-/* Kernel includes. */
-#include "FreeRTOS.h"
-#include "task.h"
-
 /* Device Defender Client Library. */
 #include "defender.h"
 
@@ -178,8 +174,8 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
  *
  * @param[in] pBuffer The buffer to write the array of task IDs.
  * @param[in] bufferLength The length of the buffer.
- * @param[in] pTaskIdsArray The array containing the task IDs.
- * @param[in] taskIdsArrayLength Length of the pTaskIdsArray array.
+ * @param[in] pTaskStatusArray The array containing the task status structs.
+ * @param[in] taskStatusArrayLength Length of the pTaskStatusArray array.
  * @param[out] pOutCharsWritten Number of characters written to the buffer.
  *
  * @return #ReportBuilderSuccess if the array is successfully written;
@@ -187,8 +183,8 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
  */
 static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
                                                 size_t bufferLength,
-                                                const uint32_t * pTaskIdsArray,
-                                                size_t taskIdsArrayLength,
+                                                const TaskStatus_t * pTaskStatusArray,
+                                                size_t taskStatusArrayLength,
                                                 size_t * pOutCharsWritten );
 /*-----------------------------------------------------------*/
 
@@ -360,8 +356,8 @@ static ReportBuilderStatus_t writeConnectionsArray( char * pBuffer,
 
 static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
                                                 size_t bufferLength,
-                                                const uint32_t * pTaskIdsArray,
-                                                size_t taskIdsArrayLength,
+                                                const TaskStatus_t * pTaskStatusArray,
+                                                size_t taskStatusArrayLength,
                                                 size_t * pOutCharsWritten )
 {
     char * pCurrentWritePos = pBuffer;
@@ -370,7 +366,7 @@ static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
     ReportBuilderStatus_t status = ReportBuilderSuccess;
 
     configASSERT( pBuffer != NULL );
-    configASSERT( pTaskIdsArray != NULL );
+    configASSERT( pTaskStatusArray != NULL );
     configASSERT( pOutCharsWritten != NULL );
 
     /* Write the JSON array open marker. */
@@ -386,12 +382,12 @@ static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
     }
 
     /* Write the array elements. */
-    for( i = 0; ( ( i < taskIdsArrayLength ) && ( status == ReportBuilderSuccess ) ); i++ )
+    for( i = 0; ( ( i < taskStatusArrayLength ) && ( status == ReportBuilderSuccess ) ); i++ )
     {
         charactersWritten = snprintf( pCurrentWritePos,
                                       remainingBufferLength,
                                       "%u,",
-                                      pTaskIdsArray[ i ] );
+                                      pTaskStatusArray[ i ].xTaskNumber );
 
         if( !SNPRINTF_SUCCESS( charactersWritten, remainingBufferLength ) )
         {
@@ -408,7 +404,7 @@ static ReportBuilderStatus_t writeTaskIdsArray( char * pBuffer,
     if( status == ReportBuilderSuccess )
     {
         /* Discard the last comma. */
-        if( taskIdsArrayLength > 0 )
+        if( taskStatusArrayLength > 0 )
         {
             pCurrentWritePos -= 1;
             remainingBufferLength += 1;
@@ -658,8 +654,8 @@ ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
     {
         status = writeTaskIdsArray( pCurrentWritePos,
                                     remainingBufferLength,
-                                    pMetrics->pTaskIdsArray,
-                                    pMetrics->taskIdsArrayLength,
+                                    pMetrics->pTaskStatusArray,
+                                    pMetrics->taskStatusArrayLength,
                                     &( bufferWritten ) );
 
         if( status == ReportBuilderSuccess )

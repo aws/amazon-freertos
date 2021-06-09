@@ -379,7 +379,6 @@ static BaseType_t collectDeviceMetrics( void )
     UBaseType_t tasksWritten = 0U;
     TaskStatus_t taskStatus = { 0 };
     TaskStatus_t * pTaskStatusArray;
-    uint32_t * pTaskIdArray;
     UBaseType_t numTasksRunning;
 
     /* Collect bytes and packets sent and received. */
@@ -448,18 +447,6 @@ static BaseType_t collectDeviceMetrics( void )
         }
     }
 
-    if( metricsCollectorStatus == MetricsCollectorSuccess )
-    {
-        /* Allocate pTaskIdArray */
-        pTaskIdArray = pvPortMalloc( numTasksRunning * sizeof( uint32_t ) );
-
-        if( pTaskIdArray == NULL )
-        {
-            LogError( ( "Cannot allocate memory for pTaskStatusArray array: pvPortMalloc() failed." ) );
-            metricsCollectorStatus = MetricsCollectorCollectionFailed;
-        }
-    }
-
     /* Collect custom metrics from the system to send to AWS IoT Device Defender.
      * This demo sends this task's stack high water mark as a "number" type
      * custom metric and the current task ids as a "list of numbers" type custom
@@ -485,27 +472,20 @@ static BaseType_t collectDeviceMetrics( void )
 
         if( tasksWritten == 0 )
         {
-            /* If 0 is returned, the buffer was too small */
+            /* If 0 is returned, the buffer was too small. This line is reached
+             * when we hit the race condition where tasks have been added since
+             * we got the result of uxTaskGetNumberOfTasks() */
             metricsCollectorStatus = MetricsCollectorCollectionFailed;
             LogError( ( "Failed to collect task IDs. uxTaskGetSystemState() failed due to insufficient buffer space." ) );
         }
-        else
-        {
-            size_t i;
-
-            /* Populate the task IDs array from the collected system state array. */
-            for( i = 0; i < tasksWritten; i++ )
-            {
-                pTaskIdArray[ i ] = pTaskStatusArray[ i ].xTaskNumber;
-            }
-        }
     }
 
-    /* Free old pTaskIdsArray */
-    if( deviceMetrics.pTaskIdsArray != NULL )
+    /* Free old pTaskStatusArray if the deviceMetrics struct contains one
+     * that was allocated in a previous invocation of this function. */
+    if( deviceMetrics.pTaskStatusArray != NULL )
     {
-        vPortFree( deviceMetrics.pTaskIdsArray );
-        deviceMetrics.pTaskIdsArray = NULL;
+        vPortFree( deviceMetrics.pTaskStatusArray );
+        deviceMetrics.pTaskStatusArray = NULL;
     }
 
     /* Populate device metrics. */
@@ -520,22 +500,18 @@ static BaseType_t collectDeviceMetrics( void )
         deviceMetrics.pEstablishedConnectionsArray = &( establishedConnections[ 0 ] );
         deviceMetrics.establishedConnectionsArrayLength = numEstablishedConnections;
         deviceMetrics.stackHighWaterMark = taskStatus.usStackHighWaterMark;
-        deviceMetrics.pTaskIdsArray = pTaskIdArray;
-        deviceMetrics.taskIdsArrayLength = tasksWritten;
+        deviceMetrics.pTaskStatusArray = pTaskStatusArray;
+        deviceMetrics.taskStatusArrayLength = tasksWritten;
 
         /* Set pointer to NULL so we do not free it */
-        pTaskIdArray = NULL;
+        pTaskStatusArray = NULL;
     }
 
-    /* Free arrays */
+    /* Free pTaskStatusArray if we allocated it but did not add it to the
+     * deviceMetrics stuct. */
     if( pTaskStatusArray != NULL )
     {
         vPortFree( pTaskStatusArray );
-    }
-
-    if( pTaskIdArray != NULL )
-    {
-        vPortFree( pTaskIdArray );
     }
 
     return status;
