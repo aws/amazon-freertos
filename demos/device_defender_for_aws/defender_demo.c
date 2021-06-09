@@ -179,6 +179,8 @@ static void publishCallback( MQTTContext_t * pMqttContext,
 /**
  * @brief Collect all the metrics to be sent in the device defender report.
  *
+ * On success, caller is responsible for freeing deviceMetrics.pTaskStatusArray.
+ *
  * @return pdPASS if all the metrics are successfully collected;
  * pdFAIL otherwise.
  */
@@ -480,14 +482,6 @@ static BaseType_t collectDeviceMetrics( void )
         }
     }
 
-    /* Free old pTaskStatusArray if the deviceMetrics struct contains one
-     * that was allocated in a previous invocation of this function. */
-    if( deviceMetrics.pTaskStatusArray != NULL )
-    {
-        vPortFree( deviceMetrics.pTaskStatusArray );
-        deviceMetrics.pTaskStatusArray = NULL;
-    }
-
     /* Populate device metrics. */
     if( metricsCollectorStatus == MetricsCollectorSuccess )
     {
@@ -502,16 +496,15 @@ static BaseType_t collectDeviceMetrics( void )
         deviceMetrics.stackHighWaterMark = taskStatus.usStackHighWaterMark;
         deviceMetrics.pTaskStatusArray = pTaskStatusArray;
         deviceMetrics.taskStatusArrayLength = tasksWritten;
-
-        /* Set pointer to NULL so we do not free it */
-        pTaskStatusArray = NULL;
     }
-
-    /* Free pTaskStatusArray if we allocated it but did not add it to the
-     * deviceMetrics stuct. */
-    if( pTaskStatusArray != NULL )
+    else
     {
-        vPortFree( pTaskStatusArray );
+        /* Free pTaskStatusArray if we allocated it but did not add it to the
+         * deviceMetrics stuct. */
+        if( pTaskStatusArray != NULL )
+        {
+            vPortFree( pTaskStatusArray );
+        }
     }
 
     return status;
@@ -678,6 +671,13 @@ int RunDeviceDefenderDemo( bool awsIotMqttMode,
         {
             LogInfo( ( "Generating device defender report..." ) );
             demoStatus = generateDeviceMetricsReport( &( reportLength ) );
+
+            /* Free the allocated array in deviceMetrics struct which is not
+             * used anymore after generateDeviceMetricsReport(). This code is
+             * only reached when collectDeviceMetrics succeeded, so
+             * deviceMetrics.pTaskStatusArray is a valid allocation that needs
+             * to be freed. */
+            vPortFree( deviceMetrics.pTaskStatusArray );
 
             if( demoStatus == pdFAIL )
             {
