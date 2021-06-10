@@ -296,48 +296,10 @@
             <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c" />
             <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c" />
           </folder>
-          <folder Name="ble">
-            <file file_name="../../../../../libraries/c_sdk/standard/ble/CMakeLists.txt" />
-            <folder Name="include">
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/include/iot_ble.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/include/iot_ble_config_defaults.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/include/iot_ble_data_transfer.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/include/iot_ble_device_information.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/include/iot_ble_mqtt_serialize.h" />
-              <folder Name="private">
-                <file file_name="../../../../../libraries/c_sdk/standard/ble/include/private/iot_ble_internal.h" />
-              </folder>
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/include/iot_ble_mqtt_transport.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/include/iot_ble_mqtt_transport_config.h" />
-            </folder>
-            <folder Name="src">
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/src/iot_ble_gap.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/src/iot_ble_gatt.c" />
-              <folder Name="services">
-                <folder Name="device_information">
-                  <file file_name="../../../../../libraries/c_sdk/standard/ble/src/services/device_information/iot_ble_device_information.c" />
-                </folder>
-                <folder Name="mqtt_ble">
-                  <file file_name="../../../../../libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_network_ble.c" />
-                  <file file_name="../../../../../libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_ble_mqtt_serialize.c" />
-                  <file file_name="../../../../../libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_ble_mqtt_transport.c" />
-                </folder>
-                <folder Name="data_transfer">
-                  <file file_name="../../../../../libraries/c_sdk/standard/ble/src/services/data_transfer/iot_ble_data_transfer.c" />
-                </folder>
-              </folder>
-            </folder>
-            <folder Name="test">
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/test/iot_test_ble_end_to_end.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/test/iot_test_ble_mqtt_serialize.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/test/iot_mqtt_ble_system_test.c" />
-            </folder>
-          </folder>
         </folder>
       </folder>
       <folder Name="freertos_plus">
-        <folder Name="aws">
-        </folder>
+        <folder Name="aws" />
         <folder Name="standard">
           <folder Name="freertos_plus_posix">
             <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/CMakeLists.txt" />
@@ -497,6 +459,40 @@
           <folder Name="interface">
             <file file_name="../../../../../libraries/coreHTTP/source/interface/transport_interface.h" />
           </folder>
+        </folder>
+      </folder>
+      <folder Name="ble">
+        <folder Name="src">
+          <folder Name="services">
+            <folder Name="data_transfer">
+              <file file_name="../../../../../libraries/ble/src/services/data_transfer/iot_ble_data_transfer.c" />
+            </folder>
+            <folder Name="mqtt_ble">
+              <file file_name="../../../../../libraries/ble/src/services/mqtt_ble/iot_ble_mqtt_serialize.c" />
+              <file file_name="../../../../../libraries/ble/src/services/mqtt_ble/iot_ble_mqtt_transport.c" />
+              <file file_name="../../../../../libraries/ble/src/services/mqtt_ble/iot_network_ble.c" />
+            </folder>
+            <folder Name="device_information">
+              <file file_name="../../../../../libraries/ble/src/services/device_information/iot_ble_device_information.c" />
+            </folder>
+          </folder>
+          <file file_name="../../../../../libraries/ble/src/iot_ble_gap.c" />
+          <file file_name="../../../../../libraries/ble/src/iot_ble_gatt.c" />
+          <file file_name="../../../../../libraries/ble/src/iot_ble_internal.h" />
+        </folder>
+        <folder Name="include">
+          <file file_name="../../../../../libraries/ble/include/iot_ble_config_defaults.h" />
+          <file file_name="../../../../../libraries/ble/include/iot_ble_data_transfer.h" />
+          <file file_name="../../../../../libraries/ble/include/iot_ble_device_information.h" />
+          <file file_name="../../../../../libraries/ble/include/iot_ble_mqtt_serialize.h" />
+          <file file_name="../../../../../libraries/ble/include/iot_ble_mqtt_transport_config.h" />
+          <file file_name="../../../../../libraries/ble/include/iot_ble_mqtt_transport.h" />
+          <file file_name="../../../../../libraries/ble/include/iot_ble.h" />
+        </folder>
+        <folder Name="test">
+          <file file_name="../../../../../libraries/ble/test/iot_mqtt_ble_system_test.c" />
+          <file file_name="../../../../../libraries/ble/test/iot_test_ble_end_to_end.c" />
+          <file file_name="../../../../../libraries/ble/test/iot_test_ble_mqtt_serialize.c" />
         </folder>
       </folder>
     </folder>
@@ -956,7 +952,7 @@
     Name="Debug"
     arm_fp_abi="None"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/ble/src;$(SolutionDir)/../../../../../libraries/ble/include"
     gcc_debugging_level="Level 3"
     gcc_optimization_level="None"
     link_include_standard_libraries="Yes" />

@@ -257,7 +257,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/src\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src/private\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/include
+	$(CY_AFR_ROOT)/libraries/ble/include
 
 endif
 

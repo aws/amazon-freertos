@@ -15,7 +15,7 @@ GENERATE_TAGFILE = doc/output/ble.tag
 # Directories containing library source code.
 INPUT = doc \
         doc/lib \
-        libraries/c_sdk/standard/ble/include \
+        libraries/ble/include \
         libraries/abstractions/ble_hal/include
 
 # Library file names.
