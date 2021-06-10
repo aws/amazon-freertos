@@ -23,6 +23,11 @@
  * http://www.FreeRTOS.org
  */
 
+/**
+ * @file aws_test_ota_pal.c
+ * @brief Various tests for validating an implementation to the OTA PAL.
+ */
+
 /* Standard includes. */
 #include <stdint.h>
 #include <stdbool.h>
