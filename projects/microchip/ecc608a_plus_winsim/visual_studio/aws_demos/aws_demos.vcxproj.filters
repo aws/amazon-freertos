@@ -145,6 +145,14 @@
 		<Filter Include="libraries\jobs_for_aws\source"/>
 		<Filter Include="libraries\jobs_for_aws"/>
 		<Filter Include="libraries\jobs_for_aws\source\include"/>
+		<Filter Include="libraries\ota_for_aws\source"/>
+		<Filter Include="libraries\ota_for_aws"/>
+		<Filter Include="libraries\ota_for_aws\source\include"/>
+		<Filter Include="libraries\ota_for_aws\source\portable\os"/>
+		<Filter Include="libraries\ota_for_aws\source\portable"/>
+		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports\ota_pal_for_aws"/>
+		<Filter Include="demos\common\ota_demo_helpers"/>
+		<Filter Include="demos\common\mqtt_subscription_manager"/>
 		<Filter Include="demos\coreHTTP"/>
 		<Filter Include="demos\coreMQTT"/>
 		<Filter Include="demos\coreMQTT_Agent"/>
@@ -154,6 +162,8 @@
 		<Filter Include="demos\device_shadow_for_aws"/>
 		<Filter Include="demos\greengrass_connectivity"/>
 		<Filter Include="demos\jobs_for_aws"/>
+		<Filter Include="demos\ota\ota_demo_core_mqtt"/>
+		<Filter Include="demos\ota"/>
 		<Filter Include="demos\tcp"/>
 		<Filter Include="application_code"/>
 		<Filter Include="libraries\3rdparty\tracealyzer_recorder"/>
@@ -691,6 +701,33 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\jobs_for_aws\source\include\jobs.h">
 			<Filter>libraries\jobs_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_mqtt_private.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_cbor_private.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_os_interface.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_platform_interface.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_private.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_interface_private.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_base64_private.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_private.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.h">
 			<Filter>demos\coreMQTT_Agent</Filter>
@@ -1504,6 +1541,36 @@
 		<ClCompile Include="..\..\..\..\..\libraries\jobs_for_aws\source\jobs.c">
 			<Filter>libraries\jobs_for_aws\source</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\ota_mqtt.c">
+			<Filter>libraries\ota_for_aws\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\ota_cbor.c">
+			<Filter>libraries\ota_for_aws\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\ota.c">
+			<Filter>libraries\ota_for_aws\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\ota_interface.c">
+			<Filter>libraries\ota_for_aws\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\ota_base64.c">
+			<Filter>libraries\ota_for_aws\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\portable\os\ota_os_freertos.c">
+			<Filter>libraries\ota_for_aws\source\portable\os</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\ota_for_aws\source\ota_http.c">
+			<Filter>libraries\ota_for_aws\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\ota_pal_for_aws\ota_pal.c">
+			<Filter>vendors\microchip\boards\ecc608a_plus_winsim\ports\ota_pal_for_aws</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\ota_demo_helpers\ota_application_version.c">
+			<Filter>demos\common\ota_demo_helpers</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_subscription_manager\mqtt_subscription_manager.c">
+			<Filter>demos\common\mqtt_subscription_manager</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\coreHTTP\http_demo_mutual_auth.c">
 			<Filter>demos\coreHTTP</Filter>
 		</ClCompile>
@@ -1545,6 +1612,9 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\jobs_for_aws\jobs_demo.c">
 			<Filter>demos\jobs_for_aws</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\ota\ota_demo_core_mqtt\ota_demo_core_mqtt.c">
+			<Filter>demos\ota\ota_demo_core_mqtt</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_task.c">
 			<Filter>demos\tcp</Filter>
