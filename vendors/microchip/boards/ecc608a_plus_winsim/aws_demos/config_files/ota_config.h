@@ -61,7 +61,7 @@
  *
  * 10 bits yields a data block size of 1KB.
  */
-#define otaconfigLOG2_FILE_BLOCK_SIZE           10UL
+#define otaconfigLOG2_FILE_BLOCK_SIZE           12UL
 
 /**
  * @brief Size of the file data block message (excluding the header).
@@ -123,7 +123,7 @@
  *
  * @note This must be set to a value larger than zero.
  */
-#define otaconfigMAX_NUM_BLOCKS_REQUEST         4U
+#define otaconfigMAX_NUM_BLOCKS_REQUEST         1U
 
 /**
  * @brief The maximum number of requests allowed to send without a response before we abort.
