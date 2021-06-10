@@ -165,8 +165,11 @@
  * Enable data over MQTT - ( OTA_DATA_OVER_MQTT )
  * Enable data over HTTP - ( OTA_DATA_OVER_HTTP)
  * Enable data over both MQTT & HTTP ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
+ *
+ * @note To enable data over HTTP, you must remove `AWSIOT_NETWORK_TYPE_BLE` from
+ * `configENABLED_NETWORKS` in `aws_iot_network_config.h`
  */
-#define configENABLED_DATA_PROTOCOLS            ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
+#define configENABLED_DATA_PROTOCOLS            ( OTA_DATA_OVER_MQTT )
 
 /**
  * @brief The preferred protocol selected for OTA data operations.
