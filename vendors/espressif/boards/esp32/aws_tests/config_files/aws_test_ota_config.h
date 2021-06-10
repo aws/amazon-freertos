@@ -27,8 +27,8 @@
  * @file aws_test_ota_config.h
  * @brief Port-specific variables for firmware Over-the-Air Update tests. */
 
-#ifndef _AWS_TEST_OTA_CONFIG_H_
-#define _AWS_TEST_OTA_CONFIG_H_
+#ifndef AWS_TEST_OTA_CONFIG_H_
+#define AWS_TEST_OTA_CONFIG_H_
 
 /**
  * @brief Path to cert for OTA test PAL. Used to verify signature.
@@ -93,4 +93,4 @@
  */
 #define APP_VERSION_BUILD    2
 
-#endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */
+#endif /* ifndef AWS_TEST_OTA_CONFIG_H_ */

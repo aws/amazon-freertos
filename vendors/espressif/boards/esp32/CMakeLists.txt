@@ -423,7 +423,7 @@ target_compile_definitions(
 )
 endif()
 
-# OTA
+# Over-the-air Updates
 afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
