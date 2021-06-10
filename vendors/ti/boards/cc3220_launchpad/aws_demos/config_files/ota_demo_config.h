@@ -102,6 +102,13 @@
 #define MQTT_AGENT_COMMAND_QUEUE_LENGTH              ( 25 )
 
 /**
+ * @brief Dimensions the buffer used to serialise and deserialise MQTT packets.
+ * @note Specified in bytes.  Must be large enough to hold the maximum
+ * anticipated MQTT payload.
+ */
+#define MQTT_AGENT_NETWORK_BUFFER_SIZE               ( 5000 )
+
+/**
  * @brief Maximum time MQTT agent waits in the queue for any pending MQTT operations.
  * The wait time is kept smallest possible to increase the responsiveness of MQTT agent
  * while processing  pending MQTT operations as well as receive packets from network.
