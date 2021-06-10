@@ -49,22 +49,22 @@
  * image and the certificates because their non-volatile memory is abstracted by a
  * file system. Set this to 1 if that is the case for your device.
  */
-#define otatestpalUSE_FILE_SYSTEM                          1 /* FIX ME. */
+#define otatestpalUSE_FILE_SYSTEM                          1 /* TODO */
 
 /**
  * @brief 1 if otaPAL_CheckFileSignature is implemented in ota_pal.c.
  */
-#define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           1   /* FIX ME. */
+#define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           1   /* TODO */
 
 /**
  * @brief 1 if otaPAL_ReadAndAssumeCertificate is implemented in ota_pal.c.
  */
-#define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    1   /* FIX ME. */
+#define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    1   /* TODO */
 
 /**
  * @brief 1 if using PKCS #11 to access the code sign certificate from NVM.
  */
-#define otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11    1   /* FIX ME. */
+#define otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11    1   /* TODO */
 
 /**
  * @brief Include of signature testing data applicable to this device.

@@ -63,7 +63,7 @@
  *
  * <b>Possible values:</b> Any unsigned 32 integer. <br>
  */
-#define otaconfigLOG2_FILE_BLOCK_SIZE           12UL /* FIX ME. */
+#define otaconfigLOG2_FILE_BLOCK_SIZE           12UL /* TODO */
 
 /**
  * @brief Size of the file data block message (excluding the header).
@@ -76,7 +76,7 @@
  *
  * <b>Possible values:</b> Any unsigned 32 integer. <br>
  */
-#define otaconfigSELF_TEST_RESPONSE_WAIT_MS     16000U /* FIX ME. */
+#define otaconfigSELF_TEST_RESPONSE_WAIT_MS     16000U /* TODO */
 
 /**
  * @brief Milliseconds to wait before requesting data blocks from the OTA
@@ -88,7 +88,7 @@
  *
  * <b>Possible values:</b> Any unsigned 32 integer. <br>
  */
-#define otaconfigFILE_REQUEST_WAIT_MS           10000U /* FIX ME. */
+#define otaconfigFILE_REQUEST_WAIT_MS           10000U /* TODO */
 
 /**
  * @brief The maximum allowed length of the thing name used by the OTA agent.
@@ -101,7 +101,7 @@
  *
  * <b>Possible values:</b> Any unsigned 32 integer. <br>
  */
-#define otaconfigMAX_THINGNAME_LEN              128U /* FIX ME. */
+#define otaconfigMAX_THINGNAME_LEN              128U /* TODO */
 
 /**
  * @brief The maximum number of data blocks requested from OTA streaming
@@ -118,7 +118,7 @@
  *
  * <b>Possible values:</b> Any unsigned 32 integer value greater than 0. <br>
  */
-#define otaconfigMAX_NUM_BLOCKS_REQUEST         1U /* FIX ME. */
+#define otaconfigMAX_NUM_BLOCKS_REQUEST         1U /* TODO */
 
 /**
  * @brief The maximum number of requests allowed to send without a response
@@ -130,7 +130,7 @@
  *
  * <b>Possible values:</b> Any unsigned 32 integer. <br>
  */
-#define otaconfigMAX_NUM_REQUEST_MOMENTUM       32U /* FIX ME. */
+#define otaconfigMAX_NUM_REQUEST_MOMENTUM       32U /* TODO */
 
 /**
  * @brief How frequently the device will report its OTA progress to the cloud.
@@ -141,7 +141,7 @@
  *
  * <b>Possible values:</b> Any unsigned 32 integer. <br>
  */
-#define otaconfigOTA_UPDATE_STATUS_FREQUENCY    25U /* FIX ME. */
+#define otaconfigOTA_UPDATE_STATUS_FREQUENCY    25U /* TODO */
 
 /**
  * @brief The number of data buffers reserved by the OTA agent.
@@ -151,7 +151,7 @@
  *
  * <b>Possible values:</b> Any unsigned 32 integer. <br>
  */
-#define otaconfigMAX_NUM_OTA_DATA_BUFFERS       otaconfigMAX_NUM_BLOCKS_REQUEST + 1 /* FIX ME. */
+#define otaconfigMAX_NUM_OTA_DATA_BUFFERS       otaconfigMAX_NUM_BLOCKS_REQUEST + 1 /* TODO */
 
 /**
  * @brief Flag to enable booting into updates that have an identical or lower
@@ -164,7 +164,7 @@
  *
  * <b>Possible values:</b> Any unsigned 32 integer. <br>
  */
-#define otaconfigAllowDowngrade                 0U /* FIX ME. */
+#define otaconfigAllowDowngrade                 0U /* TODO */
 
 /**
  * @brief The protocol selected for OTA control operations.
