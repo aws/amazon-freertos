@@ -102,6 +102,11 @@
 			<locationURI>PARENT-5-PROJECT_LOC/freertos_kernel/timers.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/ble</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/ble</locationURI>
+		</link>
+		<link>
 			<name>demos/defender/aws_iot_demo_defender.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/demos/defender/aws_iot_demo_defender.c</locationURI>
@@ -330,11 +335,6 @@
 			<name>libraries/abstractions/wifi/include</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/wifi/include</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/ble</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common</name>
@@ -912,16 +912,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/include</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/include</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/ble/src</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/include</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/common/include</locationURI>
@@ -1275,16 +1265,6 @@
 			<name>libraries/c_sdk/aws/shadow/src/aws_shadow.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/src/aws_shadow.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/ble/src/iot_ble_gap.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/iot_ble_gap.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/ble/src/iot_ble_gatt.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/iot_ble_gatt.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/private</name>
@@ -2030,31 +2010,6 @@
 			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/ble/src/services/device_information/iot_ble_device_information.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/services/device_information/iot_ble_device_information.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_ble_mqtt_serialize.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_ble_mqtt_serialize.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_ble_mqtt_transport.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_ble_mqtt_transport.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_network_ble.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_network_ble.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/ble/src/services/wifi_provisioning/iot_ble_wifi_provisioning.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/services/wifi_provisioning/iot_ble_wifi_provisioning.c</locationURI>
 		</link>
 		<link>
 			<name>vendors/cypress/MTB/libraries/abstraction-rtos/source/COMPONENT_FREERTOS/cyabs_freertos_helpers.c</name>
@@ -3502,4 +3457,33 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/aws_demos/application_code/cy_code/COMPONENT_CM4/TOOLCHAIN_GCC_ARM/startup_psoc6_02_cm4.S</locationURI>
 		</link>
 	</linkedResources>
+	<filteredResources>
+		<filter>
+			<id>1623355140975</id>
+			<name>libraries/ble</name>
+			<type>10</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-test</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1623355140982</id>
+			<name>libraries/ble</name>
+			<type>10</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-utest</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1623355140990</id>
+			<name>libraries/ble</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-CMakeLists.txt</arguments>
+			</matcher>
+		</filter>
+	</filteredResources>
 </projectDescription>
