@@ -186,6 +186,11 @@
 #endif
 
 /**
+ * @brief Maximum length of the S3 Presigned URL generated for the demo.
+ */
+#define democonfigS3_PRESIGNED_GET_URL_LENGTH             ( 256U )
+
+/**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
 #define otaexampleHTTPS_TRANSPORT_SEND_RECV_TIMEOUT_MS    ( 2000U )
@@ -534,7 +539,7 @@ static NetworkContext_t xNetworkContextHttp;
  * @note S3_PRESIGNED_GET_URL_LENGTH is set as the array length here as the
  * length of the host name string cannot exceed this value.
  */
-static char pcServerHost[ 256 ];
+static char pcServerHost[ democonfigS3_PRESIGNED_GET_URL_LENGTH ];
 
 /**
  * @brief The length of the host address found in the pre-signed URL.
@@ -1609,6 +1614,7 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
     BaseType_t returnStatus = pdPASS;
     BaseType_t xStatus = pdPASS;
     HTTPStatus_t xHttpStatus = HTTPSuccess;
+    BackoffAlgorithmContext_t xReconnectParams;
     /* The location of the host address within the pre-signed URL. */
     const char * pcAddress = NULL;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
