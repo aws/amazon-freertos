@@ -28,17 +28,30 @@
 #ifndef _ATCA_CONFIG_H
 #define _ATCA_CONFIG_H
 
-/** Use I2C */
+ /** Use HID */
 #define ATCA_HAL_KIT_HID
+#define ATCA_ATECC608A_SUPPORT
 
 /** Use the following address for ECC devices */
-#define ATCA_I2C_ECC_ADDRESS    0x6C
+#define ATCA_I2C_ECC_ADDRESS           0xC0
+#define ATCA_DEVICE_PRIVATE_KEY_SLOT   0x00
 
-/** Define if cryptoauthlib is to use the maximum execution time method */
-#define ATCA_NO_POLL
+#ifndef ATCA_POST_DELAY_MSEC
+#define ATCA_POST_DELAY_MSEC 25
+#endif
+
+#define PKCS11_LABEL_IS_SERNUM          1
 
 /** Use RTOS timers (i.e. delays that yield) */
 #define ATCA_USE_RTOS_TIMER
+
+#define atca_delay_ms hal_rtos_delay_ms
+#define atca_delay_us hal_delay_us
+
+#include "FreeRTOS.h"
+
+#define ATCA_PLATFORM_MALLOC    pvPortMalloc
+#define ATCA_PLATFORM_FREE      vPortFree
 
 
 #endif

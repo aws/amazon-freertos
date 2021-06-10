@@ -37,7 +37,7 @@ afr_module_sources(
 
 afr_module_include_dirs(
     pkcs11
-    PUBLIC 
+    PUBLIC
         "${inc_dir}"
 )
 
@@ -69,7 +69,7 @@ afr_module_include_dirs(
 afr_module_dependencies(
     pkcs11_implementation
     PUBLIC
-        3rdparty::pkcs11 
+        3rdparty::pkcs11
     PRIVATE
         AFR::pkcs11_implementation::mcu_port
         AFR::pkcs11_utils
@@ -82,28 +82,82 @@ if(ECC608_IN_USE)
     set(atca_config_dir "${CMAKE_CURRENT_LIST_DIR}/ecc608a")
     afr_module(NAME pkcs11_ecc608a INTERFACE)
 
-    afr_glob_src(ecc608a_atacert_src RECURSE DIRECTORY ${ecc608a_dir}/lib/atcacert)
-    afr_glob_src(ecc608a_basic_src RECURSE DIRECTORY ${ecc608a_dir}/lib/basic)
-    afr_glob_src(ecc608a_crypto_src RECURSE DIRECTORY ${ecc608a_dir}/lib/crypto)
-    afr_glob_src(ecc608a_host_src RECURSE DIRECTORY ${ecc608a_dir}/lib/host)
-    afr_glob_src(ecc608a_pkcs11_src RECURSE DIRECTORY ${ecc608a_dir}/lib/pkcs11)
-
-
-    afr_glob_src(ecc608a_src DIRECTORY ${ecc608a_dir}/lib)
-    list(REMOVE_ITEM ecc608a_src "${ecc608a_dir}/lib/atca_cfgs.c")
-
     set(ecc608_include "${ecc608a_dir}/lib")
     set(ecc608_src_list
-        "${ecc608a_src}"
-        "${ecc608a_atacert_src}"
-        "${ecc608a_basic_src}"
-        "${ecc608a_crypto_src}"
-        "${ecc608a_host_src}"
-        "${ecc608a_pkcs11_src}"
+        ${ecc608a_dir}/lib/atca_basic.c
+        ${ecc608a_dir}/lib/atca_debug.c
+        ${ecc608a_dir}/lib/atca_device.c
+        ${ecc608a_dir}/lib/atca_helpers.c
+        ${ecc608a_dir}/lib/atca_iface.c
+        ${ecc608a_dir}/lib/atca_utils_sizes.c
+        ${ecc608a_dir}/lib/atcacert/atcacert_client.c
+        ${ecc608a_dir}/lib/atcacert/atcacert_date.c
+        ${ecc608a_dir}/lib/atcacert/atcacert_def.c
+        ${ecc608a_dir}/lib/atcacert/atcacert_der.c
+        ${ecc608a_dir}/lib/atcacert/atcacert_host_hw.c
+        ${ecc608a_dir}/lib/atcacert/atcacert_host_sw.c
+        ${ecc608a_dir}/lib/atcacert/atcacert_pem.c
+        ${ecc608a_dir}/lib/calib/calib_aes.c
+        ${ecc608a_dir}/lib/calib/calib_aes_gcm.c
+        ${ecc608a_dir}/lib/calib/calib_basic.c
+        ${ecc608a_dir}/lib/calib/calib_checkmac.c
+        ${ecc608a_dir}/lib/calib/calib_command.c
+        ${ecc608a_dir}/lib/calib/calib_counter.c
+        ${ecc608a_dir}/lib/calib/calib_derivekey.c
+        ${ecc608a_dir}/lib/calib/calib_ecdh.c
+        ${ecc608a_dir}/lib/calib/calib_execution.c
+        ${ecc608a_dir}/lib/calib/calib_gendig.c
+        ${ecc608a_dir}/lib/calib/calib_genkey.c
+        ${ecc608a_dir}/lib/calib/calib_hmac.c
+        ${ecc608a_dir}/lib/calib/calib_info.c
+        ${ecc608a_dir}/lib/calib/calib_kdf.c
+        ${ecc608a_dir}/lib/calib/calib_lock.c
+        ${ecc608a_dir}/lib/calib/calib_mac.c
+        ${ecc608a_dir}/lib/calib/calib_nonce.c
+        ${ecc608a_dir}/lib/calib/calib_privwrite.c
+        ${ecc608a_dir}/lib/calib/calib_random.c
+        ${ecc608a_dir}/lib/calib/calib_read.c
+        ${ecc608a_dir}/lib/calib/calib_secureboot.c
+        ${ecc608a_dir}/lib/calib/calib_selftest.c
+        ${ecc608a_dir}/lib/calib/calib_sha.c
+        ${ecc608a_dir}/lib/calib/calib_sign.c
+        ${ecc608a_dir}/lib/calib/calib_updateextra.c
+        ${ecc608a_dir}/lib/calib/calib_verify.c
+        ${ecc608a_dir}/lib/calib/calib_write.c
+        ${ecc608a_dir}/lib/crypto/atca_crypto_hw_aes_cbc.c
+        ${ecc608a_dir}/lib/crypto/atca_crypto_hw_aes_cbcmac.c
+        ${ecc608a_dir}/lib/crypto/atca_crypto_hw_aes_ccm.c
+        ${ecc608a_dir}/lib/crypto/atca_crypto_hw_aes_cmac.c
+        ${ecc608a_dir}/lib/crypto/atca_crypto_hw_aes_ctr.c
+        ${ecc608a_dir}/lib/crypto/atca_crypto_sw_ecdsa.c
+        ${ecc608a_dir}/lib/crypto/atca_crypto_sw_rand.c
+        ${ecc608a_dir}/lib/crypto/atca_crypto_sw_sha1.c
+        ${ecc608a_dir}/lib/crypto/atca_crypto_sw_sha2.c
+        ${ecc608a_dir}/lib/crypto/hashes/sha2_routines.c
+        ${ecc608a_dir}/lib/crypto/hashes/sha1_routines.c
+        ${ecc608a_dir}/lib/host/atca_host.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_attrib.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_cert.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_config.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_debug.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_digest.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_find.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_info.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_init.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_key.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_main.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_mech.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_object.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_os.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_session.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_signature.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_slot.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_token.c
+        ${ecc608a_dir}/lib/pkcs11/pkcs11_util.c
     )
 
     afr_module_sources(
-        pkcs11_ecc608a 
+        pkcs11_ecc608a
         INTERFACE
             "${atca_config_dir}/atca_cert_chain.h"
             "${atca_config_dir}/atca_cert_chain.c"
@@ -156,7 +210,7 @@ else()
     set(src_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source/portable/mbedtls")
 
     afr_module_sources(
-        pkcs11_mbedtls 
+        pkcs11_mbedtls
         INTERFACE
             "${src_dir}/core_pkcs11_mbedtls.c"
             "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls_config/threading_alt.h"
@@ -175,7 +229,7 @@ endif()
 # PKCS11 test
 afr_test_module()
 if(${AFR_BOARD} STREQUAL "pc.windows")
-    set(mbt_tests 
+    set(mbt_tests
         "${test_dir}/iot_test_pkcs11_globals.h"
         "${test_dir}/MBT_C_CloseSession.c"
         "${test_dir}/MBT_C_DigestFinal.c"

@@ -205,13 +205,13 @@ const char * pcPkcs11GetThingName( void )
 /** \brief default configuration for an ECCx08A device */
     ATCAIfaceCfg cfg_ateccx08a_i2c_default =
     {
-        .iface_type            = ATCA_I2C_IFACE,
-        .devtype               = ATECC608A,
-        .atcai2c.slave_address = 0xC0,
-        .atcai2c.bus           = 1,
-        .atcai2c.baud          = 400000,
-        .wake_delay            = 1500,
-        .rx_retries            = 20
+        .iface_type      = ATCA_I2C_IFACE,
+        .devtype         = ATECC608A,
+        .atcai2c.address = ATCA_I2C_ECC_ADDRESS,
+        .atcai2c.bus     = 1,
+        .atcai2c.baud    = 400000,
+        .wake_delay      = 1500,
+        .rx_retries      = 20
     };
 #endif /* ifdef ATCA_HAL_I2C */
 
@@ -219,13 +219,14 @@ const char * pcPkcs11GetThingName( void )
 /** \brief default configuration for Kit protocol over the device's async interface */
     ATCAIfaceCfg cfg_ateccx08a_kithid_default =
     {
-        .iface_type         = ATCA_HID_IFACE,
-        .devtype            = ATECC608A,
-        .atcahid.idx        = 0,
-        .atcahid.vid        = 0x03EB,
-        .atcahid.pid        = 0x2312,
-        .atcahid.packetsize = 64,
-        .atcahid.guid       = { 0x4d,        0x1e,0x55, 0xb2, 0xf1, 0x6f, 0x11, 0xcf, 0x88, 0xcb, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30 },
+        .iface_type            = ATCA_HID_IFACE,
+        .devtype               = ATECC608A,
+        .atcahid.dev_interface = ATCA_KIT_I2C_IFACE,
+        .atcahid.dev_identity  = ATCA_I2C_ECC_ADDRESS,
+        .atcahid.idx           = 0,
+        .atcahid.vid           = 0x03EB,
+        .atcahid.pid           = 0x2312,
+        .atcahid.packetsize    = 64,
     };
 #endif /* ifdef ATCA_HAL_KIT_HID */
 
@@ -402,7 +403,7 @@ CK_RV pkcs11_config_key( pkcs11_lib_ctx_ptr pLibCtx,
     {
         /* Slot 0 - Device Private Key */
         pkcs11_config_init_private( pObject, pLabel->pValue, pLabel->ulValueLen );
-        pObject->slot = 0;
+        pObject->slot = ATCA_DEVICE_PRIVATE_KEY_SLOT;
         pObject->config = &pSlot->cfg_zone;
         #ifdef FREERTOS_ENABLE_UNIT_TESTS
             pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
@@ -412,7 +413,7 @@ CK_RV pkcs11_config_key( pkcs11_lib_ctx_ptr pLibCtx,
     {
         /* Slot 0 - Device Private Key */
         pkcs11_config_init_public( pObject, pLabel->pValue, pLabel->ulValueLen );
-        pObject->slot = 0;
+        pObject->slot = ATCA_DEVICE_PRIVATE_KEY_SLOT;
         pObject->config = &pSlot->cfg_zone;
         #ifdef FREERTOS_ENABLE_UNIT_TESTS
             pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
@@ -452,6 +453,8 @@ CK_RV pkcs11_config_load_objects( pkcs11_slot_ctx_ptr pSlot )
     pkcs11_object_ptr pObject;
     CK_RV rv = CKR_OK;
     CK_ATTRIBUTE xLabel;
+
+    pkcs11_config_interface( pSlot );
 
     if( CKR_OK == rv )
     {
@@ -554,6 +557,19 @@ CK_RV pkcs11_config_load_objects( pkcs11_slot_ctx_ptr pSlot )
             }
         }
     #endif /* ifdef pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS */
+
+    return rv;
+}
+
+CK_RV pkcs11_config_interface( pkcs11_slot_ctx_ptr pSlot )
+{
+    CK_RV rv = CKR_ARGUMENTS_BAD;
+
+    if( pSlot )
+    {
+        pSlot->interface_config = cfg_ateccx08a_kithid_default;
+        rv = CKR_OK;
+    }
 
     return rv;
 }

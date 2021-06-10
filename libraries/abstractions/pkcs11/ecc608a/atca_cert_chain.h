@@ -40,4 +40,4 @@
         }
     #endif
 
-#endif /* ifndef CERT_DEF_2_DEVICE_H */
+#endif /* CERT_DEF_2_DEVICE_H */

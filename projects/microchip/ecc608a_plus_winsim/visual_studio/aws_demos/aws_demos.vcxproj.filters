@@ -59,7 +59,6 @@
 		<Filter Include="vendors\microchip\secure_elements\third_party"/>
 		<Filter Include="libraries\abstractions\pkcs11\ecc608a"/>
 		<Filter Include="vendors\microchip\secure_elements\lib\atcacert"/>
-		<Filter Include="vendors\microchip\secure_elements\lib\basic"/>
 		<Filter Include="vendors\microchip\secure_elements\lib\crypto"/>
 		<Filter Include="vendors\microchip\secure_elements\lib\crypto\hashes"/>
 		<Filter Include="vendors\microchip\secure_elements\lib\host"/>
@@ -180,6 +179,7 @@
 		<Filter Include="libraries\3rdparty\tinycbor\src"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
 		<Filter Include="libraries\3rdparty\jsmn"/>
+		<Filter Include="vendors\microchip\secure_elements\lib\calib"/>
 	</ItemGroup>
 	<ItemGroup>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h">
@@ -371,9 +371,6 @@
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.h">
 			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\hal_all_platforms_kit_hidapi.h">
-			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\kit_phy.h">
 			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
 		</ClInclude>
@@ -382,36 +379,6 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\ecc608a\atca_cert_chain.h">
 			<Filter>libraries\abstractions\pkcs11\ecc608a</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_bool.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_cfgs.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_command.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_compiler.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_device.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_devtypes.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_execution.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_iface.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_status.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\cryptoauthlib.h">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert.h">
 			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
@@ -436,15 +403,6 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_pem.h">
 			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic.h">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_gcm.h">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_helpers.h">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw.h">
 			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
@@ -1013,6 +971,57 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
 			<Filter>libraries\3rdparty\jsmn</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_hw_aes.h">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_aes_gcm.h">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_basic.h">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_command.h">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_execution.h">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_basic.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_bool.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_cfgs.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_compiler.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_debug.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_device.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_devtypes.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_helpers.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_iface.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_status.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_version.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\cryptoauthlib.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
 	</ItemGroup>
 	<ItemGroup>
 		<ClCompile Include="..\..\..\..\..\freertos_kernel\event_groups.c">
@@ -1150,9 +1159,6 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\ecc608a\core_pkcs11_secure_element.c">
 			<Filter>libraries\abstractions\pkcs11\ecc608a</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_command.c">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_device.c">
 			<Filter>vendors\microchip\secure_elements\lib</Filter>
 		</ClCompile>
@@ -1182,93 +1188,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_pem.c">
 			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_cbc.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_cmac.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_ctr.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_gcm.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_checkmac.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_counter.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_derivekey.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_ecdh.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_gendig.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_genkey.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_hmac.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_info.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_kdf.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_lock.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_mac.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_nonce.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_privwrite.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_random.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_read.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_secureboot.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_selftest.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_sha.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_sign.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_updateextra.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_verify.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_write.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_helpers.c">
-			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_ecdsa.c">
 			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
@@ -1923,6 +1842,120 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
 			<Filter>libraries\3rdparty\jsmn</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_hw_aes_cbc.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_hw_aes_cbcmac.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_hw_aes_ccm.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_hw_aes_cmac.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_hw_aes_ctr.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_aes.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_aes_gcm.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_basic.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_checkmac.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_command.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_counter.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_derivekey.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_ecdh.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_execution.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_gendig.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_genkey.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_hmac.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_info.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_kdf.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_lock.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_mac.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_nonce.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_privwrite.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_random.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_read.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_secureboot.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_selftest.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_sha.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_sign.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_updateextra.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_verify.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\calib\calib_write.c">
+			<Filter>vendors\microchip\secure_elements\lib\calib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_basic.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_debug.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_device.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_helpers.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_iface.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_utils_sizes.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
 		</ClCompile>
 	</ItemGroup>
 </Project>

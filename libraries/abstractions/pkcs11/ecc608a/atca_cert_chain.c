@@ -287,11 +287,11 @@ const atcacert_def_t g_cert_def_2_device =
     .type                = CERTTYPE_X509,
     .template_id         = 2,
     .chain_id            = 0,
-    .private_key_slot    = 0,
+    .private_key_slot    = ATCA_DEVICE_PRIVATE_KEY_SLOT,
     .sn_source           = SNSRC_PUB_KEY_HASH,
     .cert_sn_dev_loc     =
     {
-        .zone            = DEVZONE_NONE,
+        .zone            = DEVZONE_NONE, /* Igonored */
         .slot            = 0,
         .is_genkey       = 0,
         .offset          = 0,
@@ -308,15 +308,15 @@ const atcacert_def_t g_cert_def_2_device =
     .public_key_dev_loc  =
     {
         .zone            = DEVZONE_DATA,
-        .slot            = 0,
-        .is_genkey       = 1,
+        .slot            = ATCA_DEVICE_PRIVATE_KEY_SLOT,
+        .is_genkey       = 1,     /* Tells us that this is derived from private key in slot 0 */
         .offset          = 0,
         .count           = 64
     },
     .comp_cert_dev_loc   =
     {
         .zone            = DEVZONE_DATA,
-        .slot            = 10,
+        .slot            = 10,    /* Signature */
         .is_genkey       = 0,
         .offset          = 0,
         .count           = 72
@@ -450,7 +450,7 @@ const atcacert_def_t g_cert_def_3_test =
     .type                = CERTTYPE_X509,
     .template_id         = 2,
     .chain_id            = 0,
-    .private_key_slot    = 0,
+    .private_key_slot    = 2,
     .sn_source           = SNSRC_STORED,
     .cert_sn_dev_loc     =
     {
@@ -471,7 +471,7 @@ const atcacert_def_t g_cert_def_3_test =
     .public_key_dev_loc  =
     {
         .zone            = DEVZONE_NONE,
-        .slot            = 0,
+        .slot            = 2,
         .is_genkey       = 1,
         .offset          = 0,
         .count           = 64
