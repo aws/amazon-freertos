@@ -49,9 +49,6 @@
 /* Includes helpers for managing MQTT subscriptions. */
 #include "mqtt_subscription_manager.h"
 
-/* Retry utilities include. */
-#include "backoff_algorithm.h"
-
 /* HTTP include. */
 #include "core_http_client.h"
 
@@ -1610,6 +1607,7 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
                                      const char * pcUrl )
 {
     BaseType_t returnStatus = pdPASS;
+    BaseType_t xStatus = pdPASS;
     HTTPStatus_t xHttpStatus = HTTPSuccess;
     /* The location of the host address within the pre-signed URL. */
     const char * pcAddress = NULL;
@@ -1627,6 +1625,12 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
     xSocketsConfig.rootCaSize = sizeof( democonfigHTTPS_ROOT_CA_PEM );
     xSocketsConfig.sendTimeoutMs = otaexampleHTTPS_TRANSPORT_SEND_RECV_TIMEOUT_MS;
     xSocketsConfig.recvTimeoutMs = otaexampleHTTPS_TRANSPORT_SEND_RECV_TIMEOUT_MS;
+
+    /* Initialize reconnect attempts and interval. */
+    BackoffAlgorithm_InitializeParams( &xReconnectParams,
+                                       RETRY_BACKOFF_BASE_MS,
+                                       RETRY_MAX_BACKOFF_DELAY_MS,
+                                       RETRY_MAX_ATTEMPTS );
 
     /* Retrieve the address location and length from S3_PRESIGNED_GET_URL. */
     if( pcUrl != NULL )
@@ -1659,16 +1663,28 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
         xServerInfo.hostNameLength = xServerHostLength;
         xServerInfo.port = democonfigHTTPS_PORT;
 
-        /* Establish a TLS session with the HTTP server. This example connects
-         * to the HTTP server as specified in SERVER_HOST and HTTPS_PORT in
-         * demo_config.h. */
-        LogInfo( ( "Establishing a TLS session with %s:%d.",
-                   pcServerHost,
-                   democonfigHTTPS_PORT ) );
+        /* Attempt to connect to MQTT broker. If connection fails, retry after
+         * a timeout. Timeout value will exponentially increase till maximum
+         * attempts are reached.
+         */
+        do
+        {
+            /* Establish a TLS session with the HTTP server. This example connects
+             * to the HTTP server as specified in SERVER_HOST and HTTPS_PORT in
+             * demo_config.h. */
+            LogInfo( ( "Establishing a TLS session with %s:%d.",
+                       pcServerHost,
+                       democonfigHTTPS_PORT ) );
 
-        xNetworkStatus = SecureSocketsTransport_Connect( pxNetworkContext,
-                                                         &xServerInfo,
-                                                         &xSocketsConfig );
+            xNetworkStatus = SecureSocketsTransport_Connect( pxNetworkContext,
+                                                             &xServerInfo,
+                                                             &xSocketsConfig );
+
+            if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
+            {
+                xStatus = prvBackoffForRetry( &xReconnectParams );
+            }
+        } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xStatus == pdPASS ) );
 
         returnStatus = ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS ) ? pdPASS : pdFAIL;
     }
