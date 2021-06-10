@@ -152,7 +152,6 @@
  * "-----END CERTIFICATE-----\n"
  *
  */
-
 #ifndef democonfigHTTPS_ROOT_CA_PEM
     #define democonfigHTTPS_ROOT_CA_PEM                                  \
     "-----BEGIN CERTIFICATE-----\n"                                      \
@@ -228,7 +227,6 @@
  * This topic filter is used to match the responses from OTA service for OTA
  * agent job requests. The topic filter is a reserved topic which is not
  * subscribed with MQTT broker.
- *
  */
 #define otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER           otaexampleTOPIC_PREFIX "jobs/$next/get/accepted"
 
@@ -240,8 +238,8 @@
 
 /**
  * @brief Wildcard topic filter for matching OTA data packets.
- *  The filter is used to match the constructed data stream topic filter from
- * OTA agent and register appropirate callback for it.
+ * The filter is used to match the constructed data stream topic filter from
+ * OTA agent and register appropriate callback for it.
  */
 #define otaexampleDATA_STREAM_TOPIC_FILTER           otaexampleTOPIC_PREFIX  "streams/#"
 
@@ -408,14 +406,14 @@
  * to be posted to the MQTT agent should the MQTT agent's command queue be full.
  * Tasks wait in the Blocked state, so don't use any CPU time.
  */
-#define MQTT_AGENT_SEND_BLOCK_TIME_MS               ( 200 )
+#define MQTT_AGENT_SEND_BLOCK_TIME_MS               ( 200U )
 
 /**
  * @brief This demo uses task notifications to signal tasks from MQTT callback
  * functions.  mqttexampleMS_TO_WAIT_FOR_NOTIFICATION defines the time, in ticks,
  * to wait for such a callback.
  */
-#define MQTT_AGENT_MS_TO_WAIT_FOR_NOTIFICATION      ( 5000 )
+#define MQTT_AGENT_MS_TO_WAIT_FOR_NOTIFICATION      ( 5000U )
 
 /**
  * @brief The maximum back-off delay (in milliseconds) for retrying connection
@@ -654,7 +652,7 @@ static OtaAppBuffer_t xOtaBuffer =
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Initializes an MQTT context, including transport interface and
+ * @brief Initializes an MQTT Agent including transport interface and
  * network buffer.
  *
  * @return `MQTTSuccess` if the initialization succeeds, else `MQTTBadParameter`.
@@ -664,7 +662,7 @@ static MQTTStatus_t prvMqttAgentInit( void );
 /**
  * @brief Sends an MQTT CONNECT packet over the already connected TCP socket.
  *
- * @return MQTTSuccess if an MQTT session is established;
+ * @return MQTTSuccess if an MQTT session is established.
  * EXIT_FAILURE otherwise.
  */
 static MQTTStatus_t prvMQTTConnect( void );
@@ -700,12 +698,8 @@ static OtaMqttStatus_t prvMqttPublish( const char * const pcTopic,
  * topicfilter.
  *
  * @param[in] pcTopicFilter Mqtt topic filter.
- *
  * @param[in] usTopicFilterLength Length of the topic filter.
- *
  * @param[in] ucQOS Quality of Service
- *
- * @param[in] callback Callback to be registered.
  *
  * @return OtaMqttSuccess if success , other error code on failure.
  */
