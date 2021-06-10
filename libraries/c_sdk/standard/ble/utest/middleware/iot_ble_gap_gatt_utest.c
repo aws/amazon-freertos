@@ -26,8 +26,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "iot_linear_containers.h"
-
 #include "mock_bt_hal_gatt_server.h"
 #include "mock_bt_hal_manager_adapter_ble.h"
 #include "mock_bt_hal_manager.h"

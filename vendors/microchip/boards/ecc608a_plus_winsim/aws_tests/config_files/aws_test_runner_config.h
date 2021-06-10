@@ -70,8 +70,6 @@
 #define testrunnerFULL_TCP_ENABLED                    1
 #define testrunnerFULL_TLS_ENABLED                    0
 #define testrunnerFULL_MEMORYLEAK_ENABLED             0
-#define testrunnerFULL_OTA_CBOR_ENABLED               0
-#define testrunnerFULL_OTA_AGENT_ENABLED              0
 #define testrunnerFULL_OTA_PAL_ENABLED                0
 #define testrunnerFULL_SERIALIZER_ENABLED             0
 #define testrunnerUTIL_PLATFORM_CLOCK_ENABLED         0
