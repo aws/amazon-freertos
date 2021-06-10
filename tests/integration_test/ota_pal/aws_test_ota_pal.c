@@ -142,7 +142,7 @@ static const char codeSigningCertificatePEM[] = otapalconfigCODE_SIGNING_CERTIFI
             /* The lResult variable is composed of a signed lRetVal and an extended error. */
             lRetVal = ( _i16 ) lResult >> 16;
             lExtendedError = ( _u16 ) lResult & 0xFFFF;
-            LogError( ( "Error SL_FS_FACTORY_RET_TO_IMAGE, 5d, %d", lRetVal, lExtendedError ) );
+            LogError( ( "Error SL_FS_FACTORY_RET_TO_IMAGE, %d, %d", lRetVal, lExtendedError ) );
             return;
         }
 
