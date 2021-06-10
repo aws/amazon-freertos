@@ -85,7 +85,7 @@
  * "-----END CERTIFICATE-----\n"
  *
  */
-#define democonfigROOT_CA_PEM    tlsSTARFIELD_ROOT_CERTIFICATE_PEM
+#define democonfigROOT_CA_PEM                   tlsSTARFIELD_ROOT_CERTIFICATE_PEM
 
 /**
  * @brief Timeout for which MQTT library keeps polling the transport interface,
@@ -94,25 +94,25 @@
  * are read from network interface. Keeping this timeout to a sufficiently large value so
  * as to account for delay of receipt of a large block of message.
  */
-#define MQTT_RECV_POLLING_TIMEOUT_MS                 ( 1000U )
+#define MQTT_RECV_POLLING_TIMEOUT_MS            ( 1000U )
 
 /**
  * @brief The length of the queue used to hold commands for the agent.
  */
-#define MQTT_AGENT_COMMAND_QUEUE_LENGTH              ( 25 )
+#define MQTT_AGENT_COMMAND_QUEUE_LENGTH         ( 25 )
 
 /**
  * @brief Dimensions the buffer used to serialise and deserialise MQTT packets.
  * @note Specified in bytes.  Must be large enough to hold the maximum
  * anticipated MQTT payload.
  */
-#define MQTT_AGENT_NETWORK_BUFFER_SIZE               ( 5000 )
+#define MQTT_AGENT_NETWORK_BUFFER_SIZE          ( 5000 )
 
 /**
  * @brief Maximum time MQTT agent waits in the queue for any pending MQTT operations.
  * The wait time is kept smallest possible to increase the responsiveness of MQTT agent
  * while processing  pending MQTT operations as well as receive packets from network.
  */
-#define MQTT_AGENT_MAX_EVENT_QUEUE_WAIT_TIME         ( 1U )
+#define MQTT_AGENT_MAX_EVENT_QUEUE_WAIT_TIME    ( 1U )
 
 #endif /* OTA_DEMO_CONFIG_H_ */
