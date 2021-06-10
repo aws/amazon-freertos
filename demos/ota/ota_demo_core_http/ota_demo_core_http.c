@@ -30,12 +30,13 @@
 #include <stdbool.h>
 #include <errno.h>
 
-#include "aws_demo_config.h"
-
+/* Kernel includes. */
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
 
+/* Demo include. */
+#include "aws_demo_config.h"
 #include "iot_network.h"
 
 /* CoreMQTT-Agent APIS for running MQTT in a multithreaded environment. */
@@ -121,21 +122,19 @@
     #define democonfigROOT_CA_PEM    tlsATS1_ROOT_CERTIFICATE_PEM
 #endif
 
-#ifndef democonfigCLIENT_IDENTIFIER
-
 /**
  * @brief The MQTT client identifier used in this example.  Each client
  * identifier must be unique so edit as required to ensure no two clients
  * connecting to the same broker use the same client identifier.
  */
+#ifndef democonfigCLIENT_IDENTIFIER
     #define democonfigCLIENT_IDENTIFIER    clientcredentialIOT_THING_NAME
 #endif
-
-#ifndef democonfigMQTT_BROKER_PORT
 
 /**
  * @brief The port to use for the demo.
  */
+#ifndef democonfigMQTT_BROKER_PORT
     #define democonfigMQTT_BROKER_PORT    clientcredentialMQTT_BROKER_PORT
 #endif
 
@@ -377,19 +376,6 @@
 #define MQTT_KEEP_ALIVE_INTERVAL_SECONDS            ( 60U )
 
 /**
- * @brief Timeout for MQTT_ProcessLoop function in milliseconds.
- */
-#define MQTT_PROCESS_LOOP_TIMEOUT_MS                ( 100U )
-
-/**
- * @brief Interval between process loop  in milliseconds. This interval unblocks
- * any other threads waiting to perform an MQTT operation. This interval should
- * be short enough so that MQTT receive loop can execute almost quickly but
- * still let other thread not starve for MQTT operation to complete.
- */
-#define MQTT_PROCESS_LOOP_INTERVAL_MS               ( 5U )
-
-/**
  * @brief Stack size required for MQTT agent task.
  * MQTT agent task takes care of TLS connection and reconnection, keeping task
  * stack size to high enough required for TLS connection.
@@ -464,7 +450,7 @@
  * When using multiple transports in the same compilation unit, define this
  * pointer as void* .
  *
- * @note Transport stacks are defined in amazon - freertos / libraries / abstractions / transport / secure_sockets / transport_secure_sockets.h.
+ * @note Transport stacks are defined in `amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h`.
  */
 struct NetworkContext
 {
@@ -673,13 +659,9 @@ static MQTTStatus_t prvMQTTConnect( void );
  * This function publishes a message to a given topic & QoS.
  *
  * @param[in] pcTopic Mqtt topic filter.
- *
  * @param[in] usTopicLen Length of the topic filter.
- *
  * @param[in] pcMsg Message to publish.
- *
  * @param[in] ulMsgSize Message size.
- *
  * @param[in] ucQOS Quality of Service
  *
  * @return OtaMqttSuccess if success , other error code on failure.
@@ -714,9 +696,7 @@ static OtaMqttStatus_t prvMqttSubscribe( const char * pcTopicFilter,
  * received as parameter.
  *
  * @param[in] pcTopicFilter Mqtt topic filter.
- *
  * @param[in] usTopicFilterLength Length of the topic filter.
- *
  * @param[in] ucQOS Quality of Service
  *
  * @return  OtaMqttSuccess if success , other error code on failure.
@@ -739,6 +719,7 @@ static BaseType_t prvConnectToMQTTBroker( void );
  * timeout value, until max retries, max timeout or successful connect.
  *
  * @param[in] pxNetworkContext Network context to connect on.
+ *
  * @return int pdFALSE if connection failed after retries.
  */
 static BaseType_t prvCreateSocketConnectionToMQTTBroker( NetworkContext_t * pxNetworkContext );
@@ -753,6 +734,7 @@ static void prvDisconnectFromMQTTBroker( void );
  * @brief Handle HTTP response.
  *
  * @param[in] pxResponse Pointer to http response buffer.
+ *
  * @return OtaHttpStatus_t OtaHttpSuccess if success or failure code otherwise.
  */
 static OtaHttpStatus_t prvHandleHttpResponse( const HTTPResponse_t * pxResponse );
@@ -761,6 +743,7 @@ static OtaHttpStatus_t prvHandleHttpResponse( const HTTPResponse_t * pxResponse 
  * @brief Initialize OTA Http interface.
  *
  * @param[in] pcUrl Pointer to the pre-signed url for downloading update file.
+ *
  * @return OtaHttpStatus_t OtaHttpSuccess if success ,
  *                         OtaHttpInitFailed on failure.
  */
@@ -771,6 +754,7 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl );
  *
  * @param[in] ulRangeStart  Starting index of the file data
  * @param[in] ulRangeEnd    Last index of the file data
+ *
  * @return OtaHttpStatus_t OtaHttpSuccess if success ,
  *                         other errors on failure.
  */
@@ -845,7 +829,7 @@ static BaseType_t prvResumeOTA( void );
  *
  * @return   None.
  */
-static void setOtaInterfaces( OtaInterfaces_t * pxOtaInterfaces );
+static void prvSetOtaInterfaces( OtaInterfaces_t * pxOtaInterfaces );
 
 /**
  * @brief Calculate and perform an exponential backoff with jitter delay for
@@ -889,6 +873,7 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
  * does for you.
  *
  * @param[in] xEvent Event from OTA lib of type OtaJobEvent_t.
+ *
  * @return None.
  */
 static void prvOtaAppCallback( OtaJobEvent_t xEvent,
@@ -1159,7 +1144,7 @@ static void prvMqttJobCallback( void * pvIncomingPublishCallbackContext,
         xEventMsg.pEventData = pxData;
 
         /* Send job document received event. */
-        OTA_SignalEvent( &xEventMsg );
+        ( void ) OTA_SignalEvent( &xEventMsg );
     }
     else
     {
@@ -1207,7 +1192,7 @@ static void prvMqttDataCallback( void * pvIncomingPublishCallbackContext,
         xEventMsg.pEventData = pxData;
 
         /* Send job document received event. */
-        OTA_SignalEvent( &xEventMsg );
+        ( void ) OTA_SignalEvent( &xEventMsg );
     }
     else
     {
@@ -1715,7 +1700,7 @@ static OtaHttpStatus_t prvHandleHttpResponse( const HTTPResponse_t * pxResponse 
                 /* Send job document received event. */
                 xEventMsg.eventId = OtaAgentEventReceivedFileBlock;
                 xEventMsg.pEventData = pxData;
-                OTA_SignalEvent( &xEventMsg );
+                ( void ) OTA_SignalEvent( &xEventMsg );
 
                 xReturnStatus = OtaHttpSuccess;
             }
@@ -1731,16 +1716,17 @@ static OtaHttpStatus_t prvHandleHttpResponse( const HTTPResponse_t * pxResponse 
         case HTTP_RESPONSE_BAD_REQUEST:
         case HTTP_RESPONSE_FORBIDDEN:
         case HTTP_RESPONSE_NOT_FOUND:
+            LogDebug( ( "HTTP response received: %d", pxResponse->statusCode ) );
             /* Request the job document to get new url. */
             xEventMsg.eventId = OtaAgentEventRequestJobDocument;
             xEventMsg.pEventData = NULL;
-            OTA_SignalEvent( &xEventMsg );
+            ( void ) OTA_SignalEvent( &xEventMsg );
 
             xReturnStatus = OtaHttpSuccess;
             break;
 
         default:
-            LogError( ( "Unhandled http response code: =%d.",
+            LogError( ( "Unhandled http response code: %d.",
                         pxResponse->statusCode ) );
 
             xReturnStatus = OtaHttpRequestFailed;
@@ -2089,7 +2075,7 @@ static OtaMqttStatus_t prvMqttUnSubscribe( const char * pcTopicFilter,
 }
 /*-----------------------------------------------------------*/
 
-static void setOtaInterfaces( OtaInterfaces_t * pxOtaInterfaces )
+static void prvSetOtaInterfaces( OtaInterfaces_t * pxOtaInterfaces )
 {
     /* Initialize OTA library OS Interface. */
     pxOtaInterfaces->os.event.init = OtaInitEvent_FreeRTOS;
@@ -2276,7 +2262,7 @@ static BaseType_t prvRunOTADemo( void )
     OtaState_t state = OtaAgentStateStopped;
 
     /* Set OTA Library interfaces.*/
-    setOtaInterfaces( &otaInterfaces );
+    prvSetOtaInterfaces( &otaInterfaces );
 
     /****************************** Init OTA Library. ******************************/
 
@@ -2318,7 +2304,7 @@ static BaseType_t prvRunOTADemo( void )
     {
         /* Send start event to OTA Agent.*/
         xEventMsg.eventId = OtaAgentEventStart;
-        OTA_SignalEvent( &xEventMsg );
+        ( void ) OTA_SignalEvent( &xEventMsg );
     }
 
     /********************* Loop and display OTA statistics ********************/
