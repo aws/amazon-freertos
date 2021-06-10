@@ -43,8 +43,6 @@
 /* #define AWS_TEST_RUNNER_DELAY_MS                       ( 1000 )*/
 
 /* Enable tests by setting defines to 1 */
-#define testrunnerFULL_OTA_CBOR_ENABLED             0
-#define testrunnerFULL_OTA_AGENT_ENABLED            0
 #define testrunnerFULL_OTA_PAL_ENABLED              0
 #define testrunnerFULL_MQTT_ALPN_ENABLED            0
 #define testrunnerFULL_CORE_MQTT_ENABLED            0

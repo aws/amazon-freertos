@@ -31,7 +31,7 @@
 #ifndef _AWS_BLE_INTERNALS_H_
 #define _AWS_BLE_INTERNALS_H_
 
-#include "iot_linear_containers.h"
+#include "iot_ble_linear_containers.h"
 
 /* Place holder for saving Char descriptors into memory. */
 typedef struct

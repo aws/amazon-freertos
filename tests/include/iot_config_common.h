@@ -160,10 +160,6 @@
 #endif
 
 /* BLE_HAL test suites header file abstraction */
-#define IOT_LINEAR_CONTAINERS             "iot_linear_containers.h"
-#define IOT_THREADS                       "platform/iot_threads.h"
-#define IOT_CLOCK                         "platform/iot_clock.h"
-#define IOT_PLATFORM_TYPES                "types/iot_platform_types.h"
 #define IOT_BT_HAL_MANAGER_ADAPTER_BLE    "bt_hal_manager_adapter_ble.h"
 #define IOT_BT_HAL_MANAGER_ADAPTER        "bt_hal_manager.h"
 #define IOT_BT_HAL_GATT_SERVER            "bt_hal_gatt_server.h"

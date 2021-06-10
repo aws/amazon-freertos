@@ -130,15 +130,6 @@ static void RunTestSuites( void )
         RUN_TEST_GROUP( Full_MQTT_Agent_ALPN );
     #endif
 
-    #if ( testrunnerFULL_OTA_CBOR_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_OTA_CBOR );
-        RUN_TEST_GROUP( Quarantine_OTA_CBOR );
-    #endif
-
-    #if ( testrunnerFULL_OTA_AGENT_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_OTA_AGENT );
-    #endif
-
     #if ( testrunnerFULL_OTA_PAL_ENABLED == 1 )
         RUN_TEST_GROUP( Full_OTA_PAL );
     #endif
