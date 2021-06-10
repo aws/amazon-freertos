@@ -1,19 +1,29 @@
 # OTA PAL Testing
 
-Please provision your device with the correct certificates in `<root-directory>/tests/integration_test/ota_pal/test_files/` before running any OTA PAL tests( these tests are enabled by setting `testrunnerFULL_OTA_PAL_ENABLED` to 1, see `aws_test_runner_config.h` ).
+## Enabling the OTA PAL tests
+Each platform in this repository has a demo and a test project. You need to enable the OTA PAL tests in the test project before you can build and run them. This can be done by setting the `testrunnerFULL_OTA_PAL_ENABLED` macro in `aws_test_runner_config.h` to `1`.
+* Test project configuration files directory: `<root-directory>/vendors/<vendor-name>/boards/<board-name>/aws_tests/config_files/`
+* Test runner configuration file path: `<root-directory>/vendors/<vendor-name>/boards/<board-name>/aws_tests/config_files/aws_test_runner_config.h`
 
-The names of the files correspond to the signing algorithm associated with that certificate.
+For example:
+* `#define testrunnerFULL_OTA_PAL_ENABLED              1`
 
-If your OTA PAL layer port defines `otapalconfigCODE_SIGNING_CERTIFICATE` variable in `ota_pal.c`, then please copy in the certificate, with the applicable signing algorithm for your device, located under `<root-directory>/tests/integration_test/ota_pal/test_files/`. The `otapalconfigCODE_SIGNING_CERTIFICATE` variable is set to use the `<root-directory>/tests/integration_test/ota_pal/test_files/ecdsa-sha256-signer.crt.pem.test` certificate by default.
+## Setting up the OTA PAL tests
 
-## OTA PAL Device Certificates File information
+Provision your device with the one of the certificates in `<root-directory>/tests/integration_test/ota_pal/test_files/` before running the OTA PAL tests. After provisioning your device, include the corresponding header file inside of `<root-directory>/vendors/<vendor-name>/boards/<board-name>/aws_tests/config_files/aws_test_ota_config.h`. The list of available testing certificates and corresponding header files can be found in the list below:
 
-Self signed SHA256 with RSA certificates.
-   File: **rsa-sha256-signer.crt.pem.test** - Certificate
+1. RSA with SHA1 certificate, was signed with the accompanying root CA certificates.
+   * Root CA certificate: `rsa-sha1-root-ca-cert.pem.test`
+   * Certificate: `rsa-sha1-signer.crt.pem.test`
+   * Corresponding header file: `aws_test_ota_pal_rsa_sha1_signature.h`
 
-This RSA with SHA1 certificate, was signed with the accompanying root CA certificates.
-   File: **rsa-sha1-root-ca-cert.pem.test** - Root CA certificate
-   File: **rsa-sha1-signer.crt.pem.test** - Certificate
+1. Self signed SHA256 with RSA certificates.
+   * Certificate: `rsa-sha256-signer.crt.pem.test`
+   * Corresponding header file: `aws_test_ota_pal_rsa_sha256_signature.h`
 
-Self signed ECDSA with SHA256 signatures.
-   File: **ecdsa-sha256-signer.crt.pem.test** - Certificate
+1. Self signed ECDSA with SHA256 signatures.
+   * Certificate: `ecdsa-sha256-signer.crt.pem.test`
+   * Corresponding header file: `aws_test_ota_pal_ecdsa_sha256_signature.h`
+
+For example, if you provision your device with `ecdsa-sha256-signer.crt.pem.test`, then you should include the following line in your platform's copy of `aws_test_ota_config.h`:
+`#include "aws_test_ota_pal_ecdsa_sha256_signature.h"`
