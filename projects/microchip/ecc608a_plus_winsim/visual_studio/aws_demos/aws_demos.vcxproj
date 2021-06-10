@@ -11,35 +11,35 @@
 		<ProjectName>aws_demos</ProjectName>
 	</PropertyGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
-	<PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;" Label="Configuration">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 		<ConfigurationType>Application</ConfigurationType>
 		<UseOfMfc>false</UseOfMfc>
 		<CharacterSet>Unicode</CharacterSet>
-		<PlatformToolset>v141</PlatformToolset>
+		<PlatformToolset>v142</PlatformToolset>
 	</PropertyGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
 	<ImportGroup Label="ExtensionSettings"/>
-	<ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;" Label="PropertySheets">
-		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" Label="LocalAppDataPlatform"/>
+	<ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform"/>
 		<Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props"/>
 	</ImportGroup>
 	<PropertyGroup Label="UserMacros"/>
 	<PropertyGroup>
 		<_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-		<OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">.\Debug\</OutDir>
-		<IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">.\Debug\</IntDir>
-		<LinkIncremental Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">true</LinkIncremental>
-		<CodeAnalysisRuleSet Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">AllRules.ruleset</CodeAnalysisRuleSet>
+		<OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\</OutDir>
+		<IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\</IntDir>
+		<LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+		<CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
 	</PropertyGroup>
-	<ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
 		<Midl>
 			<TypeLibraryName>.\Debug/WIN32.tlb</TypeLibraryName>
 			<HeaderFileName/>
 		</Midl>
 		<ClCompile>
 			<Optimization>Disabled</Optimization>
-			<AdditionalIncludeDirectories>..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code;..\..\..\..\..\vendors\microchip\secure_elements\lib;..\..\..\..\..\vendors\microchip\secure_elements\third_party\hidapi\hidapi;..\..\..\..\..\demos\include;..\..\..\..\..\demos\network_manager;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\platform\include\platform;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\libraries\logging\include;..\..\..\..\..\demos\dev_mode_key_provisioning\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\coreMQTT\source\include;..\..\..\..\..\libraries\coreMQTT\source\interface;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include;..\..\..\..\..\libraries\abstractions\posix\include;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\posix;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include;..\..\..\..\..\demos\common\pkcs11_helpers;..\..\..\..\..\libraries\abstractions\transport\secure_sockets;..\..\..\..\..\libraries\coreMQTT-Agent\source\include;..\..\..\..\..\libraries\abstractions\mqtt_agent\include;..\..\..\..\..\libraries\abstractions\mqtt_agent;..\..\..\..\..\libraries\coreHTTP\source\include;..\..\..\..\..\libraries\coreHTTP\source\interface;..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser;..\..\..\..\..\demos\common\http_demo_helpers;..\..\..\..\..\libraries\coreJSON\source\include;..\..\..\..\..\libraries\device_shadow_for_aws\source\include;..\..\..\..\..\demos\common\mqtt_demo_helpers;..\..\..\..\..\libraries\device_defender_for_aws\source\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include;..\..\..\..\..\libraries\jobs_for_aws\source\include;..\..\..\..\..\libraries\ota_for_aws\source\include;..\..\..\..\..\libraries\ota_for_aws\source\portable;..\..\..\..\..\libraries\ota_for_aws\source\portable\os;..\..\..\..\..\libraries\ota_for_aws\source;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\ota_pal_for_aws;..\..\..\..\..\demos\common\mqtt_subscription_manager;..\..\..\..\..\demos\coreMQTT_Agent;..\..\..\..\..\demos\device_defender_for_aws;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\3rdparty\win_pcap;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\3rdparty\mbedtls_config;..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls;..\..\..\..\..\libraries\3rdparty\mbedtls_utils;..\..\..\..\..\libraries\3rdparty\jsmn;..\..\..\..\..\libraries\3rdparty\tinycbor\src</AdditionalIncludeDirectories>
-			<PreprocessorDefinitions>MBEDTLS_CONFIG_FILE=&quot;aws_mbedtls_config.h&quot;;CONFIG_MEDTLS_USE_AFR_MEMORY;WIN32;_DEBUG;__free_rtos__;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<AdditionalIncludeDirectories>..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code;..\..\..\..\..\vendors\microchip\cryptoauthlib\lib;..\..\..\..\..\vendors\microchip\cryptoauthlib\third_party\hidapi\hidapi;..\..\..\..\..\demos\include;..\..\..\..\..\demos\network_manager;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\platform\include\platform;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\libraries\logging\include;..\..\..\..\..\demos\dev_mode_key_provisioning\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\coreMQTT\source\include;..\..\..\..\..\libraries\coreMQTT\source\interface;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include;..\..\..\..\..\libraries\abstractions\posix\include;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\posix;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include;..\..\..\..\..\demos\common\pkcs11_helpers;..\..\..\..\..\libraries\abstractions\transport\secure_sockets;..\..\..\..\..\libraries\coreMQTT-Agent\source\include;..\..\..\..\..\libraries\abstractions\mqtt_agent\include;..\..\..\..\..\libraries\abstractions\mqtt_agent;..\..\..\..\..\libraries\coreHTTP\source\include;..\..\..\..\..\libraries\coreHTTP\source\interface;..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser;..\..\..\..\..\demos\common\http_demo_helpers;..\..\..\..\..\libraries\coreJSON\source\include;..\..\..\..\..\libraries\device_shadow_for_aws\source\include;..\..\..\..\..\demos\common\mqtt_demo_helpers;..\..\..\..\..\libraries\device_defender_for_aws\source\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\tools\tcp_utilities\include;..\..\..\..\..\libraries\jobs_for_aws\source\include;..\..\..\..\..\libraries\ota_for_aws\source\include;..\..\..\..\..\libraries\ota_for_aws\source\portable;..\..\..\..\..\libraries\ota_for_aws\source\portable\os;..\..\..\..\..\libraries\ota_for_aws\source;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\ota_pal_for_aws;..\..\..\..\..\demos\common\mqtt_subscription_manager;..\..\..\..\..\demos\coreMQTT_Agent;..\..\..\..\..\demos\device_defender_for_aws;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\3rdparty\win_pcap;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\3rdparty\mbedtls_config;..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls;..\..\..\..\..\libraries\3rdparty\mbedtls_utils;..\..\..\..\..\libraries\3rdparty\jsmn;..\..\..\..\..\libraries\3rdparty\tinycbor\src;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\cryptoauthlib;..\..\..\..\..\libraries\abstractions\pkcs11\cryptoauthlib</AdditionalIncludeDirectories>
+			<PreprocessorDefinitions>MBEDTLS_CONFIG_FILE="aws_mbedtls_config.h";CONFIG_MEDTLS_USE_AFR_MEMORY;WIN32;_DEBUG;__free_rtos__;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<MinimalRebuild/>
 			<BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
 			<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -145,60 +145,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\include\iot_tls.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pkcs11.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\hal_all_platforms_kit_hidapi.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\kit_phy.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\kit_protocol.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\ecc608a\atca_cert_chain.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_bool.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_cfgs.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_command.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_compiler.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_device.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_devtypes.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_execution.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_iface.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_status.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\cryptoauthlib.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_client.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_date.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_def.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_der.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_host_hw.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_host_sw.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_pem.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_gcm.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_helpers.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_ecdsa.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_rand.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_sha1.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_sha2.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\hashes\sha1_routines.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\hashes\sha2_routines.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\host\atca_host.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\cryptoki.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_attrib.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_cert.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_debug.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_digest.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_find.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_info.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_init.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_key.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_mech.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_object.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_os.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_session.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_signature.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_slot.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_token.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_util.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11f.h"/>
-		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11t.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\cryptoauthlib\atca_cert_chain.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pki_utils.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\logging\include\iot_logging_task.h"/>
@@ -354,6 +301,62 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11f.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_client.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_date.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_def.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_der.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_host_hw.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_host_sw.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_pem.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_basic.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_bool.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_compiler.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_debug.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_device.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_devtypes.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_helpers.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_iface.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_status.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_version.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_aes_gcm.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_basic.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_command.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_execution.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\cryptoauthlib.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_hw_aes.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_sw.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_sw_ecdsa.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_sw_rand.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_sw_sha1.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_sw_sha2.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\hashes\sha1_routines.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\hashes\sha2_routines.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\hal\atca_hal.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\hal\kit_phy.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\hal\kit_protocol.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\host\atca_host.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\cryptoki.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11f.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11t.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_attrib.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_cert.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_debug.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_digest.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_encrypt.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_find.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_info.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_init.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_key.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_mech.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_object.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_os.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_session.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_signature.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_slot.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_token.h"/>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_util.h"/>
 	</ItemGroup>
 	<ItemGroup>
 		<ClCompile Include="..\..\..\..\..\freertos_kernel\event_groups.c"/>
@@ -393,79 +396,87 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\src\iot_tls.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pkcs11.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\hal_all_platforms_kit_hidapi.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\hal_freertos.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\hal_windows.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\kit_protocol.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\third_party\hidapi\windows\hid.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\ecc608a\atca_cert_chain.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\ecc608a\core_pkcs11_secure_element.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_command.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_device.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_execution.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_iface.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_client.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_date.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_def.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_der.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_host_hw.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_host_sw.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_pem.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_cbc.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_cmac.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_ctr.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_gcm.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_checkmac.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_counter.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_derivekey.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_ecdh.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_gendig.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_genkey.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_hmac.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_info.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_kdf.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_lock.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_mac.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_nonce.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_privwrite.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_random.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_read.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_secureboot.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_selftest.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_sha.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_sign.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_updateextra.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_verify.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_write.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_helpers.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_ecdsa.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_rand.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_sha1.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_sha2.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\hashes\sha1_routines.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\hashes\sha2_routines.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\host\atca_host.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_attrib.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_cert.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_config.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_debug.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_digest.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_find.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_info.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_init.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_key.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_main.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_mech.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_object.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_os.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_session.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_signature.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_slot.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_token.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_util.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_client.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_date.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_def.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_der.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_host_hw.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_host_sw.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atcacert\atcacert_pem.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_basic.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_debug.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_device.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_helpers.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_iface.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\atca_utils_sizes.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_aes.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_aes_gcm.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_basic.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_checkmac.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_command.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_counter.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_derivekey.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_ecdh.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_execution.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_gendig.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_genkey.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_helpers.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_hmac.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_info.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_kdf.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_lock.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_mac.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_nonce.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_privwrite.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_random.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_read.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_secureboot.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_selftest.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_sha.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_sign.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_updateextra.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_verify.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\calib\calib_write.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_hw_aes_cbc.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_hw_aes_cbcmac.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_hw_aes_ccm.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_hw_aes_cmac.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_hw_aes_ctr.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_pbkdf2.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_sw_ecdsa.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_sw_rand.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_sw_sha1.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\atca_crypto_sw_sha2.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\hashes\sha1_routines.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\crypto\hashes\sha2_routines.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\hal\atca_hal.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\hal\hal_all_platforms_kit_hidapi.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\hal\hal_freertos.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\hal\hal_windows.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\hal\kit_protocol.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\host\atca_host.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_attrib.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_cert.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_config.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_debug.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_digest.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_encrypt.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_find.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_info.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_init.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_key.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_main.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_mech.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_object.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_os.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_session.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_signature.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_slot.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_token.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_util.c"/>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\third_party\hidapi\windows\hid.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\cryptoauthlib\atca_cert_chain.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\cryptoauthlib\core_pkcs11_secure_element.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pki_utils.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\logging\iot_logging.c"/>
@@ -628,5 +639,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborerrorstrings.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c"/>
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\..\..\..\vendors\microchip\cryptoauthlib\lib\pkcs11\pkcs11_config.h.in"/>
 	</ItemGroup>
 </Project>

@@ -113,3 +113,6 @@
 [submodule "libraries/ota_for_aws"]
 	path = libraries/ota_for_aws
 	url = https://github.com/aws/ota-for-aws-iot-embedded-sdk.git
+[submodule "vendors/microchip/cryptoauthlib"]
+	path = vendors/microchip/cryptoauthlib
+	url = https://github.com/MicrochipTech/cryptoauthlib.git
