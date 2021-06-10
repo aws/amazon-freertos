@@ -23,8 +23,8 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef _AWS_TEST_PAL_ECDSA_SHA256_SIGNATURE_H_
-#define _AWS_TEST_PAL_ECDSA_SHA256_SIGNATURE_H_
+#ifndef AWS_TEST_PAL_ECDSA_SHA256_SIGNATURE_H_
+#define AWS_TEST_PAL_ECDSA_SHA256_SIGNATURE_H_
 #include <stdint.h>
 
 /**
@@ -66,4 +66,4 @@ static const int ucValidSignatureLength = 70;
     "83Oq8sOXhSyJCWAN63gc4vp9//RFCXh/hUXPYcTWAiBgmQ5JV2MZH01Upi2lMflN\n" \
     "YLbC+lYscwcSlB2tECUbJA==\n"                                         \
     "-----END CERTIFICATE-----\n"
-#endif /* ifndef _AWS_TEST_PAL_ECDSA_SHA256_SIGNATURE_H_ */
+#endif /* ifndef AWS_TEST_PAL_ECDSA_SHA256_SIGNATURE_H_ */

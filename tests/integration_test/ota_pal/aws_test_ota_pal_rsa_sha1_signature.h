@@ -23,8 +23,8 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef _AWS_TEST_OTA_PAL_RSA_SHA1_SIGNATURE_H_
-#define _AWS_TEST_OTA_PAL_RSA_SHA1_SIGNATURE_H_
+#ifndef AWS_TEST_OTA_PAL_RSA_SHA1_SIGNATURE_H_
+#define AWS_TEST_OTA_PAL_RSA_SHA1_SIGNATURE_H_
 
 #include <stdint.h>
 
@@ -114,4 +114,4 @@ static const int ucValidSignatureLength = 256;
     "Ml3tXnR4B4lqeJy/BP6/GA==\n"                                         \
     "-----END CERTIFICATE-----"
 
-#endif /* _AWS_TEST_OTA_PAL_RSA_SHA1_SIGNATURE_H_  */
+#endif /* AWS_TEST_OTA_PAL_RSA_SHA1_SIGNATURE_H_  */

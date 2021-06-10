@@ -30,8 +30,8 @@
  * Needed for testing private functions.
  */
 
-#ifndef _AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_
-#define _AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_
+#ifndef AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_
+#define AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_
 
 #include "ota.h"
 #include "aws_test_ota_config.h"
@@ -45,4 +45,4 @@
                                                     uint32_t * const ulSignerCertSize );
 #endif
 
-#endif /* ifndef _OTA_AGENT_TEST_ACCESS_DECLARE_H_ */
+#endif /* ifndef AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_ */
