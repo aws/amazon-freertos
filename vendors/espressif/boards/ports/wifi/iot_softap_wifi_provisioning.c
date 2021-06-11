@@ -33,6 +33,7 @@
 static const char * TAG = "WIFI_PROVISION";
 
 #define IOT_WIFI_SOFTAP_PROVISIONING_COMMAND_TIMEOUT_MS    ( 5000 )
+#define IOT_WIFI_SOFTAP_PROVISIONING_COMMAND_QUEUE_SIZE    ( 2 )
 
 /**
  * @ingroup wifi_datatypes_structs
@@ -318,7 +319,7 @@ bool IotWifiSoftAPProv_Init( void )
 
     if( ret == true )
     {
-        wifiProvisioning.messageQueue = xQueueCreate( 2U, sizeof( IotWifiSoftAPProvMessage_t ) );
+        wifiProvisioning.messageQueue = xQueueCreate( IOT_WIFI_SOFTAP_PROVISIONING_COMMAND_QUEUE_SIZE, sizeof( IotWifiSoftAPProvMessage_t ) );
 
         if( wifiProvisioning.messageQueue == NULL )
         {
@@ -379,9 +380,11 @@ uint32_t IotWifiSoftAPProv_GetNumNetworks( void )
 
 bool IotWifiSoftAPProv_Connect( uint32_t ulNetworkIndex )
 {
-    uint32_t ulReturnCode = pdFAIL;
+    bool ulReturnCode = false;
     WIFINetworkProfile_t xSavedNetworkProfile;
     WIFINetworkParams_t xAttemptParams;
+
+    xSemaphoreTake( wifiProvisioning.mutex, portMAX_DELAY );
 
     /* Retrieve the ssid/password stored in indexed flash. Then attempt connection */
     if( eWiFiSuccess == WIFI_NetworkGet( &xSavedNetworkProfile, ulNetworkIndex ) )
@@ -390,7 +393,7 @@ bool IotWifiSoftAPProv_Connect( uint32_t ulNetworkIndex )
 
         if( eWiFiSuccess == WIFI_ConnectAP( &xAttemptParams ) )
         {
-            ulReturnCode = pdPASS;
+            ulReturnCode = true;
             ESP_LOGI( TAG, "Successfully connected to saved network profile[%d] SSID:%.*s",
                       ulNetworkIndex,
                       xSavedNetworkProfile.ucSSIDLength,
@@ -405,6 +408,8 @@ bool IotWifiSoftAPProv_Connect( uint32_t ulNetworkIndex )
     {
         ESP_LOGE( TAG, "Failed to read saved network profile[%d] from flash", ulNetworkIndex );
     }
+
+    xSemaphoreGive( wifiProvisioning.mutex );
 
     return ulReturnCode;
 }
