@@ -149,7 +149,7 @@ int main( void )
      * running.  */
     prvMiscInitialization();
     configPRINTF( ( "FreeRTOS_IPInit\n" ) );	
-#ifndef CONFIG_OTA_UPDATE_DEMO_ENABLED
+#if !defined( CONFIG_OTA_MQTT_UPDATE_DEMO_ENABLED ) && !defined(CONFIG_OTA_HTTP_UPDATE_DEMO_ENABLED)
     xTaskCreate( vCheckTask, "Check", mainCHECK_TASK_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY, NULL );	
 #endif
     /* A simple example to demonstrate key and certificate provisioning in
