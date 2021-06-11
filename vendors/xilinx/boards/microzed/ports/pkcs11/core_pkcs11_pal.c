@@ -196,20 +196,29 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
                               &pcFileName,
                               &xHandle );
 
-    /* Check if object exists/has been created before returning. */
-    taskENTER_CRITICAL();
-
-    Res = f_open( &fil, ( TCHAR * ) pcFileName, FA_READ );
-
-    if( Res )
+    /* If this certificate doesn't exist, don't try to open it. */
+    if( pcFileName != NULL )
     {
-        taskEXIT_CRITICAL();
-        xil_printf( "PKCS11_PAL_FindObject ERROR: File %s does not exist\r\n", pcFileName );
-        return eInvalidHandle;
-    }
+		/* Check if object exists/has been created before returning. */
+		taskENTER_CRITICAL();
 
-    f_close( &fil );
-    taskEXIT_CRITICAL();
+		Res = f_open( &fil, ( TCHAR * ) pcFileName, FA_READ );
+
+
+		if( Res )
+		{
+			taskEXIT_CRITICAL();
+			xil_printf( "PKCS11_PAL_FindObject ERROR: File %s does not exist\r\n", pcFileName );
+			return eInvalidHandle;
+		}
+
+		f_close( &fil );
+		taskEXIT_CRITICAL();
+    }
+    else
+    {
+    	xHandle = eInvalidHandle;
+    }
 
     if( xHandle != eInvalidHandle )
     {
