@@ -9,7 +9,7 @@ cmake_minimum_required (VERSION 3.13)
 # list the files to mock here
     list(APPEND mock_list
                 ${kernel_dir}/include/portable.h
-                ${c_sdk_dir}/standard/ble/include/iot_ble.h
+                ${AFR_ROOT_DIR}/libraries/ble/include/iot_ble.h
                 ${common_dir}/include/private/iot_logging.h
                 ${abstraction_dir}/platform/include/platform/iot_threads.h
             )

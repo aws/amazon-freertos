@@ -53,7 +53,7 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::ble_hal
-        AFR::common
+        AFR::platform
         3rdparty::tinycbor
 )
 

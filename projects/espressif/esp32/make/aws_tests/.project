@@ -681,7 +681,7 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble</name>
+			<name>libraries/ble</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -1661,22 +1661,22 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/CMakeLists.txt</name>
+			<name>libraries/ble/CMakeLists.txt</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/CMakeLists.txt</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/CMakeLists.txt</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/include</name>
+			<name>libraries/ble/include</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/src</name>
+			<name>libraries/ble/src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/test</name>
+			<name>libraries/ble/test</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -2956,74 +2956,74 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/include/iot_ble.h</name>
+			<name>libraries/ble/include/iot_ble.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/include/iot_ble.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/include/iot_ble.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/include/iot_ble_config_defaults.h</name>
+			<name>libraries/ble/include/iot_ble_config_defaults.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/include/iot_ble_config_defaults.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/include/iot_ble_config_defaults.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/include/iot_ble_data_transfer.h</name>
+			<name>libraries/ble/include/iot_ble_data_transfer.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/include/iot_ble_data_transfer.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/include/iot_ble_data_transfer.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/include/iot_ble_device_information.h</name>
+			<name>libraries/ble/include/iot_ble_device_information.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/include/iot_ble_device_information.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/include/iot_ble_device_information.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/include/iot_ble_mqtt_serialize.h</name>
+			<name>libraries/ble/include/iot_ble_mqtt_serialize.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/include/iot_ble_mqtt_serialize.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/include/iot_ble_mqtt_serialize.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/include/iot_ble_wifi_provisioning.h</name>
+			<name>libraries/ble/include/iot_ble_wifi_provisioning.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/include/iot_ble_wifi_provisioning.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/include/iot_ble_wifi_provisioning.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/src/iot_ble_gap.c</name>
+			<name>libraries/ble/src/iot_ble_gap.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/src/iot_ble_gap.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/src/iot_ble_gap.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/src/iot_ble_gatt.c</name>
+			<name>libraries/ble/src/iot_ble_gatt.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/src/iot_ble_gatt.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/src/iot_ble_gatt.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/src/iot_ble_internal.h</name>
+			<name>libraries/ble/src/iot_ble_internal.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/src/iot_ble_internal.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/src/iot_ble_internal.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/src/services</name>
+			<name>libraries/ble/src/services</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/test/iot_ble_wifi_prov_test_access_declare.h</name>
+			<name>libraries/ble/test/iot_ble_wifi_prov_test_access_declare.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/test/iot_ble_wifi_prov_test_access_declare.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/test/iot_ble_wifi_prov_test_access_declare.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/test/iot_ble_wifi_prov_test_access_define.h</name>
+			<name>libraries/ble/test/iot_ble_wifi_prov_test_access_define.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/test/iot_ble_wifi_prov_test_access_define.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/test/iot_ble_wifi_prov_test_access_define.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/test/iot_test_ble_end_to_end.c</name>
+			<name>libraries/ble/test/iot_test_ble_end_to_end.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/test/iot_test_ble_end_to_end.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/test/iot_test_ble_end_to_end.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/test/iot_test_wifi_provisioning.c</name>
+			<name>libraries/ble/test/iot_test_wifi_provisioning.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/test/iot_test_wifi_provisioning.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/test/iot_test_wifi_provisioning.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_atomic.h</name>
@@ -4091,17 +4091,17 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/test/unit/aws_iot_tests_shadow_parser.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/src/services/device_information</name>
+			<name>libraries/ble/src/services/device_information</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/src/services/mqtt_ble</name>
+			<name>libraries/ble/src/services/mqtt_ble</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/src/services/wifi_provisioning</name>
+			<name>libraries/ble/src/services/wifi_provisioning</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -4476,24 +4476,24 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/unix/aws_defender_uptime.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/src/services/device_information/iot_ble_device_information.c</name>
+			<name>libraries/ble/src/services/device_information/iot_ble_device_information.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/src/services/device_information/iot_ble_device_information.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/src/services/device_information/iot_ble_device_information.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_ble_data_transfer.c</name>
+			<name>libraries/ble/src/services/mqtt_ble/iot_ble_data_transfer.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_ble_data_transfer.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/src/services/mqtt_ble/iot_ble_data_transfer.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_network_ble.c</name>
+			<name>libraries/ble/src/services/mqtt_ble/iot_network_ble.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_network_ble.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/src/services/mqtt_ble/iot_network_ble.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/src/services/wifi_provisioning/iot_ble_wifi_provisioning.c</name>
+			<name>libraries/ble/src/services/wifi_provisioning/iot_ble_wifi_provisioning.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/src/services/wifi_provisioning/iot_ble_wifi_provisioning.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/src/services/wifi_provisioning/iot_ble_wifi_provisioning.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_1.c</name>
