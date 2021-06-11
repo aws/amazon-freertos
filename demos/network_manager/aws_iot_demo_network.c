@@ -30,7 +30,7 @@
 
 #include "aws_demo_config.h"
 
-#if defined( CONFIG_OTA_UPDATE_DEMO_ENABLED )
+#if defined( CONFIG_OTA_MQTT_UPDATE_DEMO_ENABLED ) || defined( CONFIG_OTA_HTTP_UPDATE_DEMO_ENABLED )
     #include "iot_demo_logging.h"
     #include "iot_network_manager_private.h"
 
@@ -258,4 +258,4 @@
             }
         }
     }
-#endif /* if defined( CONFIG_OTA_UPDATE_DEMO_ENABLED ) */
+#endif /* if defined( CONFIG_OTA_MQTT_UPDATE_DEMO_ENABLED ) || defined(CONFIG_OTA_HTTP_UPDATE_DEMO_ENABLED) */

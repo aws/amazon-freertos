@@ -1,70 +1,65 @@
-    project ("ble_mqtt_transport utest")
+    project ("ble_middleware utest")
     cmake_minimum_required (VERSION 3.13)
 
 # ====================  Define your project name (edit) ========================
-    set(project_name "iot_ble_mqtt_transport")
+    set(project_name "iot_ble_middleware")
 
 # =====================  Create your mock here  (edit)  ========================
 
 # list the files to mock here
     list(APPEND mock_list
         ${AFR_ROOT_DIR}/freertos_kernel/include/portable.h
-        ${AFR_ROOT_DIR}/freertos_kernel/include/stream_buffer.h
-        ${AFR_ROOT_DIR}/libraries/c_sdk/standard/ble/include/iot_ble_data_transfer.h
-        ${AFR_ROOT_DIR}/libraries/c_sdk/standard/ble/include/iot_ble_mqtt_serialize.h
-        ${AFR_ROOT_DIR}/libraries/coreMQTT/source/include/core_mqtt_serializer.h
+        ${abstraction_dir}/ble_hal/include/bt_hal_manager.h
+        ${abstraction_dir}/ble_hal/include/bt_hal_manager_adapter_ble.h
+        ${abstraction_dir}/ble_hal/include/bt_hal_gatt_server.h
+        ${CMAKE_CURRENT_LIST_DIR}/iot_ble_interface.h
+        ${abstraction_dir}/platform/include/platform/iot_threads.h
+        ${common_dir}/include/private/iot_logging.h
     )
 # list the directories your mocks need
     list(APPEND mock_include_list
-        ../../include
-        ${AFR_ROOT_DIR}/freertos_kernel/include/
-        ${AFR_ROOT_DIR}/libraries/coreMQTT/source/include
-        ${AFR_ROOT_DIR}/tests/include
-        "${AFR_ROOT_DIR}/libraries/coreMQTT/source/interface"
+        ${CMAKE_CURRENT_LIST_DIR}
+        ${abstraction_dir}/ble_hal/include
         ${abstraction_dir}/platform/include
-        ${abstraction_dir}/platform/include/platform
-        ${abstraction_dir}/platform/include/types
+        ${abstraction_dir}/platform/freertos/include
+        ${abstraction_dir}/platform/include
+        "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
     )
 #list the definitions of your mocks to control what to be included
     list(APPEND mock_define_list
 		portUSING_MPU_WRAPPERS=1
         MPU_WRAPPERS_INCLUDED_FROM_API_FILE
         portHAS_STACK_OVERFLOW_CHECKING=1
-        MQTT_DO_NOT_USE_CUSTOM_CONFIG=1
     )
 
 # ================= Create the library under test here (edit) ==================
 
 # list the files you would like to test here
     list(APPEND real_source_files
-            "../../src/services/mqtt_ble/iot_ble_mqtt_transport.c"
+            "${AFR_ROOT_DIR}/libraries/ble/src/iot_ble_gap.c"
+            "${AFR_ROOT_DIR}/libraries/ble/src/iot_ble_gatt.c"
         )
 # list the directories the module under test includes
     list(APPEND real_include_directories
-        .
-        "${AFR_ROOT_DIR}/libraries/c_sdk/standard/ble/include"
+        "${AFR_ROOT_DIR}/libraries/ble/include"
         "${AFR_ROOT_DIR}/freertos_kernel/include/"
         "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
         "${AFR_ROOT_DIR}/libraries/logging/include"
-        "${AFR_ROOT_DIR}/libraries/coreMQTT/source/include"
         "${CMAKE_CURRENT_BINARY_DIR}/mocks"
         ${abstraction_dir}/ble_hal/include
-        ${abstraction_dir}/platform/freertos/include
-        ${abstraction_dir}/platform/include/platform
-        ${abstraction_dir}/platform/include/types
-        ${abstraction_dir}/platform/include
         ${AFR_ROOT_DIR}/tests/include
+        ${abstraction_dir}/platform/freertos/include
+        ${abstraction_dir}/platform/include
     )
 
 # =====================  Create UnitTest Code here (edit)  =====================
 
 # list the directories your test needs to include
     list(APPEND test_include_directories
-            .
-            "${AFR_ROOT_DIR}/libraries/c_sdk/standard/ble/include"
+            "${CMAKE_CURRENT_LIST_DIR}"
+            "${AFR_ROOT_DIR}/libraries/ble/include"
             "${AFR_ROOT_DIR}/freertos_kernel/include/"
             "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
-            "${AFR_ROOT_DIR}/libraries/coreMQTT/source/include"
             "${AFR_ROOT_DIR}/tests/unit_test/linux/logging-stack"
             "${CMAKE_CURRENT_BINARY_DIR}/mocks"
             ${abstraction_dir}/ble_hal/include
@@ -82,7 +77,7 @@ set(real_name "${project_name}_real")
 
 create_mock_list(${mock_name}
             "${mock_list}"
-            "${AFR_ROOT_DIR}/libraries/c_sdk/standard/ble/utest/ble_mqtt_transport/project.yml"
+            "${CMAKE_SOURCE_DIR}/tools/cmock/project.yml"
             "${mock_include_list}"
             "${mock_define_list}"
         )
@@ -92,6 +87,14 @@ create_real_library(${real_name}
                     "${real_include_directories}"
                     "${mock_name}"
         )
+
+#Turn off External modules as they are not part of test.
+target_compile_definitions(${real_name} PUBLIC
+        IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE=0
+        IOT_BLE_ENABLE_DEVICE_INFO_SERVICE=0
+        IOT_BLE_ADD_CUSTOM_SERVICES=0
+)
+
 
 list(APPEND utest_link_list
             -l${mock_name}
@@ -104,7 +107,7 @@ list(APPEND utest_dep_list
         )
 
 set(utest_name "${project_name}_utest")
-set(utest_source "${project_name}_utest.c")
+set(utest_source "iot_ble_gap_gatt_utest.c")
 create_test(${utest_name}
             ${utest_source}
             "${utest_link_list}"
