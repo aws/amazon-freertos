@@ -47,7 +47,6 @@ typedef struct IotWifiSoftAPProvService
     WIFINetworkProfile_t xProvisionedParams; /**< Stores parameters for target AP */
     int16_t connectedIdx;                    /**< Keeps track of the flash index of the network that is connected. */
     QueueHandle_t messageQueue;              /**< Message queue use by the provisioning task to process incoming requests. */
-    SemaphoreHandle_t mutex;                 /**< Mutex used to synchronize between application task the provsioning task .*/
 } IotWifiSoftAPProvService_t;
 
 static IotWifiSoftAPProvService_t wifiProvisioning =
@@ -70,7 +69,6 @@ static IotWifiSoftAPProvService_t wifiProvisioning =
     },
     .connectedIdx         = 0,
     .messageQueue         = NULL,
-    .mutex                = NULL,
 };
 
 /**
@@ -173,6 +171,65 @@ static inline void prvNetworkProfile2Params( WIFINetworkProfile_t const * const 
     pxNetworkParams->ucChannel = 0;
 }
 
+bool prvServiceStart()
+{
+    bool ulReturnCode = false;
+
+    /* Configure AP  */
+    WIFINetworkParams_t xAPConfig =
+    {
+        .ucChannel = wificonfigACCESS_POINT_CHANNEL,
+        .xSecurity = wificonfigACCESS_POINT_SECURITY,
+    };
+
+    char pcMAC[ wificonfigMAX_BSSID_LEN ] = { 0 };
+
+    WIFI_GetMAC( &pcMAC );
+    xAPConfig.ucSSIDLength = snprintf( ( char * ) xAPConfig.ucSSID,
+                                       sizeof( xAPConfig.ucSSID ),
+                                       "%s%02X%02X%02X",
+                                       wificonfigACCESS_POINT_SSID_PREFIX,
+                                       pcMAC[ 3 ],
+                                       pcMAC[ 4 ],
+                                       pcMAC[ 5 ] );
+    xAPConfig.xPassword.xWPA.ucLength = strnlen( wificonfigACCESS_POINT_PASSKEY, wificonfigMAX_PASSPHRASE_LEN );
+    memcpy( xAPConfig.xPassword.xWPA.cPassphrase, wificonfigACCESS_POINT_PASSKEY, xAPConfig.xPassword.xWPA.ucLength );
+
+    /* Configure/Start AP, then start the protocommn HTTP URI handlers */
+    if( eWiFiSuccess != WIFI_ConfigureAP( &xAPConfig ) )
+    {
+        ESP_LOGE( TAG, "Failed to configure AP" );
+    }
+    else if( eWiFiSuccess != WIFI_StartAP() )
+    {
+        ESP_LOGE( TAG, "Failed to start AP" );
+    }
+    else if( ESP_OK != prvStartProtocomHTTP() )
+    {
+        ESP_LOGE( TAG, "Failed to start http server" );
+    }
+    else
+    {
+        ESP_LOGI( TAG, "SoftAP Provisioning started with SSID:'%s', Password:'%s'", xAPConfig.ucSSID, xAPConfig.xPassword.xWPA.cPassphrase );
+        ulReturnCode = true;
+    }
+
+    return ulReturnCode;
+}
+
+void prvServiceStop( void )
+{
+    protocomm_remove_endpoint( wifiProvisioning.pxProtocomm, "prov-config" );
+    protocomm_unset_security( wifiProvisioning.pxProtocomm, "prov-session" );
+    protocomm_unset_version( wifiProvisioning.pxProtocomm, "proto-ver" );
+    protocomm_httpd_stop( wifiProvisioning.pxProtocomm );
+    protocomm_delete( wifiProvisioning.pxProtocomm );
+
+    if( esp_wifi_set_mode( WIFI_MODE_STA ) != ESP_OK )
+    {
+        ESP_LOGE( TAG, "Failed to disable AP mode" );
+    }
+}
 /* -------------------------------------------------------------------- */
 /*                       PROVISIONING HANDLERS                          */
 /* -------------------------------------------------------------------- */
@@ -253,51 +310,6 @@ static esp_err_t prvApplyProvisionConfig( wifi_prov_ctx_t ** ppxUserContext )
     return xReturnCode;
 }
 
-bool prvServiceStart()
-{
-    bool ulReturnCode = false;
-
-    /* Configure AP  */
-    WIFINetworkParams_t xAPConfig =
-    {
-        .ucChannel = wificonfigACCESS_POINT_CHANNEL,
-        .xSecurity = wificonfigACCESS_POINT_SECURITY,
-    };
-
-    char pcMAC[ wificonfigMAX_BSSID_LEN ] = { 0 };
-
-    WIFI_GetMAC( &pcMAC );
-    xAPConfig.ucSSIDLength = snprintf( ( char * ) xAPConfig.ucSSID,
-                                       sizeof( xAPConfig.ucSSID ),
-                                       "%s%02X%02X%02X",
-                                       wificonfigACCESS_POINT_SSID_PREFIX,
-                                       pcMAC[ 3 ],
-                                       pcMAC[ 4 ],
-                                       pcMAC[ 5 ] );
-    xAPConfig.xPassword.xWPA.ucLength = strnlen( wificonfigACCESS_POINT_PASSKEY, wificonfigMAX_PASSPHRASE_LEN );
-    memcpy( xAPConfig.xPassword.xWPA.cPassphrase, wificonfigACCESS_POINT_PASSKEY, xAPConfig.xPassword.xWPA.ucLength );
-
-    /* Configure/Start AP, then start the protocommn HTTP URI handlers */
-    if( eWiFiSuccess != WIFI_ConfigureAP( &xAPConfig ) )
-    {
-        ESP_LOGE( TAG, "Failed to configure AP" );
-    }
-    else if( eWiFiSuccess != WIFI_StartAP() )
-    {
-        ESP_LOGE( TAG, "Failed to start AP" );
-    }
-    else if( ESP_OK != prvStartProtocomHTTP() )
-    {
-        ESP_LOGE( TAG, "Failed to start http server" );
-    }
-    else
-    {
-        ESP_LOGI( TAG, "SoftAP Provisioning started with SSID:'%s', Password:'%s'", xAPConfig.ucSSID, xAPConfig.xPassword.xWPA.cPassphrase );
-        ulReturnCode = true;
-    }
-
-    return ulReturnCode;
-}
 /* -------------------------------------------------------------------- */
 /*                            PUBLIC (API)                              */
 /* -------------------------------------------------------------------- */
@@ -309,23 +321,12 @@ bool IotWifiSoftAPProv_Init( void )
     memset( &wifiProvisioning.xProvisionedParams, 0u, sizeof( wifiProvisioning.xProvisionedParams ) );
     wifiProvisioning.xProvisionedParams.xSecurity = eWiFiSecurityWPA2;
 
-    wifiProvisioning.mutex = xSemaphoreCreateMutex();
+    wifiProvisioning.messageQueue = xQueueCreate( IOT_WIFI_SOFTAP_PROVISIONING_COMMAND_QUEUE_SIZE, sizeof( IotWifiSoftAPProvMessage_t ) );
 
-    if( wifiProvisioning.mutex == NULL )
+    if( wifiProvisioning.messageQueue == NULL )
     {
-        ESP_LOGE( TAG, "Failed to create mutex for WiFi provisioning task." );
+        ESP_LOGE( TAG, "Failed to create queue for WiFi provisioning task." );
         ret = false;
-    }
-
-    if( ret == true )
-    {
-        wifiProvisioning.messageQueue = xQueueCreate( IOT_WIFI_SOFTAP_PROVISIONING_COMMAND_QUEUE_SIZE, sizeof( IotWifiSoftAPProvMessage_t ) );
-
-        if( wifiProvisioning.messageQueue == NULL )
-        {
-            ESP_LOGE( TAG, "Failed to create queue for WiFi provisioning task." );
-            ret = false;
-        }
     }
 
     return ret;
@@ -358,6 +359,7 @@ bool IotWifiSoftAPProv_RunProcessLoop( void )
     }
 
     ESP_LOGI( TAG, "Exit loop.\r\n" );
+    prvServiceStop();
 
     return processLoopStatus;
 }
@@ -384,8 +386,6 @@ bool IotWifiSoftAPProv_Connect( uint32_t ulNetworkIndex )
     WIFINetworkProfile_t xSavedNetworkProfile;
     WIFINetworkParams_t xAttemptParams;
 
-    xSemaphoreTake( wifiProvisioning.mutex, portMAX_DELAY );
-
     /* Retrieve the ssid/password stored in indexed flash. Then attempt connection */
     if( eWiFiSuccess == WIFI_NetworkGet( &xSavedNetworkProfile, ulNetworkIndex ) )
     {
@@ -409,8 +409,6 @@ bool IotWifiSoftAPProv_Connect( uint32_t ulNetworkIndex )
         ESP_LOGE( TAG, "Failed to read saved network profile[%d] from flash", ulNetworkIndex );
     }
 
-    xSemaphoreGive( wifiProvisioning.mutex );
-
     return ulReturnCode;
 }
 
@@ -429,10 +427,4 @@ bool IotWifiSoftAPProv_Stop( void )
 void IotWifiSoftAPProv_Deinit( void )
 {
     vQueueDelete( wifiProvisioning.messageQueue );
-    vSemaphoreDelete( wifiProvisioning.mutex );
-    protocomm_remove_endpoint( wifiProvisioning.pxProtocomm, "prov-config" );
-    protocomm_unset_security( wifiProvisioning.pxProtocomm, "prov-session" );
-    protocomm_unset_version( wifiProvisioning.pxProtocomm, "proto-ver" );
-    protocomm_httpd_stop( wifiProvisioning.pxProtocomm );
-    protocomm_delete( wifiProvisioning.pxProtocomm );
 }
