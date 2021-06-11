@@ -1248,6 +1248,11 @@
 			<locationURI>BASE_DIR_ROOT/demos/jobs_for_aws/jobs_demo.c</locationURI>
 		</link>
 		<link>
+			<name>demos/ota/ota_demo_core_http/ota_demo_core_http.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/ota/ota_demo_core_http/ota_demo_core_http.c</locationURI>
+		</link>
+		<link>
 			<name>demos/ota/ota_demo_core_mqtt/ota_demo_core_mqtt.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/ota/ota_demo_core_mqtt/ota_demo_core_mqtt.c</locationURI>
@@ -1336,11 +1341,6 @@
 			<name>config_files/core_http_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/core_http_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/core_mqtt_agent_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/core_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/core_mqtt_config.h</name>

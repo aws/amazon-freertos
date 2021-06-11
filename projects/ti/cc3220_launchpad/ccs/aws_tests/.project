@@ -1523,11 +1523,6 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/core_http_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/core_mqtt_agent_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/core_mqtt_agent_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/core_mqtt_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/core_mqtt_config.h</locationURI>

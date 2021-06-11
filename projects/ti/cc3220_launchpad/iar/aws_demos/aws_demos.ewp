@@ -1315,9 +1315,6 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\core_http_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\core_mqtt_agent_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\core_mqtt_config.h</name>
 							</file>
 							<file>
@@ -2962,6 +2959,12 @@
 		</group>
 		<group>
 			<name>ota</name>
+			<group>
+				<name>ota_demo_core_http</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\ota\ota_demo_core_http\ota_demo_core_http.c</name>
+				</file>
+			</group>
 			<group>
 				<name>ota_demo_core_mqtt</name>
 				<file>
