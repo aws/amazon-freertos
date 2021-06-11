@@ -404,9 +404,9 @@ void runDemoTask( void * pArgument )
  * configTOTAL_HEAP_SIZE configuration constant in FreeRTOSConfig.h.
  *
  */
-    void vApplicationMallocFailedHook()
+    void vApplicationMallocFailedHook(char * file_name, int line_num)
     {
-        configPRINT_STRING( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
+        configPRINT_STRING( ( "ERROR: Malloc failed to allocate memory (%s, %d) \r\n", file_name, line_num ) );
         taskDISABLE_INTERRUPTS();
 
         /* Loop forever */

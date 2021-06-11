@@ -500,7 +500,7 @@ ShadowReturnCode_t SHADOW_Get( ShadowClientHandle_t xShadowClientHandle,
     xGetDocument.qos = ( IotMqttQos_t ) pxGetParams->xQoS;
     xGetDocument.pThingName = pxGetParams->pcThingName;
     xGetDocument.thingNameLength = strlen( pxGetParams->pcThingName );
-    xGetDocument.u.get.mallocDocument = pvPortMalloc;
+    //xGetDocument.u.get.mallocDocument = pvPortMalloc;
 
     if( pxGetParams->ucKeepSubscriptions == 1 )
     {
