@@ -94,7 +94,7 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 
 OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const pFileContext )
 {
-    /* TODO */
+    /* TODO Implement otaPal_Abort.*/
     return OtaPalFileAbort;
 }
 
@@ -102,7 +102,7 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const pFileContext )
 
 OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
 {
-    /* TODO */
+    /* TODO Implement otaPal_CreateFileForRx.*/
     return OtaPalRxFileCreateFailed;
 }
 
@@ -110,7 +110,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
 
 OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
 {
-    /* TODO */
+    /* TODO Implement otaPal_CloseFile.*/
     return OtaPalFileClose;
 }
 
@@ -121,7 +121,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
                            uint8_t * const pData,
                            uint32_t ulBlockSize )
 {
-    /* TODO */
+    /* TODO Implement otaPal_WriteBlock. */
     return -1;
 }
 
@@ -129,7 +129,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
 
 OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext )
 {
-    /* TODO */
+    /* TODO Implement otaPal_ActivateNewImage.*/
     return OtaPalActivateFailed;
 }
 
@@ -138,7 +138,7 @@ OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext )
 OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileContext,
                                              OtaImageState_t eState )
 {
-    /* TODO */
+    /* TODO Implement otaPal_SetPlatformImageState.*/
     return OtaPalBadImageState;
 }
 
@@ -146,7 +146,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
 
 OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileContext )
 {
-    /* TODO */
+    /* TODO Implement otaPal_GetPlatformImageState.*/
     return OtaPalImageStateUnknown;
 }
 
@@ -154,7 +154,7 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileC
 
 OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const pFileContext )
 {
-    /* TODO */
+    /* TODO Implement otaPal_ResetDevice.*/
     return OtaPalSuccess;
 }
 
@@ -162,7 +162,7 @@ OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const pFileContext )
 
 static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext )
 {
-    /* TODO */
+    /* TODO Implement otaPal_CheckFileSignature.*/
     return OtaPalSignatureCheckFailed;
 }
 
@@ -171,7 +171,7 @@ static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileC
 static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
                                                   uint32_t * const ulSignerCertSize )
 {
-    /* TODO */
+    /* TODO Implement otaPal_ReadAndAssumeCertificate.*/
     return NULL;
 }
 
