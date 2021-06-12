@@ -38,8 +38,8 @@
 /**
  * @brief Major version of the firmware.
  *
- *        This is used in the OTA demo to set the appFirmwareVersion variable
- *        that is declared in the ota_appversion32.h file in the OTA library.
+ * This is used in the OTA demo to set the appFirmwareVersion variable that is
+ * declared in the ota_appversion32.h file in the OTA library.
  */
 #ifndef APP_VERSION_MAJOR
     #define APP_VERSION_MAJOR    0
@@ -48,8 +48,8 @@
 /**
  * @brief Minor version of the firmware.
  *
- *        This is used in the OTA demo to set the appFirmwareVersion variable
- *        that is declared in the ota_appversion32.h file in the OTA library.
+ * This is used in the OTA demo to set the appFirmwareVersion variable that is
+ * declared in the ota_appversion32.h file in the OTA library.
  */
 #ifndef APP_VERSION_MINOR
     #define APP_VERSION_MINOR    9
@@ -58,8 +58,8 @@
 /**
  * @brief Build version of the firmware.
  *
- *        This is used in the OTA demo to set the appFirmwareVersion variable
- *        that is declared in the ota_appversion32.h file in the OTA library.
+ * This is used in the OTA demo to set the appFirmwareVersion variable that is
+ * declared in the ota_appversion32.h file in the OTA library.
  */
 #ifndef APP_VERSION_BUILD
     #define APP_VERSION_BUILD    2
@@ -68,13 +68,14 @@
 /**
  * @brief Server's root CA certificate.
  *
- * This certificate is used to identify the AWS IoT server and is publicly available.
- * Refer to the AWS documentation available in the link below for information about the
- * Server Root CAs.
+ * This certificate is used to identify the AWS IoT server and is publicly
+ * available. Refer to the AWS documentation available in the link below for
+ * information about the Server Root CAs.
  * https://docs.aws.amazon.com/iot/latest/developerguide/server-authentication.html#server-authentication-certs
  *
- * @note The TI C3220 Launchpad board requires that the Root CA have its certificate self-signed. As mentioned in the
- * above link, the Amazon Root CAs are cross-signed by the Starfield Root CA. Thus, ONLY the Starfield Root CA
+ * @note The TI C3220 Launchpad board requires that the Root CA have its
+ * certificate self-signed. As mentioned in the above link, the Amazon Root CAs
+ * are cross-signed by the Starfield Root CA. Thus, ONLY the Starfield Root CA
  * can be used to connect to the ATS endpoints on AWS IoT for the TI board.
  *
  * @note This certificate should be PEM-encoded.
@@ -90,9 +91,11 @@
 /**
  * @brief Timeout for which MQTT library keeps polling the transport interface,
  * when no byte is received.
- * The timeout is honoured only after the first byte is read and while remaining bytes
- * are read from network interface. Keeping this timeout to a sufficiently large value so
- * as to account for delay of receipt of a large block of message.
+ *
+ * The timeout is honoured only after the first byte is read and while
+ * remaining bytes are read from network interface. Keeping this timeout to a
+ * sufficiently large value so as to account for delay of receipt of a large
+ * block of message.
  */
 #define MQTT_RECV_POLLING_TIMEOUT_MS            ( 1000U )
 
@@ -109,9 +112,12 @@
 #define MQTT_AGENT_NETWORK_BUFFER_SIZE          ( 5000 )
 
 /**
- * @brief Maximum time MQTT agent waits in the queue for any pending MQTT operations.
- * The wait time is kept smallest possible to increase the responsiveness of MQTT agent
- * while processing  pending MQTT operations as well as receive packets from network.
+ * @brief Maximum time MQTT agent waits in the queue for any pending MQTT
+ * operations.
+ *
+ * The wait time is kept smallest possible to increase the responsiveness of
+ * MQTT agent while processing  pending MQTT operations as well as receive
+ * packets from network.
  */
 #define MQTT_AGENT_MAX_EVENT_QUEUE_WAIT_TIME    ( 1U )
 

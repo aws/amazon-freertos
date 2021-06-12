@@ -163,12 +163,13 @@ target_sources(
     INTERFACE "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
 )
 
-# OTA
+# Over-the-air Updates
 afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
     INTERFACE
         "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.h"
 )
 target_include_directories(
     AFR::ota::mcu_port

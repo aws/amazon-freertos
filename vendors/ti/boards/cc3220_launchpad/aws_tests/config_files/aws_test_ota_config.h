@@ -38,7 +38,7 @@
 #define otatestpalCERTIFICATE_FILE                         "rsa-sha1-signer.crt.der"
 
 /**
- * @brief Some boards have a hard-coded name for the firmware image to boot.
+ * @brief TI CC3220 has a hard-coded name for the firmware image to boot.
  */
 #define otatestpalFIRMWARE_FILE                            "/sys/mcuflashimg.bin"
 

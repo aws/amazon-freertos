@@ -28,7 +28,7 @@
 #include "ota.h"
 #include "ota_pal.h"
 
-#define kOTA_HalfSecondDelay    pdMS_TO_TICKS( 500UL )
+#define OTA_HALF_SECOND_DELAY    pdMS_TO_TICKS( 500UL )
 
 /* TI Simplelink includes */
 #include <ti/drivers/net/wifi/simplelink.h>
@@ -364,7 +364,7 @@ OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const C )
     sl_Stop( OTA_SL_STOP_TIMEOUT ); /*lint !e534 ignore return code because we are going to reset the device below. */
 
     /* Short delay for debug log output before reset. */
-    vTaskDelay( kOTA_HalfSecondDelay );
+    vTaskDelay( OTA_HALF_SECOND_DELAY );
     MAP_PRCMHibernateCycleTrigger();
 
     /* We shouldn't actually get here if the board supports the auto reset.
