@@ -64,7 +64,7 @@ else()
 endif()
 
 # mbedTLS include directories
-if(NOT AFR_FREERTOS_TCP)
+if(NOT AFR_ESP_FREERTOS_TCP)
     target_include_directories(
         afr_3rdparty_mbedtls
         PUBLIC

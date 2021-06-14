@@ -74,7 +74,7 @@ else()
 endif()
 
 # mbedTLS include directories
-if(NOT AFR_FREERTOS_TCP)
+if(NOT AFR_ESP_FREERTOS_TCP)
     target_include_directories(
         afr_3rdparty_mbedtls
         PUBLIC
@@ -131,6 +131,7 @@ if(AFR_ESP_FREERTOS_TCP)
     "${esp_idf_dir}/components/esp_wifi/include"
     "${esp_idf_dir}/components/esp_netif/include"
     "${esp_idf_dir}/components/esp_eth/include"
+    "${esp_idf_dir}/components/soc/soc/include"
     )
 else()
     list(APPEND kernel_inc_dirs
@@ -337,50 +338,49 @@ target_include_directories(
 )
 
 if(AFR_ESP_FREERTOS_TCP)
-# FreeRTOS Plus TCP
-afr_mcu_port(freertos_plus_tcp)
-target_sources(
-    AFR::freertos_plus_tcp::mcu_port
-    INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/esp32/NetworkInterface.c"
-)
+    # FreeRTOS Plus TCP
+    afr_mcu_port(freertos_plus_tcp)
+    target_sources(
+        AFR::freertos_plus_tcp::mcu_port
+        INTERFACE
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/esp32/NetworkInterface.c"
+    )
 
-# Secure sockets
-afr_mcu_port(secure_sockets)
-target_link_libraries(
-    AFR::secure_sockets::mcu_port
-    INTERFACE AFR::secure_sockets_freertos_plus_tcp
-)
+    # Secure sockets
+    afr_mcu_port(secure_sockets)
+    target_link_libraries(
+        AFR::secure_sockets::mcu_port
+        INTERFACE AFR::secure_sockets_freertos_plus_tcp
+    )
 else()
 
-# Secure sockets
-afr_mcu_port(secure_sockets)
+    # Secure sockets
+    afr_mcu_port(secure_sockets)
 
-target_sources(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/lwip/iot_secure_sockets.c"
-)
+    target_sources(
+        AFR::secure_sockets::mcu_port
+        INTERFACE
+            "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/lwip/iot_secure_sockets.c"
+    )
 
-target_include_directories(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-        "${esp_idf_dir}/components/lwip/include/apps"
-        "${esp_idf_dir}/components/lwip/include/apps/sntp"
-        "${esp_idf_dir}/components/lwip/lwip/src/include"
-        "${esp_idf_dir}/components/lwip/port/esp32/include"
-        "${esp_idf_dir}/components/lwip/port/esp32/include/arch"
-        "${esp_idf_dir}/components/lwip/include"
-)
+    target_include_directories(
+        AFR::secure_sockets::mcu_port
+        INTERFACE
+            "${esp_idf_dir}/components/lwip/include/apps"
+            "${esp_idf_dir}/components/lwip/include/apps/sntp"
+            "${esp_idf_dir}/components/lwip/lwip/src/include"
+            "${esp_idf_dir}/components/lwip/port/esp32/include"
+            "${esp_idf_dir}/components/lwip/port/esp32/include/arch"
+            "${esp_idf_dir}/components/lwip/include"
+    )
 
-target_link_libraries(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-        AFR::tls
-        AFR::wifi
-)
-
+    target_link_libraries(
+        AFR::secure_sockets::mcu_port
+        INTERFACE
+            AFR::tls
+            AFR::wifi
+    )
 endif()
 
 # Common I/O
