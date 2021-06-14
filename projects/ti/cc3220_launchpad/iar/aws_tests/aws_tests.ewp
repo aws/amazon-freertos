@@ -403,6 +403,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_subscription_manager</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
@@ -411,6 +412,13 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\portable</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\portable\os</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\ota_pal_for_aws</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\ota_demo_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
@@ -1320,6 +1328,9 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\core_http_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\core_mqtt_agent_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\core_mqtt_config.h</name>
 							</file>
 							<file>
@@ -1345,6 +1356,9 @@
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_secure_sockets_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\ota_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\shadow_config.h</name>
@@ -2935,6 +2949,69 @@
 				</group>
 			</group>
 		</group>
+		<group>
+			<name>ota_for_aws</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota_mqtt.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota_cbor.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_mqtt_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_cbor_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_os_interface.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_platform_interface.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_interface_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_base64_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_private.h</name>
+					</file>
+				</group>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota_interface.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota_base64.c</name>
+				</file>
+				<group>
+					<name>portable</name>
+					<group>
+						<name>os</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\portable\os\ota_os_freertos.c</name>
+						</file>
+					</group>
+				</group>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota_http.c</name>
+				</file>
+			</group>
+		</group>
 	</group>
 	<group>
 		<name>tests</name>
@@ -2994,6 +3071,27 @@
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\core_http_system_test.c</name>
 			</file>
+			<group>
+				<name>ota_pal</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal\aws_ota_pal_test_access_declare.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal\aws_ota_pal_test_access_define.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal_ecdsa_sha256_signature.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal_rsa_sha1_signature.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal_rsa_sha256_signature.h</name>
+				</file>
+			</group>
 		</group>
 	</group>
 	<group>
@@ -3028,9 +3126,27 @@
 				</file>
 			</group>
 			<group>
+				<name>mqtt_subscription_manager</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_subscription_manager\subscription_manager.c</name>
+				</file>
+			</group>
+			<group>
 				<name>mqtt_demo_helpers</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c</name>
+				</file>
+			</group>
+			<group>
+				<name>ota_demo_helpers</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\ota_demo_helpers\ota_demo_helpers.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\ota_demo_helpers\ota_demo_helpers.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\ota_demo_helpers\ota_application_version.c</name>
 				</file>
 			</group>
 		</group>

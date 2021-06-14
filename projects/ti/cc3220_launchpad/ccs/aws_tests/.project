@@ -1068,6 +1068,101 @@
 			<locationURI>BASE_DIR_ROOT/libraries/jobs_for_aws/source/include/jobs.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/ota_for_aws/source/ota_mqtt.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/ota_mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/ota_cbor.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/ota_cbor.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_mqtt_private.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_mqtt_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_cbor_private.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_cbor_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_os_interface.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_os_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_platform_interface.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_platform_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_private.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_interface_private.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_interface_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_base64_private.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_base64_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/ota.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/ota.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/ota_interface.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/ota_interface.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/ota_base64.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/ota_base64.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/portable/os/ota_os_freertos.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/portable/os/ota_os_freertos.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/ota_http.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/ota_http.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_http_private.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_http_private.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws/ota_pal.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws/ota_pal.c</locationURI>
+		</link>
+		<link>
+			<name>demos/common/ota_demo_helpers/ota_application_version.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/ota_demo_helpers/ota_application_version.c</locationURI>
+		</link>
+		<link>
+			<name>demos/common/mqtt_subscription_manager/mqtt_subscription_manager.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/mqtt_subscription_manager/mqtt_subscription_manager.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</locationURI>
@@ -1308,6 +1403,36 @@
 			<locationURI>BASE_DIR_ROOT/tests/integration_test/core_http_system_test.c</locationURI>
 		</link>
 		<link>
+			<name>tests/integration_test/ota_pal/aws_test_ota_pal.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/integration_test/ota_pal/aws_test_ota_pal.c</locationURI>
+		</link>
+		<link>
+			<name>tests/integration_test/ota_pal/aws_ota_pal_test_access_declare.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/integration_test/ota_pal/aws_ota_pal_test_access_declare.h</locationURI>
+		</link>
+		<link>
+			<name>tests/integration_test/ota_pal/aws_ota_pal_test_access_define.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/integration_test/ota_pal/aws_ota_pal_test_access_define.h</locationURI>
+		</link>
+		<link>
+			<name>tests/integration_test/ota_pal/aws_test_ota_pal_ecdsa_sha256_signature.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/integration_test/ota_pal/aws_test_ota_pal_ecdsa_sha256_signature.h</locationURI>
+		</link>
+		<link>
+			<name>tests/integration_test/ota_pal/aws_test_ota_pal_rsa_sha1_signature.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/integration_test/ota_pal/aws_test_ota_pal_rsa_sha1_signature.h</locationURI>
+		</link>
+		<link>
+			<name>tests/integration_test/ota_pal/aws_test_ota_pal_rsa_sha256_signature.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/integration_test/ota_pal/aws_test_ota_pal_rsa_sha256_signature.h</locationURI>
+		</link>
+		<link>
 			<name>application_code/ti_code/CC3220SF_LAUNCHXL.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/application_code/ti_code/CC3220SF_LAUNCHXL.c</locationURI>
@@ -1366,6 +1491,11 @@
 			<name>config_files/aws_shadow_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_shadow_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_test_ota_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/aws_test_ota_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_test_runner_config.h</name>
@@ -1436,6 +1566,11 @@
 			<name>config_files/iot_secure_sockets_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/iot_secure_sockets_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/ota_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/config_files/ota_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/shadow_config.h</name>
