@@ -235,6 +235,35 @@ target_link_libraries(
     INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
 
+# Over-the-air Updates
+afr_mcu_port(ota)
+target_sources(
+    AFR::ota::mcu_port
+    INTERFACE
+        "${rx65nrsk_ports_dir}/ota_pal_for_aws/ota_pal.c"
+        "${rx65nrsk_ports_dir}/ota_pal_for_aws/ota_pal.h"
+)
+
+target_include_directories(
+    AFR::ota::mcu_port
+    INTERFACE "${rx65nrsk_ports_dir}/ota_pal_for_aws"
+)
+
+target_link_libraries(
+    AFR::ota::mcu_port
+    INTERFACE
+        AFR::crypto
+        AFR::ota
+        AFR::pkcs11
+)
+
+if(AFR_ENABLE_TESTS)
+    target_include_directories(
+        AFR::ota::mcu_port
+        INTERFACE "${PROJECT_SOURCE_DIR}/tests/integration_test/ota_pal"
+    )
+endif()
+
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
