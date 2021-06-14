@@ -206,7 +206,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
  *   OtaPalImageStateValid         (the new firmware image is already committed)
  *   OtaPalImageStateInvalid       (the new firmware image is invalid or non-existent)
  *
- *   NOTE: OtaPalImageStateUnknown should NEVER be returned and indicates an implementation error.
+ *   @note OtaPalImageStateUnknown should NEVER be returned and indicates an implementation error.
  */
 OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileContext );
 
