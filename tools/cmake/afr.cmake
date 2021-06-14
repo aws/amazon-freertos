@@ -21,7 +21,6 @@ set(AFR_3RDPARTY_DIR "${AFR_MODULES_DIR}/3rdparty" CACHE INTERNAL "3rdparty libr
 
 # TODO, Network manager will temporarily be built into the demo executables (remove later).
 set(NETWORK_MANAGER_SOURCES
-    "${AFR_DEMOS_DIR}/network_manager/aws_iot_demo_network.c"
     "${AFR_DEMOS_DIR}/network_manager/aws_iot_network_manager.c"
     CACHE INTERNAL
     "Network manager common source files."

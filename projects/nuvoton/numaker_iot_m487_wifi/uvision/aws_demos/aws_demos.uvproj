@@ -649,11 +649,6 @@
 							<FilePath>../../../../../demos/network_manager/aws_iot_network_manager.c</FilePath>
 						</File>
 						<File>
-							<FileName>aws_iot_demo_network.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../demos/network_manager/aws_iot_demo_network.c</FilePath>
-						</File>
-						<File>
 							<FileName>iot_network_manager_private.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../demos/network_manager/iot_network_manager_private.h</FilePath>

@@ -71,7 +71,6 @@
           <file file_name="../../../../../demos/demo_runner/iot_demo_freertos.c" />
         </folder>
         <folder Name="network_manager">
-          <file file_name="../../../../../demos/network_manager/aws_iot_demo_network.c" />
           <file file_name="../../../../../demos/network_manager/aws_iot_network_manager.c" />
           <file file_name="../../../../../demos/network_manager/iot_network_manager_private.h" />
         </folder>
