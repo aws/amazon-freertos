@@ -66,9 +66,6 @@
 			<AdditionalDependencies>wpcap.lib;%(AdditionalDependencies)</AdditionalDependencies>
 			<AdditionalLibraryDirectories>..\..\..\..\..\libraries\3rdparty\win_pcap</AdditionalLibraryDirectories>
 		</Link>
-		<PostBuildEvent>
-			<Command>copy $(SolutionDir)..\..\..\..\..\libraries\freertos_plus\aws\ota\test\test_files\*.* $(TEMP)</Command>
-		</PostBuildEvent>
 	</ItemDefinitionGroup>
 	<ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">
 		<ClCompile>
