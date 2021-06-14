@@ -154,8 +154,9 @@
 		<Filter Include="demos\device_shadow_for_aws"/>
 		<Filter Include="demos\greengrass_connectivity"/>
 		<Filter Include="demos\jobs_for_aws"/>
-		<Filter Include="demos\ota\ota_demo_core_mqtt"/>
+		<Filter Include="demos\ota\ota_demo_core_http"/>
 		<Filter Include="demos\ota"/>
+		<Filter Include="demos\ota\ota_demo_core_mqtt"/>
 		<Filter Include="demos\tcp"/>
 		<Filter Include="application_code"/>
 		<Filter Include="libraries\3rdparty\tracealyzer_recorder"/>
@@ -237,9 +238,6 @@
 			<Filter>demos\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_demo.h">
-			<Filter>demos\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\demos\include\aws_iot_demo_network.h">
 			<Filter>demos\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_config_common.h">
@@ -862,9 +860,6 @@
 		<ClCompile Include="..\..\..\..\..\demos\network_manager\aws_iot_network_manager.c">
 			<Filter>demos\network_manager</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\network_manager\aws_iot_demo_network.c">
-			<Filter>demos\network_manager</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\demo_runner\iot_demo_freertos.c">
 			<Filter>demos\demo_runner</Filter>
 		</ClCompile>
@@ -1233,6 +1228,9 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\jobs_for_aws\jobs_demo.c">
 			<Filter>demos\jobs_for_aws</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\ota\ota_demo_core_http\ota_demo_core_http.c">
+			<Filter>demos\ota\ota_demo_core_http</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\ota\ota_demo_core_mqtt\ota_demo_core_mqtt.c">
 			<Filter>demos\ota\ota_demo_core_mqtt</Filter>

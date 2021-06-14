@@ -35,7 +35,6 @@
           <file file_name="../../../../../demos/include/aws_clientcredential.h" />
           <file file_name="../../../../../demos/include/aws_clientcredential_keys.h" />
           <file file_name="../../../../../demos/include/aws_demo.h" />
-          <file file_name="../../../../../demos/include/aws_iot_demo_network.h" />
           <file file_name="../../../../../demos/include/aws_wifi_connect_task.h" />
           <file file_name="../../../../../demos/include/iot_ble_numericComparison.h" />
           <file file_name="../../../../../demos/include/iot_config_common.h" />
@@ -71,7 +70,6 @@
           <file file_name="../../../../../demos/demo_runner/iot_demo_freertos.c" />
         </folder>
         <folder Name="network_manager">
-          <file file_name="../../../../../demos/network_manager/aws_iot_demo_network.c" />
           <file file_name="../../../../../demos/network_manager/aws_iot_network_manager.c" />
           <file file_name="../../../../../demos/network_manager/iot_network_manager_private.h" />
         </folder>

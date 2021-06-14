@@ -162,11 +162,6 @@
 			<locationURI>BASE_DIR/demos/network_manager/aws_iot_network_manager.c</locationURI>
 		</link>
 		<link>
-			<name>demos/network_manager/aws_iot_demo_network.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/network_manager/aws_iot_demo_network.c</locationURI>
-		</link>
-		<link>
 			<name>demos/network_manager/iot_network_manager_private.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/network_manager/iot_network_manager_private.h</locationURI>
@@ -195,11 +190,6 @@
 			<name>demos/include/aws_demo.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/include/aws_demo.h</locationURI>
-		</link>
-		<link>
-			<name>demos/include/aws_iot_demo_network.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/include/aws_iot_demo_network.h</locationURI>
 		</link>
 		<link>
 			<name>demos/include/aws_ota_codesigner_certificate.h</name>

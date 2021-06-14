@@ -2798,9 +2798,6 @@
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\network_manager\aws_iot_network_manager.c</name>
 			</file>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\network_manager\aws_iot_demo_network.c</name>
-			</file>
-			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\network_manager\iot_network_manager_private.h</name>
 			</file>
 		</group>
@@ -2814,9 +2811,6 @@
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\aws_demo.h</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\aws_iot_demo_network.h</name>
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\iot_config_common.h</name>

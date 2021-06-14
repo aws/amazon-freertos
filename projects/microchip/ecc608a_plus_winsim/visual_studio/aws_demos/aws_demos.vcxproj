@@ -106,7 +106,6 @@
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_clientcredential.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_clientcredential_keys.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_demo.h"/>
-		<ClInclude Include="..\..\..\..\..\demos\include\aws_iot_demo_network.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_config_common.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_demo_logging.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_demo_runner.h"/>
@@ -367,7 +366,6 @@
 		<ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo_network_addr.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\network_manager\aws_iot_network_manager.c"/>
-		<ClCompile Include="..\..\..\..\..\demos\network_manager\aws_iot_demo_network.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\demo_runner\iot_demo_freertos.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\demo_runner\iot_demo_runner.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_init.c"/>
@@ -562,6 +560,7 @@
 		<ClCompile Include="..\..\..\..\..\demos\device_shadow_for_aws\shadow_demo_main.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\jobs_for_aws\jobs_demo.c"/>
+		<ClCompile Include="..\..\..\..\..\demos\ota\ota_demo_core_http\ota_demo_core_http.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\ota\ota_demo_core_mqtt\ota_demo_core_mqtt.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_task.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code\main.c"/>
