@@ -92,7 +92,7 @@
  * initializing the OTA agent. The agent uses this size to allocate static storage for the
  * Thing name used in all OTA base topics. Namely $aws/things/<thingName>
  */
-#define otaconfigMAX_THINGNAME_LEN             64U
+#define otaconfigMAX_THINGNAME_LEN             128U
 
 /**
  * @brief The maximum number of data blocks requested per request from the OTA
