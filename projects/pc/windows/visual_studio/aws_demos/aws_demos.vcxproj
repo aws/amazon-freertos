@@ -106,7 +106,6 @@
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_clientcredential.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_clientcredential_keys.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\aws_demo.h"/>
-		<ClInclude Include="..\..\..\..\..\demos\include\aws_iot_demo_network.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_config_common.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_demo_logging.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_demo_runner.h"/>

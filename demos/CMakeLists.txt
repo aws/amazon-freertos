@@ -15,7 +15,6 @@ afr_module_sources(
         "${AFR_DEMOS_DIR}/include/aws_clientcredential.h"
         "${AFR_DEMOS_DIR}/include/aws_clientcredential_keys.h"
         "${AFR_DEMOS_DIR}/include/aws_demo.h"
-        "${AFR_DEMOS_DIR}/include/aws_iot_demo_network.h"
         "${AFR_DEMOS_DIR}/include/iot_config_common.h"
         "${AFR_DEMOS_DIR}/include/iot_demo_logging.h"
         "${AFR_DEMOS_DIR}/include/iot_demo_runner.h"
