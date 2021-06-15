@@ -101,7 +101,7 @@
  *
  * <b>Possible values:</b> Any unsigned 32 integer. <br>
  */
-#define otaconfigMAX_THINGNAME_LEN              64U
+#define otaconfigMAX_THINGNAME_LEN              128U
 
 /**
  * @brief The maximum number of data blocks requested from OTA streaming
@@ -151,7 +151,7 @@
  *
  * <b>Possible values:</b> Any unsigned 32 integer. <br>
  */
-#define otaconfigMAX_NUM_OTA_DATA_BUFFERS       4U
+#define otaconfigMAX_NUM_OTA_DATA_BUFFERS       ( otaconfigMAX_NUM_BLOCKS_REQUEST + 1U )
 
 /**
  * @brief Flag to enable booting into updates that have an identical or lower
@@ -189,7 +189,7 @@
  * Enable data over HTTP - ( OTA_DATA_OVER_HTTP ) <br>
  * Enable data over both MQTT & HTTP - ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP ) <br>
  */
-#define configENABLED_DATA_PROTOCOLS            ( OTA_DATA_OVER_MQTT )
+#define configENABLED_DATA_PROTOCOLS            ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
 
 /**
  * @brief The preferred protocol selected for OTA data operations.
