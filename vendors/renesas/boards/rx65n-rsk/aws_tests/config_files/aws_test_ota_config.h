@@ -27,8 +27,8 @@
  * @file aws_test_ota_config.h
  * @brief Port-specific variables for firmware Over-the-Air Update tests. */
 
-#ifndef _AWS_TEST_OTA_CONFIG_H_
-#define _AWS_TEST_OTA_CONFIG_H_
+#ifndef AWS_TEST_OTA_CONFIG_H_
+#define AWS_TEST_OTA_CONFIG_H_
 
 /**
  * @brief Path to the OTA PAL test certificate used to verify the signature.
@@ -71,4 +71,28 @@
  */
 #include "aws_test_ota_pal_ecdsa_sha256_signature.h"
 
-#endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */
+/**
+ * @brief Major version of the firmware.
+ *
+ * This is used in the OTA demo to set the appFirmwareVersion variable that is
+ * declared in the ota_appversion32.h file in the OTA library.
+ */
+#define APP_VERSION_MAJOR    0
+
+/**
+ * @brief Minor version of the firmware.
+ *
+ * This is used in the OTA demo to set the appFirmwareVersion variable that is
+ * declared in the ota_appversion32.h file in the OTA library.
+ */
+#define APP_VERSION_MINOR    9
+
+/**
+ * @brief Build version of the firmware.
+ *
+ * This is used in the OTA demo to set the appFirmwareVersion variable that is
+ * declared in the ota_appversion32.h file in the OTA library.
+ */
+#define APP_VERSION_BUILD    0
+
+#endif /* ifndef AWS_TEST_OTA_CONFIG_H_ */
