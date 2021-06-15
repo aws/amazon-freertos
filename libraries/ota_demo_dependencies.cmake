@@ -23,9 +23,18 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         ${OTA_SOURCES}
-        ${OTA_OS_FREERTOS_SOURCES} 
+        # Include missing OTA source .h files that are required to generate correct metadata.
+        "${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/source/include/ota_appversion32.h"
+        "${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/source/include/ota_config_defaults.h"
+        ${OTA_OS_FREERTOS_SOURCES}
+        # Include missing OTA FreeRTOS .h file that is required to generate correct metadata.
+        "${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/source/portable/os/ota_os_freertos.h"
         ${OTA_MQTT_SOURCES}
+        # Include missing OTA MQTT interface .h file that is required to generate correct metadata.
+        "${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/source/include/ota_mqtt_interface.h"
         ${OTA_HTTP_SOURCES}
+        # Include missing OTA HTTP interface .h file that is required to generate correct metadata.
+        "${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/include/ota_http_interface.h"
 )
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
