@@ -1,6 +1,6 @@
 /*
  * FreeRTOS BLE HAL V5.1.0
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2020-2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -133,27 +133,38 @@ typedef struct
  */
 typedef enum
 {
-    eBTauthSuccess,                /**< eBTauthSuccess. */
-    eBTauthFailLmpRespTimeout,     /**< eBTauthFailLmpRespTimeout. */
-    eBTauthFailKeyMissing,         /**< eBTauthFailKeyMissing. */
-    eBTauthFailEncrypMode,         /**< eBTauthFailEncrypMode. */
-    eBTauthFailUnitKey,            /**< eBTauthFailUnitKey. */
-    eBTauthFailSmpCfrmValue,       /**< eBTauthFailSmpCfrmValue. */
-    eBTauthFailSmpEnc,             /**< eBTauthFailSmpEnc. */
-    eBTauthFailSmpTimeout,         /**< eBTauthFailSmpTimeout. */
-    eBTauthFailPageTimeout,        /**< eBTauthFailPageTimeout. */
-    eBTauthFailSmpPasskeyFail,     /**< eBTauthFailSmpPasskeyFail. */
-    eBTauthFailSmpOobFail,         /**< eBTauthFailSmpOobFail. */
-    eBTauthFailSmpFail,            /**< eBTauthFailSmpFail. */
-    eBTauthFailConnTimeout,        /**< eBTauthFailConnTimeout. */
-    eBTauthFailSmp,                /**< eBTauthFailSmp. */
-    eBTauthFailSmpPairNotSupport,  /**< eBTauthFailSmpPairNotSupport. */
-    eBTauthFailSmpUnknownIo,       /**< eBTauthFailSmpUnknownIo. */
-    eBTauthFailSmpUnknown,         /**< eBTauthFailSmpUnknown. */
-    eBTauthFailHostRejectSecurity, /**< eBTauthFailHostRejectSecurity. */
-    eBTauthFailInsuffSecurity,     /**< eBTauthFailInsuffSecurity. */
-    eBTauthFailPeerUser,           /**< eBTauthFailPeerUser. */
-    eBTauthFailUnspecified,        /**< eBTauthFailUnspecified. */
+    eBTauthSuccess = 0x00,                     /**< Authentication Success. */
+    eBTauthFailLmpRespTimeout = 0x01,          /**< LMP Response Timeout. */
+    eBTauthFailKeyMissing = 0x02,              /**< Authentication Key Missing. */
+    eBTauthFailEncrypMode = 0x03,              /**< Encryption Failure. */
+    eBTauthFailUnitKey = 0x04,                 /**< Unit Key Failure. */
+    eBTauthFailSmpCfrmValue = 0x05,            /**< Smp Confirm Value failed. (Core Spec v5.2: 0x04 - Confirm Value Failed) */
+    eBTauthFailSmpEnc = 0x06,                  /**< Smp Encryption Failure. */
+    eBTauthFailSmpTimeout = 0x07,              /**< Smp Connection Timeout. */
+    eBTauthFailPageTimeout = 0x08,             /**< Authentication Page Timeout. */
+    eBTauthFailSmpPasskeyFail = 0x09,          /**< Smp Pass Key Failure. (Core Spec v5.2: 0x01 - Passkey Entry Failed) */
+    eBTauthFailSmpOobFail = 0x0A,              /**< Smp OOB Failure. (Core Spec v5.2: 0x02 - OOB Not Available) */
+    eBTauthFailSmpFail = 0x0B,                 /**< Smp Failure. */
+    eBTauthFailConnTimeout = 0x0C,             /**< Authentication Connection Timeout. */
+    eBTauthFailSmp = 0x0D,                     /**< Smp Failure. */
+    eBTauthFailSmpPairNotSupport = 0x0E,       /**< Smp Pairing Not Supported. (Core Spec v5.2: 0x05 - Pairing Not Supported) */
+    eBTauthFailSmpUnknownIo = 0x0F,            /**< Smp IO Failure. */
+    eBTauthFailSmpUnknown = 0x10,              /**< Smp Unknown Failure. */
+    eBTauthFailHostRejectSecurity = 0x11,      /**< Host Reject Security. */
+    eBTauthFailInsuffSecurity = 0x12,          /**< Insufficient Security. */
+    eBTauthFailPeerUser = 0x13,                /**< Peer User Failure. */
+    eBTauthFailUnspecified = 0x14,             /**< Unspecified Failure. (Core Spec v5.2: 0x08 - Unspecified Reason) */
+    eBTauthFailSmpAuthReqFail = 0x15,          /**< Authentication Requirements Failure. (Core Spec v5.2: 0x03 - Authentication Requirements) */
+    eBTauthFailSmpEncKeySize = 0x16,           /**< Encryption Key Size Failure. (Core Spec v5.2: 0x06 - Encryption Key Size) */
+    eBTauthFailSmpCmdNotSupport = 0x17,        /**< Requested Command Not Supported. (Core Spec v5.2: 0x07 - Command Not Supported) */
+    eBTauthFailSmpRepeatedAttempt = 0x18,      /**< Repeated Attempts Failure. (Core Spec v5.2: 0x09 - Repeated Attempts) */
+    eBTauthFailSmpInvalidParameters = 0x19,    /**< Invalid Parameters.(Core Spec v5.2: 0x0A - Invalid Parameters) */
+    eBTauthFailSmpDhkeyCheckFail = 0x1A,       /**< Dhkey Check Failed.(Core Spec v5.2: 0x0B - DHKey Check Failed) */
+    eBTauthFailSmpNumericComparFail = 0x1B,    /**< Numeric Comparison Failed.(Core Spec v5.2: 0x0C - Numeric Comparison Failed) */
+    eBTauthFailSmpBrPairInProg = 0x1C,         /**< Classic Pairing in Progress. (Core Spec v5.2: 0x0D - BR/EDR pairing in progress) */
+    eBTauthFailSmpXtransDeriveNotAllow = 0x1D, /**< Keys referenced betn BR/EDR and LE transport. (Core Spec v5.2: 0x0E - Cross-transport Key Derivation/Generation not allowed) */
+    eBTauthFailStackErr = 0x100,               /**< Add Vendor defined authentication failures to this base. */
+    eBTauthFailHciErr = 0x200                  /**< Add HCI Error codes (From Bluetooth Core Specification v5.2, Vol 1, Part F) to this base. */
 } BTAuthFailureReason_t;
 
 
