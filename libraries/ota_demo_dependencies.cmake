@@ -1,31 +1,36 @@
 afr_module( NAME ota INTERNAL )
+
 # Include OTA library's source and header path variables.
 include("${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/otaFilePaths.cmake")
-# Create a list of all header files in the OTA library.
-# The list of header files will be added to metadata required
-# for the FreeRTOS console.
-set(OTA_HEADER_FILES "")
-foreach(ota_public_include_dir ${OTA_INCLUDE_PUBLIC_DIRS})
-    file(GLOB ota_public_include_header_files
-              LIST_DIRECTORIES false
-              ${ota_public_include_dir}/*.h )
-    list(APPEND OTA_HEADER_FILES ${ota_public_include_header_files})
-endforeach()
-# Remove the hardcoded coreJSON and TinyCBOR dependancies and add 
-# them manually later to enable them being used by other applications.
+
+# Remove the coreJSON and TinyCBOR files from the OTA_SOURCES and
+# OTA_INCLUDE_PRIVATE_DIR variables. This is so that the OTA target can depend
+# on the libraries part of amazon-freertos instead of the ones nested in the OTA repository.
 remove( OTA_SOURCES ${JSON_SOURCES} ${TINYCBOR_SOURCES} )
 remove( OTA_INCLUDE_PRIVATE_DIRS ${JSON_INCLUDE_PUBLIC_DIRS} ${TINYCBOR_INCLUDE_DIRS} )
+
 # Add cmake files of module to metadata.
 afr_module_cmake_files(${AFR_CURRENT_MODULE}
     ${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/otaFilePaths.cmake
 )
+
+# Define a target for the Over-the-air Update library.
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         ${OTA_SOURCES}
-        ${OTA_OS_FREERTOS_SOURCES} 
+        # Include missing OTA source .h files that are required to generate correct metadata.
+        "${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/source/include/ota_appversion32.h"
+        "${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/source/include/ota_config_defaults.h"
+        ${OTA_OS_FREERTOS_SOURCES}
+        # Include missing OTA FreeRTOS .h file that is required to generate correct metadata.
+        "${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/source/portable/os/ota_os_freertos.h"
         ${OTA_MQTT_SOURCES}
+        # Include missing OTA MQTT interface .h file that is required to generate correct metadata.
+        "${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/source/include/ota_mqtt_interface.h"
         ${OTA_HTTP_SOURCES}
+        # Include missing OTA HTTP interface .h file that is required to generate correct metadata.
+        "${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/source/include/ota_http_interface.h"
 )
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
