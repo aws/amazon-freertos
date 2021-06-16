@@ -38,7 +38,7 @@
 /* Includes for library initialization. */
 #include "iot_demo_runner.h"
 #include "platform/iot_threads.h"
-#include "types/iot_network_types.h"
+#include "iot_network_manager_private.h"
 
 #include "aws_demo.h"
 #include "aws_demo_config.h"

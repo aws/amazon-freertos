@@ -47,16 +47,10 @@
  */
 typedef enum AwsIotNetworkState
 {
-    eNetworkStateUnknown = 0, /*!< eNetworkStateUnknown State of the network is unknown */
-    eNetworkStateDisabled,    /*!< eNetworkStateDisabled State of the network is disabled/disconnected */
-    eNetworkStateEnabled      /*!< eNetworkStateEnabled  State of the network is enabled and connected. */
+    eNetworkStateDisabled = 0,     /*!< eNetworkStateDisabled State of Network is OFF and not able to transmit. */
+    eNetworkStateEnabled = 1,      /*!< eNetworkStateEnabled State of the network is ON and able to transmit. */
+    eNetworkStateDisconnected = 2, /*!< eNetworkStateDisconnected State of the network is disconnected. For example disconnected from a WiFi access point. */
+    eNetworkStateConnected = 3     /*!< eNetworkStateConnected State of the network is connected and ready for transmission. */
 } AwsIotNetworkState_t;
-
-
-/**
- * @brief Callback invoked by a driver to post network state change events.
- */
-typedef void ( * IotNetworkStateChangeEventCallback_t ) ( uint32_t ulNetworkType,
-                                                          AwsIotNetworkState_t xState );
 
 #endif /* IOT_NETWORK_TYPES_H_ */
