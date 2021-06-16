@@ -1555,11 +1555,6 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
                 xNumBytesReceived += lNumBytes;
             }
 
-            if( lNumBytes < 0 )
-            {
-                break;
-            }
-
             xEndTime = xTaskGetTickCount();
         }
         while( xMessageLength > xNumBytesReceived );
