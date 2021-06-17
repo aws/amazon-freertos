@@ -423,11 +423,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/types/iot_network_types.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/types/iot_network_types.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/iot_static_memory_common.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/iot_static_memory_common.c</locationURI>
@@ -481,6 +476,11 @@
 			<name>libraries/abstractions/platform/include/types/iot_platform_types.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/include/types/iot_platform_types.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/types/iot_network_types.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/include/types/iot_network_types.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/freertos/iot_clock_freertos.c</name>
@@ -1008,6 +1008,16 @@
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/mqtt_agent/freertos_command_pool.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/mqtt_agent/include/freertos_agent_message.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/mqtt_agent/include/freertos_agent_message.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/include/freertos_command_pool.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/mqtt_agent/include/freertos_command_pool.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/coreJSON/source/core_json.c</locationURI>
@@ -1133,9 +1143,29 @@
 			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/ota_base64.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/ota_for_aws/source/include/ota_appversion32.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_appversion32.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_config_defaults.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/ota_for_aws/source/portable/os/ota_os_freertos.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/portable/os/ota_os_freertos.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/portable/os/ota_os_freertos.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/portable/os/ota_os_freertos.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_mqtt_interface.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_mqtt_interface.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/ota_for_aws/source/ota_http.c</name>
@@ -1148,9 +1178,19 @@
 			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_http_private.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/ota_for_aws/source/include/ota_http_interface.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/ota_for_aws/source/include/ota_http_interface.h</locationURI>
+		</link>
+		<link>
 			<name>vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws/ota_pal.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws/ota_pal.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws/ota_pal.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws/ota_pal.h</locationURI>
 		</link>
 		<link>
 			<name>demos/common/ota_demo_helpers/ota_application_version.c</name>

@@ -252,9 +252,9 @@
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_logging_setup.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/types/iot_network_types.h</name>
+			<name>libraries/abstractions/platform/include/types/iot_network_types.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/types/iot_network_types.h</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/include/types/iot_network_types.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/iot_static_memory_common.c</name>

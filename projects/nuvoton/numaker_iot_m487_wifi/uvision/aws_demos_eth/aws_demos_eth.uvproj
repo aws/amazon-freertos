@@ -819,7 +819,7 @@
 						<File>
 							<FileName>iot_network_types.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/types/iot_network_types.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/platform/include/types/iot_network_types.h</FilePath>
 						</File>
 						<File>
 							<FileName>iot_taskpool_types.h</FileName>
