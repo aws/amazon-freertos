@@ -86,7 +86,7 @@
  * Events could be generated from underlying layer at a faster rate than they are processed with in network manager
  * subscription callbacks. Queue holds pending events to be procesed by network manager any time.
  */
-#define NETWORK_MANAGER_EVENT_QUEUE_SIZE         ( 5 )
+#define NETWORK_MANAGER_EVENT_QUEUE_SIZE         ( 10 )
 
 /**
  * @brief Priority of the network manager task.
@@ -298,7 +298,6 @@ static IotNMNetwork_t networks[] =
     #if ETH_ENABLED
         {
             .type = AWSIOT_NETWORK_TYPE_ETH,
-            .link = IOT_LINK_INITIALIZER,
             .state = eNetworkStateDisabled,
             .pNetworkInterface = IOT_NETWORK_INTERFACE_AFR,
             .pCredentials = &tcpIPCredentials,
@@ -382,7 +381,7 @@ static IotNetworkManagerInfo_t networkManager;
             if( bleInited == false )
             {
                 /* Perform BLE one time initialization. */
-                if( IotBle_Init() == eBTStatusSuccess )
+                if( IotBle_Init() != eBTStatusSuccess )
                 {
                     IotLogError( "Failed to initialize BLE stack." );
                 }
@@ -419,7 +418,7 @@ static IotNetworkManagerInfo_t networkManager;
                 }
             }
 
-            if( status == false )
+            if( status == true )
             {
                 pNetwork->state = eNetworkStateEnabled;
             }
@@ -470,20 +469,23 @@ static IotNetworkManagerInfo_t networkManager;
         {
             .networkType = AWSIOT_NETWORK_TYPE_BLE
         };
+        BaseType_t sendStatus;
 
         if( isConnected == true )
         {
             IotLogInfo( "BLE Connected to remote device, connId = %d\n", connectionID );
             IotBle_StopAdv( NULL );
             event.eventType = IOT_NETWORK_EVENT_CONNECTED;
-            xQueueSend( networkManager.eventQueue, &event, ( TickType_t ) 1U );
+            sendStatus = xQueueSend( networkManager.eventQueue, &event, ( TickType_t ) 1U );
+            configASSERT( sendStatus == pdTRUE );
         }
         else
         {
             IotLogInfo( "BLE disconnected with remote device, connId = %d \n", connectionID );
             ( void ) IotBle_StartAdv( NULL );
             event.eventType = IOT_NETWORK_EVENT_DISCONNECTED;
-            xQueueSend( networkManager.eventQueue, &event, ( TickType_t ) 1U );
+            sendStatus = xQueueSend( networkManager.eventQueue, &event, ( TickType_t ) 1U );
+            configASSERT( sendStatus == pdTRUE );
         }
     }
 
@@ -711,19 +713,22 @@ static IotNetworkManagerInfo_t networkManager;
         {
             .networkType = AWSIOT_NETWORK_TYPE_WIFI
         };
+        BaseType_t status;
 
         if( pxEvent->xEventType == eWiFiEventIPReady )
         {
             pucIpAddr = ( uint8_t * ) ( &pxEvent->xInfo.xIPReady.xIPAddress.ulAddress[ 0 ] );
             IotLogInfo( "Connected to WiFi access point, ip address: %d.%d.%d.%d.", pucIpAddr[ 0 ], pucIpAddr[ 1 ], pucIpAddr[ 2 ], pucIpAddr[ 3 ] );
             event.eventType = IOT_NETWORK_EVENT_CONNECTED;
-            xQueueSend( networkManager.eventQueue, &event, ( TickType_t ) 1U );
+            status = xQueueSend( networkManager.eventQueue, &event, ( TickType_t ) 1U );
+            configASSERT( status == pdTRUE );
         }
         else if( pxEvent->xEventType == eWiFiEventDisconnected )
         {
             IotLogInfo( "Disconnected from WiFi access point, reason code: %d.", pxEvent->xInfo.xDisconnected.xReason );
             event.eventType = IOT_NETWORK_EVENT_DISCONNECTED;
-            xQueueSend( networkManager.eventQueue, &event, ( TickType_t ) 1U );
+            status = xQueueSend( networkManager.eventQueue, &event, ( TickType_t ) 1U );
+            configASSERT( status == pdTRUE );
         }
     }
 
@@ -737,12 +742,12 @@ static IotNetworkManagerInfo_t networkManager;
         IotNMNetwork_t * pNetwork = NULL;
         bool ret = false;
 
-        pNetwork = prvGetNetworkInstance( AWSIOT_NETWORK_TYPE_WIFI );
+        pNetwork = prvGetNetworkInstance( AWSIOT_NETWORK_TYPE_ETH );
         configASSERT( pNetwork != NULL );
 
-        if( pNetwork->state == eNetworkStateUnknown )
+        if( pNetwork->state == eNetworkStateDisabled )
         {
-            pNetwork->state = eNetworkStateEnabled;
+            pNetwork->state = eNetworkStateConnected;
             ret = true;
         }
 
@@ -754,12 +759,12 @@ static IotNetworkManagerInfo_t networkManager;
         IotNMNetwork_t * pNetwork = NULL;
         bool ret = false;
 
-        pNetwork = prvGetNetworkInstance( AWSIOT_NETWORK_TYPE_WIFI );
+        pNetwork = prvGetNetworkInstance( AWSIOT_NETWORK_TYPE_ETH );
         configASSERT( pNetwork != NULL );
 
-        if( pNetwork->state != eNetworkStateUnknown )
+        if( pNetwork->state != eNetworkStateDisabled )
         {
-            pNetwork->state = eNetworkStateUnknown;
+            pNetwork->state = eNetworkStateDisabled;
             ret = true;
         }
 
@@ -799,6 +804,7 @@ static void prvDispatch( uint32_t networkType,
         if( ( ( networkManager.subscriptions[ index ].networkTypes & networkType ) == networkType ) &&
             ( networkManager.subscriptions[ index ].isActive == true ) )
         {
+            IotLogInfo( "Invoked callback for network state change event." );
             networkManager.subscriptions[ index ].callback( networkType, state, networkManager.subscriptions[ index ].pContext );
         }
     }
@@ -821,9 +827,9 @@ static void prvNetworkManagerTask( void * pvParams )
         {
             stateChange = false;
             pNetwork = prvGetNetworkInstance( event.networkType );
+            configASSERT( pNetwork != NULL );
 
             xSemaphoreTake( networkManager.globalMutex, portMAX_DELAY );
-            configASSERT( pNetwork != NULL );
 
             if( ( pNetwork->state == eNetworkStateEnabled ) && ( event.eventType == IOT_NETWORK_EVENT_CONNECTED ) )
             {
@@ -881,7 +887,7 @@ static void _initializeTCPIPCredentials( void )
 
 BaseType_t AwsIotNetworkManager_Init( void )
 {
-    BaseType_t status = pdFALSE;
+    BaseType_t status = pdTRUE;
     static bool isInit = false;
 
     if( !isInit )
@@ -922,12 +928,15 @@ BaseType_t AwsIotNetworkManager_Init( void )
 
         if( status == pdTRUE )
         {
-            status = xTaskCreate( prvNetworkManagerTask,
-                                  "NetworkManager",
-                                  NETWORK_MANAGER_TASK_STACK_SIZE,
-                                  NULL,
-                                  NETWORK_MANAGER_TASK_PRIORITY,
-                                  NULL );
+            if( ( status = xTaskCreate( prvNetworkManagerTask,
+                                        "NetworkManager",
+                                        NETWORK_MANAGER_TASK_STACK_SIZE,
+                                        NULL,
+                                        NETWORK_MANAGER_TASK_PRIORITY,
+                                        NULL ) ) != pdPASS )
+            {
+                IotLogError( "Failed to create network manager task." );
+            }
         }
 
         if( status == pdTRUE )
@@ -936,10 +945,6 @@ BaseType_t AwsIotNetworkManager_Init( void )
             networkManager.numNetworks = sizeof( networks ) / sizeof( IotNMNetwork_t );
             _initializeTCPIPCredentials();
         }
-    }
-    else
-    {
-        status = pdTRUE;
     }
 
     return status;
