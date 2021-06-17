@@ -243,7 +243,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
 {
     LogDebug( ("otaPal_CreateFileForRx is called." ) );
     LogDebug( ("Compiled in [%s] [%s].", __DATE__, __TIME__) );
-    OtaPalStatus_t eResult = OtaPalUninitialized;
+    OtaPalMainStatus_t eResult = OtaPalUninitialized;
     flash_interrupt_config_t cb_func_info;
 
     if( pFileContext != NULL )
@@ -302,7 +302,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
         LogError( ( "Failed to create a file: Invalid file context provided." ) );
     }
 
-    return eResult;
+    return OTA_PAL_COMBINE_ERR( eResult, 0 );
 }
 /*-----------------------------------------------------------*/
 
@@ -310,7 +310,7 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const pFileContext )
 {
     LogDebug( ( "otaPal_Abort is called." ) );
 
-    OtaPalStatus_t eResult = OtaPalSuccess;
+    OtaPalMainStatus_t eResult = OtaPalSuccess;
 
     if( ota_context_validate(pFileContext) == R_OTA_ERR_INVALID_CONTEXT )
     {
@@ -345,7 +345,7 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const pFileContext )
 	}
 
 	ota_context_close(pFileContext);
-    return eResult;
+    return OTA_PAL_COMBINE_ERR( eResult, 0 );
 }
 /*-----------------------------------------------------------*/
 
@@ -431,7 +431,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
 
 OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
 {
-	OtaPalStatus_t eResult = OtaPalSuccess;
+	OtaPalMainStatus_t eResult = OtaPalSuccess;
 
     if( ota_context_validate(pFileContext) == R_OTA_ERR_INVALID_CONTEXT )
     {
@@ -501,13 +501,13 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
 	}
 
 	ota_context_close(pFileContext);
-	return eResult;
+	return OTA_PAL_COMBINE_ERR( eResult, 0 );
 }
 /*-----------------------------------------------------------*/
 
 static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext )
 {
-    OtaPalStatus_t eResult;
+    OtaPalMainStatus_t eResult = OtaPalUninitialized;
     uint32_t ulSignerCertSize;
     void * pvSigVerifyContext;
     uint8_t * pucSignerCert = NULL;
@@ -591,7 +591,7 @@ static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileC
         vPortFree( pucSignerCert );
     }
 
-    return eResult;
+    return OTA_PAL_COMBINE_ERR( eResult, 0 );
 }
 /*-----------------------------------------------------------*/
 
@@ -667,7 +667,7 @@ OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const pFileContext )
     /* We shouldn't actually get here if the board supports the auto reset.
      * But, it doesn't hurt anything if we do although someone will need to
      * reset the device for the new image to boot. */
-    return OtaPalSuccess;
+	return OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
 }
 /*-----------------------------------------------------------*/
 
@@ -679,7 +679,7 @@ OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext )
 	vTaskDelay(5000);
 	otaPal_ResetDevice( pFileContext );	/* no return from this function */
 
-    return OtaPalSuccess;
+	return OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
 }
 /*-----------------------------------------------------------*/
 
@@ -690,7 +690,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
 
     LogDebug( ("otaPal_SetPlatformImageState is called.") );
 
-    OtaPalStatus_t eResult = OtaPalUninitialized;
+    OtaPalMainStatus_t eResult = OtaPalUninitialized;
 
 	/* Save the image state to eSavedAgentState. */
 	if (OtaImageStateTesting == load_firmware_control_block.eSavedAgentState)
@@ -765,7 +765,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
 
 	load_firmware_control_block.eSavedAgentState = eState;
 
-    return eResult;
+    return OTA_PAL_COMBINE_ERR( eResult, 0 );
 }
 /*-----------------------------------------------------------*/
 
