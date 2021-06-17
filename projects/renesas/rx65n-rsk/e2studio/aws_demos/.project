@@ -1962,6 +1962,106 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/jobs_for_aws/source/include/jobs.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/ota_for_aws/source/ota_mqtt.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/ota_mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/ota_cbor.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/ota_cbor.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_mqtt_private.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/include/ota_mqtt_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_cbor_private.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/include/ota_cbor_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/include/ota.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_os_interface.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/include/ota_os_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_platform_interface.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/include/ota_platform_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_private.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/include/ota_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_interface_private.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/include/ota_interface_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_base64_private.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/include/ota_base64_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/ota.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/ota.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/ota_interface.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/ota_interface.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/ota_base64.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/ota_base64.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/portable/os/ota_os_freertos.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/portable/os/ota_os_freertos.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/ota_http.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/ota_http.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/ota_for_aws/source/include/ota_http_private.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/ota_for_aws/source/include/ota_http_private.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/renesas/boards/rx65n-rsk/ports/ota_pal_for_aws/ota_pal.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/ports/ota_pal_for_aws/ota_pal.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/renesas/boards/rx65n-rsk/ports/ota_pal_for_aws/ota_pal.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/ports/ota_pal_for_aws/ota_pal.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/ota_demo_helpers/ota_application_version.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/common/ota_demo_helpers/ota_application_version.c</locationURI>
+		</link>
+		<link>
+			<name>demos/common/mqtt_subscription_manager/mqtt_subscription_manager.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/common/mqtt_subscription_manager/mqtt_subscription_manager.c</locationURI>
+		</link>
+		<link>
 			<name>demos/coreHTTP/http_demo_mutual_auth.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/coreHTTP/http_demo_mutual_auth.c</locationURI>
@@ -2045,6 +2145,16 @@
 			<name>demos/jobs_for_aws/jobs_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/jobs_for_aws/jobs_demo.c</locationURI>
+		</link>
+		<link>
+			<name>demos/ota/ota_demo_core_http/ota_demo_core_http.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/ota/ota_demo_core_http/ota_demo_core_http.c</locationURI>
+		</link>
+		<link>
+			<name>demos/ota/ota_demo_core_mqtt/ota_demo_core_mqtt.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/ota/ota_demo_core_mqtt/ota_demo_core_mqtt.c</locationURI>
 		</link>
 		<link>
 			<name>demos/tcp/aws_tcp_echo_client_single_task.c</name>
@@ -2185,6 +2295,16 @@
 			<name>config_files/mqtt_demo_plaintext_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/mqtt_demo_plaintext_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/ota_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/ota_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/ota_demo_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/ota_demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/shadow_config.h</name>
