@@ -94,8 +94,8 @@ static CK_RV prvGetCertificate( const char * pcLabelName,
                                 uint32_t * pulDataSize );
 
 static OtaPalMainStatus_t asn1_to_raw_ecdsa( uint8_t * signature,
-                                   uint16_t sig_len,
-                                   uint8_t * out_signature )
+                                             uint16_t sig_len,
+                                             uint8_t * out_signature )
 {
     int ret = 0;
     const unsigned char * end = signature + sig_len;
@@ -479,9 +479,9 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
     else
     {
         /* Verify the file signature, close the file and return the signature verification result. */
-        mainErr = OTA_PAL_MAIN_ERR( otaPal_CheckFileSignature( pFileContext ));
+        mainErr = OTA_PAL_MAIN_ERR( otaPal_CheckFileSignature( pFileContext ) );
 
-        if( mainErr != OtaPalSuccess  )
+        if( mainErr != OtaPalSuccess )
         {
             esp_partition_erase_range( ota_ctx.update_partition, 0, ota_ctx.update_partition->size );
         }
@@ -496,7 +496,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
                 memset( sec_boot_sig->pad, 0xFF, sizeof( sec_boot_sig->pad ) );
                 mainErr = asn1_to_raw_ecdsa( pFileContext->pSignature->data, pFileContext->pSignature->size, sec_boot_sig->raw_ecdsa_sig );
 
-                if( mainErr != OtaPalSuccess  )
+                if( mainErr != OtaPalSuccess )
                 {
                     esp_err_t ret = aws_esp_ota_write( ota_ctx.update_handle, sec_boot_sig, ota_ctx.data_write_len, ECDSA_SIG_SIZE );
 
