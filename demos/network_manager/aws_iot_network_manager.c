@@ -121,12 +121,19 @@ typedef struct IotNMSubscription
     BaseType_t isActive;
 } IotNMSubscription_t;
 
+/**
+ * @brief Enum defines the types of events received by the network manager from underlying network driver.
+ */
 typedef enum IotNetworkEventType
 {
     IOT_NETWORK_EVENT_CONNECTED = 0,
     IOT_NETWORK_EVENT_DISCONNECTED = 1
 } IotNetworkEventType_t;
 
+/**
+ * @brief Structure holds the event information associated with an event received from the underlying network driver.
+ * Structure is used queue network events for the network manager task to process.
+ */
 typedef struct IotNetworkEvent
 {
     uint32_t networkType;
@@ -580,7 +587,7 @@ static IotNetworkManagerInfo_t networkManager;
                     {
                         if( numRetries > 0 )
                         {
-                            IotClock_SleepMs( delayMilliseconds );
+                            vTaskDelay( pdMS_TO_TICKS( delayMilliseconds ) );
                             delayMilliseconds = delayMilliseconds * 2;
                         }
                         else
@@ -838,7 +845,7 @@ static void prvNetworkManagerTask( void * pvParams )
             }
             else if( ( pNetwork->state == eNetworkStateConnected ) && ( event.eventType == IOT_NETWORK_EVENT_DISCONNECTED ) )
             {
-                pNetwork->state = eNetworkStateDisconnected;
+                pNetwork->state = eNetworkStateEnabled;
                 stateChange = true;
             }
 
