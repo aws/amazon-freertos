@@ -1495,6 +1495,7 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
     TickType_t xStartTime;
     TickType_t xEndTime;
     TickType_t xTimeout = 0;
+    TickType_t xWaitTime = 1000;
     uint8_t * pucTxBuffer = ( uint8_t * ) pcTxBuffer;
     uint8_t * pucRxBuffer = ( uint8_t * ) pcRxBuffer;
     size_t xMessageLength = 1200;
@@ -1558,6 +1559,12 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
             /* Since we are in non blocking mode, this error is expected if the TCP stack is
              * still processing the packet. */
             if( ( lNumBytes < 0 ) && ( lNumBytes != SOCKETS_EWOULDBLOCK ) )
+            {
+                break;
+            }
+            
+            /* Do not wait more than xWaitTime even if the error is SOCKETS_EWOULDBLOCK. */
+            if( ( xEndTime - xStartTime ) > xWaitTime )
             {
                 break;
             }
