@@ -94,8 +94,8 @@ static CK_RV prvGetCertificate( const char * pcLabelName,
                                 uint32_t * pulDataSize );
 
 static OtaPalMainStatus_t asn1_to_raw_ecdsa( uint8_t * signature,
-                                             uint16_t sig_len,
-                                             uint8_t * out_signature )
+                                   uint16_t sig_len,
+                                   uint8_t * out_signature )
 {
     int ret = 0;
     const unsigned char * end = signature + sig_len;
@@ -199,7 +199,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
         return OTA_PAL_COMBINE_ERR( OtaPalRxFileCreateFailed, 0 );
     }
 
-    const esp_partition_t * update_partition = esp_ota_get_next_update_partition( NULL );
+    const esp_partition_t * update_partition = aws_esp_ota_get_next_update_partition( NULL );
 
     if( update_partition == NULL )
     {
@@ -211,11 +211,11 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
               update_partition->subtype, update_partition->address );
 
     esp_ota_handle_t update_handle;
-    esp_err_t err = esp_ota_begin( update_partition, OTA_SIZE_UNKNOWN, &update_handle );
+    esp_err_t err = aws_esp_ota_begin( update_partition, OTA_SIZE_UNKNOWN, &update_handle );
 
     if( err != ESP_OK )
     {
-        ESP_LOGE( TAG, "esp_ota_begin failed (%d)", err );
+        ESP_LOGE( TAG, "aws_esp_ota_begin failed (%d)", err );
         return OTA_PAL_COMBINE_ERR( OtaPalRxFileCreateFailed, 0 );
     }
 
@@ -227,7 +227,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
     ota_ctx.data_write_len = 0;
     ota_ctx.valid_image = false;
 
-    ESP_LOGI( TAG, "esp_ota_begin succeeded" );
+    ESP_LOGI( TAG, "aws_esp_ota_begin succeeded" );
 
     return OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
 }
@@ -479,9 +479,9 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
     else
     {
         /* Verify the file signature, close the file and return the signature verification result. */
-        mainErr = OTA_PAL_MAIN_ERR( otaPal_CheckFileSignature( pFileContext ) );
+        mainErr = OTA_PAL_MAIN_ERR( otaPal_CheckFileSignature( pFileContext ));
 
-        if( mainErr != OtaPalSuccess )
+        if( mainErr != OtaPalSuccess  )
         {
             esp_partition_erase_range( ota_ctx.update_partition, 0, ota_ctx.update_partition->size );
         }
@@ -496,9 +496,9 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
                 memset( sec_boot_sig->pad, 0xFF, sizeof( sec_boot_sig->pad ) );
                 mainErr = asn1_to_raw_ecdsa( pFileContext->pSignature->data, pFileContext->pSignature->size, sec_boot_sig->raw_ecdsa_sig );
 
-                if( mainErr == OtaPalSuccess )
+                if( mainErr != OtaPalSuccess  )
                 {
-                    esp_err_t ret = esp_ota_write_with_offset( ota_ctx.update_handle, sec_boot_sig, ota_ctx.data_write_len, ECDSA_SIG_SIZE );
+                    esp_err_t ret = aws_esp_ota_write( ota_ctx.update_handle, sec_boot_sig, ota_ctx.data_write_len, ECDSA_SIG_SIZE );
 
                     if( ret != ESP_OK )
                     {
@@ -537,18 +537,18 @@ OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext )
 
     if( ota_ctx.cur_ota != NULL )
     {
-        if( esp_ota_end( ota_ctx.update_handle ) != ESP_OK )
+        if( aws_esp_ota_end( ota_ctx.update_handle ) != ESP_OK )
         {
-            ESP_LOGE( TAG, "esp_ota_end failed!" );
+            ESP_LOGE( TAG, "aws_esp_ota_end failed!" );
             esp_partition_erase_range( ota_ctx.update_partition, 0, ota_ctx.update_partition->size );
             otaPal_ResetDevice( pFileContext );
         }
 
-        esp_err_t err = esp_ota_set_boot_partition( ota_ctx.update_partition );
+        esp_err_t err = aws_esp_ota_set_boot_partition( ota_ctx.update_partition );
 
         if( err != ESP_OK )
         {
-            ESP_LOGE( TAG, "esp_ota_set_boot_partition failed (%d)!", err );
+            ESP_LOGE( TAG, "aws_esp_ota_set_boot_partition failed (%d)!", err );
             esp_partition_erase_range( ota_ctx.update_partition, 0, ota_ctx.update_partition->size );
             _esp_ota_ctx_clear( &ota_ctx );
         }
@@ -569,7 +569,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
 {
     if( _esp_ota_ctx_validate( pFileContext ) )
     {
-        esp_err_t ret = esp_ota_write_with_offset( ota_ctx.update_handle, pacData, iOffset, iBlockSize );
+        esp_err_t ret = aws_esp_ota_write( ota_ctx.update_handle, pacData, iOffset, iBlockSize );
 
         if( ret != ESP_OK )
         {
