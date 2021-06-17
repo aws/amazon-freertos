@@ -1251,6 +1251,9 @@
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\ota_pal_for_aws\ota_pal.c</name>
 							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\ota_pal_for_aws\ota_pal.h</name>
+							</file>
 						</group>
 					</group>
 					<group>
@@ -1623,6 +1626,15 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_command_pool.c</name>
 				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include\freertos_agent_message.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include\freertos_command_pool.h</name>
+					</file>
+				</group>
 			</group>
 		</group>
 		<group>
@@ -2751,7 +2763,19 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_base64_private.h</name>
 					</file>
 					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_appversion32.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_config_defaults.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_mqtt_interface.h</name>
+					</file>
+					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_interface.h</name>
 					</file>
 				</group>
 				<file>
@@ -2769,6 +2793,9 @@
 						<name>os</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\portable\os\ota_os_freertos.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\portable\os\ota_os_freertos.h</name>
 						</file>
 					</group>
 				</group>
