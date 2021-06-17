@@ -1554,6 +1554,13 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
                  */
                 xNumBytesReceived += lNumBytes;
             }
+            
+            /* Since we are in non blocking mode, this error is expected if the TCP stack is
+             * still processing the packet. */
+            if( ( lNumBytes < 0 ) && ( lNumBytes != SOCKETS_EWOULDBLOCK ) )
+            {
+                break;
+            }
 
             xEndTime = xTaskGetTickCount();
         }
