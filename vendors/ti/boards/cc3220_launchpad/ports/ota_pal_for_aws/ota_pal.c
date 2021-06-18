@@ -163,7 +163,7 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const C )
         prvRollbackBundle();
     }
 
-    return OTA_PAL_COMBINE_ERR( mainErr, subErr );
+    return OTA_PAL_COMBINE_ERR( mainErr, OTA_PAL_SUB_ERR( subErr ) );
 }
 
 
@@ -194,7 +194,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
                             SL_FS_CREATE_PUBLIC_WRITE | SL_FS_WRITE_BUNDLE_FILE |
                             SL_FS_CREATE_SECURE | SL_FS_CREATE_VENDOR_TOKEN |
                             SL_FS_CREATE_MAX_SIZE( OTA_MAX_MCU_IMAGE_SIZE ) );
-                /* The file remains open until the OTA agent calls prvPAL_CloseFile() after transfer or failure. */
+                /* The file remains open until the OTA agent calls otaPal_CloseFile() after transfer or failure. */
                 lResult = sl_FsOpen( ( _u8 * ) C->pFilePath, ( _u32 ) ulFlags, ( _u32 * ) &ulToken );
 
                 if( lResult > 0 )
@@ -247,7 +247,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
         subErr = OTA_MAX_MCU_IMAGE_SIZE;
     }
 
-    return OTA_PAL_COMBINE_ERR( mainErr, subErr );
+    return OTA_PAL_COMBINE_ERR( mainErr, OTA_PAL_SUB_ERR( subErr ) );
 }
 
 
@@ -348,7 +348,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C )
             break;
     }
 
-    return OTA_PAL_COMBINE_ERR( mainErr, subErr );
+    return OTA_PAL_COMBINE_ERR( mainErr, OTA_PAL_SUB_ERR( subErr ) );
 }
 
 
@@ -370,7 +370,7 @@ OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const C )
     /* We shouldn't actually get here if the board supports the auto reset.
      * But, it doesn't hurt anything if we do although someone will need to
      * reset the device for the new image to boot. */
-    return OtaPalActivateFailed;
+    return OTA_PAL_COMBINE_ERR( OtaPalActivateFailed, 0 );
 }
 
 
@@ -458,7 +458,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
         mainErr = OtaPalBadImageState;
     }
 
-    return OTA_PAL_COMBINE_ERR( mainErr, subErr );
+    return OTA_PAL_COMBINE_ERR( mainErr, OTA_PAL_SUB_ERR( subErr ) );
 }
 
 /* Get the state of the currently running image.
