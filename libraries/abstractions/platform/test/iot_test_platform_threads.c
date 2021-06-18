@@ -162,6 +162,7 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
         }
 
         printf( "Expected Pri = 7, actual = %d\r\n", ( int ) attrData );
+        TEST_ASSERT_EQUAL( 7, attrData );
     }
 #endif /* if ( INCLUDE_uxTaskPriorityGet == 1 ) */
 
