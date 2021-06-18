@@ -2745,10 +2745,13 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
                 configPRINTF( ( "Received %d bytes. Total %d\r\n", xReturned, xTotalReceived ) );
                 TEST_ASSERT_GREATER_OR_EQUAL_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
 
-                /* Data was received. */
-                TEST_ASSERT_EQUAL_MEMORY( &cTransmittedString[ xTotalReceived ], pcReceivedString, xReturned );
+                if( xReturned > 0 )
+                {
+                    /* Data was received. */
+                    TEST_ASSERT_EQUAL_MEMORY( &cTransmittedString[ xTotalReceived ], pcReceivedString, xReturned );
 
-                xTotalReceived += xReturned;
+                    xTotalReceived += xReturned;
+                }
             }
 
             /* Rendezvous with the Tx task ready to start a new cycle with a
