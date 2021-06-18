@@ -59,13 +59,13 @@
 #define PKCS11_MAX_SLOTS_ALLOWED        1
 #endif
 
-   /** Maximum number of total sessions allowed in the system - if using static
+/** Maximum number of total sessions allowed in the system - if using static
 	  memory then this many session contexts will be allocated */
 #ifndef PKCS11_MAX_SESSIONS_ALLOWED
 #define PKCS11_MAX_SESSIONS_ALLOWED     10
 #endif
 
-	  /** Maximum number of cryptographic objects allowed to be cached */
+/** Maximum number of cryptographic objects allowed to be cached */
 #ifndef PKCS11_MAX_OBJECTS_ALLOWED
 #define PKCS11_MAX_OBJECTS_ALLOWED      16
 #endif
@@ -88,13 +88,13 @@
 #define PKCS11_EXTERNAL_FUNCTION_LIST    1
 #endif
 
-   /** Static Search Attribute Cache in bytes (variable number of attributes based
+/** Static Search Attribute Cache in bytes (variable number of attributes based
 	  on size and memory requirements) */
 #ifndef PKCS11_SEARCH_CACHE_SIZE
 #define PKCS11_SEARCH_CACHE_SIZE        250
 #endif
 
-	  /** Support for configuring a "blank" or new device */
+/** Support for configuring a "blank" or new device */
 #ifndef PKCS11_TOKEN_INIT_SUPPORT
 #define PKCS11_TOKEN_INIT_SUPPORT       1
 #endif
