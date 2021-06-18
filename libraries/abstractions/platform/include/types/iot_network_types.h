@@ -47,9 +47,9 @@
  */
 typedef enum AwsIotNetworkState
 {
-    eNetworkStateDisabled = 0,     /*!< eNetworkStateDisabled State of Network is OFF or disabled. */
-    eNetworkStateEnabled = 1,      /*!< eNetworkStateEnabled State of the network is enabled but not yet serving traffic. */
-    eNetworkStateConnected = 2     /*!< eNetworkStateConnected State of the network is connected and ready for serving traffic. */
+    eNetworkStateDisabled = 0, /*!< eNetworkStateDisabled State of Network is OFF or disabled. */
+    eNetworkStateEnabled = 1,  /*!< eNetworkStateEnabled State of the network is enabled but not yet serving traffic. */
+    eNetworkStateConnected = 2 /*!< eNetworkStateConnected State of the network is connected and ready for serving traffic. */
 } AwsIotNetworkState_t;
 
 #endif /* IOT_NETWORK_TYPES_H_ */
