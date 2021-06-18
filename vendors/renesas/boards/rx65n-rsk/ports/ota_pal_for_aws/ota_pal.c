@@ -459,7 +459,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
 
     if( pFileContext->pSignature != NULL )
     {
-        eResult = otaPal_CheckFileSignature( pFileContext );
+        eResult = OTA_PAL_MAIN_ERR( otaPal_CheckFileSignature( pFileContext ) );
     }
     else
     {
