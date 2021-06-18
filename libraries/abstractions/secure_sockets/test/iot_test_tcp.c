@@ -92,7 +92,7 @@ char * pcRxBuffer = &cBuffer[ tcptestBUFFER_SIZE ];
 
 /* Default Rx and Tx time outs are used to ensure the sockets do not
  * wait too long for missing data. */
-static const TickType_t xReceiveTimeOut = pdMS_TO_TICKS( integrationtestportableRECEIVE_TIMEOUT );
+static const TickType_t xTimeOut = pdMS_TO_TICKS( integrationtestportableRECEIVE_TIMEOUT );
 static const TickType_t xSendTimeOut = pdMS_TO_TICKS( integrationtestportableSEND_TIMEOUT );
 
 /* Primary socket, declared globally so that it can be closed in test tear down
@@ -2743,7 +2743,7 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
                 xReturned = SOCKETS_Recv( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0 );
 
                 configPRINTF( ( "Received %d bytes. Total %d\r\n", xReturned, xTotalReceived ) );
-                TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
+                TEST_ASSERT_GREATER_OR_EQUAL_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
 
                 /* Data was received. */
                 TEST_ASSERT_EQUAL_MEMORY( &cTransmittedString[ xTotalReceived ], pcReceivedString, xReturned );
