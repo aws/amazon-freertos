@@ -162,6 +162,11 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const C )
          * transfer (therefore interpreted as an abort). */
         prvRollbackBundle();
     }
+    else
+    {
+        /* The file handle is already NULL, so succeed by default. */
+        mainErr = OtaPalSuccess;
+    }
 
     return OTA_PAL_COMBINE_ERR( mainErr, OTA_PAL_SUB_ERR( subErr ) );
 }
