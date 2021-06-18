@@ -200,7 +200,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
                 if( lResult > 0 )
                 {
                     LogInfo( ( "Receive file created. Token: %u", ulToken ) );
-                    C->pFile = ( uint8_t* )lResult;
+                    C->pFile = ( uint8_t * ) lResult;
                     mainErr = OtaPalSuccess;
                 }
                 else
@@ -267,7 +267,7 @@ static int32_t prvCreateBootInfoFile( void )
                              SL_FS_CREATE | SL_FS_OVERWRITE | SL_FS_CREATE_MAX_SIZE( sizeof( sBootInfo ) ) |
                              SL_FS_CREATE_SECURE | SL_FS_CREATE_VENDOR_TOKEN |
                              SL_FS_CREATE_PUBLIC_WRITE | SL_FS_CREATE_NOSIGNATURE,
-                             ( _u32 * ) &ulToken );     /*lint !e9087 Safe because uint32_t ulToken and _u32 are the same size on CC3220SF. */
+                             ( _u32 * ) &ulToken ); /*lint !e9087 Safe because uint32_t ulToken and _u32 are the same size on CC3220SF. */
 
     if( lFileHandle < 0 )
     {
@@ -535,7 +535,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const C,
 
     for( ulRetry = 0UL; ulRetry <= OTA_MAX_PAL_WRITE_RETRIES; ulRetry++ )
     {
-        lResult = sl_FsWrite( ( _i32 )C->pFile, ulOffset + ulWritten, &pcData[ ulWritten ], ulBlockSize );
+        lResult = sl_FsWrite( ( _i32 ) C->pFile, ulOffset + ulWritten, &pcData[ ulWritten ], ulBlockSize );
 
         if( lResult >= 0 )
         {
