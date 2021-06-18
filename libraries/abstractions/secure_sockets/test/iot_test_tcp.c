@@ -1568,7 +1568,7 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
                  * There is a timeout added below so that this code doesn't spin in this loop
                  * indefinately. */
             }
-            
+
             /* Do not wait more than xWaitTime even if the error is SOCKETS_EWOULDBLOCK. */
             if( ( xEndTime - xStartTime ) > xWaitTime )
             {
