@@ -581,7 +581,7 @@ static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileC
     if( CRYPTO_SignatureVerificationStart( &pvSigVerifyContext, cryptoASYMMETRIC_ALGORITHM_ECDSA,
                                            cryptoHASH_ALGORITHM_SHA256 ) == pdFALSE )
     {
-        return OtaPalSignatureCheckFailed;
+        return OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, 0 );
     }
     else
     {
