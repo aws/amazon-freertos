@@ -2742,6 +2742,7 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
             {
                 xReturned = SOCKETS_Recv( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0 );
 
+                configPRINTF( ( "Received %d\r\n", xReturned ) );
                 TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
 
                 /* Data was received. */
@@ -2880,11 +2881,13 @@ static void prvEchoClientTxTask( void * pvParameters )
 
             if( xReturned >= 0 )
             {
+                configPRINTF( ( "Data sent\r\n" ) );
                 /* Data was sent successfully. */
                 xTransmitted += xReturned;
             }
             else
             {
+                configPRINTF( ( "Sending failed\r\n" ) );
                 xStatus = pdFAIL;
                 break;
             }
@@ -2898,6 +2901,7 @@ static void prvEchoClientTxTask( void * pvParameters )
                              ( tcptestTX_TASK_BIT | tcptestRX_TASK_BIT ), /* Also wait for the Rx task. */
                              tcptestECHO_TEST_SYNC_TIMEOUT_TICKS ) != ( tcptestTX_TASK_BIT | tcptestRX_TASK_BIT ) )
         {
+            configPRINTF( ( "Cannot send to event group\r\n" ) );
             xStatus = pdFAIL;
         }
 
