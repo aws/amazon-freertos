@@ -498,7 +498,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
 
                 if( mainErr == OtaPalSuccess )
                 {
-                    esp_err_t ret = esp_ota_write_with_offset( ota_ctx.update_handle, sec_boot_sig, ota_ctx.data_write_len, ECDSA_SIG_SIZE );
+                    esp_err_t ret = esp_ota_write_with_offset( ota_ctx.update_handle, sec_boot_sig, ECDSA_SIG_SIZE, ota_ctx.data_write_len );
 
                     if( ret != ESP_OK )
                     {
@@ -569,7 +569,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
 {
     if( _esp_ota_ctx_validate( pFileContext ) )
     {
-        esp_err_t ret = esp_ota_write_with_offset( ota_ctx.update_handle, pacData, iOffset, iBlockSize );
+        esp_err_t ret = esp_ota_write_with_offset( ota_ctx.update_handle, pacData, iBlockSize, iOffset );
 
         if( ret != ESP_OK )
         {
