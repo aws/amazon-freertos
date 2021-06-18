@@ -1555,12 +1555,18 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
                  */
                 xNumBytesReceived += lNumBytes;
             }
-            
-            /* Since we are in non blocking mode, this error is expected if the TCP stack is
-             * still processing the packet. */
-            if( ( lNumBytes < 0 ) && ( lNumBytes != SOCKETS_EWOULDBLOCK ) )
+            else if( ( lNumBytes < 0 ) && ( lNumBytes != SOCKETS_EWOULDBLOCK ) )
             {
+                /* Since we are in non blocking mode, this error is expected if the TCP stack is
+                 * still processing the packet. */
                 break;
+            }
+            else
+            {
+                /* Do nothing. Maybe we have got SOCKETS_EWOULDBLOCK which indicates that we have
+                 * to wait OR the received number of bytes is zero which is strange but acceptable.
+                 * There is a timeout added below so that this code doesn't spin in this loop
+                 * indefinately. */
             }
             
             /* Do not wait more than xWaitTime even if the error is SOCKETS_EWOULDBLOCK. */
