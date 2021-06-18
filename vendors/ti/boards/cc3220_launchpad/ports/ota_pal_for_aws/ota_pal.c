@@ -143,7 +143,7 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const C )
     /* Check for null file handle since the agent may legitimately call this before a file is opened. */
     if( C->pFile != ( int32_t ) NULL )
     {
-        lResult = sl_FsClose( C->pFile, ( _u8 * ) NULL, ( _u8 * ) pcTI_AbortSig, CONST_STRLEN( pcTI_AbortSig ) );
+        lResult = sl_FsClose( ( _i32 ) C->pFile, ( _u8 * ) NULL, ( _u8 * ) pcTI_AbortSig, CONST_STRLEN( pcTI_AbortSig ) );
         C->pFile = ( int32_t ) NULL;
 
         if( lResult != 0 )
@@ -200,7 +200,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
                 if( lResult > 0 )
                 {
                     LogInfo( ( "Receive file created. Token: %u", ulToken ) );
-                    C->pFile = lResult;
+                    C->pFile = ( uint8_t* )lResult;
                     mainErr = OtaPalSuccess;
                 }
                 else
@@ -535,7 +535,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const C,
 
     for( ulRetry = 0UL; ulRetry <= OTA_MAX_PAL_WRITE_RETRIES; ulRetry++ )
     {
-        lResult = sl_FsWrite( C->pFile, ulOffset + ulWritten, &pcData[ ulWritten ], ulBlockSize );
+        lResult = sl_FsWrite( ( _i32 )C->pFile, ulOffset + ulWritten, &pcData[ ulWritten ], ulBlockSize );
 
         if( lResult >= 0 )
         {
