@@ -92,7 +92,7 @@ char * pcRxBuffer = &cBuffer[ tcptestBUFFER_SIZE ];
 
 /* Default Rx and Tx time outs are used to ensure the sockets do not
  * wait too long for missing data. */
-static const TickType_t xTimeOut = pdMS_TO_TICKS( integrationtestportableRECEIVE_TIMEOUT );
+static const TickType_t xReceiveTimeOut = pdMS_TO_TICKS( integrationtestportableRECEIVE_TIMEOUT );
 static const TickType_t xSendTimeOut = pdMS_TO_TICKS( integrationtestportableSEND_TIMEOUT );
 
 /* Primary socket, declared globally so that it can be closed in test tear down
