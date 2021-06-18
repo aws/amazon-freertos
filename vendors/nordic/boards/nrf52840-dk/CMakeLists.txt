@@ -424,10 +424,11 @@ afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
     INTERFACE
-        "${afr_ports_dir}/ota_for_aws/aws_ota_pal.c"
-        "${afr_ports_dir}/ota_for_aws/asn1utility.c"
-        "${afr_ports_dir}/ota_for_aws/asn1utility.h"
-        "${afr_ports_dir}/ota_for_aws/aws_ota_pal_settings.h"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.h"
+        "${afr_ports_dir}/ota_pal_for_aws/asn1utility.c"
+        "${afr_ports_dir}/ota_pal_for_aws/asn1utility.h"
+        "${afr_ports_dir}/ota_pal_for_aws/aws_ota_pal_settings.h"
 )
 target_include_directories(
     AFR::ota::mcu_port
