@@ -1557,7 +1557,7 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
             }
             else if( ( lNumBytes < 0 ) && ( lNumBytes != SOCKETS_EWOULDBLOCK ) )
             {
-                /* Since we are in non blocking mode, SOCKETS_EWOULDBLOCK error is fine because the TCP stack may 
+                /* Since we are in non blocking mode, SOCKETS_EWOULDBLOCK error is fine because the TCP stack may
                  * still be processing the packet. Any other error is not expected and we break if we receive any other error. */
                 break;
             }
