@@ -143,7 +143,7 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const C )
     /* Check for null file handle since the agent may legitimately call this before a file is opened. */
     if( C->pFile != ( int32_t ) NULL )
     {
-        lResult = sl_FsClose( C->pFile, ( _u8 * ) NULL, ( _u8 * ) pcTI_AbortSig, CONST_STRLEN( pcTI_AbortSig ) );
+        lResult = sl_FsClose( ( _i32 ) C->pFile, ( _u8 * ) NULL, ( _u8 * ) pcTI_AbortSig, CONST_STRLEN( pcTI_AbortSig ) );
         C->pFile = ( int32_t ) NULL;
 
         if( lResult != 0 )
@@ -162,8 +162,13 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const C )
          * transfer (therefore interpreted as an abort). */
         prvRollbackBundle();
     }
+    else
+    {
+        /* The file handle is already NULL, so succeed by default. */
+        mainErr = OtaPalSuccess;
+    }
 
-    return OTA_PAL_COMBINE_ERR( mainErr, subErr );
+    return OTA_PAL_COMBINE_ERR( mainErr, OTA_PAL_SUB_ERR( subErr ) );
 }
 
 
@@ -194,13 +199,13 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
                             SL_FS_CREATE_PUBLIC_WRITE | SL_FS_WRITE_BUNDLE_FILE |
                             SL_FS_CREATE_SECURE | SL_FS_CREATE_VENDOR_TOKEN |
                             SL_FS_CREATE_MAX_SIZE( OTA_MAX_MCU_IMAGE_SIZE ) );
-                /* The file remains open until the OTA agent calls prvPAL_CloseFile() after transfer or failure. */
+                /* The file remains open until the OTA agent calls otaPal_CloseFile() after transfer or failure. */
                 lResult = sl_FsOpen( ( _u8 * ) C->pFilePath, ( _u32 ) ulFlags, ( _u32 * ) &ulToken );
 
                 if( lResult > 0 )
                 {
                     LogInfo( ( "Receive file created. Token: %u", ulToken ) );
-                    C->pFile = lResult;
+                    C->pFile = ( uint8_t * ) lResult;
                     mainErr = OtaPalSuccess;
                 }
                 else
@@ -247,7 +252,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
         subErr = OTA_MAX_MCU_IMAGE_SIZE;
     }
 
-    return OTA_PAL_COMBINE_ERR( mainErr, subErr );
+    return OTA_PAL_COMBINE_ERR( mainErr, OTA_PAL_SUB_ERR( subErr ) );
 }
 
 
@@ -267,7 +272,7 @@ static int32_t prvCreateBootInfoFile( void )
                              SL_FS_CREATE | SL_FS_OVERWRITE | SL_FS_CREATE_MAX_SIZE( sizeof( sBootInfo ) ) |
                              SL_FS_CREATE_SECURE | SL_FS_CREATE_VENDOR_TOKEN |
                              SL_FS_CREATE_PUBLIC_WRITE | SL_FS_CREATE_NOSIGNATURE,
-                             ( _u32 * ) &ulToken );     /*lint !e9087 Safe because uint32_t ulToken and _u32 are the same size on CC3220SF. */
+                             ( _u32 * ) &ulToken ); /*lint !e9087 Safe because uint32_t ulToken and _u32 are the same size on CC3220SF. */
 
     if( lFileHandle < 0 )
     {
@@ -348,7 +353,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const C )
             break;
     }
 
-    return OTA_PAL_COMBINE_ERR( mainErr, subErr );
+    return OTA_PAL_COMBINE_ERR( mainErr, OTA_PAL_SUB_ERR( subErr ) );
 }
 
 
@@ -370,7 +375,7 @@ OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const C )
     /* We shouldn't actually get here if the board supports the auto reset.
      * But, it doesn't hurt anything if we do although someone will need to
      * reset the device for the new image to boot. */
-    return OtaPalActivateFailed;
+    return OTA_PAL_COMBINE_ERR( OtaPalActivateFailed, 0 );
 }
 
 
@@ -458,7 +463,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const C,
         mainErr = OtaPalBadImageState;
     }
 
-    return OTA_PAL_COMBINE_ERR( mainErr, subErr );
+    return OTA_PAL_COMBINE_ERR( mainErr, OTA_PAL_SUB_ERR( subErr ) );
 }
 
 /* Get the state of the currently running image.
@@ -535,7 +540,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const C,
 
     for( ulRetry = 0UL; ulRetry <= OTA_MAX_PAL_WRITE_RETRIES; ulRetry++ )
     {
-        lResult = sl_FsWrite( C->pFile, ulOffset + ulWritten, &pcData[ ulWritten ], ulBlockSize );
+        lResult = sl_FsWrite( ( _i32 ) C->pFile, ulOffset + ulWritten, &pcData[ ulWritten ], ulBlockSize );
 
         if( lResult >= 0 )
         {
