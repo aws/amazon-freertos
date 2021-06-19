@@ -102,7 +102,7 @@ static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType,
                                                AwsIotNetworkState_t xNetworkState,
                                                void * pvContext )
 {
-    if( xNetworkState == eNetworkStateEnabled )
+    if( xNetworkState == eNetworkStateConnected )
     {
         configPRINTF( ( "Connected to a WiFi network, stopping WiFi provisioning loop.\r\n" ) );
         /* Add a delay for WiFi provisioning app to query the status before stopping the WiFi provisioning loop. */
@@ -113,7 +113,7 @@ static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType,
             configASSERT( IotWifiSoftAPProv_Stop() == true );
         #endif
     }
-    else
+    else if( xNetworkState == eNetworkStateEnabled )
     {
         /**
          * Sent a notification to the WiFi connect task to trigger a reconnection or start

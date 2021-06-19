@@ -4106,9 +4106,9 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/private/iot_taskpool_internal.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/types/iot_network_types.h</name>
+			<name>libraries/abstractions/platform/include/types/iot_network_types.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/types/iot_network_types.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/include/types/iot_network_types.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/types/iot_taskpool_types.h</name>

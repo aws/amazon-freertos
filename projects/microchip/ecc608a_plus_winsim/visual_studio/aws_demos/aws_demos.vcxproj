@@ -111,7 +111,6 @@
 		<ClInclude Include="..\..\..\..\..\demos\include\iot_demo_runner.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_network_types.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_taskpool.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_taskpool_types.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_taskpool_internal.h"/>
@@ -119,6 +118,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_network.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\types\iot_platform_types.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\types\iot_network_types.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_freertos.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_freertos.h"/>
@@ -246,6 +246,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_command_functions.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_message_interface.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\mqtt_agent\include\freertos_agent_message.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\mqtt_agent\include\freertos_command_pool.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\device_shadow_for_aws\source\include\shadow_config_defaults.h"/>
@@ -264,7 +266,12 @@
 		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_private.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_interface_private.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_base64_private.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_appversion32.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_config_defaults.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\portable\os\ota_os_freertos.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_mqtt_interface.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_private.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_interface.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\device_defender_for_aws\report_builder.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\device_defender_for_aws\metrics_collector.h"/>

@@ -15,8 +15,8 @@
 		<Filter Include="libraries\c_sdk"/>
 		<Filter Include="libraries"/>
 		<Filter Include="libraries\c_sdk\standard\common\include"/>
-		<Filter Include="libraries\c_sdk\standard\common\include\types"/>
 		<Filter Include="libraries\c_sdk\standard\common\taskpool"/>
+		<Filter Include="libraries\c_sdk\standard\common\include\types"/>
 		<Filter Include="libraries\c_sdk\standard\common\include\private"/>
 		<Filter Include="libraries\abstractions\platform\include\platform"/>
 		<Filter Include="libraries\abstractions\platform\include"/>
@@ -121,6 +121,7 @@
 		<Filter Include="libraries\coreMQTT-Agent"/>
 		<Filter Include="libraries\coreMQTT-Agent\source\include"/>
 		<Filter Include="libraries\abstractions\mqtt_agent"/>
+		<Filter Include="libraries\abstractions\mqtt_agent\include"/>
 		<Filter Include="libraries\coreJSON\source"/>
 		<Filter Include="libraries\coreJSON"/>
 		<Filter Include="libraries\coreJSON\source\include"/>
@@ -255,9 +256,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h">
 			<Filter>libraries\c_sdk\standard\common\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_network_types.h">
-			<Filter>libraries\c_sdk\standard\common\include\types</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_taskpool.h">
 			<Filter>libraries\c_sdk\standard\common\include</Filter>
 		</ClInclude>
@@ -277,6 +275,9 @@
 			<Filter>libraries\abstractions\platform\include\platform</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\types\iot_platform_types.h">
+			<Filter>libraries\abstractions\platform\include\types</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\types\iot_network_types.h">
 			<Filter>libraries\abstractions\platform\include\types</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_freertos.h">
@@ -504,6 +505,12 @@
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_message_interface.h">
 			<Filter>libraries\coreMQTT-Agent\source\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\mqtt_agent\include\freertos_agent_message.h">
+			<Filter>libraries\abstractions\mqtt_agent\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\mqtt_agent\include\freertos_command_pool.h">
+			<Filter>libraries\abstractions\mqtt_agent\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h">
 			<Filter>libraries\coreJSON\source\include</Filter>
 		</ClInclude>
@@ -558,7 +565,22 @@
 		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_base64_private.h">
 			<Filter>libraries\ota_for_aws\source\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_appversion32.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_config_defaults.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\portable\os\ota_os_freertos.h">
+			<Filter>libraries\ota_for_aws\source\portable\os</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_mqtt_interface.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_private.h">
+			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_interface.h">
 			<Filter>libraries\ota_for_aws\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\coreMQTT_Agent\subscription_manager.h">

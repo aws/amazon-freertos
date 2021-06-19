@@ -83,7 +83,6 @@ WIFIDeviceMode_t devMode = eWiFiModeNotSupported;
 bool isConnected = false;
 bool isPoweredUp = false;
 bool isMutexInitialized = false;
-IotNetworkStateChangeEventCallback_t userCb = NULL;
 
 static whd_scan_userdata_t internalScanData;
 static whd_scan_result_t internalScanResult;
@@ -695,12 +694,6 @@ BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
     }
 
     return xIsConnected;
-}
-
-WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback )
-{
-    userCb = xCallback;
-    return eWiFiSuccess;
 }
 
 WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )

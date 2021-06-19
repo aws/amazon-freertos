@@ -11,9 +11,6 @@ afr_module_sources(
         "${src_dir}/iot_init.c"
         "${inc_dir}/iot_init.h"
         "${inc_dir}/iot_linear_containers.h"
-        
-      # Platform
-        "${inc_dir}/types/iot_network_types.h"  # TODO, should this belong to platform?
 
         # Static memory
         "${src_dir}/iot_static_memory_common.c"

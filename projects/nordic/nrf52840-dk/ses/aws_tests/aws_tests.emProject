@@ -351,6 +351,7 @@
             </folder>
             <folder Name="types">
               <file file_name="../../../../../libraries/abstractions/platform/include/types/iot_platform_types.h" />
+              <file file_name="../../../../../libraries/abstractions/platform/include/types/iot_network_types.h" />
             </folder>
           </folder>
           <folder Name="test">

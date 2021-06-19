@@ -163,10 +163,6 @@ static void cy_net_link_up( void )
         }
         cy_sta_link_up = true;
 
-        if (userCb != NULL)
-        {
-            userCb(AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateEnabled);
-        }
     }
     else
     {
@@ -197,11 +193,6 @@ static void cy_net_link_down(void)
         configPRINTF(("Notify application that network is disconnected!\n"));
         cy_network_invoke_app_callbacks(CY_NETWORK_EVENT_DISCONNECTED);
         cy_sta_link_up = false;
-
-        if (userCb != NULL)
-        {
-            userCb(AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateDisabled);
-        }
     }
 }
 

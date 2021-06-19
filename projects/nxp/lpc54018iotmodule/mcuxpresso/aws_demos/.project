@@ -933,11 +933,6 @@
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/types/iot_network_types.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/types/iot_network_types.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/iot_static_memory_common.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/iot_static_memory_common.c</locationURI>
@@ -991,6 +986,11 @@
 			<name>libraries/abstractions/platform/include/types/iot_platform_types.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/abstractions/platform/include/types/iot_platform_types.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/types/iot_network_types.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/include/types/iot_network_types.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/freertos/iot_clock_freertos.c</name>
@@ -1666,6 +1666,16 @@
 			<name>libraries/abstractions/mqtt_agent/freertos_command_pool.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/abstractions/mqtt_agent/freertos_command_pool.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/include/freertos_agent_message.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/mqtt_agent/include/freertos_agent_message.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/include/freertos_command_pool.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/mqtt_agent/include/freertos_command_pool.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>

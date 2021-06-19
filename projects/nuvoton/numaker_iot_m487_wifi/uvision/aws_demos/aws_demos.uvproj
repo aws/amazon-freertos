@@ -736,21 +736,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/c_sdk/standard/common/include/types/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_network_types.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/types/iot_network_types.h</FilePath>
-						</File>
-						<File>
-							<FileName>iot_taskpool_types.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/types/iot_taskpool_types.h</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/c_sdk/standard/common/taskpool/</GroupName>
 					<Files>
 						<File>
@@ -762,6 +747,16 @@
 							<FileName>iot_taskpool_static_memory.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/c_sdk/standard/common/include/types/</GroupName>
+					<Files>
+						<File>
+							<FileName>iot_taskpool_types.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/common/include/types/iot_taskpool_types.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -807,6 +802,11 @@
 							<FileName>iot_platform_types.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/abstractions/platform/include/types/iot_platform_types.h</FilePath>
+						</File>
+						<File>
+							<FileName>iot_network_types.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/abstractions/platform/include/types/iot_network_types.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1597,6 +1597,21 @@
 							<FileName>freertos_command_pool.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/abstractions/mqtt_agent/freertos_command_pool.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/abstractions/mqtt_agent/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>freertos_agent_message.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/abstractions/mqtt_agent/include/freertos_agent_message.h</FilePath>
+						</File>
+						<File>
+							<FileName>freertos_command_pool.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/abstractions/mqtt_agent/include/freertos_command_pool.h</FilePath>
 						</File>
 					</Files>
 				</Group>

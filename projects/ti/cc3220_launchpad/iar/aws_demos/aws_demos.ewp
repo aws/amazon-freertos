@@ -1501,6 +1501,9 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\types\iot_platform_types.h</name>
 						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\types\iot_network_types.h</name>
+						</file>
 					</group>
 				</group>
 				<group>
@@ -1783,18 +1786,15 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h</name>
 						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_taskpool.h</name>
+						</file>
 						<group>
 							<name>types</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_network_types.h</name>
-							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_taskpool_types.h</name>
 							</file>
 						</group>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_taskpool.h</name>
-						</file>
 						<group>
 							<name>private</name>
 							<file>

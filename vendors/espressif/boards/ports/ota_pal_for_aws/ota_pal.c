@@ -26,8 +26,6 @@
 #include "ota_interface_private.h"
 #include "ota_config.h"
 
-#include "types/iot_network_types.h"
-#include "aws_iot_network_config.h"
 #include "iot_crypto.h"
 #include "core_pkcs11.h"
 #include "esp_system.h"
