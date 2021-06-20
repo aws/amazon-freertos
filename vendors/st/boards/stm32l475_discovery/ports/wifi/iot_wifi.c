@@ -535,9 +535,27 @@ WIFIReturnCode_t WIFI_GetHostIP( char * pcHost,
                                  uint8_t * pucIPAddr )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
+    size_t xHostnameLength;
 
     configASSERT( pcHost != NULL );
     configASSERT( pucIPAddr != NULL );
+
+    /* The inventek WiFi module supports maximum domain name length of 64.
+     * Trying to resolve a longer name leaves the module in a non-responsive
+     * state. The following check prevents calling ES_WIFI_DNS_LookUp for
+     * longer names, thereby preventing the module from going into a
+     * non-responsive state.
+     *
+     * The following is from the datasheet of the module:
+     *
+     * 'D0' DNS Lookup:
+     * This command performs a DNS lookup of a Domain Name to get its IPv4
+     * address. The Domain Name is limited to 64 characters. */
+    xHostnameLength = strlen( pcHost );
+    if( xHostnameLength > 64 )
+    {
+        return eWiFiFailure;
+    }
 
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
