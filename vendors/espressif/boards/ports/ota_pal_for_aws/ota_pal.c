@@ -437,7 +437,7 @@ OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext 
         if( ret != ESP_OK )
         {
             ESP_LOGE( TAG, "partition mmap failed %d", ret );
-            result = kOTA_Err_SignatureCheckFailed;
+            result = OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, 0 );
             goto end;
         }
 
