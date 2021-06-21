@@ -59,7 +59,7 @@
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 
-#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 8 )
+#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 10 )
 
 /* Number of times to retry to join an AP before giving up. */
 #define mainWIFI_JOIN_AP_RETRIES            ( 2 )
