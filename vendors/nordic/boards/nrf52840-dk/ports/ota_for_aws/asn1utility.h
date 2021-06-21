@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V1.4.2
+ * FreeRTOS Demo Bootloader V1.4.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,31 +24,35 @@
  */
 
 /**
- * @file iot_ble_config.h
- * @brief BLE configuration overrides for ESP32 board.
+ * @file asn1utility.h
+ * @brief ASN1 utility header.
  */
 
-
-#ifndef _AWS_BLE_CONFIG_H_
-#define _AWS_BLE_CONFIG_H_
-
-/* Device complete name for this peripheral device */
-#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME    "nRF52840"
-
-
-/* Enable WIFI provisioning GATT service */
-#define IOT_BLE_ENABLE_WIFI_PROVISIONING    ( 0 )
-
-/* MTU size. */
-#define IOT_BLE_PREFERRED_MTU_SIZE          ( NRF_SDH_BLE_GATT_MAX_MTU_SIZE )
+#ifndef ASN1UTILITY_H_
+#define ASN1UTILITY_H_
 
 /**
- * Buffer size for network interface shim layer.
+ * @brief asn1_getBigInteger.
+ * Gets big integer from the data block.
+ * @param[in] - pucInt - Data
+ * @param[out] - ppucStart - returns pointer to next signature component.
+ * @param[in] - pucEnd - end of the data
+ * @return - 0 On success , 1 otherwise
  */
-#define IOT_BLE_NETWORK_INTERFACE_BUFFER_SIZE          ( 128U )
+int asn1_getBigInteger( uint8_t * pucInt,
+                        uint8_t ** ppucStart,
+                        uint8_t * pucEnd );
 
-/* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
-#include "iot_ble_config_defaults.h"
+/**
+ * @brief asn1_decodeSignature.
+ * Decodes ASN1 encoded signature.
+ * @param[in] - pucSignature - ASN1 encoded signature.
+ * @param[in] - pucStart - start of the data
+ * @param[in] - pucEnd - end of the data
+ * @return - 0 On success , 1 otherwise
+ */
+int asn1_decodeSignature( uint8_t * pucSignature,
+                          uint8_t * pucStart,
+                          uint8_t * pucEnd );
 
-#include "sdk_config.h"
-#endif /* _AWS_BLE_CONFIG_H_ */
+#endif /* ifndef ASN1UTILITY_H_ */

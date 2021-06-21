@@ -31,16 +31,7 @@
  * @brief Certificate used for validating code signing signatures in the OTA PAL.
  */
 #ifndef otapalconfigCODE_SIGNING_CERTIFICATE
-    #define otapalconfigCODE_SIGNING_CERTIFICATE  "-----BEGIN CERTIFICATE-----"\
-"MIIBYjCCAQigAwIBAgIUDCa4qqpsLCX1lXpwFv7yFFputsUwCgYIKoZIzj0EAwIw"\
-"HjEcMBoGA1UEAwwTYmhhZ2F2YXJAYW1hem9uLmNvbTAeFw0yMTA2MTgwNjA0MDFa"\
-"Fw0yMjA2MTgwNjA0MDFaMB4xHDAaBgNVBAMME2JoYWdhdmFyQGFtYXpvbi5jb20w"\
-"WTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAR8GayzFoNSY3wi7Q1mO0MKoo/VLDuX"\
-"e4+oFPv0CRlGhNXZsfq/lO6IGV3LgdPwUBpThTzVFwPyDiwRCnfKPKNxoyQwIjAL"\
-"BgNVHQ8EBAMCB4AwEwYDVR0lBAwwCgYIKwYBBQUHAwMwCgYIKoZIzj0EAwIDSAAw"\
-"RQIhAO9p6TbMeSr2u46CBP4MZv4bsRynoAuED2kzdKgPdfdfAiBAWt5FJjtkuOIb"\
-"JFKDd9EPt7+CuBg9xlahnOrlmlejJw=="\
-"-----END CERTIFICATE-----"
+    #define otapalconfigCODE_SIGNING_CERTIFICATE ""
 #endif
 
 /**
@@ -52,6 +43,7 @@
 #ifndef APP_VERSION_MAJOR
     #define APP_VERSION_MAJOR    0
 #endif
+
 
 /**
  * @brief Minor version of the firmware.
@@ -92,7 +84,7 @@
  * @note Specified in bytes.  Must be large enough to hold the maximum
  * anticipated MQTT payload.
  */
-#define MQTT_AGENT_NETWORK_BUFFER_SIZE          ( 5000 )
+#define MQTT_AGENT_NETWORK_BUFFER_SIZE          ( 3000 )
 
 /**
  * @breif Maximum time MQTT agent waits in the queue for any pending MQTT

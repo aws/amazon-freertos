@@ -105,7 +105,7 @@
  * the OTA statistics like number of packets received, dropped, processed and
  * queued per connection.
  */
-#define otaexampleEXAMPLE_TASK_DELAY_MS                  ( 1000U )
+#define otaexampleEXAMPLE_TASK_DELAY_MS    ( 1000U )
 
 /**
  * @brief The timeout for waiting for the agent to get suspended after closing
@@ -115,18 +115,18 @@
  * operations and suspend itself.
  *
  */
-#define otaexampleSUSPEND_TIMEOUT_MS                     ( 10000U )
+#define otaexampleSUSPEND_TIMEOUT_MS       ( 10000U )
 
 /**
  * @brief The maximum size of the file paths used in the demo.
  */
-#define otaexampleMAX_FILE_PATH_SIZE                     ( 260U )
+#define otaexampleMAX_FILE_PATH_SIZE       ( 260U )
 
 /**
  * @brief The maximum size of the stream name required for downloading update
  * file from streaming service.
  */
-#define otaexampleMAX_STREAM_NAME_SIZE                   ( 128U )
+#define otaexampleMAX_STREAM_NAME_SIZE     ( 128U )
 
 /**
  * @brief Size of the network buffer to receive the MQTT message.
@@ -135,7 +135,7 @@
  * otaconfigFILE_BLOCK_SIZE + extra for headers.
  */
 
-#define otaexampleNETWORK_BUFFER_SIZE                          ( 5120U )
+#define otaexampleNETWORK_BUFFER_SIZE               ( 5120U )
 
 /**
  * @brief The common prefix for all OTA topics.
@@ -145,25 +145,38 @@
  * filter is used to match incoming packet received and route them to OTA.
  * Thing name is not needed for this matching.
  */
-#define otaexampleTOPIC_PREFIX                                 "$aws/things/+/"
+#define otaexampleTOPIC_PREFIX                      "$aws/things/+/"
 
 /**
  * @brief Wildcard topic filter for job notification.
  * The filter is used to match the constructed job notify topic filter from OTA
  * agent and register appropirate callback for it.
  */
-#define otaexampleJOB_NOTIFY_TOPIC_FILTER                      otaexampleTOPIC_PREFIX "jobs/notify-next"
+#define otaexampleJOB_NOTIFY_TOPIC_FILTER           otaexampleTOPIC_PREFIX "jobs/notify-next"
 
 /**
  * @brief Length of job notification topic filter.
  */
-#define otaexampleJOB_NOTIFY_TOPIC_FILTER_LENGTH               ( ( uint16_t ) ( sizeof( otaexampleJOB_NOTIFY_TOPIC_FILTER ) - 1 ) )
+#define otaexampleJOB_NOTIFY_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( otaexampleJOB_NOTIFY_TOPIC_FILTER ) - 1 ) )
+
 
 /**
  * @brief Wildcard topic filter for matching job response messages.
  * This topic filter is used to match the responses from OTA service for OTA
- * agent job requests. The topic filter is a reserved topic which is not
- * subscribed with MQTT broker.
+ * agent job requests.
+ */
+#define otaexampleJOB_RESPONSE_TOPIC_FILTER           otaexampleTOPIC_PREFIX "jobs/$next/get/+"
+
+/**
+ * @brief Length of job accepted response topic filter.
+ */
+#define otaexampleJOB_RESPONSE_TOPIC_FILTER_LENGTH    ( ( uint16_t ) ( sizeof( otaexampleJOB_RESPONSE_TOPIC_FILTER ) - 1 ) )
+
+
+/**
+ * @brief Wildcard topic filter for matching job accepted response messages.
+ * This topic filter is used to match the accepted job responses from OTA service for the OTA
+ * agent job requests.
  */
 #define otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER           otaexampleTOPIC_PREFIX "jobs/$next/get/accepted"
 
@@ -255,7 +268,7 @@
  * MQTT agent task takes care of TLS connection and reconnection, keeping task
  * stack size to high enough required for TLS connection.
  */
-#define MQTT_AGENT_TASK_STACK_SIZE                  ( 6000U )
+#define MQTT_AGENT_TASK_STACK_SIZE                  ( 4000U )
 
 /**
  * @brief Priority required for OTA statistics task.
@@ -368,11 +381,6 @@ static SemaphoreHandle_t xBufferSemaphore;
  * @brief Ble Transport Parameters structure to store the data channel.
  */
 static BleTransportParams_t xBleTransportParams;
-
-/**
- * @brief Flag to mark if the channel has been disconnected at all
- */
-static volatile bool xChannelActive = false;
 
 /**
  * @brief Semaphore used to synchronize with the data transfer channel callback.
@@ -518,9 +526,9 @@ static OtaMqttStatus_t prvMqttPublish( const char * const pcTopic,
  *
  * @return OtaMqttSuccess if success , other error code on failure.
  */
-static OtaMqttStatus_t prvMqttSubscribe( const char * pcTopicFilter,
-                                         uint16_t usTopicFilterLength,
-                                         uint8_t ucQOS );
+static OtaMqttStatus_t prvMqttSubscribeOTACallback( const char * pcTopicFilter,
+                                                    uint16_t usTopicFilterLength,
+                                                    uint8_t ucQOS );
 
 /**
  * @brief Unsubscribe to the Mqtt topics.
@@ -536,9 +544,9 @@ static OtaMqttStatus_t prvMqttSubscribe( const char * pcTopicFilter,
  *
  * @return  OtaMqttSuccess if success , other error code on failure.
  */
-static OtaMqttStatus_t prvMqttUnSubscribe( const char * pcTopicFilter,
-                                           uint16_t usTopicFilterLength,
-                                           uint8_t ucQOS );
+static OtaMqttStatus_t prvMqttUnSubscribeOTACallback( const char * pcTopicFilter,
+                                                      uint16_t usTopicFilterLength,
+                                                      uint8_t ucQOS );
 
 /**
  * @brief Attempt to connect to the MQTT broker.
@@ -1203,21 +1211,20 @@ static void prvBLEChannelCallback( IotBleDataTransferChannelEvent_t event,
     /* Event to see when the data channel is ready to receive data. */
     if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED )
     {
+        LogInfo( ( "BLE Channel is Open." ) );
         ( void ) xSemaphoreGive( xChannelSemaphore );
-        xChannelActive = true;
     }
 
     /* Event for when data is received over the channel. */
     else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED )
     {
-        LogInfo( ( "Received data on channel.") );
         ( void ) IotBleMqttTransportAcceptData( &xNetworkContextMqtt );
     }
 
     /* Event for when channel is closed. */
     else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED )
     {
-        xChannelActive = false;
+        LogInfo( ( "BLE Channel is closed." ) );
     }
 
     else
@@ -1228,7 +1235,7 @@ static void prvBLEChannelCallback( IotBleDataTransferChannelEvent_t event,
 
 /*--------------------------------------------------------------*/
 
-static BaseType_t prvCreateBLETransportInterfaceConnection(  NetworkContext_t * pTransportContext )
+static BaseType_t prvCreateBLETransportInterfaceConnection( NetworkContext_t * pTransportContext )
 {
     BaseType_t xStatus = pdFALSE;
 
@@ -1270,11 +1277,17 @@ static BaseType_t prvCreateBLETransportInterfaceConnection(  NetworkContext_t * 
         }
     }
 
-    return xStatus;
+    if( xStatus == pdTRUE )
+    {
+        /* Set receive timeout to zero to make transport interface non blocking for MQTT agent. */
+        IotBleMqttTransportSetReceiveTimeout( pTransportContext, 0U );
+    }
 
+    return xStatus;
 }
 
 /*-----------------------------------------------------------*/
+
 
 static BaseType_t prvConnectToMQTTBroker( void )
 {
@@ -1421,6 +1434,56 @@ static OtaMqttStatus_t prvMqttSubscribe( const char * pcTopicFilter,
 
     return xOtaMqttStatus;
 }
+
+
+/*-----------------------------------------------------------*/
+
+static OtaMqttStatus_t prvSubscribeToJobResponseTopic( void )
+{
+    OtaMqttStatus_t xStatus = OtaMqttSubscribeFailed;
+    char * pTopicFilter = NULL;
+    const char * pClientIdentifier = democonfigCLIENT_IDENTIFIER;
+    size_t topicFilterLength;
+
+    configASSERT( pClientIdentifier != NULL );
+
+    topicFilterLength = otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH + strlen( pClientIdentifier );
+
+    pTopicFilter = pvPortMalloc( topicFilterLength );
+
+    if( pTopicFilter != NULL )
+    {
+        topicFilterLength = snprintf( pTopicFilter,
+                                      topicFilterLength,
+                                      "$aws/things/%.*s/jobs/$next/get/accepted",
+                                      strlen( pClientIdentifier ),
+                                      pClientIdentifier );
+        xStatus = prvMqttSubscribe( pTopicFilter, topicFilterLength, 1U );
+
+        vPortFree( pTopicFilter );
+    }
+
+    return xStatus;
+}
+
+/*-----------------------------------------------------------*/
+
+static OtaMqttStatus_t prvMqttSubscribeOTACallback( const char * pcTopicFilter,
+                                                    uint16_t usTopicFilterLength,
+                                                    uint8_t ucQOS )
+{
+    OtaMqttStatus_t xStatus;
+
+    xStatus = prvMqttSubscribe( pcTopicFilter, usTopicFilterLength, ucQOS );
+
+    if( xStatus == OtaMqttSuccess )
+    {
+        xStatus = prvSubscribeToJobResponseTopic();
+    }
+
+    return xStatus;
+}
+
 /*-----------------------------------------------------------*/
 
 static OtaMqttStatus_t prvMqttPublish( const char * const pcTopic,
@@ -1523,6 +1586,59 @@ static OtaMqttStatus_t prvMqttUnSubscribe( const char * pcTopicFilter,
 }
 /*-----------------------------------------------------------*/
 
+
+
+static OtaMqttStatus_t prvUnSubscribeFromJobResponseTopic( void )
+{
+    OtaMqttStatus_t xStatus = OtaMqttSubscribeFailed;
+    char * pTopicFilter = NULL;
+    const char * pClientIdentifier = democonfigCLIENT_IDENTIFIER;
+    size_t topicFilterLength;
+
+    configASSERT( pClientIdentifier != NULL );
+
+    topicFilterLength = otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH + strlen( pClientIdentifier );
+
+    pTopicFilter = pvPortMalloc( topicFilterLength );
+
+    if( pTopicFilter != NULL )
+    {
+        topicFilterLength = snprintf( pTopicFilter,
+                                      topicFilterLength,
+                                      "$aws/things/%.*s/jobs/$next/get/accepted",
+                                      strlen( pClientIdentifier ),
+                                      pClientIdentifier );
+        xStatus = prvMqttUnSubscribe( pTopicFilter, topicFilterLength, 1U );
+
+        vPortFree( pTopicFilter );
+    }
+
+    return xStatus;
+}
+
+
+/*-----------------------------------------------------------*/
+
+
+static OtaMqttStatus_t prvMqttUnSubscribeOTACallback( const char * pcTopicFilter,
+                                                      uint16_t usTopicFilterLength,
+                                                      uint8_t ucQOS )
+{
+    OtaMqttStatus_t xStatus;
+
+    xStatus = prvMqttUnSubscribe( pcTopicFilter, usTopicFilterLength, ucQOS );
+
+    if( xStatus == OtaMqttSuccess )
+    {
+        xStatus = prvUnSubscribeFromJobResponseTopic();
+    }
+
+    return xStatus;
+}
+
+/*-----------------------------------------------------------*/
+
+
 static void prvSetOtaInterfaces( OtaInterfaces_t * pxOtaInterfaces )
 {
     /* Initialize OTA library OS Interface. */
@@ -1537,9 +1653,9 @@ static void prvSetOtaInterfaces( OtaInterfaces_t * pxOtaInterfaces )
     pxOtaInterfaces->os.mem.free = Free_FreeRTOS;
 
     /* Initialize the OTA library MQTT Interface.*/
-    pxOtaInterfaces->mqtt.subscribe = prvMqttSubscribe;
+    pxOtaInterfaces->mqtt.subscribe = prvMqttSubscribeOTACallback;
     pxOtaInterfaces->mqtt.publish = prvMqttPublish;
-    pxOtaInterfaces->mqtt.unsubscribe = prvMqttUnSubscribe;
+    pxOtaInterfaces->mqtt.unsubscribe = prvMqttUnSubscribeOTACallback;
 
     /* Initialize the OTA library PAL Interface.*/
     pxOtaInterfaces->pal.getPlatformImageState = otaPal_GetPlatformImageState;
@@ -1707,6 +1823,7 @@ static BaseType_t prvRunOTADemo( void )
     /* Set OTA Library interfaces.*/
     prvSetOtaInterfaces( &xOtaInterfaces );
 
+
     /*************************** Init OTA Library. ***************************/
 
     if( ( xOtaError = OTA_Init( &xOtaBuffer,
@@ -1798,7 +1915,6 @@ static BaseType_t prvRunOTADemo( void )
  */
 int RunOTAMQTTBLETransportDemo( void )
 {
-   
     BaseType_t xDemoStatus = pdFAIL;
     BaseType_t xMqttInitialized = pdFALSE;
 
@@ -1860,10 +1976,7 @@ int RunOTAMQTTBLETransportDemo( void )
     {
         /* Start OTA demo. The function returns only if OTA completes successfully and a
          * shutdown of OTA is triggered for a manual restart of the device.*/
-        if( prvRunOTADemo() != pdPASS )
-        {
-            xDemoStatus = pdFAIL;
-        }
+        xDemoStatus = prvRunOTADemo();
     }
 
     /****************************** Cleanup ******************************/
