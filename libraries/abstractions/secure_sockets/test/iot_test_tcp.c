@@ -2742,7 +2742,11 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
             {
                 xReturned = SOCKETS_Recv( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0 );
 
-                configPRINTF( ( "Received %d bytes. Total %d\r\n", xReturned, xTotalReceived ) );
+                if( !xReturned )
+                {
+                    configPRINTF( ( "Received %d bytes. Total %d\r\n", xReturned, xTotalReceived ) );
+                }
+                
                 TEST_ASSERT_GREATER_OR_EQUAL_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
 
                 if( xReturned > 0 )
