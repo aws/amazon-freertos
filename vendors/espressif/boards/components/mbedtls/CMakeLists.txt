@@ -62,7 +62,7 @@ set(
     "${MBEDTLS_DIR}/port/esp_timing.c"
 )
 
-if(NOT AFR_FREERTOS_TCP)
+if(NOT AFR_ESP_FREERTOS_TCP)
     list(
         APPEND
         mbedtls_srcs

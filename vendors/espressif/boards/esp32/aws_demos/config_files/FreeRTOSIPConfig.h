@@ -308,6 +308,7 @@ extern uint32_t ulRand();
 #define ipconfigSOCKET_HAS_USER_WAKE_CALLBACK    ( 1 )
 #define ipconfigUSE_CALLBACKS                    ( 0 )
 
+#define ipconfigTCP_MEM_STATS_MAX_ALLOCATION     ( 128 )
 
 #define portINLINE                               __inline
 

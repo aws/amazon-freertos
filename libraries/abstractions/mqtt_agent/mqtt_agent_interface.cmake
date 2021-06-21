@@ -15,6 +15,10 @@ afr_module_sources(
     PRIVATE
         "${src_dir}/freertos_agent_message.c"
         "${src_dir}/freertos_command_pool.c"
+        # Header files added to the target so that these are available in code
+        # downloaded from the FreeRTOS console.
+        "${include_dir}/freertos_agent_message.h"
+        "${include_dir}/freertos_command_pool.h"
 )
 
 afr_module_dependencies(

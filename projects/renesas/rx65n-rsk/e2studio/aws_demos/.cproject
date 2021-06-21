@@ -107,6 +107,12 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/device_defender_for_aws/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/jobs_for_aws/source/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source/portable"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source/portable/os"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/ports/ota_pal_for_aws"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/common/mqtt_subscription_manager"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/coreMQTT_Agent"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/device_defender_for_aws"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/pkcs11"/>

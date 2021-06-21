@@ -1158,11 +1158,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/network_manager/aws_iot_network_manager.c</locationURI>
 		</link>
 		<link>
-			<name>demos/network_manager/aws_iot_demo_network.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/network_manager/aws_iot_demo_network.c</locationURI>
-		</link>
-		<link>
 			<name>demos/network_manager/iot_network_manager_private.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/network_manager/iot_network_manager_private.h</locationURI>
@@ -1193,11 +1188,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_demo.h</locationURI>
 		</link>
 		<link>
-			<name>demos/include/aws_iot_demo_network.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_iot_demo_network.h</locationURI>
-		</link>
-		<link>
 			<name>demos/include/iot_config_common.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/include/iot_config_common.h</locationURI>
@@ -1226,11 +1216,6 @@
 			<name>libraries/c_sdk/standard/common/include/iot_linear_containers.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/types/iot_network_types.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/types/iot_network_types.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/iot_static_memory_common.c</name>
@@ -1286,6 +1271,11 @@
 			<name>libraries/abstractions/platform/include/types/iot_platform_types.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/include/types/iot_platform_types.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/types/iot_network_types.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/include/types/iot_network_types.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/freertos/iot_clock_freertos.c</name>
@@ -1946,6 +1936,16 @@
 			<name>libraries/abstractions/mqtt_agent/freertos_command_pool.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/mqtt_agent/freertos_command_pool.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/include/freertos_agent_message.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/mqtt_agent/include/freertos_agent_message.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/include/freertos_command_pool.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/mqtt_agent/include/freertos_command_pool.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>

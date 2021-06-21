@@ -103,6 +103,13 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/device_defender_for_aws/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/jobs_for_aws/source/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source/portable"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source/portable/os"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/ota_for_aws/source"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/ti/boards/cc3220_launchpad/ports/ota_pal_for_aws"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../tests/integration_test/ota_pal"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/common/mqtt_subscription_manager"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/unity/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/unity/extras/fixture/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/pkcs11"/>
