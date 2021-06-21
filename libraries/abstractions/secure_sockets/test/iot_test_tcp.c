@@ -2742,7 +2742,7 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
             {
                 xReturned = SOCKETS_Recv( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0 );
 
-                if( !xReturned )
+                //if( !xReturned )
                 {
                     configPRINTF( ( "Received %d bytes. Total %d\r\n", xReturned, xTotalReceived ) );
                 }
