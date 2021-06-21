@@ -30,20 +30,23 @@
 
  /** Use HID */
 #define ATCA_HAL_KIT_HID
-#define ATCA_ATECC608A_SUPPORT
+
+/* ATCA_ATECC608A_SUPPORT is not defined so that both
+    ATECC608A and ATECC608B can be supported */
+#define ATCA_ATECC608_SUPPORT
 
 /** Use the following address for ECC devices */
-#define ATCA_I2C_ECC_ADDRESS           0xC0
-#define ATCA_DEVICE_PRIVATE_KEY_SLOT   0x00
+#define ATCA_I2C_ECC_ADDRESS            0xC0
+#define ATCA_DEVICE_PRIVATE_KEY_SLOT    0x00
 
 #ifndef ATCA_POST_DELAY_MSEC
-#define ATCA_POST_DELAY_MSEC 25
+#define ATCA_POST_DELAY_MSEC            25
 #endif
 
 #define PKCS11_LABEL_IS_SERNUM          1
 
 /** Use RTOS timers (i.e. delays that yield) */
-#define ATCA_USE_RTOS_TIMER
+#define ATCA_USE_RTOS_TIMER             1
 
 #define atca_delay_ms hal_rtos_delay_ms
 #define atca_delay_us hal_delay_us
@@ -53,5 +56,4 @@
 #define ATCA_PLATFORM_MALLOC    pvPortMalloc
 #define ATCA_PLATFORM_FREE      vPortFree
 
-
-#endif
+#endif  /* _ATCA_CONFIG_H */

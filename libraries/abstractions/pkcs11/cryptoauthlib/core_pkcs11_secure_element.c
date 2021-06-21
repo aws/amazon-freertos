@@ -567,7 +567,13 @@ CK_RV pkcs11_config_interface( pkcs11_slot_ctx_ptr pSlot )
 
     if( pSlot )
     {
-        pSlot->interface_config = cfg_ateccx08a_kithid_default;
+        #if defined( ATCA_HAL_I2C )
+            pSlot->interface_config = cfg_ateccx08a_i2c_default;
+        #elif defined( ATCA_HAL_KIT_HID )
+            pSlot->interface_config = cfg_ateccx08a_kithid_default;
+        #else
+            #error Must define either ATCA_HAL_I2C or ATCA_HAL_KIT_HID in atca_config.h
+        #endif
         rv = CKR_OK;
     }
 

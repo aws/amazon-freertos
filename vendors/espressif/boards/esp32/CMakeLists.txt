@@ -141,10 +141,13 @@ endif()
 
 if(ECC608_IN_USE)
     set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
-    set(ecc608a_dir "${mchp_dir}/secure_elements")
+    set(cryptoauthlib_dir "${mchp_dir}/secure_elements")
+    set(cryptoauthlib_port_dir "${afr_ports_dir}/cryptoauthlib")
+    set(pkcs11_cryptoauthlib_dir "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/cryptoauthlib")
     list(APPEND kernel_inc_dirs
         "${esp_idf_dir}/components/esp_ringbuf/include"
         "${board_dir}/config_files/ecc608a_pkcs11_config"
+        "${pkcs11_cryptoauthlib_dir}"
     )
 else()
     list(APPEND kernel_inc_dirs
@@ -193,7 +196,7 @@ endif()
 
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE 
+    INTERFACE
         "${afr_ports_dir}/wifi/iot_wifi.c"
 )
 
@@ -299,18 +302,29 @@ if(ECC608_IN_USE)
     afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_ecc608a)
     set(
         ecc608a_hal_src
-            "${ecc608a_dir}/lib/hal/atca_hal.c"
-            "${ecc608a_dir}/lib/hal/hal_freertos.c"
-            "${ecc608a_dir}/lib/hal/hal_esp32_i2c.c"
-            "${ecc608a_dir}/lib/hal/hal_esp32_timer.c"
-            "${ecc608a_dir}/lib/hal/atca_hal.h"
-            "${ecc608a_dir}/lib/hal/atca_start_config.h"
-            "${ecc608a_dir}/lib/hal/atca_start_iface.h"
+            "${cryptoauthlib_dir}/lib/hal/atca_hal.c"
+            "${cryptoauthlib_dir}/lib/hal/hal_freertos.c"
+
+            # Note: The version of the esp32 hal included in cryptoauthlib v3.0.0 does not build.
+            # We use hal_esp32_i2c and hal_esp32_timer from cryptoauthlib v3.0.1
+            # Cryptoauthlib v3.0.1 has other incompatibilities which prevent it's use.
+            "${cryptoauthlib_port_dir}/hal_esp32_i2c.c"
+            "${cryptoauthlib_port_dir}/hal_esp32_timer.c"
+
+            "${cryptoauthlib_dir}/lib/hal/atca_hal.h"
+            "${cryptoauthlib_dir}/lib/hal/atca_start_config.h"
+            "${cryptoauthlib_dir}/lib/hal/atca_start_iface.h"
+            "${cryptoauthlib_dir}/lib/calib/calib_command.h"
+            "${pkcs11_cryptoauthlib_dir}/"
     )
     target_include_directories(
         AFR::pkcs11_implementation::mcu_port
         INTERFACE
             "${board_dir}/config_files/ecc608a_pkcs11_config"
+            "${cryptoauthlib_dir}/lib/calib"
+            "${cryptoauthlib_dir}/lib/hal"
+            "${pkcs11_cryptoauthlib_dir}"
+            "${cryptoauthlib_port_dir}"
     )
     target_sources(
         AFR::pkcs11_implementation::mcu_port
@@ -322,7 +336,7 @@ else()
     target_include_directories(
         AFR::pkcs11_implementation::mcu_port
         INTERFACE
-            "${board_dir}/config_files/default_pkcs11_config/"
+            "${board_dir}/config_files/default_pkcs11_config"
     )
     target_sources(
         AFR::pkcs11_implementation::mcu_port
@@ -413,6 +427,7 @@ target_compile_options(
     -Wno-pointer-sign
     -Wno-unused-but-set-variable
     -Wno-incompatible-pointer-types
+    -H
 )
 
 if(AFR_IS_TESTING)
@@ -513,9 +528,9 @@ endif()
 
 if(ECC608_IN_USE)
 set_source_files_properties(
-    ${ecc608a_dir}/lib/pkcs11/pkcs11_token.c
-    ${ecc608a_dir}/lib/pkcs11/pkcs11_object.c
-    ${ecc608a_dir}/lib/basic/atca_helpers.c
+    ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_token.c
+    ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_object.c
+    ${cryptoauthlib_dir}/lib/basic/atca_helpers.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-error=pointer-sign -Wno-error=char-subscripts"
 )

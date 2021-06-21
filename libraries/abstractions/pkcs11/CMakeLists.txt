@@ -78,90 +78,99 @@ afr_module_dependencies(
 
 if(ECC608_IN_USE)
     set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
-    set(ecc608a_dir "${mchp_dir}/secure_elements")
-    set(atca_config_dir "${CMAKE_CURRENT_LIST_DIR}/ecc608a")
+    set(cryptoauthlib_dir "${mchp_dir}/secure_elements")
+    set(pkcs11_cryptoauthlib_dir "${CMAKE_CURRENT_LIST_DIR}/cryptoauthlib")
     afr_module(NAME pkcs11_ecc608a INTERFACE)
 
-    set(ecc608_include "${ecc608a_dir}/lib")
+    set(cryptoauthlib_include_dirs
+        "${cryptoauthlib_dir}/lib"
+        "${cryptoauthlib_dir}/lib/pkcs11"
+        "${cryptoauthlib_dir}/lib/atcacert"
+        "${cryptoauthlib_dir}/lib/hal"
+        "${cryptoauthlib_dir}/lib/crypto"
+        "${cryptoauthlib_dir}/lib/calib"
+        "${pkcs11_cryptoauthlib_dir}"
+        )
+
     set(ecc608_src_list
-        ${ecc608a_dir}/lib/atca_basic.c
-        ${ecc608a_dir}/lib/atca_debug.c
-        ${ecc608a_dir}/lib/atca_device.c
-        ${ecc608a_dir}/lib/atca_helpers.c
-        ${ecc608a_dir}/lib/atca_iface.c
-        ${ecc608a_dir}/lib/atca_utils_sizes.c
-        ${ecc608a_dir}/lib/atcacert/atcacert_client.c
-        ${ecc608a_dir}/lib/atcacert/atcacert_date.c
-        ${ecc608a_dir}/lib/atcacert/atcacert_def.c
-        ${ecc608a_dir}/lib/atcacert/atcacert_der.c
-        ${ecc608a_dir}/lib/atcacert/atcacert_host_hw.c
-        ${ecc608a_dir}/lib/atcacert/atcacert_host_sw.c
-        ${ecc608a_dir}/lib/atcacert/atcacert_pem.c
-        ${ecc608a_dir}/lib/calib/calib_aes.c
-        ${ecc608a_dir}/lib/calib/calib_aes_gcm.c
-        ${ecc608a_dir}/lib/calib/calib_basic.c
-        ${ecc608a_dir}/lib/calib/calib_checkmac.c
-        ${ecc608a_dir}/lib/calib/calib_command.c
-        ${ecc608a_dir}/lib/calib/calib_counter.c
-        ${ecc608a_dir}/lib/calib/calib_derivekey.c
-        ${ecc608a_dir}/lib/calib/calib_ecdh.c
-        ${ecc608a_dir}/lib/calib/calib_execution.c
-        ${ecc608a_dir}/lib/calib/calib_gendig.c
-        ${ecc608a_dir}/lib/calib/calib_genkey.c
-        ${ecc608a_dir}/lib/calib/calib_hmac.c
-        ${ecc608a_dir}/lib/calib/calib_info.c
-        ${ecc608a_dir}/lib/calib/calib_kdf.c
-        ${ecc608a_dir}/lib/calib/calib_lock.c
-        ${ecc608a_dir}/lib/calib/calib_mac.c
-        ${ecc608a_dir}/lib/calib/calib_nonce.c
-        ${ecc608a_dir}/lib/calib/calib_privwrite.c
-        ${ecc608a_dir}/lib/calib/calib_random.c
-        ${ecc608a_dir}/lib/calib/calib_read.c
-        ${ecc608a_dir}/lib/calib/calib_secureboot.c
-        ${ecc608a_dir}/lib/calib/calib_selftest.c
-        ${ecc608a_dir}/lib/calib/calib_sha.c
-        ${ecc608a_dir}/lib/calib/calib_sign.c
-        ${ecc608a_dir}/lib/calib/calib_updateextra.c
-        ${ecc608a_dir}/lib/calib/calib_verify.c
-        ${ecc608a_dir}/lib/calib/calib_write.c
-        ${ecc608a_dir}/lib/crypto/atca_crypto_hw_aes_cbc.c
-        ${ecc608a_dir}/lib/crypto/atca_crypto_hw_aes_cbcmac.c
-        ${ecc608a_dir}/lib/crypto/atca_crypto_hw_aes_ccm.c
-        ${ecc608a_dir}/lib/crypto/atca_crypto_hw_aes_cmac.c
-        ${ecc608a_dir}/lib/crypto/atca_crypto_hw_aes_ctr.c
-        ${ecc608a_dir}/lib/crypto/atca_crypto_sw_ecdsa.c
-        ${ecc608a_dir}/lib/crypto/atca_crypto_sw_rand.c
-        ${ecc608a_dir}/lib/crypto/atca_crypto_sw_sha1.c
-        ${ecc608a_dir}/lib/crypto/atca_crypto_sw_sha2.c
-        ${ecc608a_dir}/lib/crypto/hashes/sha2_routines.c
-        ${ecc608a_dir}/lib/crypto/hashes/sha1_routines.c
-        ${ecc608a_dir}/lib/host/atca_host.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_attrib.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_cert.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_config.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_debug.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_digest.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_find.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_info.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_init.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_key.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_main.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_mech.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_object.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_os.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_session.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_signature.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_slot.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_token.c
-        ${ecc608a_dir}/lib/pkcs11/pkcs11_util.c
+        ${cryptoauthlib_dir}/lib/atca_basic.c
+        ${cryptoauthlib_dir}/lib/atca_debug.c
+        ${cryptoauthlib_dir}/lib/atca_device.c
+        ${cryptoauthlib_dir}/lib/atca_helpers.c
+        ${cryptoauthlib_dir}/lib/atca_iface.c
+        ${cryptoauthlib_dir}/lib/atca_utils_sizes.c
+        ${cryptoauthlib_dir}/lib/atcacert/atcacert_client.c
+        ${cryptoauthlib_dir}/lib/atcacert/atcacert_date.c
+        ${cryptoauthlib_dir}/lib/atcacert/atcacert_def.c
+        ${cryptoauthlib_dir}/lib/atcacert/atcacert_der.c
+        ${cryptoauthlib_dir}/lib/atcacert/atcacert_host_hw.c
+        ${cryptoauthlib_dir}/lib/atcacert/atcacert_host_sw.c
+        ${cryptoauthlib_dir}/lib/atcacert/atcacert_pem.c
+        ${cryptoauthlib_dir}/lib/calib/calib_aes.c
+        ${cryptoauthlib_dir}/lib/calib/calib_aes_gcm.c
+        ${cryptoauthlib_dir}/lib/calib/calib_basic.c
+        ${cryptoauthlib_dir}/lib/calib/calib_checkmac.c
+        ${cryptoauthlib_dir}/lib/calib/calib_command.c
+        ${cryptoauthlib_dir}/lib/calib/calib_counter.c
+        ${cryptoauthlib_dir}/lib/calib/calib_derivekey.c
+        ${cryptoauthlib_dir}/lib/calib/calib_ecdh.c
+        ${cryptoauthlib_dir}/lib/calib/calib_execution.c
+        ${cryptoauthlib_dir}/lib/calib/calib_gendig.c
+        ${cryptoauthlib_dir}/lib/calib/calib_genkey.c
+        ${cryptoauthlib_dir}/lib/calib/calib_hmac.c
+        ${cryptoauthlib_dir}/lib/calib/calib_info.c
+        ${cryptoauthlib_dir}/lib/calib/calib_kdf.c
+        ${cryptoauthlib_dir}/lib/calib/calib_lock.c
+        ${cryptoauthlib_dir}/lib/calib/calib_mac.c
+        ${cryptoauthlib_dir}/lib/calib/calib_nonce.c
+        ${cryptoauthlib_dir}/lib/calib/calib_privwrite.c
+        ${cryptoauthlib_dir}/lib/calib/calib_random.c
+        ${cryptoauthlib_dir}/lib/calib/calib_read.c
+        ${cryptoauthlib_dir}/lib/calib/calib_secureboot.c
+        ${cryptoauthlib_dir}/lib/calib/calib_selftest.c
+        ${cryptoauthlib_dir}/lib/calib/calib_sha.c
+        ${cryptoauthlib_dir}/lib/calib/calib_sign.c
+        ${cryptoauthlib_dir}/lib/calib/calib_updateextra.c
+        ${cryptoauthlib_dir}/lib/calib/calib_verify.c
+        ${cryptoauthlib_dir}/lib/calib/calib_write.c
+        ${cryptoauthlib_dir}/lib/crypto/atca_crypto_hw_aes_cbc.c
+        ${cryptoauthlib_dir}/lib/crypto/atca_crypto_hw_aes_cbcmac.c
+        ${cryptoauthlib_dir}/lib/crypto/atca_crypto_hw_aes_ccm.c
+        ${cryptoauthlib_dir}/lib/crypto/atca_crypto_hw_aes_cmac.c
+        ${cryptoauthlib_dir}/lib/crypto/atca_crypto_hw_aes_ctr.c
+        ${cryptoauthlib_dir}/lib/crypto/atca_crypto_sw_ecdsa.c
+        ${cryptoauthlib_dir}/lib/crypto/atca_crypto_sw_rand.c
+        ${cryptoauthlib_dir}/lib/crypto/atca_crypto_sw_sha1.c
+        ${cryptoauthlib_dir}/lib/crypto/atca_crypto_sw_sha2.c
+        ${cryptoauthlib_dir}/lib/crypto/hashes/sha2_routines.c
+        ${cryptoauthlib_dir}/lib/crypto/hashes/sha1_routines.c
+        ${cryptoauthlib_dir}/lib/host/atca_host.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_attrib.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_cert.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_config.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_debug.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_digest.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_find.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_info.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_init.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_key.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_main.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_mech.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_object.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_os.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_session.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_signature.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_slot.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_token.c
+        ${cryptoauthlib_dir}/lib/pkcs11/pkcs11_util.c
     )
 
     afr_module_sources(
         pkcs11_ecc608a
         INTERFACE
-            "${atca_config_dir}/atca_cert_chain.h"
-            "${atca_config_dir}/atca_cert_chain.c"
-            "${atca_config_dir}/core_pkcs11_secure_element.c"
+            "${pkcs11_cryptoauthlib_dir}/atca_cert_chain.h"
+            "${pkcs11_cryptoauthlib_dir}/atca_cert_chain.c"
+            "${pkcs11_cryptoauthlib_dir}/core_pkcs11_secure_element.c"
             "${ecc608_src_list}"
     )
 
@@ -169,7 +178,8 @@ if(ECC608_IN_USE)
         pkcs11_ecc608a
         INTERFACE
             "${inc_dir}"
-            "${ecc608_include}"
+            "${cryptoauthlib_include_dirs}"
+            "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/cryptoauthlib"
     )
 
     afr_module_dependencies(

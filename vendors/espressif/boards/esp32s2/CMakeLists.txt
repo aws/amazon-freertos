@@ -231,8 +231,8 @@ if(ECC608_IN_USE)
         ecc608a_hal_src
             "${ecc608a_dir}/lib/hal/atca_hal.c"
             "${ecc608a_dir}/lib/hal/hal_freertos.c"
-            "${ecc608a_dir}/lib/hal/hal_esp32_i2c.c"
-            "${ecc608a_dir}/lib/hal/hal_esp32_timer.c"
+            "${ecc608a_dir}/third_party/hal/esp32/hal_esp32_i2c.c"
+            "${ecc608a_dir}/third_party/hal/esp32/hal_esp32_timer.c"
             "${ecc608a_dir}/lib/hal/atca_hal.h"
             "${ecc608a_dir}/lib/hal/atca_start_config.h"
             "${ecc608a_dir}/lib/hal/atca_start_iface.h"
@@ -241,6 +241,7 @@ if(ECC608_IN_USE)
         AFR::pkcs11_implementation::mcu_port
         INTERFACE
             "${board_dir}/config_files/ecc608a_pkcs11_config"
+            "${ecc608a_dir}/secure_elements/lib/calib"
     )
     target_sources(
         AFR::pkcs11_implementation::mcu_port

@@ -1,10 +1,13 @@
 set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
-set(ecc608a_dir "${mchp_dir}/secure_elements")
+set(cryptoauthlib_dir "${mchp_dir}/secure_elements")
 set(ECC608_IN_USE TRUE)
 
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
 set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
+
+set(cryptoauthlib_port_dir "${afr_ports_dir}/cryptoauthlib")
+set(pkcs11_cryptoauthlib_dir "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/cryptoauthlib")
 
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
@@ -57,8 +60,8 @@ target_include_directories(
         "${AFR_KERNEL_DIR}/portable/MSVC-MingW"
         "${board_dir}/config_files"
         "${board_dir}/application_code"
-        "${ecc608a_dir}/lib"
-        "${ecc608a_dir}/third_party/hidapi/hidapi"
+        "${cryptoauthlib_dir}/lib"
+        "${cryptoauthlib_dir}/third_party/hidapi/hidapi"
         # Need aws_clientcredential.h
         "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
@@ -87,24 +90,32 @@ target_link_libraries(
 afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_ecc608a)
 set(
     ecc608a_hid_src
-    "${ecc608a_dir}/third_party/hidapi/windows/hid.c"
+    "${cryptoauthlib_dir}/third_party/hidapi/windows/hid.c"
 )
 set(
     ecc608a_hal_src
-        "${ecc608a_dir}/lib/hal/atca_hal.c"
-        "${ecc608a_dir}/lib/hal/hal_all_platforms_kit_hidapi.c"
-        "${ecc608a_dir}/lib/hal/hal_freertos.c"
-        "${ecc608a_dir}/lib/hal/hal_windows.c"
-        "${ecc608a_dir}/lib/hal/kit_protocol.c"
-        "${ecc608a_dir}/lib/hal/atca_hal.h"
-        "${ecc608a_dir}/lib/hal/kit_phy.h"
-        "${ecc608a_dir}/lib/hal/kit_protocol.h"
+        "${cryptoauthlib_dir}/lib/hal/atca_hal.c"
+        "${cryptoauthlib_dir}/lib/hal/hal_all_platforms_kit_hidapi.c"
+        "${cryptoauthlib_dir}/lib/hal/hal_freertos.c"
+        "${cryptoauthlib_dir}/lib/hal/hal_windows.c"
+        "${cryptoauthlib_dir}/lib/hal/kit_protocol.c"
+        "${cryptoauthlib_dir}/lib/hal/atca_hal.h"
+        "${cryptoauthlib_dir}/lib/hal/kit_phy.h"
+        "${cryptoauthlib_dir}/lib/hal/kit_protocol.h"
 )
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
         "${ecc608a_hal_src}"
-        "${ecc608a_hid_src}"
+        "${pkcs11_cryptoauthlib_dir}"
+        "${afr_ports_dir}/cryptoauthlib/atca_config.h"
+)
+
+target_include_directories(
+    AFR::pkcs11_implementation::mcu_port
+    INTERFACE
+        "${afr_ports_dir}/cryptoauthlib"
+
 )
 
 # FreeRTOS Plus TCP
