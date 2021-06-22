@@ -28,15 +28,15 @@
  * level for all libraries; the library-specific settings override the global
  * setting. If both the library-specific and global settings are undefined,
  * no logs will be printed. */
-#define IOT_LOG_LEVEL_GLOBAL                    IOT_LOG_INFO
-#define IOT_LOG_LEVEL_DEMO                      IOT_LOG_INFO
-#define IOT_LOG_LEVEL_PLATFORM                  IOT_LOG_INFO
-#define IOT_LOG_LEVEL_NETWORK                   IOT_LOG_INFO
-#define IOT_LOG_LEVEL_TASKPOOL                  IOT_LOG_INFO
-#define IOT_LOG_LEVEL_MQTT                      IOT_LOG_INFO
-#define AWS_IOT_LOG_LEVEL_SHADOW                IOT_LOG_INFO
-#define AWS_IOT_LOG_LEVEL_DEFENDER              IOT_LOG_INFO
-#define IOT_LOG_LEVEL_HTTPS                     IOT_LOG_INFO
+#define IOT_LOG_LEVEL_GLOBAL                    IOT_LOG_DEBUG
+#define IOT_LOG_LEVEL_DEMO                      IOT_LOG_DEBUG
+#define IOT_LOG_LEVEL_PLATFORM                  IOT_LOG_DEBUG
+#define IOT_LOG_LEVEL_NETWORK                   IOT_LOG_DEBUG
+#define IOT_LOG_LEVEL_TASKPOOL                  IOT_LOG_DEBUG
+#define IOT_LOG_LEVEL_MQTT                      IOT_LOG_DEBUG
+#define AWS_IOT_LOG_LEVEL_SHADOW                IOT_LOG_DEBUG
+#define AWS_IOT_LOG_LEVEL_DEFENDER              IOT_LOG_DEBUG
+#define IOT_LOG_LEVEL_HTTPS                     IOT_LOG_DEBUG
 
 /* Platform thread stack size and priority. */
 #define IOT_THREAD_DEFAULT_STACK_SIZE           2048
