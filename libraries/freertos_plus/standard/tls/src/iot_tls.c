@@ -1010,6 +1010,7 @@ BaseType_t TLS_Recv( void * pvContext,
 
     if( xResult >= 0 )
     {
+        config_PRINTF(("res:read = %d:%d\n", xResult, xRead));
         xResult = ( BaseType_t ) xRead;
     }
     else
