@@ -117,6 +117,6 @@ int32_t IotBleMqttTransportReceive( NetworkContext_t * pContext,
  * @param[in] timeoutMS Timeout value in Milliseconds.Setting a zero will make receive non-blocking.
  */
 void IotBleMqttTransportSetReceiveTimeout( NetworkContext_t * pContext,
-                                            uint32_t timeoutMS );
+                                           uint32_t timeoutMS );
 
 #endif /* ifndef IOT_BLE_MQTT_TRANSPORT_H */
