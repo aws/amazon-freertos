@@ -143,6 +143,7 @@ target_sources(
     AFR::ota::mcu_port
     INTERFACE
         "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.h"
 )
 target_include_directories(
     AFR::ota::mcu_port
