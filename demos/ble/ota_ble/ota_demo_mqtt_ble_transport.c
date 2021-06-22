@@ -1913,7 +1913,7 @@ static BaseType_t prvRunOTADemo( void )
  * otherwise.
  *
  */
-int RunOTAMQTTBLETransportDemo( void )
+int RunOtaMqttBLETransportDemo( void )
 {
     BaseType_t xDemoStatus = pdFAIL;
     BaseType_t xMqttInitialized = pdFALSE;
