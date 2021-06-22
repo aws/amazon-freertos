@@ -20,8 +20,8 @@
  */
 
 /**
- * @file ota_demo_core_mqtt.c
- * @brief OTA update example using coreMQTT.
+ * @file ota_demo_mqtt_ble_transport.c
+ * @brief OTA update example using BLE transport interface.
  */
 
 /* Standard includes. */
