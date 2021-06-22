@@ -127,7 +127,7 @@
         #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_BLE )
     #endif
 #elif defined( CONFIG_OTA_MQTT_BLE_TRANSPORT_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION             RunOTAMQTTBLETransportDemo
+    #define DEMO_entryFUNCTION             RunOtaMqttBLETransportDemo
     #if defined( democonfigNETWORK_TYPES )
         #undef democonfigNETWORK_TYPES
         #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_BLE )
