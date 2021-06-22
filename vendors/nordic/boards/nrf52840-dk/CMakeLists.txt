@@ -438,8 +438,6 @@ target_include_directories(
 target_link_libraries(
     AFR::ota::mcu_port
     INTERFACE
-        AFR::crypto
-        AFR::pkcs11_implementation
         3rdparty::mbedtls
         AFR::ota
 )
