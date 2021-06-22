@@ -7,7 +7,7 @@
 #include "nrf_bootloader.h"
 #include "mbedtls/base64.h"
 
-/* Code signing certificate is placed inside OTA demo config*/
+/* Code signing certificate is placed inside OTA demo config. */
 #include "aws_ota_codesigner_certificate.h"
 
 ret_code_t xReadCertificate();

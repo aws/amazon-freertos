@@ -326,7 +326,7 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
     uint8_t * pucPublicKey;
 
     *ulSignerCertSize = sizeof( codeSigningCertificatePEM );
-    /* Skip the "BEGIN CERTIFICATE" */
+    /* Skip the "BEGIN CERTIFICATE". */
     uint8_t * pucCertBegin = strstr( codeSigningCertificatePEM, pcOTA_PAL_CERT_BEGIN );
 
     if( pucCertBegin == NULL )
@@ -419,13 +419,13 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
         }
     }
 
-    /* Read the old image */
-    /* Right now we always boot from the first bank */
+    /* Read the old image. */
+    /* Right now we always boot from the first bank. */
     /* TODO: Support boot from the second bank */
     ImageDescriptor_t * old_descriptor = ( ImageDescriptor_t * ) ( otapalFIRST_BANK_START );
     ImageDescriptor_t new_descriptor;
 
-    /* Check if the correct image is located at the beginning of the bank */
+    /* Check if the correct image is located at the beginning of the bank. */
     if( ( memcmp( old_descriptor->pMagick, pcOTA_PAL_Magick, otapalMAGICK_SIZE ) != 0 ) && ( eState == OtaImageStateAccepted ) )
     {
         xStatus = OtaPalCommitFailed;
