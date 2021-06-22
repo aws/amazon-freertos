@@ -575,6 +575,7 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
 
     if( ctx->enforce_tls )
     {
+        config_PRINTF(("Using TLS\n"));
         /* Receive through TLS pipe, if negotiated. */
         return TLS_Recv( ctx->tls_ctx, pvBuffer, xBufferLength );
     }
