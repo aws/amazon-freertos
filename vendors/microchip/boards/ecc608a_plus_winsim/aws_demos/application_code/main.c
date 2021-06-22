@@ -53,7 +53,6 @@
 #include "aws_demo_logging.h"
 #include "iot_system_init.h"
 #include "aws_demo.h"
-#include "aws_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "iot_network_manager_private.h"
 #include "aws_iot_network_config.h"

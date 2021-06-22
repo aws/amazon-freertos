@@ -63,6 +63,20 @@ else()
     set(aws_credentials_include "${AFR_DEMOS_DIR}/include")
 endif()
 
+# mbedTLS include directories
+if(NOT AFR_ESP_FREERTOS_TCP)
+    target_include_directories(
+        afr_3rdparty_mbedtls
+        PUBLIC
+        "${esp_idf_dir}/components/lwip/include/apps"
+        "${esp_idf_dir}/components/lwip/include/apps/sntp"
+        "${esp_idf_dir}/components/lwip/lwip/src/include"
+        "${esp_idf_dir}/components/lwip/port/esp32/include"
+        "${esp_idf_dir}/components/lwip/port/esp32/include/arch"
+        "${esp_idf_dir}/components/lwip/lwip/src/include/compat"
+        )
+endif()
+
 # Kernel
 afr_mcu_port(kernel)
 afr_glob_src(driver_src DIRECTORY "${esp_idf_dir}" RECURSE)
@@ -350,29 +364,37 @@ target_compile_definitions(
 )
 endif()
 
-# OTA
-# Need to get this validated
+# Over-the-air Updates
 afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
     INTERFACE
-        "${afr_ports_dir}/ota/aws_ota_pal.c"
-        "${afr_ports_dir}/ota/aws_esp_ota_ops.c"
-        "${afr_ports_dir}/ota/aws_esp_ota_ops.h"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.h"
+        "${afr_ports_dir}/ota_pal_for_aws/aws_esp_ota_ops.c"
+        "${afr_ports_dir}/ota_pal_for_aws/aws_esp_ota_ops.h"
 )
 target_include_directories(
     AFR::ota::mcu_port
     INTERFACE
+        "${afr_ports_dir}/ota_pal_for_aws"
         "${esp_idf_dir}/components/soc/soc/include"
 )
 target_link_libraries(
     AFR::ota::mcu_port
     INTERFACE
         AFR::crypto
-        AFR::pkcs11
-        AFR::ota_mqtt
-        AFR::ota_http
+        AFR::pkcs11_implementation
+        3rdparty::mbedtls
+        AFR::ota
 )
+
+if(AFR_ENABLE_TESTS)
+    target_include_directories(
+        AFR::ota::mcu_port
+        INTERFACE "${PROJECT_SOURCE_DIR}/tests/integration_test/ota_pal"
+    )
+endif()
 
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests
@@ -446,15 +468,6 @@ set_source_files_properties(${AFR_DEMOS_DIR}/logging/iot_logging_task_dynamic_bu
     "-Wno-format -Wno-uninitialized"
 )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_pal.c
-    PROPERTIES COMPILE_FLAGS
-    "-Wno-pointer-sign -Wno-sizeof-pointer-memaccess"
-)
-
-set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_agent.c
-    PROPERTIES COMPILE_FLAGS
-    "-Wno-pointer-sign"
-)
 
 set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
     PROPERTIES COMPILE_FLAGS

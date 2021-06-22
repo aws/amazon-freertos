@@ -31,7 +31,6 @@
 #include <whd.h>
 #include <whd_wifi_api.h>
 #include <whd_network_types.h>
-#include "types/iot_network_types.h"
 
 /* Board and Abstraction layer includes */
 #include <cyabs_rtos.h>
@@ -42,7 +41,7 @@ extern WIFIDeviceMode_t devMode;
 extern bool isConnected;
 extern bool isPoweredUp;
 extern bool isMutexInitialized;
-extern IotNetworkStateChangeEventCallback_t userCb;
+
 
 typedef void (*cy_network_activity_event_callback_t)(bool callback_arg);
 

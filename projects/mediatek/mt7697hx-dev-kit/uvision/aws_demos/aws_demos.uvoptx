@@ -1846,7 +1846,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/c_sdk/standard/common/include/types/iot_network_types.h</PathWithFileName>
+      <PathWithFileName>../../../../../libraries/abstractions/platform/include/types/iot_network_types.h</PathWithFileName>
       <FilenameWithoutPath>iot_network_types.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

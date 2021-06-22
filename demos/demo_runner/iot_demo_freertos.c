@@ -95,7 +95,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 
     demoContext_t * pDemoContext = ( demoContext_t * ) pContext;
 
-    if( ( state == eNetworkStateEnabled ) && ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE ) )
+    if( ( state == eNetworkStateConnected ) && ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE ) )
     {
         demoConnectedNetwork = network;
         IotSemaphore_Post( &demoNetworkSemaphore );
@@ -121,8 +121,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                                                     pNetworkInterface );
         }
     }
-    else if( ( ( state == eNetworkStateDisabled ) || ( state == eNetworkStateUnknown ) ) &&
-             ( demoConnectedNetwork == network ) )
+    else if( ( state == eNetworkStateEnabled ) && ( demoConnectedNetwork == network ) )
     {
         if( pDemoContext->networkDisconnectedCallback != NULL )
         {

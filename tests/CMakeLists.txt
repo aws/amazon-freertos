@@ -19,7 +19,6 @@ afr_module_sources(
         "${src_dir}/aws_test.c"
         "${src_dir}/iot_test_freertos.c"
         "${src_dir}/iot_tests_network.c"
-        "${inc_dir}/aws_application_version.h"
         "${inc_dir}/aws_clientcredential.h"
         "${inc_dir}/aws_clientcredential_keys.h"
         "${inc_dir}/aws_test_runner.h"

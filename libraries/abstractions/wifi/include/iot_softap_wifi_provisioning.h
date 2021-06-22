@@ -23,25 +23,46 @@
  * http://www.FreeRTOS.org
  */
 
+/**
+ * @file iot_softap_wifi_provisioning.h
+ * @brief Wi-Fi SoftAP Provisioning Interface.
+ */
+
 #ifndef _AWS_SOFTAP_WIFI_PROVISIONING_H_
 #define _AWS_SOFTAP_WIFI_PROVISIONING_H_
 
 #include <stdint.h>
 
 /**
- * @file iot_softap_wifi_provisioning.h
- * @brief Wi-Fi SoftAP Provisioning Interface.
+ * @ingroup wifi_data_types_enums
+ * @brief This enumeration defines the different types of request processed by the WiFi provisioning library.
  */
+typedef enum
+{
+    IotWiFiSoftAPProvRequestInvalid, /**< Type used to denote an invalid request. */
+    IotWiFiSoftAPProvRequestStop     /**< Request sent from an application task to stop WiFi provisioning loop. */
+} IotWiFiSoftAPProvRequest_t;
 
 /**
  * @brief Initialize wifi provisioning over SoftAP.
  *
- * @return pdPASS if the initialization succeeded.
- *         pdFAIL if the initialization failed.
+ * @return true if the initialization succeeded.
+ *         false if the initialization failed.
  */
 /* @[declare_iotwifisoftapprov_init] */
-uint32_t IotWifiSoftAPProv_Init( void );
+bool IotWifiSoftAPProv_Init( void );
 
+/**
+ * @brief Function which runs the process loop for Wifi provisioning.
+ * Process loop can be run within a task, it waits for the incoming requests from the
+ * transport interface as well as commands from the user application. Process loop terminates when
+ * a stop command is sent from the application.
+ *
+ * @return true if the process loop function ran successfully. false if process loop terminated due
+ *         to an error.
+ */
+/* @[declare_iotwifisoftapprov_init] */
+bool IotWifiSoftAPProv_RunProcessLoop( void );
 
 /**
  * @brief Gets the total number of provisioned networks.
@@ -54,10 +75,19 @@ uint32_t IotWifiSoftAPProv_GetNumNetworks( void );
 /**
  * @brief Connects to one of the saved networks in priority order.
  *
- * @return Returns pdPASS or pdFAIL whether connection succeeded
+ * @return Returns true if connection succeeded, else false.
  */
 /* @[declare_iotwifisoftapprov_connect] */
-uint32_t IotWifiSoftAPProv_Connect( uint32_t networkIndex );
+bool IotWifiSoftAPProv_Connect( uint32_t networkIndex );
+
+/**
+ * @brief Stop the WiFi provisionig process loop function.
+ * This enqueues a command to stop the WiFi provisioning process loop function.
+ *
+ * @return true if succesfully enqueued command to stop WiFi provisioning loop.
+ */
+/* @[declare_iotwifisoftapprov_stop] */
+bool IotWifiSoftAPProv_Stop( void );
 
 /**
  * @brief Tear down WIFI provisioning service

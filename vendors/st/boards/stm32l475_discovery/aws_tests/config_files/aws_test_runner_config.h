@@ -43,8 +43,6 @@
 /* #define AWS_TEST_RUNNER_DELAY_MS                       ( 1000 )*/
 
 /* Unsupported tests. */
-#define testrunnerFULL_OTA_CBOR_ENABLED             testrunnerUNSUPPORTED
-#define testrunnerFULL_OTA_AGENT_ENABLED            testrunnerUNSUPPORTED
 #define testrunnerFULL_OTA_PAL_ENABLED              testrunnerUNSUPPORTED
 #define testrunnerFULL_MQTT_ALPN_ENABLED            testrunnerUNSUPPORTED
 #define testrunnerFULL_MQTT_STRESS_TEST_ENABLED     testrunnerUNSUPPORTED

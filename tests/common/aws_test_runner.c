@@ -39,9 +39,6 @@
 #include "unity_fixture.h"
 #include "unity_internals.h"
 
-/* Application version info. */
-#include "aws_application_version.h"
-
 /* Include files for UART based FreeRTOS+CLI support of test runner.
  *  Note: This adds a dependency on Common IO for UART communication .*/
 #if defined( AWS_TEST_RUNNER_ENABLE_CLI_INPUT ) && ( AWS_TEST_RUNNER_ENABLE_CLI_INPUT == 1 )
@@ -57,13 +54,6 @@
 #ifndef AWS_TEST_RUNNER_DELAY_MS
     #define AWS_TEST_RUNNER_DELAY_MS    5000
 #endif
-
-const AppVersion32_t xAppFirmwareVersion =
-{
-    .u.x.ucMajor = APP_VERSION_MAJOR,
-    .u.x.ucMinor = APP_VERSION_MINOR,
-    .u.x.usBuild = APP_VERSION_BUILD,
-};
 
 char cBuffer[ testrunnerBUFFER_SIZE ];
 
@@ -138,15 +128,6 @@ static void RunTestSuites( void )
 
     #if ( testrunnerFULL_MQTT_ALPN_ENABLED == 1 )
         RUN_TEST_GROUP( Full_MQTT_Agent_ALPN );
-    #endif
-
-    #if ( testrunnerFULL_OTA_CBOR_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_OTA_CBOR );
-        RUN_TEST_GROUP( Quarantine_OTA_CBOR );
-    #endif
-
-    #if ( testrunnerFULL_OTA_AGENT_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_OTA_AGENT );
     #endif
 
     #if ( testrunnerFULL_OTA_PAL_ENABLED == 1 )

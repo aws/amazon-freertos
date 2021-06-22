@@ -44,7 +44,6 @@
 
 /* Unsupported Tests */
 #define testrunnerFULL_CBOR_ENABLED                 testrunnerUNSUPPORTED
-#define testrunnerFULL_OTA_AGENT_ENABLED            testrunnerUNSUPPORTED
 #define testrunnerFULL_OTA_PAL_ENABLED              testrunnerUNSUPPORTED
 #define testrunnerFULL_WIFI_ENABLED                 testrunnerUNSUPPORTED
 

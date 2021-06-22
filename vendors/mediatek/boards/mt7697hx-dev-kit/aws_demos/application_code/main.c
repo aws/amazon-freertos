@@ -84,11 +84,6 @@ void vApplicationDaemonTaskStartupHook( void );
 #endif
 
 /**
- * @brief Connects to WiFi.
- */
-static void prvWifiConnect( void );
-
-/**
  * @brief Initializes the board.
  */
 static void prvMiscInitialization( void );
@@ -186,9 +181,6 @@ void vApplicationDaemonTaskStartupHook( void )
 
     if( SYSTEM_Init() == pdPASS )
     {
-        /* Connect to the wifi before running real jobs. */
-        prvWifiConnect();
-
         /* Run all demos. */
         DEMO_RUNNER_RunDemos();
     }
@@ -197,118 +189,6 @@ void vApplicationDaemonTaskStartupHook( void )
         configPRINTF( ( "SYSTEM_Init failed\n" ) );
     }
 }
-
-/*-----------------------------------------------------------*/
-
-void prvWifiConnect( void )
-{
-    WIFINetworkParams_t xNetworkParams = { 0 };
-    WIFIReturnCode_t xWifiStatus = eWiFiSuccess;
-    WIFIIPConfiguration_t xIpConfig;
-    uint8_t *pucIPV4Byte;
-    size_t xSSIDLength, xPasswordLength;
-
-    xWifiStatus = WIFI_On();
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "WiFi module initialized. Connecting to AP...\r\n" ) );
-    }
-    else
-    {
-        configPRINTF( ( "WiFi module failed to initialize.\r\n" ) );
-
-        while( 1 )
-        {
-        }
-    }
-
-   /* Setup WiFi parameters to connect to access point. */
-    if( clientcredentialWIFI_SSID != NULL )
-    {
-        xSSIDLength = strlen( clientcredentialWIFI_SSID );
-        if( ( xSSIDLength > 0 ) && ( xSSIDLength <= wificonfigMAX_SSID_LEN ) )
-        {
-            xNetworkParams.ucSSIDLength = xSSIDLength;
-            memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
-        }
-        else
-        {
-            configPRINTF(( "Invalid WiFi SSID configured, empty or exceeds allowable length %d.\n", wificonfigMAX_SSID_LEN ));
-            xWifiStatus = eWiFiFailure;
-        }
-    }
-    else
-    {
-        configPRINTF(( "WiFi SSID is not configured.\n" ));
-        xWifiStatus = eWiFiFailure;
-    }
-
-    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    if( clientcredentialWIFI_SECURITY == eWiFiSecurityWPA2 )
-    {
-        if( clientcredentialWIFI_PASSWORD != NULL )
-        {
-            xPasswordLength = strlen( clientcredentialWIFI_PASSWORD );
-            if( ( xPasswordLength > 0 ) && ( xSSIDLength <= wificonfigMAX_PASSPHRASE_LEN ) )
-            {
-                xNetworkParams.xPassword.xWPA.ucLength = xPasswordLength;
-                memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xPasswordLength );
-            }
-            else
-            {
-                configPRINTF(( "Invalid WiFi password configured, empty password or exceeds allowable password length %d.\n", wificonfigMAX_PASSPHRASE_LEN ));
-                xWifiStatus = eWiFiFailure;
-            }
-        }
-        else
-        {
-            configPRINTF(( "WiFi password is not configured.\n" ));
-            xWifiStatus = eWiFiFailure;
-        }
-    }
-    xNetworkParams.ucChannel = 0;
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        /* Try connecting using provided wifi credentials. */
-        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
-
-        if( xWifiStatus == eWiFiSuccess )
-        {
-            configPRINTF( ( "WiFi connected to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID ) );
-
-            /* Get IP address of the device. */
-            xWifiStatus = WIFI_GetIPInfo( &xIpConfig );
-            if( xWifiStatus == eWiFiSuccess )
-            {
-                pucIPV4Byte = ( uint8_t * ) ( &xIpConfig.xIPAddress.ulAddress[0] );
-                configPRINTF( ( "IP Address acquired %d.%d.%d.%d.\r\n",
-                        pucIPV4Byte[ 0 ], pucIPV4Byte[ 1 ], pucIPV4Byte[ 2 ], pucIPV4Byte[ 3 ] ) );
-            }
-        }
-        else
-        {
-            /* Connection failed configure softAP to allow user to set wifi credentials. */
-            configPRINTF( ( "WiFi failed to connect to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID  ) );
-        }
-    }
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "WiFi Connected to AP. Creating tasks which use network...\r\n" ) );
-    }
-    else
-    {
-        configPRINTF( ( "WiFi failed to connect to AP.\r\n" ) );
-
-        while( 1 )
-        {
-            taskYIELD();
-        }
-    }
-}
-
 /*-----------------------------------------------------------*/
 
 /**

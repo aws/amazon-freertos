@@ -150,30 +150,6 @@ target_sources(
         "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
 )
 
-# OTA
-afr_mcu_port(ota)
-target_sources(
-    AFR::ota::mcu_port
-    INTERFACE 
-        "${afr_ports_dir}/ota/aws_ota_pal.c"
-        "${afr_ports_dir}/ota/aws_ota_pal_spim.c"
-)
-target_include_directories(
-    AFR::ota::mcu_port
-    INTERFACE
-            "${AFR_ROOT_DIR}/libraries/abstractions/pkcs11/corePKCS11/source/include"
-            "${AFR_ROOT_DIR}/libraries/3rdparty/pkcs11"
-            "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/include"
-            "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src"
-)
-target_link_libraries(
-    AFR::ota::mcu_port
-    INTERFACE
-        AFR::crypto
-        AFR::ota_mqtt
-        AFR::ota_http
-)
-
 if(AFR_ENABLE_ETH)
 
     # FreeRTOS Plus TCP

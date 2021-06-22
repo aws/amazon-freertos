@@ -75,4 +75,31 @@ if(AFR_ENABLE_TESTS)
         INTERFACE AFR::freertos_plus_tcp
     )
 
+    # OTA Test
+    afr_test_module(ota_pal_test)
+
+    afr_module_sources(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_pal.c"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_ota_pal_test_access_declare.h"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_ota_pal_test_access_define.h"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_pal_ecdsa_sha256_signature.h"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_pal_rsa_sha1_signature.h"
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal/aws_test_ota_pal_rsa_sha256_signature.h"
+    )
+
+    afr_module_include_dirs(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE
+            "${CMAKE_CURRENT_LIST_DIR}/ota_pal"
+    )
+
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE
+            AFR::ota
+            AFR::ota::mcu_port
+    )
+
 endif()

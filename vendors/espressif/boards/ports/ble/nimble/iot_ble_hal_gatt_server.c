@@ -540,7 +540,7 @@ void vESPBTGATTServerCleanup( void )
         serviceCnt = 0;
 
         memset( espServices, 0, sizeof( struct ble_gatt_svc_def ) * ( MAX_SERVICES + 1 ) );
-        memset( afrServices, 0, sizeof( struct BTService_t * ) * ( MAX_SERVICES + 1 ) );
+        memset( afrServices, 0, sizeof( struct BTService_t * ) * ( MAX_SERVICES ) );
     }
 
     if( semInited )

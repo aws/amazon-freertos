@@ -53,11 +53,9 @@
 /* #define AWS_TEST_RUNNER_ENABLE_CLI_INPUT          ( 1 ) */
 
 /* Unsupported tests */
-#define testrunnerFULL_OTA_CBOR_ENABLED                testrunnerUNSUPPORTED
 #define testrunnerFULL_POSIX_ENABLED                   testrunnerUNSUPPORTED
 
 /* Enable tests by setting defines to 1 */
-#define testrunnerFULL_OTA_AGENT_ENABLED               0
 #define testrunnerFULL_OTA_PAL_ENABLED                 0
 #define testrunnerFULL_MQTT_ALPN_ENABLED               0
 #define testrunnerFULL_CORE_MQTT_ENABLED               0

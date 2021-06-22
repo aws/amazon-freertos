@@ -152,11 +152,6 @@
 			<locationURI>BASE_DIR/vendors/cypress/freertos_thirdparty_port/GCC/Wiced_CY/portmacro.h</locationURI>
 		</link>
 		<link>
-			<name>demos/demo_runner/aws_demo_version.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/demo_runner/aws_demo_version.c</locationURI>
-		</link>
-		<link>
 			<name>demos/demo_runner/aws_demo.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/demo_runner/aws_demo.c</locationURI>
@@ -165,11 +160,6 @@
 			<name>demos/network_manager/aws_iot_network_manager.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/network_manager/aws_iot_network_manager.c</locationURI>
-		</link>
-		<link>
-			<name>demos/network_manager/aws_iot_demo_network.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/network_manager/aws_iot_demo_network.c</locationURI>
 		</link>
 		<link>
 			<name>demos/network_manager/iot_network_manager_private.h</name>
@@ -187,11 +177,6 @@
 			<locationURI>BASE_DIR/demos/demo_runner/iot_demo_runner.c</locationURI>
 		</link>
 		<link>
-			<name>demos/include/aws_application_version.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/include/aws_application_version.h</locationURI>
-		</link>
-		<link>
 			<name>demos/include/aws_clientcredential.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/include/aws_clientcredential.h</locationURI>
@@ -205,11 +190,6 @@
 			<name>demos/include/aws_demo.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/include/aws_demo.h</locationURI>
-		</link>
-		<link>
-			<name>demos/include/aws_iot_demo_network.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/include/aws_iot_demo_network.h</locationURI>
 		</link>
 		<link>
 			<name>demos/include/aws_ota_codesigner_certificate.h</name>
@@ -235,11 +215,6 @@
 			<name>libraries/c_sdk/standard/common/iot_init.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/iot_init.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/iot_appversion32.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_appversion32.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_init.h</name>
@@ -277,9 +252,9 @@
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_logging_setup.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/types/iot_network_types.h</name>
+			<name>libraries/abstractions/platform/include/types/iot_network_types.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/types/iot_network_types.h</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/include/types/iot_network_types.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/iot_static_memory_common.c</name>
@@ -622,6 +597,41 @@
 			<locationURI>BASE_DIR/libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT-Agent/source/core_mqtt_agent.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_agent_message.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/mqtt_agent/freertos_agent_message.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_command_pool.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/mqtt_agent/freertos_command_pool.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/coreJSON/source/core_json.c</locationURI>
@@ -702,9 +712,24 @@
 			<locationURI>BASE_DIR/demos/coreMQTT/mqtt_demo_mutual_auth.c</locationURI>
 		</link>
 		<link>
-			<name>demos/coreMQTT/mqtt_demo_connection_sharing.c</name>
+			<name>demos/coreMQTT_Agent/mqtt_agent_task.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/demos/coreMQTT/mqtt_demo_connection_sharing.c</locationURI>
+			<locationURI>BASE_DIR/demos/coreMQTT_Agent/mqtt_agent_task.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT_Agent/simple_sub_pub_demo.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/coreMQTT_Agent/simple_sub_pub_demo.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT_Agent/subscription_manager.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/coreMQTT_Agent/subscription_manager.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT_Agent/subscription_manager.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/coreMQTT_Agent/subscription_manager.h</locationURI>
 		</link>
 		<link>
 			<name>demos/device_defender_for_aws/defender_demo.c</name>
@@ -877,9 +902,9 @@
 			<locationURI>BASE_DIR/vendors/cypress/boards/CYW954907AEVAL1F/aws_demos/config_files/jobs_demo_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/mqtt_demo_connection_sharing_config.h</name>
+			<name>config_files/mqtt_agent_demo_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/cypress/boards/CYW954907AEVAL1F/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/cypress/boards/CYW954907AEVAL1F/aws_demos/config_files/mqtt_agent_demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/mqtt_demo_mutual_auth_config.h</name>

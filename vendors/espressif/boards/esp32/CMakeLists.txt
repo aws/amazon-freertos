@@ -73,6 +73,20 @@ else()
     set(aws_credentials_include "${AFR_DEMOS_DIR}/include")
 endif()
 
+# mbedTLS include directories
+if(NOT AFR_ESP_FREERTOS_TCP)
+    target_include_directories(
+        afr_3rdparty_mbedtls
+        PUBLIC
+        "${esp_idf_dir}/components/lwip/include/apps"
+        "${esp_idf_dir}/components/lwip/include/apps/sntp"
+        "${esp_idf_dir}/components/lwip/lwip/src/include"
+        "${esp_idf_dir}/components/lwip/port/esp32/include"
+        "${esp_idf_dir}/components/lwip/port/esp32/include/arch"
+        "${esp_idf_dir}/components/lwip/lwip/src/include/compat"
+        )
+endif()
+
 # Kernel
 afr_mcu_port(kernel)
 afr_glob_src(driver_src DIRECTORY "${esp_idf_dir}" RECURSE)
@@ -117,6 +131,7 @@ if(AFR_ESP_FREERTOS_TCP)
     "${esp_idf_dir}/components/esp_wifi/include"
     "${esp_idf_dir}/components/esp_netif/include"
     "${esp_idf_dir}/components/esp_eth/include"
+    "${esp_idf_dir}/components/soc/soc/include"
     )
 else()
     list(APPEND kernel_inc_dirs
@@ -323,50 +338,49 @@ target_include_directories(
 )
 
 if(AFR_ESP_FREERTOS_TCP)
-# FreeRTOS Plus TCP
-afr_mcu_port(freertos_plus_tcp)
-target_sources(
-    AFR::freertos_plus_tcp::mcu_port
-    INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/esp32/NetworkInterface.c"
-)
+    # FreeRTOS Plus TCP
+    afr_mcu_port(freertos_plus_tcp)
+    target_sources(
+        AFR::freertos_plus_tcp::mcu_port
+        INTERFACE
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/esp32/NetworkInterface.c"
+    )
 
-# Secure sockets
-afr_mcu_port(secure_sockets)
-target_link_libraries(
-    AFR::secure_sockets::mcu_port
-    INTERFACE AFR::secure_sockets_freertos_plus_tcp
-)
+    # Secure sockets
+    afr_mcu_port(secure_sockets)
+    target_link_libraries(
+        AFR::secure_sockets::mcu_port
+        INTERFACE AFR::secure_sockets_freertos_plus_tcp
+    )
 else()
 
-# Secure sockets
-afr_mcu_port(secure_sockets)
+    # Secure sockets
+    afr_mcu_port(secure_sockets)
 
-target_sources(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/lwip/iot_secure_sockets.c"
-)
+    target_sources(
+        AFR::secure_sockets::mcu_port
+        INTERFACE
+            "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/lwip/iot_secure_sockets.c"
+    )
 
-target_include_directories(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-        "${esp_idf_dir}/components/lwip/include/apps"
-        "${esp_idf_dir}/components/lwip/include/apps/sntp"
-        "${esp_idf_dir}/components/lwip/lwip/src/include"
-        "${esp_idf_dir}/components/lwip/port/esp32/include"
-        "${esp_idf_dir}/components/lwip/port/esp32/include/arch"
-        "${esp_idf_dir}/components/lwip/include"
-)
+    target_include_directories(
+        AFR::secure_sockets::mcu_port
+        INTERFACE
+            "${esp_idf_dir}/components/lwip/include/apps"
+            "${esp_idf_dir}/components/lwip/include/apps/sntp"
+            "${esp_idf_dir}/components/lwip/lwip/src/include"
+            "${esp_idf_dir}/components/lwip/port/esp32/include"
+            "${esp_idf_dir}/components/lwip/port/esp32/include/arch"
+            "${esp_idf_dir}/components/lwip/include"
+    )
 
-target_link_libraries(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-        AFR::tls
-        AFR::wifi
-)
-
+    target_link_libraries(
+        AFR::secure_sockets::mcu_port
+        INTERFACE
+            AFR::tls
+            AFR::wifi
+    )
 endif()
 
 # Common I/O
@@ -409,29 +423,37 @@ target_compile_definitions(
 )
 endif()
 
-# OTA
-# Need to get this validated
+# Over-the-air Updates
 afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
     INTERFACE
-        "${afr_ports_dir}/ota/aws_ota_pal.c"
-        "${afr_ports_dir}/ota/aws_esp_ota_ops.c"
-        "${afr_ports_dir}/ota/aws_esp_ota_ops.h"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.h"
+        "${afr_ports_dir}/ota_pal_for_aws/aws_esp_ota_ops.c"
+        "${afr_ports_dir}/ota_pal_for_aws/aws_esp_ota_ops.h"
 )
 target_include_directories(
     AFR::ota::mcu_port
     INTERFACE
+        "${afr_ports_dir}/ota_pal_for_aws"
         "${esp_idf_dir}/components/soc/soc/include"
 )
 target_link_libraries(
     AFR::ota::mcu_port
     INTERFACE
         AFR::crypto
-        AFR::pkcs11
-        AFR::ota_mqtt
-        AFR::ota_http
+        AFR::pkcs11_implementation
+        3rdparty::mbedtls
+        AFR::ota
 )
+
+if(AFR_ENABLE_TESTS)
+    target_include_directories(
+        AFR::ota::mcu_port
+        INTERFACE "${PROJECT_SOURCE_DIR}/tests/integration_test/ota_pal"
+    )
+endif()
 
 # Add extra components to metadata
 afr_files_to_console_metadata(
@@ -510,16 +532,6 @@ set_source_files_properties(
 set_source_files_properties(${AFR_DEMOS_DIR}/logging/iot_logging_task_dynamic_buffers.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-format -Wno-uninitialized"
-)
-
-set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_pal.c
-    PROPERTIES COMPILE_FLAGS
-    "-Wno-pointer-sign -Wno-sizeof-pointer-memaccess"
-)
-
-set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_agent.c
-    PROPERTIES COMPILE_FLAGS
-    "-Wno-pointer-sign"
 )
 
 set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c

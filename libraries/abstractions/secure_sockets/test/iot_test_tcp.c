@@ -1495,6 +1495,7 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
     TickType_t xStartTime;
     TickType_t xEndTime;
     TickType_t xTimeout = 0;
+    TickType_t xWaitTime = 1000;
     uint8_t * pucTxBuffer = ( uint8_t * ) pcTxBuffer;
     uint8_t * pucRxBuffer = ( uint8_t * ) pcRxBuffer;
     size_t xMessageLength = 1200;
@@ -1554,8 +1555,22 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
                  */
                 xNumBytesReceived += lNumBytes;
             }
+            else if( ( lNumBytes < 0 ) && ( lNumBytes != SOCKETS_EWOULDBLOCK ) )
+            {
+                /* Since we are in non blocking mode, SOCKETS_EWOULDBLOCK error is fine because the TCP stack may
+                 * still be processing the packet. Any other error is not expected and we break if we receive any other error. */
+                break;
+            }
+            else
+            {
+                /* Do nothing. Maybe we have got SOCKETS_EWOULDBLOCK which indicates that we have
+                 * to wait OR the received number of bytes is zero which is strange but acceptable.
+                 * There is a timeout added below so that this code doesn't spin in this loop
+                 * indefinately. */
+            }
 
-            if( lNumBytes < 0 )
+            /* Do not wait more than xWaitTime even if the error is SOCKETS_EWOULDBLOCK. */
+            if( ( xEndTime - xStartTime ) > xWaitTime )
             {
                 break;
             }

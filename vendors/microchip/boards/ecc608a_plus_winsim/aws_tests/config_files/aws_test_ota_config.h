@@ -27,59 +27,76 @@
  * @file aws_test_ota_config.h
  * @brief Port-specific variables for firmware Over-the-Air Update tests. */
 
-#ifndef _AWS_TEST_OTA_CONFIG_H_
-#define _AWS_TEST_OTA_CONFIG_H_
+#ifndef AWS_TEST_OTA_CONFIG_H_
+#define AWS_TEST_OTA_CONFIG_H_
 
- /**
- * @brief Path to cert for OTA PAL test. Used to verify signature.
+/**
+ * @brief Path to cert for OTA test PAL. Used to verify signature.
  * If applicable, the device must be pre-provisioned with this certificate. Please see
  * test/common/ota/test_files for the set of certificates.
- *
- * In the Windows Simultor this is the path to the certificate on your machine. The path currently
- * here is relative to the FreeRTOS root. If you are debugging locally, Visual Studio may have
- * your path set as the project directory. In that case this can be changed to:
- *
- * #define otatestpalCERTIFICATE_FILE  "..\\..\\..\\..\\..\\libraries\\freertos_plus\\aws\\ota\\test\\test_files\\ecdsa-sha256-signer.crt.pem"
  */
-#define otatestpalCERTIFICATE_FILE    "libraries\\freertos_plus\\aws\\ota\\test\\test_files\\ecdsa-sha256-signer.crt.pem"
+#define otatestpalCERTIFICATE_FILE                         "ecdsa-sha256-signer.crt.pem"
 
- /**
+/**
  * @brief Some devices have a hard-coded name for the firmware image to boot.
  */
-#define otatestpalFIRMWARE_FILE  "dummy.bin"
+#define otatestpalFIRMWARE_FILE                            "dummy.bin"
 
 /**
  * @brief Some boards OTA PAL layers will use the file names passed into it for the
  * image and the certificates because their non-volatile memory is abstracted by a
  * file system. Set this to 1 if that is the case for your device.
  */
-#define otatestpalUSE_FILE_SYSTEM     0
+#define otatestpalUSE_FILE_SYSTEM                          0
 
 /**
- * @brief 1 if prvPAL_CheckFileSignature() is implemented in aws_ota_pal.c.
+ * @brief 1 if otaPal_CheckFileSignature() is implemented in ota_pal.c.
  */
 #define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           1
 
 /**
- * @brief 1 if prvPAL_ReadAndAssumeCertificate() is implemented in aws_ota_pal.c.
+ * @brief 1 if otaPal_ReadAndAssumeCertificate() is implemented in ota_pal.c.
  */
 #define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    1
 
 /**
  * @brief 1 if using PKCS #11 to access the code sign certificate from NVM.
  */
-#define otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11    0
+#define otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11    1
 
- /**
+/**
  * @brief Include of signature testing data applicable to this device.
  */
 #include "aws_test_ota_pal_ecdsa_sha256_signature.h"
 
 /**
- * @brief Define a valid and invalid signature verification method for this
- * platform (Windows). These are used for generating test JSON docs.
+ * @brief Major version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
  */
-#define otatestVALID_SIG_METHOD                         "sig-sha256-ecdsa"
-#define otatestINVALID_SIG_METHOD                       "sig-sha256-rsa"
+#ifndef APP_VERSION_MAJOR
+    #define APP_VERSION_MAJOR    0
+#endif
 
-#endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */
+/**
+ * @brief Minor version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#ifndef APP_VERSION_MINOR
+    #define APP_VERSION_MINOR    9
+#endif
+
+/**
+ * @brief Build version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#ifndef APP_VERSION_BUILD
+    #define APP_VERSION_BUILD    2
+#endif
+
+#endif /* ifndef AWS_TEST_OTA_CONFIG_H_ */

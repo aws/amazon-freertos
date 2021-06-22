@@ -1,7 +1,0 @@
-private/
-Makefile-genesis.properties
-Makefile-impl.mk
-Makefile-local-pic32mz_ef_curiosity.mk
-Makefile-pic32mz_ef_curiosity.mk
-Makefile-variables.mk
-Package-pic32mz_ef_curiosity.bash

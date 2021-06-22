@@ -427,7 +427,17 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
 
     /* Set the Secure Socket configurations. */
     xSocketConfig.enableTls = true;
-    xSocketConfig.pAlpnProtos = NULL;
+
+    /* Pass the ALPN protocol name depending on the port being used.
+     * Please see more details about the ALPN protocol for the AWS IoT MQTT
+     * endpoint in the link below.
+     * https://aws.amazon.com/blogs/iot/mqtt-with-tls-client-authentication-on-port-443-why-it-is-useful-and-how-it-works/
+     */
+    if( xServerInfo.port == 443 )
+    {
+        xSocketConfig.pAlpnProtos = socketsAWS_IOT_ALPN_MQTT;
+    }
+
     xSocketConfig.maxFragmentLength = 0;
     xSocketConfig.disableSni = false;
     xSocketConfig.sendTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;
