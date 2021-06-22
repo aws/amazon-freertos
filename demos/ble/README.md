@@ -14,3 +14,6 @@ This application demonstrates the transport interface implementation with BLE to
 
 ## Shadow BLE Transport Demo
 This application demonstrates Device Shadow updates for a BLE device with AWS IoT using a companion mobile device application. The demo requires a smartphone application written using the companion SDK for [iOS](https://github.com/aws/amazon-freertos-ble-ios-sdk) or [Android](https://github.com/aws/amazon-freertos-ble-android-sdk). Sample mobile applications can be found in the respective repositories. The demo facilitates applications written using the shadow and MQTT libraries to seamlessly perform shadow updates with the cloud over BLE through a companion device. 
+
+## OTA BLE Transport Demo
+This application demonstrates Over The Air updates of BLE firmware from AWS IoT using a companion mobile device application. The demo requires a smartphone application written using the companion SDK for [iOS](https://github.com/aws/amazon-freertos-ble-ios-sdk) or [Android](https://github.com/aws/amazon-freertos-ble-android-sdk). Sample mobile applications can be found in the respective repositories. The demo uses OTA library, MQTT agent and BLE transport interface to perform over the air updates through a smarthone application as a passthrough proxy connected to AWS IoT.
