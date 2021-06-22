@@ -17,18 +17,18 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-extern void ets_delay_us(uint32_t);
+extern void ets_delay_us( uint32_t );
 
-void atca_delay_us(uint32_t delay)
+void atca_delay_us( uint32_t delay )
 {
-    ets_delay_us(delay);
+    ets_delay_us( delay );
 }
 
 #ifdef ATCA_USE_RTOS_TIMER
-void atca_delay_ms_internal(uint32_t msec)
+    void atca_delay_ms_internal( uint32_t msec )
 #else
-void atca_delay_ms(uint32_t msec)
+    void atca_delay_ms( uint32_t msec )
 #endif
 {
-    ets_delay_us(msec * 1000);
+    ets_delay_us( msec * 1000 );
 }
