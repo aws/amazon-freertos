@@ -59,10 +59,10 @@ const char pcOTA_PAL_CERT_END[] = "-----END CERTIFICATE-----";
 static uint32_t pulSerializingArray[ otapalSERIALIZING_ARRAY_SIZE ];
 size_t ulPublicKeySize = 0;
 
-/* The static functions below (otaPal_CheckFileSignature and otaPal_ReadAndAssumeCertificate)
- * are optionally implemented. If these functions are implemented then please set the following macros in
- * aws_test_ota_config.h to 1:
- * otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
+/* The static functions below (otaPal_CheckFileSignature and 
+ * otaPal_ReadAndAssumeCertificate) are optionally implemented. If these functions 
+ * are implemented then please set the following macros in aws_test_ota_config.h 
+ * to 1: otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
  * otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED
  */
 
@@ -79,24 +79,29 @@ size_t ulPublicKeySize = 0;
  * @return Below are the valid return values for this function.
  * OtaPalSuccess if the signature verification passes.
  * OtaPalSignatureCheckFailed if the signature verification fails.
- * OtaPalBadSignerCert if the if the signature verification certificate cannot be read.
+ * OtaPalBadSignerCert if the if the signature verification certificate cannot 
+ * be read.
  *
  */
-static OtaPalMainStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext );
+static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext );
 
 /**
- * @brief Read the specified signer certificate from the filesystem into a local buffer.
+ * @brief Read the specified signer certificate from the filesystem into a local 
+ * buffer.
  *
- * The allocated memory returned becomes the property of the caller who is responsible for freeing it.
+ * The allocated memory returned becomes the property of the caller who is 
+ * responsible for freeing it.
  *
- * This function is called from otaPal_CheckFileSignature(). It should be implemented if signature
- * verification is not offloaded to non-volatile memory io function.
+ * This function is called from otaPal_CheckFileSignature(). It should be 
+ * implemented if signature verification is not offloaded to non-volatile memory 
+ * io function.
  *
  * @param[in] pucCertName The file path of the certificate file.
  * @param[out] ulSignerCertSize The size of the certificate file read.
  *
- * @return A pointer to the signer certificate in the file system. NULL if the certificate cannot be read.
- * This returned pointer is the responsibility of the caller; if the memory is allocated the caller must free it.
+ * @return A pointer to the signer certificate in the file system. NULL if the 
+ * certificate cannot be read. This returned pointer is the responsibility of the 
+ * caller; if the memory is allocated the caller must free it.
  */
 static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
                                                   uint32_t * const ulSignerCertSize );
@@ -113,11 +118,11 @@ static ret_code_t otaPal_WriteImageDescriptor( OtaFileContext_t * const pFileCon
 /**
  * @brief Sincronously write data to flash
  *
- * @param[in] ulOffset Position to write
- * @param[in] ulBlockSize Data size
- * @param[in] pacData Data to be written
+ * @param[in] ulOffset Position to write.
+ * @param[in] ulBlockSize Data size.
+ * @param[in] pacData Data to be written.
  *
- * @return Amount of written data or -1 in the case of error
+ * @return Amount of written data or -1 in the case of error.
  */
 static ret_code_t prvWriteFlash( uint32_t ulOffset,
                                  uint32_t ulBlockSize,
@@ -165,8 +170,8 @@ OtaPalMainStatus_t prvErasePages( size_t xFrom,
         else
         {
             /**
-             * If soft device is enabled, the result of sd_flash_page_erase() is posted via event, otherwise sd_flash_page_erase()
-             * is a blocking operation.
+             * If soft device is enabled, the result of sd_flash_page_erase() is 
+             * posted via event, otherwise sd_flash_page_erase() is a blocking operation.
              */
             if( nrf_sdh_is_enabled() )
             {
@@ -185,12 +190,10 @@ OtaPalMainStatus_t prvErasePages( size_t xFrom,
 
 OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
 {
-    ret_code_t xErrCode;
-
-    pFileContext->pFile = prvNextFreeFileHandle;
     OtaPalMainStatus_t xStatus = OtaPalSuccess;
+    pFileContext->pFile = prvNextFreeFileHandle;
 
-    /* Check that the second bank size is big enough to contain the new firmware */
+    /* Check that the second bank size is big enough to contain the new firmware. */
     if( pFileContext->fileSize > otapalSECOND_BANK_SIZE )
     {
         xStatus = OtaPalOutOfMemory;
@@ -198,7 +201,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
 
     if( xStatus == OtaPalSuccess )
     {
-        /* Create the event group for flash events */
+        /* Create the event group for flash events. */
         xFlashEventGrp = xEventGroupCreate();
 
         if( xFlashEventGrp == NULL )
@@ -210,7 +213,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
 
     if( xStatus == OtaPalSuccess )
     {
-        /* Erase the required memory */
+        /* Erase the required memory. */
         LogInfo( ( "Erasing the flash memory " ) );
         xStatus = prvErasePages( otapalSECOND_BANK_START, otapalSECOND_BANK_END );
 
@@ -228,14 +231,14 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const pFileContext )
 {
     pFileContext->pFile = ( int32_t ) NULL;
 
-    /* Delete the event group */
+    /* Delete the event group. */
     if( xFlashEventGrp != NULL )
     {
         vEventGroupDelete( xFlashEventGrp );
         xFlashEventGrp = NULL;
     }
 
-    return OtaPalSuccess;
+    return OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
 }
 /*-----------------------------------------------------------*/
 
@@ -244,9 +247,10 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
                            uint8_t * const pData,
                            uint32_t ulBlockSize )
 {
-    /* We assume that the flash is already erased by this address (it should be, as we erase it in the
-     * otaPal_CreateFileForRx, but the second write to the same position can break this invariant.
-     * Anyway, the OTA procedure must not try to write to the same addresses */
+    /* We assume that the flash is already erased by this address (it should be, 
+     * as we erase it in the otaPal_CreateFileForRx, but the second write to the 
+     * same position can break this invariant. Anyway, the OTA procedure must not 
+     * try to write to the same addresses. */
     ret_code_t xErrCode = prvWriteFlash( otapalSECOND_BANK_START + otapalDESCRIPTOR_SIZE + ulOffset, ulBlockSize, pData );
 
     if( xErrCode == NRF_SUCCESS )
@@ -265,32 +269,32 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
 
 OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
 {
-    OtaPalMainStatus_t xStatus = OtaPalSuccess;
+    OtaPalStatus_t xStatus = OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
     ret_code_t xError;
 
     LogInfo( ( "Erasing the flash memory was successful" ) );
 
-    /* Write the image descriptor */
+    /* Write the image descriptor. */
     xError = otaPal_WriteImageDescriptor( pFileContext );
 
     if( xError == NRF_SUCCESS )
     {
-        /* Increment the file handler */
+        /* Increment the file handler. */
         prvNextFreeFileHandle += 1;
 
         xStatus = otaPal_CheckFileSignature( pFileContext );
     }
     else
     {
-        xStatus = OtaPalSignatureCheckFailed;
+        xStatus = OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, xError );
     }
 
-    return OTA_PAL_COMBINE_ERR( xStatus, 0 );
+    return xStatus;
 }
 /*-----------------------------------------------------------*/
 
 
-static OtaPalMainStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext )
+static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext )
 {
     nrf_crypto_hash_sha256_digest_t xHash;
     size_t ulHashLength = sizeof( xHash );
@@ -313,11 +317,11 @@ static OtaPalMainStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pF
     if( xErrCode != NRF_SUCCESS )
     {
         LogInfo( ( "Signature check failed " ) );
-        return OtaPalSignatureCheckFailed;
+        return OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, OTA_PAL_SUB_ERR(xErrCode) );
     }
 
     LogInfo( ( "Signature check passed " ) );
-    return OtaPalSuccess;
+    return OTA_PAL_COMBINE_ERR( OtaPalSuccess, OTA_PAL_SUB_ERR(xErrCode) );
 }
 /*-----------------------------------------------------------*/
 
@@ -336,7 +340,7 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
     }
 
     pucCertBegin += sizeof( pcOTA_PAL_CERT_BEGIN );
-    /* Skip the "END CERTIFICATE" */
+    /* Skip the "END CERTIFICATE". */
     uint8_t * pucCertEnd = strstr( pucCertBegin, pcOTA_PAL_CERT_END );
 
     if( pucCertEnd == NULL )
@@ -356,7 +360,7 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
     }
 
     mbedtls_base64_decode( pucDecodedCertificate, ulDecodedCertificateSize, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin );
-    /* Find the tag of the ECDSA public signature*/
+    /* Find the tag of the ECDSA public signature. */
     uint8_t * pucPublicKeyStart = pucDecodedCertificate;
 
     while( pucPublicKeyStart < pucDecodedCertificate + ulDecodedCertificateSize )
@@ -392,14 +396,14 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const pFileContext )
 {
     NVIC_SystemReset();
-    return OtaPalActivateFailed;
+    return OTA_PAL_COMBINE_ERR( OtaPalActivateFailed, 0 );
 }
 /*-----------------------------------------------------------*/
 
 OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext )
 {
     otaPal_ResetDevice( pFileContext );
-    return OtaPalActivateFailed;
+    return OTA_PAL_COMBINE_ERR( OtaPalActivateFailed, 0 );
 }
 /*-----------------------------------------------------------*/
 
@@ -410,7 +414,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
 
     if( xFlashEventGrp == NULL )
     {
-        /* Create the event group for flash events */
+        /* Create the event group for flash events. */
         xFlashEventGrp = xEventGroupCreate();
 
         if( xFlashEventGrp == NULL )
@@ -422,7 +426,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
 
     /* Read the old image. */
     /* Right now we always boot from the first bank. */
-    /* TODO: Support boot from the second bank */
+    /* TODO: Support boot from the second bank. */
     ImageDescriptor_t * old_descriptor = ( ImageDescriptor_t * ) ( otapalFIRST_BANK_START );
     ImageDescriptor_t new_descriptor;
 
@@ -472,7 +476,8 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
 
     if( xStatus == OtaPalSuccess )
     {
-        /* We don't wont to do anything with flash if it would leave it in the same state as it were */
+        /* We don't wont to do anything with flash if it would leave it in the 
+         * same state as it were. */
         if( ( new_descriptor.usImageFlags != old_descriptor->usImageFlags ) && ( eState != OtaImageStateTesting ) )
         {
             xStatus = prvErasePages( otapalFIRST_BANK_START, otapalFIRST_BANK_START + otapalDESCRIPTOR_SIZE );
@@ -505,6 +510,8 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileC
             break;
 
         case otapalIMAGE_FLAG_INVALID:
+
+        default:
             xImageState = OtaPalImageStateInvalid;
             break;
     }
@@ -520,15 +527,15 @@ static ret_code_t otaPal_WriteImageDescriptor( OtaFileContext_t * const pFileCon
 
     memset( &xDescriptor, 0, sizeof( xDescriptor ) );
 
-    /* Read the first bank descriptor */
+    /* Read the first bank descriptor. */
     memcpy( &xOldDescriptor, ( void * ) otapalFIRST_BANK_START, sizeof( xOldDescriptor ) );
 
-    /* Fill the new descriptor */
-    if( memcmp( &xOldDescriptor.pMagick, pcOTA_PAL_Magick, otapalMAGICK_SIZE ) == 0 ) /* Check if an AFR image contained in the first bank */
+    /* Fill the new descriptor. */
+    if( memcmp( &xOldDescriptor.pMagick, pcOTA_PAL_Magick, otapalMAGICK_SIZE ) == 0 ) /* Check if an AFR image contained in the first bank. */
     {
         xDescriptor.ulSequenceNumber = xOldDescriptor.ulSequenceNumber + 1;
     }
-    else /* It seems that the first bank contains a classic Nordic image */
+    else /* It seems that the first bank contains a classic Nordic image. */
     {
         xDescriptor.ulSequenceNumber = 1;
     }
@@ -536,8 +543,8 @@ static ret_code_t otaPal_WriteImageDescriptor( OtaFileContext_t * const pFileCon
     memcpy( &xDescriptor.pMagick, pcOTA_PAL_Magick, otapalMAGICK_SIZE );
     xDescriptor.ulStartAddress = otapalFIRST_BANK_START + otapalDESCRIPTOR_SIZE;
     xDescriptor.ulEndAddress = xDescriptor.ulStartAddress + pFileContext->fileSize;
-    xDescriptor.ulExecutionAddress = xDescriptor.ulStartAddress; /* TODO: Check if this assumption is true */
-    xDescriptor.ulHardwareID = 0;                                /* TODO: Fill the Hardware ID */
+    xDescriptor.ulExecutionAddress = xDescriptor.ulStartAddress; /* TODO: Check if this assumption is true. */
+    xDescriptor.ulHardwareID = 0;                                /* TODO: Fill the Hardware ID. */
     xDescriptor.usImageFlags = otapalIMAGE_FLAG_NEW;
     xDescriptor.ulSignatureSize = pFileContext->pSignature->size;
 
@@ -579,19 +586,19 @@ ret_code_t prvWriteFlash( uint32_t ulOffset,
             ulByteToSend = NRF_FICR->CODEPAGESIZE * 4;
         }
 
-        /* clear buffer to avoid garbage. */
+        /* Clear buffer to avoid garbage. */
         pulSerializingArray[ ( ulByteToSend + 3 ) / 4 ] = 0;
         memcpy( pulSerializingArray, pacData + ulByteSent, ulByteToSend );
 
         xEventGroupClearBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE );
-        /* Softdevice can write only by 32-bit words */
+        /* Softdevice can write only by 32-bit words. */
         ret_code_t xErrCode = sd_flash_write( ( uint32_t * ) ( ulOffset + ulByteSent ), pulSerializingArray, ( ulByteToSend + 3 ) / 4 );
 
         if( xErrCode == NRF_SUCCESS )
         {
             /**
-             * If soft device is enabled, the result of sd_flash_write() is posted via event, otherwise sd_flash_write()
-             * is a blocking operation.
+             * If soft device is enabled, the result of sd_flash_write() is posted 
+             * via event, otherwise sd_flash_write() is a blocking operation.
              */
             if( nrf_sdh_is_enabled() )
             {
@@ -617,8 +624,9 @@ ret_code_t prvComputeSHA256Hash( void * pvMessage,
                                  void * pvHashDigest,
                                  size_t * pulDigestSize )
 {
-    /* We are computing the hash of memory stored on the flash so we need to first move it to ram to use CC310
-     * That's why we are computing the hash by chunks */
+    /* We are computing the hash of memory stored on the flash so we need to 
+     * first move it to ram to use CC310.
+     * That's why we are computing the hash by chunks. */
     ret_code_t err_code;
     static nrf_crypto_hash_context_t hash_context;
 
@@ -661,14 +669,15 @@ ret_code_t prvVerifySignature( uint8_t * pusHash,
     memset( &xSignature, 0, sizeof( xSignature ) );
 
     /* The public key comes in the ASN.1 DER format,  and so we need everything
-     * except the DER metadata which fortunately in this case is containded in the front part of buffer */
+     * except the DER metadata which fortunately in this case is containded in 
+     * the front part of buffer. */
     pucTmpPublicKey = pucPublicKey + ( ulPublicKeySize - NRF_CRYPTO_ECC_SECP256R1_RAW_PUBLIC_KEY_SIZE );
-    /* Convert the extracted public key to the NRF5 representation */
+    /* Convert the extracted public key to the NRF5 representation. */
     xErrCode = nrf_crypto_ecc_public_key_from_raw( &g_nrf_crypto_ecc_secp256r1_curve_info, &xPublicKey, pucTmpPublicKey, NRF_CRYPTO_ECC_SECP256R1_RAW_PUBLIC_KEY_SIZE );
 
     if( xErrCode == NRF_SUCCESS )
     {
-        /* The signature is also ASN.1 DER encoded, but here we need to decode it properly */
+        /* The signature is also ASN.1 DER encoded, but here we need to decode it properly. */
         xErrCode = asn1_decodeSignature( xSignature, pusSignature, pusSignature + ulSignatureSize );
     }
 
@@ -715,7 +724,7 @@ void flash_event_handler( uint32_t evt_id,
 
 NRF_SDH_SOC_OBSERVER( flash_observer, BLE_DFU_SOC_OBSERVER_PRIO, flash_event_handler, NULL );
 
-OtaPalMainStatus_t testCheckSignature()
+OtaPalStatus_t testCheckSignature()
 {
     OtaFileContext_t pFileContext;
     uint32_t ulCertSize = sizeof( codeSigningCertificatePEM );
