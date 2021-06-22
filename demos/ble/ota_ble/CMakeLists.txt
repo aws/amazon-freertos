@@ -14,14 +14,8 @@ afr_module_sources(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        AFR::core_mqtt
         AFR::ble
-        # Add dependency on the core_mqtt_demo_dependencies metadata module
-        # so that FreeRTOS console shows this demo when BOTH the core MQTT
-        # (or another library depending on coreMQTT) AND BLE libraries are
-        # selected on the console.
-        AFR::core_mqtt_demo_dependencies
-        AFR::ota::mcu_port
+        AFR::core_mqtt_agent_demo_dependencies
         # Add dependency on the ota_demo_dependencies metadata module
         # so that FreeRTOS console shows this demo ONLY when the OTA library
         # (or another library depending on OTA) is selected on the console.
