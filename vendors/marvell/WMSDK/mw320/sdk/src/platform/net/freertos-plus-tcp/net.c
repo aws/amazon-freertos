@@ -142,7 +142,9 @@ int net_configure_address(struct wlan_ip_config *addr, void *intrfc_handle)
 		wlan_wlcmgr_send_msg(WIFI_EVENT_NET_STA_ADDR_CONFIG,
 			        WIFI_EVENT_REASON_SUCCESS, NULL);
 		*ipLOCAL_IP_ADDRESS_POINTER = 0x00UL;
-		/* The network is not up until DHCP has completed. */
+		/* The network is not up until DHCP has completed. Reset the
+		 * DHCP state machine to start the process of acquiring an IP
+		 * address. */
 		vDHCPProcess( pdTRUE, eInitialWait );
 
 		while (*ipLOCAL_IP_ADDRESS_POINTER == 0)
