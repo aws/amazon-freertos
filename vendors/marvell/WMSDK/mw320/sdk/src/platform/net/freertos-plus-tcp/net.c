@@ -26,6 +26,7 @@
 #include "list.h"
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
+#include "FreeRTOS_DHCP.h"
 
 #include <wlan.h>
 #include <wm_net.h>
@@ -142,7 +143,7 @@ int net_configure_address(struct wlan_ip_config *addr, void *intrfc_handle)
 			        WIFI_EVENT_REASON_SUCCESS, NULL);
 		*ipLOCAL_IP_ADDRESS_POINTER = 0x00UL;
 		/* The network is not up until DHCP has completed. */
-		xSendEventToIPTask( eDHCPEvent );
+		vDHCPProcess( pdTRUE, eInitialWait );
 
 		while (*ipLOCAL_IP_ADDRESS_POINTER == 0)
 			os_thread_sleep(10);
