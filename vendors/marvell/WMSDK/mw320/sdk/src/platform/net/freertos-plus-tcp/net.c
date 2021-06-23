@@ -145,7 +145,8 @@ int net_configure_address(struct wlan_ip_config *addr, void *intrfc_handle)
 		/* The network is not up until DHCP has completed. Reset the
 		 * DHCP state machine to start the process of acquiring an IP
 		 * address. */
-		vDHCPProcess( pdTRUE, eInitialWait );
+		vDHCPProcess( pdTRUE, /* Reset the DHCP state machine. */
+                              eInitialWait /* This parameter doesn't matter when the first parameter is pdTRUE. */ );
 
 		while (*ipLOCAL_IP_ADDRESS_POINTER == 0)
 			os_thread_sleep(10);
