@@ -291,11 +291,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -626,32 +621,12 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>libraries/ble</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -1536,36 +1511,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/wifi/include/aws_wifi.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>libraries/ble/CMakeLists.txt</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/CMakeLists.txt</locationURI>
@@ -1607,36 +1552,6 @@
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/taskpool</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -2681,106 +2596,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/utils.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender/include/aws_defender.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/include/aws_defender.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/include/aws_iot_defender.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/include/aws_iot_defender.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/private</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/report</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/include/aws_shadow.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/include/aws_shadow.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/include/types</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_shadow.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/aws_shadow.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/private</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>libraries/ble/include/iot_ble.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/include/iot_ble.h</locationURI>
@@ -2894,116 +2709,6 @@
 			<name>libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/include/aws_mqtt_agent.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/include/aws_mqtt_agent.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/include/aws_mqtt_agent_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/include/aws_mqtt_agent_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/include/aws_mqtt_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/include/aws_mqtt_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/include/aws_mqtt_lib.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/include/aws_mqtt_lib.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/include/iot_mqtt.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/include/iot_mqtt.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/include/types</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_ble_mqtt_serialize.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_ble_mqtt_serialize.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/private</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/include/iot_json_utils.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/include/iot_json_utils.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/include/iot_serializer.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/include/iot_serializer.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/cbor</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/iot_json_utils.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/src/iot_json_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/json</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h</name>
@@ -3621,66 +3326,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/sys/types.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/stub</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/template</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/unit_test</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/unix</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/report/aws_defender_report.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/report/aws_defender_report.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/report/aws_defender_report_cpu.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/report/aws_defender_report_cpu.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/report/aws_defender_report_header.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/report/aws_defender_report_header.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/report/aws_defender_report_tcp_conn.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/report/aws_defender_report_tcp_conn.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/report/aws_defender_report_uptime.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/report/aws_defender_report_uptime.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/include/types/aws_iot_shadow_types.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/include/types/aws_iot_shadow_types.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/private/aws_iot_shadow_internal.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/private/aws_iot_shadow_internal.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/ble/src/services/device_information</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -3741,36 +3386,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/types/iot_taskpool_types.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/mqtt/include/types/iot_mqtt_types.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/include/types/iot_mqtt_types.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/private/iot_mqtt_internal.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/private/iot_mqtt_internal.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/portable/BufferManagement</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -3814,66 +3429,6 @@
 			<name>libraries/3rdparty/unity/extras/fixture/test/main/AllTests.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/unity/extras/fixture/test/main/AllTests.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/stub/aws_defender_cpu.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/stub/aws_defender_cpu.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/stub/aws_defender_tcp_conn.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/stub/aws_defender_tcp_conn.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/stub/aws_defender_uptime.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/stub/aws_defender_uptime.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/template/aws_defender_cpu.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/template/aws_defender_cpu.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/template/aws_defender_tcp_conn.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/template/aws_defender_tcp_conn.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/template/aws_defender_uptime.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/template/aws_defender_uptime.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/unit_test/aws_defender_cpu.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/unit_test/aws_defender_cpu.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/unit_test/aws_defender_tcp_conn.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/unit_test/aws_defender_tcp_conn.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/unit_test/aws_defender_uptime.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/unit_test/aws_defender_uptime.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/unix/aws_defender_cpu.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/unix/aws_defender_cpu.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/unix/aws_defender_tcp_conn.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/unix/aws_defender_tcp_conn.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/portable/unix/aws_defender_uptime.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/unix/aws_defender_uptime.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/ble/src/services/device_information/iot_ble_device_information.c</name>

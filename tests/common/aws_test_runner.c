@@ -172,13 +172,6 @@ static void RunTestSuites( void )
         RUN_TEST_GROUP( Full_FREERTOS_TCP );
     #endif
 
-    #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
-        RUN_TEST_GROUP( Serializer_Unit_CBOR );
-        RUN_TEST_GROUP( Serializer_Unit_CBOR_Decoder );
-        RUN_TEST_GROUP( Serializer_Unit_JSON );
-        RUN_TEST_GROUP( Serializer_Unit_JSON_deserialize );
-    #endif
-
     #if ( testrunnerFULL_COMMON_IO_ENABLED == 1 )
         RUN_TEST_GROUP( Common_IO );
     #endif

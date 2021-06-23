@@ -37,19 +37,16 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/device_defender_for_aws/metrics_collector/lwip/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreMQTT_Agent/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/coreHTTP/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/device_shadow_for_aws/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/jobs_for_aws/*.c)
 
 INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common\
-	$(CY_AFR_ROOT)/demos/https\
 	$(CY_AFR_ROOT)/demos/include\
 	$(CY_AFR_ROOT)/demos/network_manager\
 	$(CY_AFR_ROOT)/demos/tcp\
@@ -185,78 +182,21 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/common/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/common/logging/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/common/taskpool/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/https/src/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/cbor/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/json/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/src/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src/*c)
-
-# MQTT without ble
-SOURCES+=\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include/private\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include/types\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/include\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/include/types\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/src\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/src/private\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/include\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/include/types\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/private\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/include\
-	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include\
-	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include/types\
-	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include
 
 ifeq ($(CY_AFR_IS_TESTING), 1)
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/common/test/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/https/test/unit/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/https/test/system/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/test/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/test/unit/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/unit/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/system/*.c)\
-	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/test/system/aws_iot_tests_shadow_system.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/test/aws_test_shadow.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/test/system/aws_iot_tests_defender_system.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c\
 	$(CY_AFR_ROOT)/tests/integration_test/core_mqtt_system_test.c\
 	$(CY_AFR_ROOT)/tests/integration_test/core_http_system_test.c\
 	$(CY_AFR_ROOT)/tests/integration_test/shadow_system_test.c
 
 INCLUDES+=\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/test/access\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/mock\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/access\
-	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/src/private\
-	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/src\
-	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src/private\
-	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src\
 	$(CY_AFR_ROOT)/libraries/ble/include
 
 endif
