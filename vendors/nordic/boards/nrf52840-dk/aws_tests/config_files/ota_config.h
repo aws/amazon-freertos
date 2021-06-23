@@ -53,8 +53,9 @@
 
 /************ End of logging configuration ****************/
 
-/* Include OTA demo configurations. */
-#include "ota_demo_config.h"
+/* Include config file used for testing the OTA PAL. This config file defines
+ * the otapalconfigCODE_SIGNING_CERTIFICATE macro. */
+#include "aws_test_ota_config.h"
 
 /**
  * @brief Log base 2 of the size of the file data block message (excluding the header).

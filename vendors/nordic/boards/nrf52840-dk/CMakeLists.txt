@@ -386,6 +386,7 @@ target_include_directories(
     INTERFACE
         $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${kernel_inc_dirs}>
         "${board_dir}/config_files"
+        "${board_dir}/application_code"
 )
 
 target_link_libraries(

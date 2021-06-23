@@ -63,6 +63,8 @@
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_gpio_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_flash_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/core_mqtt_config.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_test_ota_config.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/ota_config.h" />
       </folder>
       <folder Name="src">
         <file file_name="../../../../../tests/common/aws_test.c" />
