@@ -83,7 +83,6 @@
       <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/crypto.h" />
       <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/main.c" />
       <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/utils.c" />
-      <file file_name="bootloader_code/sdk_config.h" />
     </folder>
     <folder Name="None">
       <file file_name="../../../../../../vendors/nordic/nRF5_SDK_15.2.0/modules/nrfx/mdk/ses_startup_nrf52840.s" />
@@ -116,6 +115,6 @@
   <configuration
     Name="Release"
     c_preprocessor_definitions="NDEBUG"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/pca10056/config;$(SolutionDir)/../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files"
     gcc_optimization_level="None" />
 </solution>
