@@ -9,9 +9,10 @@ include("${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/otaFilePaths.cmake")
 remove( OTA_SOURCES ${JSON_SOURCES} ${TINYCBOR_SOURCES} )
 remove( OTA_INCLUDE_PRIVATE_DIRS ${JSON_INCLUDE_PUBLIC_DIRS} ${TINYCBOR_INCLUDE_DIRS} )
 
-# Add cmake files of module to metadata.
+# Add cmake files of the OTA library and its dependencies to the metadata.
 afr_module_cmake_files(${AFR_CURRENT_MODULE}
     ${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/otaFilePaths.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/source/dependency/coreJSON/jsonFilePaths.cmake
 )
 
 # Define a target for the Over-the-air Update library.
