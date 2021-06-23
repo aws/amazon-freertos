@@ -399,7 +399,6 @@ OtaPalStatus_t otaPal_ResetDevice( OtaFileContext_t * const pFileContext )
 OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext )
 {
     otaPal_ResetDevice( pFileContext );
-    otaPal_ResetDevice( pFileContext );
     return OtaPalActivateFailed;
 }
 /*-----------------------------------------------------------*/

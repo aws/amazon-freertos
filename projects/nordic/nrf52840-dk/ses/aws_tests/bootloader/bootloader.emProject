@@ -84,7 +84,6 @@
       <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/crypto.h" />
       <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/main.c" />
       <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/utils.c" />
-      <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/aws_ota_code_signer_certificate.h" />
     </folder>
     <folder Name="None">
       <file file_name="../../../../../../vendors/nordic/nRF5_SDK_15.2.0/modules/nrfx/mdk/ses_startup_nrf52840.s" />
@@ -114,5 +113,6 @@
   <configuration
     Name="Release"
     c_preprocessor_definitions="NDEBUG"
+    c_user_include_directories="."
     gcc_optimization_level="None" />
 </solution>

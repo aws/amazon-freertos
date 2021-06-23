@@ -78,7 +78,6 @@
     <folder Name="Application">
       <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/asn1utility.c" />
       <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/asn1utility.h" />
-      <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/aws_ota_code_signer_certificate.h" />
       <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/bootloader.h" />
       <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/crypto.c" />
       <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/crypto.h" />
@@ -110,10 +109,13 @@
       Name="Release"
       link_use_linker_script_file="No"
       linker_section_placement_file="flash_placement.xml" />
+    <folder Name="config_files">
+      <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/ota_demo_config.h" />
+    </folder>
   </project>
   <configuration
     Name="Release"
     c_preprocessor_definitions="NDEBUG"
-    c_user_include_directories="."
+    c_user_include_directories=".;$(SolutionDir)/../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files"
     gcc_optimization_level="None" />
 </solution>

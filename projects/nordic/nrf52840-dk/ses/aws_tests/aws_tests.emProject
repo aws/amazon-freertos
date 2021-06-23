@@ -59,7 +59,6 @@
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/FreeRTOSIPConfig.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_ble_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_config.h" />
-        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/sdk_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/unity_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_gpio_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_flash_config.h" />
@@ -82,6 +81,7 @@
         <file file_name="../../../../../tests/include/aws_unity_config.h" />
         <file file_name="../../../../../tests/include/iot_config_common.h" />
       </folder>
+      <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/application_code/sdk_config.h" />
     </folder>
     <folder Name="freertos_kernel">
       <file file_name="../../../../../freertos_kernel/event_groups.c" />
@@ -953,7 +953,7 @@
     Name="Debug"
     arm_fp_abi="None"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/ble/src;$(SolutionDir)/../../../../../libraries/ble/include"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/application_code;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/ble/src;$(SolutionDir)/../../../../../libraries/ble/include"
     gcc_debugging_level="Level 3"
     gcc_optimization_level="None"
     link_include_standard_libraries="Yes" />

@@ -7,7 +7,7 @@
 #include "nrf_bootloader.h"
 #include "mbedtls/base64.h"
 
-#include "aws_ota_code_signer_certificate.h"
+#include "ota_demo_config.h"
 
 ret_code_t xReadCertificate();
 /* Tag by which the beginning of the ECDSA in the public key can be found */
