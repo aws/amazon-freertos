@@ -29,7 +29,6 @@
 #include "unity_fixture.h"
 #include "aws_ggd_config.h"
 #include "aws_ggd_config_defaults.h"
-#include "iot_mqtt.h"
 #include "iot_init.h"
 
 TEST_GROUP( GGD_Helper_System );
@@ -37,12 +36,10 @@ TEST_GROUP( GGD_Helper_System );
 TEST_SETUP( GGD_Helper_System )
 {
     TEST_ASSERT_EQUAL( true, IotSdk_Init() );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 
 TEST_TEAR_DOWN( GGD_Helper_System )
 {
-    IotMqtt_Cleanup();
     IotSdk_Cleanup();
 }
 

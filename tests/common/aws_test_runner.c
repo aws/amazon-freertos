@@ -109,27 +109,6 @@ static void RunTestSuites( void )
         RUN_TEST_GROUP( Shadow_System );
     #endif /* if ( testrunnerFULL_SHADOWv4_ENABLED == 1 ) */
 
-    #if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
-        RUN_TEST_GROUP( MQTT_Unit_Validate );
-        RUN_TEST_GROUP( MQTT_Unit_Subscription );
-        RUN_TEST_GROUP( MQTT_Unit_Receive );
-        RUN_TEST_GROUP( MQTT_Unit_API );
-        RUN_TEST_GROUP( MQTT_Unit_Metrics );
-        RUN_TEST_GROUP( MQTT_System );
-    #endif /* if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) */
-
-    #if ( testrunnerFULL_MQTT_STRESS_TEST_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_MQTT_Agent_Stress_Tests );
-    #endif
-
-    #if ( testrunnerFULL_MQTT_AGENT_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_MQTT_Agent );
-    #endif
-
-    #if ( testrunnerFULL_MQTT_ALPN_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_MQTT_Agent_ALPN );
-    #endif
-
     #if ( testrunnerFULL_OTA_PAL_ENABLED == 1 )
         RUN_TEST_GROUP( Full_OTA_PAL );
     #endif
