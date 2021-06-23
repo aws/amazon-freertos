@@ -453,24 +453,31 @@ static OtaAppBuffer_t xOtaBuffer =
 /**
  * @brief Callback for BLE data channel, handles events when the data channel is first opened
  * and when data is received by the channel.
+ *
+ * @param[in] xEvent The event type received from the data transfer channel.
+ * @param[in] pxChannel Pointer to data transfer channel.
+ * @param[in] pxContext Pointer to user context passed during channel initialization.
  */
-static void prvBLEChannelCallback( IotBleDataTransferChannelEvent_t event,
-                                   IotBleDataTransferChannel_t * pChannel,
-                                   void * context );
+static void prvBLEChannelCallback( IotBleDataTransferChannelEvent_t xEvent,
+                                   IotBleDataTransferChannel_t * pxChannel,
+                                   void * pvContext );
 
 /**
  * @brief Initializes the tranport interface, including calling the init function for the transport layer
  * and initializing the BLE channel.
+ *
+ * @param[in] pxContext Pointer to transport interface context
+ * @return pdTRUE if the connection was successful / pdFALSE otherwise.
  */
-static BaseType_t prvCreateBLETransportInterfaceConnection( NetworkContext_t * pContext );
+static BaseType_t prvCreateBLETransportInterfaceConnection( NetworkContext_t * pxContext );
 
 /**
  * @brief Disconnect BLE transport interface.
  *
  * @param[in] pTransportCtxt Context passed to transport interface from MQTT library.
- * @return EXIT_SUCCESS or EXIT_FAILURE
+ * @return pdTRUE if the disconnect was successful / pdFALSE otherwise.
  */
-static BaseType_t prvBLETransportInterfaceDisconnect( NetworkContext_t * pContext );
+static BaseType_t prvBLETransportInterfaceDisconnect( NetworkContext_t * pxContext );
 
 /**
  * @brief Initializes an MQTT Agent including transport interface and
@@ -1200,29 +1207,29 @@ static MQTTStatus_t prvMQTTConnect( void )
 
 /*-----------------------------------------------------------*/
 
-static void prvBLEChannelCallback( IotBleDataTransferChannelEvent_t event,
-                                   IotBleDataTransferChannel_t * pChannel,
-                                   void * context )
+static void prvBLEChannelCallback( IotBleDataTransferChannelEvent_t xEvent,
+                                   IotBleDataTransferChannel_t * pxChannel,
+                                   void * pvContext )
 {
     /* Unused parameters. */
-    ( void ) pChannel;
-    ( void ) context;
+    ( void ) pxChannel;
+    ( void ) pvContext;
 
     /* Event to see when the data channel is ready to receive data. */
-    if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED )
+    if( xEvent == IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED )
     {
         LogInfo( ( "BLE Channel is Open." ) );
         ( void ) xSemaphoreGive( xChannelSemaphore );
     }
 
     /* Event for when data is received over the channel. */
-    else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED )
+    else if( xEvent == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED )
     {
         ( void ) IotBleMqttTransportAcceptData( &xNetworkContextMqtt );
     }
 
     /* Event for when channel is closed. */
-    else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED )
+    else if( xEvent == IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED )
     {
         LogInfo( ( "BLE Channel is closed." ) );
     }
@@ -1235,21 +1242,24 @@ static void prvBLEChannelCallback( IotBleDataTransferChannelEvent_t event,
 
 /*--------------------------------------------------------------*/
 
-static BaseType_t prvCreateBLETransportInterfaceConnection( NetworkContext_t * pTransportContext )
+static BaseType_t prvCreateBLETransportInterfaceConnection( NetworkContext_t * pxTransportContext )
 {
     BaseType_t xStatus = pdFALSE;
 
-    pTransportContext->pParams->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
+    pxTransportContext->pParams->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
 
-    if( pTransportContext->pParams->pChannel != NULL )
+    if( pxTransportContext->pParams->pChannel != NULL )
     {
         xChannelSemaphore = xSemaphoreCreateBinary();
 
         if( xChannelSemaphore != NULL )
         {
-            ( void ) IotBleDataTransfer_SetCallback( pTransportContext->pParams->pChannel, prvBLEChannelCallback, NULL );
+            ( void ) IotBleDataTransfer_SetCallback( pxTransportContext->pParams->pChannel, prvBLEChannelCallback, NULL );
 
-            /* Open is a handshake proceture, so we need to wait until it is ready to use. */
+            /* Open is a handshake procedure where a smartphone application sends back an acknowledgement to indicate that channel
+             * is ready to use. An channel opened event is sent on a successful handshake. The demo code waits here for an
+             * opened event from channel.
+             */
             if( xSemaphoreTake( xChannelSemaphore, pdMS_TO_TICKS( IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) ) == pdTRUE )
             {
                 LogInfo( ( "The channel was initialized successfully" ) );
@@ -1270,7 +1280,7 @@ static BaseType_t prvCreateBLETransportInterfaceConnection( NetworkContext_t * p
 
     if( xStatus == pdTRUE )
     {
-        if( IotBleMqttTransportInit( ucTransportBuffer, MQTT_AGENT_NETWORK_BUFFER_SIZE, pTransportContext ) != true )
+        if( IotBleMqttTransportInit( ucTransportBuffer, MQTT_AGENT_NETWORK_BUFFER_SIZE, pxTransportContext ) != true )
         {
             LogError( ( "Failed to create BLE transport interface." ) );
             xStatus = pdFALSE;
@@ -1280,7 +1290,7 @@ static BaseType_t prvCreateBLETransportInterfaceConnection( NetworkContext_t * p
     if( xStatus == pdTRUE )
     {
         /* Set receive timeout to zero to make transport interface non blocking for MQTT agent. */
-        IotBleMqttTransportSetReceiveTimeout( pTransportContext, 0U );
+        IotBleMqttTransportSetReceiveTimeout( pxTransportContext, 0U );
     }
 
     return xStatus;
@@ -1295,11 +1305,7 @@ static BaseType_t prvConnectToMQTTBroker( void )
 
     xNetworkContextMqtt.pParams = &xBleTransportParams;
 
-    /* Attempt to connect to the MQTT broker. If connection fails, retry after
-     * a timeout. Timeout value will be exponentially increased till the maximum
-     * attempts are reached or maximum timeout value is reached. The function
-     * returns EXIT_FAILURE if the TCP connection cannot be established to
-     * broker after configured number of attempts. */
+    /* Attempt to create connection to broker over BLE transport interface. */
     xStatus = prvCreateBLETransportInterfaceConnection( &xNetworkContextMqtt );
 
     if( xStatus != pdPASS )
@@ -1340,11 +1346,11 @@ static BaseType_t prvConnectToMQTTBroker( void )
 }
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvBLETransportInterfaceDisconnect( NetworkContext_t * pContext )
+static BaseType_t prvBLETransportInterfaceDisconnect( NetworkContext_t * pxContext )
 {
-    ( void ) IotBleMqttTransportCleanup( pContext );
-    ( void ) IotBleDataTransfer_Close( pContext->pParams->pChannel );
-    ( void ) IotBleDataTransfer_Reset( pContext->pParams->pChannel );
+    ( void ) IotBleMqttTransportCleanup( pxContext );
+    ( void ) IotBleDataTransfer_Close( pxContext->pParams->pChannel );
+    ( void ) IotBleDataTransfer_Reset( pxContext->pParams->pChannel );
     ( void ) vSemaphoreDelete( xChannelSemaphore );
 
     return pdTRUE;
@@ -1441,26 +1447,26 @@ static OtaMqttStatus_t prvMqttSubscribe( const char * pcTopicFilter,
 static OtaMqttStatus_t prvSubscribeToJobResponseTopic( void )
 {
     OtaMqttStatus_t xStatus = OtaMqttSubscribeFailed;
-    char * pTopicFilter = NULL;
-    const char * pClientIdentifier = democonfigCLIENT_IDENTIFIER;
-    size_t topicFilterLength;
+    char * pcTopicFilter = NULL;
+    const char * pcClientIdentifier = democonfigCLIENT_IDENTIFIER;
+    size_t xTopicFilterLength;
 
-    configASSERT( pClientIdentifier != NULL );
+    configASSERT( pcClientIdentifier != NULL );
 
-    topicFilterLength = otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH + strlen( pClientIdentifier );
+    xTopicFilterLength = otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH + strlen( pcClientIdentifier );
 
-    pTopicFilter = pvPortMalloc( topicFilterLength );
+    pcTopicFilter = pvPortMalloc( xTopicFilterLength );
 
-    if( pTopicFilter != NULL )
+    if( pcTopicFilter != NULL )
     {
-        topicFilterLength = snprintf( pTopicFilter,
-                                      topicFilterLength,
-                                      "$aws/things/%.*s/jobs/$next/get/accepted",
-                                      strlen( pClientIdentifier ),
-                                      pClientIdentifier );
-        xStatus = prvMqttSubscribe( pTopicFilter, topicFilterLength, 1U );
+        xTopicFilterLength = snprintf( pcTopicFilter,
+                                       xTopicFilterLength,
+                                       "$aws/things/%.*s/jobs/$next/get/accepted",
+                                       strlen( pcClientIdentifier ),
+                                       pcClientIdentifier );
+        xStatus = prvMqttSubscribe( pcTopicFilter, xTopicFilterLength, 1U );
 
-        vPortFree( pTopicFilter );
+        vPortFree( pcTopicFilter );
     }
 
     return xStatus;
@@ -1591,26 +1597,26 @@ static OtaMqttStatus_t prvMqttUnSubscribe( const char * pcTopicFilter,
 static OtaMqttStatus_t prvUnSubscribeFromJobResponseTopic( void )
 {
     OtaMqttStatus_t xStatus = OtaMqttSubscribeFailed;
-    char * pTopicFilter = NULL;
-    const char * pClientIdentifier = democonfigCLIENT_IDENTIFIER;
-    size_t topicFilterLength;
+    char * pcTopicFilter = NULL;
+    const char * pcClientIdentifier = democonfigCLIENT_IDENTIFIER;
+    size_t xTopicFilterLength;
 
-    configASSERT( pClientIdentifier != NULL );
+    configASSERT( pcClientIdentifier != NULL );
 
-    topicFilterLength = otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH + strlen( pClientIdentifier );
+    xTopicFilterLength = otaexampleJOB_ACCEPTED_RESPONSE_TOPIC_FILTER_LENGTH + strlen( pcClientIdentifier );
 
-    pTopicFilter = pvPortMalloc( topicFilterLength );
+    pcTopicFilter = pvPortMalloc( xTopicFilterLength );
 
-    if( pTopicFilter != NULL )
+    if( pcTopicFilter != NULL )
     {
-        topicFilterLength = snprintf( pTopicFilter,
-                                      topicFilterLength,
-                                      "$aws/things/%.*s/jobs/$next/get/accepted",
-                                      strlen( pClientIdentifier ),
-                                      pClientIdentifier );
-        xStatus = prvMqttUnSubscribe( pTopicFilter, topicFilterLength, 1U );
+        xTopicFilterLength = snprintf( pcTopicFilter,
+                                       xTopicFilterLength,
+                                       "$aws/things/%.*s/jobs/$next/get/accepted",
+                                       strlen( pcClientIdentifier ),
+                                       pcClientIdentifier );
+        xStatus = prvMqttUnSubscribe( pcTopicFilter, xTopicFilterLength, 1U );
 
-        vPortFree( pTopicFilter );
+        vPortFree( pcTopicFilter );
     }
 
     return xStatus;
@@ -1899,15 +1905,6 @@ static BaseType_t prvRunOTADemo( void )
  * interface connection over BLE and runs the OTA and MQTT agent in separate tasks.
  * MQTT agent is used to handle thread safety of the MQTT library and underlying transport
  * interface.
- *
- * @param[in] xAwsIotMqttMode Specify if this demo is running with the AWS IoT
- * MQTT server. Set this to `false` if using another MQTT server.
- * @param[in] pIdentifier NULL-terminated MQTT client identifier.
- * @param[in] pNetworkServerInfo Passed to the MQTT connect function when
- * establishing the MQTT connection.
- * @param[in] pNetworkCredentialInfo Passed to the MQTT connect function when
- * establishing the MQTT connection.
- * @param[in] pxNetworkInterface The network interface to use for this demo.
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE`
  * otherwise.
