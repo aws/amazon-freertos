@@ -35,8 +35,6 @@
 /* AWS library includes. */
 #include "iot_logging_task.h"
 #include "aws_clientcredential.h"
-#include "iot_mqtt.h"
-#include "iot_init.h"
 
 /* Nordic BSP includes */
 #include "bsp.h"
