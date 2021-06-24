@@ -550,14 +550,6 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
             xLength += snprintf( cPrintString + xLength, dlMAX_PRINT_STRING_LENGTH - xLength, "%s", "\r\n" );
         }
 
-        /* Add newline characters if the message does not end with them.*/
-        ulFormatLen = strlen( pcFormat );
-
-        if( ( ulFormatLen >= 2 ) && ( strncmp( pcFormat + ulFormatLen, "\r\n", 2 ) != 0 ) )
-        {
-            xLength += snprintf( cPrintString + xLength, dlMAX_PRINT_STRING_LENGTH - xLength, "%s", "\r\n" );
-        }
-
         /* For ease of viewing, copy the string into another buffer, converting
          * IP addresses to dot notation on the way. */
         pcSource = cPrintString;
