@@ -26,6 +26,7 @@
 #include "list.h"
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
+#include "FreeRTOS_DHCP.h"
 
 #include <wlan.h>
 #include <wm_net.h>
@@ -141,8 +142,11 @@ int net_configure_address(struct wlan_ip_config *addr, void *intrfc_handle)
 		wlan_wlcmgr_send_msg(WIFI_EVENT_NET_STA_ADDR_CONFIG,
 			        WIFI_EVENT_REASON_SUCCESS, NULL);
 		*ipLOCAL_IP_ADDRESS_POINTER = 0x00UL;
-		/* The network is not up until DHCP has completed. */
-		xSendEventToIPTask( eDHCPEvent );
+		/* The network is not up until DHCP has completed. Reset the
+		 * DHCP state machine to start the process of acquiring an IP
+		 * address. */
+		vDHCPProcess( pdTRUE, /* Reset the DHCP state machine. */
+                              eInitialWait /* This parameter doesn't matter when the first parameter is pdTRUE. */ );
 
 		while (*ipLOCAL_IP_ADDRESS_POINTER == 0)
 			os_thread_sleep(10);
