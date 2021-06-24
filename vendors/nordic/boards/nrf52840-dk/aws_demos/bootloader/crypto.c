@@ -7,6 +7,8 @@
 #include "nrf_bootloader.h"
 #include "mbedtls/base64.h"
 
+#include "ota_demo_config.h"
+
 ret_code_t xReadCertificate();
 /* Tag by which the beginning of the ECDSA in the public key can be found */
 const char ASN_1_ECDSA_TAG[] = "\x06\x07\x2A\x86\x48\xCE\x3D\x02\x01\x06\x08\x2A\x86\x48\xCE\x3D\x03\x01\x07";
@@ -33,7 +35,7 @@ ret_code_t xReadCertificate(){
     uint8_t pucDecodedCertificate[512];
     size_t ulDecodedCertificateSize;
     /* Skip the "BEGIN CERTIFICATE" */
-    uint8_t* pucCertBegin = NULL ; /* FIX-ME: Point to OTA code signing certificate. */
+    uint8_t* pucCertBegin = strstr( otapalconfigCODE_SIGNING_CERTIFICATE, CERT_BEGIN );
     if (pucCertBegin == NULL)
     {
         return NRF_ERROR_INTERNAL;

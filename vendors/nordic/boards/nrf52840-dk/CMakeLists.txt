@@ -386,6 +386,7 @@ target_include_directories(
     INTERFACE
         $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${kernel_inc_dirs}>
         "${board_dir}/config_files"
+        "${board_dir}/application_code"
 )
 
 target_link_libraries(
@@ -418,6 +419,36 @@ target_include_directories(
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
         "${afr_ports_dir}/ble"
 )
+
+# Over-the-air Updates
+afr_mcu_port(ota)
+target_sources(
+    AFR::ota::mcu_port
+    INTERFACE
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.h"
+        "${afr_ports_dir}/ota_pal_for_aws/asn1utility.c"
+        "${afr_ports_dir}/ota_pal_for_aws/asn1utility.h"
+        "${afr_ports_dir}/ota_pal_for_aws/aws_ota_pal_settings.h"
+)
+target_include_directories(
+    AFR::ota::mcu_port
+    INTERFACE
+        "${afr_ports_dir}/ota_pal_for_aws"
+)
+target_link_libraries(
+    AFR::ota::mcu_port
+    INTERFACE
+        3rdparty::mbedtls
+        AFR::ota
+)
+
+if(AFR_ENABLE_TESTS)
+    target_include_directories(
+        AFR::ota::mcu_port
+        INTERFACE "${PROJECT_SOURCE_DIR}/tests/integration_test/ota_pal"
+    )
+endif()
 
 # POSIX
 afr_mcu_port(posix)

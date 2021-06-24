@@ -93,7 +93,16 @@ afr_module_dependencies(
         AFR::ota_demo_version
         AFR::mqtt_subscription_manager
         AFR::core_mqtt_agent_demo_dependencies
-        AFR::core_http_demo_dependencies
-        AFR::backoff_algorithm
         AFR::ota::mcu_port
 )
+
+# Add OTA over HTTP demo dependency and backoff connection retries only if the board
+# supports secure sockets over TCP/IP.
+if(TARGET AFR::secure_sockets::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::core_http_demo_dependencies
+            AFR::backoff_algorithm
+    )
+endif()

@@ -32,13 +32,7 @@
 #include "string.h"
 #include <tinycrypt/ecc.h>
 #include "asn1utility.h"
-
-
-/* Number of bytes to represent an component (R,S) of the the curve. */
-#define ECC_NUM_BYTES_PER_SIG_COMPONENT    ( 32U )
-
-/* Number of components of signature. */
-#define ECC_NUM_SIG_COMPONENTS             ( 2U )
+#include "aws_ota_pal_settings.h"
 
 /*-----------------------------------------------------------*/
 

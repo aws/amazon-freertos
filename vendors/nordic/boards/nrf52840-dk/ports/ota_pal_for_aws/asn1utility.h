@@ -28,10 +28,8 @@
  * @brief ASN1 utility header.
  */
 
-#ifndef _ASN1UTILITY_H_
-#define _ASN1UTILITY_H_
-
-#include <tinycrypt/ecc.h>
+#ifndef ASN1UTILITY_H_
+#define ASN1UTILITY_H_
 
 /**
  * @brief asn1_getBigInteger.
@@ -57,4 +55,4 @@ int asn1_decodeSignature( uint8_t * pucSignature,
                           uint8_t * pucStart,
                           uint8_t * pucEnd );
 
-#endif /* ifndef _ASN1UTILITY_H_ */
+#endif /* ifndef ASN1UTILITY_H_ */

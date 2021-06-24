@@ -216,6 +216,12 @@ bool IotBleMqttTransportInit( void * pBuffer,
         status = false;
     }
 
+    if( status == true )
+    {
+        /* Set default receive timeout ticks to statically configured value. */
+        pBleTransportParams->receiveTimeout = pdMS_TO_TICKS( RECV_TIMEOUT_MS );
+    }
+
     return status;
 }
 
@@ -1201,6 +1207,23 @@ MQTTBLEStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext
     return status;
 }
 
+void IotBleMqttTransportSetReceiveTimeout( NetworkContext_t * pContext,
+                                           uint32_t timeoutMS )
+{
+    BleTransportParams_t * pBleTransportParams = pContext->pParams;
+
+    configASSERT( pBleTransportParams != NULL );
+
+    if( timeoutMS > 0 )
+    {
+        pBleTransportParams->receiveTimeout = pdMS_TO_TICKS( timeoutMS );
+    }
+    else
+    {
+        /* Non blocking mode. Setting a timeout value of 1 tick for stream buffer to return immediately. */
+        pBleTransportParams->receiveTimeout = ( TickType_t ) 1U;
+    }
+}
 
 /**
  * @brief Transport interface read prototype.
@@ -1216,5 +1239,5 @@ int32_t IotBleMqttTransportReceive( NetworkContext_t * pContext,
     BleTransportParams_t * pBleTransportParams = NULL;
 
     pBleTransportParams = pContext->pParams;
-    return ( int32_t ) xStreamBufferReceive( pBleTransportParams->xStreamBuffer, pBuffer, bytesToRead, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
+    return ( int32_t ) xStreamBufferReceive( pBleTransportParams->xStreamBuffer, pBuffer, bytesToRead, pBleTransportParams->receiveTimeout );
 }

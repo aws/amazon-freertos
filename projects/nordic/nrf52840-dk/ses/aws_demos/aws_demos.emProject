@@ -63,6 +63,9 @@
           <folder Name="shadow_ble">
             <file file_name="../../../../../demos/ble/shadow_ble/shadow_demo_ble_transport.c" />
           </folder>
+          <folder Name="ota_ble">
+            <file file_name="../../../../../demos/ble/ota_ble/ota_demo_mqtt_ble_transport.c" />
+          </folder>
         </folder>
         <folder Name="demo_runner">
           <file file_name="../../../../../demos/demo_runner/aws_demo.c" />
@@ -77,8 +80,18 @@
           <file file_name="../../../../../demos/posix/aws_posix_demo.c" />
           <file file_name="../../../../../demos/posix/CMakeLists.txt" />
         </folder>
+        <folder Name="common">
+          <folder Name="mqtt_subscription_manager">
+            <file file_name="../../../../../demos/common/mqtt_subscription_manager/mqtt_subscription_manager.c" />
+            <file file_name="../../../../../demos/common/mqtt_subscription_manager/mqtt_subscription_manager.h" />
+          </folder>
+          <folder Name="ota_demo_helpers">
+            <file file_name="../../../../../demos/common/ota_demo_helpers/ota_application_version.c" />
+          </folder>
+        </folder>
       </folder>
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/application_code/main.c" />
+      <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/application_code/sdk_config.h" />
     </folder>
     <folder Name="config_files">
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/aws_demo_config.h" />
@@ -90,12 +103,13 @@
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/aws_wifi_config.h" />
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/FreeRTOSConfig.h" />
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/FreeRTOSIPConfig.h" />
-      <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/sdk_config.h" />
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/aws_iot_network_config.h" />
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/iot_ble_config.h" />
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/iot_config.h" />
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/iot_mqtt_agent_config.h" />
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/mqtt_demo_ble_transport_config.h" />
+      <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/ota_config.h" />
+      <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files/ota_demo_config.h" />
     </folder>
     <folder Name="freertos_kernel">
       <file file_name="../../../../../freertos_kernel/event_groups.c" />
@@ -335,6 +349,14 @@
             </folder>
           </folder>
         </folder>
+        <folder Name="mqtt_agent">
+          <file file_name="../../../../../libraries/abstractions/mqtt_agent/freertos_agent_message.c" />
+          <file file_name="../../../../../libraries/abstractions/mqtt_agent/freertos_command_pool.c" />
+          <folder Name="include">
+            <file file_name="../../../../../libraries/abstractions/mqtt_agent/include/freertos_agent_message.h" />
+            <file file_name="../../../../../libraries/abstractions/mqtt_agent/include/freertos_command_pool.h" />
+          </folder>
+        </folder>
       </folder>
       <folder Name="coreMQTT">
         <folder Name="source">
@@ -419,6 +441,48 @@
           <file file_name="../../../../../libraries/ble/src/iot_ble_internal.h" />
         </folder>
       </folder>
+      <folder Name="coreMQTT-Agent">
+        <folder Name="source">
+          <folder Name="include">
+            <file file_name="../../../../../libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h" />
+            <file file_name="../../../../../libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h" />
+            <file file_name="../../../../../libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h" />
+          </folder>
+          <file file_name="../../../../../libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c" />
+          <file file_name="../../../../../libraries/coreMQTT-Agent/source/core_mqtt_agent.c" />
+        </folder>
+      </folder>
+      <folder Name="ota_for_aws">
+        <folder Name="source">
+          <folder Name="include">
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_appversion32.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_base64_private.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_cbor_private.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_config_defaults.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_http_interface.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_http_private.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_interface_private.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_mqtt_interface.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_mqtt_private.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_os_interface.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_platform_interface.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_private.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota.h" />
+          </folder>
+          <file file_name="../../../../../libraries/ota_for_aws/source/ota_base64.c" />
+          <file file_name="../../../../../libraries/ota_for_aws/source/ota_cbor.c" />
+          <file file_name="../../../../../libraries/ota_for_aws/source/ota_http.c" />
+          <file file_name="../../../../../libraries/ota_for_aws/source/ota_interface.c" />
+          <file file_name="../../../../../libraries/ota_for_aws/source/ota_mqtt.c" />
+          <file file_name="../../../../../libraries/ota_for_aws/source/ota.c" />
+          <folder Name="portable">
+            <folder Name="os">
+              <file file_name="../../../../../libraries/ota_for_aws/source/portable/os/ota_os_freertos.c" />
+              <file file_name="../../../../../libraries/ota_for_aws/source/portable/os/ota_os_freertos.h" />
+            </folder>
+          </folder>
+        </folder>
+      </folder>
     </folder>
     <folder Name="ports">
       <folder Name="ble">
@@ -432,6 +496,13 @@
       </folder>
       <folder Name="posix">
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/posix/FreeRTOS_POSIX_portable.h" />
+      </folder>
+      <folder Name="ota_pal_for_aws">
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws/asn1utility.c" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws/asn1utility.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws/aws_ota_pal_settings.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws/ota_pal.c" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws/ota_pal.h" />
       </folder>
     </folder>
     <folder Name="nRF5_SDK_15.2.0">
@@ -686,7 +757,7 @@
     Name="Debug"
     arm_fp_abi="None"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/device_shadow_for_aws/source/include;$(SolutionDir)/../../../../../libraries/coreJSON/source/include;$(SolutionDir)/../../../../../libraries/coreHTTP/source/include;$(SolutionDir)/../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser;$(SolutionDir)/../../../../../libraries/ble/src;$(SolutionDir)/../../../../../libraries/ble/include"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/application_code;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/device_shadow_for_aws/source/include;$(SolutionDir)/../../../../../libraries/coreJSON/source/include;$(SolutionDir)/../../../../../libraries/coreHTTP/source/include;$(SolutionDir)/../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser;$(SolutionDir)/../../../../../libraries/ble/src;$(SolutionDir)/../../../../../libraries/ble/include;$(SolutionDir)/../../../../../libraries/ota_for_aws/source/include;$(SolutionDir)/../../../../../libraries/ota_for_aws/source/portable/os;$(SolutionDir)/../../../../../libraries/coreMQTT-Agent/source/include;$(SolutionDir)/../../../../../libraries/abstractions/mqtt_agent/include;$(SolutionDir)/../../../../../demos/common/mqtt_subscription_manager;$(SolutionDir)/../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws"
     gcc_debugging_level="Level 3"
     gcc_optimization_level="None"
     link_include_standard_libraries="Yes" />
