@@ -36,6 +36,7 @@ NAME := aws
 export AMAZON_FREERTOS_PATH := ../../../../../
 export AFR_LIBRARIES_PATH := ../../../../../libraries/
 export AFR_THIRDPARTY_PATH := ../../../../../libraries/3rdparty/
+export AFR_C_SDK_STANDARD_PATH := ../../../../../libraries/c_sdk/standard/
 export AFR_ABSTRACTIONS_PATH := ../../../../../libraries/abstractions/
 export AFR_FREERTOS_PLUS_STANDARD_PATH = ../../../../../libraries/freertos_plus/standard/
 export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../libraries/freertos_plus/aws/
@@ -161,6 +162,7 @@ GLOBAL_INCLUDES :=  $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)utils/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/include \
+                    $(AFR_C_SDK_STANDARD_PATH)common/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include/platform \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include/platform \
                     $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets \

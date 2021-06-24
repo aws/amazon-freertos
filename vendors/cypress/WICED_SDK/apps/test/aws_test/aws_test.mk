@@ -47,16 +47,21 @@ endif
 export AMAZON_FREERTOS_PATH := ../../../../../../
 export AFR_LIBRARIES_PATH := ../../../../../../libraries/
 export AFR_THIRDPARTY_PATH := ../../../../../../libraries/3rdparty/
+export AFR_C_SDK_STANDARD_PATH := ../../../../../../libraries/c_sdk/standard/
 export AFR_ABSTRACTIONS_PATH := ../../../../../../libraries/abstractions/
 export AFR_FREERTOS_PLUS_STANDARD_PATH = ../../../../../../libraries/freertos_plus/standard/
 export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../../libraries/freertos_plus/aws/
 
 GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
+                    $(AFR_C_SDK_STANDARD_PATH)common/include \
                     $(AFR_LIBRARIES_PATH)logging/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include  \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include \
                     $(AFR_ABSTRACTIONS_PATH)backoff_algorithm/source/include \
                     $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets \
+                    $(AFR_C_SDK_STANDARD_PATH)common/taskpool/private \
+                    $(AFR_C_SDK_STANDARD_PATH)common/include/private \
+                    $(AFR_C_SDK_STANDARD_PATH)common/include/types \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)utils/include       \
                     $(AFR_THIRDPARTY_PATH)jsmn \
                     $(AFR_THIRDPARTY_PATH)pkcs11 \
@@ -125,6 +130,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/test/aws_test_helper_secure_connect.c \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/test/iot_test_crypto.c \
                       $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c \
+                      $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c \
@@ -132,6 +138,10 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets/transport_secure_sockets.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/test/iot_test_platform_clock.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/test/iot_test_platform_threads.c \
+                      $(AFR_C_SDK_STANDARD_PATH)common/test/iot_memory_leak.c \
+                      $(AFR_C_SDK_STANDARD_PATH)common/test/iot_tests_taskpool.c \
+                      $(AFR_C_SDK_STANDARD_PATH)common/iot_init.c \
+                      $(AFR_C_SDK_STANDARD_PATH)common/iot_device_metrics.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_metrics.c \
                       $(AMAZON_FREERTOS_PATH)tests/integration_test/test_freertos_tcp.c \
                       $(AMAZON_FREERTOS_PATH)tests/integration_test/freertos_tcp_test_access_dns_define.h \
