@@ -199,24 +199,6 @@
         <file file_name="../../../../../libraries/logging/iot_logging_task_dynamic_buffers.c" />
       </folder>
       <folder Name="c_sdk">
-        <folder Name="aws">
-          <folder Name="shadow">
-            <file file_name="../../../../../libraries/c_sdk/aws/shadow/CMakeLists.txt" />
-            <folder Name="include">
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/include/aws_shadow.h" />
-            </folder>
-            <folder Name="src">
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_shadow.c" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h" />
-            </folder>
-          </folder>
-        </folder>
         <folder Name="standard">
           <folder Name="common">
             <file file_name="../../../../../libraries/c_sdk/standard/common/CMakeLists.txt" />
@@ -233,49 +215,6 @@
               <file file_name="../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool.c" />
             </folder>
             <file file_name="../../../../../libraries/c_sdk/standard/common/iot_device_metrics.c" />
-          </folder>
-          <folder Name="mqtt">
-            <file file_name="../../../../../libraries/c_sdk/standard/mqtt/CMakeLists.txt" />
-            <folder Name="include">
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/aws_mqtt_agent.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/aws_mqtt_agent_config_defaults.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/aws_mqtt_config_defaults.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/aws_mqtt_lib.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt.h" />
-            </folder>
-            <folder Name="src">
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c" />
-            </folder>
-          </folder>
-          <folder Name="serializer">
-            <file file_name="../../../../../libraries/c_sdk/standard/serializer/CMakeLists.txt" />
-            <folder Name="include">
-              <file file_name="../../../../../libraries/c_sdk/standard/serializer/include/iot_json_utils.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/serializer/include/iot_serializer.h" />
-            </folder>
-            <folder Name="src">
-              <folder Name="cbor">
-                <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c" />
-                <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c" />
-              </folder>
-              <folder Name="json">
-                <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c" />
-                <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c" />
-              </folder>
-            </folder>
-            <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c" />
-            <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c" />
           </folder>
         </folder>
       </folder>
