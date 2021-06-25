@@ -44,7 +44,7 @@
 #include "mbedtls/base64.h"
 #include "task.h"
 
-#define kOTA_HalfSecondDelay    pdMS_TO_TICKS( 500UL )
+#define OTA_HALF_SECOND_DELAY    pdMS_TO_TICKS( 500UL )
 #define ECDSA_INTEGER_LEN       32
 
 /* Check configuration for memory constraints provided SPIRAM is not enabled */
@@ -371,7 +371,7 @@ uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
     }
     else
     {
-        ESP_LOGI( TAG, "No such certificate file: %s. Using aws_ota_codesigner_certificate.h.\r\n",
+        ESP_LOGI( TAG, "No such certificate file: %s. Using certificate in ota_demo_config.h.\r\n",
                   ( const char * ) pucCertName );
 
         /* Allocate memory for the signer certificate plus a terminating zero so we can copy it and return to the caller. */
@@ -540,7 +540,7 @@ OtaPalStatus_t IRAM_ATTR otaPal_ResetDevice( OtaFileContext_t * const pFileConte
     ( void ) pFileContext;
 
     /* Short delay for debug log output before reset. */
-    vTaskDelay( kOTA_HalfSecondDelay );
+    vTaskDelay( OTA_HALF_SECOND_DELAY );
     esp_restart();
     return OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
 }

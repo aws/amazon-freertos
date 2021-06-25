@@ -407,7 +407,7 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
     }
     else
     {
-        LogInfo( ( "No such certificate file: %s. Using aws_ota_codesigner_certificate.h." ),
+        LogInfo( ( "No such certificate file: %s. Using certificate in ota_demo_config.h." ),
                  ( const char * ) pucCertName );
 
         /* Allocate memory for the signer certificate plus a terminating zero so we can copy it and return to the caller. */
