@@ -525,8 +525,22 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
             xLength2 = 0;
             cPrintString[ xLength ] = '\0';
         }
+        else if ( xLength2 < ( dlMAX_PRINT_STRING_LENGTH - xLength ) )
+        {
+            /* Complete log is in buffer. */
+            xLength += xLength2;
+        }
+        else
+        {
+            /* Buffer required is larger than allocated, not complete log is in buffer. */
+            xLength = dlMAX_PRINT_STRING_LENGTH ;
+        }
 
-        xLength += xLength2;
+        /* Check if the buffer has room for "\r\n" and make it if not. */
+        if ( xLength > ( dlMAX_PRINT_STRING_LENGTH - 3 ) )
+        {
+            xLength = dlMAX_PRINT_STRING_LENGTH - 3;
+        }
 
         /* Add newline characters if the message does not end with them.*/
         ulFormatLen = strlen( pcFormat );
