@@ -110,6 +110,7 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
     }
 
     TEST_ASSERT_EQUAL( 4321, attrData );
+    attrData = 1234;
 }
 
 /*-----------------------------------------------------------*/
@@ -137,7 +138,6 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
         }
 
         TEST_ASSERT_EQUAL( 0, attrData );
-        printf( "Expected Pri = 0, actual = %d\r\n", ( int ) attrData );
         attrData = -1;
 
         /* Create thread with max priority - 1*/
@@ -149,8 +149,8 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
             vTaskDelay( 1 );
         }
 
-        printf( "Expected Pri = %d, actual = %d\r\n", ( int ) ( configMAX_PRIORITIES - 1U ), ( int ) attrData );
         TEST_ASSERT_EQUAL( ( configMAX_PRIORITIES - 1U ), attrData );
+        attrData = -1;
     }
 #endif /* if ( INCLUDE_uxTaskPriorityGet == 1 ) */
 
