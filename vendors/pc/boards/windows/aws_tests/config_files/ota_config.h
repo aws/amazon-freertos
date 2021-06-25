@@ -151,7 +151,7 @@
  * This configurations parameter sets the default protocol for all the OTA control
  * operations like requesting OTA job, updating the job status etc.
  *
- * Note - Only MQTT is supported at this time for control operations.
+ * @note Only MQTT is supported at this time for control operations.
  */
 #define configENABLED_CONTROL_PROTOCOL    ( OTA_CONTROL_OVER_MQTT )
 
@@ -161,7 +161,7 @@
  * This configurations parameter sets the protocols selected for the data operations
  * like requesting file blocks from the service.
  *
- * Note - Both MQTT and HTTP is supported for data transfer. This configuration parameter
+ * @note Both MQTT and HTTP is supported for data transfer. This configuration parameter
  * can be set to following -
  * Enable data over MQTT - ( OTA_DATA_OVER_MQTT )
  * Enable data over HTTP - ( OTA_DATA_OVER_HTTP)
@@ -176,7 +176,7 @@
  * one protocol is selected while creating OTA job. Default primary data protocol is MQTT
  * and following update here to switch to HTTP as primary.
  *
- * Note - use OTA_DATA_OVER_HTTP for HTTP as primary data protocol.
+ * @note use OTA_DATA_OVER_HTTP for HTTP as primary data protocol.
  */
 
 #define configOTA_PRIMARY_DATA_PROTOCOL    ( OTA_DATA_OVER_MQTT )

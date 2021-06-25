@@ -44,7 +44,7 @@
 #include "mbedtls/base64.h"
 #include "task.h"
 
-#define kOTA_HalfSecondDelay    pdMS_TO_TICKS( 500UL )
+#define OTA_HALF_SECOND_DELAY    pdMS_TO_TICKS( 500UL )
 #define ECDSA_INTEGER_LEN       32
 
 /* Check configuration for memory constraints provided SPIRAM is not enabled */
@@ -540,7 +540,7 @@ OtaPalStatus_t IRAM_ATTR otaPal_ResetDevice( OtaFileContext_t * const pFileConte
     ( void ) pFileContext;
 
     /* Short delay for debug log output before reset. */
-    vTaskDelay( kOTA_HalfSecondDelay );
+    vTaskDelay( OTA_HALF_SECOND_DELAY );
     esp_restart();
     return OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
 }
