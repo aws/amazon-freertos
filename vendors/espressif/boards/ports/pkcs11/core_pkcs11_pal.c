@@ -256,6 +256,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
         size_t required_size = 0;
         err = nvs_get_blob(handle, pcFileName, NULL, &required_size);
         if (err != ESP_OK || required_size == 0) {
+            ESP_LOGE(TAG, "failure in PKCS11_PAL_FindObject for file %s", pcFileName);
             ESP_LOGE(TAG, "failed nvs get file size %d %d", err, required_size);
             xHandle = eInvalidHandle;
         }
@@ -357,6 +358,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         size_t required_size = 0;
         err = nvs_get_blob(handle, pcFileName, NULL, &required_size);
         if (err != ESP_OK || required_size == 0) {
+            ESP_LOGE(TAG, "failure in PKCS11_PAL_GetObjectValue for file %s", pcFileName);
             ESP_LOGE(TAG, "failed nvs get file size %d %d", err, required_size);
             ulReturn = CKR_OBJECT_HANDLE_INVALID;
             goto done;

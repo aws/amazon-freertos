@@ -684,6 +684,8 @@ BaseType_t TLS_Init( void ** ppvContext,
     TLSContext_t * pxCtx = NULL;
     CK_C_GetFunctionList xCkGetFunctionList = NULL;
 
+    TLS_PRINT( ( "Reached TLS_Init" ) );
+
     /* Allocate an internal context. */
     pxCtx = ( TLSContext_t * ) pvPortMalloc( sizeof( TLSContext_t ) ); /*lint !e9087 !e9079 Allow casting void* to other types. */
 
@@ -717,6 +719,8 @@ BaseType_t TLS_Init( void ** ppvContext,
                 xResult = CKR_OK;
             }
         }
+
+        TLS_PRINT( ( "Initialized PKCS11 session" ) );
 
         if( xResult == CKR_OK )
         {
