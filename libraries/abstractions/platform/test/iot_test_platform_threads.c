@@ -27,6 +27,8 @@
  * @file iot_test_platform_threads.c
  * @brief Tests for the functions in iot_threads.h
  */
+#include "FreeRTOS.h"
+#include "task.h"
 
 #include "iot_config.h"
 
@@ -36,7 +38,6 @@
 #include "unity_fixture.h"
 
 #include "platform/iot_threads.h"
-#include "task.h"
 
 /*-----------------------------------------------------------*/
 
@@ -139,8 +140,8 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
         printf( "Expected Pri = 0, actual = %d\r\n", ( int ) attrData );
         attrData = -1;
 
-        /* Create thread with priority 5 */
-        Iot_CreateDetachedThread( threadPriorityTestFunction, &attrData, 5, 3072 );
+        /* Create thread with max priority - 1*/
+        Iot_CreateDetachedThread( threadPriorityTestFunction, &attrData, ( configMAX_PRIORITIES - 1U ), 3072 );
 
         /* Wait for the thread to complete before checking result*/
         while( attrData == -1 )
@@ -148,21 +149,8 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
             vTaskDelay( 1 );
         }
 
-        printf( "Expected Pri = 5, actual = %d\r\n", ( int ) attrData );
-        TEST_ASSERT_EQUAL( 5, attrData );
-        attrData = -1;
-
-        /* Create thread with priority 5 */
-        Iot_CreateDetachedThread( threadPriorityTestFunction, &attrData, 7, 3072 );
-
-        /* Wait for the thread to complete before checking result*/
-        while( attrData == -1 )
-        {
-            vTaskDelay( 1 );
-        }
-
-        printf( "Expected Pri = 7, actual = %d\r\n", ( int ) attrData );
-        TEST_ASSERT_EQUAL( 7, attrData );
+        printf( "Expected Pri = %d, actual = %d\r\n", ( int ) ( configMAX_PRIORITIES - 1U ), ( int ) attrData );
+        TEST_ASSERT_EQUAL( ( configMAX_PRIORITIES - 1U ), attrData );
     }
 #endif /* if ( INCLUDE_uxTaskPriorityGet == 1 ) */
 
