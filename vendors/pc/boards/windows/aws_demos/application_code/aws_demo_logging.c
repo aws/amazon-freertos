@@ -537,7 +537,7 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
         }
 
         /* Check if the buffer has room for "\r\n" and make it if not. */
-        if (xLength > ( dlMAX_PRINT_STRING_LENGTH - 3 ) )
+        if ( xLength > ( dlMAX_PRINT_STRING_LENGTH - 3 ) )
         {
             xLength -= 3;
         }
