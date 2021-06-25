@@ -93,7 +93,7 @@
 #define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY              ( tskIDLE_PRIORITY )
 
 /* MQTT Connection sharing demo task priority. */
-#define democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
+#define democonfigCORE_MQTT_AGENT_DEMO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
 
 /* Send AWS IoT MQTT traffic encrypted to destination port 443. */
 #define democonfigMQTT_AGENT_CONNECT_FLAGS                           ( mqttagentREQUIRE_TLS )
