@@ -56,7 +56,7 @@
 #define democonfigMQTT_ECHO_TASK_PRIORITY                            ( tskIDLE_PRIORITY )
 
 /* MQTT Connection sharing demo task priority. */
-#define democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
+#define democonfigCORE_MQTT_AGENT_DEMO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
 
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */
