@@ -36,7 +36,7 @@
 #define ATCA_ATECC608_SUPPORT
 
 /** Use the following address for ECC devices */
-#define ATCA_I2C_ECC_ADDRESS            0xC0
+#define ATCA_I2C_ECC_ADDRESS            0x6C
 #define ATCA_DEVICE_PRIVATE_KEY_SLOT    0x00
 
 #ifndef ATCA_POST_DELAY_MSEC
