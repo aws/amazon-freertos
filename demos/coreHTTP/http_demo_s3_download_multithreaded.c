@@ -311,6 +311,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
  * @return pdFAIL on failure; pdPASS on success.
  */
 static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestInfo,
+                                            const QueueItem_t* pRequestResponseBuffer,
                                            QueueHandle_t xRequestQueue,
                                            const size_t xStart,
                                            const size_t xEnd );
@@ -340,6 +341,7 @@ static BaseType_t prvCheckNotification( uint32_t * pulNotification,
  * @return pdFAIL on failure; pdPASS on success.
  */
 static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInfo,
+                                          const QueueItem_t* pReqResponseBuffers,
                                           QueueHandle_t xRequestQueue,
                                           QueueHandle_t xResponseQueue,
                                           size_t * pxFileSize );
