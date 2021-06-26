@@ -136,7 +136,7 @@
 
 /* The default value for the stack size to use for HTTP tasks. */
 #ifndef httpexampleTASK_STACK_SIZE
-    #define httpexampleTASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 4 )
+    #define httpexampleTASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 2 )
 #endif
 
 /**
