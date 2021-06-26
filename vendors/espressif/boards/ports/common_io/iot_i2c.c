@@ -53,7 +53,7 @@ typedef struct {
 
 static struct esp_i2c_pin_config esp_i2c_pin_map[ESP_MAX_I2C_PORTS] = ESP_I2C_PIN_MAP;
 
-static void IRAM_ATTR async_cb(i2c_trans_status_t status, void *arg);
+// static void IRAM_ATTR async_cb(i2c_trans_status_t status, void *arg);
 
 IotI2CHandle_t iot_i2c_open(int32_t lI2CInstance)
 {
@@ -145,7 +145,7 @@ int32_t iot_i2c_ioctl( IotI2CHandle_t const pxI2CPeripheral, IotI2CIoctlRequest_
             }
         }
         i2c_ctx->driver_installed = true;
-        i2c_master_register_callback_with_isr(i2c_ctx->i2c_port_num, async_cb, (void *) i2c_ctx);
+        // i2c_master_register_callback_with_isr(i2c_ctx->i2c_port_num, async_cb, (void *) i2c_ctx);
         xSemaphoreGive(i2c_ctx->i2c_semph);
         return IOT_I2C_SUCCESS;
     }
@@ -193,27 +193,27 @@ int32_t iot_i2c_ioctl( IotI2CHandle_t const pxI2CPeripheral, IotI2CIoctlRequest_
     }
 }
 
-static void i2c_callback_dispatch(void *arg, i2c_trans_status_t status)
-{
-    i2c_ctx_t *iot_i2c_handler = (i2c_ctx_t *) arg;
-    uint8_t op_status = (status != I2C_TRANS_STATUS_DONE) ? eI2CDriverFailed : eI2CCompleted;
-    i2c_cmd_link_delete(iot_i2c_handler->cmd);
-    xSemaphoreGive(iot_i2c_handler->i2c_semph);
-    if (iot_i2c_handler->func) {
-        iot_i2c_handler->func(op_status, iot_i2c_handler->arg);
-    }
-}
+// static void i2c_callback_dispatch(void *arg, i2c_trans_status_t status)
+// {
+//     i2c_ctx_t *iot_i2c_handler = (i2c_ctx_t *) arg;
+//     uint8_t op_status = (status != I2C_TRANS_STATUS_DONE) ? eI2CDriverFailed : eI2CCompleted;
+//     i2c_cmd_link_delete(iot_i2c_handler->cmd);
+//     xSemaphoreGive(iot_i2c_handler->i2c_semph);
+//     if (iot_i2c_handler->func) {
+//         iot_i2c_handler->func(op_status, iot_i2c_handler->arg);
+//     }
+// }
 
-static void IRAM_ATTR async_cb(i2c_trans_status_t status, void *arg)
-{
-    i2c_ctx_t *iot_i2c_handler = (i2c_ctx_t *) arg;
-    if (iot_i2c_handler->async_op) {
-        if (xTimerPendFunctionCallFromISR(i2c_callback_dispatch, arg, status, NULL) == pdFALSE) {
-            abort();
-        }
-        iot_i2c_handler->async_op = false;
-    }
-}
+// static void IRAM_ATTR async_cb(i2c_trans_status_t status, void *arg)
+// {
+//     i2c_ctx_t *iot_i2c_handler = (i2c_ctx_t *) arg;
+//     if (iot_i2c_handler->async_op) {
+//         if (xTimerPendFunctionCallFromISR(i2c_callback_dispatch, arg, status, NULL) == pdFALSE) {
+//             abort();
+//         }
+//         iot_i2c_handler->async_op = false;
+//     }
+// }
 
 void iot_i2c_set_callback(IotI2CHandle_t const pxI2CPeripheral, IotI2CCallback_t xCallback, void *pvUserContext)
 {
