@@ -14,5 +14,5 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         AFR::greengrass
-        AFR::core_mqtt
+        AFR::core_mqtt_demo_dependencies
 )
