@@ -412,7 +412,10 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
     /* Configurations of the initial request headers. */
     HTTPRequestInfo_t xRequestInfo = { 0 };
 
+
     QueueItem_t requestResponseBuffers;
+    memset(&requestResponseBuffers.xRequestHeaders, 0, sizeof(requestResponseBuffers.xRequestHeaders));
+    memset(&requestResponseBuffers.xResponse, 0, sizeof(requestResponseBuffers.xResponse));
 
     requestResponseBuffers.xRequestHeaders.pBuffer = httpRequestBuffer;
     requestResponseBuffers.xRequestHeaders.bufferLen = sizeof( httpRequestBuffer );
@@ -763,8 +766,8 @@ static void prvStartHTTPTask( void * pvArgs )
 
         LogInfo( ( "The HTTP task retrieved a request from the request queue." ) );
         LogDebug( ( "Request Headers:\n%.*s",
-                    ( int32_t ) xHTTPRequestItem.xRequestHeaders.headersLen,
-                    ( char * ) xHTTPRequestItem.xRequestHeaders.pBuffer ) );
+                    ( int32_t ) httpReqResponseData.xRequestHeaders.headersLen,
+                    ( char * ) httpReqResponseData.xRequestHeaders.pBuffer ) );
 
         xHTTPStatus = HTTPClient_Send( &xTransportInterface,
                                        &requestResponseData.xRequestHeaders,
