@@ -35,7 +35,6 @@ afr_module_dependencies(
     PUBLIC
         AFR::secure_sockets
     PRIVATE
-        AFR::core_mqtt
         3rdparty::jsmn
 )
 
