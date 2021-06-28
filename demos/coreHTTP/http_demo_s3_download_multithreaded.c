@@ -431,7 +431,10 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
     /* Configurations of the initial request headers. */
     HTTPRequestInfo_t xRequestInfo = { 0 };
 
+
     QueueItem_t requestResponseBuffers;
+    memset(&requestResponseBuffers.xRequestHeaders, 0, sizeof(requestResponseBuffers.xRequestHeaders));
+    memset(&requestResponseBuffers.xResponse, 0, sizeof(requestResponseBuffers.xResponse));
 
     requestResponseBuffers.xRequestHeaders.pBuffer = httpRequestBuffer;
     requestResponseBuffers.xRequestHeaders.bufferLen = sizeof( httpRequestBuffer );
