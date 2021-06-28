@@ -630,7 +630,6 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
 {
     BaseType_t xStatus = pdPASS;
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
-    QueueItem_t response;
 
     /* The location of the file size in pcContentRangeValStr. */
     char * pcFileSizeStr = NULL;
@@ -671,14 +670,14 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
 
     if( ( xStatus == pdPASS ) && ( xHTTPStatus == HTTPSuccess ) )
     {
-        if( response.xResponse.statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
+        if(pReqResponseBuffers->xResponse.statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
         {
-            LogError( ( "Received response with unexpected status code: %d.", response.xResponse.statusCode ) );
+            LogError( ( "Received response with unexpected status code: %d.", pReqResponseBuffers->xResponse.statusCode ) );
             xStatus = pdFAIL;
         }
         else
         {
-            xHTTPStatus = HTTPClient_ReadHeader( &response.xResponse,
+            xHTTPStatus = HTTPClient_ReadHeader( &pReqResponseBuffers->xResponse,
                                                  ( char * ) httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD,
                                                  ( size_t ) httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD_LENGTH,
                                                  ( const char ** ) &pcContentRangeValStr,
@@ -766,8 +765,8 @@ static void prvStartHTTPTask( void * pvArgs )
 
         LogInfo( ( "The HTTP task retrieved a request from the request queue." ) );
         LogDebug( ( "Request Headers:\n%.*s",
-                    ( int32_t ) httpReqResponseData.xRequestHeaders.headersLen,
-                    ( char * ) httpReqResponseData.xRequestHeaders.pBuffer ) );
+                    ( int32_t )requestResponseData.xRequestHeaders.headersLen,
+                    ( char * )requestResponseData.xRequestHeaders.pBuffer ) );
 
         xHTTPStatus = HTTPClient_Send( &xTransportInterface,
                                        &requestResponseData.xRequestHeaders,
