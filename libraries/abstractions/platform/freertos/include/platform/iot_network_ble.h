@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Platform V1.1.2
+ * FreeRTOS Platform V1.1.3
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

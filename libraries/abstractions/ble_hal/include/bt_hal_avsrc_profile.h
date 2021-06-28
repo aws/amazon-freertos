@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE HAL V5.1.0
+ * FreeRTOS BLE HAL V5.1.1
  * Copyright (C) 2020-2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
