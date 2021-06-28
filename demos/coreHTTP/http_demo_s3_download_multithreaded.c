@@ -80,6 +80,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "semphr.h"
 
 /* Include demo config as the first non-system header. */
 #include "http_demo_s3_download_multithreaded_config.h"
@@ -253,12 +254,6 @@ static uint8_t httpResponseBuffer[ democonfigUSER_BUFFER_LENGTH ];
 static QueueHandle_t xRequestQueue;
 
 /**
- * @brief Queue for HTTP responses. Responses are written by the HTTP task,
- * and read by the main task.
- */
-static QueueHandle_t xResponseQueue;
-
-/**
  * @brief Handle of prvStartHTTPTask.
  */
 static TaskHandle_t xHTTPTask;
@@ -289,7 +284,6 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext );
  * @param[in] pcRequest The HTTP Request-URI.
  * @param[in] xRequestUriLen The length of pcRequest.
  * @param[in] xRequestQueue The queue to which HTTP requests should be written.
- * @param[in] xResponseQueue The queue from which HTTP responses should be read.
  *
  * @return pdFAIL on failure; pdPASS on success.
  */
@@ -297,8 +291,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
                                            const size_t xHostLen,
                                            const char * pcRequest,
                                            const size_t xRequestUriLen,
-                                           QueueHandle_t xRequestQueue,
-                                           QueueHandle_t xResponseQueue );
+                                           QueueHandle_t xRequestQueue );
 
 /**
  * @brief Enqueue an HTTP GET request for a given range of the S3 file.
@@ -311,23 +304,10 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
  * @return pdFAIL on failure; pdPASS on success.
  */
 static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestInfo,
-                                            const QueueItem_t* pRequestResponseBuffer,
+                                           const QueueItem_t * pRequestResponseBuffer,
                                            QueueHandle_t xRequestQueue,
                                            const size_t xStart,
                                            const size_t xEnd );
-
-/**
- * @brief Check for an HTTP task notification.
- *
- * @param[in] pulNotification pointer holding notification value.
- * @param[in] ulExpectedBits Bits to wait for.
- * @param[in] xClearBits If bits should be cleared.
- *
- * @return `pdTRUE` if notification received, `pdFALSE` otherwise.
- */
-static BaseType_t prvCheckNotification( uint32_t * pulNotification,
-                                        uint32_t ulExpectedBits,
-                                        BaseType_t xClearBits );
 
 /**
  * @brief Retrieve the size of the S3 object that is specified in pcPath using
@@ -335,15 +315,13 @@ static BaseType_t prvCheckNotification( uint32_t * pulNotification,
  *
  * @param[in] pxRequestInfo The #HTTPRequestInfo_t for configuring the request.
  * @param[in] xRequestQueue The queue to which HTTP requests should be written.
- * @param[in] xResponseQueue The queue from which HTTP responses should be read.
  * @param[out] pxFileSize - The size of the S3 object.
  *
  * @return pdFAIL on failure; pdPASS on success.
  */
 static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInfo,
-                                          const QueueItem_t* pReqResponseBuffers,
+                                          const QueueItem_t * pReqResponseBuffers,
                                           QueueHandle_t xRequestQueue,
-                                          QueueHandle_t xResponseQueue,
                                           size_t * pxFileSize );
 
 /**
@@ -360,13 +338,17 @@ static void prvStartHTTPTask( void * pvArgs );
  *
  * @param[in] xHandle The HTTP task handle.
  * @param[in] xRequestQueue The request queue.
- * @param[in] xResponseQueue The response queue.
  */
 static void prvTearDown( TaskHandle_t xHandle,
-                         QueueHandle_t xRequestQueue,
-                         QueueHandle_t xResponseQueue );
+                         QueueHandle_t xRequestQueue );
 
 /*-----------------------------------------------------------*/
+static void httpOperationCompleteCallback( HTTPResponse_t * pResponse )
+{
+    ( void ) pResponse;
+
+    /* Notify main task about arrival of HTTP response. */
+}
 
 static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext )
 {
@@ -420,8 +402,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
                                            const size_t xHostLen,
                                            const char * pcRequest,
                                            const size_t xRequestUriLen,
-                                           QueueHandle_t xRequestQueue,
-                                           QueueHandle_t xResponseQueue )
+                                           QueueHandle_t xRequestQueue )
 {
     BaseType_t xStatus = pdPASS;
     size_t xRemainingResponseCount = 0;
@@ -466,7 +447,6 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
     xStatus = prvGetS3ObjectFileSize( &xRequestInfo,
                                       &requestResponseBuffers,
                                       xRequestQueue,
-                                      xResponseQueue,
                                       &xFileSize );
 
     /* Set the number of bytes to request in each iteration, defined by the user
@@ -521,12 +501,14 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
             xRemainingResponseCount += 1;
         }
 
-        /* Retrieve response from the response queue, if available. */
         if( xRemainingResponseCount > 0 )
         {
-            if( xQueueReceive( xResponseQueue, &requestResponseBuffers, httpexampleDEMO_TICKS_TO_WAIT ) != pdFAIL )
+            HTTPStatus_t httpOperation = HTTPSuccess;
+
+            /* Wait for notification of completion of HTTP operation from HTTP Task. */
+            if( xTaskNotifyWait( 0, UINT32_MAX, &httpOperation, httpexampleDEMO_TICKS_TO_WAIT ) != pdFAIL )
             {
-                LogInfo( ( "The main task retrieved a server response from the response queue." ) );
+                LogInfo( ( "The main task is notified of server response from the HTTP Task." ) );
                 LogDebug( ( "Response Headers:\n%.*s",
                             ( int32_t ) requestResponseBuffers.xResponse.headersLen,
                             requestResponseBuffers.xResponse.pHeaders ) );
@@ -550,7 +532,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
                 xRemainingResponseCount -= 1;
             }
             /* Check for a notification from the HTTP task about an HTTP send failure. */
-            else if( prvCheckNotification( &ulNotification, httpexampleHTTP_SEND_ERROR, pdTRUE ) != pdFALSE )
+            else
             {
                 LogError( ( "Received notification from the HTTP task indicating a HTTPClient_Send() error." ) );
                 xStatus = pdFAIL;
@@ -638,38 +620,13 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
 
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvCheckNotification( uint32_t * pulNotification,
-                                        uint32_t ulExpectedBits,
-                                        BaseType_t xClearBits )
-{
-    BaseType_t xStatus = pdTRUE;
-
-    configASSERT( pulNotification != NULL );
-
-    xStatus = xTaskNotifyWait( 0,
-                               ( xClearBits ) ? ulExpectedBits : 0,
-                               pulNotification,
-                               httpexampleDEMO_TICKS_TO_WAIT );
-
-    if( xStatus == pdTRUE )
-    {
-        xStatus = ( ( *pulNotification & ulExpectedBits ) == ulExpectedBits ) ? pdTRUE : pdFALSE;
-    }
-
-    return xStatus;
-}
-
-/*-----------------------------------------------------------*/
-
 static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInfo,
                                           const QueueItem_t * pReqResponseBuffers,
                                           QueueHandle_t xRequestQueue,
-                                          QueueHandle_t xResponseQueue,
                                           size_t * pxFileSize )
 {
     BaseType_t xStatus = pdPASS;
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
-    uint32_t ulNotification = 0;
     QueueItem_t response;
 
     /* The location of the file size in pcContentRangeValStr. */
@@ -694,12 +651,22 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
                                        0,
                                        0 );
 
+    /* Wait for notification of HTTP operation for request S3 file size. */
     if( xStatus == pdPASS )
     {
-        xStatus = xQueueReceive( xResponseQueue, &response, httpexampleDEMO_TICKS_TO_WAIT );
+        xStatus == xTaskNotifyWait( 0,
+                                    UINT32_MAX,   /* Clear all bits on exit. */
+                                    &xHTTPStatus, /* Notification value is HTTPStatus_t value from HTTPClient_Send Call
+                                                   *  in HTTP Task. */
+                                    httpexampleDEMO_TICKS_TO_WAIT );
+
+        if( xStatus == pdFAIL )
+        {
+            LogError( ( "Failure in HTTP request for requesting S3 bucket file size: Timeod out waiting for notification from HTTP Task" ) );
+        }
     }
 
-    if( xStatus == pdPASS )
+    if( ( xStatus == pdPASS ) && ( xHTTPStatus == HTTPSuccess ) )
     {
         if( response.xResponse.statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
         {
@@ -723,7 +690,7 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
         }
     }
     /* Check for a notification from the HTTP task about an HTTP send failure. */
-    else if( prvCheckNotification( &ulNotification, httpexampleHTTP_SEND_ERROR, pdTRUE ) != pdFALSE )
+    else if( xStatus == pdPASS )
     {
         LogError( ( "Received notification from the HTTP task indicating a HTTPClient_Send() error." ) );
     }
@@ -770,7 +737,7 @@ static void prvStartHTTPTask( void * pvArgs )
     BaseType_t xStatus = pdPASS;
     /* The transport layer interface used by the HTTP Client library. */
     TransportInterface_t xTransportInterface;
-    QueueItem_t httpReqResponseData = { 0 };
+    QueueItem_t requestResponseData = { 0 };
 
     ( void ) pvArgs;
 
@@ -781,10 +748,12 @@ static void prvStartHTTPTask( void * pvArgs )
 
     for( ; ; )
     {
+        LogInfo( ( "About to call xQueueReceive" ) );
         /* Read request from queue. */
         xStatus = xQueueReceive( xRequestQueue,
-                                 &httpReqResponseData,
+                                 &requestResponseData,
                                  httpexampleDEMO_TICKS_TO_WAIT );
+        LogInfo( ( "After call to xQueueReceive" ) );
 
         if( xStatus == pdFAIL )
         {
@@ -798,34 +767,25 @@ static void prvStartHTTPTask( void * pvArgs )
                     ( char * ) xHTTPRequestItem.xRequestHeaders.pBuffer ) );
 
         xHTTPStatus = HTTPClient_Send( &xTransportInterface,
-                                       &httpReqResponseData.xRequestHeaders,
+                                       &requestResponseData.xRequestHeaders,
                                        NULL,
                                        0,
-                                       &httpReqResponseData.xResponse,
+                                       &requestResponseData.xResponse,
                                        0 );
+
+        /*Notify the main task of the return status of the coreHTTP API call
+         * for HTTP operation of sending request and receiving response. */
+        xTaskNotify( xMainTask, xHTTPStatus, eSetBits );
 
         if( xHTTPStatus != HTTPSuccess )
         {
             LogError( ( "Failed to send HTTP request: Error=%s.",
                         HTTPClient_strerror( xHTTPStatus ) ) );
-            /*Notify the main task of failure. */
-            xTaskNotify( xMainTask, httpexampleHTTP_SEND_ERROR, eSetBits );
             break;
         }
         else
         {
             LogInfo( ( "The HTTP task received a response from the server." ) );
-            /* Write response to queue. */
-            xStatus = xQueueSendToBack( xResponseQueue,
-                                        &httpReqResponseData,
-                                        httpexampleDEMO_TICKS_TO_WAIT );
-
-            /* Ensure response was added to the queue. */
-            if( xStatus != pdPASS )
-            {
-                LogError( ( "Could not enqueue response." ) );
-                break;
-            }
         }
     }
 }
@@ -833,8 +793,7 @@ static void prvStartHTTPTask( void * pvArgs )
 /*-----------------------------------------------------------*/
 
 void prvTearDown( TaskHandle_t xHandle,
-                  QueueHandle_t xRequestQueue,
-                  QueueHandle_t xResponseQueue )
+                  QueueHandle_t xRequestQueue )
 {
     /* Delete HTTP task. */
     LogInfo( ( "Deleting HTTP task." ) );
@@ -844,11 +803,6 @@ void prvTearDown( TaskHandle_t xHandle,
     if( xRequestQueue != NULL )
     {
         vQueueDelete( xRequestQueue );
-    }
-
-    if( xResponseQueue != NULL )
-    {
-        vQueueDelete( xResponseQueue );
     }
 }
 
@@ -999,10 +953,7 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
             xRequestQueue = xQueueCreate( democonfigQUEUE_SIZE,
                                           sizeof( QueueItem_t ) );
 
-            xResponseQueue = xQueueCreate( democonfigQUEUE_SIZE,
-                                           sizeof( QueueItem_t ) );
-
-            xDemoStatus = ( ( xRequestQueue != NULL ) && ( xResponseQueue != NULL ) ) ? pdPASS : pdFAIL;
+            xDemoStatus = ( xRequestQueue != NULL ) ? pdPASS : pdFAIL;
         }
 
         /* Start HTTP task. */
@@ -1019,8 +970,7 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
                                                    xServerHostLength,
                                                    pcPath,
                                                    xRequestUriLen,
-                                                   xRequestQueue,
-                                                   xResponseQueue );
+                                                   xRequestQueue );
         }
 
         /************************** Disconnect. *****************************/
@@ -1043,7 +993,7 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
         /*********** Clean up and evaluate demo iteration status. ***********/
 
         /* Close and delete the queues. */
-        prvTearDown( xHTTPTask, xRequestQueue, xResponseQueue );
+        prvTearDown( xHTTPTask, xRequestQueue );
 
         /* Increment the demo run count. */
         uxDemoRunCount++;
