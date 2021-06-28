@@ -137,7 +137,7 @@
 /**
  * @brief The number of items that can be held in each queue.
  */
-#define democonfigQUEUE_SIZE                        ( 10 )
+#define democonfigQUEUE_SIZE                        ( 2 )
 
 
 #endif /* ifndef HTTP_DEMO_S3_DOWNLOAD_MULTITHREADED_CONFIG_H */
