@@ -618,6 +618,19 @@ static OtaEventData_t pxEventBuffer[ otaconfigMAX_NUM_OTA_DATA_BUFFERS ];
  */
 static uint32_t ulGlobalEntryTimeMs;
 
+
+/**
+ * @brief Counter for tracking number of mqtt connections.
+ *
+ */
+static uint16_t usCounterMqtt = 0;
+
+/**
+ * @brief Counter for tracking number of http connections.
+ *
+ */
+static uint16_t usCounterHttp = 0;
+
 /**
  * @brief The buffer passed to the OTA Agent from application while initializing.
  */
@@ -1463,6 +1476,8 @@ static BaseType_t prvCreateSocketConnectionToMQTTBroker( NetworkContext_t * pxNe
                                        RETRY_MAX_BACKOFF_DELAY_MS,
                                        RETRY_MAX_ATTEMPTS );
 
+    LogDebug( ( " Attempt: %d Memory before creating the mqtt connection: %zd", usCounterMqtt, xPortGetFreeHeapSize() ) );
+
     /* Attempt to connect to MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase till maximum
      * attempts are reached.
@@ -1485,6 +1500,9 @@ static BaseType_t prvCreateSocketConnectionToMQTTBroker( NetworkContext_t * pxNe
             xStatus = prvBackoffForRetry( &xReconnectParams );
         }
     } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xStatus == pdPASS ) );
+
+    LogDebug( ( " Attempt: %d Memory after creating the mqtt connection: %zd", usCounterMqtt, xPortGetFreeHeapSize() ) );
+    usCounterMqtt++;
 
     return xStatus;
 }
@@ -1668,19 +1686,22 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
         xServerInfo.pHostName = pcServerHost;
         xServerInfo.hostNameLength = xServerHostLength;
         xServerInfo.port = democonfigHTTPS_PORT;
+        LogDebug( ( " Attempt: %d Memory before creating the http connection: %zd", usCounterHttp, xPortGetFreeHeapSize() ) );
 
         /* Establish a TLS session with the HTTP server. This example connects
          * to the HTTP server as specified in SERVER_HOST and HTTPS_PORT in
          * demo_config.h. */
-         LogInfo( ( "Establishing a TLS session with %s:%d.",
-                    pcServerHost,
-                    democonfigHTTPS_PORT ) );
+        LogInfo( ( "Establishing a TLS session with %s:%d.",
+                   pcServerHost,
+                   democonfigHTTPS_PORT ) );
 
         xNetworkStatus = SecureSocketsTransport_Connect( pxNetworkContext,
                                                          &xServerInfo,
                                                          &xSocketsConfig );
 
         returnStatus = ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS ) ? pdPASS : pdFAIL;
+        LogDebug( ( " Attempt: %d Memory after creating the http connection: %zd", usCounterHttp, xPortGetFreeHeapSize() ) );
+        usCounterHttp++;
     }
 
     return ( returnStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
