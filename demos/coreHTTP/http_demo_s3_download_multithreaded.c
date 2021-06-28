@@ -794,8 +794,8 @@ static void prvStartHTTPTask( void * pvArgs )
 
         LogInfo( ( "The HTTP task retrieved a request from the request queue." ) );
         LogDebug( ( "Request Headers:\n%.*s",
-                    ( int32_t ) xHTTPRequestItem.xRequestHeaders.headersLen,
-                    ( char * ) xHTTPRequestItem.xRequestHeaders.pBuffer ) );
+                    ( int32_t ) httpReqResponseData.xRequestHeaders.headersLen,
+                    ( char * ) httpReqResponseData.xRequestHeaders.pBuffer ) );
 
         xHTTPStatus = HTTPClient_Send( &xTransportInterface,
                                        &httpReqResponseData.xRequestHeaders,
