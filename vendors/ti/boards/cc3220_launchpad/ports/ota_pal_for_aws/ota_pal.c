@@ -196,10 +196,8 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
 
             do
             {
-                LogInfo( ( "FileType: %d", C->fileType ) );
                 if( C->fileType == 0)
                 {
-                    LogInfo( ( "Debug1" ) );
                     ulFlags = ( SL_FS_CREATE | SL_FS_OVERWRITE | SL_FS_CREATE_FAILSAFE | /*lint -e9027 -e9028 -e9029 We don't own the TI problematic macros. */
                             SL_FS_CREATE_PUBLIC_WRITE | SL_FS_WRITE_BUNDLE_FILE |
                             SL_FS_CREATE_SECURE | SL_FS_CREATE_VENDOR_TOKEN |
@@ -207,7 +205,6 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
                 }
                 else
                 {
-                    LogInfo( ( "Debug2" ) );
                     ulFlags = SL_FS_CREATE | SL_FS_OVERWRITE | SL_FS_CREATE_NOSIGNATURE | SL_FS_CREATE_MAX_SIZE( OTA_MAX_MCU_IMAGE_SIZE );
                 }
                 /* The file remains open until the OTA agent calls otaPal_CloseFile() after transfer or failure. */
