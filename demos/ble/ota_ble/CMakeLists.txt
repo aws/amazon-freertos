@@ -1,5 +1,5 @@
 # OTA over BLE demo
-afr_demo_module(ota_mqtt_ble)
+afr_demo_module()
 
 afr_set_demo_metadata(ID "OTA_MQTT_BLE_TRANSPORT_DEMO")
 afr_set_demo_metadata(DESCRIPTION "An example that demonstrates OTA over BLE assisted by a companion device")
