@@ -231,11 +231,12 @@ static char cServerHost[ httpexampleS3_PRESIGNED_GET_URL_LENGTH ];
 static size_t xServerHostLength;
 
 /**
- * @brief Data type for the request queue.
+ * @brief Data type for the queue of the HTTP Task that represents data for performing
+ * an HTTP request/response operation.
  *
- * Contains the request header struct and its corresponding buffer, to be
- * populated and enqueued by the main task, and read by the HTTP task. The
- * buffer is included to avoid pointer inaccuracy during queue copy operations.
+ * An element in the queue represents the memory of the HTTP request headers that
+ * are used for sending the HTTP request and memory of the HTTP response in which the
+ * HTTP task will populate the server response and its parsed information.
  */
 typedef struct QueueItem
 {
@@ -243,15 +244,19 @@ typedef struct QueueItem
     HTTPResponse_t * xResponse;
 } QueueItem_t;
 
+/**
+ * @brief Queue for HTTP requests. The data of the HTTP requests is created by main task.
+ * The HTTP task is responsible for receiving the HTTP request data from the queue,
+ * executing the HTTP operation with the HTTPClient_Send() API and notifying the main
+ * task about the operation result with direct-to-task notification.
+ */
+static QueueHandle_t xRequestQueue;
+
+
 static uint8_t httpRequestBuffer[ democonfigUSER_BUFFER_LENGTH ];
 
 static uint8_t httpResponseBuffer[ democonfigUSER_BUFFER_LENGTH ];
 
-/**
- * @brief Queue for HTTP requests. Requests are written by the main task, and
- * executed by the HTTP task.
- */
-static QueueHandle_t xRequestQueue;
 
 /**
  * @brief Handle of prvStartHTTPTask.
@@ -304,7 +309,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
  * @return pdFAIL on failure; pdPASS on success.
  */
 static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestInfo,
-                                           HTTPResponse_t * pxResponse,
+                                           const QueueItem_t * pxQueueItem,
                                            QueueHandle_t xRequestQueue,
                                            const size_t xStart,
                                            const size_t xEnd );
@@ -320,7 +325,7 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
  * @return pdFAIL on failure; pdPASS on success.
  */
 static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInfo,
-                                          HTTPResponse_t * xServerResponse,
+                                          const QueueItem_t * pxQueueItem,
                                           QueueHandle_t xRequestQueue,
                                           size_t * pxFileSize );
 
@@ -343,12 +348,6 @@ static void prvTearDown( TaskHandle_t xHandle,
                          QueueHandle_t xRequestQueue );
 
 /*-----------------------------------------------------------*/
-static void httpOperationCompleteCallback( HTTPResponse_t * pResponse )
-{
-    ( void ) pResponse;
-
-    /* Notify main task about arrival of HTTP response. */
-}
 
 static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext )
 {
@@ -412,12 +411,9 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
     /* Configurations of the initial request headers. */
     HTTPRequestInfo_t xRequestInfo = { 0 };
 
-    HTTPResponse_t xServerResponse;
-
-    memset( &xServerResponse, 0, sizeof( xServerResponse ) );
-
-    xServerResponse.pBuffer = httpResponseBuffer;
-    xServerResponse.bufferLen = sizeof( httpResponseBuffer );
+    QueueItem_t queueItem;
+    HTTPRequestHeaders_t * pxRequestHeaders = NULL;
+    HTTPResponse_t * pxResponse = NULL;
 
     /* The length of the file at democonfigS3_PRESIGNED_GET_URL. */
     size_t xFileSize = 0;
@@ -427,37 +423,63 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
     /* The starting byte for the next range request. */
     size_t xCurByte = 0;
 
-    configASSERT( pcHost != NULL );
-    configASSERT( pcRequest != NULL );
+    pxRequestHeaders = pvPortMalloc( sizeof( HTTPRequestHeaders_t ) );
+    pxRequestHeaders = pvPortMalloc( sizeof( HTTPResponse_t ) );
 
-    /* Initialize the request object. */
-    xRequestInfo.pHost = pcHost;
-    xRequestInfo.hostLen = xHostLen;
-    xRequestInfo.pMethod = HTTP_METHOD_GET;
-    xRequestInfo.methodLen = httpexampleHTTP_METHOD_GET_LENGTH;
-    xRequestInfo.pPath = pcRequest;
-    xRequestInfo.pathLen = xRequestUriLen;
-
-    /* Set "Connection" HTTP header to "keep-alive" so that multiple requests
-     * can be sent over the same established TCP connection. This is done in
-     * order to download the file in parts. */
-    xRequestInfo.reqFlags = HTTP_REQUEST_KEEP_ALIVE_FLAG;
-
-    /* Get the length of the S3 file. */
-    xStatus = prvGetS3ObjectFileSize( &xRequestInfo,
-                                      &xServerResponse,
-                                      xRequestQueue,
-                                      &xFileSize );
-
-    /* Set the number of bytes to request in each iteration, defined by the user
-     * in democonfigRANGE_REQUEST_LENGTH. */
-    if( xFileSize < democonfigRANGE_REQUEST_LENGTH )
+    if( ( pxResponse == NULL ) || ( pxRequestHeaders == NULL ) )
     {
-        xNumReqBytes = xFileSize;
+        LogError( ( "pvPortMalloc failed to allocate memory for HTTP request/response structures: pxResponse=%p, pxRequestHeaders=%p",
+                    ( void * ) pxResponse, ( void * ) pxRequestHeaders ) );
+        xStatus = pdFAIL;
     }
     else
     {
-        xNumReqBytes = democonfigRANGE_REQUEST_LENGTH;
+        memset( pxRequestHeaders, 0, sizeof( HTTPRequestHeaders_t ) );
+        memset( pxResponse, 0, sizeof( HTTPResponse_t ) );
+
+        pxRequestHeaders->pBuffer = httpRequestBuffer;
+        pxRequestHeaders->bufferLen = sizeof( httpRequestBuffer );
+        pxResponse->pBuffer = httpResponseBuffer;
+        pxResponse->bufferLen = sizeof( httpResponseBuffer );
+
+        queueItem.xRequestHeaders = pxRequestHeaders;
+        queueItem.xResponse = pxResponse;
+    }
+
+    if( xStatus == pdPASS )
+    {
+        configASSERT( pcHost != NULL );
+        configASSERT( pcRequest != NULL );
+
+        /* Initialize the request object. */
+        xRequestInfo.pHost = pcHost;
+        xRequestInfo.hostLen = xHostLen;
+        xRequestInfo.pMethod = HTTP_METHOD_GET;
+        xRequestInfo.methodLen = httpexampleHTTP_METHOD_GET_LENGTH;
+        xRequestInfo.pPath = pcRequest;
+        xRequestInfo.pathLen = xRequestUriLen;
+
+        /* Set "Connection" HTTP header to "keep-alive" so that multiple requests
+         * can be sent over the same established TCP connection. This is done in
+         * order to download the file in parts. */
+        xRequestInfo.reqFlags = HTTP_REQUEST_KEEP_ALIVE_FLAG;
+
+        /* Get the length of the S3 file. */
+        xStatus = prvGetS3ObjectFileSize( &xRequestInfo,
+                                          &queueItem,
+                                          xRequestQueue,
+                                          &xFileSize );
+
+        /* Set the number of bytes to request in each iteration, defined by the user
+         * in democonfigRANGE_REQUEST_LENGTH. */
+        if( xFileSize < democonfigRANGE_REQUEST_LENGTH )
+        {
+            xNumReqBytes = xFileSize;
+        }
+        else
+        {
+            xNumReqBytes = democonfigRANGE_REQUEST_LENGTH;
+        }
     }
 
     /* Here we iterate sending byte range requests to the request queue and
@@ -474,7 +496,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
         {
             /* Add range request to the request queue. */
             xStatus = prvRequestS3ObjectRange( &xRequestInfo,
-                                               &xServerResponse,
+                                               &queueItem,
                                                xRequestQueue,
                                                xCurByte,
                                                xCurByte + xNumReqBytes - 1 );
@@ -510,19 +532,19 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
             {
                 LogInfo( ( "The main task is notified of server response from the HTTP Task." ) );
                 LogDebug( ( "Response Headers:\n%.*s",
-                            ( int32_t ) xServerResponse.headersLen,
-                            xServerResponse.pHeaders ) );
+                            ( int32_t ) pxResponse->headersLen,
+                            pxResponse->pHeaders ) );
                 LogDebug( ( "Response Status:\n%u",
-                            xServerResponse.statusCode ) );
+                            pxResponse->statusCode ) );
                 LogInfo( ( "Response Body:\n%.*s\n",
-                           ( int32_t ) xServerResponse.bodyLen,
-                           xServerResponse.pBody ) );
+                           ( int32_t ) pxResponse->bodyLen,
+                           pxResponse->pBody ) );
 
                 /* Check for a partial content status code (206), indicating a
                  * successful server response. */
-                if( xServerResponse.statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
+                if( pxResponse->statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
                 {
-                    LogError( ( "Received response with unexpected status code: %d", xServerResponse.statusCode ) );
+                    LogError( ( "Received response with unexpected status code: %d", pxResponse->statusCode ) );
                     xStatus = pdFAIL;
                     break;
                 }
@@ -554,33 +576,35 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
         }
     }
 
+    /* Clean up heap allocated memory for HTTP structures. */
+    if( pxRequestHeaders != NULL )
+    {
+        vPortFree( pxRequestHeaders );
+    }
+
+    if( pxResponse != NULL )
+    {
+        pvPortFree( pxResponse );
+    }
+
     return xStatus;
 }
 
 /*-----------------------------------------------------------*/
 
 static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestInfo,
-                                           HTTPResponse_t * pxResponse,
+                                           const QueueItem_t * pxQueueItem,
                                            QueueHandle_t xRequestQueue,
                                            const size_t xStart,
                                            const size_t xEnd )
 {
     HTTPStatus_t xHTTPStatus = HTTPSuccess;
     BaseType_t xStatus = pdPASS;
-    HTTPRequestHeaders_t xRequestHeaders;
-    QueueItem_t queueItem;
 
-    memset( &xRequestHeaders, 0, sizeof( xRequestHeaders ) );
-
-    xRequestHeaders.pBuffer = httpRequestBuffer;
-    xRequestHeaders.bufferLen = sizeof( httpRequestBuffer );
-
-    queueItem.xRequestHeaders = &xRequestHeaders;
-    queueItem.xResponse = pxResponse;
 
     configASSERT( pxRequestInfo != NULL );
 
-    xHTTPStatus = HTTPClient_InitializeRequestHeaders( &xRequestHeaders,
+    xHTTPStatus = HTTPClient_InitializeRequestHeaders( pxQueueItem->xRequestHeaders,
                                                        pxRequestInfo );
 
     if( xHTTPStatus != HTTPSuccess )
@@ -592,7 +616,7 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
 
     if( xStatus == pdPASS )
     {
-        xHTTPStatus = HTTPClient_AddRangeHeader( &xRequestHeaders,
+        xHTTPStatus = HTTPClient_AddRangeHeader( pxQueueItem->xRequestHeaders,
                                                  xStart,
                                                  xEnd );
 
@@ -611,11 +635,11 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
                    ( int32_t ) xStart,
                    ( int32_t ) xEnd ) );
         LogDebug( ( "Request Headers:\n%.*s",
-                    ( int32_t ) xRequestHeaders.headersLen,
-                    ( char * ) xRequestHeaders.pBuffer ) );
+                    ( int32_t ) pxQueueItem->xResponseHeaders->headersLen,
+                    ( char * ) pxQueueItem->xResponseHeaders->pBuffer ) );
 
         xStatus = xQueueSendToBack( xRequestQueue,
-                                    &queueItem,
+                                    pxQueueItem,
                                     httpexampleDEMO_TICKS_TO_WAIT );
 
         /* Ensure request was added to the queue. */
@@ -631,7 +655,7 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
 /*-----------------------------------------------------------*/
 
 static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInfo,
-                                          HTTPResponse_t * pResponseObject,
+                                          const QueueItem_t * pxQueueItem,
                                           QueueHandle_t xRequestQueue,
                                           size_t * pxFileSize )
 {
@@ -655,7 +679,7 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
      * like: "Content-Range: bytes 0-0/FILESIZE". The body will have a single
      * byte that we are ignoring. */
     xStatus = prvRequestS3ObjectRange( pxRequestInfo,
-                                       pResponseObject,
+                                       pxQueueItem,
                                        xRequestQueue,
                                        0,
                                        0 );
@@ -671,20 +695,20 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
 
         if( xStatus == pdFAIL )
         {
-            LogError( ( "Failure in HTTP request for requesting S3 bucket file size: Timeod out waiting for notification from HTTP Task" ) );
+            LogError( ( "Failure in HTTP request for requesting S3 bucket file size: Timed out waiting for notification from HTTP Task" ) );
         }
     }
 
     if( ( xStatus == pdPASS ) && ( xHTTPStatus == HTTPSuccess ) )
     {
-        if( pResponseObject->statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
+        if( pxQueueItem->xResponse->statusCode != httpexampleHTTP_STATUS_CODE_PARTIAL_CONTENT )
         {
-            LogError( ( "Received response with unexpected status code: %d.", pResponseObject->statusCode ) );
+            LogError( ( "Received response with unexpected status code: %d.", pxQueueItem->xResponse->statusCode ) );
             xStatus = pdFAIL;
         }
         else
         {
-            xHTTPStatus = HTTPClient_ReadHeader( &pResponseObject,
+            xHTTPStatus = HTTPClient_ReadHeader( pxQueueItem->xResponse,
                                                  ( char * ) httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD,
                                                  ( size_t ) httpexampleHTTP_CONTENT_RANGE_HEADER_FIELD_LENGTH,
                                                  ( const char ** ) &pcContentRangeValStr,
@@ -757,12 +781,10 @@ static void prvStartHTTPTask( void * pvArgs )
 
     for( ; ; )
     {
-        LogInfo( ( "About to call xQueueReceive" ) );
         /* Read request from queue. */
         xStatus = xQueueReceive( xRequestQueue,
                                  &httpStructs,
                                  httpexampleDEMO_TICKS_TO_WAIT );
-        LogInfo( ( "After call to xQueueReceive" ) );
 
         if( xStatus == pdFAIL )
         {
