@@ -394,8 +394,9 @@ target_link_libraries(
     INTERFACE
         3rdparty::jsmn
         3rdparty::pkcs11
-        # Require this for bootloader
+        # Require tinycrypt and mbedtls for bootloader
         3rdparty::tinycrypt
+        3rdparty::mbedtls
 )
 
 # BLE
