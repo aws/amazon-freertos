@@ -523,6 +523,8 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
             return SOCKETS_SOCKET_ERROR;
         }
 
+        configPRINTF( ( "TLS_Init succeeded\n Attempting TLS_Connect\n" ) );
+
         status = TLS_Connect( ctx->tls_ctx );
 
         if( pdFREERTOS_ERRNO_NONE == status )
