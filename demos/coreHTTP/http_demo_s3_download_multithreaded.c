@@ -635,8 +635,8 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
                    ( int32_t ) xStart,
                    ( int32_t ) xEnd ) );
         LogDebug( ( "Request Headers:\n%.*s",
-                    ( int32_t ) pxQueueItem->xResponseHeaders->headersLen,
-                    ( char * ) pxQueueItem->xResponseHeaders->pBuffer ) );
+                    ( int32_t ) pxQueueItem->xRequestHeaders->headersLen,
+                    ( char * ) pxQueueItem->xRequestHeaders->pBuffer ) );
 
         xStatus = xQueueSendToBack( xRequestQueue,
                                     pxQueueItem,
