@@ -45,7 +45,7 @@
 #include "task.h"
 
 #define OTA_HALF_SECOND_DELAY    pdMS_TO_TICKS( 500UL )
-#define ECDSA_INTEGER_LEN       32
+#define ECDSA_INTEGER_LEN        32
 
 /* Check configuration for memory constraints provided SPIRAM is not enabled */
 #if !CONFIG_SPIRAM_SUPPORT
@@ -104,7 +104,7 @@ static OtaPalMainStatus_t asn1_to_raw_ecdsa( uint8_t * signature,
 
     if( out_signature == NULL )
     {
-        ESP_LOGE( TAG, "ASN1 invalid argument !" );
+        LogError( ( "ASN1 invalid argument !" ) );
         goto cleanup;
     }
 
@@ -114,20 +114,20 @@ static OtaPalMainStatus_t asn1_to_raw_ecdsa( uint8_t * signature,
     if( ( ret = mbedtls_asn1_get_tag( &signature, end, &len,
                                       MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
     {
-        ESP_LOGE( TAG, "Bad Input Signature" );
+        LogError( ( "Bad Input Signature" ) );
         goto cleanup;
     }
 
     if( signature + len != end )
     {
-        ESP_LOGE( TAG, "Incorrect ASN1 Signature Length" );
+        LogError( ( "Incorrect ASN1 Signature Length" ) );
         goto cleanup;
     }
 
     if( ( ( ret = mbedtls_asn1_get_mpi( &signature, end, &r ) ) != 0 ) ||
         ( ( ret = mbedtls_asn1_get_mpi( &signature, end, &s ) ) != 0 ) )
     {
-        ESP_LOGE( TAG, "ASN1 parsing failed" );
+        LogError( ( "ASN1 parsing failed" ) );
         goto cleanup;
     }
 
@@ -202,19 +202,19 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
 
     if( update_partition == NULL )
     {
-        ESP_LOGE( TAG, "failed to find update partition" );
+        LogError( ( "Failed to find update partition" ) );
         return OTA_PAL_COMBINE_ERR( OtaPalRxFileCreateFailed, 0 );
     }
 
-    ESP_LOGI( TAG, "Writing to partition subtype %d at offset 0x%x",
-              update_partition->subtype, update_partition->address );
+    LogInfo( ( "Writing to partition subtype %d at offset 0x%x",
+               update_partition->subtype, update_partition->address ) );
 
     esp_ota_handle_t update_handle;
     esp_err_t err = esp_ota_begin( update_partition, OTA_SIZE_UNKNOWN, &update_handle );
 
     if( err != ESP_OK )
     {
-        ESP_LOGE( TAG, "esp_ota_begin failed (%d)", err );
+        LogError( ( "esp_ota_begin failed (%d)", err ) );
         return OTA_PAL_COMBINE_ERR( OtaPalRxFileCreateFailed, 0 );
     }
 
@@ -226,7 +226,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
     ota_ctx.data_write_len = 0;
     ota_ctx.valid_image = false;
 
-    ESP_LOGI( TAG, "esp_ota_begin succeeded" );
+    LogInfo( ( "esp_ota_begin succeeded" ) );
 
     return OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
 }
@@ -367,12 +367,12 @@ uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
 
     if( ( xResult == CKR_OK ) && ( pucSignerCert != NULL ) )
     {
-        ESP_LOGI( TAG, "Using cert with label: %s OK\r\n", ( const char * ) pucCertName );
+        LogInfo( ( "Using cert with label: %s OK", ( const char * ) pucCertName ) );
     }
     else
     {
-        ESP_LOGI( TAG, "No such certificate file: %s. Using certificate in ota_demo_config.h.\r\n",
-                  ( const char * ) pucCertName );
+        LogInfo( ( "No such certificate file: %s. Using certificate in ota_demo_config.h.",
+                   ( const char * ) pucCertName ) );
 
         /* Allocate memory for the signer certificate plus a terminating zero so we can copy it and return to the caller. */
         ulCertSize = sizeof( codeSigningCertificatePEM );
@@ -386,7 +386,7 @@ uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
         }
         else
         {
-            ESP_LOGE( TAG, "Error: No memory for certificate in otaPal_ReadAndAssumeCertificate!\r\n" );
+            LogError( ( "No memory for certificate in otaPal_ReadAndAssumeCertificate!" ) );
         }
     }
 
@@ -407,7 +407,7 @@ OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext 
     if( CRYPTO_SignatureVerificationStart( &pvSigVerifyContext, cryptoASYMMETRIC_ALGORITHM_ECDSA,
                                            cryptoHASH_ALGORITHM_SHA256 ) == pdFALSE )
     {
-        ESP_LOGE( TAG, "signature verification start failed" );
+        LogError( ( "Signature verification start failed" ) );
         return OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, 0 );
     }
 
@@ -415,7 +415,7 @@ OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext 
 
     if( pucSignerCert == NULL )
     {
-        ESP_LOGE( TAG, "cert read failed" );
+        LogError( ( "Cert read failed" ) );
         return OTA_PAL_COMBINE_ERR( OtaPalBadSignerCert, 0 );
     }
 
@@ -436,7 +436,7 @@ OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext 
 
         if( ret != ESP_OK )
         {
-            ESP_LOGE( TAG, "partition mmap failed %d", ret );
+            LogError( ( "Partition mmap failed %d", ret ) );
             result = OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, 0 );
             goto end;
         }
@@ -450,7 +450,7 @@ OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileContext 
     if( CRYPTO_SignatureVerificationFinal( pvSigVerifyContext, ( char * ) pucSignerCert, ulSignerCertSize,
                                            pFileContext->pSignature->data, pFileContext->pSignature->size ) == pdFALSE )
     {
-        ESP_LOGE( TAG, "signature verification failed" );
+        LogError( ( "Signature verification failed" ) );
         result = OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, 0 );
     }
     else
@@ -481,13 +481,13 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
 
     if( pFileContext->pSignature == NULL )
     {
-        ESP_LOGE( TAG, "Image Signature not found" );
+        LogError( ( "Image Signature not found" ) );
         _esp_ota_ctx_clear( &ota_ctx );
         mainErr = OtaPalSignatureCheckFailed;
     }
     else if( ota_ctx.data_write_len == 0 )
     {
-        ESP_LOGE( TAG, "No data written to partition" );
+        LogError( ( "No data written to partition" ) );
         mainErr = OtaPalSignatureCheckFailed;
     }
     else
@@ -553,7 +553,7 @@ OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext )
     {
         if( esp_ota_end( ota_ctx.update_handle ) != ESP_OK )
         {
-            ESP_LOGE( TAG, "esp_ota_end failed!" );
+            LogError( ( "esp_ota_end failed!" ) );
             esp_partition_erase_range( ota_ctx.update_partition, 0, ota_ctx.update_partition->size );
             otaPal_ResetDevice( pFileContext );
         }
@@ -562,7 +562,7 @@ OtaPalStatus_t otaPal_ActivateNewImage( OtaFileContext_t * const pFileContext )
 
         if( err != ESP_OK )
         {
-            ESP_LOGE( TAG, "esp_ota_set_boot_partition failed (%d)!", err );
+            LogError( ( "esp_ota_set_boot_partition failed (%d)!", err ) );
             esp_partition_erase_range( ota_ctx.update_partition, 0, ota_ctx.update_partition->size );
             _esp_ota_ctx_clear( &ota_ctx );
         }
@@ -587,7 +587,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
 
         if( ret != ESP_OK )
         {
-            ESP_LOGE( TAG, "Couldn't flash at the offset %d", iOffset );
+            LogError( ( "Couldn't flash at the offset %d", iOffset ) );
             return -1;
         }
 
@@ -595,7 +595,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
     }
     else
     {
-        ESP_LOGI( TAG, "Invalid OTA Context" );
+        LogInfo( ( "Invalid OTA Context" ) );
         return -1;
     }
 
@@ -609,7 +609,7 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileC
 
     ( void ) pFileContext;
 
-    ESP_LOGI( TAG, "%s", __func__ );
+    LogInfo( ( "%s", __func__ ) );
 
     if( ( ota_ctx.cur_ota != NULL ) && ( ota_ctx.data_write_len != 0 ) )
     {
@@ -622,7 +622,7 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileC
 
         if( ret != ESP_OK )
         {
-            ESP_LOGE( TAG, "failed to get ota flags %d", ret );
+            LogError( ( "Failed to get ota flags %d", ret ) );
             return eImageState;
         }
     }
@@ -649,7 +649,7 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileC
 
 static void disable_rtc_wdt()
 {
-    ESP_LOGI( TAG, "Disabling RTC hardware watchdog timer" );
+    LogInfo( ( "Disabling RTC hardware watchdog timer" ) );
     rtc_wdt_disable();
 }
 
@@ -661,31 +661,31 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
 
     ( void ) pFileContext;
 
-    ESP_LOGI( TAG, "%s, %d", __func__, eState );
+    LogInfo( ( "%s, %d", __func__, eState ) );
 
     switch( eState )
     {
         case OtaImageStateAccepted:
-            ESP_LOGI( TAG, "Set image as valid one!" );
+            LogInfo( ( "Set image as valid one!" ) );
             state = ESP_OTA_IMG_VALID;
             break;
 
         case OtaImageStateRejected:
-            ESP_LOGW( TAG, "Set image as invalid!" );
+            LogWarn( ( "Set image as invalid!" ) );
             state = ESP_OTA_IMG_INVALID;
             break;
 
         case OtaImageStateAborted:
-            ESP_LOGW( TAG, "Set image as aborted!" );
+            LogWarn( ( "Set image as aborted!" ) );
             state = ESP_OTA_IMG_ABORTED;
             break;
 
         case OtaImageStateTesting:
-            ESP_LOGW( TAG, "Set image as testing!" );
+            LogWarn( ( "Set image as testing!" ) );
             return OTA_PAL_COMBINE_ERR( OtaPalSuccess, 0 );
 
         default:
-            ESP_LOGW( TAG, "Set image invalid state!" );
+            LogWarn( ( "Set image invalid state!" ) );
             return OTA_PAL_COMBINE_ERR( OtaPalBadImageState, 0 );
     }
 
@@ -695,7 +695,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
 
     if( ret != ESP_OK )
     {
-        ESP_LOGE( TAG, "failed to get ota flags %d", ret );
+        LogError( ( "Failed to get ota flags %d", ret ) );
         return OTA_PAL_COMBINE_ERR( OtaPalCommitFailed, 0 );
     }
 
@@ -709,7 +709,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
 
             if( ret != ESP_OK )
             {
-                ESP_LOGE( TAG, "failed to set ota flags %d", ret );
+                LogError( ( "Failed to set ota flags %d", ret ) );
                 return OTA_PAL_COMBINE_ERR( OtaPalCommitFailed, 0 );
             }
             else
@@ -720,7 +720,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
         }
         else
         {
-            ESP_LOGW( TAG, "Image not in self test mode %d", ota_flags );
+            LogWarn( ( "Image not in self test mode %d", ota_flags ) );
             mainErr = ota_flags == ESP_OTA_IMG_VALID ? OtaPalSuccess : OtaPalCommitFailed;
         }
 
@@ -737,7 +737,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
 
         if( ota_flags != ESP_OTA_IMG_VALID )
         {
-            ESP_LOGE( TAG, "currently executing firmware not marked as valid, abort" );
+            LogError( ( "Currently executing firmware not marked as valid, abort" ) );
             return OTA_PAL_COMBINE_ERR( OtaPalCommitFailed, 0 );
         }
 
@@ -745,7 +745,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
 
         if( ret != ESP_OK )
         {
-            ESP_LOGE( TAG, "failed to set ota flags %d", ret );
+            LogError( ( "Failed to set ota flags %d", ret ) );
             return OTA_PAL_COMBINE_ERR( OtaPalCommitFailed, 0 );
         }
     }

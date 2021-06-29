@@ -206,7 +206,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
 
         if( xFlashEventGrp == NULL )
         {
-            LogInfo( ( "No memory for creation of event group " ) );
+            LogError( ( "No memory for creation of event group " ) );
             xStatus = OtaPalOutOfMemory;
         }
     }
@@ -219,7 +219,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
 
         if( xStatus != OtaPalSuccess )
         {
-            LogInfo( ( "Erasing the flash memory failed with error_code %d", xStatus ) );
+            LogError( ( "Erasing the flash memory failed with error_code %d", xStatus ) );
         }
     }
 
@@ -260,7 +260,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
     }
     else
     {
-        LogInfo( ( "Write %ul bytes from the %ul address failed with error code %d", ulBlockSize,
+        LogError( ( "Write %ul bytes from the %ul address failed with error code %d", ulBlockSize,
                  ulOffset, xErrCode ) );
         return -1;
     }
@@ -316,7 +316,7 @@ static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileC
 
     if( xErrCode != NRF_SUCCESS )
     {
-        LogInfo( ( "Signature check failed " ) );
+        LogError( ( "Signature check failed " ) );
         return OTA_PAL_COMBINE_ERR( OtaPalSignatureCheckFailed, OTA_PAL_SUB_ERR(xErrCode) );
     }
 
@@ -419,7 +419,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileConte
 
         if( xFlashEventGrp == NULL )
         {
-            LogInfo( ( "No memory for creation of event group " ) );
+            LogError( ( "No memory for creation of event group " ) );
             xStatus = OtaPalOutOfMemory;
         }
     }

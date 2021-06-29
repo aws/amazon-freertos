@@ -72,7 +72,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
         {
             if( pFileContext->pFile != NULL )
             {
-                LogInfo( ( "File already open , closing first.\r\n" ) );
+                LogInfo( ( "File already open , closing first." ) );
 
                 lFileCloseResult = fclose( pFileContext->pFile ); /*lint !e482 !e586
                                                                    * Context file handle state is managed by this API. */
@@ -80,11 +80,11 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
 
                 if( 0 == lFileCloseResult )
                 {
-                    LogInfo( ( "File closed.\r\n" ) );
+                    LogInfo( ( "File closed." ) );
                 }
                 else /* Failed to close file. */
                 {
-                    LogError( ( "ERROR - Closing file failed.\r\n" ) );
+                    LogError( ( "Closing file failed." ) );
                 }
             }
 
@@ -94,25 +94,25 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const pFileContext )
             if( pFileContext->pFile != NULL )
             {
                 mainErr = OtaPalSuccess;
-                LogInfo( ( "Receive file created.\r\n" ) );
+                LogInfo( ( "Receive file created." ) );
             }
             else
             {
                 mainErr = OtaPalRxFileCreateFailed;
                 subErr = errno;
-                LogError( ( "Failed to open file, errno=%d,%s,%s.\r\n", errno, strerror( errno ), pFileContext->pFilePath ) );
+                LogError( ( "Failed to open file, errno=%d,%s,%s.", errno, strerror( errno ), pFileContext->pFilePath ) );
             }
         }
         else
         {
             mainErr = OtaPalRxFileCreateFailed;
-            LogError( ( "ERROR - Invalid filepath in filecontext.\r\n" ) );
+            LogError( ( "Invalid filepath in filecontext." ) );
         }
     }
     else
     {
         mainErr = OtaPalRxFileCreateFailed;
-        LogError( ( "ERROR - Invalid file context provided.\r\n" ) );
+        LogError( ( "Invalid file context provided." ) );
     }
 
     return OTA_PAL_COMBINE_ERR( mainErr, subErr );
@@ -139,12 +139,12 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const pFileContext )
 
             if( 0 == lFileCloseResult )
             {
-                LogInfo( ( "File closed.\r\n" ) );
+                LogInfo( ( "File closed." ) );
                 mainErr = OtaPalSuccess;
             }
             else /* Failed to close file. */
             {
-                LogError( ( "ERROR - Closing file failed.\r\n" ) );
+                LogError( ( "Closing file failed." ) );
                 mainErr = OtaPalFileAbort;
                 subErr = errno;
             }
@@ -157,7 +157,7 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const pFileContext )
     }
     else /* Context was not valid. */
     {
-        LogError( ( "ERROR - Invalid context.\r\n" ) );
+        LogError( ( "Invalid context." ) );
         mainErr = OtaPalFileAbort;
     }
 
@@ -184,7 +184,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
 
             if( lResult < 0 )
             {
-                LogError( ( "ERROR - fwrite failed\r\n" ) );
+                LogError( ( "fwrite failed" ) );
                 /* Mask to return a negative value. */
                 lResult = OTA_PAL_INT16_NEGATIVE_MASK | errno; /*lint !e40 !e9027
                                                                 * Errno is being used in accordance with host API documentation.
@@ -193,7 +193,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
         }
         else
         {
-            LogError( ( "ERROR - fseek failed\r\n" ) );
+            LogError( ( "fseek failed" ) );
             /* Mask to return a negative value. */
             lResult = OTA_PAL_INT16_NEGATIVE_MASK | errno; /*lint !e40 !e9027
                                                             * Errno is being used in accordance with host API documentation.
@@ -202,7 +202,7 @@ int16_t otaPal_WriteBlock( OtaFileContext_t * const pFileContext,
     }
     else /* Invalid context or file pointer provided. */
     {
-        LogError( ( "ERROR - Invalid context.\r\n" ) );
+        LogError( ( "Invalid context." ) );
         lResult = -1; /*TODO: Need a negative error code from the PAL here. */
     }
 
@@ -226,7 +226,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
         }
         else
         {
-            LogError( ( "NULL OTA Signature structure.\r\n" ) );
+            LogError( ( "NULL OTA Signature structure." ) );
             mainErr = OtaPalSignatureCheckFailed;
         }
 
@@ -237,18 +237,18 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
 
         if( lWindowsError != 0 )
         {
-            LogError( ( "Failed to close OTA update file.\r\n" ) );
+            LogError( ( "Failed to close OTA update file." ) );
             mainErr = OtaPalFileClose;
             subErr = errno;
         }
 
         if( mainErr == OtaPalSuccess )
         {
-            LogInfo( ( "%s signature verification passed.\r\n", OTA_JsonFileSignatureKey ) );
+            LogInfo( ( "%s signature verification passed.", OTA_JsonFileSignatureKey ) );
         }
         else
         {
-            LogError( ( "Failed to pass %s signature verification: %d.\r\n",
+            LogError( ( "Failed to pass %s signature verification: %d.",
                         OTA_JsonFileSignatureKey, OTA_PAL_COMBINE_ERR( mainErr, subErr ) ) );
 
             /* If we fail to verify the file signature that means the image is not valid. We need to set the image state to aborted. */
@@ -258,7 +258,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
     else /* Invalid OTA Context. */
     {
         /* FIXME: Invalid error code for a null file context and file handle. */
-        LogError( ( "Invalid file context.\r\n" ) );
+        LogError( ( "Invalid file context." ) );
         mainErr = OtaPalFileClose;
     }
 
@@ -285,7 +285,7 @@ static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileC
         }
         else
         {
-            LogInfo( ( "Started %s signature verification, file: %s\r\n",
+            LogInfo( ( "Started %s signature verification, file: %s",
                        OTA_JsonFileSignatureKey, ( const char * ) pFileContext->pCertFilepath ) );
             pucSignerCert = otaPal_ReadAndAssumeCertificate( ( const uint8_t * const ) pFileContext->pCertFilepath, &ulSignerCertSize );
 
@@ -328,7 +328,7 @@ static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileC
                 }
                 else
                 {
-                    LogError( ( "Failed to allocate buffer memory.\r\n" ) );
+                    LogError( ( "Failed to allocate buffer memory." ) );
                     mainErr = OtaPalOutOfMemory;
                 }
 
@@ -344,7 +344,7 @@ static OtaPalStatus_t otaPal_CheckFileSignature( OtaFileContext_t * const pFileC
     else
     {
         /* FIXME: Invalid error code for a NULL file context. */
-        LogError( ( "Invalid OTA file context.\r\n" ) );
+        LogError( ( "Invalid OTA file context." ) );
         /* Invalid OTA context or file pointer. */
         mainErr = OtaPalNullFileContext;
     }
@@ -412,7 +412,7 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
         }
         else
         {
-            LogError( ( "Failed to allocate memory for signer cert contents.\r\n" ) );
+            LogError( ( "Failed to allocate memory for signer cert contents." ) );
             /* Nothing special to do. */
         }
 
@@ -421,13 +421,13 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 
         if( lWindowsError != 0 )
         {
-            LogError( ( "File pointer operation failed.\r\n" ) );
+            LogError( ( "File pointer operation failed." ) );
             pucSignerCert = NULL;
         }
     }
     else
     {
-        LogError( ( "No such certificate file: %s. Using ota_pal.h.\r\n",
+        LogError( ( "No such certificate file: %s. Using certificate in ota_demo_config.h.",
                     ( const char * ) pucCertName ) );
 
         /* Allocate memory for the signer certificate plus a terminating zero so we can copy it and return to the caller. */
@@ -442,7 +442,7 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
         }
         else
         {
-            LogError( ( "No memory for certificate of size %d!\r\n", lSize ) );
+            LogError( ( "No memory for certificate of size %d!", lSize ) );
         }
     }
 
@@ -496,7 +496,7 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * pFileContext,
             if( 1 != fwrite( &eState, sizeof( OtaImageState_t ), 1, pstPlatformImageState ) ) /*lint !e586 !e9029
                                                                                                * C standard library call is being used for portability. */
             {
-                LogError( ( "Unable to write to image state file.\r\n" ) );
+                LogError( ( "Unable to write to image state file." ) );
                 mainErr = OtaPalBadImageState;
                 subErr = errno;
             }
@@ -504,21 +504,21 @@ OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * pFileContext,
             /* Close PlatformImageState.txt. */
             if( 0 != fclose( pstPlatformImageState ) ) /*lint !e586 Allow call in this context. */
             {
-                LogError( ( "Unable to close image state file.\r\n" ) );
+                LogError( ( "Unable to close image state file." ) );
                 mainErr = OtaPalBadImageState;
                 subErr = errno;
             }
         }
         else
         {
-            LogError( ( "Unable to open image state file.\r\n" ) );
+            LogError( ( "Unable to open image state file." ) );
             mainErr = OtaPalBadImageState;
             subErr = errno;
         }
     }    /*lint !e481 Allow fopen and fclose calls in this context. */
     else /* Image state invalid. */
     {
-        LogError( ( "ERROR - Invalid image state provided.\r\n" ) );
+        LogError( ( "Invalid image state provided." ) );
         mainErr = OtaPalBadImageState;
     }
 
@@ -554,7 +554,7 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * pFileContext
                                                                                                     * C standard library call is being used for portability. */
         {
             /* If an error occured reading the file, mark the state as aborted. */
-            LogError( ( "Unable to read image state file.\r\n" ) );
+            LogError( ( "Unable to read image state file." ) );
             ePalState = ( OtaPalImageStateInvalid | ( errno & OTA_PAL_ERR_MASK ) );
         }
         else
@@ -580,7 +580,7 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * pFileContext
         if( 0 != fclose( pstPlatformImageState ) ) /*lint !e586
                                                     * C standard library call is being used for portability. */
         {
-            LogError( ( "Unable to close image state file.\r\n" ) );
+            LogError( ( "Unable to close image state file." ) );
             ePalState = ( OtaPalImageStateInvalid | ( errno & OTA_PAL_ERR_MASK ) );
         }
     }
