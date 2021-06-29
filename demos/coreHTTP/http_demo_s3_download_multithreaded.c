@@ -445,7 +445,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
     size_t xCurByte = 0;
 
     pxRequestHeaders = pvPortMalloc( sizeof( HTTPRequestHeaders_t ) );
-    pxRequestHeaders = pvPortMalloc( sizeof( HTTPResponse_t ) );
+    pxResponse = pvPortMalloc( sizeof( HTTPResponse_t ) );
 
     if( ( pxResponse == NULL ) || ( pxRequestHeaders == NULL ) )
     {
@@ -616,7 +616,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
 
     if( pxResponse != NULL )
     {
-        pvPortFree( pxResponse );
+        vPortFree( pxResponse );
     }
 
     return xStatus;
@@ -667,8 +667,8 @@ static BaseType_t prvRequestS3ObjectRange( const HTTPRequestInfo_t * pxRequestIn
                    ( int32_t ) xStart,
                    ( int32_t ) xEnd ) );
         LogDebug( ( "Request Headers:\n%.*s",
-                    ( int32_t ) pxQueueItem->xResponseHeaders->headersLen,
-                    ( char * ) pxQueueItem->xResponseHeaders->pBuffer ) );
+                    ( int32_t ) pxQueueItem->xRequestHeaders->headersLen,
+                    ( char * ) pxQueueItem->xRequestHeaders->pBuffer ) );
 
         xStatus = xQueueSendToBack( xHttpTaskQueue,
                                     pxQueueItem,
