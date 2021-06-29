@@ -34,8 +34,8 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::secure_sockets
+        AFR::logging
     PRIVATE
-        AFR::core_mqtt
         3rdparty::jsmn
 )
 
