@@ -43,13 +43,13 @@
  * This value can be used to compensate for clock differences, and other
  * code overhead.
  */
-#define         integrationtestportableTIMEOUT_OVER_TOLERANCE      200
+#define         integrationtestportableTIMEOUT_OVER_TOLERANCE      300
 
 /**
  * @brief Indicates how much less time than the specified timeout is acceptable for
  * RCVTIMEO tests.
  *
- * This value must be 0 unless networking is performs on a separate processor.
+ * This value must be 0 unless networking is performed on a separate processor.
  * If networking and tests are on different CPUs, an "under tolerance" is acceptable.
  * For tests where same clock is used for networking and tests.
  */
