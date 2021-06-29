@@ -1476,7 +1476,7 @@ static BaseType_t prvCreateSocketConnectionToMQTTBroker( NetworkContext_t * pxNe
                                        RETRY_MAX_BACKOFF_DELAY_MS,
                                        RETRY_MAX_ATTEMPTS );
 
-    LogDebug( ( " Attempt: %d Memory before creating the mqtt connection: %zd", usCounterMqtt, xPortGetFreeHeapSize() ) );
+    LogInfo((" Attempt: %d Memory before creating the mqtt connection: %zd", usCounterMqtt, xPortGetFreeHeapSize() ) );
 
     /* Attempt to connect to MQTT broker. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase till maximum
@@ -1501,7 +1501,7 @@ static BaseType_t prvCreateSocketConnectionToMQTTBroker( NetworkContext_t * pxNe
         }
     } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xStatus == pdPASS ) );
 
-    LogDebug( ( " Attempt: %d Memory after creating the mqtt connection: %zd", usCounterMqtt, xPortGetFreeHeapSize() ) );
+    LogInfo((" Attempt: %d Memory after creating the mqtt connection: %zd", usCounterMqtt, xPortGetFreeHeapSize() ) );
     usCounterMqtt++;
 
     return xStatus;
@@ -1686,7 +1686,7 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
         xServerInfo.pHostName = pcServerHost;
         xServerInfo.hostNameLength = xServerHostLength;
         xServerInfo.port = democonfigHTTPS_PORT;
-        LogDebug( ( " Attempt: %d Memory before creating the http connection: %zd", usCounterHttp, xPortGetFreeHeapSize() ) );
+        LogInfo((" Attempt: %d Memory before creating the http connection: %zd", usCounterHttp, xPortGetFreeHeapSize() ) );
 
         /* Establish a TLS session with the HTTP server. This example connects
          * to the HTTP server as specified in SERVER_HOST and HTTPS_PORT in
@@ -1700,7 +1700,7 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
                                                          &xSocketsConfig );
 
         returnStatus = ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS ) ? pdPASS : pdFAIL;
-        LogDebug( ( " Attempt: %d Memory after creating the http connection: %zd", usCounterHttp, xPortGetFreeHeapSize() ) );
+        LogInfo((" Attempt: %d Memory after creating the http connection: %zd", usCounterHttp, xPortGetFreeHeapSize() ) );
         usCounterHttp++;
     }
 
@@ -2407,7 +2407,7 @@ int RunOtaCoreHttpDemo( bool xAwsIotMqttMode,
     BaseType_t xDemoStatus = pdFAIL;
     BaseType_t xMqttInitialized = pdFALSE;
 
-    LogInfo( ( "OTA over HTTP demo, Application version %u.%u.%u",
+    LogInfo( ( "OTA over HTTP demo test, Application version %u.%u.%u",
                appFirmwareVersion.u.x.major,
                appFirmwareVersion.u.x.minor,
                appFirmwareVersion.u.x.build ) );
