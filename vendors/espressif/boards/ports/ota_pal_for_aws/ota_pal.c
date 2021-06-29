@@ -367,11 +367,11 @@ uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
 
     if( ( xResult == CKR_OK ) && ( pucSignerCert != NULL ) )
     {
-        ESP_LOGI( TAG, "Using cert with label: %s OK\r\n", ( const char * ) pucCertName );
+        ESP_LOGI( TAG, "Using cert with label: %s OK", ( const char * ) pucCertName );
     }
     else
     {
-        ESP_LOGI( TAG, "No such certificate file: %s. Using certificate in ota_demo_config.h.\r\n",
+        ESP_LOGI( TAG, "No such certificate file: %s. Using certificate in ota_demo_config.h.",
                   ( const char * ) pucCertName );
 
         /* Allocate memory for the signer certificate plus a terminating zero so we can copy it and return to the caller. */
@@ -386,7 +386,7 @@ uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
         }
         else
         {
-            ESP_LOGE( TAG, "Error: No memory for certificate in otaPal_ReadAndAssumeCertificate!\r\n" );
+            ESP_LOGE( TAG, "Error: No memory for certificate in otaPal_ReadAndAssumeCertificate!" );
         }
     }
 

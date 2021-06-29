@@ -120,7 +120,7 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const C )
 
             if( 0 == lFileCloseErr )
             {
-                LogInfo( ( "OK" ) );
+                LogInfo( ( "Abort successful" ) );
                 mainErr = OtaPalSuccess;
             }
             else /* Failed to close file. */
@@ -422,7 +422,7 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
         }
         else
         {
-            LogInfo( ( "Error: No memory for certificate of size %d!", lSize ) );
+            LogError( ( "No memory for certificate of size %d!", lSize ) );
         }
     }
 
