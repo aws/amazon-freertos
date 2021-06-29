@@ -135,7 +135,6 @@ int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
     }
     else
     {
-        LogInfo( ( "Caling SOCKETS_Connect" ) );
         pSecureSocketsTransportParams = pNetworkContext->pParams;
         bytesSent = SOCKETS_Send( pSecureSocketsTransportParams->tcpSocket,
                                   pMessage,
@@ -330,7 +329,6 @@ static TransportSocketStatus_t connectToServer( Socket_t tcpSocket,
     }
     else
     {
-        LogInfo( ( "Calling Sockets_Connect" ) );
         secureSocketStatus = SOCKETS_Connect( tcpSocket,
                                               &serverAddress,
                                               sizeof( SocketsSockaddr_t ) );

@@ -43,7 +43,7 @@
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
-    #define LIBRARY_LOG_LEVEL    LOG_DEBUG
+    #define LIBRARY_LOG_LEVEL    LOG_INFO
 #endif
 
 #include "logging_stack.h"
@@ -137,7 +137,7 @@
 /**
  * @brief The number of items that can be held in each queue.
  */
-#define democonfigQUEUE_SIZE                        ( 10 )
+#define democonfigQUEUE_SIZE                        ( 2 )
 
 
 #endif /* ifndef HTTP_DEMO_S3_DOWNLOAD_MULTITHREADED_CONFIG_H */
