@@ -1614,7 +1614,6 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
     BaseType_t returnStatus = pdPASS;
     BaseType_t xStatus = pdPASS;
     HTTPStatus_t xHttpStatus = HTTPSuccess;
-    BackoffAlgorithmContext_t xReconnectParams;
     /* The location of the host address within the pre-signed URL. */
     const char * pcAddress = NULL;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
@@ -1631,12 +1630,6 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
     xSocketsConfig.rootCaSize = sizeof( democonfigHTTPS_ROOT_CA_PEM );
     xSocketsConfig.sendTimeoutMs = otaexampleHTTPS_TRANSPORT_SEND_RECV_TIMEOUT_MS;
     xSocketsConfig.recvTimeoutMs = otaexampleHTTPS_TRANSPORT_SEND_RECV_TIMEOUT_MS;
-
-    /* Initialize reconnect attempts and interval. */
-    BackoffAlgorithm_InitializeParams( &xReconnectParams,
-                                       RETRY_BACKOFF_BASE_MS,
-                                       RETRY_MAX_BACKOFF_DELAY_MS,
-                                       RETRY_MAX_ATTEMPTS );
 
     /* Retrieve the address location and length from S3_PRESIGNED_GET_URL. */
     if( pcUrl != NULL )
@@ -1765,6 +1758,9 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
     LogInfo( ( "Performing TLS handshake on top of the TCP connection." ) );
 
     xNetworkContextHttp.pParams = &xHTTPSecureSocketsTransportParams;
+	
+	/* End TLS session, then close TCP connection. */
+    ( void ) SecureSocketsTransport_Disconnect( &xNetworkContextHttp );
 
     /* Attempt to connect to the HTTPs server. If connection fails, retry after
      * a timeout. Timeout value will be exponentially increased till the maximum
