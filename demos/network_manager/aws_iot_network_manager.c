@@ -97,7 +97,7 @@
  * The task executes other application callbacks in its task context, so tune the stack size according
  * to application subscription callback requirements.
  */
-#define NETWORK_MANAGER_TASK_STACK_SIZE          ( 4096 )
+#define NETWORK_MANAGER_TASK_STACK_SIZE          ( configMINIMAL_STACK_SIZE * 4 )
 
 /**
  * @brief Structure holds information for each network and the runtime state of it.
