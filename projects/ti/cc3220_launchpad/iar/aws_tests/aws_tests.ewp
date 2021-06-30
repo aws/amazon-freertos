@@ -107,7 +107,7 @@
 				</option>
 				<option>
 					<name>OGLastSavedByProductVersion</name>
-					<state>8.32.3.20186</state>
+					<state>8.32.2.19370</state>
 				</option>
 				<option>
 					<name>GeneralEnableMisra</name>
@@ -225,6 +225,7 @@
 					<state>_DLIB_FILE_DESCRIPTOR</state>
 					<state>FREERTOS_ENABLE_UNIT_TESTS</state>
 					<state>UNITY_INCLUDE_CONFIG_H</state>
+					<state>configUSE_POSIX_ERRNO=1</state>
 				</option>
 				<option>
 					<name>CCPreprocFile</name>
@@ -380,9 +381,9 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\pkcs11_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
