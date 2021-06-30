@@ -916,6 +916,11 @@ static BaseType_t prvRecvHelper( Socket_t xSocket,
         }
         else if( xNumBytes < 0 )
         {
+            if( xNumBytes == -EAGAIN )
+            {
+                configPRINTF( ( "EAGAIN Received, Retrying\n" ) );
+                continue;
+            }
             tcptestFAILUREPRINTF( ( "Error %d while receiving from echo server\r\n", xNumBytes ) );
             xResult = pdFAIL;
             break;
@@ -1910,7 +1915,7 @@ static void prvTestSOCKETS_Recv_ByteByByte( Server_t xConn )
                 else
                 {
                     xResult = pdFAIL;
-                    tcptestPRINTF( ( "Byte %d was incorrectly received\r\n", ( xBytesReceived + 1 ) ) );
+                    tcptestFAILUREPRINTF ( ( "Byte %d was incorrectly received\r\n", ( xBytesReceived + 1 ) ) );
                 }
             }
 
