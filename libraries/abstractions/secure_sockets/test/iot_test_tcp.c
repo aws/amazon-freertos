@@ -916,7 +916,7 @@ static BaseType_t prvRecvHelper( Socket_t xSocket,
         }
         else if( xNumBytes < 0 )
         {
-            if( xNumBytes == -EAGAIN )
+            if( xNumBytes == -11 )
             {
                 configPRINTF( ( "EAGAIN Received, Retrying\n" ) );
                 continue;
