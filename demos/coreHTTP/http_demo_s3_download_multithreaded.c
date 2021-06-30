@@ -33,7 +33,7 @@
  * HTTP server so that all communication is encrypted.The AWS S3 service validates
  * the demo client with the provided signature in the HTTP request.
  *
- * Afterwards, the demo creates a thread-safe queue and the HTTP task, a worker task for 
+ * Afterwards, the demo creates a thread-safe queue and the HTTP task, a worker task for
  * HTTP operations. It reads requests from its queue and executes them using the
  * HTTP Client library API. The HTTP task notifies the HTTP operation status back to
  * the main task through a direct-to-task notification. The main task sends HTTP requests
@@ -142,6 +142,10 @@
  */
 #ifndef httpexampleMAX_DEMO_COUNT
     #define httpexampleMAX_DEMO_COUNT    ( 3 )
+#endif
+
+#ifndef httpexampleTASK_STACK_SIZE
+    #define httpexampleTASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 2 )
 #endif
 
 /**
@@ -1025,7 +1029,7 @@ int RunCoreHttpS3DownloadMultithreadedDemo( bool awsIotMqttMode,
         /* Start HTTP task. */
         if( xDemoStatus == pdPASS )
         {
-            xDemoStatus = xTaskCreate( prvStartHTTPTask, "HTTPTask", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHTTPTask );
+            xDemoStatus = xTaskCreate( prvStartHTTPTask, "HTTPTask", httpexampleTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHTTPTask );
         }
 
         /******************** Download S3 Object File. **********************/
