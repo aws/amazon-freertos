@@ -507,7 +507,10 @@ static MQTTAgentMessageInterface_t xMessageInterface;
  */
 static MQTTAgentMessageContext_t xCommandQueue;
 
-
+/**
+ * @brief FreeRTOS blocking queue to be used as MQTT Agent context.
+ */
+static BaseType_t xHttpConnectionStatus;
 
 /**
  * @brief The global array of subscription elements.
@@ -1780,8 +1783,11 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
 
     xNetworkContextHttp.pParams = &xHTTPSecureSocketsTransportParams;
 	
-	/* End TLS session, then close TCP connection. */
-    ( void ) SecureSocketsTransport_Disconnect( &xNetworkContextHttp );
+    if( xHttpConnectionStatus == pdTRUE )
+    {
+        /* End TLS session, then close TCP connection. */
+        (void)SecureSocketsTransport_Disconnect( &xNetworkContextHttp );
+    }
 
     /* Attempt to connect to the HTTPs server. If connection fails, retry after
      * a timeout. Timeout value will be exponentially increased till the maximum
@@ -1790,6 +1796,8 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
      * broker after configured number of attempts. */
     if( prvConnectToS3Server( &xNetworkContextHttp, pcUrl ) == EXIT_SUCCESS )
     {
+        xHttpConnectionStatus = pdTRUE;
+
         /* Define the transport interface. */
         ( void ) memset( &xTransportInterfaceHttp, 0, sizeof( xTransportInterfaceHttp ) );
         xTransportInterfaceHttp.recv = SecureSocketsTransport_Recv;
@@ -1812,6 +1820,8 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
          * reconnect attempts are over. */
         LogError( ( "Failed to connect to HTTP server %s.",
                     pcServerHost ) );
+
+        xHttpConnectionStatus = pdFALSE;
 
         xReturnStatus = OtaHttpInitFailed;
     }
@@ -1836,9 +1846,6 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
 
     /* Return value of all methods from the HTTP Client library API. */
     HTTPStatus_t xHttpStatus = HTTPSuccess;
-
-    /* Reconnection required flag. */
-    bool xReconnectRequired = false;
 
     /* Initialize all HTTP Client library API structs to 0. */
     ( void ) memset( &xRequestInfo, 0, sizeof( xRequestInfo ) );
@@ -1891,7 +1898,7 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
     {
         if( ( xHttpStatus == HTTPNoResponse ) || ( xHttpStatus == HTTPNetworkError ) )
         {
-            xReconnectRequired = true;
+            xHttpConnectionStatus = pdTRUE;
         }
         else
         {
@@ -1906,14 +1913,14 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
         /* Check if reconnection required. */
         if( xResponse.respFlags & HTTP_RESPONSE_CONNECTION_CLOSE_FLAG )
         {
-            xReconnectRequired = true;
+            xHttpConnectionStatus = pdTRUE;
         }
 
         /* Handle the http response received. */
         xReturnStatus = prvHandleHttpResponse( &xResponse );
     }
 
-    if( xReconnectRequired == true )
+    if( xHttpConnectionStatus == pdFALSE )
     {
         /* End TLS session, then close TCP connection. */
         ( void ) SecureSocketsTransport_Disconnect( &xNetworkContextHttp );
@@ -1921,10 +1928,14 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
         /* Try establishing connection to S3 server again. */
         if( prvConnectToS3Server( &xNetworkContextHttp, NULL ) == EXIT_SUCCESS )
         {
+            xHttpConnectionStatus = pdTRUE;
+
             xReturnStatus = HTTPSuccess;
         }
         else
         {
+            xHttpConnectionStatus = pdFALSE;
+
             /* Log an error to indicate connection failure after all
              * reconnect attempts are over. */
             LogError( ( "Failed to connect to HTTP server %s.",
