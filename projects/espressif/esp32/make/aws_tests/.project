@@ -3626,11 +3626,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/unity/extras/fixture/test/unity_output_Spy.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_ble.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_ble.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</locationURI>
@@ -3894,11 +3889,6 @@
 			<name>libraries/ble/src/services/mqtt_ble/iot_ble_data_transfer.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/src/services/mqtt_ble/iot_ble_data_transfer.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/ble/src/services/mqtt_ble/iot_network_ble.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/ble/src/services/mqtt_ble/iot_network_ble.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/ble/src/services/wifi_provisioning/iot_ble_wifi_provisioning.c</name>

@@ -241,11 +241,6 @@ extern int snprintf( char *,
 /* All tests use a secured connection. */
 #define IOT_TEST_SECURED_CONNECTION    ( 1 )
 
-/* Allow the network interface to be chosen by at runtime. */
-struct IotNetworkInterface;
-extern const struct IotNetworkInterface * IotTestNetwork_GetNetworkInterface( void );
-#define IOT_TEST_NETWORK_INTERFACE                   IotTestNetwork_GetNetworkInterface()
-
 /* Retry the MQTT Connections in the MQTT System unit tests for all hardware
  * platforms supported in FreeRTOS.
  * Set this to the number of connection attempts for the MQTT tests.

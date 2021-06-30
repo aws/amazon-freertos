@@ -402,11 +402,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_ble.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_ble.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</locationURI>

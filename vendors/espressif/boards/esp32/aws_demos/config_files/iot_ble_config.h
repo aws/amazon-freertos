@@ -35,12 +35,6 @@
 /* Device name for this peripheral device. */
 #define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME                      "ESP32"
 
-/**
- * Buffer size for network interface shim layer. The config is to
- * accomodate OTA blocks of size 4096 bytes ( otaconfigLOG2_FILE_BLOCK_SIZE ).
- */
-#define IOT_BLE_NETWORK_INTERFACE_BUFFER_SIZE          ( 4352U )
-
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "iot_ble_config_defaults.h"
 

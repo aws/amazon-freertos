@@ -37,8 +37,7 @@
 #include <stdbool.h>
 
 #include "iot_ble.h"
-/* Network interface includes. */
-#include "platform/iot_network_ble.h"
+/* Platform abstraction includes. */
 #include "platform/iot_threads.h"
 
 /* Test framework includes. */
@@ -50,7 +49,6 @@
 
 /*-----------------------------------------------------------*/
 
-extern bool IotTestNetwork_SelectNetworkType( uint16_t networkType );
 static bool bBLEInitialized = pdFALSE;
 static bool bBLEEnabled = false;
 static bool bBLEConnected = false;
