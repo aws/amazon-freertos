@@ -4,6 +4,7 @@
 
 set(compiler_defined_symbols
     _DLIB_FILE_DESCRIPTOR
+    configUSE_POSIX_ERRNO=1
 )
 
 set(assembler_defined_symbols
