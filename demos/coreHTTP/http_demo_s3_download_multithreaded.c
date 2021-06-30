@@ -33,11 +33,11 @@
  * HTTP server so that all communication is encrypted.The AWS S3 service validates
  * the demo client with the provided signature in the HTTP request.
  *
- * Afterwards, the demo creates a thread-safe queue and a worker task for HTTP operations,
- * the HTTP task, for reading requests from its queue and executing them using the
+ * Afterwards, the demo creates a thread-safe queue and the HTTP task, a worker task for 
+ * HTTP operations. It reads requests from its queue and executes them using the
  * HTTP Client library API. The HTTP task notifies the HTTP operation status back to
- * the main task through direct-to-task notification. The main task sends HTTP requests
- * as well as memory for storing server response to the HTTP task queue. The HTTP task
+ * the main task through a direct-to-task notification. The main task sends HTTP requests
+ * as well as memory for storing server responses to the HTTP task queue. The HTTP task
  * uses the passed information for calling the HTTPClient_Send API for requesting S3
  * bucket data in chunks using range requests. While doing so, the main task waits
  * for notification from the HTTP task. If the HTTP request fails, the HTTP task
@@ -245,7 +245,7 @@ typedef struct QueueItem
  * is provided by the main task and pushed to this queue to notify HTTP task.
  * The HTTP task is responsible for receiving the HTTP request data from the queue,
  * executing the HTTP operation with the HTTPClient_Send() API and notifying the main
- * task about the operation result with direct-to-task notification.
+ * task about the operation result with a direct-to-task notification.
  */
 static QueueHandle_t xHttpTaskQueue;
 
@@ -254,7 +254,7 @@ static QueueHandle_t xHttpTaskQueue;
  * This buffer is passed to the HTTP task for performing HTTP operation.
  *
  * @note This demo shows how memory owned by the main task is passed to the HTTP task for
- * performing HTTP Send operation without any expensive copy operation between the tasks.
+ * performing HTTP Send operations without any expensive copy operation between the tasks.
  * Queues and direct-to-task notification synchronization mechanisms are used for
  * thread-safe access to the buffer between the main and HTTP task.
  */
@@ -265,7 +265,7 @@ static uint8_t pusHttpRequestBuffer[ democonfigUSER_BUFFER_LENGTH ];
  * server. This buffer is supplied by the main task to the HTTP task through the queue.
  *
  * @note This demo shows how memory owned by the main task is passed to the HTTP task for
- * performing HTTP Send operation without any expensive copy operation between the tasks.
+ * performing HTTP Send operations without any expensive copy operation between the tasks.
  * Queues and direct-to-task notification synchronization mechanisms are used for
  * thread-safe access to the buffer between the main and HTTP task.
  */
@@ -344,7 +344,7 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
 
 /**
  * @brief Services HTTP requests pushed by the main task in its queue and notifies
- * the main task the status of the HTTP operation through direct-to-task notification.
+ * the main task of the status of the HTTP operations through direct-to-task notifications.
  *
  * @note The HTTP task receives the HTTP request header data as well as memory for
  * storing and parsing the server response from the main task through the queue.
@@ -497,10 +497,10 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
         }
     }
 
-    /* Here we iterate sending byte range requests to the HTTP task's queue and
-     * waiting for notification from the HTTP task about completion of HTTP operation
-     * until the entire file has been downloaded. We keep track of the next starting
-     * byte to download with xCurByte, and increment by xNumReqBytes after each iteration. When
+    /* Until the entire file has been downloaded, we iterate the sending of byte range
+     * requests to the HTTP task's queue and waiting for notifications of their
+     * completion from the HTTP task. We keep track of the next starting byte to
+     * download with xCurByte, and increment by xNumReqBytes after each iteration. When
      * xCurByte reaches xFileSize, we stop downloading. We keep track of the
      * number of responses we are waiting for with xRemainingResponseCount.
      */
@@ -546,7 +546,7 @@ static BaseType_t prvDownloadS3ObjectFile( const char * pcHost,
             if( xTaskNotifyWait( 0,               /* No bits of notification value to clear on entry. */
                                  UINT32_MAX,      /* Clear notification value of task on exit. */
                                  &httpSendStatus, /* The notification value of HTTPClient_Send operation status
-                                                   * from HTTP task. */
+                                                   * from the HTTP task. */
                                  httpexampleDEMO_TICKS_TO_WAIT ) == pdFALSE )
             {
                 LogError( ( "Unable to request bytes from S3 bucket: Timeod out waiting for notification for HTTP operation from HTTP task" ) );
@@ -710,7 +710,7 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
                                        0,
                                        0 );
 
-    /* Wait for notification of HTTP operation for request S3 file size. */
+    /* Wait for notification of the HTTP operation for the S3 file size request. */
     if( xStatus == pdPASS )
     {
         uint32_t ulHttpStatusValue = 0;
@@ -718,7 +718,7 @@ static BaseType_t prvGetS3ObjectFileSize( const HTTPRequestInfo_t * pxRequestInf
         if( xTaskNotifyWait( 0,                  /* No bits of notification value to clear on entry. */
                              UINT32_MAX,         /* Clear notification value of task on exit. */
                              &ulHttpStatusValue, /* Notification value is HTTPStatus_t value from HTTPClient_Send Call
-                                                  *  in HTTP Task. */
+                                                  * in the HTTP Task. */
                              httpexampleDEMO_TICKS_TO_WAIT ) == pdFALSE )
         {
             LogError( ( "Failure in HTTP request for requesting S3 bucket file size: Timed out waiting for notification from HTTP Task" ) );
@@ -835,7 +835,7 @@ static void prvStartHTTPTask( void * pvArgs )
                                        xHttpStructs.pxResponse,
                                        0 );
 
-        /*Notify the main task of the return status of the coreHTTP API call
+        /* Notify the main task of the return status of the coreHTTP API call
          * for HTTP operation of sending request and receiving response. */
         xTaskNotify( xMainTask, xHTTPStatus, eSetBits );
 
@@ -881,7 +881,7 @@ void prvTearDown( TaskHandle_t xHandle,
  *
  * The demo initiates an independent HTTP task to read requests from its queue
  * and execute them using the HTTP Client library API, and notify the HTTP operation
- * status back to the main task through direct-to-task notification. The main task
+ * status back to the main task through direct-to-task notifications. The main task
  * sends HTTP requests as well as memory for storing server response to the HTTP task
  * queue. The HTTP task uses the passed information for calling the HTTPClient_Send
  * API for requesting S3 bucket data in chunks using range requests. While doing so,
