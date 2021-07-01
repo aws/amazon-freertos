@@ -391,7 +391,6 @@
             <folder Name="mqtt_ble">
               <file file_name="../../../../../libraries/ble/src/services/mqtt_ble/iot_ble_mqtt_serialize.c" />
               <file file_name="../../../../../libraries/ble/src/services/mqtt_ble/iot_ble_mqtt_transport.c" />
-              <file file_name="../../../../../libraries/ble/src/services/mqtt_ble/iot_network_ble.c" />
             </folder>
             <folder Name="device_information">
               <file file_name="../../../../../libraries/ble/src/services/device_information/iot_ble_device_information.c" />

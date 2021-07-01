@@ -27,7 +27,6 @@ afr_module_sources(
         "${src_dir}/iot_ble_internal.h"
         "${src_dir}/services/device_information/iot_ble_device_information.c"
         "${src_dir}/services/data_transfer/iot_ble_data_transfer.c"
-        "${src_dir}/services/mqtt_ble/iot_network_ble.c"
         "${src_dir}/services/mqtt_ble/iot_ble_mqtt_serialize.c"
         "${src_dir}/services/mqtt_ble/iot_ble_mqtt_transport.c"
         "${inc_dir}/iot_ble_config_defaults.h"
