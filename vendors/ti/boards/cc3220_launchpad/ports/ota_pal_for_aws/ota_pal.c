@@ -186,17 +186,23 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
 
     if( C->fileSize <= OTA_MAX_MCU_IMAGE_SIZE )
     {
-        if( C->fileType == 0)
+        /* Update the Access mode flags based on the type of file. */
+        if( C->fileType == 0 )
         {
             ulFlags = ( SL_FS_CREATE | SL_FS_OVERWRITE | SL_FS_CREATE_FAILSAFE | /*lint -e9027 -e9028 -e9029 We don't own the TI problematic macros. */
-                    SL_FS_CREATE_PUBLIC_WRITE | SL_FS_WRITE_BUNDLE_FILE |
-                    SL_FS_CREATE_SECURE | SL_FS_CREATE_VENDOR_TOKEN |
-                    SL_FS_CREATE_MAX_SIZE( OTA_MAX_MCU_IMAGE_SIZE ) );
+                        SL_FS_CREATE_PUBLIC_WRITE | SL_FS_WRITE_BUNDLE_FILE |
+                        SL_FS_CREATE_SECURE | SL_FS_CREATE_VENDOR_TOKEN |
+                        SL_FS_CREATE_MAX_SIZE( OTA_MAX_MCU_IMAGE_SIZE ) );
+
+            /* Create a boot info file for configuring watchdog timer. */
             lResult = prvCreateBootInfoFile();
         }
         else
         {
             ulFlags = SL_FS_CREATE | SL_FS_OVERWRITE | SL_FS_CREATE_NOSIGNATURE | SL_FS_CREATE_MAX_SIZE( OTA_MAX_MCU_IMAGE_SIZE );
+
+            /* Set the lResult explicitly as we do not create a boot info file
+             * for downloading non firmware files. */
             lResult = 1;
         }
 
