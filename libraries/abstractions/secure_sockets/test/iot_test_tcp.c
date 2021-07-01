@@ -2742,6 +2742,11 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
             {
                 xReturned = SOCKETS_Recv( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0 );
 
+                if( xReturned < 0 )
+                {
+                    tcptestFAILUREPRINTF( ( "%s: Error in SOCKETS_Recv. Return value: %d", __FUNCTION__, xReturned ) );
+                }
+
                 TEST_ASSERT_GREATER_OR_EQUAL_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
 
                 if( xReturned > 0 )
