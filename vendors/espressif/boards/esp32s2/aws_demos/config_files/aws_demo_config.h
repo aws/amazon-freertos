@@ -34,13 +34,14 @@
  *          CONFIG_CORE_HTTP_S3_DOWNLOAD_MULTITHREADED_DEMO_ENABLED
  *          CONFIG_CORE_HTTP_S3_UPLOAD_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
- *          CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED
+ *          CONFIG_CORE_MQTT_AGENT_DEMO_ENABLED
  *          CONFIG_DEVICE_SHADOW_DEMO_ENABLED
  *          CONFIG_DEVICE_DEFENDER_DEMO_ENABLED
+ *          CONFIG_OTA_MQTT_UPDATE_DEMO_ENABLED
+ *          CONFIG_OTA_HTTP_UPDATE_DEMO_ENABLED
  *          CONFIG_JOBS_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
- *          CONFIG_OTA_UPDATE_DEMO_ENABLED
  *          CONFIG_CLI_UART_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
@@ -57,7 +58,7 @@
     #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_WIFI )
 #endif
 
-#if defined( CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED )
+#if defined( CONFIG_CORE_MQTT_AGENT_DEMO_ENABLED )
     #undef democonfigNETWORK_TYPES
     #define democonfigNETWORK_TYPES                                  ( AWSIOT_NETWORK_TYPE_WIFI )
 #endif
@@ -65,7 +66,7 @@
 #define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 12 )
 
 /* MQTT Connection sharing demo task priority. */
-#define democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
+#define democonfigCORE_MQTT_AGENT_DEMO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
 
 #define democonfigMEMORY_ANALYSIS
 

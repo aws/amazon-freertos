@@ -76,14 +76,14 @@
       <file file_name="../../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_shared.c" />
     </folder>
     <folder Name="Application">
-      <file file_name="bootloader_code/asn1utility.c" />
-      <file file_name="bootloader_code/asn1utility.h" />
-      <file file_name="bootloader_code/bootloader.h" />
-      <file file_name="bootloader_code/crypto.c" />
-      <file file_name="bootloader_code/crypto.h" />
-      <file file_name="bootloader_code/main.c" />
-      <file file_name="bootloader_code/sdk_config.h" />
-      <file file_name="bootloader_code/utils.c" />
+      <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/asn1utility.c" />
+      <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/asn1utility.h" />
+      <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/bootloader.h" />
+      <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/crypto.c" />
+      <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/crypto.h" />
+      <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/main.c" />
+      <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/utils.c" />
+      <file file_name="../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/pca10056/config/sdk_config.h" />
     </folder>
     <folder Name="None">
       <file file_name="../../../../../../vendors/nordic/nRF5_SDK_15.2.0/modules/nrfx/mdk/ses_startup_nrf52840.s" />
@@ -113,5 +113,6 @@
   <configuration
     Name="Release"
     c_preprocessor_definitions="NDEBUG"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/bootloader/pca10056/config;$(SolutionDir)/../../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files;$(SolutionDir)/../../../../../../tests/integration_test/ota_pal"
     gcc_optimization_level="None" />
 </solution>

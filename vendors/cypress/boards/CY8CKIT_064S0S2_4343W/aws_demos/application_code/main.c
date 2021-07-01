@@ -48,7 +48,6 @@
 #include "iot_logging_task.h"
 #include "iot_wifi.h"
 #include "aws_clientcredential.h"
-#include "aws_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
 
 /* BSP & Abstraction inclues */
@@ -78,6 +77,9 @@
 #include "tfm_ns_interface.h"
 #include "tfm_ns_mailbox.h"
 #endif
+
+/* For Watchdog */
+#include "cyhal_wdt.h"
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 90 )
@@ -150,6 +152,18 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
 #endif /* CY_USE_FREERTOS_TCP */
 
 /**
+ * @brief Watchdog object and setting value.
+ * Watchdog timer initialized at start, must be cleared / reset before timer goes off.
+ *
+ * For IDT testing, this is needed for CONFIG_OTA_UPDATE_DEMO_ENABLED
+ */
+#define CY_WATCHDOG_TIMER_MILLISECONDS      (cyhal_wdt_get_max_timeout_ms())
+#define CY_WATCHDOG_KICK_TIME_MILLISECONDS  (CY_WATCHDOG_TIMER_MILLISECONDS / 2)    /* time between kicking WDT */
+#define CY_WATCHDOG_INITIAL_KICK_COUNT      (4)                                     /* number of times we kick WDT before giving up */
+static cyhal_wdt_t prvWatchdogTimerObj;
+static TaskHandle_t prvWatchdogTaskHandle;
+
+/**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
  * function. If you are not using Wi-Fi, this hook can be disabled by setting
@@ -159,8 +173,11 @@ void vApplicationDaemonTaskStartupHook( void );
 
 /**
  * @brief Connects to Wi-Fi.
+ *
+ * returns eWiFiSuccess
+ *         eWiFiFailure
  */
-static void prvWifiConnect( void );
+static WIFIReturnCode_t prvWifiConnect( void );
 
 /**
  * @brief Initializes the board.
@@ -191,6 +208,71 @@ static void tfm_ns_multi_core_boot(void)
 #endif
 
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief Watchdog Timer Task
+ *
+ *  Loop prvWatchdogKickCount times, kick WDT every CY_WATCHDOG_KICK_TIME_MILLISECONDS.
+ *  When counter runs out, free WDT and exit.
+ *
+ */
+void prvWatchdogTask(void *arg)
+{
+    int prvWatchdogKickCount = CY_WATCHDOG_INITIAL_KICK_COUNT;
+    while(prvWatchdogKickCount-- > 0)
+    {
+        vTaskDelay(CY_WATCHDOG_KICK_TIME_MILLISECONDS);
+        cyhal_wdt_kick(&prvWatchdogTimerObj);
+    }
+    prvWatchdogTaskHandle = NULL;
+    printf("Exit Watchdog Kick task\n");
+    vTaskDelete(NULL);
+}
+
+/**
+ * @brief Start Watchdog Timer Task
+ *
+ * returns CY_RSLT_SUCCESS
+ *         CY_RSLT_TYPE_ERROR
+ */
+cy_rslt_t prvWatchdogTaskStart(void)
+{
+    /* Initialize WDT */
+    cy_rslt_t result;
+
+    configPRINTF(("Create Watchdog Timer\n"));
+    result = cyhal_wdt_init(&prvWatchdogTimerObj, CY_WATCHDOG_TIMER_MILLISECONDS);
+    if (result == CY_RSLT_WDT_ALREADY_INITIALIZED)
+    {
+        /* watchdog already started, just kick it */
+        cyhal_wdt_kick(&prvWatchdogTimerObj);
+        result = CY_RSLT_SUCCESS;
+    }
+    if (result == CY_RSLT_SUCCESS)
+    {
+        BaseType_t create_result;
+        create_result = xTaskCreate( prvWatchdogTask, "WDT", configMINIMAL_STACK_SIZE, NULL, IOT_THREAD_DEFAULT_PRIORITY, &prvWatchdogTaskHandle);
+        if (create_result != pdPASS)
+        {
+            /* failed to start the watchdog thread */
+            result = CY_RSLT_TYPE_ERROR;
+        }
+    }
+    return result;
+}
+
+/**
+ * @brief Stop Watchdog Timer Task
+ */
+void prvWatchdogTaskStop(void)
+{
+    if ( prvWatchdogTaskHandle != NULL)
+    {
+        vTaskDelete(prvWatchdogTaskHandle);
+        cyhal_wdt_free(&prvWatchdogTimerObj);
+    }
+    prvWatchdogTaskHandle = NULL;
+}
 
 /**
  * @brief Application runtime entry point.
@@ -252,6 +334,7 @@ static void prvMiscInitialization( void )
     cy_rslt_t result = cybsp_init();
     CY_ASSERT(CY_RSLT_SUCCESS == result);
 }
+
 /*-----------------------------------------------------------*/
 void vApplicationDaemonTaskStartupHook( void )
 {
@@ -260,6 +343,9 @@ void vApplicationDaemonTaskStartupHook( void )
     {
         printf( "Retarget IO initialization failed \r\n" );
     }
+
+    result = kvstore_init();
+    CY_ASSERT(CY_RSLT_SUCCESS == result);
 
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
 #ifdef PDL_CODE
@@ -290,8 +376,19 @@ void vApplicationDaemonTaskStartupHook( void )
          */
         tcpip_init(NULL, NULL);
 #endif
+
+        result = prvWatchdogTaskStart();
+        if (result != CY_RSLT_SUCCESS)
+        {
+            printf( "Start Watchdog Task Failed.\r\n");
+        }
+
         /* Connect to the Wi-Fi before running the tests. */
-        prvWifiConnect();
+        if (prvWifiConnect() == eWiFiSuccess)
+        {
+            /* We connected to an AP, or we are a SoftAP, stop the watchdog task */
+            prvWatchdogTaskStop();
+        }
 
 #if ( pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED == 0 )
         /* Provision the device with AWS certificate and private key. */
@@ -307,7 +404,7 @@ void vApplicationDaemonTaskStartupHook( void )
 }
 /*-----------------------------------------------------------*/
 
-void prvWifiConnect( void )
+WIFIReturnCode_t prvWifiConnect( void )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWifiStatus = eWiFiSuccess;
@@ -383,8 +480,8 @@ void prvWifiConnect( void )
 
     if( xWifiStatus == eWiFiSuccess )
     {
-        configPRINTF( ( "Wi-Fi Connected to AP %s. Creating tasks which use network...\r\n", clientcredentialWIFI_SSID) );
-
+        /* Try connecting using provided wifi credentials. */
+        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
         if( xWifiStatus == eWiFiSuccess )
         {
             configPRINTF( ( "WiFi connected to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID ) );
@@ -453,14 +550,20 @@ void prvWifiConnect( void )
                 xWifiStatus = eWiFiFailure;
             }
         }
-        if (WIFI_StartAP() != eWiFiSuccess)
+        xNetworkParams.ucChannel = wificonfigACCESS_POINT_CHANNEL;
+        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
+        {
+            configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
+                            xNetworkParams.ucSSID, xNetworkParams.xPassword.xWPA.cPassphrase ) );
+        }
+        xWifiStatus = WIFI_StartAP();
+        if (xWifiStatus != eWiFiSuccess)
         {
             configPRINTF( ( "SoftAP Start failed \r\n") );
         }
-        while( ( xWifiStatus != eWiFiSuccess ) && ( xWifiStatus != eWiFiNotSupported ) );
     }
 
-    configASSERT( xWifiStatus == eWiFiSuccess );
+    return xWifiStatus;
 }
 
 /*-----------------------------------------------------------*/

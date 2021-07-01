@@ -54,6 +54,41 @@
 /* A block time of 0 just means don't block. */
 #define loggingDONT_BLOCK    0
 
+/*
+ * Wrapper functions for vsnprintf and snprintf to return the actual number of
+ * characters written.
+ *
+ * From the documentation, the retrun value of vsnprintf/snprintf is:
+ * 1. In case of success i.e. when the complete string is successfully written
+ *    to the buffer, the return value is the number of characters written to the
+ *    buffer not counting the terminating null character.
+ * 2. In case when the buffer is not large enough to hold the complete string,
+ *    the return value is the number of characters that would have been written
+ *    if the buffer was large enough.
+ * 3. In case of encoding error, a negative number is returned.
+ *
+ * These wrapper functions instead return the actual number of characters
+ * written in all cases:
+ * 1. In case of success i.e. when the complete string is successfully written
+ *    to the buffer, these wrappers return the same value as from
+ *    vsnprintf/snprintf.
+ * 2. In case when the buffer is not large enough to hold the complete string,
+ *    these wrapper functions return the number of actual characters written
+ *    (i.e. n - 1) as opposed to the number of characters that would have been
+ *    written if the buffer was large enough.
+ * 3. In case of encoding error, these wrapper functions return 0 to indicate
+ *    that nothing was written as opposed to negative value from
+ *    vsnprintf/snprintf.
+ */
+static int vsnprintf_safe( char * s,
+                           size_t n,
+                           const char * format,
+                           va_list arg );
+static int snprintf_safe( char * s,
+                          size_t n,
+                          const char * format,
+                          ... );
+
 /*-----------------------------------------------------------*/
 
 /*
@@ -77,6 +112,56 @@ static void prvLoggingTask( void * pvParameters );
  * the message to the task that will performs the output.
  */
 static QueueHandle_t xQueue = NULL;
+
+/*-----------------------------------------------------------*/
+
+static int vsnprintf_safe( char * s,
+                           size_t n,
+                           const char * format,
+                           va_list arg )
+{
+    int ret;
+
+    ret = vsnprintf( s, n, format, arg );
+
+    /* Check if the string was truncated and if so, update the return value
+     * to reflect the number of characters actually written. */
+    if( ret >= n )
+    {
+        /* Do not include the terminating NULL character to keep the behaviour
+         * same as the standard. */
+        ret = n - 1;
+    }
+    else if( ret < 0 )
+    {
+        /* Encoding error - Return 0 to indicate that nothing was written to the
+         * buffer. */
+        ret = 0;
+    }
+    else
+    {
+        /* Complete string was written to the buffer. */
+    }
+
+    return ret;
+}
+
+/*-----------------------------------------------------------*/
+
+static int snprintf_safe( char * s,
+                          size_t n,
+                          const char * format,
+                          ... )
+{
+    int ret;
+    va_list args;
+
+    va_start( args, format );
+    ret = vsnprintf_safe( s, n, format, args );
+    va_end( args );
+
+    return ret;
+}
 
 /*-----------------------------------------------------------*/
 
@@ -138,7 +223,6 @@ static void prvLoggingPrintfCommon( uint8_t usLoggingLevel,
                                     va_list args )
 {
     size_t xLength = 0;
-    int32_t xLength2 = 0;
     char * pcPrintString = NULL;
 
     configASSERT( usLoggingLevel <= LOG_DEBUG );
@@ -178,10 +262,10 @@ static void prvLoggingPrintfCommon( uint8_t usLoggingLevel,
                         pcTaskName = pcNoTask;
                     }
 
-                    xLength += snprintf( pcPrintString, configLOGGING_MAX_MESSAGE_LENGTH, "%lu %lu [%s] ",
-                                         ( unsigned long ) xMessageNumber++,
-                                         ( unsigned long ) xTaskGetTickCount(),
-                                         pcTaskName );
+                    xLength += snprintf_safe( pcPrintString, configLOGGING_MAX_MESSAGE_LENGTH, "%lu %lu [%s] ",
+                                              ( unsigned long ) xMessageNumber++,
+                                              ( unsigned long ) xTaskGetTickCount(),
+                                              pcTaskName );
                 }
             #endif /* if ( configLOGGING_INCLUDE_TIME_AND_TASK_NAME == 1 ) */
         }
@@ -206,14 +290,13 @@ static void prvLoggingPrintfCommon( uint8_t usLoggingLevel,
         }
 
         /* Add the chosen log level information as prefix for the message. */
-        if( pcLevelString != NULL )
+        if( ( pcLevelString != NULL ) && ( xLength < configLOGGING_MAX_MESSAGE_LENGTH ) )
         {
-            xLength += snprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "[%s] ", pcLevelString );
-            configASSERT( xLength > 0 );
+            xLength += snprintf_safe( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "[%s] ", pcLevelString );
         }
 
         /* If provided, add the source file and line number metadata in the message. */
-        if( pcFile != NULL )
+        if( ( pcFile != NULL ) && ( xLength < configLOGGING_MAX_MESSAGE_LENGTH ) )
         {
             /* If a file path is provided, extract only the file name from the string
              * by looking for '/' or '\' directory seperator. */
@@ -235,36 +318,30 @@ static void prvLoggingPrintfCommon( uint8_t usLoggingLevel,
                 pcFileName = pcFile;
             }
 
-            xLength += snprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "[%s:%d] ", pcFileName, fileLineNo );
+            xLength += snprintf_safe( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "[%s:%d] ", pcFileName, fileLineNo );
             configASSERT( xLength > 0 );
         }
 
-        xLength2 = vsnprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, pcFormat, args );
-
-        if( xLength2 < 0 )
+        if( xLength < configLOGGING_MAX_MESSAGE_LENGTH )
         {
-            /* vsnprintf() failed. Restore the terminating NULL
-             * character of the first part. Note that the first
-             * part of the buffer may be empty if the value of
-             * configLOGGING_INCLUDE_TIME_AND_TASK_NAME is not
-             * 1 and as a result, the whole buffer may be empty.
-             * That's the reason we have a check for xLength > 0
-             * before sending the buffer to the logging task.
-             */
-            xLength2 = 0;
-            pcPrintString[ xLength ] = '\0';
+            xLength += vsnprintf_safe( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, pcFormat, args );
         }
-
-        xLength += ( size_t ) xLength2;
 
         /* Add newline characters if the message does not end with them.*/
         ulFormatLen = strlen( pcFormat );
 
-        if( ( ulFormatLen >= 2 ) && ( strncmp( pcFormat + ulFormatLen, "\r\n", 2 ) != 0 ) )
+        if( ( ulFormatLen >= 2 ) &&
+            ( strncmp( pcFormat + ulFormatLen, "\r\n", 2 ) != 0 ) &&
+            ( xLength < configLOGGING_MAX_MESSAGE_LENGTH ) )
         {
-            xLength += snprintf( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "%s", "\r\n" );
-            configASSERT( xLength > 0 );
+            xLength += snprintf_safe( pcPrintString + xLength, configLOGGING_MAX_MESSAGE_LENGTH - xLength, "%s", "\r\n" );
         }
+
+        /* The standard says that snprintf writes the terminating NULL
+         * character. Just re-write it in case some buggy implementation does
+         * not. */
+        configASSERT( xLength < configLOGGING_MAX_MESSAGE_LENGTH );
+        pcPrintString[ xLength ] = '\0';
 
         /* Only send the buffer to the logging task if it is
          * not empty. */
@@ -403,3 +480,5 @@ void vLoggingPrint( const char * pcMessage )
         }
     }
 }
+
+/*-----------------------------------------------------------*/

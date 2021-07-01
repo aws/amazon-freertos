@@ -124,31 +124,38 @@ target_link_libraries(
     INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
 
-# OTA
+# Over-the-air Updates
 afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
-    INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
+    INTERFACE
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.h"
 )
+
+target_include_directories(
+    AFR::ota::mcu_port
+    INTERFACE "${afr_ports_dir}/ota_pal_for_aws"
+)
+
 target_link_libraries(
     AFR::ota::mcu_port
     INTERFACE
         AFR::crypto
-        AFR::ota_mqtt
-        AFR::ota_http
+        AFR::ota
 )
+
+if(AFR_ENABLE_TESTS)
+    target_include_directories(
+        AFR::ota::mcu_port
+        INTERFACE "${PROJECT_SOURCE_DIR}/tests/integration_test/ota_pal"
+    )
+endif()
 
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
-
-# Build an OTA test that only builds on Windows.
-afr_module_sources(
-    test_ota
-    INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/test/aws_test_ota_cbor.c"
-)
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)

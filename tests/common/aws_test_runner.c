@@ -39,9 +39,6 @@
 #include "unity_fixture.h"
 #include "unity_internals.h"
 
-/* Application version info. */
-#include "aws_application_version.h"
-
 /* Include files for UART based FreeRTOS+CLI support of test runner.
  *  Note: This adds a dependency on Common IO for UART communication .*/
 #if defined( AWS_TEST_RUNNER_ENABLE_CLI_INPUT ) && ( AWS_TEST_RUNNER_ENABLE_CLI_INPUT == 1 )
@@ -57,13 +54,6 @@
 #ifndef AWS_TEST_RUNNER_DELAY_MS
     #define AWS_TEST_RUNNER_DELAY_MS    5000
 #endif
-
-const AppVersion32_t xAppFirmwareVersion =
-{
-    .u.x.ucMajor = APP_VERSION_MAJOR,
-    .u.x.ucMinor = APP_VERSION_MINOR,
-    .u.x.usBuild = APP_VERSION_BUILD,
-};
 
 char cBuffer[ testrunnerBUFFER_SIZE ];
 
@@ -108,47 +98,6 @@ static void RunTestSuites( void )
         RUN_TEST_GROUP( GGD_Helper_System );
     #endif
 
-    #if ( testrunnerFULL_SHADOW_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_Shadow_Unit );
-        RUN_TEST_GROUP( Full_Shadow );
-    #endif
-
-    #if ( testrunnerFULL_SHADOWv4_ENABLED == 1 )
-        RUN_TEST_GROUP( Shadow_Unit_Parser );
-        RUN_TEST_GROUP( Shadow_Unit_API );
-        RUN_TEST_GROUP( Shadow_System );
-    #endif /* if ( testrunnerFULL_SHADOWv4_ENABLED == 1 ) */
-
-    #if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
-        RUN_TEST_GROUP( MQTT_Unit_Validate );
-        RUN_TEST_GROUP( MQTT_Unit_Subscription );
-        RUN_TEST_GROUP( MQTT_Unit_Receive );
-        RUN_TEST_GROUP( MQTT_Unit_API );
-        RUN_TEST_GROUP( MQTT_Unit_Metrics );
-        RUN_TEST_GROUP( MQTT_System );
-    #endif /* if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) */
-
-    #if ( testrunnerFULL_MQTT_STRESS_TEST_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_MQTT_Agent_Stress_Tests );
-    #endif
-
-    #if ( testrunnerFULL_MQTT_AGENT_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_MQTT_Agent );
-    #endif
-
-    #if ( testrunnerFULL_MQTT_ALPN_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_MQTT_Agent_ALPN );
-    #endif
-
-    #if ( testrunnerFULL_OTA_CBOR_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_OTA_CBOR );
-        RUN_TEST_GROUP( Quarantine_OTA_CBOR );
-    #endif
-
-    #if ( testrunnerFULL_OTA_AGENT_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_OTA_AGENT );
-    #endif
-
     #if ( testrunnerFULL_OTA_PAL_ENABLED == 1 )
         RUN_TEST_GROUP( Full_OTA_PAL );
     #endif
@@ -176,11 +125,6 @@ static void RunTestSuites( void )
 
     #if ( testrunnerFULL_TLS_ENABLED == 1 )
         RUN_TEST_GROUP( Full_TLS );
-    #endif
-
-    #if ( testrunnerFULL_DEFENDER_ENABLED == 1 )
-        RUN_TEST_GROUP( Defender_Unit );
-        RUN_TEST_GROUP( Defender_System );
     #endif
 
     #if ( testrunnerFULL_POSIX_ENABLED == 1 )
@@ -222,27 +166,10 @@ static void RunTestSuites( void )
         RUN_TEST_GROUP( BLE_Unit_MQTT_Serialize );
         RUN_TEST_GROUP( coreMQTT_Integration_BLE );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_CONNECTIVITY );
-        RUN_TEST_GROUP( Full_BLE_END_TO_END_MQTT );
-        RUN_TEST_GROUP( Full_BLE_END_TO_END_SHADOW );
     #endif
 
     #if ( testrunnerFULL_FREERTOS_TCP_ENABLED == 1 )
         RUN_TEST_GROUP( Full_FREERTOS_TCP );
-    #endif
-
-    #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
-        RUN_TEST_GROUP( Serializer_Unit_CBOR );
-        RUN_TEST_GROUP( Serializer_Unit_CBOR_Decoder );
-        RUN_TEST_GROUP( Serializer_Unit_JSON );
-        RUN_TEST_GROUP( Serializer_Unit_JSON_deserialize );
-    #endif
-
-    #if ( testrunnerFULL_HTTPS_CLIENT_ENABLED == 1 )
-        RUN_TEST_GROUP( HTTPS_Client_Unit_API );
-        RUN_TEST_GROUP( HTTPS_Utils_Unit_API );
-        RUN_TEST_GROUP( HTTPS_Client_Unit_Sync );
-        RUN_TEST_GROUP( HTTPS_Client_Unit_Async );
-        RUN_TEST_GROUP( HTTPS_Client_System );
     #endif
 
     #if ( testrunnerFULL_COMMON_IO_ENABLED == 1 )

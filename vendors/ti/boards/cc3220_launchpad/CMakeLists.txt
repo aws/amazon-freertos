@@ -163,18 +163,33 @@ target_sources(
     INTERFACE "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
 )
 
-# OTA
+# Over-the-air Updates
 afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
-    INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
+    INTERFACE
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.h"
+)
+target_include_directories(
+    AFR::ota::mcu_port
+    INTERFACE
+        "${afr_ports_dir}/ota_pal_for_aws"
 )
 target_link_libraries(
     AFR::ota::mcu_port
     INTERFACE
-        AFR::ota_mqtt
-        AFR::ota_http
+        AFR::crypto
+        AFR::pkcs11
+        AFR::ota
 )
+
+if(AFR_ENABLE_TESTS)
+    target_include_directories(
+        AFR::ota::mcu_port
+        INTERFACE "${PROJECT_SOURCE_DIR}/tests/integration_test/ota_pal"
+    )
+endif()
 
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests

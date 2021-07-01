@@ -1,43 +1,44 @@
 ---
-name: Bug report
-about: Create a bug report for FreeRTOS
-labels: bug
+name: Bug Report
+about: Create a report to help us improve amazon-freertos by identifying any confirmed
+  bugs. To discuss a potential bug, or pose other inquiries, please open an issue
+  using the template linked below.
+title: "[BUG] <replace with your title>"
+labels: 'Type: Bug'
+assignees: ''
 
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+Please provide a clear and concise description explaining the bug.
 
 **System information**
-- Which hardware board or part numbers?
-- IDE used
-- Operating System [Windows|Linux|MacOS]
-- Version of FreeRTOS (run ``git describe --tags`` to find it)
-- Project [Custom Application|MQTT|Shadow|Greengrass|OTA|Device Defender|TCP Echo|Sub pub Demo|Simple TCP Server]
-- If your project is a Custom Application, please add the relevant code snippet in the section `Code to reproduce the bug`. 
+- Hardware board: [ ... ]
+- IDE used: [ ... ]
+- Operating System: [ Windows | Linux | MacOS ]
+- Code version: (run ``git describe --tags`` to find it)
+- Project/Demo: [ mqtt_demo_mutual_auth | shadow_demo | custom application | etc... ]
+- If your project is a custom application, please add the relevant code snippet(s) in the section titled `"Code to reproduce bug"`.
 
 **Expected behavior**
-A clear and concise description of what you expected to happen.
+A clear description of the expected behavior.
 
 **Screenshots or console output**
-If appropriate, please cut-and-paste the console output to explain the issue. If possible, include the call stack. 
+If appropriate, please paste the console output/error log explaining the issue. If possible, include the call stack.
 
-**To reproduce**
-Steps to reproduce the behavior:
+**Steps to reproduce bug**
+    Example:
+      1. "I am using project [ ... ], and have configured with [ ... ]"
+      2. "When run on [ ... ], I observed that [ ... ]"
 
-1. ...
-2. ...
-
-**Code to reproduce the bug**
-The code should be wrapped in the cpp tag in order to be displayed clearly. For example:
+**Code to reproduce bug**
+The code should be wrapped in the ``cpp`` tag in order to be displayed clearly. For example:
 
 ```cpp
 printf("Hello World")
 ```
 
-If the code is longer than 30 lines, [GIST](https://gist.github.com) is preferred.
-
 **Additional context**
-Add any other context about the problem here.
+Include any additional context relevant to the issue here.
 
-Thank you!
+<!-- For general inquiries, please open an issue with the "Type: Question" tag using [this template](.github/ISSUE_TEMPLATE/general_inquiry.md). -->

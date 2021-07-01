@@ -55,7 +55,7 @@
 /**
  * To use this demo, please configure the client's certificate and private key
  * in demos/include/aws_clientcredential_keys.h.
- * 
+ *
  * For the AWS IoT MQTT broker, refer to the AWS documentation below for details
  * regarding client authentication.
  * https://docs.aws.amazon.com/iot/latest/developerguide/client-authentication.html
@@ -112,6 +112,7 @@
  *
  * #define democonfigROOT_CA_PEM    "...insert here..."
  */
+#define democonfigROOT_CA_PEM            tlsATS1_ROOT_CERTIFICATE_PEM
 
 /**
  * @brief Size of the network buffer for MQTT packets.

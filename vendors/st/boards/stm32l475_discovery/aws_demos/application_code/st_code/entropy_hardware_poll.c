@@ -48,6 +48,7 @@
 #include <string.h>
 #include "main.h"
 #include "stm32l4xx_hal.h"
+#include "mbedtls/entropy.h"
 
 int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t *olen );
 
@@ -65,7 +66,7 @@ int mbedtls_hardware_poll( void *data,
   
   if ((len < sizeof(uint32_t)) || (HAL_OK != status))
   {
-    return 0;
+    return MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
   }
   
   memcpy(output, &random_number, sizeof(uint32_t));

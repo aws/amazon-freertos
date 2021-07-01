@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Secure Sockets V1.3.0
+ * FreeRTOS Secure Sockets V1.3.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1495,6 +1495,7 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
     TickType_t xStartTime;
     TickType_t xEndTime;
     TickType_t xTimeout = 0;
+    TickType_t xWaitTime = 1000;
     uint8_t * pucTxBuffer = ( uint8_t * ) pcTxBuffer;
     uint8_t * pucRxBuffer = ( uint8_t * ) pcRxBuffer;
     size_t xMessageLength = 1200;
@@ -1554,8 +1555,22 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
                  */
                 xNumBytesReceived += lNumBytes;
             }
+            else if( ( lNumBytes < 0 ) && ( lNumBytes != SOCKETS_EWOULDBLOCK ) )
+            {
+                /* Since we are in non blocking mode, SOCKETS_EWOULDBLOCK error is fine because the TCP stack may
+                 * still be processing the packet. Any other error is not expected and we break if we receive any other error. */
+                break;
+            }
+            else
+            {
+                /* Do nothing. Maybe we have got SOCKETS_EWOULDBLOCK which indicates that we have
+                 * to wait OR the received number of bytes is zero which is strange but acceptable.
+                 * There is a timeout added below so that this code doesn't spin in this loop
+                 * indefinately. */
+            }
 
-            if( lNumBytes < 0 )
+            /* Do not wait more than xWaitTime even if the error is SOCKETS_EWOULDBLOCK. */
+            if( ( xEndTime - xStartTime ) > xWaitTime )
             {
                 break;
             }
@@ -2742,12 +2757,20 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
             {
                 xReturned = SOCKETS_Recv( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0 );
 
-                TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
+                if( xReturned < 0 )
+                {
+                    tcptestFAILUREPRINTF( ( "%s: Error in SOCKETS_Recv. Return value: %d", __FUNCTION__, xReturned ) );
+                }
 
-                /* Data was received. */
-                TEST_ASSERT_EQUAL_MEMORY( &cTransmittedString[ xTotalReceived ], pcReceivedString, xReturned );
+                TEST_ASSERT_GREATER_OR_EQUAL_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
 
-                xTotalReceived += xReturned;
+                if( xReturned > 0 )
+                {
+                    /* Data was received. */
+                    TEST_ASSERT_EQUAL_MEMORY( &cTransmittedString[ xTotalReceived ], pcReceivedString, xReturned );
+
+                    xTotalReceived += xReturned;
+                }
             }
 
             /* Rendezvous with the Tx task ready to start a new cycle with a

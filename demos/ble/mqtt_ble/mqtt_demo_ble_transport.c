@@ -138,7 +138,7 @@
  * It should contain a single pointer to the type of your desired transport.
  * When using multiple transports in the same compilation unit, define this pointer as void *.
  *
- * @note Transport stacks are defined in amazon-freertos/libraries/c_sdk/standard/ble/include/iot_ble_mqtt_transport.h.
+ * @note Transport stacks are defined in amazon-freertos/libraries/c_sdk/ble/include/iot_ble_mqtt_transport.h.
  */
 struct NetworkContext
 {

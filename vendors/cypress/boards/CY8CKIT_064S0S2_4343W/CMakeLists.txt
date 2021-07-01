@@ -47,7 +47,11 @@ set(ENV{LINKER_SCRIPT_NAME} "cyb06xxa_cm4_dual")
 
 # These must be in parent scope so the rest of the cmake flow sees them
 set(ENV{CY_TFM_HEX} "${cy_psoc6_dir}/psoc64tfm/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex")
+if (CY_TFM_POLICY_VER_ES100)
+set(ENV{CY_TFM_POLICY_FILE} "${cy_psoc6_dir}/psoc64tfm/security/policy/policy_multi_CM0_CM4_jitp_es100.json")
+else()
 set(ENV{CY_TFM_POLICY_FILE} "${cy_psoc6_dir}/psoc64tfm/security/policy/policy_multi_CM0_CM4_jitp.json")
+endif()
 set(ENV{CY_DEVICE_NAME} "cy8ckit-064s0s2-4343w")
 
 #Features
@@ -95,24 +99,40 @@ set(DEFENDER_METRICS_LWIP_SUPPORTED TRUE CACHE INTERNAL "LWIP Defender Metrics s
 #
 
 if(OTA_SUPPORT)
+    # Set for new Cy Bootloader SWAP_WITH_STATUS support
+    set(CY_MCUBOOT_SWAP_USING_STATUS             "1")
+    set(ENV{CY_MCUBOOT_SWAP_USING_STATUS}        "1")
+
     set(ENV{MCUBOOT_HEADER_SIZE}         "0x400"      )       # Must be a multiple of 1024
     set(ENV{MCUBOOT_MAX_IMG_SECTORS}     "2000"       )
     set(ENV{CY_BOOT_SCRATCH_SIZE}        "0x00001000" )
-    set(ENV{MCUBOOT_BOOTLOADER_SIZE}     "0x00040000" )
-    set(ENV{CY_BOOT_PRIMARY_1_START}     "0x00050000" )
-    set(ENV{CY_BOOT_PRIMARY_1_SIZE}      "0x00120000" )
+
     set(ENV{CY_BOOT_PRIMARY_2_START}     "0x00000000" )
     set(ENV{CY_BOOT_PRIMARY_2_SIZE}      "0x00050000" )
 
+    if(CY_MCUBOOT_SWAP_USING_STATUS)
+        # New SWAP_USING_STATUS bootloader
+        set(ENV{MCUBOOT_BOOTLOADER_SIZE}     "0x00050000" )
+        set(ENV{CY_BOOT_PRIMARY_1_START}     "0x00050000" )
+        set(ENV{CY_BOOT_PRIMARY_1_SIZE}      "0x0011C000" )
+        set(ENV{CY_BOOT_SECONDARY_1_START}   "0x00024400" ) # offset from start of external FLASH 18000000
+        set(ENV{CY_BOOT_SECONDARY_2_START}   "0x0016C000" ) # offset from CY_FLASH_BASE
+    else()
+        set(ENV{MCUBOOT_BOOTLOADER_SIZE}     "0x00040000" )
+        set(ENV{CY_BOOT_PRIMARY_1_START}     "0x00050000" )
+        set(ENV{CY_BOOT_PRIMARY_1_SIZE}      "0x00120000" )
+        set(ENV{CY_BOOT_SECONDARY_1_START}   "0x18000000" ) # start of external FLASH
+        set(ENV{CY_BOOT_SECONDARY_2_START}   "0x00170000" )
+    endif()
+
     set(ENV{MCUBOOT_IMAGE_NUMBER}        "2")            # 2 images (primary_1 and primary_2)
-    set(ENV{CY_BOOT_SECONDARY_1_START}   "0x18000000" ) # start of external FLASH
-    set(ENV{CY_BOOT_SECONDARY_2_START}   "0x00170000" )
 
     # Default to internal FLASH value for MCUBoot header signing
     # Note that after cy_bootloader changes to support 0xFF erase values
     # for different FLASH, this may	 need to change
     set(ENV{CY_BOOT_USE_EXTERNAL_FLASH}     "1" )
     set(ENV{CY_FLASH_ERASE_VALUE}           "1" )
+
 endif()
 
 # -------------------------------------------------------------------
@@ -160,7 +180,7 @@ cy_add_link_libraries(
     BSP_DIR "${app_dir}/application_code/cy_code"
     CONFIG_DIRS "${include_dirs}"
     COMPONENTS "4343W;CAPSENSE;TFM_NS_FREERTOS_WRAPPER;TFM_NS_INTERFACE"
-    DEFINES "CY_USE_LWIP;CY_TFM_PSA_SUPPORTED;TFM_MULTI_CORE_MULTI_CLIENT_CALL;CY_TFM_VERSION_1_0"
+    DEFINES "CY_USE_LWIP;CY_TFM_PSA_SUPPORTED;TFM_MULTI_CORE_MULTI_CLIENT_CALL"
 )
 
 # TODO: remove this once whd is updated to new version

@@ -42,6 +42,7 @@ function(cy_config_ota_exe_target)
         "-DMCUBOOT_BOOTLOADER_SIZE=$ENV{MCUBOOT_BOOTLOADER_SIZE}"
         "-DCY_BOOT_PRIMARY_1_START=$ENV{CY_BOOT_PRIMARY_1_START}"
         "-DCY_BOOT_PRIMARY_1_SIZE=$ENV{CY_BOOT_PRIMARY_1_SIZE}"
+        "-DCY_BOOT_SECONDARY_1_START=$ENV{CY_BOOT_SECONDARY_1_START}"
         "-DCY_BOOT_SECONDARY_1_SIZE=$ENV{CY_BOOT_PRIMARY_1_SIZE}"
         "-DMCUBOOT_MAX_IMG_SECTORS=$ENV{MCUBOOT_MAX_IMG_SECTORS}"
         "-DCY_RETARGET_IO_CONVERT_LF_TO_CRLF=1"
@@ -61,6 +62,13 @@ function(cy_config_ota_exe_target)
             "-DCCY_BOOT_SECONDARY_2_START=$ENV{CY_BOOT_SECONDARY_2_START}"
         )
     endif()
+
+    # is CY_MCUBOOT_SWAP_USING_STATUS set?
+    if ("$ENV{CY_MCUBOOT_SWAP_USING_STATUS}" STREQUAL "1")
+        target_compile_definitions(AFR::ota::mcu_port INTERFACE "-DCY_MCUBOOT_SWAP_USING_STATUS=$ENV{CY_MCUBOOT_SWAP_USING_STATUS}" )
+    endif()
+
+
     #----------------------------------------------------------------
     # Add Linker options
     #

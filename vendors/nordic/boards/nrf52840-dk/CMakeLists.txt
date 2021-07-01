@@ -386,6 +386,7 @@ target_include_directories(
     INTERFACE
         $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${kernel_inc_dirs}>
         "${board_dir}/config_files"
+        "${board_dir}/application_code"
 )
 
 target_link_libraries(
@@ -393,8 +394,9 @@ target_link_libraries(
     INTERFACE
         3rdparty::jsmn
         3rdparty::pkcs11
-        # Require this for bootloader
+        # Require tinycrypt and mbedtls for bootloader
         3rdparty::tinycrypt
+        3rdparty::mbedtls
 )
 
 # BLE
@@ -419,23 +421,35 @@ target_include_directories(
         "${afr_ports_dir}/ble"
 )
 
-# OTA
+# Over-the-air Updates
 afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
     INTERFACE
-        "${afr_ports_dir}/ota/aws_ota_pal.c"
-        "${afr_ports_dir}/ota/asn1utility.c"
-        "${afr_ports_dir}/ota/asn1utility.h"
-        "${afr_ports_dir}/ota/aws_ota_pal_settings.h"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.c"
+        "${afr_ports_dir}/ota_pal_for_aws/ota_pal.h"
+        "${afr_ports_dir}/ota_pal_for_aws/asn1utility.c"
+        "${afr_ports_dir}/ota_pal_for_aws/asn1utility.h"
+        "${afr_ports_dir}/ota_pal_for_aws/aws_ota_pal_settings.h"
 )
-
+target_include_directories(
+    AFR::ota::mcu_port
+    INTERFACE
+        "${afr_ports_dir}/ota_pal_for_aws"
+)
 target_link_libraries(
     AFR::ota::mcu_port
     INTERFACE
-        AFR::crypto
-        AFR::ota_mqtt
+        3rdparty::mbedtls
+        AFR::ota
 )
+
+if(AFR_ENABLE_TESTS)
+    target_include_directories(
+        AFR::ota::mcu_port
+        INTERFACE "${PROJECT_SOURCE_DIR}/tests/integration_test/ota_pal"
+    )
+endif()
 
 # POSIX
 afr_mcu_port(posix)

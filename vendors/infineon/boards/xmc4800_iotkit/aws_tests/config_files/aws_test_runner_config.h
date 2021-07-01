@@ -42,8 +42,7 @@
  */
 /* #define AWS_TEST_RUNNER_DELAY_MS                       ( 1000 )*/
 
-#define testrunnerFULL_OTA_CBOR_ENABLED             testrunnerUNSUPPORTED
-#define testrunnerFULL_OTA_AGENT_ENABLED            testrunnerUNSUPPORTED
+/* Unsupported tests. */
 #define testrunnerFULL_OTA_PAL_ENABLED              testrunnerUNSUPPORTED
 
 /* Enable tests by setting defines to 1 */

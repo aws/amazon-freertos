@@ -35,8 +35,6 @@
 /* AWS library includes. */
 #include "iot_logging_task.h"
 #include "aws_clientcredential.h"
-#include "iot_mqtt.h"
-#include "iot_init.h"
 
 /* Nordic BSP includes */
 #include "bsp.h"
@@ -61,7 +59,6 @@
 
 #include <iot_ble.h>
 #include "SEGGER_RTT.h"
-#include "aws_application_version.h"
 #if defined( UART_PRESENT )
     #include "nrf_uart.h"
 #endif

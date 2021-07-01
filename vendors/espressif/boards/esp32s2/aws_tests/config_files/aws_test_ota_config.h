@@ -27,8 +27,8 @@
  * @file aws_test_ota_config.h
  * @brief Port-specific variables for firmware Over-the-Air Update tests. */
 
-#ifndef _AWS_TEST_OTA_CONFIG_H_
-#define _AWS_TEST_OTA_CONFIG_H_
+#ifndef AWS_TEST_OTA_CONFIG_H_
+#define AWS_TEST_OTA_CONFIG_H_
 
 /**
  * @brief Path to cert for OTA test PAL. Used to verify signature.
@@ -50,12 +50,12 @@
 #define otatestpalUSE_FILE_SYSTEM                          0
 
 /**
- * @brief 1 if prvPAL_CheckFileSignature() is implemented in aws_ota_pal.c.
+ * @brief 1 if otaPal_CheckFileSignature() is implemented in aws_ota_pal.c.
  */
 #define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           1
 
 /**
- * @brief 1 if prvPAL_ReadAndAssumeCertificate() is implemented in aws_ota_pal.c.
+ * @brief 1 if otaPal_ReadAndAssumeCertificate() is implemented in aws_ota_pal.c.
  */
 #define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    1
 
@@ -69,13 +69,28 @@
  */
 #include "aws_test_ota_pal_ecdsa_sha256_signature.h"
 
-
+/**
+ * @brief Major version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#define APP_VERSION_MAJOR    0
 
 /**
- * @brief Define a valid and invalid signature verification method for this
- * platform (Microchip). These are used for generating test JSON docs.
+ * @brief Minor version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
  */
-#define otatestVALID_SIG_METHOD      "sig-sha256-ecdsa"
-#define otatestINVALID_SIG_METHOD    "sig-sha256-rsa"
+#define APP_VERSION_MINOR    9
 
-#endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */
+/**
+ * @brief Build version of the firmware.
+ *
+ *        This is used in the OTA demo to set the appFirmwareVersion variable
+ *        that is declared in the ota_appversion32.h file in the OTA library.
+ */
+#define APP_VERSION_BUILD    2
+
+#endif /* ifndef AWS_TEST_OTA_CONFIG_H_ */

@@ -46,8 +46,6 @@
 /* Unsupported tests. */
 #define testrunnerFULL_BLE_ENABLED                    testrunnerUNSUPPORTED
 #define testrunnerFULL_BLE_END_TO_END_TEST_ENABLED    testrunnerUNSUPPORTED
-#define testrunnerFULL_OTA_CBOR_ENABLED               testrunnerUNSUPPORTED
-#define testrunnerFULL_OTA_AGENT_ENABLED              testrunnerUNSUPPORTED
 #define testrunnerFULL_OTA_PAL_ENABLED                testrunnerUNSUPPORTED
 #define testrunnerFULL_MEMORYLEAK_ENABLED             testrunnerUNSUPPORTED
 

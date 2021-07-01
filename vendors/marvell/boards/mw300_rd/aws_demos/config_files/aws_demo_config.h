@@ -34,7 +34,7 @@
  *          CONFIG_CORE_HTTP_S3_DOWNLOAD_MULTITHREADED_DEMO_ENABLED
  *          CONFIG_CORE_HTTP_S3_UPLOAD_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
- *          CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED
+ *          CONFIG_CORE_MQTT_AGENT_DEMO_ENABLED
  *          CONFIG_DEVICE_SHADOW_DEMO_ENABLED
  *          CONFIG_DEVICE_DEFENDER_DEMO_ENABLED
  *          CONFIG_JOBS_DEMO_ENABLED
@@ -79,7 +79,7 @@
 #define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
 
 /* MQTT Connection sharing demo task priority. */
-#define democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
+#define democonfigCORE_MQTT_AGENT_DEMO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
 
 /* Shadow demo task parameters. */
 #define democonfigSHADOW_DEMO_TASK_STACK_SIZE                        ( 1280 )
@@ -91,10 +91,6 @@
 /* TCP Echo Client tasks single example parameters. */
 #define democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE              ( 1024 )
 #define democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
-
-/* OTA Update task example parameters. */
-#define democonfigOTA_UPDATE_TASK_STACK_SIZE                         ( 1024 )
-#define democonfigOTA_UPDATE_TASK_TASK_PRIORITY                      ( tskIDLE_PRIORITY )
 
 /* Simple TCP Echo Server task example parameters */
 #define democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE                    ( 1536 )

@@ -4,9 +4,10 @@
 #include "nrf_crypto_hash.h"
 #include "bootloader.h"
 #include "asn1utility.h"
-#include "aws_ota_codesigner_certificate.h"
 #include "nrf_bootloader.h"
 #include "mbedtls/base64.h"
+
+#include "ota_demo_config.h"
 
 ret_code_t xReadCertificate();
 /* Tag by which the beginning of the ECDSA in the public key can be found */
@@ -34,7 +35,7 @@ ret_code_t xReadCertificate(){
     uint8_t pucDecodedCertificate[512];
     size_t ulDecodedCertificateSize;
     /* Skip the "BEGIN CERTIFICATE" */
-     uint8_t* pucCertBegin = strstr(signingcredentialSIGNING_CERTIFICATE_PEM, CERT_BEGIN) ;
+    uint8_t* pucCertBegin = strstr( otapalconfigCODE_SIGNING_CERTIFICATE, CERT_BEGIN );
     if (pucCertBegin == NULL)
     {
         return NRF_ERROR_INTERNAL;

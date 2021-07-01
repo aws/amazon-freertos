@@ -66,9 +66,12 @@
 #endif
 #endif
 
-#if (BLE_SUPPORTED == 1)
+#if BLE_SUPPORTED
 #include "bt_hal_manager_types.h"
 #endif
+
+/* For kvstore_init() */
+#include "kvstore.h"
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 90 )
@@ -287,6 +290,9 @@ void vApplicationDaemonTaskStartupHook( void )
         printf( "Retarget IO initialization failed \r\n" );
     }
 
+    result = kvstore_init();
+    CY_ASSERT(CY_RSLT_SUCCESS == result);
+
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
 #ifdef PDL_CODE
     if (qspi_init_sfdp(1) < 0)
@@ -494,6 +500,7 @@ void vAssertCalled(const char * pcFile,
     */
     if (xTaskGetCurrentTaskHandle() == xRunTestTaskHandle)
     {
+        configPRINTF( ("vAssertCalled %s, %ld\n", pcFile, (long)ulLine) );
         TEST_ABORT();
     }
     else
