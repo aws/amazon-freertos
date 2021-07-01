@@ -507,7 +507,10 @@ static MQTTAgentMessageInterface_t xMessageInterface;
  */
 static MQTTAgentMessageContext_t xCommandQueue;
 
-
+/**
+ * @brief Flag for connection status to S3 service.
+ */
+static BaseType_t xHttpConnectionStatus;
 
 /**
  * @brief The global array of subscription elements.
@@ -1614,7 +1617,6 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
     BaseType_t returnStatus = pdPASS;
     BaseType_t xStatus = pdPASS;
     HTTPStatus_t xHttpStatus = HTTPSuccess;
-    BackoffAlgorithmContext_t xReconnectParams;
     /* The location of the host address within the pre-signed URL. */
     const char * pcAddress = NULL;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
@@ -1631,12 +1633,6 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
     xSocketsConfig.rootCaSize = sizeof( democonfigHTTPS_ROOT_CA_PEM );
     xSocketsConfig.sendTimeoutMs = otaexampleHTTPS_TRANSPORT_SEND_RECV_TIMEOUT_MS;
     xSocketsConfig.recvTimeoutMs = otaexampleHTTPS_TRANSPORT_SEND_RECV_TIMEOUT_MS;
-
-    /* Initialize reconnect attempts and interval. */
-    BackoffAlgorithm_InitializeParams( &xReconnectParams,
-                                       RETRY_BACKOFF_BASE_MS,
-                                       RETRY_MAX_BACKOFF_DELAY_MS,
-                                       RETRY_MAX_ATTEMPTS );
 
     /* Retrieve the address location and length from S3_PRESIGNED_GET_URL. */
     if( pcUrl != NULL )
@@ -1669,28 +1665,16 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
         xServerInfo.hostNameLength = xServerHostLength;
         xServerInfo.port = democonfigHTTPS_PORT;
 
-        /* Attempt to connect to MQTT broker. If connection fails, retry after
-         * a timeout. Timeout value will exponentially increase till maximum
-         * attempts are reached.
-         */
-        do
-        {
-            /* Establish a TLS session with the HTTP server. This example connects
-             * to the HTTP server as specified in SERVER_HOST and HTTPS_PORT in
-             * demo_config.h. */
-            LogInfo( ( "Establishing a TLS session with %s:%d.",
-                       pcServerHost,
-                       democonfigHTTPS_PORT ) );
+        /* Establish a TLS session with the HTTP server. This example connects
+         * to the HTTP server as specified in SERVER_HOST and HTTPS_PORT in
+         * demo_config.h. */
+        LogInfo( ( "Establishing a TLS session with %s:%d.",
+                   pcServerHost,
+                   democonfigHTTPS_PORT ) );
 
-            xNetworkStatus = SecureSocketsTransport_Connect( pxNetworkContext,
-                                                             &xServerInfo,
-                                                             &xSocketsConfig );
-
-            if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
-            {
-                xStatus = prvBackoffForRetry( &xReconnectParams );
-            }
-        } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xStatus == pdPASS ) );
+        xNetworkStatus = SecureSocketsTransport_Connect( pxNetworkContext,
+                                                         &xServerInfo,
+                                                         &xSocketsConfig );
 
         returnStatus = ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS ) ? pdPASS : pdFAIL;
     }
@@ -1778,13 +1762,17 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
 
     xNetworkContextHttp.pParams = &xHTTPSecureSocketsTransportParams;
 
-    /* Attempt to connect to the HTTPs server. If connection fails, retry after
-     * a timeout. Timeout value will be exponentially increased till the maximum
-     * attempts are reached or maximum timeout value is reached. The function
-     * returns EXIT_FAILURE if the TCP connection cannot be established to
-     * broker after configured number of attempts. */
+    if( xHttpConnectionStatus == pdTRUE )
+    {
+        /* End TLS session, then close TCP connection. */
+        ( void ) SecureSocketsTransport_Disconnect( &xNetworkContextHttp );
+    }
+
+    /* Attempt to connect to the HTTPs server. */
     if( prvConnectToS3Server( &xNetworkContextHttp, pcUrl ) == EXIT_SUCCESS )
     {
+        xHttpConnectionStatus = pdTRUE;
+
         /* Define the transport interface. */
         ( void ) memset( &xTransportInterfaceHttp, 0, sizeof( xTransportInterfaceHttp ) );
         xTransportInterfaceHttp.recv = SecureSocketsTransport_Recv;
@@ -1807,6 +1795,8 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
          * reconnect attempts are over. */
         LogError( ( "Failed to connect to HTTP server %s.",
                     pcServerHost ) );
+
+        xHttpConnectionStatus = pdFALSE;
 
         xReturnStatus = OtaHttpInitFailed;
     }
@@ -1831,9 +1821,6 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
 
     /* Return value of all methods from the HTTP Client library API. */
     HTTPStatus_t xHttpStatus = HTTPSuccess;
-
-    /* Reconnection required flag. */
-    bool xReconnectRequired = false;
 
     /* Initialize all HTTP Client library API structs to 0. */
     ( void ) memset( &xRequestInfo, 0, sizeof( xRequestInfo ) );
@@ -1886,7 +1873,7 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
     {
         if( ( xHttpStatus == HTTPNoResponse ) || ( xHttpStatus == HTTPNetworkError ) )
         {
-            xReconnectRequired = true;
+            xHttpConnectionStatus = pdFALSE;
         }
         else
         {
@@ -1901,14 +1888,14 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
         /* Check if reconnection required. */
         if( xResponse.respFlags & HTTP_RESPONSE_CONNECTION_CLOSE_FLAG )
         {
-            xReconnectRequired = true;
+            xHttpConnectionStatus = pdFALSE;
         }
 
         /* Handle the http response received. */
         xReturnStatus = prvHandleHttpResponse( &xResponse );
     }
 
-    if( xReconnectRequired == true )
+    if( xHttpConnectionStatus == pdFALSE )
     {
         /* End TLS session, then close TCP connection. */
         ( void ) SecureSocketsTransport_Disconnect( &xNetworkContextHttp );
@@ -1916,10 +1903,14 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
         /* Try establishing connection to S3 server again. */
         if( prvConnectToS3Server( &xNetworkContextHttp, NULL ) == EXIT_SUCCESS )
         {
+            xHttpConnectionStatus = pdTRUE;
+
             xReturnStatus = HTTPSuccess;
         }
         else
         {
+            xHttpConnectionStatus = pdFALSE;
+
             /* Log an error to indicate connection failure after all
              * reconnect attempts are over. */
             LogError( ( "Failed to connect to HTTP server %s.",
