@@ -1898,7 +1898,7 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
     {
         if( ( xHttpStatus == HTTPNoResponse ) || ( xHttpStatus == HTTPNetworkError ) )
         {
-            xHttpConnectionStatus = pdTRUE;
+            xHttpConnectionStatus = pdFALSE;
         }
         else
         {
@@ -1913,7 +1913,7 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
         /* Check if reconnection required. */
         if( xResponse.respFlags & HTTP_RESPONSE_CONNECTION_CLOSE_FLAG )
         {
-            xHttpConnectionStatus = pdTRUE;
+            xHttpConnectionStatus = pdFALSE;
         }
 
         /* Handle the http response received. */
