@@ -239,7 +239,7 @@ extern int snprintf( char *,
 #endif
 
 /* All tests use a secured connection. */
-#define IOT_TEST_SECURED_CONNECTION    ( 1 )
+#define IOT_TEST_SECURED_CONNECTION                  ( 1 )
 
 /* Retry the MQTT Connections in the MQTT System unit tests for all hardware
  * platforms supported in FreeRTOS.
