@@ -121,8 +121,8 @@ CONFIG_ESPTOOLPY_MONITOR_BAUD=115200
 # CONFIG_PARTITION_TABLE_SINGLE_APP is not set
 # CONFIG_PARTITION_TABLE_TWO_OTA is not set
 CONFIG_PARTITION_TABLE_CUSTOM=y
-CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="/Users/diveks/Development/doc-test/amazon-freertos/vendors/espressif/boards/esp32s2/aws_demos/partition-table.csv"
-CONFIG_PARTITION_TABLE_FILENAME="/Users/diveks/Development/doc-test/amazon-freertos/vendors/espressif/boards/esp32s2/aws_demos/partition-table.csv"
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partition-table.csv"
+CONFIG_PARTITION_TABLE_FILENAME="partition-table.csv"
 CONFIG_PARTITION_TABLE_OFFSET=0x8000
 CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
