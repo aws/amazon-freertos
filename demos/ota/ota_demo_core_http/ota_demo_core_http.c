@@ -1761,11 +1761,11 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
     LogInfo( ( "Performing TLS handshake on top of the TCP connection." ) );
 
     xNetworkContextHttp.pParams = &xHTTPSecureSocketsTransportParams;
-	
+
     if( xHttpConnectionStatus == pdTRUE )
     {
         /* End TLS session, then close TCP connection. */
-        (void)SecureSocketsTransport_Disconnect( &xNetworkContextHttp );
+        ( void ) SecureSocketsTransport_Disconnect( &xNetworkContextHttp );
     }
 
     /* Attempt to connect to the HTTPs server. */
