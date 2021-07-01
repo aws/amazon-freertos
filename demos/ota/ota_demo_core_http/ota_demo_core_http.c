@@ -1761,12 +1761,14 @@ static OtaHttpStatus_t prvHttpInit( char * pcUrl )
     LogInfo( ( "Performing TLS handshake on top of the TCP connection." ) );
 
     xNetworkContextHttp.pParams = &xHTTPSecureSocketsTransportParams;
+	
+    if( xHttpConnectionStatus == pdTRUE )
+    {
+        /* End TLS session, then close TCP connection. */
+        (void)SecureSocketsTransport_Disconnect( &xNetworkContextHttp );
+    }
 
-    /* Attempt to connect to the HTTPs server. If connection fails, retry after
-     * a timeout. Timeout value will be exponentially increased till the maximum
-     * attempts are reached or maximum timeout value is reached. The function
-     * returns EXIT_FAILURE if the TCP connection cannot be established to
-     * broker after configured number of attempts. */
+    /* Attempt to connect to the HTTPs server. */
     if( prvConnectToS3Server( &xNetworkContextHttp, pcUrl ) == EXIT_SUCCESS )
     {
         xHttpConnectionStatus = pdTRUE;
