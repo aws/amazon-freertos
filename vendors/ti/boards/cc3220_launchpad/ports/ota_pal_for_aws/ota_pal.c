@@ -191,15 +191,14 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
         {
             ulFlags = ( SL_FS_CREATE | SL_FS_OVERWRITE | SL_FS_CREATE_FAILSAFE | /*lint -e9027 -e9028 -e9029 We don't own the TI problematic macros. */
                         SL_FS_CREATE_PUBLIC_WRITE | SL_FS_WRITE_BUNDLE_FILE |
-                        SL_FS_CREATE_SECURE | SL_FS_CREATE_VENDOR_TOKEN |
-                        SL_FS_CREATE_MAX_SIZE( OTA_MAX_MCU_IMAGE_SIZE ) );
+                        SL_FS_CREATE_SECURE | SL_FS_CREATE_VENDOR_TOKEN );
 
             /* Create a boot info file for configuring watchdog timer. */
             lResult = prvCreateBootInfoFile();
         }
         else
         {
-            ulFlags = SL_FS_CREATE | SL_FS_OVERWRITE | SL_FS_CREATE_NOSIGNATURE | SL_FS_CREATE_MAX_SIZE( OTA_MAX_MCU_IMAGE_SIZE );
+            ulFlags = ( SL_FS_CREATE | SL_FS_OVERWRITE | SL_FS_CREATE_NOSIGNATURE );
 
             /* Set the lResult explicitly as we do not create a boot info file
              * for downloading non firmware files. */
@@ -214,7 +213,7 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
             do
             {
                 /* The file remains open until the OTA agent calls otaPal_CloseFile() after transfer or failure. */
-                lResult = sl_FsOpen( ( _u8 * ) C->pFilePath, ( _u32 ) ulFlags, ( _u32 * ) &ulToken );
+                lResult = sl_FsOpen( ( _u8 * ) C->pFilePath, ( _u32 ) ( ulFlags | SL_FS_CREATE_MAX_SIZE( C->fileSize ) ), ( _u32 * ) &ulToken );
 
                 if( lResult > 0 )
                 {
@@ -241,8 +240,11 @@ OtaPalStatus_t otaPal_CreateFileForRx( OtaFileContext_t * const C )
                     }
                     else
                     {
-                        /* Attempt to roll back the bundle and try again. */
-                        prvRollbackBundle();
+                        if( C->fileType == 0 )
+                        {
+                            /* Attempt to roll back the bundle and try again. */
+                            prvRollbackBundle();
+                        }
                     }
 
                     lRetry++;
