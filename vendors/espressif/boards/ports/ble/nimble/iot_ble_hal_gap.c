@@ -236,6 +236,13 @@ BTStatus_t prvToggleBondableFlag( bool bEnable )
     BTStatus_t xStatus = eBTStatusSuccess;
 
     ble_hs_cfg.sm_bonding = bEnable;
+
+    if ( bEnable )
+    {
+        ble_hs_cfg.sm_our_key_dist   = BLE_SM_PAIR_KEY_DIST_ID | BLE_SM_PAIR_KEY_DIST_ENC;
+        ble_hs_cfg.sm_their_key_dist = BLE_SM_PAIR_KEY_DIST_ID | BLE_SM_PAIR_KEY_DIST_ENC;
+    }
+
     return xStatus;
 }
 
