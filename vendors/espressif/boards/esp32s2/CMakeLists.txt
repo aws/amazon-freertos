@@ -389,6 +389,8 @@ target_link_libraries(
         AFR::ota
 )
 
+SET(OTA_OVER_HTTP_DATAPLANE_DISABLED 1)
+
 if(AFR_ENABLE_TESTS)
     target_include_directories(
         AFR::ota::mcu_port
