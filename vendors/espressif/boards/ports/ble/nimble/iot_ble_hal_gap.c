@@ -43,6 +43,7 @@
 
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 static struct ble_gap_adv_params xAdv_params;
+static uint8_t own_addr_type = BLE_OWN_ADDR_PUBLIC;
 
 #define IOT_BLE_ADVERTISING_DURATION_MS    ( 10 )
 
@@ -255,13 +256,6 @@ BTStatus_t prvToggleSecureConnectionOnlyMode( bool bEnable )
     return xStatus;
 }
 
-void prvEnableRPA( void )
-{
-    ble_hs_cfg.sm_our_key_dist   = BLE_SM_PAIR_KEY_DIST_ID | BLE_SM_PAIR_KEY_DIST_ENC;
-    ble_hs_cfg.sm_their_key_dist = BLE_SM_PAIR_KEY_DIST_ID | BLE_SM_PAIR_KEY_DIST_ENC;
-}
-
-
 BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
@@ -291,11 +285,6 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
     if( xStatus == eBTStatusSuccess )
     {
         xStatus = prvToggleSecureConnectionOnlyMode( xProperties.bSecureConnectionOnly );
-    }
-
-    if( xStatus == eBTStatusSuccess )
-    {
-        prvEnableRPA();
     }
 
     if( pxCallbacks != NULL )
@@ -435,8 +424,7 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
     int xESPStatus;
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    /* Set address type to always random as RPA is enabled. */
-    xESPStatus = ble_gap_adv_start( BLE_OWN_ADDR_RANDOM, NULL, lAdvDurationMS,
+    xESPStatus = ble_gap_adv_start( own_addr_type, NULL, lAdvDurationMS,
                                     &xAdv_params, prvGAPeventHandler, NULL );
 
     if( xESPStatus != 0 )
