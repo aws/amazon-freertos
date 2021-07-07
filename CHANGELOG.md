@@ -292,7 +292,7 @@ The MQTT library in this release, coreMQTT, supports backward compatibility with
 
 #### FreeRTOS+POSIX Utils V1.2.0
 
-- Update the UTILS_TimespecAdd utility function to support both signed and unsigned definitions of `struct timespec.tv_sec`. (Some implementations use unsigned definition of `struct timespec.tv_sec` to address the -2038- problem on 32-bit systems. ) This change is backwards compatible.
+- Update the UTILS_TimespecAdd utility function to support both signed and unsigned definitions of `struct timespec.tv_sec`. (Some implementations use unsigned definition of `struct timespec.tv_sec` to address the *2038* problem on 32-bit systems. ) This change is backwards compatible.
 
 #### MQTT Client Library V2.2.0
 
@@ -325,7 +325,7 @@ The MQTT library in this release, coreMQTT, supports backward compatibility with
 
 - Added ability to cache multiple IP addresses per DNS entry.
 - Defensive security improvements:
-    - In compliance with the UDP protocol specification, prior versions of FreeRTOS+TCP accepted UDP packets that had their checksum set to 0. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS`, that enables users to opt to drop UDP packets that have their checksum set to 0. --Note:-- This new setting defaults to 0, so it defaults to dropping UDP packets that have their checksum set to 0.
+    - In compliance with the UDP protocol specification, prior versions of FreeRTOS+TCP accepted UDP packets that had their checksum set to 0. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS`, that enables users to opt to drop UDP packets that have their checksum set to 0. **Note:** This new setting defaults to 0, so it defaults to dropping UDP packets that have their checksum set to 0.
     - Prior versions of FreeRTOS+TCP accept IP packets that contain IP options, although those options are not processed. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS`, that enables users to opt to drop IP packets that contain IP options.
     - Setting configuration parameter, `ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM`, to 1 offloads IP checksum and length checking to the hardware. From FreeRTOS+TCP V2.3.0, the length is checked in software even when it has already been checked in hardware.
 
@@ -780,7 +780,7 @@ Applications calling into PKCS #11 functions directly (rather than indirectly vi
 - C_Initialize handles initialization of randomness in an effort to minimize entropy generation (or seed access) every time sessions are created and destroyed.  To protect random values, thread safety has been enabled in mbedTLS.
 - C_SignInit and C_VerifyInit utilize the key handle that is passed in, rather than the first key found in order to comply with the PKCS #11 standard
 - C_FindObject APIs no longer instantiate keys from the aws_clientcredential_keys.h header file if keys are not found. This removes the dependency of PKCS #11 on values that will be unique per-device (a transition step for enabling production-scale provisioning). Note that calling vDevModeKeyProvisioning() is now necessary to provision the device.
-- C_FindObject PKCS #11 objects can be looked up by CKA_LABEL, in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_- configurations have been removed from aws_pkcs11_config.h, see aws_pkcs11.h for pkcs11configLABEL_- defines to access labels, and aws_pkcs11_pal.c for pkcs11palFILE_NAME_- defines.
+- C_FindObject PKCS #11 objects can be looked up by CKA_LABEL, in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_* configurations have been removed from aws_pkcs11_config.h, see aws_pkcs11.h for pkcs11configLABEL_* defines to access labels, and aws_pkcs11_pal.c for pkcs11palFILE_NAME_* defines.
 - C_FindObject and C_GetAttributeValue accept different attribute arguments.
 - C_CreateObject requires DER encoded certificates and keys instead of PEM formatted and object attributes required for creating objects have changed.  Note that vDevModeKeyProvisioning() has been updated to supply required attributes and convert inputs from DER to PEM if necessary.
 - C_GenerateKeyPair now stores keys in non-volatile memory.
