@@ -1,5 +1,5 @@
 /*
- * FreeRTOS OTA PAL V3.0.0
+ * FreeRTOS V202012.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
