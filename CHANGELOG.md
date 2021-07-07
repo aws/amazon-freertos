@@ -44,11 +44,11 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 #### MQTT Compatibility-based AWS IoT Shadow v2.2.2
 
-- Removed under `libraries/c_sdk/aws/shadow`. Migrated to AWS IoT Device Shadow v1.0.2 under `libraries/device_shadow_for_aws`.
+- Removed under `libraries/c_sdk/aws/shadow`. Migrated to AWS IoT Device Shadow v1.0.2 under `libraries/device_shadow_for_aws` (no change from 202012.00 release).
 
 #### MQTT Compatibility-based AWS IoT Defender V3.0.3
 
-- Removed under `libraries/c_sdk/aws/defender`. Migrated to AWS IoT Device Defender v1.1.0 under `libraries/device_defender_for_aws`.
+- Removed under `libraries/c_sdk/aws/defender`. Migrated to AWS IoT Device Defender v1.1.0 under `libraries/device_defender_for_aws` (update from v1.0.1 in 202012.00 release).
 
 #### Secure Sockets v1.3.1
 
