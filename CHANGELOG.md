@@ -17,6 +17,10 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 ### Updates
 
+#### BLE v2.0.2
+
+- Moved from `libraries/c_sdk/ble` to `libraries/ble`.
+
 #### AWS IoT Device Defender v1.0.1
 
 - This release adds macros to AWS IoT Device Defender Library API for the custom metrics (https://docs.aws.amazon.com/iot/latest/developerguide/dd-detect-custom-metrics.html) feature of AWS IoT Device Defender service. 
