@@ -30,10 +30,6 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 - Will be removed
 
-#### FreeRTOS kernel V10.4.3 
-
-- No changes from 202012.00
-
 #### MQTT Compatibility layer v2.3.1 
 
 - Will be removed
