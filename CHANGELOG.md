@@ -26,40 +26,40 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 - This release brings minor updates (https://github.com/aws/Jobs-for-AWS-IoT-embedded-sdk/blob/v1.1.0/CHANGELOG.md#v110-march-2021) to the AWS IoT Jobs library that add API support for DescribeNextPendingJob API of the AWS IoT Jobs service, and macro utilities for compile-time generation of topic strings.
 
-#### HTTP Compatibility Layer  v1.2.0
+#### HTTPS Compatibility Layer  v1.2.0
 
-- Will be removed
+- Removed under `libraries/c_sdk/standard/https`. Migrated to coreHTTP v2.0.0 under `libraries/coreHTTP` (no change from 202012.00 release).
 
 #### MQTT Compatibility layer v2.3.1 
 
-- Will be removed
+- Removed under `libraries/c_sdk/standard/mqtt`. Migrated to coreMQTT v1.1.0 under `libraries/coreMQTT` (no change from 202012.00 release).
 
-#### IoT Serializer V1.1.2
+#### IoT Serializer v1.1.2
 
-- Will be removed
+- Removed under `libraries/c_sdk/standard/serializer` as there are no longer dependencies on this library.
 
-#### MQTT Compatibility-based AWS IoT Shadow V2.2.2
+#### MQTT Compatibility-based AWS IoT Shadow v2.2.2
 
-- Will be removed
+- Removed under `libraries/c_sdk/aws/shadow`. Migrated to AWS IoT Device Shadow v1.0.2 under `libraries/device_shadow_for_aws`.
 
 #### MQTT Compatibility-based AWS IoT Defender V3.0.3
 
-- Will be removed
+- Removed under `libraries/c_sdk/aws/defender`. Migrated to AWS IoT Device Defender v1.1.0 under `libraries/device_defender_for_aws`.
 
 #### Secure Sockets v1.3.1
 
-- Updated the secure socket test suite to be simpler and more robust
+- Updated the secure socket test suite to be simpler and more robust.
 
 #### Demos
 
-- Added coreMQTT-Agent Demo
-- Added OTA demo over BLE transport interface
-- Updated GreenGrass Discovery Demo using coreMQTT library
+- Added coreMQTT-Agent Demo.
+- Added OTA demo over BLE transport interface.
+- Updated GreenGrass Discovery Demo using coreMQTT library.
 
 #### Vendors
 
-- Updated all supported platforms to use coreMQTT-Agent Demo
-- Updated OTA PAL for the following ports to work with AWS IoT Over-the-air Update V3.0.0 Library Interfaces
+- Updated all supported platforms to use coreMQTT-Agent Demo.
+- Updated OTA PAL for the following ports to work with AWS IoT Over-the-air Update V3.0.0 Library Interfaces:
     - Espressif ESP32-DevKitC
     - Espressif ESP-WROVER-KIT
     - Microchip ATECC608A with Windows Simulator
@@ -69,7 +69,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
     - Microsoft Windows Simulator
 
 - New board added:
-    - Espressif ESP32-S2-SAOLA-1 (https://quip-amazon.com/SSS9EAeaY47 to confirm exact name), supporting coreMQTT-Agent Demo and AWS IoT Over-the-air V3.0.0
+    - Espressif ESP32-S2-SAOLA-1, supporting coreMQTT-Agent Demo and AWS IoT Over-the-air V3.0.0
 - Deprecated:
     - Microchip Curiosity PIC32MZEF
     - NXP LPC54608
