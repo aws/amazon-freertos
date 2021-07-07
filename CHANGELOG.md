@@ -70,9 +70,9 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
     - TI CC3220 Launch Pad
     - Nordic RF52480
     - Microsoft Windows Simulator
-
 - New board added:
     - Espressif ESP32-S2-SAOLA-1, supporting coreMQTT-Agent Demo and AWS IoT Over-the-air V3.0.0
+- Updated Espressif (Amazon) FreeRTOS SDK (ESP-IDF) for ESP platforms to V4.2.1 and add I2C patch to fix the incorrect FreeRTOS API usage from ISR context. 
 - Deprecated:
     - Microchip Curiosity PIC32MZEF
     - NXP LPC54608
