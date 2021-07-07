@@ -148,7 +148,7 @@
 						<RestoreSysVw>1</RestoreSysVw>
 					</Target>
 					<RunDebugAfterBuild>0</RunDebugAfterBuild>
-					<TargetSelection>-1</TargetSelection>
+					<TargetSelection>19</TargetSelection>
 					<SimDlls>
 						<CpuDll></CpuDll>
 						<CpuDllArguments></CpuDllArguments>
@@ -377,7 +377,7 @@
 							<MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
 							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot;  CONFIG_MEDTLS_USE_AFR_MEMORY RVDS_ARMCM4_NUC4xx __little_endian__=1 NDEBUG M487_ETH_DEMO</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../demos/common/http_demo_helpers;../../../../../demos/common/mqtt_demo_helpers;../../../../../demos/common/pkcs11_helpers;../../../../../demos/device_defender_for_aws;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../tests/integration_test;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/M487;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/abstractions/backoff_algorithm/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/coreMQTT-Agent/source/include;../../../../../libraries/abstractions/mqtt_agent/include;../../../../../libraries/abstractions/mqtt_agent;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws/source/include;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../demos/coreMQTT_Agent;</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../demos/common/http_demo_helpers;../../../../../demos/common/mqtt_demo_helpers;../../../../../demos/common/pkcs11_helpers;../../../../../demos/device_defender_for_aws;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../tests/integration_test;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/M487;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/abstractions/backoff_algorithm/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/coreMQTT-Agent/source/include;../../../../../libraries/abstractions/mqtt_agent/include;../../../../../libraries/abstractions/mqtt_agent;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws/source/include;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../demos/coreMQTT_Agent;../../../../../demos/common/mqtt_subscription_manager;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/ports/ota_pal_for_aws;../../../../../libraries/ota_for_aws/source/include;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/ota_for_aws/source/portable/os;../../../../../libraries/abstractions/platform/include/platform</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -2683,6 +2683,121 @@
                     </File>
                   </Files>
                 </Group>
+        <Group>
+          <GroupName>demos/ota/ota_demo_core_mqtt/</GroupName>
+          <Files>
+            <File>
+              <FileName>ota_demo_core_mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\demos\ota\ota_demo_core_mqtt\ota_demo_core_mqtt.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>demos/common/</GroupName>
+          <Files>
+            <File>
+              <FileName>mqtt_subscription_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\demos\common\mqtt_subscription_manager\mqtt_subscription_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>ota_application_version.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\demos\common\ota_demo_helpers\ota_application_version.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>numaker_iot_m487_wifi/ports/ota_pal_for_aws/</GroupName>
+          <Files>
+            <File>
+              <FileName>ota_pal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\ports\ota_pal_for_aws\ota_pal.c</FilePath>
+            </File>
+            <File>
+              <FileName>ota_pal_spim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\ports\ota_pal_for_aws\ota_pal_spim.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/ota_for_aws/source/</GroupName>
+          <Files>
+            <File>
+              <FileName>ota.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\ota_for_aws\source\ota.c</FilePath>
+            </File>
+            <File>
+              <FileName>ota_base64.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\ota_for_aws\source\ota_base64.c</FilePath>
+            </File>
+            <File>
+              <FileName>ota_cbor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\ota_for_aws\source\ota_cbor.c</FilePath>
+            </File>
+            <File>
+              <FileName>ota_interface.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\ota_for_aws\source\ota_interface.c</FilePath>
+            </File>
+            <File>
+              <FileName>ota_mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\ota_for_aws\source\ota_mqtt.c</FilePath>
+            </File>
+            <File>
+              <FileName>ota_os_freertos.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\ota_for_aws\source\portable\os\ota_os_freertos.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/3rdparty/tinycbor/</GroupName>
+          <Files>
+            <File>
+              <FileName>cborencoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>cborencoder_close_container_checked.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder_close_container_checked.c</FilePath>
+            </File>
+            <File>
+              <FileName>cborerrorstrings.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborerrorstrings.c</FilePath>
+            </File>
+            <File>
+              <FileName>cborparser.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser.c</FilePath>
+            </File>
+            <File>
+              <FileName>cborparser_dup_string.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c</FilePath>
+            </File>
+            <File>
+              <FileName>cborpretty.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty.c</FilePath>
+            </File>
+            <File>
+              <FileName>cborpretty_stdio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty_stdio.c</FilePath>
+            </File>
+          </Files>
+        </Group>
             </Groups>
 		</Target>
 	</Targets>
