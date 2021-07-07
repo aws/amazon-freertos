@@ -1,19 +1,82 @@
 # Change Log
 This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT. The repository contains projects for many different microcontroller evaluation boards.
 
-## Changes since previous release
+## 202107.00 July 2021
 
 ### New Features
 
+#### coreMQTT Agent v1.0.0
+
+- The coreMQTT Agent library is a high level API that adds thread safety to the coreMQTT (https://github.com/FreeRTOS/coreMQTT) library. The library provides thread safe equivalents to the coreMQTT's APIs, greatly simplifying its use in multi-threaded environments. The coreMQTT Agent library manages the MQTT connection by serializing the access to the coreMQTT library and reducing implementation overhead. This allows your multi-threaded applications to share the same MQTT connection, and enables you to design an embedded application without having to worry about coreMQTT thread safety.
+- See memory requirements for the latest release here (https://freertos.org/Documentation/api-ref/coreMQTT-Agent/docs/doxygen/output/html/index.html#core_mqtt_agent_memory_requirements)
+
+#### AWS IoT Over-the-air Update V3.0.0
+
+- The AWS IoT Over-the-air Update (https://github.com/aws/ota-for-aws-iot-embedded-sdk) (OTA) (https://github.com/aws/ota-for-aws-iot-embedded-sdk) library enables you to manage the notification of a newly available update, download the update, and perform cryptographic verification of the firmware update. Using the OTA library, you can logically separate firmware updates from the application running on your devices. You can also use the library to send other files (e.g. images, certificates) to one or more devices registered with AWS IoT. More details about OTA library can be found in AWS IoT Over-the-air Update documentation (https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ota-dev.html).
+- The AWS IoT Over-the-air Update library has a dependency on coreJSON (https://github.com/FreeRTOS/coreJSON) (https://github.com/FreeRTOS/coreJSON) for parsing of JSON job document and tinyCBOR (https://github.com/intel/tinycbor.git) (https://github.com/intel/tinycbor) for decoding encoded data streams, other than the standard C library. It can be used with any MQTT library, HTTP library, and operating system (e.g. Linux, FreeRTOS). See demos to download firmware image over MQTT (using coreMQTT Agent) and over HTTP (using coreMQTT Agent and coreHTTP) using FreeRTOS at https://docs.aws.amazon.com/freertos/latest/userguide/dev-guide-ota-workflow.html
+
 ### Updates
-- Fixes issues of thread-safety and message readability in the sample logging implementation. (Related PRs are [#2982](https://github.com/aws/amazon-freertos/pull/2982) and [#2953](https://github.com/aws/amazon-freertos/pull/2953).)
-- Update FreeRTOS Test Runner to support either a configurable delay (in [PR](https://github.com/aws/amazon-freertos/pull/2950)) or a FreeRTOS+CLI based serial prompt input command (in [PR](https://github.com/aws/amazon-freertos/pull/2955)) to being executing tests.
-- Upgrade of ESP-IDF SDK v4.2 for Espressif boards (in [PR](https://github.com/aws/amazon-freertos/pull/2893)). Refer to the instructions in [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html#setup-espressif-idf42) for using ESP-IDF v4.2.
 
-#### TLS Shim Layer V1.3.0
+#### AWS IoT Device Defender v1.0.1
 
-- Added logic to support connecting to a TLS server that does not require mutual verification.
-- Provide a way for an application to determine if a certificate has expired. PR #3139
+- This release adds macros to AWS IoT Device Defender Library API for the custom metrics (https://docs.aws.amazon.com/iot/latest/developerguide/dd-detect-custom-metrics.html) feature of AWS IoT Device Defender service. 
+- The demo has been updated to use the custom metrics feature.
+
+#### AWS IoT Jobs v1.0.0
+
+- This release brings minor updates (https://github.com/aws/Jobs-for-AWS-IoT-embedded-sdk/blob/v1.1.0/CHANGELOG.md#v110-march-2021) to the AWS IoT Jobs library that add API support for DescribeNextPendingJob API of the AWS IoT Jobs service, and macro utilities for compile-time generation of topic strings.
+
+#### HTTP Compatibility Layer  v1.2.0
+
+- Will be removed
+
+#### FreeRTOS kernel V10.4.3 
+
+- No changes from 202012.00
+
+#### MQTT Compatibility layer v2.3.1 
+
+- Will be removed
+
+#### IoT Serializer V1.1.2
+
+- Will be removed
+
+#### MQTT Compatibility-based AWS IoT Shadow V2.2.2
+
+- Will be removed
+
+#### MQTT Compatibility-based AWS IoT Defender V3.0.3
+
+- Will be removed
+
+#### Secure Sockets v1.3.1
+
+- Updated the secure socket test suite to be simpler and more robust
+
+#### Demos
+
+- Added coreMQTT-Agent Demo
+- Added OTA demo over BLE transport interface
+- Updated GreenGrass Discovery Demo using coreMQTT library
+
+#### Vendors
+
+- Updated all supported platforms to use coreMQTT-Agent Demo
+- Updated OTA PAL for the following ports to work with AWS IoT Over-the-air Update V3.0.0 Library Interfaces
+    - Espressif ESP32-DevKitC
+    - Espressif ESP-WROVER-KIT
+    - Microchip ATECC608A with Windows Simulator
+    - Renesas Starter Kit + RX65N-2MB
+    - TI CC3220 Launch Pad
+    - Nordic RF52480
+    - Microsoft Windows Simulator
+
+- New board added:
+    - Espressif ESP32-S2-SAOLA-1 (https://quip-amazon.com/SSS9EAeaY47 to confirm exact name), supporting coreMQTT-Agent Demo and AWS IoT Over-the-air V3.0.0
+- Deprecated:
+    - Microchip Curiosity PIC32MZEF
+    - NXP LPC54608
 
 ## 202012.00 December 2020
 
@@ -229,7 +292,7 @@ The MQTT library in this release, coreMQTT, supports backward compatibility with
 
 #### FreeRTOS+POSIX Utils V1.2.0
 
-- Update the UTILS_TimespecAdd utility function to support both signed and unsigned definitions of `struct timespec.tv_sec`. (Some implementations use unsigned definition of `struct timespec.tv_sec` to address the *2038* problem on 32-bit systems. ) This change is backwards compatible.
+- Update the UTILS_TimespecAdd utility function to support both signed and unsigned definitions of `struct timespec.tv_sec`. (Some implementations use unsigned definition of `struct timespec.tv_sec` to address the -2038- problem on 32-bit systems. ) This change is backwards compatible.
 
 #### MQTT Client Library V2.2.0
 
@@ -262,7 +325,7 @@ The MQTT library in this release, coreMQTT, supports backward compatibility with
 
 - Added ability to cache multiple IP addresses per DNS entry.
 - Defensive security improvements:
-    - In compliance with the UDP protocol specification, prior versions of FreeRTOS+TCP accepted UDP packets that had their checksum set to 0. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS`, that enables users to opt to drop UDP packets that have their checksum set to 0. **Note:** This new setting defaults to 0, so it defaults to dropping UDP packets that have their checksum set to 0.
+    - In compliance with the UDP protocol specification, prior versions of FreeRTOS+TCP accepted UDP packets that had their checksum set to 0. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS`, that enables users to opt to drop UDP packets that have their checksum set to 0. --Note:-- This new setting defaults to 0, so it defaults to dropping UDP packets that have their checksum set to 0.
     - Prior versions of FreeRTOS+TCP accept IP packets that contain IP options, although those options are not processed. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS`, that enables users to opt to drop IP packets that contain IP options.
     - Setting configuration parameter, `ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM`, to 1 offloads IP checksum and length checking to the hardware. From FreeRTOS+TCP V2.3.0, the length is checked in software even when it has already been checked in hardware.
 
@@ -717,7 +780,7 @@ Applications calling into PKCS #11 functions directly (rather than indirectly vi
 - C_Initialize handles initialization of randomness in an effort to minimize entropy generation (or seed access) every time sessions are created and destroyed.  To protect random values, thread safety has been enabled in mbedTLS.
 - C_SignInit and C_VerifyInit utilize the key handle that is passed in, rather than the first key found in order to comply with the PKCS #11 standard
 - C_FindObject APIs no longer instantiate keys from the aws_clientcredential_keys.h header file if keys are not found. This removes the dependency of PKCS #11 on values that will be unique per-device (a transition step for enabling production-scale provisioning). Note that calling vDevModeKeyProvisioning() is now necessary to provision the device.
-- C_FindObject PKCS #11 objects can be looked up by CKA_LABEL, in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_* configurations have been removed from aws_pkcs11_config.h, see aws_pkcs11.h for pkcs11configLABEL_* defines to access labels, and aws_pkcs11_pal.c for pkcs11palFILE_NAME_* defines.
+- C_FindObject PKCS #11 objects can be looked up by CKA_LABEL, in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_- configurations have been removed from aws_pkcs11_config.h, see aws_pkcs11.h for pkcs11configLABEL_- defines to access labels, and aws_pkcs11_pal.c for pkcs11palFILE_NAME_- defines.
 - C_FindObject and C_GetAttributeValue accept different attribute arguments.
 - C_CreateObject requires DER encoded certificates and keys instead of PEM formatted and object attributes required for creating objects have changed.  Note that vDevModeKeyProvisioning() has been updated to supply required attributes and convert inputs from DER to PEM if necessary.
 - C_GenerateKeyPair now stores keys in non-volatile memory.
