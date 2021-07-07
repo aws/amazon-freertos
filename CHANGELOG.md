@@ -4,16 +4,15 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 ## 202107.00 July 2021
 
 ### New Features
+#### AWS IoT Over-the-air Update V3.0.0
+
+- The AWS IoT Over-the-air Update (https://github.com/aws/ota-for-aws-iot-embedded-sdk) (OTA) (https://github.com/aws/ota-for-aws-iot-embedded-sdk) library enables you to manage the notification of a newly available update, download the update, and perform cryptographic verification of the firmware update. Using the OTA library, you can logically separate firmware updates from the application running on your devices. You can also use the library to send other files (e.g. images, certificates) to one or more devices registered with AWS IoT. More details about OTA library can be found in AWS IoT Over-the-air Update documentation (https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ota-dev.html).
+- The AWS IoT Over-the-air Update library has a dependency on coreJSON (https://github.com/FreeRTOS/coreJSON) (https://github.com/FreeRTOS/coreJSON) for parsing of JSON job document and tinyCBOR (https://github.com/intel/tinycbor.git) (https://github.com/intel/tinycbor) for decoding encoded data streams, other than the standard C library. It can be used with any MQTT library, HTTP library, and operating system (e.g. Linux, FreeRTOS). See demos to download firmware image over MQTT (using coreMQTT Agent) and over HTTP (using coreMQTT Agent and coreHTTP) using FreeRTOS at https://docs.aws.amazon.com/freertos/latest/userguide/dev-guide-ota-workflow.html
 
 #### coreMQTT Agent v1.0.0
 
 - The coreMQTT Agent library is a high level API that adds thread safety to the coreMQTT (https://github.com/FreeRTOS/coreMQTT) library. The library provides thread safe equivalents to the coreMQTT's APIs, greatly simplifying its use in multi-threaded environments. The coreMQTT Agent library manages the MQTT connection by serializing the access to the coreMQTT library and reducing implementation overhead. This allows your multi-threaded applications to share the same MQTT connection, and enables you to design an embedded application without having to worry about coreMQTT thread safety.
 - See memory requirements for the latest release here (https://freertos.org/Documentation/api-ref/coreMQTT-Agent/docs/doxygen/output/html/index.html#core_mqtt_agent_memory_requirements)
-
-#### AWS IoT Over-the-air Update V3.0.0
-
-- The AWS IoT Over-the-air Update (https://github.com/aws/ota-for-aws-iot-embedded-sdk) (OTA) (https://github.com/aws/ota-for-aws-iot-embedded-sdk) library enables you to manage the notification of a newly available update, download the update, and perform cryptographic verification of the firmware update. Using the OTA library, you can logically separate firmware updates from the application running on your devices. You can also use the library to send other files (e.g. images, certificates) to one or more devices registered with AWS IoT. More details about OTA library can be found in AWS IoT Over-the-air Update documentation (https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ota-dev.html).
-- The AWS IoT Over-the-air Update library has a dependency on coreJSON (https://github.com/FreeRTOS/coreJSON) (https://github.com/FreeRTOS/coreJSON) for parsing of JSON job document and tinyCBOR (https://github.com/intel/tinycbor.git) (https://github.com/intel/tinycbor) for decoding encoded data streams, other than the standard C library. It can be used with any MQTT library, HTTP library, and operating system (e.g. Linux, FreeRTOS). See demos to download firmware image over MQTT (using coreMQTT Agent) and over HTTP (using coreMQTT Agent and coreHTTP) using FreeRTOS at https://docs.aws.amazon.com/freertos/latest/userguide/dev-guide-ota-workflow.html
 
 ### Updates
 
@@ -44,11 +43,11 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 #### MQTT Compatibility-based AWS IoT Shadow v2.2.2
 
-- Removed under `libraries/c_sdk/aws/shadow`. Migrated to AWS IoT Device Shadow v1.0.2 under `libraries/device_shadow_for_aws` (no change from 202012.00 release).
+- Removed under `libraries/c_sdk/aws/shadow`. Migrated to AWS IoT Device Shadow v1.0.2 under `libraries/device_shadow_for_aws`.
 
 #### MQTT Compatibility-based AWS IoT Defender V3.0.3
 
-- Removed under `libraries/c_sdk/aws/defender`. Migrated to AWS IoT Device Defender v1.1.0 under `libraries/device_defender_for_aws` (update from v1.0.1 in 202012.00 release).
+- Removed under `libraries/c_sdk/aws/defender`. Migrated to AWS IoT Device Defender v1.1.0 under `libraries/device_defender_for_aws`.
 
 #### Secure Sockets v1.3.1
 
