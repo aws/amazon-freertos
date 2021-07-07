@@ -31,11 +31,11 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 #### HTTPS Compatibility Layer  v1.2.0
 
-- Removed under `libraries/c_sdk/standard/https`. Migrated to coreHTTP v2.0.0 under `libraries/coreHTTP` (no change from 202012.00 release).
+- Removed under `libraries/c_sdk/standard/https`. Migrated to coreHTTP v2.0.0 under `libraries/coreHTTP`.
 
 #### MQTT Compatibility layer v2.3.1 
 
-- Removed under `libraries/c_sdk/standard/mqtt`. Migrated to coreMQTT v1.1.0 under `libraries/coreMQTT` (no change from 202012.00 release).
+- Removed under `libraries/c_sdk/standard/mqtt`. Migrated to coreMQTT v1.1.0 under `libraries/coreMQTT`.
 
 #### IoT Serializer v1.1.2
 
