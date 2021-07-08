@@ -1,13 +1,13 @@
 # Change Log
-This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT. The repository contains projects for many different microcontroller evaluation boards.
+This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects ported to microcontroller-based evaluation boards that demonstrate end-to-end connectivity to AWS IoT Core. The repository contains projects for several microcontroller-based evaluation boards.
 
 ## 202107.00 July 2021
 
-### New Features
-#### AWS IoT Over-the-air Update V3.0.0
+### Summary
 
-- The AWS IoT Over-the-air Update (https://github.com/aws/ota-for-aws-iot-embedded-sdk) (OTA) (https://github.com/aws/ota-for-aws-iot-embedded-sdk) library enables you to manage the notification of a newly available update, download the update, and perform cryptographic verification of the firmware update. Using the OTA library, you can logically separate firmware updates from the application running on your devices. You can also use the library to send other files (e.g. images, certificates) to one or more devices registered with AWS IoT. More details about OTA library can be found in AWS IoT Over-the-air Update documentation (https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ota-dev.html).
-- The AWS IoT Over-the-air Update library has a dependency on coreJSON (https://github.com/FreeRTOS/coreJSON) (https://github.com/FreeRTOS/coreJSON) for parsing of JSON job document and tinyCBOR (https://github.com/intel/tinycbor.git) (https://github.com/intel/tinycbor) for decoding encoded data streams, other than the standard C library. It can be used with any MQTT library, HTTP library, and operating system (e.g. Linux, FreeRTOS). See demos to download firmware image over MQTT (using coreMQTT Agent) and over HTTP (using coreMQTT Agent and coreHTTP) using FreeRTOS at https://docs.aws.amazon.com/freertos/latest/userguide/dev-guide-ota-workflow.html
+This release includes the new managed AWS IoT Over-the-Air update (OTA) library, AWS IoT Jobs library, and the AWS IoT Device Defender custom metrics feature from the FreeRTOS 202012.01 LTS release, and the coreMQTT Agent library from the FreeRTOS 202104.00 release.
+
+### New Features
 
 #### coreMQTT Agent v1.0.0
 
@@ -15,6 +15,11 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 - See memory requirements for the latest release here (https://freertos.org/Documentation/api-ref/coreMQTT-Agent/docs/doxygen/output/html/index.html#core_mqtt_agent_memory_requirements)
 
 ### Updates
+
+#### AWS IoT Over-the-air Update V3.0.0
+
+- The AWS IoT Over-the-air update (OTA) (https://github.com/aws/ota-for-aws-iot-embedded-sdk) library enables you to manage the notification of a newly available update, download the update, and perform cryptographic verification of the firmware update. Using the OTA library, you can logically separate firmware updates from the application running on your devices. You can also use the library to send other files (e.g. images, certificates) to one or more devices registered with AWS IoT. More details about OTA library can be found in AWS IoT Over-the-air Update documentation (https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ota-dev.html).
+- The AWS IoT Over-the-air update library has a dependency on coreJSON (https://github.com/FreeRTOS/coreJSON) for parsing of JSON job document and tinyCBOR (https://github.com/intel/tinycbor) for decoding encoded data streams, other than the standard C library. It can be used with any MQTT library, HTTP library, and operating system (e.g. Linux, FreeRTOS). See demos to download firmware image over MQTT (using coreMQTT Agent) and over HTTP (using coreMQTT Agent and coreHTTP) using FreeRTOS at https://docs.aws.amazon.com/freertos/latest/userguide/dev-guide-ota-workflow.html
 
 #### BLE v2.0.2
 
