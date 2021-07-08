@@ -21,18 +21,18 @@ This release includes the new managed AWS IoT Over-the-Air update (OTA) library,
 - The AWS IoT Over-the-air update (OTA) (https://github.com/aws/ota-for-aws-iot-embedded-sdk) library enables you to manage the notification of a newly available update, download the update, and perform cryptographic verification of the firmware update. Using the OTA library, you can logically separate firmware updates from the application running on your devices. You can also use the library to send other files (e.g. images, certificates) to one or more devices registered with AWS IoT. More details about OTA library can be found in AWS IoT Over-the-air Update documentation (https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ota-dev.html).
 - The AWS IoT Over-the-air update library has a dependency on coreJSON (https://github.com/FreeRTOS/coreJSON) for parsing of JSON job document and tinyCBOR (https://github.com/intel/tinycbor) for decoding encoded data streams, other than the standard C library. It can be used with any MQTT library, HTTP library, and operating system (e.g. Linux, FreeRTOS). See demos to download firmware image over MQTT (using coreMQTT Agent) and over HTTP (using coreMQTT Agent and coreHTTP) using FreeRTOS at https://docs.aws.amazon.com/freertos/latest/userguide/dev-guide-ota-workflow.html
 
-#### BLE v2.0.2
+#### AWS IoT Jobs v1.0.0
 
-- Moved from `libraries/c_sdk/ble` to `libraries/ble`.
+- This release brings minor updates (https://github.com/aws/Jobs-for-AWS-IoT-embedded-sdk/blob/v1.1.0/CHANGELOG.md#v110-march-2021) to the AWS IoT Jobs library that add API support for DescribeNextPendingJob API of the AWS IoT Jobs service, and macro utilities for compile-time generation of topic strings.
 
 #### AWS IoT Device Defender v1.0.1
 
 - This release adds macros to AWS IoT Device Defender Library API for the custom metrics (https://docs.aws.amazon.com/iot/latest/developerguide/dd-detect-custom-metrics.html) feature of AWS IoT Device Defender service. 
 - The demo has been updated to use the custom metrics feature.
 
-#### AWS IoT Jobs v1.0.0
+#### BLE v2.0.2
 
-- This release brings minor updates (https://github.com/aws/Jobs-for-AWS-IoT-embedded-sdk/blob/v1.1.0/CHANGELOG.md#v110-march-2021) to the AWS IoT Jobs library that add API support for DescribeNextPendingJob API of the AWS IoT Jobs service, and macro utilities for compile-time generation of topic strings.
+- Moved from `libraries/c_sdk/ble` to `libraries/ble`.
 
 #### HTTPS Compatibility Layer  v1.2.0
 
