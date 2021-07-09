@@ -37,6 +37,8 @@
  *          CONFIG_CORE_MQTT_AGENT_DEMO_ENABLED
  *          CONFIG_DEVICE_SHADOW_DEMO_ENABLED
  *          CONFIG_DEVICE_DEFENDER_DEMO_ENABLED
+ *          CONFIG_OTA_MQTT_UPDATE_DEMO_ENABLED
+ *          CONFIG_OTA_HTTP_UPDATE_DEMO_ENABLED
  *          CONFIG_JOBS_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
@@ -47,7 +49,7 @@
 #define CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
-#define democonfigDEMO_STACKSIZE       ( configMINIMAL_STACK_SIZE * 20 )
+#define democonfigDEMO_STACKSIZE       ( configMINIMAL_STACK_SIZE * 6 )
 #define democonfigDEMO_PRIORITY        ( tskIDLE_PRIORITY + 5 )
 
 #ifndef M487_ETH_DEMO
