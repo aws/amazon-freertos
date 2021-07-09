@@ -1,19 +1,86 @@
 # Change Log
-This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT. The repository contains projects for many different microcontroller evaluation boards.
+This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects ported to microcontroller-based evaluation boards that demonstrate end-to-end connectivity to AWS IoT Core. The repository contains projects for several microcontroller-based evaluation boards.
 
-## Changes since previous release
+## 202107.00 July 2021
+
+### Summary
+
+This release includes the new managed AWS IoT Over-the-Air update (OTA) library, AWS IoT Jobs library, and the AWS IoT Device Defender custom metrics feature from the FreeRTOS 202012.01 LTS release, and the coreMQTT Agent library from the FreeRTOS 202104.00 release.
 
 ### New Features
 
+#### coreMQTT Agent v1.0.0
+
+- The coreMQTT Agent library is a high level API that adds thread safety to the coreMQTT (https://github.com/FreeRTOS/coreMQTT) library. The library provides thread safe equivalents to the coreMQTT's APIs, greatly simplifying its use in multi-threaded environments. The coreMQTT Agent library manages the MQTT connection by serializing the access to the coreMQTT library and reducing implementation overhead. This allows your multi-threaded applications to share the same MQTT connection, and enables you to design an embedded application without having to worry about coreMQTT thread safety.
+- See memory requirements for the latest release here (https://freertos.org/Documentation/api-ref/coreMQTT-Agent/docs/doxygen/output/html/index.html#core_mqtt_agent_memory_requirements)
+
 ### Updates
-- Fixes issues of thread-safety and message readability in the sample logging implementation. (Related PRs are [#2982](https://github.com/aws/amazon-freertos/pull/2982) and [#2953](https://github.com/aws/amazon-freertos/pull/2953).)
-- Update FreeRTOS Test Runner to support either a configurable delay (in [PR](https://github.com/aws/amazon-freertos/pull/2950)) or a FreeRTOS+CLI based serial prompt input command (in [PR](https://github.com/aws/amazon-freertos/pull/2955)) to being executing tests.
-- Upgrade of ESP-IDF SDK v4.2 for Espressif boards (in [PR](https://github.com/aws/amazon-freertos/pull/2893)). Refer to the instructions in [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html#setup-espressif-idf42) for using ESP-IDF v4.2.
 
-#### TLS Shim Layer V1.3.0
+#### AWS IoT Over-the-air Update V3.0.0
 
-- Added logic to support connecting to a TLS server that does not require mutual verification.
-- Provide a way for an application to determine if a certificate has expired. PR #3139
+- The AWS IoT Over-the-air update (OTA) (https://github.com/aws/ota-for-aws-iot-embedded-sdk) library enables you to manage the notification of a newly available update, download the update, and perform cryptographic verification of the firmware update. Using the OTA library, you can logically separate firmware updates from the application running on your devices. You can also use the library to send other files (e.g. images, certificates) to one or more devices registered with AWS IoT. More details about OTA library can be found in AWS IoT Over-the-air Update documentation (https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ota-dev.html).
+- The AWS IoT Over-the-air update library has a dependency on coreJSON (https://github.com/FreeRTOS/coreJSON) for parsing of JSON job document and tinyCBOR (https://github.com/intel/tinycbor) for decoding encoded data streams, other than the standard C library. It can be used with any MQTT library, HTTP library, and operating system (e.g. Linux, FreeRTOS). See demos to download firmware image over MQTT (using coreMQTT Agent) and over HTTP (using coreMQTT Agent and coreHTTP) using FreeRTOS at https://docs.aws.amazon.com/freertos/latest/userguide/dev-guide-ota-workflow.html
+
+#### AWS IoT Jobs v1.0.0
+
+- This release brings minor updates (https://github.com/aws/Jobs-for-AWS-IoT-embedded-sdk/blob/v1.1.0/CHANGELOG.md#v110-march-2021) to the AWS IoT Jobs library that add API support for DescribeNextPendingJob API of the AWS IoT Jobs service, and macro utilities for compile-time generation of topic strings.
+
+#### AWS IoT Device Defender v1.0.1
+
+- This release adds macros to AWS IoT Device Defender Library API for the custom metrics (https://docs.aws.amazon.com/iot/latest/developerguide/dd-detect-custom-metrics.html) feature of AWS IoT Device Defender service. 
+- The demo has been updated to use the custom metrics feature.
+
+#### BLE v2.0.2
+
+- Moved from `libraries/c_sdk/ble` to `libraries/ble`.
+
+#### HTTPS Compatibility Layer  v1.2.0
+
+- Removed under `libraries/c_sdk/standard/https`. Migrated to coreHTTP v2.0.0 under `libraries/coreHTTP`.
+
+#### MQTT Compatibility layer v2.3.1 
+
+- Removed under `libraries/c_sdk/standard/mqtt`. Migrated to coreMQTT v1.1.0 under `libraries/coreMQTT`.
+
+#### IoT Serializer v1.1.2
+
+- Removed under `libraries/c_sdk/standard/serializer` as there are no longer dependencies on this library.
+
+#### MQTT Compatibility-based AWS IoT Shadow v2.2.2
+
+- Removed under `libraries/c_sdk/aws/shadow`. Migrated to AWS IoT Device Shadow v1.0.2 under `libraries/device_shadow_for_aws`.
+
+#### MQTT Compatibility-based AWS IoT Defender V3.0.3
+
+- Removed under `libraries/c_sdk/aws/defender`. Migrated to AWS IoT Device Defender v1.1.0 under `libraries/device_defender_for_aws`.
+
+#### Secure Sockets v1.3.1
+
+- Updated the secure socket test suite to be simpler and more robust.
+
+#### Demos
+
+- Added coreMQTT-Agent Demo.
+- Added OTA demo over BLE transport interface.
+- Updated GreenGrass Discovery Demo using coreMQTT library.
+
+#### Vendors
+
+- Updated all supported platforms to use coreMQTT-Agent Demo.
+- Updated OTA PAL for the following ports to work with AWS IoT Over-the-air Update V3.0.0 Library Interfaces:
+    - Espressif ESP32-DevKitC
+    - Espressif ESP-WROVER-KIT
+    - Microchip ATECC608A with Windows Simulator
+    - Renesas Starter Kit + RX65N-2MB
+    - TI CC3220 Launch Pad
+    - Nordic RF52480
+    - Microsoft Windows Simulator
+- New board added:
+    - Espressif ESP32-S2-SAOLA-1, supporting coreMQTT-Agent Demo and AWS IoT Over-the-air V3.0.0
+- Updated Espressif (Amazon) FreeRTOS SDK (ESP-IDF) for ESP platforms to V4.2.1 and add I2C patch to fix the incorrect FreeRTOS API usage from ISR context. 
+- Deprecated:
+    - Microchip Curiosity PIC32MZEF
+    - NXP LPC54608
 
 ## 202012.00 December 2020
 

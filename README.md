@@ -1,21 +1,5 @@
 # FreeRTOS AWS Reference Integrations
 
-## Update (05/26/2021)
-
-In the next few months, we will have an official release of the AWS Reference Integration repository which brings in the 202012.01-LTS libraries. In this release, we will carry the LTS libraries and remove legacy ones from main branch. The legacy libraries will continue to be accessible through the [202012.00 release](https://github.com/aws/amazon-freertos/tree/202012.00), and AWS will continue to support Github issues on these libraries on a case by case basis. We also created [20210526_Archive](https://github.com/aws/amazon-freertos/tree/20210526_Archive) tag for archiving old libraries with the latest changes in main, but it is neither an official release nor tested.
-
-We're removing the following libraries under `/libraries/c_sdk`:
-*  Defender Client Library V3.0.3 under `/c_sdk/aws/defender`. Migrate to AWS IoT Device Defender v1.1.0 under `/libraries/device_defender_for_aws` (update from v1.0.1 in 202012.00 release).
-*  Shadow V2.2.3 under `/c_sdk/aws/shadow`. Migrate to AWS IoT Device Shadow v1.0.2 under `/libraries/device_shadow_for_aws` (no change from 202012.00 release)
-*  MQTT Client Library V2.3.1 under `/c_sdk/standard/mqtt`. Migrate to coreMQTT v1.1.0 under `/libraries/coreMQTT` (no change from 202012.00 release).
-*  HTTPS Client Library V1.2.0 under `/c_sdk/standard/https`. Migrate to coreHTTP v2.0.0 under `/libraries/coreHTTP` (no change from 202012.00 release).
-*  Serializer Library V1.1.2 under `/c_sdk/standard/serializer`. All libraries included in the upcoming release no longer have dependencies on the serializer library.
-*  Common Libraries V1.2.0 under `/c_sdk/standard/common`. All libraries included in the upcoming release no longer have dependencies on the common libraries.
-
-We're relocating BLE library from `/libraries/c_sdk` to `/libraries` and removing `/libraries/c_sdk` folder.  
-We're also removing Over the Air Update V1.2.1 under `libraries/freertos_plus/aws/ota` and adding the new AWS IoT Over-the-air Update v3.0.0 under `/libraries/ota_for_aws` in the upcoming release.
-
-
 ## Cloning
 This repo uses [Git Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to bring in dependent components.
 
@@ -94,7 +78,7 @@ In addition, AWS supports the following boards with FreeRTOS Build Integration a
 3. **NXP** - [LPC54018 IoT Module](https://devices.amazonaws.com/detail/a3G0L00000AANtAUAX/LPC54018-IoT-Solution), 
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_nxp.html)
     * IDEs: [IAR Embedded Workbench](https://www.iar.com/iar-embedded-workbench/partners/nxp), [MCUXpresso IDE](https://www.nxp.com/mcuxpresso/ide/download)
-4. **Espressif** - [ESP32-DevKitC](https://devices.amazonaws.com/detail/a3G0L00000AANtjUAH/ESP32-WROOM-32-DevKitC), [ESP-WROVER-KIT](https://devices.amazonaws.com/detail/a3G0L00000AANtlUAH/ESP-WROVER-KIT), [ESP32-WROOM-32SE](https://devices.amazonaws.com/detail/a3G0L00000AANtjUAH/ESP32-WROOM-32-DevKitC) 
+4. **Espressif** - [ESP32-DevKitC](https://devices.amazonaws.com/detail/a3G0L00000AANtjUAH/ESP32-WROOM-32-DevKitC), [ESP-WROVER-KIT](https://devices.amazonaws.com/detail/a3G0L00000AANtlUAH/ESP-WROVER-KIT), [ESP32-WROOM-32SE](https://devices.amazonaws.com/detail/a3G0L00000AANtjUAH/ESP32-WROOM-32-DevKitC), [ESP32-S2-SAOLA-1](https://devices.amazonaws.com/detail/a3G0h00000AkFngEAF/ESP32-S2-Saola-1)
     * [Getting Started Guide - ESP32-DevKitC, ESP-WROVER-KIT](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html)
     * [Getting Started Guide - ESP32-WROOM-32SE](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_esp32wroom-32se.html)
 5. **Infineon** - [Infineon XMC4800 IoT Connectivity Kit](https://devices.amazonaws.com/detail/a3G0L00000AANsbUAH/XMC4800-IoT-FreeRTOS-Connectivity-Kit-WiFi), [Optiga TrustX](https://devices.amazonaws.com/detail/a3G0h000007712QEAQ/OPTIGA%E2%84%A2-Trust-X-Security-Solution)
