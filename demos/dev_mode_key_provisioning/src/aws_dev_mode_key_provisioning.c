@@ -1205,8 +1205,8 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
          * Thus, by adding a delay, the possibility of hitting the race condition of the device executing an old
          * image that generates new key-pair is avoided because the logic of generating new key-pair is not executed
          * before the flashing process starts loading the new image onto the board.
-         * Note: The delay of 5 seconds is used based on testing with an ESP32+ECC608A board. */
-        configPRINTF( "Waiting for %d seconds before generating key-pair", keyprovisioningDELAY_BEFORE_KEY_PAIR_GENERATION_SECS );
+         * Note: The delay of 30 seconds is used based on testing with an ESP32+ECC608A board. */
+        configPRINTF(( "Waiting for %d seconds before generating key-pair", keyprovisioningDELAY_BEFORE_KEY_PAIR_GENERATION_SECS ));
         vTaskDelay( pdMS_TO_TICKS( keyprovisioningDELAY_BEFORE_KEY_PAIR_GENERATION_SECS * 1000 ) );
 
         /* Generate a new default key pair. */
