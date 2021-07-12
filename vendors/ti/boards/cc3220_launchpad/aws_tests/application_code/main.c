@@ -271,7 +271,7 @@ void vApplicationIdleHook( void )
 {
     static TickType_t xLastPrint = 0;
     TickType_t xTimeNow;
-    const TickType_t xPrintFrequency = pdMS_TO_TICKS( 2000 );
+    const TickType_t xPrintFrequency = pdMS_TO_TICKS( 10000 );
 
     xTimeNow = xTaskGetTickCount();
 
