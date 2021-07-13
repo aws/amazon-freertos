@@ -3,10 +3,6 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 ## 202107.00 July 2021
 
-### Summary
-
-This release includes the new managed AWS IoT Over-the-Air update (OTA) library, AWS IoT Jobs library, and the AWS IoT Device Defender custom metrics feature from the FreeRTOS 202012.01 LTS release, and the coreMQTT Agent library from the FreeRTOS 202104.00 release.
-
 ### New Features
 
 #### coreMQTT Agent v1.0.0
@@ -58,7 +54,7 @@ This release includes the new managed AWS IoT Over-the-Air update (OTA) library,
 
 - Updated the secure socket test suite to be simpler and more robust.
 
-### Dev Mode Key Provisioning
+#### Dev Mode Key Provisioning
 
  - Updated race-condition issue when provisioning ESP32-WROOM-32SE boards with [Dev Mode Key Provisioning](./demos/dev_mode_key_provisioning/) utility by adding delay with a new configuration macro, `keyprovisioningDELAY_BEFORE_KEY_PAIR_GENERATION_SECS`. Refer to PR #3315 for more information.
 
