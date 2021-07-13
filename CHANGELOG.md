@@ -58,6 +58,10 @@ This release includes the new managed AWS IoT Over-the-Air update (OTA) library,
 
 - Updated the secure socket test suite to be simpler and more robust.
 
+### Dev Mode Key Provisioning
+
+ - Updated race-condition issue when provisioning ESP32-WROOM-32SE boards with [Dev Mode Key Provisioning](./demos/dev_mode_key_provisioning/) utility by adding delay with a new configuration macro, `keyprovisioningDELAY_BEFORE_KEY_PAIR_GENERATION_SECS`. Refer to PR #3315 for more information.
+
 #### Demos
 
 - Added coreMQTT-Agent Demo.

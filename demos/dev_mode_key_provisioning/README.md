@@ -23,7 +23,10 @@ Then build and run the demo project and continue to the next section.
 ### Public Key Extraction ###
 Since the device has not yet been provisioned with a private key and client certificate, the demo will fail to authenticate to AWS IoT. However, the Hello World MQTT demo starts by running developer-mode key provisioning, resulting in the creation of a private key if one was not already present. You should see something like the following near the beginning of the serial console output:
 
-```
+>**Note**: Depending on the configuration value of `keyprovisioningDELAY_BEFORE_KEY_PAIR_GENERATION_SECS`, the device will wait for a delay period before generating the key-pair and printing the
+device public key to the serial console.
+
+``````
 7 910 [IP-task] Device public key, 91 bytes:
 3059 3013 0607 2a86 48ce 3d02 0106 082a
 8648 ce3d 0301 0703 4200 04cd 6569 ceb8
@@ -50,6 +53,11 @@ Don't forget to disable the temporary key generation setting you enabled above. 
 ```
 #define keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR 0
 ```
+
+> **NOTE**: For boards that reset the device before flashing a new image, it is possible that the provisioned credentials become stale due to unexpected re-generationg of keys when flashing
+a new image, that has the `keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR` configuration disabled, on the board. To mitigate this race condition between flashing a new image and re-execution
+of existing image that generate new key-pair, there exists a delay before logic of key-pair generation is executed on device. You can configure the default delay of **30 seconds** by setting
+the `keyprovisioningDELAY_BEFORE_KEY_PAIR_GENERATION_SECS` configuration macro.
 
 ### Public Key Infrastructure Setup ###
 You can now use a variation of the instructions in [Use Your Own Certificate](https://docs.aws.amazon.com/iot/latest/developerguide/device-certs-your-own.html) to create an X.509 certificate hierarchy for your device lab certificate. Stop before executing the sequence described in the section Creating a Device Certificate Using Your CA Certificate. Also, since the device will not be signing the certificate request, a separate "issuance officer" key and certificate must be created for that purpose:

@@ -71,6 +71,14 @@ extern void vLoggingPrint( const char * pcFormat );
  * a new default key pair, regardless of whether an existing key pair is present. */
 #define keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR    0
 
+/* Delay before generating new key-pair, if keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR
+ * is enabled. This is to avoid possible race-condition (due to devce reset) between
+ * execution of an existing image on device generates key-pair on device and flashing of
+ * new image on device. */
+#ifndef keyprovisioningDELAY_BEFORE_KEY_PAIR_GENERATION_SECS
+    #define keyprovisioningDELAY_BEFORE_KEY_PAIR_GENERATION_SECS    180
+#endif
+
 /* Internal structure for parsing RSA keys. */
 
 /* Length parameters for importing RSA-2048 private keys. */
@@ -1183,6 +1191,24 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 
     if( ( xResult == CKR_OK ) && ( CK_TRUE == xKeyPairGenerationMode ) )
     {
+        /* Add a delay before calling logic for generating new key-pair on device (if boards supports on-board key-pair
+         * generation) to avoid possible scenario of unexpectedly generating new keys on board during the flashing process
+         * of a new image on the board.
+         * If the flashing workflow of a device (for example, ESP32 boards) involves resetting the board before
+         * flashing a new image, then a race condition can occur between the execution of an already
+         * existing image on device (that is triggered by the device reset) and the flashing of the new image on the
+         * device. When the existing image present on the device is configured to generate new key-pair (through the
+         * keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR config), then a possible scenario of unexpected key-pair
+         * generation on device can occur during flashing process, in which case, the certificate provisioned by
+         * user becomes stale and device cannot perform TLS connection with servers as the provisioned device certificate
+         * does not match the unexpectedly generated new key-pair.
+         * Thus, by adding a delay, the possibility of hitting the race condition of the device executing an old
+         * image that generates new key-pair is avoided because the logic of generating new key-pair is not executed
+         * before the flashing process starts loading the new image onto the board.
+         * Note: The delay of 150 seconds is used based on testing with an ESP32+ECC608A board. */
+        configPRINTF( ( "Waiting for %d seconds before generating key-pair", keyprovisioningDELAY_BEFORE_KEY_PAIR_GENERATION_SECS ) );
+        vTaskDelay( pdMS_TO_TICKS( keyprovisioningDELAY_BEFORE_KEY_PAIR_GENERATION_SECS * 1000 ) );
+
         /* Generate a new default key pair. */
         xResult = xProvisionGenerateKeyPairEC( xSession,
                                                ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
@@ -1216,6 +1242,17 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         }
     }
 
+    /* Log the device public key if one exists for developer convenience.
+     * This can be useful for verifying that the provisioned certificate for the device
+     * matches the public key on the device. */
+    if( CK_INVALID_HANDLE != xProvisionedState.xPublicKey )
+    {
+        configPRINTF( ( "Printing device public key.\nMake sure that provisioned device certificate matches public key on device." ) );
+        prvWriteHexBytesToConsole( "Device public key",
+                                   xProvisionedState.pucDerPublicKey,
+                                   xProvisionedState.ulDerPublicKeyLength );
+    }
+
     /* Log the device public key for developer enrollment purposes, but only if
     * there's not already a certificate, or if a new key was just generated. */
     if( ( CKR_OK == xResult ) &&
@@ -1229,15 +1266,6 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         {
             configPRINTF( ( "Recommended certificate subject name: CN=%s\r\n", xProvisionedState.pcIdentifier ) );
         }
-
-        prvWriteHexBytesToConsole( "Device public key",
-                                   xProvisionedState.pucDerPublicKey,
-                                   xProvisionedState.ulDerPublicKeyLength );
-
-        /* Delay since the downstream demo code is likely to fail quickly if
-         * provisioning isn't complete, and device certificate creation in the
-         * lab may depend on the developer obtaining the public key. */
-        /*vTaskDelay( pdMS_TO_TICKS( 100 ) ); */
     }
 
     /* Free memory. */
