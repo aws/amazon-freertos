@@ -4839,7 +4839,7 @@
             "libraries/device_shadow_for_aws/tools/cmock/project.yml": "805074ab6dcf01b29aac19ab1964b70227d0f7013b5b755dbf5c17ae66e6a0d6",
             "libraries/device_shadow_for_aws/tools/misra.config": "87445ff3dcb7c836a2f1ed650d751277aec5fd90639a73f43fb699dfff33b15e",
             "libraries/device_shadow_for_aws/tools/uncrustify.cfg": "55c02144fdaa3d62e03ed97e3e89a54b67d9433a5320ec02ec82e75344b21656",
-            "libraries/freertos_plus/aws/greengrass/CMakeLists.txt": "33c00f5d1c94f42d3410558577cb9ffe7db5bc61bfbc584d53c25af1a9876c7e",
+            "libraries/freertos_plus/aws/greengrass/CMakeLists.txt": "ac251f950a2935143ecaf9b817fdb9af59f3e624344383306901dddd0bf50188",
             "libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h": "434b1e4a7fcc217e88275ac039f602e484e5d6b424bb010515d53c7cecc316c2",
             "libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h": "5798efbcec0e5e969cbd169e75c277adfa844b05f8e39ced88ad8d4fbe969d57",
             "libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c": "a314e73563229f862e4b0e104c1aed2a7140a893e69bbb6dda01e7bda4da25bf",
