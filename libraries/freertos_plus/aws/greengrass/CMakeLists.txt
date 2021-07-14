@@ -35,6 +35,10 @@ afr_module_dependencies(
     PUBLIC
         AFR::secure_sockets
         AFR::logging
+        # This dependency is required for auto-including
+        # the coreMQTT library on the FreeRTOS console
+        # when the Greengrass library is selected.
+        AFR::core_mqtt_demo_dependencies
     PRIVATE
         3rdparty::jsmn
 )
