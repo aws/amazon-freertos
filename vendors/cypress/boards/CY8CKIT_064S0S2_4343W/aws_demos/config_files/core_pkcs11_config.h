@@ -94,12 +94,11 @@
 #define pkcs11configMAX_NUM_OBJECTS      6
 
 /**
- * @brief Set to 1 if a PAL destroy object is implemented.
- *
- * If set to 0, no PAL destroy object is implemented, and this functionality
- * is implemented in the common PKCS #11 layer.
+ * @brief Maximum number of sessions that can be stored
+ * by the PKCS #11 module.
  */
-#define pkcs11configPAL_DESTROY_SUPPORTED                  0
+#define pkcs11configMAX_SESSIONS                           10
+
 
 /**
  * @brief Set to 1 if OTA image verification via PKCS #11 module is supported.
@@ -176,17 +175,6 @@
     #define PSA_DEVICE_CERTIFICATE_UID    ( ( psa_storage_uid_t )0x100 )
     #define PSA_JITP_CERTIFICATE_UID      ( ( psa_storage_uid_t )0x101 )
     #define PSA_DEVICE_PRIVATE_KEY_ID     ( ( psa_key_id_t ) (PSA_KEY_ID_VENDOR_MIN + 1) )
-
-    #define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED      0
-    #define pkcs11configVENDOR_JITP_STATUS_UID             (01)
-#endif
-
-/**
- * @brief Set to 1 if the TFM version is V1.0
- *
- */
-#ifdef CY_TFM_VERSION_1_0
-#define pkcs11configTFM_VERSION_1_0                        1
 #endif
 
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */

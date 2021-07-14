@@ -4,7 +4,7 @@
  *
  * Copyright 2019, Cypress Semiconductor Corporation or a subsidiary of
  * Cypress Semiconductor Corporation. All Rights Reserved.
- * 
+ *
  * This software, associated documentation and materials ("Software")
  * is owned by Cypress Semiconductor Corporation,
  * or one of its subsidiaries ("Cypress") and is protected by and subject to
@@ -35,7 +35,7 @@
  */
 
 /**
- * @file core_pkcs11_pal.c
+ * @file iot_pkcs11_pal.c
  * @brief Device specific helpers for PKCS11 Interface.
  */
 
@@ -63,7 +63,7 @@
 // 9 + N        1           Key Value
 //
 
-enum eObjectHandles 
+enum eObjectHandles
 {
     eInvalidHandle = 0, /* According to PKCS #11 spec, 0 is never a valid object handle. */
     eAwsDevicePrivateKey = 1,
@@ -122,8 +122,8 @@ static void prvLabelToFilenameHandle( uint8_t * pcLabel, CK_OBJECT_HANDLE_PTR pH
 * @return The file handle of the object that was stored.
 */
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
-                                        CK_BYTE_PTR pucData,
-                                        CK_ULONG ulDataSize )
+    uint8_t * pucData,
+    uint32_t ulDataSize )
 {
     CK_OBJECT_HANDLE xHandle ;
 
@@ -144,22 +144,22 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 * Port-specific object handle retrieval.
 *
 *
-* @param[in] pxLabel         Pointer to the label of the object
+* @param[in] pLabel         Pointer to the label of the object
 *                           who's handle should be found.
 * @param[in] usLength       The length of the label, in bytes.
 *
 * @return The object handle if operation was successful.
 * Returns eInvalidHandle if unsuccessful.
 */
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
-                                        CK_ULONG usLength )
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
+    uint8_t usLength )
 {
     CK_OBJECT_HANDLE xHandle ;
-    
+
     if (cy_objstore_initialize(false, 1) != CY_RSLT_SUCCESS)
         return eInvalidHandle ;
 
-    prvLabelToFilenameHandle( pxLabel, &xHandle );
+    prvLabelToFilenameHandle( pLabel, &xHandle );
 
     if (cy_objstore_find_object(xHandle, NULL, NULL) != CY_RSLT_SUCCESS)
         return eInvalidHandle ;
@@ -191,9 +191,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
  * error.
  */
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      CK_BYTE_PTR * ppucData,
-                                      CK_ULONG_PTR pulDataSize,
-                                      CK_BBOOL * pIsPrivate )
+    uint8_t ** ppucData,
+    uint32_t * pulDataSize,
+    CK_BBOOL * pIsPrivate )
 {
     uint32_t index, size ;
     cy_rslt_t res ;
@@ -221,19 +221,19 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
     else
     {
         return CKR_KEY_HANDLE_INVALID;
-    }    
+    }
 
     if (cy_objstore_find_object(xHandle, &index, &size) != CY_RSLT_SUCCESS)
     {
         configPRINT_STRING("cyafr: pkcs11: handle that previously existed is gone, internal error") ;
         return CKR_FUNCTION_FAILED ;
-    }       
+    }
 
     *pulDataSize = size ;
 
     *ppucData = (uint8_t *)malloc(size) ;
     if (*ppucData == NULL)
-        return CKR_DEVICE_MEMORY ;     
+        return CKR_DEVICE_MEMORY ;
 
     res = cy_objstore_read_object(xHandle, *ppucData, size) ;
     if (res != CY_RSLT_SUCCESS)
@@ -254,10 +254,48 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 * @param[in] ulDataSize    The length of the buffer to free.
 *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
 */
-void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
-                                       CK_ULONG ulDataSize )
+void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
+    uint32_t ulDataSize )
 {
     free(pucData) ;
 }
 
+CK_RV PKCS11_PAL_Initialize( void )
+{
+    return CKR_OK;
+}
+
+CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
+{
+    CK_RV xResult = CKR_OK;
+    CK_BYTE_PTR pxObject = NULL;
+    CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
+    CK_ULONG ulObjectLength = sizeof( CK_BYTE );
+    uint8_t * pcLabel = NULL;
+
+    prvLabelToFilenameHandle( pcLabel, &xHandle );
+
+    if( pcLabel != NULL )
+    {
+        xResult = PKCS11_PAL_GetObjectValue( xHandle, &pxObject, &ulObjectLength, &xIsPrivate );
+    }   
+    else
+    {
+        xResult = CKR_OBJECT_HANDLE_INVALID;
+    }   
+
+    if( xResult == CKR_OK )
+    {
+        if (cy_objstore_delete_object(xHandle) != CY_RSLT_SUCCESS)
+            xResult = CKR_GENERAL_ERROR;
+
+        PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
+    }
+    else
+    {
+        xResult = CKR_GENERAL_ERROR;
+    }
+
+    return xResult;
+}
 /*-----------------------------------------------------------*/

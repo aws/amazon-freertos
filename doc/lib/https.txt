@@ -9,7 +9,7 @@
 
 <span style="float:right;margin-right:4em"> &mdash; <i>Official description of HTTP from [RFC 7231](https://tools.ietf.org/html/rfc7231)</i></span><br>
 
-This HTTP library implements a subset of the HTTP/1.1 standard for compatibility with the [AWS IoT HTTP Server](https://docs.aws.amazon.com/iot/latest/developerguide/http.html) and the [AWS S3 HTTP Server](https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectOps.html). It is also compatible with other HTTP servers. Feature of this library include: 
+This HTTP library implements a subset of the HTTP/1.1 standard for compatibility with the [AWS IoT HTTP Server](https://docs.aws.amazon.com/iot/latest/developerguide/http.html) and the [AWS S3 HTTP Server](https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectOps.html). It is also compatible with other HTTP servers. Feature of this library include:
 - Both fully asynchronous and synchronous (blocking) API functions.
 - Application managed memory for internal context and HTTP formatted headers.
 - Thread-aware and parallelized connections.
@@ -112,27 +112,27 @@ See @subpage https_demo_config for configuration settings that change the behavi
 
 <ol>
     <li>
-        Ensure that you have permissions in your AWS account to access S3.  
-        For information on AWS S3 please see: https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html  
+        Ensure that you have permissions in your AWS account to access S3.
+        For information on AWS S3 please see: https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html
     </li>
     <li>
-        In an existing bucket or creating a new bucket upload the following file:  
-        <a href='gettysburg.txt'>gettysburg.txt</a>  
+        In an existing bucket or creating a new bucket upload the following file:
+        <a href='gettysburg.txt'>gettysburg.txt</a>
     </li>
     <li>
-        Install and configured the AWS CLI.  
-        For AWS CLI installation information please see: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html  
-        For AWS CLI configuration information please see: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html  
+        Install and configured the AWS CLI.
+        For AWS CLI installation information please see: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html
+        For AWS CLI configuration information please see: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
     </li>
     <li>
         Run [demos/https/presigned_url_gen.py](https://github.com/aws/amazon-freertos/tree/master/demos/https/presigned_urls_gen.py) with your s3 **bucket-name** and s3 object key **object-key**.
         \code
         python presigned_url_gen.py --bucket my-bucket --key object-key
-        \endcode  
+        \endcode
 
         Please see [demos/https/README.md](https://github.com/aws/amazon-freertos/tree/master/demos/https/README.md) for information on the required Python version and Python package dependencies.
 
-        Example output:  
+        Example output:
         \code
         #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL    https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
         #define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL    https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=ABABABABABABABABABAB&Expires=1560555644&Signature=SomeHash12345UrlLMnmOPqrStUvW
@@ -141,19 +141,19 @@ See @subpage https_demo_config for configuration settings that change the behavi
         Paste this output to iot_config.h.
         <br>
         <br>
-        Note:  
-        If your bucket is less than 24 hours old, then you will need to append the region the bucket was created in to the pre-signed URL:  
+        Note:
+        If your bucket is less than 24 hours old, then you will need to append the region the bucket was created in to the pre-signed URL:
         \code
-        https://my-bucket.s3-<region>.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D  
+        https://my-bucket.s3-<region>.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
         \endcode
-        Example: 
+        Example:
         \code
-        https://my-bucket.s3-us-west-2.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D  
+        https://my-bucket.s3-us-west-2.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
         \endcode
-        Please see https://aws.amazon.com/premiumsupport/knowledge-center/s3-http-307-response/ for more information.  
+        Please see https://aws.amazon.com/premiumsupport/knowledge-center/s3-http-307-response/ for more information.
     </li>
     <li>
-        Paste your RSA-2048 or ECC-P256 keys into [aws_clientcredential_keys.h](https://github.com/aws/amazon-freertos/blob/master/demos/include/aws_clientcredential_keys.h). This is needed to for the TLS handshake with the AWS S3 HTTP Server.  
+        Paste your RSA-2048 or ECC-P256 keys into [aws_clientcredential_keys.h](https://github.com/aws/amazon-freertos/blob/master/demos/include/aws_clientcredential_keys.h). This is needed to for the TLS handshake with the AWS S3 HTTP Server.
     </li>
     <li>
         Enable the <b>Synchronous download demo</b> by defining @ref CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED in aws_demo_config.h:
@@ -172,7 +172,6 @@ See @subpage https_demo_config for configuration settings that change the behavi
         *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
         *          CONFIG_DEFENDER_DEMO_ENABLED
         *          CONFIG_POSIX_DEMO_ENABLED
-        *          CONFIG_OTA_UPDATE_DEMO_ENABLED
         *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
         *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
         *          CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED
@@ -184,12 +183,12 @@ See @subpage https_demo_config for configuration settings that change the behavi
         \endcode
     </li>
     <li>
-        See @ref building_demo for instructions on building the demo.  
+        See @ref building_demo for instructions on building the demo.
         A successful output looks like this:
         \code
         10 618 [iot_thread] [INFO ][INIT][618] SDK successfully initialized.
         11 618 [iot_thread] [INFO ][DEMO][618] Successfully initialized the demo. Network type for the demo: 4
-        12 618 [iot_thread] [INFO ][DEMO][618] HTTPS Client Synchronous S3 download demo using pre-signed URL: https://sarem-public.s3.amazonaws.com/gettysburg.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600&X-Amz-Credential=AKIAIYLZ53PYH6JY77YQ%2F20190830%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20190830T171845Z&X-Amz-Signature=2b185273a920fe10b0bbf5a391c9af8af7caf0d76170eade4fd99f28d3a68a00
+        12 618 [iot_thread] [INFO ][DEMO][618] HTTPS Client Synchronous S3 download demo using pre-signed URL: https://xxxxx.s3.amazonaws.com/gettysburg.txt?xxxxx
         13 902 [iot_thread] [INFO ][DEMO][902] Now requesting Range: bytes=0-511.
         14 942 [iot_thread] [INFO ][DEMO][942] Response return code: 206
         15 942 [iot_thread] [INFO ][DEMO][942] Response Body:
@@ -217,7 +216,7 @@ See @subpage https_demo_config for configuration settings that change the behavi
         \endcode
     </li>
     <li>
-        Enable the <b>Asynchronous download demo</b> by defining either @ref CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED in aws_demo_config.h:  
+        Enable the <b>Asynchronous download demo</b> by defining either @ref CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED in aws_demo_config.h:
         \code
         /* To run a particular demo you need to define one of these.
         * Only one demo can be configured at a time
@@ -233,7 +232,6 @@ See @subpage https_demo_config for configuration settings that change the behavi
         *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
         *          CONFIG_DEFENDER_DEMO_ENABLED
         *          CONFIG_POSIX_DEMO_ENABLED
-        *          CONFIG_OTA_UPDATE_DEMO_ENABLED
         *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
         *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
         *          CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED
@@ -245,13 +243,13 @@ See @subpage https_demo_config for configuration settings that change the behavi
         \endcode
     </li>
     <li>
-        See @ref building_demo for instructions on building the demo.  
+        See @ref building_demo for instructions on building the demo.
         A successful output looks like this:
 
         \code
         10 632 [iot_thread] [INFO ][INIT][632] SDK successfully initialized.
         11 632 [iot_thread] [INFO ][DEMO][632] Successfully initialized the demo. Network type for the demo: 4
-        12 632 [iot_thread] [INFO ][DEMO][632] HTTPS Client Asynchronous S3 download demo using pre-signed URL: https://sarem-public.s3.amazonaws.com/gettysburg.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600&X-Amz-Credential=AKIAIYLZ53PYH6JY77YQ%2F20190830%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20190830T171845Z&X-Amz-Signature=2b185273a920fe10b0bbf5a391c9af8af7caf0d76170eade4fd99f28d3a68a00
+        12 632 [iot_thread] [INFO ][DEMO][632] HTTPS Client Asynchronous S3 download demo using pre-signed URL: https://xxxxx.s3.amazonaws.com/gettysburg.txt?xxxxx
         13 915 [iot_thread] [INFO ][DEMO][915] Inside of the append header callback for part bytes=0-511
         14 954 [NetRecv] [INFO ][DEMO][954] Inside of the read ready callback for part bytes=0-511 with network return code: 0
         15 954 [NetRecv] [INFO ][DEMO][954] Response return code: 206 for bytes=0-511
@@ -283,37 +281,37 @@ See @subpage https_demo_config for configuration settings that change the behavi
         31 1114 [iot_thread] [INFO ][DEMO][1114] Demo completed successfully.
         32 1116 [iot_thread] [INFO ][INIT][1116] SDK cleanup done.
         \endcode
-          
+
     </li>
 </ol>
 
-Notes:  
+Notes:
     Please note that the buffer for printing may be smaller than 512 characters and the printed received response body may be truncated.<br><br>
     "[NetRecv] [WARN ][NET][2977] Receive requested 768 bytes, but 400 bytes received instead." is OK because the library requests from the network interface the full size of the header buffer or body buffer.<br><br>
-    S3 will close the connection after 100 requests on the same connection. 
+    S3 will close the connection after 100 requests on the same connection.
 
 
 @page https_upload_demo_usage Upload Demo Usage Instructions
 
 <ol>
     <li>
-        Ensure that you have permissions in your AWS account to access S3.  
-        For information on AWS S3 please see: https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html  
+        Ensure that you have permissions in your AWS account to access S3.
+        For information on AWS S3 please see: https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html
     </li>
     <li>
-        Install and configured the AWS CLI.  
-        For AWS CLI installation information please see: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html  
-        For AWS CLI configuration information please see: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html  
+        Install and configured the AWS CLI.
+        For AWS CLI installation information please see: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html
+        For AWS CLI configuration information please see: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
     </li>
     <li>
         Run [demos/https/presigned_url_gen.py](https://github.com/aws/amazon-freertos/tree/master/demos/https/presigned_urls_gen.py) with your s3 **bucket-name** and s3 object key **object-key**.
         \code
         python presigned_url_gen.py --bucket my-bucket --key object-key
-        \endcode  
+        \endcode
 
         Please see [demos/https/README.md](https://github.com/aws/amazon-freertos/tree/master/demos/https/README.md) for information on the required Python version and Python package dependencies.
 
-        Example output:  
+        Example output:
         \code
         #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL    https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
         #define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL    https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=ABABABABABABABABABAB&Expires=1560555644&Signature=SomeHash12345UrlLMnmOPqrStUvW
@@ -322,19 +320,19 @@ Notes:
         Paste this output to iot_config.h.
         <br>
         <br>
-        Note:  
-        If your bucket is less than 24 hours old, then you will need to append the region the bucket was created in to the pre-signed URL:  
+        Note:
+        If your bucket is less than 24 hours old, then you will need to append the region the bucket was created in to the pre-signed URL:
         \code
-        https://my-bucket.s3-<region>.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D  
+        https://my-bucket.s3-<region>.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
         \endcode
-        Example: 
+        Example:
         \code
-        https://my-bucket.s3-us-west-2.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D  
+        https://my-bucket.s3-us-west-2.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
         \endcode
-        Please see https://aws.amazon.com/premiumsupport/knowledge-center/s3-http-307-response/ for more information.  
+        Please see https://aws.amazon.com/premiumsupport/knowledge-center/s3-http-307-response/ for more information.
     </li>
     <li>
-        Paste your RSA-2048 or ECC-P256 keys into [aws_clientcredential_keys.h](https://github.com/aws/amazon-freertos/blob/master/demos/include/aws_clientcredential_keys.h). This is needed to for the TLS handshake with the AWS S3 HTTP Server.  
+        Paste your RSA-2048 or ECC-P256 keys into [aws_clientcredential_keys.h](https://github.com/aws/amazon-freertos/blob/master/demos/include/aws_clientcredential_keys.h). This is needed to for the TLS handshake with the AWS S3 HTTP Server.
     </li>
     <li>
         Enable the <b>Synchronous upload demo</b> by defining @ref CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED in aws_demo_config.h:
@@ -353,7 +351,6 @@ Notes:
         *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
         *          CONFIG_DEFENDER_DEMO_ENABLED
         *          CONFIG_POSIX_DEMO_ENABLED
-        *          CONFIG_OTA_UPDATE_DEMO_ENABLED
         *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
         *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
         *          CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED
@@ -365,12 +362,13 @@ Notes:
         \endcode
     </li>
     <li>
-        See @ref building_demo for instructions on building the demo.  
+        See @ref building_demo for instructions on building the demo.
         A successful output looks like this:
         \code
         10 621 [iot_thread] [INFO ][INIT][621] SDK successfully initialized.
         11 621 [iot_thread] [INFO ][DEMO][621] Successfully initialized the demo. Network type for the demo: 4
-        12 621 [iot_thread] [INFO ][DEMO][621] HTTPS Client Synchronous S3 upload demo using pre-signed URL: https://sarem-public.s3.amazonaws.com/helloworld5.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600&X-Amz-Credential=AKIAIYLZ53PYH6JY77YQ%2F201908313 971 [iot_thread] [INFO ][DEMO][970] File was successfully uploaded.
+        12 621 [iot_thread] [INFO ][DEMO][621] HTTPS Client Synchronous S3 upload demo using pre-signed URL: https://xxxxx.s3.amazonaws.com/gettysburg.txt?xxxxx
+        13 971 [iot_thread] [INFO ][DEMO][970] File was successfully uploaded.
         14 971 [iot_thread] [INFO ][DEMO][971] Now checking sarem-public.s3.amazonaws.com for the file uploaded...
         15 1010 [iot_thread] [INFO ][DEMO][1010] Verified file size on S3 is 12. File size specified to upload is 12.
         16 1070 [iot_thread] [INFO ][DEMO][1070] Demo completed successfully.
@@ -378,7 +376,7 @@ Notes:
         \endcode
     </li>
     <li>
-        Enable the <b>Asynchronous upload demo</b> by defining either @ref CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED in aws_demo_config.h:  
+        Enable the <b>Asynchronous upload demo</b> by defining either @ref CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED in aws_demo_config.h:
         \code
         /* To run a particular demo you need to define one of these.
         * Only one demo can be configured at a time
@@ -394,7 +392,6 @@ Notes:
         *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
         *          CONFIG_DEFENDER_DEMO_ENABLED
         *          CONFIG_POSIX_DEMO_ENABLED
-        *          CONFIG_OTA_UPDATE_DEMO_ENABLED
         *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
         *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
         *          CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED
@@ -406,22 +403,23 @@ Notes:
         \endcode
     </li>
     <li>
-        See @ref building_demo for instructions on building the demo.  
+        See @ref building_demo for instructions on building the demo.
         A successful output looks like this:
 
         \code
         10 610 [iot_thread] [INFO ][INIT][610] SDK successfully initialized.
         11 610 [iot_thread] [INFO ][DEMO][610] Successfully initialized the demo. Network type for the demo: 4
-        12 610 [iot_thread] [INFO ][DEMO][610] HTTPS Client Asynchronous S3 upload demo using pre-signed URL: https://sarem-public.s3.amazonaws.com/helloworld5.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600&X-Amz-Credential=AKIAIYLZ53PYH6JY77YQ%2F20190813 900 [iot_thread] [INFO ][DEMO][900] Now checking sarem-public.s3.amazonaws.com for the file uploaded...
+        12 610 [iot_thread] [INFO ][DEMO][610] HTTPS Client Asynchronous S3 upload demo using pre-signed URL: https://xxxxx.s3.amazonaws.com/gettysburg.txt?xxxxx
+        13 900 [iot_thread] [INFO ][DEMO][900] Now checking sarem-public.s3.amazonaws.com for the file uploaded...
         14 940 [iot_thread] [INFO ][DEMO][940] Verified file size on S3 is 12. File size specified to upload is 12.
         15 1000 [iot_thread] [INFO ][DEMO][1000] Demo completed successfully.
         16 1002 [iot_thread] [INFO ][INIT][1002] SDK cleanup done.
         \endcode
-          
+
     </li>
 </ol>
 
-Notes:  
+Notes:
     Please note that the buffer for printing may be smaller than 512 characters and the printed received response body may be truncated.<br>
 
 */
@@ -452,7 +450,7 @@ This is generated using the script demos/https/presigned_url_gen.py. demos/https
 @configdefault The Baltimore Cybertrust root CA.
 
 @section IOT_DEMO_HTTPS_CONN_BUFFER_SIZE
-@brief The size of the static user buffer to store the HTTP Client connection context. 
+@brief The size of the static user buffer to store the HTTP Client connection context.
 
 Size in bytes of the User Buffer used to store the internal connection context. The size presented here accounts for
    storage of the internal connection context. The minimum size can be found in @ref connectionUserBufferMinimumSize.
@@ -463,11 +461,11 @@ Size in bytes of the User Buffer used to store the internal connection context. 
 @section IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE
 @brief The size of the static user buffer to store the HTTP Client request context and HTTP formatted request headers.
 
-Size in bytes of the user buffer used to store the internal request context and HTTP request header lines. 
+Size in bytes of the user buffer used to store the internal request context and HTTP request header lines.
    The size presented here accounts for the storage of the internal context, the first Request-Line in the HTTP
-   formatted header and extra headers. The minimum size can be found in @ref requestUserBufferMinimumSize. Keep in mind that this @ref requestUserBufferMinimumSize does not include the size of the 
+   formatted header and extra headers. The minimum size can be found in @ref requestUserBufferMinimumSize. Keep in mind that this @ref requestUserBufferMinimumSize does not include the size of the
    path in the Request-Line. The path could be well over 100 characters long as it includes not only the object key name
-   in S3, but also the query following. The query following has the AWSAccessKeyId, the expiration time, and the 
+   in S3, but also the query following. The query following has the AWSAccessKeyId, the expiration time, and the
    AWS Signature Version 4 signature.
 
 @configpossible Any positive integer. <br>
@@ -476,7 +474,7 @@ Size in bytes of the user buffer used to store the internal request context and 
 @section IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE
 @brief The size of the static user buffer to store the HTTP Client response context and HTTP formatted response headers.
 
-Size in bytes of the user buffer used to store the internal response context and the HTTP response header lines. 
+Size in bytes of the user buffer used to store the internal response context and the HTTP response header lines.
    The size presented here accounts for the storage of the internal context, the first Request-Line in the HTTP
    formatted header and extra headers. The minimum can be found in @ref requestUserBufferMinimumSize.
    Keep in mind that if the headers from the response do not all fit into this buffer, then the rest of the headers
@@ -495,7 +493,7 @@ Size in bytes of the buffer used to store the response body (parts of it). This 
 @configdefault `512`
 
 @section IOT_DEMO_HTTPS_UPLOAD_DATA
-@brief Pointer to the data to upload to S3. 
+@brief Pointer to the data to upload to S3.
 
 This can be a pointer to a memory location or a string literal.
 
@@ -503,7 +501,7 @@ This can be a pointer to a memory location or a string literal.
 @configdefault `"Hello World!"
 
 @section IOT_DEMO_HTTPS_UPLOAD_DATA_SIZE
-@brief The size of the data pointed to by @ref IOT_DEMO_HTTPS_UPLOAD_DATA. 
+@brief The size of the data pointed to by @ref IOT_DEMO_HTTPS_UPLOAD_DATA.
 
 @configpossible Any positive integer. <br>
 @configdefault `( sizeof( IOT_DEMO_HTTPS_UPLOAD_DATA ) - 1 )`
@@ -511,8 +509,8 @@ This can be a pointer to a memory location or a string literal.
 @section IOT_DEMO_HTTPS_CONNECTION_RETRY_WAIT_MS
 @brief Time to wait in milliseconds before retrying the HTTPS Connection.
 
-A connection is only attempted again if @ref IOT_HTTPS_CONNECTION_ERROR is returned from IotHttpsClient_Connect(). This 
-indicates an error in the network layer. To view network errors update @ref IOT_LOG_LEVEL_NETWORK to @ref IOT_LOG_ERROR 
+A connection is only attempted again if @ref IOT_HTTPS_CONNECTION_ERROR is returned from IotHttpsClient_Connect(). This
+indicates an error in the network layer. To view network errors update @ref IOT_LOG_LEVEL_NETWORK to @ref IOT_LOG_ERROR
 in iot_config.h.
 
 @configpossible Any positive integer.
@@ -521,8 +519,8 @@ in iot_config.h.
 @section IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY
 @brief Number of times to retry the HTTPS connection.
 
-A connection is only attempted again if @ref IOT_HTTPS_CONNECTION_ERROR is returned from IotHttpsClient_Connect(). This 
-indicates an error in the network layer. To view network errors update @ref IOT_LOG_LEVEL_NETWORK to @ref IOT_LOG_ERROR 
+A connection is only attempted again if @ref IOT_HTTPS_CONNECTION_ERROR is returned from IotHttpsClient_Connect(). This
+indicates an error in the network layer. To view network errors update @ref IOT_LOG_LEVEL_NETWORK to @ref IOT_LOG_ERROR
 in iot_config.h.
 
 @configpossible Any positive integer.
@@ -539,14 +537,14 @@ This configuration applies to [iot_demo_https_s3_download_sync.c](https://github
 @configdefault `60000`
 
 @section IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS
-@brief The maximum number of inflight asynchronous requests. 
+@brief The maximum number of inflight asynchronous requests.
 
 This configuration applies only to [iot_demo_https_s3_download_async.c](https://github.com/aws/amazon-freertos/tree/master/demos/https/iot_demo_https_s3_download_async.c).
 
-This configures the total number of requests in the pool of HTTPS Client library configurations and handles. In order to send 
-   a request asynchronously the memory for both the request buffers and the response buffers must not be shared between 
+This configures the total number of requests in the pool of HTTPS Client library configurations and handles. In order to send
+   a request asynchronously the memory for both the request buffers and the response buffers must not be shared between
    other asynchronous requests on the same connection. You can reuse the buffer only after the request/response process
-   has been finished. It is finished when the responseCompleteCallback() is invoked. We create a pool of memory so that 
+   has been finished. It is finished when the responseCompleteCallback() is invoked. We create a pool of memory so that
    all available requests in the pool can be scheduled right away without over-writing each other.
 
 @configpossible Any positive integer. <br>
@@ -584,7 +582,7 @@ The current HTTPS Client tests use the [Unity test framework](http://www.throwth
 @section IOT_TEST_HTTPS_SERVER_HOST_NAME
 @brief The HTTP server used for this test.
 
-This server needs to accept methods HEAD, GET, POST, and PUT. This server needs to send some data on a GET request. It can be a simple HTTP echo server. 
+This server needs to accept methods HEAD, GET, POST, and PUT. This server needs to send some data on a GET request. It can be a simple HTTP echo server.
 
 @configpossible Any server host name string. This host name must not include "https://" or "http://" in the name. <br>
 @configdefault `"httpbin.org"`
@@ -699,7 +697,7 @@ Log messages from the HTTPS Client library at or below this setting will be prin
 @section IOT_HTTPS_MAX_HOST_NAME_LENGTH
 @brief The maximum length of the DNS resolvable host name string allowed to be configured in #IotHttpsConnectionInfo_t.pAddress.
 
-An array of this length is allocated on stack during @ref https_client_function_connect. 
+An array of this length is allocated on stack during @ref https_client_function_connect.
 
 @configpossible Any positive integer. <br>
 @configrecommended It is recommended that this be less or equal to 255. 255 is the maximum host length according to FQDN. <br>
@@ -708,7 +706,7 @@ An array of this length is allocated on stack during @ref https_client_function_
 @section IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH
 @brief The maximum length of the ALPN protocols names string allowed to be configured in #IotHttpsConnectionInfo_t.pAlpnProtocols.
 
-An array of this length is allocated on stack during @ref https_client_function_connect. 
+An array of this length is allocated on stack during @ref https_client_function_connect.
 
 @configpossible Any positive integer. <br>
 @configdefault `255`

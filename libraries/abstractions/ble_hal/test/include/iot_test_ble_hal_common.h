@@ -35,10 +35,9 @@
 /* C standard library includes. */
 #include <stddef.h>
 #include <string.h>
-#include IOT_LINEAR_CONTAINERS
-#include IOT_THREADS
-#include IOT_CLOCK
-#include IOT_PLATFORM_TYPES
+#include "FreeRTOS.h"
+#include "list.h"
+
 #include IOT_BT_HAL_MANAGER_ADAPTER_BLE
 #include IOT_BT_HAL_MANAGER_ADAPTER
 #include IOT_BT_HAL_GATT_SERVER
@@ -187,9 +186,6 @@ typedef struct
 #define bletestsDEVICE_NAME                   "TEST"
 #define bletestsMAX_PROPERTY_SIZE             30
 
-#define bletestsMTU_SIZE1                     200
-#define bletestsMTU_SIZE2                     220
-
 #define bletestsMIN_ADVERTISEMENT_INTERVAL    0x12C
 #define bletestsMAX_ADVERTISEMENT_INTERVAL    0x258
 
@@ -204,40 +200,42 @@ typedef struct
 
 #define BLE_TIME_LIMIT                        2500                  /* Set time limit to 2.5s */
 
-typedef enum
+enum
 {
-    eBLEHALEventServerRegisteredCb = 0,
-    eBLEHALEventEnableDisableCb = 1,
-    eBLEHALEventCharAddedCb = 2,
-    eBLEHALEventServiceAddedCb = 3,
-    eBLEHALEventServiceStartedCb = 4,
-    eBLEHALEventServiceStoppedCb = 5,
-    eBLEHALEventServiceDeletedCb = 6,
-    eBLEHALEventCharDescrAddedCb = 7,
-    eBLEHALEventIncludedServiceAdded = 8,
-    eBLEHALEventRegisterBleAdapterCb = 9,
-    eBLEHALEventAdapterPropertiesCb = 10,
-    eBLEHALEventRegisterUnregisterGattServerCb = 11,
-    eBLEHALEventPropertyCb = 12,
-    eBLEHALEventSetAdvCb = 13,
-    eBLEHALEventStartAdvCb = 14,
-    eBLEHALEventConnectionCb = 15,
-    eBLEHALEventConnectionUpdateCb = 16,
-    eBLEHALEventReadAttrCb = 17,
-    eBLEHALEventWriteAttrCb = 18,
-    eBLEHALEventIndicateCb = 19,
-    eBLEHALEventConfimCb = 20,
-    eBLEHALEventSSPrequestCb = 21,
-    eBLEHALEventSSPrequestConfirmationCb = 22,
-    eBLEHALEventPairingStateChangedCb = 23,
-    eBLEHALEventRequestExecWriteCb = 24,
-    eBLEHALEventMtuChangedCb = 25,
-    eBLENbHALEvents
-} BLEHALEventsTypes_t;
+    eBLEHALEventNone = 0x00U,
+    eBLEHALEventServerRegisteredCb = 0x01U,
+    eBLEHALEventEnableDisableCb = 0x02U,
+    eBLEHALEventCharAddedCb = 0x04U,
+    eBLEHALEventServiceAddedCb = 0x08U,
+    eBLEHALEventServiceStartedCb = 0x10U,
+    eBLEHALEventServiceStoppedCb = 0x20U,
+    eBLEHALEventServiceDeletedCb = 0x40U,
+    eBLEHALEventCharDescrAddedCb = 0x80U,
+    eBLEHALEventIncludedServiceAdded = 0x100U,
+    eBLEHALEventRegisterBleAdapterCb = 0x200U,
+    eBLEHALEventAdapterPropertiesCb = 0x400U,
+    eBLEHALEventRegisterUnregisterGattServerCb = 0x800U,
+    eBLEHALEventPropertyCb = 0x1000U,
+    eBLEHALEventSetAdvCb = 0x2000U,
+    eBLEHALEventStartAdvCb = 0x4000U,
+    eBLEHALEventConnectionCb = 0x8000U,
+    eBLEHALEventConnectionUpdateCb = 0x10000U,
+    eBLEHALEventReadAttrCb = 0x20000U,
+    eBLEHALEventWriteAttrCb = 0x40000U,
+    eBLEHALEventIndicateCb = 0x80000U,
+    eBLEHALEventConfimCb = 0x100000U,
+    eBLEHALEventSSPrequestCb = 0x200000U,
+    eBLEHALEventSSPrequestConfirmationCb = 0x400000U,
+    eBLEHALEventPairingStateChangedCb = 0x800000U,
+    eBLEHALEventRequestExecWriteCb = 0x1000000U,
+    eBLEHALEventMtuChangedCb = 0x2000000U
+};
+
+typedef uint32_t BLEHALEventsTypes_t;
 
 typedef struct
 {
-    IotLink_t eventList;
+    ListItem_t eventList;
     BLEHALEventsTypes_t xEventTypes;
     int32_t lHandle;
 } BLEHALEventsInternals_t;
@@ -521,6 +519,15 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
                                              void * pxMessage,
                                              size_t xMessageLength,
                                              uint32_t timeoutMs );
+BLEHALEventsTypes_t IotTestBleHal_WaitForEvents( BLEHALEventsTypes_t xEventsToWaitFor,
+                                                 uint32_t timeoutMs );
+
+BTStatus_t IotTestBleHal_GetEventFromQueueWithMatch( BLEHALEventsTypes_t xEventName,
+                                                     int32_t lhandle,
+                                                     void * pxMessage,
+                                                     size_t xMessageLength,
+                                                     bool ( * pxMatch )( void * pvEvent ) );
+
 BTStatus_t IotTestBleHal_WaitEventFromQueueWithMatch( BLEHALEventsTypes_t xEventName,
                                                       int32_t lhandle,
                                                       void * pxMessage,

@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -72,7 +72,7 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
 
     if( pOutNetworkStats == NULL )
     {
-        LogError( ( "Invalid parameters. pOutNetworkStats: 0x%08x", pOutNetworkStats ) );
+        LogError( ( "Invalid parameters. pOutNetworkStats: %p", pOutNetworkStats ) );
         status = MetricsCollectorBadParameter;
     }
 
@@ -93,8 +93,8 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
 /*-----------------------------------------------------------*/
 
 MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
-                                          uint32_t tcpPortsArrayLength,
-                                          uint32_t * pOutNumTcpOpenPorts )
+                                          size_t tcpPortsArrayLength,
+                                          size_t * pOutNumTcpOpenPorts )
 {
     MetricsCollectorStatus_t status = MetricsCollectorSuccess;
     struct tcp_pcb_listen * pCurrPcb;
@@ -103,10 +103,10 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
     if( ( ( pOutTcpPortsArray != NULL ) && ( tcpPortsArrayLength == 0 ) ) ||
         ( pOutNumTcpOpenPorts == NULL ) )
     {
-        LogError( ( "Invalid parameters. pOutTcpPortsArray: 0x%08x,"
-                    "tcpPortsArrayLength: %u, pOutNumTcpOpenPorts: 0x%08x.",
+        LogError( ( "Invalid parameters. pOutTcpPortsArray: %p,"
+                    "tcpPortsArrayLength: %lu, pOutNumTcpOpenPorts: %p.",
                     pOutTcpPortsArray,
-                    tcpPortsArrayLength,
+                    ( unsigned long ) tcpPortsArrayLength,
                     pOutNumTcpOpenPorts ) );
         status = MetricsCollectorBadParameter;
     }
@@ -154,8 +154,8 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
 /*-----------------------------------------------------------*/
 
 MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
-                                          uint32_t udpPortsArrayLength,
-                                          uint32_t * pOutNumUdpOpenPorts )
+                                          size_t udpPortsArrayLength,
+                                          size_t * pOutNumUdpOpenPorts )
 {
     MetricsCollectorStatus_t status = MetricsCollectorSuccess;
     struct udp_pcb * pCurrPcb;
@@ -164,10 +164,10 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
     if( ( ( pOutUdpPortsArray != NULL ) && ( udpPortsArrayLength == 0 ) ) ||
         ( pOutNumUdpOpenPorts == NULL ) )
     {
-        LogError( ( "Invalid parameters. pOutUdpPortsArray: 0x%08x,"
-                    "udpPortsArrayLength: %u, pOutNumUdpOpenPorts: 0x%08x.",
+        LogError( ( "Invalid parameters. pOutUdpPortsArray: %p,"
+                    "udpPortsArrayLength: %lu, pOutNumUdpOpenPorts: %p.",
                     pOutUdpPortsArray,
-                    udpPortsArrayLength,
+                    ( unsigned long ) udpPortsArrayLength,
                     pOutNumUdpOpenPorts ) );
         status = MetricsCollectorBadParameter;
     }
@@ -215,8 +215,8 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
 /*-----------------------------------------------------------*/
 
 MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectionsArray,
-                                                    uint32_t connectionsArrayLength,
-                                                    uint32_t * pOutNumEstablishedConnections )
+                                                    size_t connectionsArrayLength,
+                                                    size_t * pOutNumEstablishedConnections )
 {
     MetricsCollectorStatus_t status = MetricsCollectorSuccess;
     struct tcp_pcb * pCurrPcb = tcp_active_pcbs;
@@ -226,10 +226,10 @@ MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectio
     if( ( ( pOutConnectionsArray != NULL ) && ( connectionsArrayLength == 0 ) ) ||
         ( pOutNumEstablishedConnections == NULL ) )
     {
-        LogError( ( "Invalid parameters. pOutConnectionsArray: 0x%08x,"
-                    " connectionsArrayLength: %u, pOutNumEstablishedConnections: 0x%08x.",
+        LogError( ( "Invalid parameters. pOutConnectionsArray: %p,"
+                    " connectionsArrayLength: %lu, pOutNumEstablishedConnections: %p.",
                     pOutConnectionsArray,
-                    connectionsArrayLength,
+                    ( unsigned long ) connectionsArrayLength,
                     pOutNumEstablishedConnections ) );
         status = MetricsCollectorBadParameter;
     }

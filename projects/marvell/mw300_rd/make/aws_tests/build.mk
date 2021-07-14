@@ -15,7 +15,6 @@ global-cflags-y += -I$(d)/../../../../../tests/include \
 				 -I$(d)/../../../../../libraries/freertos_plus/standard/utils/include/ \
 				 -I$(d)/../../../../../libraries/freertos_plus/standard/crypto/include/ \
 				 -I$(d)/../../../../../libraries/c_sdk/standard/common/include/private/ \
-				 -I$(d)/../../../../../libraries/c_sdk/standard/mqtt/include/ \
 				 -I$(d)/../../../../../libraries/c_sdk/standard/common/include/ \
 				 -I$(d)/../../../../../libraries/abstractions/wifi/include/ \
 				 -I$(d)/../../../../../demos/dev_mode_key_provisioning/include/ \

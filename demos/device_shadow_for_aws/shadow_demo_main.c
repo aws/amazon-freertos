@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -77,6 +77,8 @@
 /* shadow demo helpers header. */
 #include "mqtt_demo_helpers.h"
 
+/* Transport interface implementation include header for TLS. */
+#include "transport_secure_sockets.h"
 
 /**
  * @brief Format string representing a Shadow document with a "desired" state.
@@ -209,6 +211,20 @@
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 
 /**
  * @brief The MQTT context used for MQTT operation.
@@ -216,7 +232,7 @@
 static MQTTContext_t xMqttContext;
 
 /**
- * @brief The network context used for Openssl operation.
+ * @brief The network context used for TLS operation.
  */
 static NetworkContext_t xNetworkContext;
 

@@ -1,6 +1,8 @@
 ## Greengrass Discovery Demo
 In order to setup and run the FreeRTOS demo application for Greengrass discovery, please follow the instructions in [Greengrass Discovery Demo](https://docs.aws.amazon.com/freertos/latest/userguide/gg-demo.html).
 
+Please note that as of 02/17/2021, AWS IoT Greengrass V2 does not support connected devices and hence, this demo will not work with Greengrass V2. Please refer to the [aws documentation about running AWS IoT Greengrass V1 applications on AWS IoT Greengrass V2](https://docs.aws.amazon.com/greengrass/v2/developerguide/move-from-v1.html#run-v1-applications) to make sure that the connected devices are supported before running this demo with Greengrass V2.
+
 ## Advanced Diagnostics
 
 It can be instructive to use the AWS command-line interface (CLI) to drill into the cloud-based configuration of your Greengrass Core, and of the AWS IoT Thing that you're using with FreeRTOS. Check online for instructions on [installing](https://docs.aws.amazon.com/cli/latest/userguide/installing.html) and [configuring](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html) the AWS CLI. 

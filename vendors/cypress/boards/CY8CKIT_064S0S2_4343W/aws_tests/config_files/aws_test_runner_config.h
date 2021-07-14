@@ -29,10 +29,18 @@
 /* Uncomment this line if you want to run AFQP tests only. */
 /* #define testrunnerAFQP_ENABLED */
 
-#define testrunnerUNSUPPORTED              0
+#define testrunnerUNSUPPORTED    0
 
-/* Unsupported tests. */
-#define testrunnerFULL_OTA_CBOR_ENABLED    testrunnerUNSUPPORTED
+/* Uncomment this line to specify the delay (in milliseconds) to add before
+ * starting the tests execution on device.
+ * This is useful if the device takes some time after flashing to appear
+ * on the serial port of the host machine OS. The serial console is used
+ * by IDT to detect state of test execution on device. Therefore, the delay
+ * value can be configured to ensure that the device (after flashing) is
+ * available on host machine before it starts executing tests so that IDT
+ * can detect when tests start execution on device through the serial console.
+ */
+/* #define AWS_TEST_RUNNER_DELAY_MS                       ( 1000 )*/
 
 /* Enable tests by setting defines to 1 */
 
@@ -49,7 +57,6 @@
 #define testrunnerFULL_MQTT_STRESS_TEST_ENABLED     0
 #define testrunnerFULL_MQTT_AGENT_ENABLED           0
 #define testrunnerFULL_MQTTv4_ENABLED               0
-#define testrunnerFULL_OTA_AGENT_ENABLED            0
 #define testrunnerFULL_OTA_PAL_ENABLED              0
 #define testrunnerFULL_BLE_ENABLED                  0
 #define testrunnerFULL_CRYPTO_ENABLED               0

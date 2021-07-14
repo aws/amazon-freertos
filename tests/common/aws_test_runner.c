@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -39,15 +39,21 @@
 #include "unity_fixture.h"
 #include "unity_internals.h"
 
-/* Application version info. */
-#include "aws_application_version.h"
+/* Include files for UART based FreeRTOS+CLI support of test runner.
+ *  Note: This adds a dependency on Common IO for UART communication .*/
+#if defined( AWS_TEST_RUNNER_ENABLE_CLI_INPUT ) && ( AWS_TEST_RUNNER_ENABLE_CLI_INPUT == 1 )
+    #include <string.h>
+    #include "FreeRTOS_CLI.h"
+    #include "FreeRTOS_CLI_UART.h"
+    #include "iot_uart.h"
+#endif
 
-const AppVersion32_t xAppFirmwareVersion =
-{
-    .u.x.ucMajor = APP_VERSION_MAJOR,
-    .u.x.ucMinor = APP_VERSION_MINOR,
-    .u.x.usBuild = APP_VERSION_BUILD,
-};
+/**
+ * Default value of delay period before the execution of tests on device.
+ */
+#ifndef AWS_TEST_RUNNER_DELAY_MS
+    #define AWS_TEST_RUNNER_DELAY_MS    5000
+#endif
 
 char cBuffer[ testrunnerBUFFER_SIZE ];
 
@@ -60,7 +66,7 @@ unsigned int xHeapAfter;
  * do not change the signature of it. You could, however, add or remove
  * RUN_TEST_GROUP statements.
  */
-static void RunTests( void )
+static void RunTestSuites( void )
 {
     /* Tests can be disabled in aws_test_runner_config.h */
 
@@ -92,47 +98,6 @@ static void RunTests( void )
         RUN_TEST_GROUP( GGD_Helper_System );
     #endif
 
-    #if ( testrunnerFULL_SHADOW_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_Shadow_Unit );
-        RUN_TEST_GROUP( Full_Shadow );
-    #endif
-
-    #if ( testrunnerFULL_SHADOWv4_ENABLED == 1 )
-        RUN_TEST_GROUP( Shadow_Unit_Parser );
-        RUN_TEST_GROUP( Shadow_Unit_API );
-        RUN_TEST_GROUP( Shadow_System );
-    #endif /* if ( testrunnerFULL_SHADOWv4_ENABLED == 1 ) */
-
-    #if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
-        RUN_TEST_GROUP( MQTT_Unit_Validate );
-        RUN_TEST_GROUP( MQTT_Unit_Subscription );
-        RUN_TEST_GROUP( MQTT_Unit_Receive );
-        RUN_TEST_GROUP( MQTT_Unit_API );
-        RUN_TEST_GROUP( MQTT_Unit_Metrics );
-        RUN_TEST_GROUP( MQTT_System );
-    #endif /* if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) */
-
-    #if ( testrunnerFULL_MQTT_STRESS_TEST_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_MQTT_Agent_Stress_Tests );
-    #endif
-
-    #if ( testrunnerFULL_MQTT_AGENT_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_MQTT_Agent );
-    #endif
-
-    #if ( testrunnerFULL_MQTT_ALPN_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_MQTT_Agent_ALPN );
-    #endif
-
-    #if ( testrunnerFULL_OTA_CBOR_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_OTA_CBOR );
-        RUN_TEST_GROUP( Quarantine_OTA_CBOR );
-    #endif
-
-    #if ( testrunnerFULL_OTA_AGENT_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_OTA_AGENT );
-    #endif
-
     #if ( testrunnerFULL_OTA_PAL_ENABLED == 1 )
         RUN_TEST_GROUP( Full_OTA_PAL );
     #endif
@@ -160,11 +125,6 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_TLS_ENABLED == 1 )
         RUN_TEST_GROUP( Full_TLS );
-    #endif
-
-    #if ( testrunnerFULL_DEFENDER_ENABLED == 1 )
-        RUN_TEST_GROUP( Defender_Unit );
-        RUN_TEST_GROUP( Defender_System );
     #endif
 
     #if ( testrunnerFULL_POSIX_ENABLED == 1 )
@@ -206,26 +166,10 @@ static void RunTests( void )
         RUN_TEST_GROUP( BLE_Unit_MQTT_Serialize );
         RUN_TEST_GROUP( coreMQTT_Integration_BLE );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_CONNECTIVITY );
-        RUN_TEST_GROUP( Full_BLE_END_TO_END_MQTT );
-        RUN_TEST_GROUP( Full_BLE_END_TO_END_SHADOW );
     #endif
 
     #if ( testrunnerFULL_FREERTOS_TCP_ENABLED == 1 )
         RUN_TEST_GROUP( Full_FREERTOS_TCP );
-    #endif
-
-    #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
-        RUN_TEST_GROUP( Serializer_Unit_CBOR );
-        RUN_TEST_GROUP( Serializer_Unit_JSON );
-        RUN_TEST_GROUP( Serializer_Unit_JSON_deserialize );
-    #endif
-
-    #if ( testrunnerFULL_HTTPS_CLIENT_ENABLED == 1 )
-        RUN_TEST_GROUP( HTTPS_Client_Unit_API );
-        RUN_TEST_GROUP( HTTPS_Utils_Unit_API );
-        RUN_TEST_GROUP( HTTPS_Client_Unit_Sync );
-        RUN_TEST_GROUP( HTTPS_Client_Unit_Async );
-        RUN_TEST_GROUP( HTTPS_Client_System );
     #endif
 
     #if ( testrunnerFULL_COMMON_IO_ENABLED == 1 )
@@ -257,19 +201,9 @@ static void RunTests( void )
         RUN_TEST_GROUP( deviceShadow_Integration );
     #endif
 }
-/*-----------------------------------------------------------*/
 
-void TEST_RUNNER_RunTests_task( void * pvParameters )
+void RunTestsWrapper()
 {
-    /* Disable unused parameter warning. */
-    ( void ) pvParameters;
-
-    /* Initialize unity. */
-    UnityFixture.Verbose = 1;
-    UnityFixture.GroupFilter = 0;
-    UnityFixture.NameFilter = testrunnerTEST_FILTER;
-    UnityFixture.RepeatCount = 1;
-
     UNITY_BEGIN();
 
     /* Give the print buffer time to empty */
@@ -279,7 +213,7 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
         xHeapBefore = xPortGetFreeHeapSize();
     #endif
 
-    RunTests();
+    RunTestSuites();
 
     #if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 )
 
@@ -299,6 +233,132 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
 
     /* Currently disabled. Will be enabled after cleanup. */
     UNITY_END();
+}
+
+/*-----------------------------------------------------------*/
+#if defined( AWS_TEST_RUNNER_ENABLE_CLI_INPUT ) && ( AWS_TEST_RUNNER_ENABLE_CLI_INPUT == 1 )
+
+/* Global flag that represents whether a "start" command is received
+ * on the serial console. */
+    static BaseType_t xReceivedCommand = pdFALSE;
+
+/**
+ * @brief The command handler for the "start" command recognized by the
+ * serial console of the FreeRTOS test runner. On receiving the command,
+ * the test runner begins executing tests on the device.
+ *
+ * @return Returns pdFALSE to indicate completion of execution of tests.
+ */
+    static BaseType_t prvRunTestsCommand( int8_t * pcWriteBuffer,
+                                          size_t xWriteBufferLen,
+                                          const int8_t * pcCommandString )
+    {
+        ( void ) pcWriteBuffer;
+        ( void ) xWriteBufferLen;
+        ( void ) pcCommandString;
+
+        /* Set flag to indicate reception of command from serial console to start */
+        /* executing tests. */
+        xReceivedCommand = pdTRUE;
+
+        RunTestsWrapper();
+
+        return pdFALSE;
+    }
+
+/* Definition of a FreeRTOS+CLI command to instruct the test runner start executing commands.
+ * The command takes no parameters. */
+    static const CLI_Command_Definition_t xStartCommand =
+    {
+        "start",
+        "start : Instructs test runner to start executing tests on the board.",
+        prvRunTestsCommand, /* The handler for the command. */
+        0                   /* Zero number of parameters. */
+    };
+
+/* Size of the buffer fot storing input command from serial console. */
+    #define cmdMAX_INPUT_SIZE     20
+
+/* Size of buffer for storing output string for the serial console of test runner. */
+    #define cmdMAX_OUTPUT_SIZE    100
+
+    void prvTestRunnerConsole()
+    {
+        int32_t bytesRead;
+        int8_t serialInputChar;
+
+        static const char * const pcWelcomeMessage =
+            "Welcome to the Test Runner console.\r\n[Type the \"start\" command to beging executing tests]\r\n>";
+
+        /* Register the "start" command that will allow user to signal from the serial console
+         * about when to start execution of tests by the test runner. */
+        FreeRTOS_CLIRegisterCommand( &xStartCommand );
+
+        /* Print welcome message on serial console to indicate prompt for entering command. */
+        uartConsoleIO.write( pcWelcomeMessage, strlen( pcWelcomeMessage ) );
+
+        /* The input and output buffers are declared static to keep them off the stack. */
+        static int8_t pOutputBuffer[ cmdMAX_OUTPUT_SIZE ], pInputBuffer[ cmdMAX_INPUT_SIZE ], pErrorBuffer[ 30 ];
+        BaseType_t xErrorEncountered = pdFALSE;
+
+        while( ( xReceivedCommand == pdFALSE ) && ( xErrorEncountered == pdFALSE ) )
+        {
+            static size_t inputBufferIndex = 0;
+
+            /* Read characters to input buffer. */
+            bytesRead = uartConsoleIO.read( &serialInputChar, 1 );
+
+            if( bytesRead > 0 )
+            {
+                /* Echo back to the console. */
+                uartConsoleIO.write( &serialInputChar, bytesRead );
+
+                FreeRTOS_CLI_ProcessInputBuffer( uartConsoleIO,
+                                                 &serialInputChar,
+                                                 bytesRead,
+                                                 pInputBuffer,
+                                                 sizeof( pInputBuffer ),
+                                                 &inputBufferIndex,
+                                                 pOutputBuffer,
+                                                 sizeof( pOutputBuffer ) );
+            }
+            else
+            {
+                snprintf( pErrorBuffer,
+                          sizeof( pErrorBuffer ),
+                          "Read from serial console failed. Error=%d\n",
+                          ( int ) bytesRead );
+                uartConsoleIO.write( pErrorBuffer, strlen( pErrorBuffer ) );
+
+                xErrorEncountered = pdTRUE;
+            }
+        }
+    }
+#endif /* if defined( AWS_TEST_RUNNER_ENABLE_CLI_INPUT ) && ( AWS_TEST_RUNNER_ENABLE_CLI_INPUT == 1 ) */
+
+void TEST_RUNNER_RunTests_task( void * pvParameters )
+{
+    /* Disable unused parameter warning. */
+    ( void ) pvParameters;
+
+    /* Initialize unity. */
+    UnityFixture.Verbose = 1;
+    UnityFixture.GroupFilter = 0;
+    UnityFixture.NameFilter = testrunnerTEST_FILTER;
+    UnityFixture.RepeatCount = 1;
+
+    #if defined( AWS_TEST_RUNNER_ENABLE_CLI_INPUT ) && ( AWS_TEST_RUNNER_ENABLE_CLI_INPUT == 1 )
+        prvTestRunnerConsole();
+    #else
+
+        /* Add sufficient delay before starting tests on device to allow
+         * device to be available as serial port connection to the host machine
+         * OS.
+         * The serial console is used by host machine to view device logs. */
+        vTaskDelay( pdMS_TO_TICKS( AWS_TEST_RUNNER_DELAY_MS ) );
+
+        RunTestsWrapper();
+    #endif
 
     #ifdef CODE_COVERAGE
         exit( 0 );

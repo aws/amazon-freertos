@@ -1,6 +1,6 @@
 /*
  * FreeRTOS Common IO V0.1.3
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -132,16 +132,18 @@ static void prvIotFlashWriteDummyData( IotFlashHandle_t xFlashHandle,
                                        uint32_t size )
 {
     uint32_t lRetVal;
+    uint32_t i;
+    uint32_t j;
 
     /* Fill out a buffer of pageSize to be written */
-    for( uint32_t i = 0; i < size; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
+    for( i = 0; i < size; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
     {
         /* Less the a full buffer left? */
         uint32_t remaining_size = ( ( i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE ) > size ) ? ( size - i ) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
 
         if( remaining_size > 0 )
         {
-            for( uint32_t j = 0; j < remaining_size; j++ )
+            for( j = 0; j < remaining_size; j++ )
             {
                 uctestIotFlashWriteBuffer[ j ] = j;
             }
@@ -163,8 +165,10 @@ static void prvIotFlashReadVerifyDummyData( IotFlashHandle_t xFlashHandle,
                                             uint32_t size )
 {
     uint32_t lRetVal;
+    uint32_t i;
+    uint32_t j;
 
-    for( uint32_t i = 0; i < size; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
+    for( i = 0; i < size; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
     {
         /* Less the a full buffer left? */
         uint32_t remaining_size = ( ( i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE ) > size ) ? ( size - i ) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
@@ -179,9 +183,9 @@ static void prvIotFlashReadVerifyDummyData( IotFlashHandle_t xFlashHandle,
             TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
             /* Verify that  the data was written. */
-            for( uint32_t i = 0; i < remaining_size; i++ )
+            for( j = 0; j < remaining_size; j++ )
             {
-                if( uctestIotFlashReadBuffer[ i ] != ( i & 0xFF ) )
+                if( uctestIotFlashReadBuffer[ j ] != ( j & 0xFF ) )
                 {
                     TEST_ASSERT_MESSAGE( 0, "Data was NOT written" );
                 }
@@ -197,8 +201,10 @@ static void prvIotFlashReadVerifyErased( IotFlashHandle_t xFlashHandle,
                                          uint32_t size )
 {
     uint32_t lRetVal;
+    uint32_t i;
+    uint32_t j;
 
-    for( uint32_t i = 0; i < size; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
+    for( i = 0; i < size; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
     {
         /* Less the a full buffer left? */
         uint32_t remaining_size = ( ( i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE ) > size ) ? ( size - i ) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
@@ -213,9 +219,9 @@ static void prvIotFlashReadVerifyErased( IotFlashHandle_t xFlashHandle,
             TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
             /* Verify that the data was erased. */
-            for( uint32_t i = 0; i < remaining_size; i++ )
+            for( j = 0; j < remaining_size; j++ )
             {
-                if( uctestIotFlashReadBuffer[ i ] != testIotFLASH_DEFAULT_FLASH_BYTE )
+                if( uctestIotFlashReadBuffer[ j ] != testIotFLASH_DEFAULT_FLASH_BYTE )
                 {
                     TEST_ASSERT_MESSAGE( 0, "Data was NOT erased" );
                 }
@@ -820,6 +826,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePartialPage )
     IotFlashHandle_t xFlashHandle;
     IotFlashInfo_t * pxFlashInfo;
     int32_t lRetVal;
+    int8_t i;
 
     /* Open the flash instance */
     xFlashHandle = iot_flash_open( ltestIotFlashInstance );
@@ -853,7 +860,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePartialPage )
         }
 
         /* fill out a buffer (Partial page) to be written */
-        for( int i = 0; i < testIotFLASH_DEFAULT_PARTIAL_PAGE_SIZE * 2; i++ )
+        for( i = 0; i < testIotFLASH_DEFAULT_PARTIAL_PAGE_SIZE * 2; i++ )
         {
             uctestIotFlashWriteBuffer[ i ] = i;
         }
@@ -882,7 +889,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePartialPage )
         TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
         /* Verify the data written. */
-        for( int i = 0; i < testIotFLASH_DEFAULT_PARTIAL_PAGE_SIZE * 2; i++ )
+        for( i = 0; i < testIotFLASH_DEFAULT_PARTIAL_PAGE_SIZE * 2; i++ )
         {
             if( uctestIotFlashReadBuffer[ i ] != uctestIotFlashWriteBuffer[ i ] )
             {
@@ -1117,6 +1124,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseInProgressWrite )
     IotFlashInfo_t * pxFlashInfo;
     int32_t lRetVal;
     uint32_t ulSize;
+    int8_t i;
 
     /* Open the flash instance */
     xFlashHandle = iot_flash_open( ltestIotFlashInstance );
@@ -1136,7 +1144,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseInProgressWrite )
         TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
         /* Fill out a buffer of sectorSize to be written */
-        for( int i = 0; i < testIotFLASH_DEFAULT_PARTIAL_PAGE_SIZE; i++ )
+        for( i = 0; i < testIotFLASH_DEFAULT_PARTIAL_PAGE_SIZE; i++ )
         {
             uctestIotFlashWriteBuffer[ i ] = i;
         }
@@ -1158,7 +1166,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseInProgressWrite )
             TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
             /* Verify the data written. */
-            for( int i = 0; i < testIotFLASH_DEFAULT_PARTIAL_PAGE_SIZE; i++ )
+            for( i = 0; i < testIotFLASH_DEFAULT_PARTIAL_PAGE_SIZE; i++ )
             {
                 if( uctestIotFlashReadBuffer[ i ] != uctestIotFlashWriteBuffer[ i ] )
                 {
@@ -1412,6 +1420,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteEraseReadCycle )
     IotFlashHandle_t xFlashHandle;
     IotFlashInfo_t * pxFlashInfo;
     int32_t lRetVal;
+    uint32_t idx;
 
     /* Open the flash instance */
     xFlashHandle = iot_flash_open( ltestIotFlashInstance );
@@ -1432,7 +1441,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteEraseReadCycle )
         /* Read back the data and make sure that data is erased first */
         prvIotFlashReadVerifyErased( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
 
-        for( uint32_t idx = 0; idx < 5; idx++ )
+        for( idx = 0; idx < 5; idx++ )
         {
             /* Write to this sector and veirfy */
             prvIotFlashWriteReadVerify( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
@@ -1678,6 +1687,8 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePageFromFlash )
     IotFlashHandle_t xFlashHandle;
     IotFlashInfo_t * pxFlashInfo;
     int32_t lRetVal;
+    uint32_t i;
+    uint32_t j;
 
     /* Open the flash instance */
     xFlashHandle = iot_flash_open( ltestIotFlashInstance );
@@ -1711,14 +1722,14 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePageFromFlash )
         }
 
         /* Write full page of data */
-        for( uint32_t i = 0; i < pxFlashInfo->ulPageSize; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
+        for( i = 0; i < pxFlashInfo->ulPageSize; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
         {
             /* Less the a full buffer left? */
             uint32_t remaining_size = ( ( i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE ) > pxFlashInfo->ulPageSize ) ? ( pxFlashInfo->ulPageSize - i ) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
 
             if( remaining_size > 0 )
             {
-                for( uint32_t j = 0; j < remaining_size; j++ )
+                for( j = 0; j < remaining_size; j++ )
                 {
                     uctestIotFlashWriteBuffer[ j ] = j;
                 }
@@ -1732,7 +1743,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePageFromFlash )
             }
         }
 
-        for( uint32_t i = 0; i < pxFlashInfo->ulPageSize; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
+        for( i = 0; i < pxFlashInfo->ulPageSize; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
         {
             /* Less the a full buffer left? */
             uint32_t remaining_size = ( ( i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE ) > pxFlashInfo->ulPageSize ) ? ( pxFlashInfo->ulPageSize - i ) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
@@ -1747,7 +1758,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePageFromFlash )
                 TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
                 /* Verify the data is erased. */
-                for( uint32_t i = 0; i < remaining_size; i++ )
+                for( i = 0; i < remaining_size; i++ )
                 {
                     if( uctestIotFlashReadBuffer[ i ] != uctestIotFlashWriteROBuffer[ i ] )
                     {

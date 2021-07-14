@@ -107,7 +107,7 @@
 				</option>
 				<option>
 					<name>OGLastSavedByProductVersion</name>
-					<state>8.32.3.20186</state>
+					<state>8.32.2.19370</state>
 				</option>
 				<option>
 					<name>GeneralEnableMisra</name>
@@ -225,6 +225,7 @@
 					<state>_DLIB_FILE_DESCRIPTOR</state>
 					<state>FREERTOS_ENABLE_UNIT_TESTS</state>
 					<state>UNITY_INCLUDE_CONFIG_H</state>
+					<state>configUSE_POSIX_ERRNO=1</state>
 				</option>
 				<option>
 					<name>CCPreprocFile</name>
@@ -374,51 +375,47 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\pkcs11_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\access</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\http_demo_helpers</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\portable</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\portable\os</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\ota_pal_for_aws</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_subscription_manager</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src</state>
 				</option>
 				<option>
 					<name>CCStdIncCheck</name>
@@ -1251,9 +1248,12 @@
 							</file>
 						</group>
 						<group>
-							<name>ota</name>
+							<name>ota_pal_for_aws</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\ota\aws_ota_pal.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\ota_pal_for_aws\ota_pal.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\ota_pal_for_aws\ota_pal.h</name>
 							</file>
 						</group>
 					</group>
@@ -1301,22 +1301,10 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\FreeRTOSIPConfig.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_bufferpool_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_ggd_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_iot_network_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_mqtt_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_ota_agent_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_secure_sockets_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\aws_shadow_config.h</name>
@@ -1352,10 +1340,22 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\defender_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_bufferpool_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_mqtt_agent_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_mqtt_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\iot_secure_sockets_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\ota_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files\shadow_config.h</name>
@@ -1483,6 +1483,9 @@
 						<name>types</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\types\iot_platform_types.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\types\iot_network_types.h</name>
 						</file>
 					</group>
 				</group>
@@ -1625,6 +1628,24 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c</name>
+					</file>
+				</group>
+			</group>
+			<group>
+				<name>mqtt_agent</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_agent_message.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_command_pool.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include\freertos_agent_message.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include\freertos_command_pool.h</name>
 					</file>
 				</group>
 			</group>
@@ -1819,72 +1840,6 @@
 						</file>
 					</group>
 				</group>
-				<group>
-					<name>ota</name>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_types.h</name>
-						</file>
-					</group>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent_internal.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_pal.h</name>
-						</file>
-						<group>
-							<name>mqtt</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor_internal.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.h</name>
-							</file>
-						</group>
-						<group>
-							<name>http</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.h</name>
-							</file>
-						</group>
-					</group>
-					<group>
-						<name>test</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_agent.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal.c</name>
-						</file>
-					</group>
-				</group>
 			</group>
 		</group>
 		<group>
@@ -1899,26 +1854,20 @@
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h</name>
-						</file>
-						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h</name>
 						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_taskpool.h</name>
+						</file>
 						<group>
 							<name>types</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_network_types.h</name>
-							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_taskpool_types.h</name>
 							</file>
 						</group>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_taskpool.h</name>
-						</file>
 						<group>
 							<name>private</name>
 							<file>
@@ -1948,282 +1897,6 @@
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_tests_taskpool.c</name>
-						</file>
-					</group>
-				</group>
-				<group>
-					<name>mqtt</name>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_api.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_network.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_publish_duplicates.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_static_memory.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_subscription.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_context_connection.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serializer_deserializer_wrapper.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_managed_function_wrapper.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_subscription_container.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_mutex_wrapper.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c</name>
-						</file>
-					</group>
-					<group>
-						<name>test</name>
-						<group>
-							<name>mock</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock\iot_tests_mqtt_mock.c</name>
-							</file>
-						</group>
-						<group>
-							<name>unit</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_receive.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_validate.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_metrics.c</name>
-							</file>
-						</group>
-						<group>
-							<name>system</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\system\iot_tests_mqtt_system.c</name>
-							</file>
-						</group>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\iot_test_mqtt_agent.c</name>
-						</file>
-					</group>
-				</group>
-				<group>
-					<name>serializer</name>
-					<group>
-						<name>src</name>
-						<group>
-							<name>cbor</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_decoder.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_encoder.c</name>
-							</file>
-						</group>
-						<group>
-							<name>json</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\iot_serializer_json_decoder.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\iot_serializer_json_encoder.c</name>
-							</file>
-						</group>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\iot_serializer_static_memory.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\iot_json_utils.c</name>
-						</file>
-					</group>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_serializer.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_json_utils.h</name>
-						</file>
-					</group>
-					<group>
-						<name>test</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_cbor.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_json.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_deserializer_json.c</name>
-						</file>
-					</group>
-				</group>
-				<group>
-					<name>https</name>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_client.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_utils.c</name>
-						</file>
-					</group>
-					<group>
-						<name>test</name>
-						<group>
-							<name>unit</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_client.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_utils.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_common.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_sync.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_async.c</name>
-							</file>
-						</group>
-						<group>
-							<name>system</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\system\iot_tests_https_system.c</name>
-							</file>
-						</group>
-					</group>
-				</group>
-			</group>
-			<group>
-				<name>aws</name>
-				<group>
-					<name>defender</name>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_api.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_collector.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_mqtt.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_v1.c</name>
-						</file>
-						<group>
-							<name>private</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\src\private\aws_iot_defender_internal.h</name>
-							</file>
-						</group>
-					</group>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include\aws_iot_defender.h</name>
-						</file>
-					</group>
-					<group>
-						<name>test</name>
-						<group>
-							<name>unit</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c</name>
-							</file>
-						</group>
-						<group>
-							<name>system</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\test\system\aws_iot_tests_defender_system.c</name>
-							</file>
-						</group>
-					</group>
-				</group>
-				<group>
-					<name>shadow</name>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_api.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_operation.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_parser.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_static_memory.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_subscription.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow_config_defaults.h</name>
-						</file>
-					</group>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_iot_shadow.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_shadow.h</name>
-						</file>
-					</group>
-					<group>
-						<name>test</name>
-						<group>
-							<name>unit</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_api.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_parser.c</name>
-							</file>
-						</group>
-						<group>
-							<name>system</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\test\system\aws_iot_tests_shadow_system.c</name>
-							</file>
-						</group>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\test\aws_test_shadow.c</name>
 						</file>
 					</group>
 				</group>
@@ -2259,12 +1932,45 @@
 				</file>
 			</group>
 			<group>
+				<name>unity</name>
+				<group>
+					<name>src</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity_internals.h</name>
+					</file>
+				</group>
+				<group>
+					<name>extras</name>
+					<group>
+						<name>fixture</name>
+						<group>
+							<name>src</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_internals.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h</name>
+							</file>
+						</group>
+					</group>
+				</group>
+			</group>
+			<group>
 				<name>mbedtls</name>
 				<group>
 					<name>library</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c</name>
-					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\aes.c</name>
 					</file>
@@ -2282,6 +1988,9 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1write.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\bignum.c</name>
@@ -2742,42 +2451,6 @@
 				</group>
 			</group>
 			<group>
-				<name>unity</name>
-				<group>
-					<name>src</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity.c</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity_internals.h</name>
-					</file>
-				</group>
-				<group>
-					<name>extras</name>
-					<group>
-						<name>fixture</name>
-						<group>
-							<name>src</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_internals.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h</name>
-							</file>
-						</group>
-					</group>
-				</group>
-			</group>
-			<group>
 				<name>mbedtls_utils</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_utils.c</name>
@@ -2799,6 +2472,15 @@
 				</file>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h</name>
+				</file>
+			</group>
+			<group>
+				<name>jsmn</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c</name>
 				</file>
 			</group>
 			<group>
@@ -2827,15 +2509,6 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c</name>
 					</file>
 				</group>
-			</group>
-			<group>
-				<name>jsmn</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c</name>
-				</file>
 			</group>
 		</group>
 		<group>
@@ -2870,6 +2543,30 @@
 					<name>interface</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h</name>
+					</file>
+				</group>
+			</group>
+		</group>
+		<group>
+			<name>coreMQTT-Agent</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent_command_functions.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_command_functions.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent_message_interface.h</name>
 					</file>
 				</group>
 			</group>
@@ -2982,6 +2679,84 @@
 				</group>
 			</group>
 		</group>
+		<group>
+			<name>ota_for_aws</name>
+			<group>
+				<name>source</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota_mqtt.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota_cbor.c</name>
+				</file>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_mqtt_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_cbor_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_os_interface.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_platform_interface.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_interface_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_base64_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_appversion32.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_config_defaults.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_mqtt_interface.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_private.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_interface.h</name>
+					</file>
+				</group>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota_interface.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota_base64.c</name>
+				</file>
+				<group>
+					<name>portable</name>
+					<group>
+						<name>os</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\portable\os\ota_os_freertos.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\portable\os\ota_os_freertos.h</name>
+						</file>
+					</group>
+				</group>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\ota_for_aws\source\ota_http.c</name>
+				</file>
+			</group>
+		</group>
 	</group>
 	<group>
 		<name>tests</name>
@@ -3005,9 +2780,6 @@
 		</group>
 		<group>
 			<name>include</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\tests\include\aws_application_version.h</name>
-			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\tests\include\aws_clientcredential.h</name>
 			</file>
@@ -3044,6 +2816,27 @@
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\core_http_system_test.c</name>
 			</file>
+			<group>
+				<name>ota_pal</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal\aws_ota_pal_test_access_declare.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal\aws_ota_pal_test_access_define.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal_ecdsa_sha256_signature.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal_rsa_sha1_signature.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal_rsa_sha256_signature.h</name>
+				</file>
+			</group>
 		</group>
 	</group>
 	<group>
@@ -3083,6 +2876,24 @@
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_demo_helpers\mqtt_demo_helpers.c</name>
 				</file>
 			</group>
+			<group>
+				<name>ota_demo_helpers</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\ota_demo_helpers\ota_application_version.c</name>
+				</file>
+			</group>
+			<group>
+				<name>mqtt_subscription_manager</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\common\mqtt_subscription_manager\mqtt_subscription_manager.c</name>
+				</file>
+			</group>
+		</group>
+		<group>
+			<name>include</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\include\aws_iot_metrics.h</name>
+			</file>
 		</group>
 	</group>
 </project>

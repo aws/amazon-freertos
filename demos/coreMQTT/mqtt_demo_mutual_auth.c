@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -80,6 +80,9 @@
 
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
+
+/* Include AWS IoT metrics macros header. */
+#include "aws_iot_metrics.h"
 
 /*------------- Demo configurations -------------------------*/
 
@@ -229,6 +232,20 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Calculate and perform an exponential backoff with jitter delay for
  * the next retry attempt of a failed network operation with the server.
  *
@@ -280,7 +297,7 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
  * information from Subscribe ACK. Called by the event callback after processing
  * an incoming SUBACK packet.
  *
- * @param[in] Server response to the subscription request.
+ * @param[in] pxPacketInfo Server response to the subscription request.
  */
 static void prvUpdateSubAckStatus( MQTTPacketInfo_t * pxPacketInfo );
 
@@ -471,6 +488,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
     uint32_t ulDemoRunCount = 0UL, ulDemoSuccessCount = 0UL;
     TransportSocketStatus_t xNetworkStatus;
     BaseType_t xIsConnectionEstablished = pdFALSE;
+    SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
     /* Upon return, pdPASS will indicate a successful demo execution.
     * pdFAIL will indicate some failures occurred during execution. The
@@ -489,6 +507,7 @@ int RunCoreMqttMutualAuthDemo( bool awsIotMqttMode,
      * by the timer utility function that is provided to the MQTT library.
      */
     ulGlobalEntryTimeMs = prvGetTimeMs();
+    xNetworkContext.pParams = &secureSocketsTransportParams;
 
     for( ulDemoRunCount = 0UL; ( ulDemoRunCount < democonfigMQTT_MAX_DEMO_COUNT ); ulDemoRunCount++ )
     {
@@ -704,7 +723,6 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
     ServerInfo_t xServerInfo = { 0 };
 
     SocketsConfig_t xSocketsConfig = { 0 };
-    BaseType_t xStatus = pdPASS;
     TransportSocketStatus_t xNetworkStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     BackoffAlgorithmContext_t xReconnectParams;
     BaseType_t xBackoffStatus = pdFALSE;
@@ -760,7 +778,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( NetworkContext_t * pxNet
         }
     } while( ( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( xBackoffStatus == pdPASS ) );
 
-    return xStatus;
+    return ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS ) ? pdPASS : pdFAIL;
 }
 /*-----------------------------------------------------------*/
 
@@ -796,6 +814,11 @@ static BaseType_t prvCreateMQTTConnectionWithBroker( MQTTContext_t * pxMQTTConte
      * unique, such as a device serial number. */
     xConnectInfo.pClientIdentifier = democonfigCLIENT_IDENTIFIER;
     xConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( democonfigCLIENT_IDENTIFIER );
+
+    /* Use the metrics string as username to report the OS and MQTT client version
+     * metrics to AWS IoT. */
+    xConnectInfo.pUserName = AWS_IOT_METRICS_STRING;
+    xConnectInfo.userNameLength = AWS_IOT_METRICS_STRING_LENGTH;
 
     /* Set MQTT keep-alive period. If the application does not send packets at an interval less than
      * the keep-alive period, the MQTT library will send PINGREQ packets. */

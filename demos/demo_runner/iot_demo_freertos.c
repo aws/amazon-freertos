@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -95,7 +95,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 
     demoContext_t * pDemoContext = ( demoContext_t * ) pContext;
 
-    if( ( state == eNetworkStateEnabled ) && ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE ) )
+    if( ( state == eNetworkStateConnected ) && ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE ) )
     {
         demoConnectedNetwork = network;
         IotSemaphore_Post( &demoNetworkSemaphore );
@@ -121,8 +121,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                                                     pNetworkInterface );
         }
     }
-    else if( ( ( state == eNetworkStateDisabled ) || ( state == eNetworkStateUnknown ) ) &&
-             ( demoConnectedNetwork == network ) )
+    else if( ( state == eNetworkStateEnabled ) && ( demoConnectedNetwork == network ) )
     {
         if( pDemoContext->networkDisconnectedCallback != NULL )
         {

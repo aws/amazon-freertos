@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -48,15 +48,15 @@
         #undef democonfigDEMO_PRIORITY
         #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
     #endif
-#elif defined( CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              RunCoreMqttConnectionSharingDemo
+#elif defined( CONFIG_CORE_MQTT_AGENT_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreMqttAgentDemo
     #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
         #undef democonfigDEMO_STACKSIZE
         #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
     #endif
-    #if defined( democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY )
+    #if defined( democonfigCORE_MQTT_AGENT_DEMO_TASK_PRIORITY )
         #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY
+        #define democonfigDEMO_PRIORITY     democonfigCORE_MQTT_AGENT_DEMO_TASK_PRIORITY
     #endif
 #elif defined( CONFIG_CORE_HTTP_MUTUAL_AUTH_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunCoreHttpMutualAuthDemo
@@ -104,20 +104,10 @@
     #endif
     #if defined( democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY )
         #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY
+        #define democonfigDEMO_PRIORITY    democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY
     #endif
 #elif defined( CONFIG_POSIX_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              vStartPOSIXDemo
-#elif defined( CONFIG_OTA_UPDATE_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              vStartOTAUpdateDemoTask
-    #if defined( democonfigOTA_UPDATE_TASK_STACK_SIZE )
-        #undef democonfigDEMO_STACKSIZE
-        #define democonfigDEMO_STACKSIZE    democonfigOTA_UPDATE_TASK_STACK_SIZE
-    #endif
-    #if defined( democonfigOTA_UPDATE_TASK_TASK_PRIORITY )
-        #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY    democonfigOTA_UPDATE_TASK_TASK_PRIORITY
-    #endif
+    #define DEMO_entryFUNCTION             vStartPOSIXDemo
 #elif defined( CONFIG_BLE_GATT_SERVER_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vGattDemoSvcInit
     #if defined( democonfigNETWORK_TYPES )
@@ -136,10 +126,20 @@
         #undef democonfigNETWORK_TYPES
         #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_BLE )
     #endif
+#elif defined( CONFIG_OTA_MQTT_BLE_TRANSPORT_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunOtaMqttBLETransportDemo
+    #if defined( democonfigNETWORK_TYPES )
+        #undef democonfigNETWORK_TYPES
+        #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_BLE )
+    #endif
 #elif defined( CONFIG_CLI_UART_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vRunCLIUartDemo
 #elif defined( CONFIG_DEVICE_DEFENDER_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             RunDeviceDefenderDemo
+#elif defined( CONFIG_OTA_MQTT_UPDATE_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunOtaCoreMqttDemo
+#elif defined( CONFIG_OTA_HTTP_UPDATE_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunOtaCoreHttpDemo
 #else /* if defined( CONFIG_CORE_MQTT_BASIC_TLS_DEMO_ENABLED ) */
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "No demo to run. One demo should be enabled"

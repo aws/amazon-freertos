@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -70,12 +70,12 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
     if( metricsStatus == 0 )
     {
         /* Fill our response with values gotten from FreeRTOS+TCP. */
-        LogDebug( ( "Network stats read. Bytes received: %u, packets received: %u, "
-                    "bytes sent: %u, packets sent: %u.",
-                    ( unsigned int ) metrics.xInput.uxByteCount,
-                    ( unsigned int ) metrics.xInput.uxPacketCount,
-                    ( unsigned int ) metrics.xOutput.uxByteCount,
-                    ( unsigned int ) metrics.xOutput.uxPacketCount ) );
+        LogDebug( ( "Network stats read. Bytes received: %lu, packets received: %lu, "
+                    "bytes sent: %lu, packets sent: %lu.",
+                    ( unsigned long ) metrics.xInput.uxByteCount,
+                    ( unsigned long ) metrics.xInput.uxPacketCount,
+                    ( unsigned long ) metrics.xOutput.uxByteCount,
+                    ( unsigned long ) metrics.xOutput.uxPacketCount ) );
 
         pOutNetworkStats->bytesReceived = metrics.xInput.uxByteCount;
         pOutNetworkStats->packetsReceived = metrics.xInput.uxPacketCount;
@@ -90,14 +90,14 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats )
 /*-----------------------------------------------------------*/
 
 MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
-                                          uint32_t tcpPortsArrayLength,
-                                          uint32_t * pOutNumTcpOpenPorts )
+                                          size_t tcpPortsArrayLength,
+                                          size_t * pOutNumTcpOpenPorts )
 {
     MetricsCollectorStatus_t status = MetricsCollectorCollectionFailed;
 
     MetricsType_t metrics = { 0 };
     BaseType_t metricsStatus = 0;
-    uint32_t copyAmount = 0UL;
+    size_t copyAmount = 0UL;
 
     /* pOutTcpPortsArray can be NULL. */
     configASSERT( pOutNumTcpOpenPorts != NULL );
@@ -139,14 +139,14 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
 /*-----------------------------------------------------------*/
 
 MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
-                                          uint32_t udpPortsArrayLength,
-                                          uint32_t * pOutNumUdpOpenPorts )
+                                          size_t udpPortsArrayLength,
+                                          size_t * pOutNumUdpOpenPorts )
 {
     MetricsCollectorStatus_t status = MetricsCollectorCollectionFailed;
 
     MetricsType_t metrics = { 0 };
     BaseType_t metricsStatus = 0;
-    uint32_t copyAmount = 0UL;
+    size_t copyAmount = 0UL;
 
     /* pOutUdpPortsArray can be NULL. */
     configASSERT( pOutNumUdpOpenPorts != NULL );
@@ -189,16 +189,16 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
 /*-----------------------------------------------------------*/
 
 MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectionsArray,
-                                                    uint32_t connectionsArrayLength,
-                                                    uint32_t * pOutNumEstablishedConnections )
+                                                    size_t connectionsArrayLength,
+                                                    size_t * pOutNumEstablishedConnections )
 {
     MetricsCollectorStatus_t status = MetricsCollectorCollectionFailed;
 
     MetricsType_t metrics = { 0 };
     BaseType_t metricsStatus = 0;
-    uint32_t copyAmount = 0UL;
+    size_t copyAmount = 0UL;
     uint32_t localIp = 0UL;
-    uint32_t i;
+    size_t i;
 
     /* pOutConnectionsArray can be NULL. */
     configASSERT( pOutNumEstablishedConnections != NULL );

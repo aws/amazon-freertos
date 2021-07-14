@@ -52,6 +52,7 @@
 
 /* Demo includes. */
 #include "aws_demo_logging.h"
+#include "logging_levels.h"
 
 /*-----------------------------------------------------------*/
 
@@ -117,9 +118,19 @@ static void prvCreatePrintSocket( void * pvParameter1,
  * Write a messages to stdout, either with or without a time-stamp.
  * A Windows thread will finally call printf() and fflush().
  */
-static void prvLoggingPrintf( BaseType_t xFormatted,
+static void prvLoggingPrintf( uint8_t usLoggingLevel,
+                              const char * pcFile,
+                              size_t fileLineNo,
+                              BaseType_t xFormatted,
                               const char * pcFormat,
                               va_list xArgs );
+
+/* A simple locking mechanism to protect access to the logging
+stream buffer. */
+static void prvBitOpsAcquire( LONG volatile *plValue );
+
+/* Release the lock. */
+static void prvBitOpsRelease( LONG volatile *plValue );
 
 /*-----------------------------------------------------------*/
 
@@ -226,6 +237,7 @@ void vLoggingInit( BaseType_t xLogToStdout,
                     NULL );
 
                 /* Use the cores that are not used by the FreeRTOS tasks. */
+                configASSERT( Win32Thread != NULL );
                 SetThreadAffinityMask( Win32Thread, ~0x01u );
                 SetThreadPriorityBoost( Win32Thread, TRUE );
                 SetThreadPriority( Win32Thread, THREAD_PRIORITY_IDLE );
@@ -284,32 +296,131 @@ void vLoggingPrintf( const char * pcFormat,
     va_list xArgs;
 
     va_start( xArgs, pcFormat );
-    prvLoggingPrintf( pdTRUE, pcFormat, xArgs );
+    prvLoggingPrintf( LOG_NONE, NULL, 0, pdTRUE, pcFormat, xArgs );
     va_end( xArgs );
 }
+
 /*-----------------------------------------------------------*/
 
 void vLoggingPrint( const char * pcFormat )
 {
-    prvLoggingPrintf( pdFALSE, pcFormat, NULL );
+    prvLoggingPrintf( LOG_NONE, NULL, 0, pdFALSE, pcFormat, NULL );
 }
+
 /*-----------------------------------------------------------*/
 
-static void prvLoggingPrintf( BaseType_t xFormatted,
+void vLoggingPrintfError( const char * pcFormat,
+                          ... )
+{
+    va_list args;
+
+    va_start( args, pcFormat );
+    prvLoggingPrintf( LOG_ERROR, NULL, 0, pdTRUE, pcFormat, args );
+
+    va_end( args );
+}
+
+/*-----------------------------------------------------------*/
+
+void vLoggingPrintfWarn( const char * pcFormat,
+                         ... )
+{
+    va_list args;
+
+    va_start( args, pcFormat );
+    prvLoggingPrintf( LOG_WARN, NULL, 0, pdTRUE, pcFormat, args );
+
+    va_end( args );
+}
+
+/*-----------------------------------------------------------*/
+
+void vLoggingPrintfInfo( const char * pcFormat,
+                         ... )
+{
+    va_list args;
+
+    va_start( args, pcFormat );
+    prvLoggingPrintf( LOG_INFO, NULL, 0, pdTRUE, pcFormat, args );
+
+    va_end( args );
+}
+
+/*-----------------------------------------------------------*/
+
+void vLoggingPrintfDebug( const char * pcFormat,
+                          ... )
+{
+    va_list args;
+
+    va_start( args, pcFormat );
+    prvLoggingPrintf( LOG_DEBUG, NULL, 0, pdTRUE, pcFormat, args );
+
+    va_end( args );
+}
+
+/*-----------------------------------------------------------*/
+
+void vLoggingPrintfWithFileAndLine( const char * pcFile,
+                                    size_t fileLineNo,
+                                    const char * pcFormat,
+                                    ... )
+{
+    configASSERT( pcFile != NULL );
+
+    va_list args;
+
+    va_start( args, pcFormat );
+    prvLoggingPrintf( LOG_NONE, pcFile, fileLineNo, pdTRUE, pcFormat, args );
+
+    va_end( args );
+}
+
+/*-----------------------------------------------------------*/
+
+static void prvBitOpsAcquire( LONG volatile *plValue )
+{
+    /* Return the value of bit-0 before setting it, as an atomic operation. */
+    while( _interlockedbittestandset( plValue, 0U ) == 1 )
+    {
+        /* It would be good to yield here, but that would not
+         * work for a Windows thread. */
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+static void prvBitOpsRelease( LONG volatile *plValue )
+{
+    /* Return the value of bit-0 before clearing it, as an atomic operation. */
+    BOOLEAN rc = _interlockedbittestandreset( plValue, 0U );
+
+    /* If the bit was not set, this is a fatal error. */
+    configASSERT( rc != 0 );
+}
+
+/*-----------------------------------------------------------*/
+
+static void prvLoggingPrintf( uint8_t usLoggingLevel,
+                              const char * pcFile,
+                              size_t fileLineNo,
+                              BaseType_t xFormatted,
                               const char * pcFormat,
                               va_list xArgs )
 {
     char cPrintString[ dlMAX_PRINT_STRING_LENGTH ];
     char cOutputString[ dlMAX_PRINT_STRING_LENGTH ];
     char * pcSource, * pcTarget, * pcBegin;
-    size_t xLength, xLength2, rc;
+    size_t xLength, rc;
+    size_t xLength2;
     static BaseType_t xMessageNumber = 0;
-    static BaseType_t xAfterLineBreak = pdTRUE;
     uint32_t ulIPAddress;
     const char * pcTaskName;
     const char * pcNoTask = "None";
     int iOriginalPriority;
     HANDLE xCurrentTask;
+    const char * pcLevelString = NULL;
+    size_t ulFormatLen = 0UL;
 
     if( ( xStdoutLoggingUsed != pdFALSE ) ||
         ( xDiskFileLoggingUsed != pdFALSE ) ||
@@ -325,8 +436,7 @@ static void prvLoggingPrintf( BaseType_t xFormatted,
             pcTaskName = pcNoTask;
         }
 
-        if( ( xAfterLineBreak == pdTRUE ) &&
-            ( strcmp( pcFormat, "\r\n" ) != 0 ) &&
+        if( ( strcmp( pcFormat, "\r\n" ) != 0 ) &&
             ( xFormatted != pdFALSE ) )
         {
             xLength = snprintf( cPrintString,
@@ -335,13 +445,63 @@ static void prvLoggingPrintf( BaseType_t xFormatted,
                                 xMessageNumber++,
                                 ( unsigned long ) xTaskGetTickCount(),
                                 pcTaskName );
-            xAfterLineBreak = pdFALSE;
         }
         else
         {
             xLength = 0;
             memset( cPrintString, 0x00, dlMAX_PRINT_STRING_LENGTH );
-            xAfterLineBreak = pdTRUE;
+        }
+
+        /* Choose the string for the log level metadata for the log message. */
+        switch( usLoggingLevel )
+        {
+            case LOG_ERROR:
+                pcLevelString = "ERROR";
+                break;
+
+            case LOG_WARN:
+                pcLevelString = "WARN";
+                break;
+
+            case LOG_INFO:
+                pcLevelString = "INFO";
+                break;
+
+            case LOG_DEBUG:
+                pcLevelString = "DEBUG";
+        }
+
+        /* Add the chosen log level information as prefix for the message. */
+        if( pcLevelString != NULL )
+        {
+            xLength += snprintf( cPrintString + xLength, dlMAX_PRINT_STRING_LENGTH - xLength, "[%s] ", pcLevelString );
+        }
+
+        /* If provided, add the source file and line number metadata in the message. */
+        if( pcFile != NULL )
+        {
+            /* If a file path is provided, extract only the file name from the string
+             * by looking for '/' or '\' directory seperator. */
+            const char * pcFileName = NULL;
+
+            /* Check if file path contains "\" as the directory separator. */
+            if( strrchr( pcFile, '\\' ) != NULL )
+            {
+                pcFileName = strrchr( pcFile, '\\' ) + 1;
+            }
+            /* Check if file path contains "/" as the directory separator. */
+            else if( strrchr( pcFile, '/' ) != NULL )
+            {
+                pcFileName = strrchr( pcFile, '/' ) + 1;
+            }
+            else
+            {
+                /* File path contains only file name. */
+                pcFileName = pcFile;
+            }
+
+            xLength += snprintf( cPrintString + xLength, dlMAX_PRINT_STRING_LENGTH - xLength, "[%s:%d] ", pcFileName, fileLineNo );
+            configASSERT( xLength > 0 );
         }
 
         if( xArgs != NULL )
@@ -362,11 +522,19 @@ static void prvLoggingPrintf( BaseType_t xFormatted,
         if( xLength2 < 0 )
         {
             /* Clean up. */
-            xLength2 = sizeof( cPrintString ) - 1 - xLength;
-            cPrintString[ sizeof( cPrintString ) - 1 ] = '\0';
+            xLength2 = 0;
+            cPrintString[ xLength ] = '\0';
         }
 
         xLength += xLength2;
+
+        /* Add newline characters if the message does not end with them.*/
+        ulFormatLen = strlen( pcFormat );
+
+        if( ( ulFormatLen >= 2 ) && ( strncmp( pcFormat + ulFormatLen, "\r\n", 2 ) != 0 ) )
+        {
+            xLength += snprintf( cPrintString + xLength, dlMAX_PRINT_STRING_LENGTH - xLength, "%s", "\r\n" );
+        }
 
         /* For ease of viewing, copy the string into another buffer, converting
          * IP addresses to dot notation on the way. */
@@ -450,33 +618,40 @@ static void prvLoggingPrintf( BaseType_t xFormatted,
          * actual output. */
         if( ( xStdoutLoggingUsed != pdFALSE ) || ( xDiskFileLoggingUsed != pdFALSE ) )
         {
+            static LONG volatile ulBits;
+            size_t uxSpace;
             configASSERT( xLogStreamBuffer );
 
-            /* How much space is in the buffer? */
-            xLength2 = uxStreamBufferGetSpace( xLogStreamBuffer );
-
-            /* There must be enough space to write both the string and the length of
-             * the string. */
-            if( xLength2 >= ( xLength + sizeof( xLength ) ) )
+            prvBitOpsAcquire( &( ulBits ) );
             {
-                /* First write in the length of the data, then write in the data
-                 * itself.  Raising the thread priority is used as a critical section
-                 * as there are potentially multiple writers.  The stream buffer is
-                 * only thread safe when there is a single writer (likewise for
-                 * reading from the buffer). */
-                xCurrentTask = GetCurrentThread();
-                iOriginalPriority = GetThreadPriority( xCurrentTask );
-                SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
-                uxStreamBufferAdd( xLogStreamBuffer,
-                                   0,
-                                   ( const uint8_t * ) &( xLength ),
-                                   sizeof( xLength ) );
-                uxStreamBufferAdd( xLogStreamBuffer,
-                                   0,
-                                   ( const uint8_t * ) cOutputString,
-                                   xLength );
-                SetThreadPriority( GetCurrentThread(), iOriginalPriority );
+                /* How much space is in the buffer? */
+                uxSpace = uxStreamBufferGetSpace( xLogStreamBuffer );
+
+                /* There must be enough space to write both the string and the length of
+                 * the string. */
+                if( uxSpace >= ( xLength + sizeof( xLength ) ) )
+                {
+                    /* First write in the length of the data, then write in the data
+                     * itself.  Raising the thread priority is used as a critical section
+                     * as there are potentially multiple writers.  The stream buffer is
+                     * only thread safe when there is a single writer (likewise for
+                     * reading from the buffer). */
+
+                    uxStreamBufferAdd( xLogStreamBuffer,
+                                       0,
+                                       ( const uint8_t * ) &( xLength ),
+                                       sizeof( xLength ) );
+                    uxStreamBufferAdd( xLogStreamBuffer,
+                                       0,
+                                       ( const uint8_t * ) cOutputString,
+                                       xLength );
+                }
+                else
+                {
+                    /* Log line will be dropped, bad luck. */
+                }
             }
+            prvBitOpsRelease( &( ulBits ) );
 
             /* xDirectPrint is initialised to pdTRUE, and while it remains true the
              * logging output function is called directly.  When the system is running
@@ -509,6 +684,7 @@ static void prvLoggingFlushBuffer( void )
      * used to pass data from the FreeRTOS simulator into this Win32 thread? */
     while( uxStreamBufferGetSize( xLogStreamBuffer ) > sizeof( xLength ) )
     {
+        size_t xBytesRead;
         memset( cPrintString, 0x00, dlMAX_PRINT_STRING_LENGTH );
         uxStreamBufferGet(
             xLogStreamBuffer,
@@ -516,12 +692,17 @@ static void prvLoggingFlushBuffer( void )
             ( uint8_t * ) &xLength,
             sizeof( xLength ),
             pdFALSE );
-        uxStreamBufferGet(
+
+        configASSERT( xLength < cPrintString );
+
+        xBytesRead = uxStreamBufferGet(
             xLogStreamBuffer,
             0,
             ( uint8_t * ) cPrintString,
             xLength,
             pdFALSE );
+
+        configASSERT( xLength == xBytesRead );
 
         /* Write the message to standard out if requested to do so when
          * vLoggingInit() was called, or if the network is not yet up. */

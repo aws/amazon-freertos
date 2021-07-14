@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,7 +25,8 @@
 
 /**
  * @file aws_iot_connection_task.h
- * @brief Header file containing the WIFI auto connect task initialize and destroy APIs.
+ * @brief Header file contains APIs for managing the task which provisions WiFi networks onto
+ * device and auto reconnects to provisioned networks in case of a WiFi access point disconnect.
  */
 
 #ifndef _AWS_WIFI_CONNECT_TASK_H_
@@ -34,15 +35,16 @@
 #include "FreeRTOS.h"
 
 /**
- * @brief Initialize the task which connects to provisioned WiFi networks.
+ * @brief Initializes WiFi provisioning and creates task which manages WiFi connection running
+ * the WiFi provision loop or auto connecting to provisioned networks in case of WiFi disconnection.
  *
- * @return pdTRUE if task is initialized successfully.
- *
+ * @return pdTRUE If WiFi provisioning and the task is initialized successfully.
  */
 BaseType_t xWiFiConnectTaskInitialize( void );
 
 /**
- * @brief Destroys the task for connecting to provisioned WiFi networks its associated data structures.
+ * @brief Destroys the task for managing WiFi connection as well as disable WiFi provisioning and associated
+ * data structures.
  */
 void vWiFiConnectTaskDestroy( void );
 

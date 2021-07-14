@@ -37,6 +37,7 @@
 #include "FreeRTOSIPConfig.h"
 #include "task.h"
 #include "core_pkcs11.h"
+#include "core_pkcs11_pal.h"
 #include "iot_crypto.h"
 #include "core_pkcs11_config.h"
 
@@ -47,11 +48,16 @@
 /* flash driver includes. */
 #include "NuMicro.h"
 
+#ifndef pkcs11configLABEL_DEVICE_RESERVE_KEY
+#define pkcs11configLABEL_DEVICE_RESERVE_KEY "Device Reserve key"
+#endif
+
 //#define pkcs11FILE_NAME_PUBLISHER_CERTIFICATE    "FreeRTOS_Publisher_Certificate.dat"
 //#define pkcs11FILE_NAME_PUBLISHER_KEY            "FreeRTOS_Publisher_Key.dat"
 #define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"
 #define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
 #define pkcs11palFILE_CODE_SIGN_PUBLIC_KEY       "FreeRTOS_P11_CodeSignKey.dat"
+#define pkcs11palFILE_NAME_RESERVE_KEY                "FreeRTOS_P11_ReserveKey.dat"
 
 #define pkcs11OBJECT_CERTIFICATE_MAX_SIZE    2048
 #define pkcs11OBJECT_FLASH_CERT_PRESENT      ( 0x1A2B3C4DUL )
@@ -62,7 +68,8 @@ enum eObjectHandles
     eAwsDevicePrivateKey = 1,
     eAwsDevicePublicKey,
     eAwsDeviceCertificate,
-    eAwsCodeSigningKey
+    eAwsCodeSigningKey,
+    eAwsDeviceReserveKey,
 };
 
 /**
@@ -101,6 +108,36 @@ static P11CertData_t P11CertDataSave;
                                 
 /*-----------------------------------------------------------*/
 
+static CK_RV prvFLASH_delete(uint32_t u32StartAddr, uint32_t ulDataSize)
+{
+    uint32_t    u32Addr;               /* flash address */
+    uint32_t    u32data;               /* flash data    */
+    uint32_t    *pDataSrc;             /* flash data    */
+    uint32_t    u32EndAddr = (u32StartAddr + sizeof(P11CertData_t));
+    uint32_t    u32Pattern = 0xFFFFFFFF;
+
+    if (ulDataSize <= FMC_FLASH_PAGE_SIZE)
+    {
+        FMC_Erase(u32StartAddr);
+        /* Verify if each data word from flash u32StartAddr to u32EndAddr be 0xFFFFFFFF.  */
+        for (u32Addr = u32StartAddr; u32Addr < u32EndAddr; u32Addr += 4)
+        {
+            u32data = FMC_Read(u32Addr);   /* Read a flash word from address u32Addr. */
+
+            if (u32data != u32Pattern )     /* Verify if data matched. */
+            {
+                printf("\nFMC_Read data verify failed at address 0x%x, read=0x%x, expect=0x%x\n", u32Addr, u32data, u32Pattern);
+                return -1;                 /* data verify failed */
+            }
+        }
+
+        return ulDataSize;
+    }
+    else
+    {
+        return 0;
+    }
+}
 
 static CK_RV prvFLASH_update(uint32_t u32StartAddr, uint8_t * pucData, uint32_t ulDataSize)
 {
@@ -176,6 +213,13 @@ static void prvLabelToFilenameHandle( uint8_t * pcLabel,
             *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
             *pHandle = eAwsCodeSigningKey;
         }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_DEVICE_RESERVE_KEY,
+                              sizeof( pkcs11configLABEL_DEVICE_RESERVE_KEY ) ) )
+        {
+            *pcFileName = pkcs11palFILE_NAME_RESERVE_KEY;
+            *pHandle = eAwsDeviceReserveKey;
+        }        
         else
         {
             *pcFileName = NULL;
@@ -183,6 +227,77 @@ static void prvLabelToFilenameHandle( uint8_t * pcLabel,
         }
     }
 }
+
+/**
+ * @brief Delete a file from local storage by overwriting it.
+ *
+ * Port-specific file write for crytographic information.
+ *
+ * @param[in] pcFileName    The name of the file to be deleted.
+ * @param[in] pucData       Data buffer to be overwritten on the file.
+ * @param[in] pulDataSize   Size (in bytes) of file data.
+ *
+ * @return pdTRUE if data was successfully overwritten,
+ * pdFALSE otherwise.
+ */
+static BaseType_t prvFLASH_DeleteFile( char * pcFileName,
+                              uint32_t ulDataSize )
+{
+    CK_RV xResult = pdFALSE;
+    uint32_t certFlashAddr = 0;
+    CK_RV xBytesWritten = 0;
+
+    /* enough room to store the certificate */
+    if( ulDataSize > pkcs11OBJECT_CERTIFICATE_MAX_SIZE )
+    {
+        return xResult;
+    }
+
+    /*
+     * write client certificate.
+     */
+    SYS_UnlockReg();                   /* Unlock register lock protect */
+    FMC_Open();                        /* Enable FMC ISP function */
+    FMC_ENABLE_AP_UPDATE();            /* Enable APROM update. */
+
+    if( strcmp( pcFileName, pkcs11palFILE_NAME_CLIENT_CERTIFICATE ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.DeviceCertificate;
+    }
+    else if( strcmp( pcFileName, pkcs11palFILE_NAME_KEY ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.DeviceKey;
+    }
+    else if( strcmp( pcFileName, pkcs11palFILE_CODE_SIGN_PUBLIC_KEY ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.CodeSignKey;
+    }
+    else if( strcmp( pcFileName, pkcs11palFILE_NAME_RESERVE_KEY ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.ReserveKey;
+    }
+    else
+    {
+        certFlashAddr = NULL;
+    }
+
+    if( certFlashAddr != NULL )
+    {
+        /* Delete the given file. */
+        xBytesWritten = prvFLASH_delete( certFlashAddr, ulDataSize );
+
+        if( xBytesWritten == ulDataSize )
+        {
+            xResult = pdTRUE;
+        }
+    }
+
+    FMC_DISABLE_AP_UPDATE();           /* Disable APROM update. */
+    SYS_LockReg();                     /* Lock protected registers */
+
+    return xResult;
+}
+/*-----------------------------------------------------------*/
 
 
 /**
@@ -204,9 +319,6 @@ static BaseType_t prvFLASH_SaveFile( char * pcFileName,
     CK_RV xResult = pdFALSE;
     uint32_t certFlashAddr = 0;
     CK_RV xBytesWritten = 0;
-    CK_ULONG ulFlashMark = pkcs11OBJECT_FLASH_CERT_PRESENT;
-    const P11CertData_t * pCertFlash;
-    P11CertData_t * pCertSave = 0;
     
     /* enough room to store the certificate */
     if( ulDataSize > pkcs11OBJECT_CERTIFICATE_MAX_SIZE )
@@ -233,6 +345,10 @@ static BaseType_t prvFLASH_SaveFile( char * pcFileName,
     {
         certFlashAddr = P11KeyConfig.CodeSignKey;
     }
+    else if( strcmp( pcFileName, pkcs11palFILE_NAME_RESERVE_KEY ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.ReserveKey;
+    }    
     else
     {
         certFlashAddr = NULL;
@@ -289,7 +405,11 @@ static BaseType_t prvFLASH_ReadFile( char * pcFileName,
     {
         pCertFlash = (P11CertData_t *)P11KeyConfig.CodeSignKey;        
     }
-
+    else if( strcmp( pcFileName, pkcs11palFILE_NAME_RESERVE_KEY ) == 0 )
+    {
+        pCertFlash = (P11CertData_t *)P11KeyConfig.ReserveKey;        
+    }
+    
     if( ( pCertFlash !=0 ) && ( pCertFlash->ulDeviceCertificateMark == pkcs11OBJECT_FLASH_CERT_PRESENT ) )
     {
         pCertData = ( uint8_t * ) pCertFlash->cCertificateData;
@@ -379,7 +499,10 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
 
         if( pdTRUE != prvFLASH_ReadFile( pcFileName, &pucData, &dataSize) )
         {
-            xHandle = eInvalidHandle;
+            if( ( pucData[0] == 0x00 ) || ( dataSize == 0 ) )
+            {
+                xHandle = eInvalidHandle;
+            }
         }
     }
 
@@ -418,7 +541,6 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
     CK_RV ulReturn = CKR_OK;
     char        *pcFileName     = NULL;
-    uint8_t     *pucData;
 
     if( xHandle == eAwsDeviceCertificate )
     {
@@ -439,6 +561,11 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
     else if( xHandle == eAwsCodeSigningKey )
     {
         pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
+        *pIsPrivate = CK_FALSE;
+    }
+    else if( xHandle == eAwsDeviceReserveKey )
+    {
+        pcFileName = pkcs11palFILE_NAME_RESERVE_KEY;
         *pIsPrivate = CK_FALSE;
     }
     else
@@ -476,4 +603,92 @@ void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
 
     /* Since no buffer was allocated on heap, there is no cleanup
      * to be done. */    
+}
+
+/* Converts a handle to its respective label. */
+void prvHandleToLabel( char ** pcLabel,
+                       CK_OBJECT_HANDLE xHandle )
+{
+    if( pcLabel != NULL )
+    {
+        switch( xHandle )
+        {
+            case eAwsDeviceCertificate:
+                *pcLabel = ( char * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+                break;
+
+            case eAwsDevicePrivateKey:
+                *pcLabel = ( char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+                break;
+
+            case eAwsDevicePublicKey:
+                *pcLabel = ( char * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
+                break;
+
+            case eAwsCodeSigningKey:
+                *pcLabel = ( char * ) pkcs11configLABEL_CODE_VERIFICATION_KEY;
+                break;
+
+            default:
+                *pcLabel = NULL;
+                break;
+        }
+    }
+}
+
+CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
+{
+    CK_RV xResult = CKR_OK;
+    CK_BYTE_PTR pxZeroedData = NULL;
+    CK_BYTE_PTR pxObject = NULL;
+    CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
+    CK_OBJECT_HANDLE xPalHandle2 = CK_INVALID_HANDLE;
+    CK_ULONG ulObjectLength = sizeof( CK_BYTE );
+    char * pcLabel = NULL;
+
+    prvHandleToLabel( &pcLabel, xHandle );
+
+    if( pcLabel != NULL )
+    {
+        xResult = PKCS11_PAL_GetObjectValue( xHandle, &pxObject, &ulObjectLength, &xIsPrivate );
+    }   
+    else
+    {
+        xResult = CKR_OBJECT_HANDLE_INVALID;
+    }   
+
+    if( xResult == CKR_OK )
+    {
+        if( ulObjectLength > 0 )
+        {
+            char *pcFileName = NULL;
+
+            /* Converts a label to its respective filename and handle. */
+            prvLabelToFilenameHandle( pcLabel, &pcFileName, &xPalHandle2 );
+
+            if( pcFileName != NULL )
+            {
+                if( prvFLASH_DeleteFile( pcFileName, ulObjectLength ) == pdFALSE )
+                {
+                    xPalHandle2 = eInvalidHandle;
+                }
+            }
+
+            if( xPalHandle2 != xHandle )
+            {
+                xResult = CKR_GENERAL_ERROR;
+            }
+        }
+        else
+        {
+            xResult = CKR_GENERAL_ERROR;
+        }
+        PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
+    }
+    else
+    {
+        xResult = CKR_GENERAL_ERROR;
+    }
+
+    return xResult;
 }

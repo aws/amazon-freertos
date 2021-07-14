@@ -40,7 +40,7 @@
 #include "aws_clientcredential.h"
 
 #include "iot_default_root_certificates.h"
-#include "aws_secure_sockets_config.h"
+#include "iot_secure_sockets_config.h"
 #include "core_pkcs11.h"
 #include "core_pkcs11_config.h"
 
@@ -71,9 +71,6 @@
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
-
-/* Application version info. */
-#include "aws_application_version.h"
 
 
 /* The length of the logging task's queue to hold messages. */

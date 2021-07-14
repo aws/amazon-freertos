@@ -11,6 +11,7 @@ afr_module_sources(
         "${inc_dir}/platform/iot_network.h"
         "${inc_dir}/platform/iot_threads.h"
         "${inc_dir}/types/iot_platform_types.h"
+        "${inc_dir}/types/iot_network_types.h"
         "${src_dir}/iot_clock_freertos.c"
         "${src_dir}/iot_threads_freertos.c"
         "${src_dir}/include/platform/iot_platform_types_freertos.h"
@@ -43,14 +44,6 @@ if(TARGET AFR::secure_sockets::mcu_port)
         ${AFR_CURRENT_MODULE}
         PUBLIC
             AFR::secure_sockets
-    )
-endif()
-
-if(TARGET AFR::ble_hal::mcu_port)
-    afr_module_sources(
-        ${AFR_CURRENT_MODULE}
-        PRIVATE
-        "${src_dir}/include/platform/iot_network_ble.h"
     )
 endif()
 

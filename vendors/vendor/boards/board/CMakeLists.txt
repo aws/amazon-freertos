@@ -200,19 +200,38 @@ afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 #     INTERFACE "${portable_dir}/secure_sockets/iot_secure_sockets.c"
 # )
 
-# OTA
-# afr_mcu_port(ota)
-# target_sources(
-#     AFR::ota::mcu_port
-#     INTERFACE "${portable_dir}/ota/aws_ota_pal.c"
-# )
-# Choose which backend to enable. Link to AFR::ota_mqtt to enable MQTT, link to AFR:ota_http to enable HTTP.
-# target_link_libraries(
-#     AFR::ota::mcu_port
-#     INTERFACE
-#         AFR::ota_mqtt
-#         AFR::ota_http
-)
+# Over-the-air Updates
+#afr_mcu_port(ota)
+#target_sources(
+#    AFR::ota::mcu_port
+#    INTERFACE
+#        "${portable_dir}/ota_pal_for_aws/ota_pal.c"
+#        "${portable_dir}/ota_pal_for_aws/ota_pal.h"
+#        # Add platform specific files that are required to build ota_pal.c.
+#)
+#
+#target_include_directories(
+#    AFR::ota::mcu_port
+#    INTERFACE
+#        "${portable_dir}/ota_pal_for_aws"
+#        # Add platform specific include paths that are required to build ota_pal.c.
+#)
+#
+#target_link_libraries(
+#    AFR::ota::mcu_port
+#    INTERFACE
+#        AFR::crypto
+#        AFR::ota
+#        # Add platform specific target dependencies that are required to build ota_pal.c
+#)
+#
+#if(AFR_ENABLE_TESTS)
+#    # The qualification tests for the OTA PAL port requires this include path to run.
+#    target_include_directories(
+#        AFR::ota::mcu_port
+#        INTERFACE "${PROJECT_SOURCE_DIR}/tests/integration_test/ota_pal"
+#    )
+#endif()
 
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests

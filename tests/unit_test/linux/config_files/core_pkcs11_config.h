@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -95,14 +95,6 @@
  * by the PKCS #11 module.
  */
 #define pkcs11configMAX_SESSIONS                           10
-
-/**
- * @brief Set to 1 if a PAL destroy object is implemented.
- *
- * If set to 0, no PAL destroy object is implemented, and this functionality
- * is implemented in the common PKCS #11 layer.
- */
-#define pkcs11configPAL_DESTROY_SUPPORTED                  0
 
 /**
  * @brief Set to 1 if OTA image verification via PKCS #11 module is supported.

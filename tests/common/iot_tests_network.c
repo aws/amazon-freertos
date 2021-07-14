@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -34,42 +34,8 @@
 #include "private/iot_error.h"
 #include "stdbool.h"
 
-#if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
-    #include "platform/iot_network_freertos.h"
-#endif
-
-#if ( BLE_SUPPORTED == 1 )
-    #include "platform/iot_network_ble.h"
-#endif /* if ( BLE_SUPPORTED == 1 ) */
-
 
 static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
-
-
-/*-----------------------------------------------------------*/
-
-const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void )
-{
-    const IotNetworkInterface_t * pNetworkInterface = NULL;
-
-    switch( _IotTestNetworkType )
-    {
-        #if ( BLE_SUPPORTED == 1 )
-            case AWSIOT_NETWORK_TYPE_BLE:
-                pNetworkInterface = ( IotNetworkInterface_t * ) &IotNetworkBle;
-                break;
-        #endif
-        #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
-            case AWSIOT_NETWORK_TYPE_WIFI:
-                pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
-                break;
-        #endif
-        default:
-            break;
-    }
-
-    return pNetworkInterface;
-}
 
 /*-----------------------------------------------------------*/
 

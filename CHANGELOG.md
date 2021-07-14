@@ -1,5 +1,82 @@
 # Change Log
-This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT. The repository contains projects for many different microcontroller evaluation boards.
+This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects ported to microcontroller-based evaluation boards that demonstrate end-to-end connectivity to AWS IoT Core. The repository contains projects for several microcontroller-based evaluation boards.
+
+## 202107.00 July 2021
+
+### New Features
+
+#### coreMQTT Agent v1.0.0
+
+- The coreMQTT Agent library is a high level API that adds thread safety to the coreMQTT (https://github.com/FreeRTOS/coreMQTT) library. The library provides thread safe equivalents to the coreMQTT's APIs, greatly simplifying its use in multi-threaded environments. The coreMQTT Agent library manages the MQTT connection by serializing the access to the coreMQTT library and reducing implementation overhead. This allows your multi-threaded applications to share the same MQTT connection, and enables you to design an embedded application without having to worry about coreMQTT thread safety.
+- See memory requirements for the latest release here (https://freertos.org/Documentation/api-ref/coreMQTT-Agent/docs/doxygen/output/html/index.html#core_mqtt_agent_memory_requirements)
+
+### Updates
+
+#### AWS IoT Over-the-air Update V3.0.0
+
+- The AWS IoT Over-the-air update (OTA) (https://github.com/aws/ota-for-aws-iot-embedded-sdk) library enables you to manage the notification of a newly available update, download the update, and perform cryptographic verification of the firmware update. Using the OTA library, you can logically separate firmware updates from the application running on your devices. You can also use the library to send other files (e.g. images, certificates) to one or more devices registered with AWS IoT. More details about OTA library can be found in AWS IoT Over-the-air Update documentation (https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ota-dev.html).
+- The AWS IoT Over-the-air update library has a dependency on coreJSON (https://github.com/FreeRTOS/coreJSON) for parsing of JSON job document and tinyCBOR (https://github.com/intel/tinycbor) for decoding encoded data streams, other than the standard C library. It can be used with any MQTT library, HTTP library, and operating system (e.g. Linux, FreeRTOS). See demos to download firmware image over MQTT (using coreMQTT Agent) and over HTTP (using coreMQTT Agent and coreHTTP) using FreeRTOS at https://docs.aws.amazon.com/freertos/latest/userguide/dev-guide-ota-workflow.html
+
+#### AWS IoT Jobs v1.0.0
+
+- This release brings minor updates (https://github.com/aws/Jobs-for-AWS-IoT-embedded-sdk/blob/v1.1.0/CHANGELOG.md#v110-march-2021) to the AWS IoT Jobs library that add API support for DescribeNextPendingJob API of the AWS IoT Jobs service, and macro utilities for compile-time generation of topic strings.
+
+#### AWS IoT Device Defender v1.0.1
+
+- This release adds macros to AWS IoT Device Defender Library API for the custom metrics (https://docs.aws.amazon.com/iot/latest/developerguide/dd-detect-custom-metrics.html) feature of AWS IoT Device Defender service. 
+- The demo has been updated to use the custom metrics feature.
+
+#### BLE v2.0.2
+
+- Moved from `libraries/c_sdk/ble` to `libraries/ble`.
+
+#### HTTPS Compatibility Layer  v1.2.0
+
+- Removed under `libraries/c_sdk/standard/https`. Migrated to coreHTTP v2.0.0 under `libraries/coreHTTP`.
+
+#### MQTT Compatibility layer v2.3.1 
+
+- Removed under `libraries/c_sdk/standard/mqtt`. Migrated to coreMQTT v1.1.0 under `libraries/coreMQTT`.
+
+#### IoT Serializer v1.1.2
+
+- Removed under `libraries/c_sdk/standard/serializer` as there are no longer dependencies on this library.
+
+#### MQTT Compatibility-based AWS IoT Shadow v2.2.2
+
+- Removed under `libraries/c_sdk/aws/shadow`. Migrated to AWS IoT Device Shadow v1.0.2 under `libraries/device_shadow_for_aws`.
+
+#### MQTT Compatibility-based AWS IoT Defender V3.0.3
+
+- Removed under `libraries/c_sdk/aws/defender`. Migrated to AWS IoT Device Defender v1.1.0 under `libraries/device_defender_for_aws`.
+
+#### Secure Sockets v1.3.1
+
+- Updated the secure socket test suite to be simpler and more robust.
+
+#### Demos
+
+- Added coreMQTT-Agent Demo.
+- Added OTA demo over BLE transport interface.
+- Updated GreenGrass Discovery Demo using coreMQTT library.
+
+#### Vendors
+
+- Updated all supported platforms to use coreMQTT-Agent Demo.
+- Updated OTA PAL for the following ports to work with AWS IoT Over-the-air Update V3.0.0 Library Interfaces:
+    - Espressif ESP32-DevKitC
+    - Espressif ESP-WROVER-KIT
+    - Microchip ATECC608A with Windows Simulator
+    - Renesas Starter Kit + RX65N-2MB
+    - TI CC3220 Launch Pad
+    - Nordic RF52480
+    - Microsoft Windows Simulator
+- New board added:
+    - Espressif ESP32-S2-SAOLA-1, supporting coreMQTT-Agent Demo and AWS IoT Over-the-air V3.0.0
+- Updated Espressif (Amazon) FreeRTOS SDK (ESP-IDF) for ESP platforms to V4.2.1 and add I2C patch to fix the incorrect FreeRTOS API usage from ISR context. 
+- Deprecated:
+    - Microchip Curiosity PIC32MZEF
+    - NXP LPC54608
 
 ## 202012.00 December 2020
 
@@ -41,7 +118,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 ### Updates
 
-#### FreeRTOS kernel V10.4.3 
+#### FreeRTOS kernel V10.4.3
 
 - Includes FreeRTOS kernel V10.4.3
 - Additional details can be found here: https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/V10.4.3-kernel-only/History.txt
@@ -50,7 +127,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 - When a protocol error occurs during the SYN-phase of a TCP connection, a child socket will now be closed (calling FreeRTOS_closesocket() ), instead of being given the eCLOSE_WAIT status.  A client socket, which calls connect() to establish a connection, will receive the eCLOSE_WAIT status, just like before.
 
-#### coreMQTT v1.1.0 
+#### coreMQTT v1.1.0
 
 - Update logs and format specifiers to use standard C types.
 - Add dependence on stdbool.h
@@ -72,9 +149,13 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 - Update logs and format specifiers to use standard C types.
 
-#### MQTT Compatibility Layer v2.3.1 
+#### MQTT Compatibility Layer v2.3.1
 
 - Fixes for compiler warnings by removing unused functions and variables.
+
+## 202011.01 December 2020
+
+This release does not change any source files compared to 202011.00. It only fixes an issue with `checksums.json` file used by AWS IoT Device Tester to verify the integrity of FreeRTOS source files during the qualification process. This issue was present only on Windows while Linux and MacOS were unaffected.
 
 ## 202011.00 November 2020
 
@@ -168,7 +249,7 @@ The MQTT library in this release, coreMQTT, supports backward compatibility with
 
 #### Wi-Fi V2.0.0
 
-- Updated WiFi APIs to support more granular error codes, WEP encryption, SoftAP provisioning, optional asynchronous APIs, event handling and set country code.
+- Updated WiFi APIs to support more granular error codes, WEP encryption, SoftAP provisioning, optional asynchronous APIs, event handling and set country code. This is a breaking change to the WIFI API. See more details [here](https://docs.aws.amazon.com/freertos/latest/lib-ref/html2/wifi/index.html).
 
 #### OTA PAL for Espressif ESP32-DevKitC
 
@@ -243,7 +324,7 @@ The MQTT library in this release, coreMQTT, supports backward compatibility with
 #### FreeRTOS+TCP V2.3.0
 
 - Added ability to cache multiple IP addresses per DNS entry.
-- Defensive security improvements: 
+- Defensive security improvements:
     - In compliance with the UDP protocol specification, prior versions of FreeRTOS+TCP accepted UDP packets that had their checksum set to 0. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS`, that enables users to opt to drop UDP packets that have their checksum set to 0. **Note:** This new setting defaults to 0, so it defaults to dropping UDP packets that have their checksum set to 0.
     - Prior versions of FreeRTOS+TCP accept IP packets that contain IP options, although those options are not processed. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS`, that enables users to opt to drop IP packets that contain IP options.
     - Setting configuration parameter, `ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM`, to 1 offloads IP checksum and length checking to the hardware. From FreeRTOS+TCP V2.3.0, the length is checked in software even when it has already been checked in hardware.
@@ -740,7 +821,7 @@ Applications calling into PKCS #11 functions directly (rather than indirectly vi
 - Bug fix to support Amazon Trust Services endpoints. For more information, please see https://aws.amazon.com/blogs/iot/aws-iot-core-ats-endpoints/.
 
 #### Secure Sockets for CC3220SF-LAUNCHXL V1.0.5
-- Remove duplicate file name definitions.  See aws_secure_sockets_config.h for file name defines.
+- Remove duplicate file name definitions.  See iot_secure_sockets_config.h for file name defines.
 
 #### Shadow V1.0.5
 - Minor bug fixes.

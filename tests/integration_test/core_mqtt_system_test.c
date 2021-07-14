@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -301,6 +301,19 @@
         TEST_ASSERT_TRUE( flag );                                                       \
     } while( 0 )
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
 
 /*-----------------------------------------------------------*/
 
@@ -329,6 +342,11 @@ static uint16_t globalPublishPacketIdentifier = 0U;
  * with the broker for tests.
  */
 static NetworkContext_t networkContext;
+
+/**
+ * @brief The parameters for the network context using a TLS channel.
+ */
+static SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
 /**
  * @brief Represents the hostname and port of the broker.
@@ -1122,6 +1140,7 @@ void testSetUp()
     receivedPacketTypeForDisconnection = false;
     memset( &incomingInfo, 0u, sizeof( MQTTPublishInfo_t ) );
     receivedPublish = false;
+    networkContext.pParams = &secureSocketsTransportParams;
 
     /* Establish TLS over TCP connection with retry attempts on failures. */
     TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &networkContext ) );
@@ -1436,8 +1455,11 @@ TEST( coreMQTT_Integration, Subscribe_Publish_With_Qos_2 )
 void Connect_LWT()
 {
     NetworkContext_t secondNetworkContext = { 0 };
+    SecureSocketsTransportParams_t secondSecureSocketsTransportParams = { 0 };
     bool sessionPresent;
     MQTTContext_t secondContext;
+
+    secondNetworkContext.pParams = &secondSecureSocketsTransportParams;
 
     /* Establish a second TCP connection with the server endpoint, then
      * a TLS session. The server info and credentials can be reused. */

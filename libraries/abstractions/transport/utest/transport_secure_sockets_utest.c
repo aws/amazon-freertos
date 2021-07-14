@@ -69,6 +69,22 @@
  */
 #define TEST_TRANSPORT_RCV_TIMEOUT_MS      ( 5000U )
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 /* Objects used by the transport secure sockets implementation. */
 static ServerInfo_t serverInfo =
 {
@@ -91,13 +107,15 @@ static SocketsConfig_t socketsConfig =
 static uint8_t networkBuffer[ BUFFER_LEN ] = { 0 };
 static Socket_t mockTcpSocket = ( Socket_t ) MOCT_TCP_SOCKET;
 static NetworkContext_t networkContext = { 0 };
+static SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
 /* ============================   UNITY FIXTURES ============================ */
 
 /* Called before each test method. */
 void setUp()
 {
-    networkContext.tcpSocket = mockTcpSocket;
+    networkContext.pParams = &secureSocketsTransportParams;
+    secureSocketsTransportParams.tcpSocket = mockTcpSocket;
 }
 
 /* Called after each test method. */
@@ -128,6 +146,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Params( void )
     TransportSocketStatus_t returnStatus;
     ServerInfo_t invalidServerInfo = { 0 };
     char hostNameBuffer[ INVALID_HOSTNAME_LENGTH ] = { 0 };
+    NetworkContext_t invalidNetworkContext = { 0 };
 
     invalidServerInfo.port = PORT;
     uint16_t index = 0U;
@@ -171,6 +190,12 @@ void test_SecureSocketsTransport_Connect_Invalid_Params( void )
 
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    &invalidServerInfo,
+                                                   &socketsConfig );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, returnStatus );
+
+    invalidNetworkContext.pParams = NULL;
+    returnStatus = SecureSocketsTransport_Connect( &invalidNetworkContext,
+                                                   &serverInfo,
                                                    &socketsConfig );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, returnStatus );
 }
@@ -813,8 +838,13 @@ void test_SecureSocketsTransport_Connect_Credentials_NotSet( void )
 void test_SecureSocketsTransport_Disconnect_NULL_Network_Context( void )
 {
     TransportSocketStatus_t returnStatus;
+    NetworkContext_t invalidNetworkContext = { 0 };
 
     returnStatus = SecureSocketsTransport_Disconnect( NULL );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, returnStatus );
+
+    invalidNetworkContext.pParams = NULL;
+    returnStatus = SecureSocketsTransport_Disconnect( &invalidNetworkContext );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, returnStatus );
 }
 
@@ -829,6 +859,7 @@ void test_SecureSocketsTransport_Disconnect_Fail_to_ShutDown( void )
     TransportSocketStatus_t returnStatus;
 
     SOCKETS_Shutdown_ExpectAndReturn( mockTcpSocket, SOCKETS_SHUT_RDWR, MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_Close_ExpectAndReturn( mockTcpSocket, MOCK_SECURE_SOCKET_ERROR );
     returnStatus = SecureSocketsTransport_Disconnect( &networkContext );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR, returnStatus );
 }
@@ -875,7 +906,8 @@ void test_SecureSocketsTransport_Send_Invalid_Params( void )
     int32_t bytesSent;
     NetworkContext_t invalidNetworkContext = { 0 };
 
-    invalidNetworkContext.tcpSocket = SOCKETS_INVALID_SOCKET;
+    secureSocketsTransportParams.tcpSocket = SOCKETS_INVALID_SOCKET;
+    invalidNetworkContext.pParams = &secureSocketsTransportParams;
 
     bytesSent = SecureSocketsTransport_Send( NULL, networkBuffer, BYTES_TO_SEND );
     TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesSent );
@@ -886,6 +918,10 @@ void test_SecureSocketsTransport_Send_Invalid_Params( void )
     bytesSent = SecureSocketsTransport_Send( &invalidNetworkContext, networkBuffer, 0 );
     TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesSent );
 
+    bytesSent = SecureSocketsTransport_Send( &invalidNetworkContext, networkBuffer, BYTES_TO_SEND );
+    TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesSent );
+
+    invalidNetworkContext.pParams = NULL;
     bytesSent = SecureSocketsTransport_Send( &invalidNetworkContext, networkBuffer, BYTES_TO_SEND );
     TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesSent );
 }
@@ -900,8 +936,9 @@ void test_SecureSocketsTransport_Send_Network_Error( void )
 {
     int32_t bytesSent = 0;
 
-    networkContext.tcpSocket = mockTcpSocket;
-    SOCKETS_Send_ExpectAndReturn( networkContext.tcpSocket, networkBuffer, BYTES_TO_SEND, 0, SECURE_SOCKETS_READ_WRITE_ERROR );
+    secureSocketsTransportParams.tcpSocket = mockTcpSocket;
+    networkContext.pParams = &secureSocketsTransportParams;
+    SOCKETS_Send_ExpectAndReturn( secureSocketsTransportParams.tcpSocket, networkBuffer, BYTES_TO_SEND, 0, SECURE_SOCKETS_READ_WRITE_ERROR );
     bytesSent = SecureSocketsTransport_Send( &networkContext, networkBuffer, BYTES_TO_SEND );
     TEST_ASSERT_EQUAL( SECURE_SOCKETS_READ_WRITE_ERROR, bytesSent );
 }
@@ -916,8 +953,9 @@ void test_SecureSocketsTransport_Send_All_Bytes_Sent_Successfully( void )
 {
     int32_t bytesSent = 0;
 
-    networkContext.tcpSocket = mockTcpSocket;
-    SOCKETS_Send_ExpectAndReturn( networkContext.tcpSocket, networkBuffer, BYTES_TO_SEND, 0, BYTES_TO_SEND );
+    secureSocketsTransportParams.tcpSocket = mockTcpSocket;
+    networkContext.pParams = &secureSocketsTransportParams;
+    SOCKETS_Send_ExpectAndReturn( secureSocketsTransportParams.tcpSocket, networkBuffer, BYTES_TO_SEND, 0, BYTES_TO_SEND );
     bytesSent = SecureSocketsTransport_Send( &networkContext, networkBuffer, BYTES_TO_SEND );
     TEST_ASSERT_EQUAL( BYTES_TO_SEND, bytesSent );
 }
@@ -932,8 +970,9 @@ void test_SecureSocketsTransport_Send_Bytes_Sent_Partially( void )
 {
     int32_t bytesSent = 0;
 
-    networkContext.tcpSocket = mockTcpSocket;
-    SOCKETS_Send_ExpectAndReturn( networkContext.tcpSocket, networkBuffer, BYTES_TO_SEND, 0, BYTES_TO_SEND - 1 );
+    secureSocketsTransportParams.tcpSocket = mockTcpSocket;
+    networkContext.pParams = &secureSocketsTransportParams;
+    SOCKETS_Send_ExpectAndReturn( secureSocketsTransportParams.tcpSocket, networkBuffer, BYTES_TO_SEND, 0, BYTES_TO_SEND - 1 );
     bytesSent = SecureSocketsTransport_Send( &networkContext, networkBuffer, BYTES_TO_SEND );
     TEST_ASSERT_EQUAL( BYTES_TO_SEND - 1, bytesSent );
 }
@@ -950,7 +989,8 @@ void test_SecureSocketsTransport_Recv_Invalid_Params( void )
     int32_t bytesReceived = 0;
     NetworkContext_t invalidNetworkContext = { 0 };
 
-    invalidNetworkContext.tcpSocket = SOCKETS_INVALID_SOCKET;
+    secureSocketsTransportParams.tcpSocket = SOCKETS_INVALID_SOCKET;
+    invalidNetworkContext.pParams = &secureSocketsTransportParams;
 
     bytesReceived = SecureSocketsTransport_Recv( NULL, networkBuffer, BYTES_TO_RECV );
     TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesReceived );
@@ -961,6 +1001,10 @@ void test_SecureSocketsTransport_Recv_Invalid_Params( void )
     bytesReceived = SecureSocketsTransport_Recv( &invalidNetworkContext, networkBuffer, 0 );
     TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesReceived );
 
+    bytesReceived = SecureSocketsTransport_Recv( &invalidNetworkContext, networkBuffer, BYTES_TO_RECV );
+    TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesReceived );
+
+    invalidNetworkContext.pParams = NULL;
     bytesReceived = SecureSocketsTransport_Recv( &invalidNetworkContext, networkBuffer, BYTES_TO_RECV );
     TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesReceived );
 }
@@ -975,8 +1019,9 @@ void test_SecureSocketsTransport_Recv_All_Bytes_Received_Successfully( void )
 {
     int32_t bytesReceived = 0;
 
-    networkContext.tcpSocket = mockTcpSocket;
-    SOCKETS_Recv_ExpectAndReturn( networkContext.tcpSocket, NULL, BYTES_TO_RECV, 0, BYTES_TO_RECV );
+    secureSocketsTransportParams.tcpSocket = mockTcpSocket;
+    networkContext.pParams = &secureSocketsTransportParams;
+    SOCKETS_Recv_ExpectAndReturn( secureSocketsTransportParams.tcpSocket, NULL, BYTES_TO_RECV, 0, BYTES_TO_RECV );
     SOCKETS_Recv_IgnoreArg_pvBuffer();
     bytesReceived = SecureSocketsTransport_Recv( &networkContext, networkBuffer, BYTES_TO_RECV );
     TEST_ASSERT_EQUAL( BYTES_TO_RECV, bytesReceived );
@@ -992,13 +1037,14 @@ void test_SecureSocketsTransport_Recv_Network_Error( void )
 {
     int32_t bytesReceived = 0;
 
-    networkContext.tcpSocket = mockTcpSocket;
-    SOCKETS_Recv_ExpectAndReturn( networkContext.tcpSocket, NULL, BYTES_TO_RECV, 0, SOCKETS_EWOULDBLOCK );
+    secureSocketsTransportParams.tcpSocket = mockTcpSocket;
+    networkContext.pParams = &secureSocketsTransportParams;
+    SOCKETS_Recv_ExpectAndReturn( secureSocketsTransportParams.tcpSocket, NULL, BYTES_TO_RECV, 0, SOCKETS_EWOULDBLOCK );
     SOCKETS_Recv_IgnoreArg_pvBuffer();
     bytesReceived = SecureSocketsTransport_Recv( &networkContext, networkBuffer, BYTES_TO_RECV );
     TEST_ASSERT_EQUAL( 0, bytesReceived );
 
-    SOCKETS_Recv_ExpectAndReturn( networkContext.tcpSocket, NULL, BYTES_TO_RECV, 0, SECURE_SOCKETS_READ_WRITE_ERROR );
+    SOCKETS_Recv_ExpectAndReturn( secureSocketsTransportParams.tcpSocket, NULL, BYTES_TO_RECV, 0, SECURE_SOCKETS_READ_WRITE_ERROR );
     SOCKETS_Recv_IgnoreArg_pvBuffer();
     bytesReceived = SecureSocketsTransport_Recv( &networkContext, networkBuffer, BYTES_TO_RECV );
     TEST_ASSERT_EQUAL( SECURE_SOCKETS_READ_WRITE_ERROR, bytesReceived );
@@ -1014,8 +1060,9 @@ void test_SecureSocketsTransport_Recv_Bytes_Received_Partially( void )
 {
     int32_t bytesReceived = 0;
 
-    networkContext.tcpSocket = mockTcpSocket;
-    SOCKETS_Recv_ExpectAndReturn( networkContext.tcpSocket, NULL, BYTES_TO_RECV, 0, BYTES_TO_RECV - 1 );
+    secureSocketsTransportParams.tcpSocket = mockTcpSocket;
+    networkContext.pParams = &secureSocketsTransportParams;
+    SOCKETS_Recv_ExpectAndReturn( secureSocketsTransportParams.tcpSocket, NULL, BYTES_TO_RECV, 0, BYTES_TO_RECV - 1 );
     SOCKETS_Recv_IgnoreArg_pvBuffer();
     bytesReceived = SecureSocketsTransport_Recv( &networkContext, networkBuffer, BYTES_TO_RECV );
     TEST_ASSERT_EQUAL( BYTES_TO_RECV - 1, bytesReceived );

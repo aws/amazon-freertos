@@ -1351,9 +1351,72 @@ BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
 
     return xIsConnected;
 }
+/*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )
 {
     /** Needs to implement dispatching network state change events **/
     return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetCapability( WIFICapabilityInfo_t * pxCaps )
+{
+        return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetCountryCode( char * pcCountryCode )
+{
+        return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_SetCountryCode( const char * pcCountryCode )
+{
+        return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetRSSI( int8_t * pcRSSI )
+{
+        return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetScanResults( const WIFIScanResult_t ** pxBuffer,
+                                      uint16_t * ucNumNetworks )
+{
+        return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetStationList( WIFIStationInfo_t * pxStationList,
+                                      uint8_t * pcStationListSize )
+{
+        return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetStatistic( WIFIStatisticInfo_t * pxStats )
+{
+        return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StartConnectAP( const WIFINetworkParams_t * pxNetworkParams )
+{
+        return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StartDisconnect( void )
+{
+        return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StartScan( WIFIScanConfig_t * pxScanConfig )
+{
+        return eWiFiNotSupported;
 }

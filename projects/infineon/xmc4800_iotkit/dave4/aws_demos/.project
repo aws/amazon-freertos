@@ -394,11 +394,6 @@
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/drivers/src/xmc_wdt.c</locationURI>
 		</link>
 		<link>
-			<name>demos/demo_runner/aws_demo_version.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/demo_runner/aws_demo_version.c</locationURI>
-		</link>
-		<link>
 			<name>demos/demo_runner/aws_demo.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/demo_runner/aws_demo.c</locationURI>
@@ -407,11 +402,6 @@
 			<name>demos/network_manager/aws_iot_network_manager.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/network_manager/aws_iot_network_manager.c</locationURI>
-		</link>
-		<link>
-			<name>demos/network_manager/aws_iot_demo_network.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/network_manager/aws_iot_demo_network.c</locationURI>
 		</link>
 		<link>
 			<name>demos/network_manager/iot_network_manager_private.h</name>
@@ -429,11 +419,6 @@
 			<locationURI>AFR_HOME/demos/demo_runner/iot_demo_runner.c</locationURI>
 		</link>
 		<link>
-			<name>demos/include/aws_application_version.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/include/aws_application_version.h</locationURI>
-		</link>
-		<link>
 			<name>demos/include/aws_clientcredential.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/include/aws_clientcredential.h</locationURI>
@@ -447,16 +432,6 @@
 			<name>demos/include/aws_demo.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/include/aws_demo.h</locationURI>
-		</link>
-		<link>
-			<name>demos/include/aws_iot_demo_network.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/include/aws_iot_demo_network.h</locationURI>
-		</link>
-		<link>
-			<name>demos/include/aws_ota_codesigner_certificate.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/include/aws_ota_codesigner_certificate.h</locationURI>
 		</link>
 		<link>
 			<name>demos/include/iot_config_common.h</name>
@@ -479,11 +454,6 @@
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/iot_init.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/iot_appversion32.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/include/iot_appversion32.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_init.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/include/iot_init.h</locationURI>
@@ -492,11 +462,6 @@
 			<name>libraries/c_sdk/standard/common/include/iot_linear_containers.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/types/iot_network_types.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/include/types/iot_network_types.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/iot_static_memory_common.c</name>
@@ -552,6 +517,11 @@
 			<name>libraries/abstractions/platform/include/types/iot_platform_types.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/abstractions/platform/include/types/iot_platform_types.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/types/iot_network_types.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/platform/include/types/iot_network_types.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/freertos/iot_clock_freertos.c</name>
@@ -724,99 +694,29 @@
 			<locationURI>AFR_HOME/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</name>
+			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</locationURI>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</name>
+			<name>libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</locationURI>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</name>
+			<name>libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</locationURI>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</name>
+			<name>libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</locationURI>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</name>
+			<name>libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/include/aws_iot_defender.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/defender/include/aws_iot_defender.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</locationURI>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/coreMQTT/source/core_mqtt.c</name>
@@ -857,191 +757,6 @@
 			<name>libraries/coreMQTT/source/interface/transport_interface.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</locationURI>
-		</link>
-		<link>
-			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/include/iot_serializer.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/serializer/include/iot_serializer.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/iot_json_utils.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/serializer/src/iot_json_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/include/iot_json_utils.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/serializer/include/iot_json_utils.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_shadow.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/shadow/src/aws_shadow.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/include/aws_shadow.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/shadow/include/aws_shadow.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/https/src/iot_https_client.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/https/src/iot_https_client.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/https/src/iot_https_utils.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/https/src/iot_https_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/core_http_client.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/core_http_client.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/include/core_http_client.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/include/core_http_client.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/include/core_http_client_private.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/include/core_http_client_private.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/include/core_http_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/include/core_http_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/interface/transport_interface.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/interface/transport_interface.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</locationURI>
-		</link>
-		<link>
-			<name>demos/common/http_demo_helpers/http_demo_utils.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/common/http_demo_helpers/http_demo_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</name>
@@ -1189,6 +904,116 @@
 			<locationURI>AFR_HOME/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreMQTT-Agent/source/core_mqtt_agent.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreMQTT-Agent/source/core_mqtt_agent_command_functions.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreMQTT-Agent/source/include/core_mqtt_agent.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_command_functions.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreMQTT-Agent/source/include/core_mqtt_agent_message_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_agent_message.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/mqtt_agent/freertos_agent_message.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/freertos_command_pool.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/mqtt_agent/freertos_command_pool.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/include/freertos_agent_message.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/mqtt_agent/include/freertos_agent_message.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/mqtt_agent/include/freertos_command_pool.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/mqtt_agent/include/freertos_command_pool.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/core_http_client.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/core_http_client.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/include/core_http_client.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/include/core_http_client.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/include/core_http_client_private.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/include/core_http_client_private.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/include/core_http_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/include/core_http_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/interface/transport_interface.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/interface/transport_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/http_demo_helpers/http_demo_utils.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/common/http_demo_helpers/http_demo_utils.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/coreJSON/source/core_json.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/coreJSON/source/core_json.c</locationURI>
@@ -1217,6 +1042,11 @@
 			<name>demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/common/mqtt_demo_helpers/mqtt_demo_helpers.c</locationURI>
+		</link>
+		<link>
+			<name>demos/include/aws_iot_metrics.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/include/aws_iot_metrics.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/device_defender_for_aws/source/defender.c</name>
@@ -1269,9 +1099,24 @@
 			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_mutual_auth.c</locationURI>
 		</link>
 		<link>
-			<name>demos/coreMQTT/mqtt_demo_connection_sharing.c</name>
+			<name>demos/coreMQTT_Agent/mqtt_agent_task.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/demos/coreMQTT/mqtt_demo_connection_sharing.c</locationURI>
+			<locationURI>AFR_HOME/demos/coreMQTT_Agent/mqtt_agent_task.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT_Agent/simple_sub_pub_demo.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/coreMQTT_Agent/simple_sub_pub_demo.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT_Agent/subscription_manager.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/coreMQTT_Agent/subscription_manager.c</locationURI>
+		</link>
+		<link>
+			<name>demos/coreMQTT_Agent/subscription_manager.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/coreMQTT_Agent/subscription_manager.h</locationURI>
 		</link>
 		<link>
 			<name>demos/device_defender_for_aws/defender_demo.c</name>
@@ -1379,11 +1224,6 @@
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/FreeRTOSIPConfig.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_bufferpool_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/aws_bufferpool_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_demo_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/aws_demo_config.h</locationURI>
@@ -1397,21 +1237,6 @@
 			<name>config_files/aws_iot_network_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/aws_iot_network_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/aws_mqtt_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/aws_mqtt_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/aws_ota_agent_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/aws_ota_agent_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/aws_secure_sockets_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/aws_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_shadow_config.h</name>
@@ -1469,6 +1294,11 @@
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/http_demo_s3_upload_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/iot_bufferpool_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/iot_bufferpool_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/iot_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/iot_config.h</locationURI>
@@ -1479,14 +1309,24 @@
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/iot_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/iot_mqtt_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/iot_mqtt_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_secure_sockets_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/iot_secure_sockets_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/jobs_demo_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/jobs_demo_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/mqtt_demo_connection_sharing_config.h</name>
+			<name>config_files/mqtt_agent_demo_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</locationURI>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files/mqtt_agent_demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/mqtt_demo_mutual_auth_config.h</name>
@@ -2622,41 +2462,6 @@
 			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/src/cborpretty.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/src/cborpretty.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/src/cborencoder.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/src/cborencoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/src/cborerrorstrings.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/src/cborerrorstrings.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/src/cborparser.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/src/cborparser.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.h</name>

@@ -188,7 +188,7 @@ static BaseType_t prvNetworkSend( void * pvContext,
     }
 
     //taskYIELD();
-    if (ESP_WIFI_Get_Ipd_Size(&(pxSecureSocket->xWiFiConn)) > ESP_WIFI_IPD_HIGH_LEVEL) {
+    if (ESP_WIFI_Get_Ipd_Size(&xNuWiFi.xWifiObject) > ESP_WIFI_IPD_HIGH_LEVEL) {
         /* Allow other tasks can process the received data */
         vTaskDelay(100);
     }
@@ -324,6 +324,8 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
                     /* Mark that the socket is connected. */
                     pxSecureSocket->ulFlags |= securesocketsSOCKET_IS_CONNECTED_FLAG;
                 }
+                /* Clear the socket Ipd buffer */
+                ESP_WIFI_Clear_Ipd(&xNuWiFi.xWifiObject, ulSocketNum);
                 xSemaphoreGive(xNuWiFi.xWifiSem);
             }
         }
@@ -526,8 +528,8 @@ int32_t SOCKETS_Close( Socket_t xSocket )
                 }
                 lSocketRet = SOCKETS_ERROR_NONE;
             }
-            /* Reset the socket Ipd buffer */
-            ESP_WIFI_Reset_Ipd(&pxSecureSocket->xWiFiConn);
+            /* Clear the socket Ipd buffer */
+            ESP_WIFI_Clear_Ipd(&xNuWiFi.xWifiObject, ulSocketNum);
             xSemaphoreGive(xNuWiFi.xWifiSem);
         }
 

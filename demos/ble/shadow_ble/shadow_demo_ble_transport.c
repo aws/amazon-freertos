@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -203,10 +203,31 @@
  */
 #define THING_NAME_LENGTH    ( ( uint16_t ) ( sizeof( THING_NAME ) - 1 ) )
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/ble/include/iot_ble_mqtt_transport.h.
+ */
+struct NetworkContext
+{
+    BleTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief BLE transport interface context passed in by the MQTT library.
  */
 static NetworkContext_t xBLETransportCtxt = { 0 };
+
+/**
+ * @brief Ble Transport Parameters structure to store the data channel.
+ */
+static BleTransportParams_t xBleTransportParams;
 
 /**
  * @brief Semaphore used to synchronize BLE data transfer channel callback.
@@ -487,15 +508,15 @@ static int32_t prvBLETransportInterfaceConnect( NetworkContext_t * pTransportCtx
 {
     int32_t status = EXIT_SUCCESS;
 
-    pTransportCtxt->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
+    pTransportCtxt->pParams->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
 
-    if( pTransportCtxt->pChannel != NULL )
+    if( pTransportCtxt->pParams->pChannel != NULL )
     {
         xChannelSemaphore = xSemaphoreCreateBinary();
 
         if( xChannelSemaphore != NULL )
         {
-            ( void ) IotBleDataTransfer_SetCallback( pTransportCtxt->pChannel, bleChannelCallback, NULL );
+            ( void ) IotBleDataTransfer_SetCallback( pTransportCtxt->pParams->pChannel, bleChannelCallback, NULL );
 
             /* Open is a handshake proceture, so we need to wait until it is ready to use. */
             if( xSemaphoreTake( xChannelSemaphore, pdMS_TO_TICKS( IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) ) == pdTRUE )
@@ -535,8 +556,8 @@ static int32_t prvBLETransportInterfaceDisconnect( NetworkContext_t * pTransport
     int32_t status = EXIT_SUCCESS;
 
     ( void ) IotBleMqttTransportCleanup( pTransportCtxt );
-    ( void ) IotBleDataTransfer_Close( pTransportCtxt->pChannel );
-    ( void ) IotBleDataTransfer_Reset( pTransportCtxt->pChannel );
+    ( void ) IotBleDataTransfer_Close( pTransportCtxt->pParams->pChannel );
+    ( void ) IotBleDataTransfer_Reset( pTransportCtxt->pParams->pChannel );
     ( void ) vSemaphoreDelete( xChannelSemaphore );
 
     return status;
@@ -884,6 +905,7 @@ static int32_t prvEstablishMqttSession( NetworkContext_t * pxNetworkContext,
     ( void ) memset( pxMqttContext, 0U, sizeof( MQTTContext_t ) );
     ( void ) memset( pxNetworkContext, 0U, sizeof( NetworkContext_t ) );
 
+    xBLETransportCtxt.pParams = &xBleTransportParams;
     returnStatus = prvBLETransportInterfaceConnect( pxNetworkContext );
 
     if( returnStatus != EXIT_SUCCESS )

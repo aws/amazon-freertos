@@ -73,7 +73,7 @@
     #define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 2048U * 1024U ) )
     #define configMAX_TASK_NAME_LEN                    ( 16 )
     #ifndef configUSE_TRACE_FACILITY
-        #define configUSE_TRACE_FACILITY               ( 0 )
+        #define configUSE_TRACE_FACILITY               ( 1 )
     #endif /* configUSE_TRACE_FACILITY */
     #define configUSE_16_BIT_TICKS                     0
     #define configIDLE_SHOULD_YIELD                    1

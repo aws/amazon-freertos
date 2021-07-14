@@ -61,7 +61,6 @@
 #include "iot_ble_numericComparison.h"
 #include "iot_network_manager_private.h"
 #include "SEGGER_RTT.h"
-#include "aws_application_version.h"
 #include "iot_taskpool.h"
 #if defined( UART_PRESENT )
     #include "nrf_uart.h"
@@ -186,7 +185,6 @@ void prvUartEventHandler( app_uart_evt_t * pxEvent )
 {
     /* Declared as static so it can be pushed into the queue from the ISR. */
     static volatile uint8_t ucRxByte = 0;
-    INPUTMessage_t xInputMessage;
    BaseType_t xHigherPriorityTaskWoken;
     switch( pxEvent->evt_type )
     {
@@ -194,10 +192,7 @@ void prvUartEventHandler( app_uart_evt_t * pxEvent )
             app_uart_get( (uint8_t *)&ucRxByte );
             app_uart_put( ucRxByte );
 
-            xInputMessage.pcData = (uint8_t *)&ucRxByte;
-            xInputMessage.xDataSize = 1;
-
-            xQueueSendFromISR(UARTqueue, (void * )&xInputMessage, &xHigherPriorityTaskWoken);
+            xQueueSendFromISR(UARTqueue, (void * )&ucRxByte, &xHigherPriorityTaskWoken);
             /* Now the buffer is empty we can switch context if necessary. */
             //portYIELD_FROM_ISR (xHigherPriorityTaskWoken);
 
@@ -331,9 +326,8 @@ static void prvMiscInitialization( void )
 
     /* Activate deep sleep mode. */
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-    NumericComparisonInit();
     prvTimersInit();
-    UARTqueue = xQueueCreate( 1, sizeof( INPUTMessage_t ) );
+    UARTqueue = xQueueCreate( 1, sizeof( uint8_t ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -357,25 +351,18 @@ int main( void )
     return 0;
 }
 /*-----------------------------------------------------------*/
-
-BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout )
+int32_t xPortGetUserInput( uint8_t * pMessage,
+                           uint32_t messageLength,
+                           TickType_t timeoutTicks )
 {
-      BaseType_t xReturnMessage = pdFALSE;
-      INPUTMessage_t xTmpINPUTmessage;
-
-      pxINPUTmessage->pcData = (uint8_t *)pvPortMalloc(sizeof(uint8_t));
-      pxINPUTmessage->xDataSize = 1;
-      if(pxINPUTmessage->pcData != NULL)
+      int32_t bytesRead = 0;
+      configASSERT((messageLength == 1 ));
+      if (xQueueReceive(UARTqueue, (void * )pMessage, (portTickType) timeoutTicks ) == pdTRUE )
       {
-          if (xQueueReceive(UARTqueue, (void * )&xTmpINPUTmessage, (portTickType) xAuthTimeout ))
-          {
-              *pxINPUTmessage->pcData = *xTmpINPUTmessage.pcData;
-              pxINPUTmessage->xDataSize = xTmpINPUTmessage.xDataSize;
-              xReturnMessage = pdTRUE;
-          }
+          bytesRead = messageLength;
       }
 
-      return xReturnMessage;
+      return bytesRead;
 }
 /**@brief Clear bond information from persistent storage. */
 static void prvDeleteBonds( void )

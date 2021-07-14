@@ -28,8 +28,8 @@ set -e
 #==============================================================================
 # "Normal" OTA tarballs (binaries DO NOT include cybootloader magic, etc)
 # get size of binary file for components.json
-BIN_CM0_SIZE=$(ls -l "@CY_OUTPUT_FILE_CM0_NAME_BIN@" | awk '{printf $6}')
-BIN_CM4_SIZE=$(ls -l "@CY_OUTPUT_FILE_CM4_NAME_BIN@" | awk '{printf $6}')
+BIN_CM0_SIZE=$(ls -g -o "@CY_OUTPUT_FILE_CM0_NAME_BIN@" | awk '{printf $3}')
+BIN_CM4_SIZE=$(ls -g -o "@CY_OUTPUT_FILE_CM4_NAME_BIN@" | awk '{printf $3}')
 
 # CM4-only "normal" OTA Image tarball
 #
@@ -59,8 +59,8 @@ tar -cf @CY_CM4_CM0_TAR@ @CY_COMPONENTS_JSON_NAME@ @CY_OUTPUT_FILE_CM0_NAME_BIN@
 #==============================================================================
 # "upgrade" OTA tarballs (includes cybootloader magic, etc)
 # get size of binary file for components.json for "upgrade" files
-BIN_CM0_UPGRADE_SIZE=$(ls -l "@CY_APP_CM0_UPGRADE_BIN@" | awk '{printf $6}')
-BIN_CM4_UPGRADE_SIZE=$(ls -l "@CY_APP_CM4_UPGRADE_BIN@" | awk '{printf $6}')
+BIN_CM0_UPGRADE_SIZE=$(ls -g -o "@CY_APP_CM0_UPGRADE_BIN@" | awk '{printf $3}')
+BIN_CM4_UPGRADE_SIZE=$(ls -g -o "@CY_APP_CM4_UPGRADE_BIN@" | awk '{printf $3}')
 
 # CM4-only "upgrade" OTA Image tarball
 #
@@ -86,6 +86,19 @@ echo "{\"fileName\":\"@CY_OUTPUT_FILE_CM4_UPGRADE_BIN@\",\"fileType\": \"NSPE\",
 tar -cf @CY_CM4_CM0_UPGRADE_TAR@ @CY_COMPONENTS_JSON_NAME@ @CY_OUTPUT_FILE_CM0_UPGRADE_BIN@ @CY_OUTPUT_FILE_CM4_UPGRADE_BIN@
 
 echo ""
+
+echo ""
+echo "Application Name                         : @AFR_TARGET_APP_NAME@"
+# echo "Application Version                      : @CY_BUILD_VERSION@"
+echo "Primary 1 Slot Start                     : @CY_BOOT_PRIMARY_1_START@"
+echo "Primary 1 Slot Size                      : @CY_BOOT_PRIMARY_1_SIZE@"
+echo "Primary 2 Slot Size                      : @CY_BOOT_PRIMARY_2_SIZE@"
+echo "Secondary 2 Slot Start                   : @CY_BOOT_SECONDARY_2_START@"
+echo "Max 512 bytes sectors for Application    : @MCUBOOT_MAX_IMG_SECTORS@"
+echo "App Src Dir: @CY_APP_DIRECTORY@"
+
+echo ""
+
 
 ls -l *.bin
 

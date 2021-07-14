@@ -49,6 +49,14 @@
 #define AWS_IOT_LOG_LEVEL_DEFENDER              IOT_LOG_NONE
 
 
+#if BLE_ENABLED
+/* Provide additional serializer initialization functions. */
+extern bool IotBleMqtt_InitSerialize( void );
+extern void IotBleMqtt_CleanupSerialize( void );
+#define _IotMqtt_InitSerializeAdditional IotBleMqtt_InitSerialize
+#define _IotMqtt_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
+#endif /* #if BLE_ENABLED */
+
 /* Platform thread priority. */
 #define IOT_THREAD_DEFAULT_PRIORITY             5
 
@@ -58,7 +66,7 @@
 #define IOT_HTTPS_DISPATCH_USE_STATIC_MEMORY    1
 #define IOT_HTTPS_DISPATCH_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
 
-#define BLE_SUPPORTED                           ( 1 )
+//#define BLE_SUPPORTED                           ( 1 )
 #define WIFI_SUPPORTED                          ( 1 )
 
 /* Network type configuration for this board. */

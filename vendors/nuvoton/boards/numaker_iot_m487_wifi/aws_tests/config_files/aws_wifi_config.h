@@ -34,7 +34,7 @@
 /**
  * @brief Maximum number of sockets that can be created simultaneously.
  */
-#define wificonfigMAX_SOCKETS                 ( 2 )
+#define wificonfigMAX_SOCKETS                 ( 5 )
 
 /**
  * @brief Maximum number of connection retries.
@@ -117,6 +117,29 @@
 /**
  * @brief Maximum size of WiFi receive buffer
  */
-#define wificonfigMAX_RECV_BUF_SIZE           ( 1024 * 3 )
+#define wificonfigMAX_RECV_BUF_SIZE           ( 1024 * 4 )
+
+/**
+ * @brief Enable WiFi H/W reset
+ */
+#define wificonfigHW_RESET                    ( 1 )
+
+/**
+ * @brief Receive WiFi TCP packet using Passive mode
+ */
+#define wificonfigTCP_PASSIVE_MODE            ( 0 )
+
+/**
+ * @brief Enable UART H/W flow control
+ */
+#define wificonfigSERIAL_FC                   ( 0 )
+
+/**
+ * @brief Set UART baud rate
+ *
+ * Could be select 115200/230400/460800/921600/1152000/2304000
+ * Must enable wificonfigSERIAL_FC to support this feature, or it always runs as default 115200
+ */
+#define wificonfigBAUD_RATE                   ( 115200 )
 
 #endif /* _AWS_WIFI_CONFIG_H_ */

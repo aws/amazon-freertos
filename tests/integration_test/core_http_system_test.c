@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -214,10 +214,29 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Each compilation unit that consumes the NetworkContext must define it.
+ * It should contain a single pointer to the type of your desired transport.
+ * When using multiple transports in the same compilation unit, define this pointer as void *.
+ *
+ * @note Transport stacks are defined in amazon-freertos/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h.
+ */
+struct NetworkContext
+{
+    SecureSocketsTransportParams_t * pParams;
+};
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Represents the network context used for the TLS session with the
  * server.
  */
 static NetworkContext_t networkContext;
+
+/**
+ * @brief The parameters for the network context using a TLS channel.
+ */
+static SecureSocketsTransportParams_t secureSocketsTransportParams = { 0 };
 
 /**
  * @brief The transport layer interface used by the HTTP Client library.
@@ -583,6 +602,9 @@ void testSetup()
     memset( &response, 0, sizeof( HTTPResponse_t ) );
     /* Clear the network context before each test. */
     memset( &networkContext, 0, sizeof( networkContext ) );
+    /* Clear thhe parameters TLS channel before each test. */
+    memset( &secureSocketsTransportParams, 0, sizeof( SecureSocketsTransportParams_t ) );
+    networkContext.pParams = &secureSocketsTransportParams;
 
     /* Apply defaults and reset the transport receive data globals. */
     pNetworkData = NULL;

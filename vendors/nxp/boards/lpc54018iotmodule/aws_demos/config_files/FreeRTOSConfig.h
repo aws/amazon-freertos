@@ -58,7 +58,7 @@
 #define configTICK_RATE_HZ                           ( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES                         ( 7 )
 #define configMINIMAL_STACK_SIZE                     ( ( uint16_t ) 256 )
-#define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 100 * 1024 ) )
+#define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 120 * 1024 ) )
 #define configMAX_TASK_NAME_LEN                      ( 16 )
 #define configUSE_TRACE_FACILITY                     1
 #define configUSE_16_BIT_TICKS                       0
@@ -212,5 +212,13 @@
  * global buffer is just set to be one byte long as it is not used and should not
  * take up unnecessary RAM. */
 #define configCOMMAND_INT_MAX_OUTPUT_SIZE    1
+
+/* This config enables extra metadata information of the source library and location
+ * in log messages.
+ * This config requires the toolchain to support ISO C99 and the GNU extension (for comma 
+ * elision in variadic macros i.e. with ##__VA_ARGS__).
+ * When using this flag, you can change the format or information of log messages in
+ * the logging_stack.h file.*/
+#define LOGGING_ENABLE_METADATA_WITH_C99_AND_GNU_EXTENSION    ( 1 )
 
 #endif /* FREERTOS_CONFIG_H */

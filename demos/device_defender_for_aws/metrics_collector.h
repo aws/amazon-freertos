@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -90,8 +90,8 @@ MetricsCollectorStatus_t GetNetworkStats( NetworkStats_t * pOutNetworkStats );
  * #MetricsCollectorCollectionFailed if the collection methods failed.
  */
 MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
-                                          uint32_t tcpPortsArrayLength,
-                                          uint32_t * pOutNumTcpOpenPorts );
+                                          size_t tcpPortsArrayLength,
+                                          size_t * pOutNumTcpOpenPorts );
 
 /**
  * @brief Get a list of the open UDP ports.
@@ -111,8 +111,8 @@ MetricsCollectorStatus_t GetOpenTcpPorts( uint16_t * pOutTcpPortsArray,
  * #MetricsCollectorCollectionFailed if the collection methods failed.
  */
 MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
-                                          uint32_t udpPortsArrayLength,
-                                          uint32_t * pOutNumUdpOpenPorts );
+                                          size_t udpPortsArrayLength,
+                                          size_t * pOutNumUdpOpenPorts );
 
 /**
  * @brief Get a list of established connections.
@@ -134,7 +134,7 @@ MetricsCollectorStatus_t GetOpenUdpPorts( uint16_t * pOutUdpPortsArray,
  * #MetricsCollectorCollectionFailed if the collection methods failed.
  */
 MetricsCollectorStatus_t GetEstablishedConnections( Connection_t * pOutConnectionsArray,
-                                                    uint32_t connectionsArrayLength,
-                                                    uint32_t * pOutNumEstablishedConnections );
+                                                    size_t connectionsArrayLength,
+                                                    size_t * pOutNumEstablishedConnections );
 
 #endif /* __METRICS_COLLECTOR_H__ */

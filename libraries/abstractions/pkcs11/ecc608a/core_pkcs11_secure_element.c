@@ -50,10 +50,6 @@
 #include "aws_clientcredential_keys.h"
 #include "iot_default_root_certificates.h"
 
-#if ( pkcs11configOTA_SUPPORTED == 1 )
-    #include "aws_ota_codesigner_certificate.h"
-#endif
-
 /* Microchip Secure Element */
 #include "atca_config.h"
 #include "atca_cert_chain.h"

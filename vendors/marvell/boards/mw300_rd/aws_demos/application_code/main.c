@@ -45,15 +45,7 @@
 #include "iot_logging_task.h"
 #include "iot_wifi.h"
 #include "aws_clientcredential.h"
-#include "aws_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
-
-/* Declare the firmware version structure for all to see.
-const AppVersion32_t xAppFirmwareVersion = {
-	.u.x.ucMajor = APP_VERSION_MAJOR,
-	.u.x.ucMinor = APP_VERSION_MINOR,
-	.u.x.usBuild = APP_VERSION_BUILD,
-};*/
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
@@ -123,14 +115,12 @@ void wm_printf(const char *format, ...)
 		&format[0]);
     UART_WriteLine(UART0_ID, (uint8_t *) ll_msg_buf_);
 }
+
 /**
- * @brief Application task startup hook for applications using Wi-Fi. If you are not 
- * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
- * function. If you are not using Wi-Fi, this hook can be disabled by setting
- * configUSE_DAEMON_TASK_STARTUP_HOOK to 0.
+ * @brief Application startup task that provisions board with credentials and initiates demo run.
  */
 //void vApplicationDaemonTaskStartupHook( void );
-void vStartupHook( void *pvParameters);
+void vStartupTask( void *pvParameters);
 
 /**
  * @brief Application IP network event hook called by the FreeRTOS+TCP stack for
@@ -139,11 +129,6 @@ void vStartupHook( void *pvParameters);
  * network status is up.
  */
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent );
-
-/**
- * @brief Connects to Wi-Fi.
- */
-static void prvWifiConnect( void );
 
 /**
  * @brief Initializes the board.
@@ -170,11 +155,11 @@ int main( void )
 
     /* FreeRTOS+TCP stack init */
     vApplicationIPInit();
-
-    /* Create the task to run unit tests. */
-    xTaskCreate( vStartupHook,
-                 "Startup Hook",
-		             mainSTARTUP_TASK_STACK_SIZE,
+    
+    /* Create a task to initialize system and run demos. */
+    xTaskCreate( vStartupTask,
+                 "Startup Task",
+                 mainSTARTUP_TASK_STACK_SIZE,
                  NULL,
                  tskIDLE_PRIORITY + 2,
                  NULL );
@@ -243,19 +228,19 @@ static void prvMiscInitialization( void )
 
     configPRINT_STRING("FreeRTOS Started\r\n");
 }
+
 /*-----------------------------------------------------------*/
 
 //void vApplicationDaemonTaskStartupHook( void )
-void vStartupHook( void *pvParameters)
+void vStartupTask( void * pvParameters )
 {
-    configPRINT("\r\nApplication Daemon Startup \r\n");
+    configPRINT( "\r\nApplication Daemon Startup \r\n" );
 
-    if( SYSTEM_Init() == pdPASS ) {
-        /* Connect to the Wi-Fi before running the tests. */
-        prvWifiConnect();
-    } else {
-        configPRINT("\r\nSystem Init failed \r\n");
+    if( SYSTEM_Init() != pdPASS )
+    {
+        configPRINT( "\r\nSystem Init failed \r\n" );
     }
+
     /* A simple example to demonstrate key and certificate provisioning in
      * flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
@@ -263,8 +248,10 @@ void vStartupHook( void *pvParameters)
 
     /* Start the demo tasks. */
     DEMO_RUNNER_RunDemos();
+
     vTaskDelete(NULL);
 }
+
 /*-----------------------------------------------------------*/
 #include <FreeRTOS_Sockets.h>
 #include <FreeRTOS_DHCP.h>
@@ -358,171 +345,6 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         }
     }
 }
-/*-----------------------------------------------------------*/
-
-void prvWifiConnect( void )
-{
-    WIFINetworkParams_t xNetworkParams = { 0 };
-    WIFIReturnCode_t xWifiStatus = eWiFiSuccess;
-    WIFIIPConfiguration_t xIpConfig;
-    uint8_t *pucIPV4Byte;
-    size_t xSSIDLength, xPasswordLength;
-
-    configPRINT("\r\nWill attempt to start wlan \r\n");
-    xWifiStatus = WIFI_On();
-
-    if( xWifiStatus == eWiFiSuccess ) {
-        configPRINT( "\r\nWi-Fi module initialized. Connecting to AP...\r\n" );
-    } else {
-        configPRINT( "\r\nWi-Fi module failed to initialize.\r\n");
-
-        /* Delay to allow the lower priority logging task to print the above status.
-         * The while loop below will block the above printing. */
-        vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
-
-        while( 1 ) {
-        }
-    }
-
-  /* Setup WiFi parameters to connect to access point. */
-    if( clientcredentialWIFI_SSID != NULL )
-    {
-        xSSIDLength = strlen( clientcredentialWIFI_SSID );
-        if( ( xSSIDLength > 0 ) && ( xSSIDLength <= wificonfigMAX_SSID_LEN ) )
-        {
-            xNetworkParams.ucSSIDLength = xSSIDLength;
-            memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
-        }
-        else
-        {
-            configPRINTF(( "Invalid WiFi SSID configured, empty or exceeds allowable length %d.\n", wificonfigMAX_SSID_LEN ));
-            xWifiStatus = eWiFiFailure;
-        }
-    }
-    else
-    {
-        configPRINTF(( "WiFi SSID is not configured.\n" ));
-        xWifiStatus = eWiFiFailure;
-    }
-
-    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    if( clientcredentialWIFI_SECURITY == eWiFiSecurityWPA2 )
-    {
-        if( clientcredentialWIFI_PASSWORD != NULL )
-        {
-            xPasswordLength = strlen( clientcredentialWIFI_PASSWORD );
-            if( ( xPasswordLength > 0 ) && ( xSSIDLength <= wificonfigMAX_PASSPHRASE_LEN ) )
-            {
-                xNetworkParams.xPassword.xWPA.ucLength = xPasswordLength;
-                memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, clientcredentialWIFI_PASSWORD, xPasswordLength );
-            }
-            else
-            {
-                configPRINTF(( "Invalid WiFi password configured, empty password or exceeds allowable password length %d.\n", wificonfigMAX_PASSPHRASE_LEN ));
-                xWifiStatus = eWiFiFailure;
-            }
-        }
-        else
-        {
-            configPRINTF(( "WiFi password is not configured.\n" ));
-            xWifiStatus = eWiFiFailure;
-        }
-    }
-    xNetworkParams.ucChannel = 0;
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        /* Try connecting using provided wifi credentials. */
-        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
-
-        if( xWifiStatus == eWiFiSuccess )
-        {
-            configPRINTF( ( "WiFi connected to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID ) );
-
-            /* Get IP address of the device. */
-            xWifiStatus = WIFI_GetIPInfo( &xIpConfig );
-            if( xWifiStatus == eWiFiSuccess )
-            {
-                pucIPV4Byte = ( uint8_t * ) ( &xIpConfig.xIPAddress.ulAddress[0] );
-                configPRINTF( ( "IP Address acquired %d.%d.%d.%d.\r\n",
-                        pucIPV4Byte[ 0 ], pucIPV4Byte[ 1 ], pucIPV4Byte[ 2 ], pucIPV4Byte[ 3 ] ) );
-            }
-        }
-        else
-        {
-            /* Connection failed configure softAP to allow user to set wifi credentials. */
-            configPRINTF( ( "WiFi failed to connect to AP %.*s.\r\n", xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID  ) );
-        }
-    }
-
-    if( xWifiStatus != eWiFiSuccess )
-    {
-        /* Enter SOFT AP mode to provision access point credentials. */
-        configPRINTF(( "Entering soft access point WiFi provisioning mode.\n" ));
-        xWifiStatus = eWiFiSuccess;
-        if( wificonfigACCESS_POINT_SSID_PREFIX != NULL )
-        {
-            xSSIDLength = strlen( wificonfigACCESS_POINT_SSID_PREFIX );
-            if( ( xSSIDLength > 0 ) && ( xSSIDLength <= wificonfigMAX_SSID_LEN ) )
-            {
-                xNetworkParams.ucSSIDLength = xSSIDLength;
-                memcpy( xNetworkParams.ucSSID, clientcredentialWIFI_SSID, xSSIDLength );
-            }
-            else
-            {
-                configPRINTF(( "Invalid AP SSID configured, empty or exceeds allowable length %d.\n", wificonfigMAX_SSID_LEN ));
-                xWifiStatus = eWiFiFailure;
-            }
-        }
-        else
-        {
-            configPRINTF(( "WiFi AP SSID is not configured.\n" ));
-            xWifiStatus = eWiFiFailure;
-        }
-
-        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
-        if( wificonfigACCESS_POINT_SECURITY == eWiFiSecurityWPA2 )
-        {
-            if( wificonfigACCESS_POINT_PASSKEY != NULL )
-            {
-                xPasswordLength = strlen( wificonfigACCESS_POINT_PASSKEY );
-                if( ( xPasswordLength > 0 ) && ( xSSIDLength <= wificonfigMAX_PASSPHRASE_LEN ) )
-                {
-                    xNetworkParams.xPassword.xWPA.ucLength = xPasswordLength;
-                    memcpy( xNetworkParams.xPassword.xWPA.cPassphrase, wificonfigACCESS_POINT_PASSKEY, xPasswordLength );
-                }
-                else
-                {
-                    configPRINTF(( "Invalid WiFi AP password, empty or exceeds allowable password length %d.\n", wificonfigMAX_PASSPHRASE_LEN ));
-                    xWifiStatus = eWiFiFailure;
-                }
-            }
-            else
-            {
-                configPRINTF(( "WiFi AP password is not configured.\n" ));
-                xWifiStatus = eWiFiFailure;
-            }
-        }
-        xNetworkParams.ucChannel = wificonfigACCESS_POINT_CHANNEL;
-
-        if( xWifiStatus == eWiFiSuccess )
-        {
-            configPRINTF( ( "Connect to softAP %.*s using password %.*s. \r\n",
-                    xNetworkParams.ucSSIDLength, ( char * ) xNetworkParams.ucSSID,
-                    xNetworkParams.xPassword.xWPA.ucLength, xNetworkParams.xPassword.xWPA.cPassphrase ) );
-            do
-            {
-                xWifiStatus = WIFI_ConfigureAP( &xNetworkParams );
-                configPRINTF( ( "Connect to softAP and configure wiFi returned %d\r\n", xWifiStatus ) );
-                vTaskDelay( pdMS_TO_TICKS( 1000 ) );
-
-            } while( ( xWifiStatus != eWiFiSuccess ) && ( xWifiStatus != eWiFiNotSupported ) );
-        }
-    }
-
-    configASSERT( xWifiStatus == eWiFiSuccess );
-}
-
 /*-----------------------------------------------------------*/
 
 

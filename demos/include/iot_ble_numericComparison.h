@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,30 +27,45 @@
  * @file iot_ble_numericComparison.h
  * @brief Header file for supporting user confirmation for BLE passkey.
  */
-#ifndef _AWS_BLE_NUMERIC_COMPARISON_H_
-#define _AWS_BLE_NUMERIC_COMPARISON_H_
+#ifndef _IOT_BLE_NUMERIC_COMPARISON_H_
+#define _IOT_BLE_NUMERIC_COMPARISON_H_
 
-#include "queue.h"
-
-typedef struct
-{
-    uint8_t * pcData;
-    size_t xDataSize;
-} INPUTMessage_t;
-
-extern QueueHandle_t xNumericComparisonQueue;
-
-extern void BLENumericComparisonCb( BTBdaddr_t * pxRemoteBdAddr,
-                                    uint32_t ulPassKey );
-
-extern void BLEGAPPairingStateChangedCb( BTStatus_t xStatus,
-                                         BTBdaddr_t * pxRemoteBdAddr,
-                                         BTBondState_t bondState,
-                                         BTSecurityLevel_t xSecurityLevel,
-                                         BTAuthFailureReason_t xReason );
-extern void NumericComparisonInit( void );
-extern BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage,
-                                  TickType_t xAuthTimeout );
+#include "FreeRTOS.h"
+#include "iot_ble.h"
 
 
-#endif /* _AWS_BLE_NUMERIC_COMPARISON_H_ */
+void vDemoBLENumericComparisonCb( BTBdaddr_t * pxRemoteBdAddr,
+                                  uint32_t ulPassKey );
+
+void vDemoBLEGAPPairingStateChangedCb( BTStatus_t xStatus,
+                                       BTBdaddr_t * pxRemoteBdAddr,
+                                       BTBondState_t bondState,
+                                       BTSecurityLevel_t xSecurityLevel,
+                                       BTAuthFailureReason_t xReason );
+
+/**
+ * @brief Initializer for BLE numeric comparison demo.
+ */
+void vDemoBLENumericComparisonInit( void );
+
+/**
+ * @brief Port specific funtion to receive the reply for a numeric comparison
+ * request from the user.
+ * Vendor needs to implement this for each board using their I/O APIs such
+ * as UART.
+ * The function should wait for timeout ticks or upto messageLength bytes are received
+ * from terminal. If it received only partial bytes then it can send the partial bytes and
+ * return the number of bytes read. In case of an error it can return a negative integer
+ * representing the error.
+ *
+ * @param[in] pMessage The buffer used to hold the message received from user.
+ * @param[in] messageLength The length of the buffer used to receive the buffer.
+ * @param[in] timeoutTicks Ticks to wait for the entire message.
+ * @return number of bytes read, or < 0 if there is an error.
+ */
+int32_t xPortGetUserInput( uint8_t * pMessage,
+                           uint32_t messageLength,
+                           TickType_t timeoutTicks );
+
+
+#endif /* _IOT_BLE_NUMERIC_COMPARISON_H_ */

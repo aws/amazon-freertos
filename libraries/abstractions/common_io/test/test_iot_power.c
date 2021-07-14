@@ -1,6 +1,6 @@
 /*
  * FreeRTOS Common IO V0.1.3
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -103,6 +103,10 @@ TEST_SETUP( TEST_IOT_POWER )
  */
 TEST_TEAR_DOWN( TEST_IOT_POWER )
 {
+    vSemaphoreDelete( xtestIotPowerIdleEnterSemaphore );
+    vSemaphoreDelete( xtestIotPowerIdleExitSemaphore );
+    xtestIotPowerIdleEnterSemaphore = NULL;
+    xtestIotPowerIdleExitSemaphore = NULL;
 }
 
 /*-----------------------------------------------------------*/
@@ -141,7 +145,7 @@ static void prvIotPowerCallback( bool bIdleState,
 {
     BaseType_t xHigherPriorityTaskWoken;
     IotPowerIdleMode_t xIdleModeEntered;
-    int lRetVal;
+    int8_t lRetVal;
 
     if( bIdleState == true )
     {
@@ -177,24 +181,27 @@ static void prvIotPowerCallbackCancelIdle( bool bIdleState,
                                            void * pvUserContext )
 {
     int32_t lRetVal;
+    static bool bIdlePreviouslyCanceled = false;
     BaseType_t xHigherPriorityTaskWoken;
     IotPowerMode_t xPowerMode = eUnknownPowerMode;
 
-    btestIotPowerIdleEnterState = bIdleState;
-
-    if( ( bIdleState == true ) && ( pvUserContext != NULL ) )
+    if( ( bIdleState == true ) && ( pvUserContext != NULL ) && ( bIdlePreviouslyCanceled == false ) )
     {
+        btestIotPowerIdleEnterState = bIdleState;
+
         /* Set the power mode to normal performance to cancel entering to idle */
-        lRetVal = iot_power_set_mode( ( IotPowerHandle_t ) pvUserContext, eHighPowerPerfMode );
+        lRetVal = iot_power_set_mode( ( IotPowerHandle_t ) pvUserContext, eNormalPowerPerfMode );
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
         lRetVal = iot_power_get_mode( ( IotPowerHandle_t ) pvUserContext, &xPowerMode );
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-        TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
+        TEST_ASSERT_EQUAL( eNormalPowerPerfMode, xPowerMode );
+
+        bIdlePreviouslyCanceled = true;
 
         xSemaphoreGiveFromISR( xtestIotPowerIdleEnterSemaphore, &xHigherPriorityTaskWoken );
     }
-    else
+    else if( bIdlePreviouslyCanceled == false )
     {
         /* Error condition. Wake up shall not happen when Idle is cancelled */
         TEST_ASSERT( 0 );
@@ -368,12 +375,12 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_EnterIdle )
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-    }
 
-    /* Read the performance mode and verify high performance mode */
-    lRetVal = iot_power_get_mode( xPowerHandle, &xPowerMode );
-    TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-    TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
+        /* Read the performance mode and verify high performance mode */
+        lRetVal = iot_power_get_mode( xPowerHandle, &xPowerMode );
+        TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
+        TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
+    }
 
     /* Register for Idle enter/exit callback */
     iot_power_set_callback( xPowerHandle, prvIotPowerCallback, xPowerHandle );
@@ -413,13 +420,13 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_EnterIdle )
     }
 
     /* Set the power mode to normal performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
+    lRetVal = iot_power_set_mode( xPowerHandle, eNormalPowerPerfMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
     /* Read the performance mode and verify normal mode */
     lRetVal = iot_power_get_mode( xPowerHandle, &xPowerMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-    TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
+    TEST_ASSERT_EQUAL( eNormalPowerPerfMode, xPowerMode );
 
     /* Close Power handle */
     lRetVal = iot_power_close( xPowerHandle );
@@ -445,12 +452,24 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_EnterIdleCancel )
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-    }
 
-    /* Read the performance mode and verify high performance mode */
-    lRetVal = iot_power_get_mode( xPowerHandle, &xPowerMode );
-    TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-    TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
+        /* Read the performance mode and verify high performance mode */
+        lRetVal = iot_power_get_mode( xPowerHandle, &xPowerMode );
+        TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
+        TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
+    }
+    else
+    {
+        /* Set the power mode to normal mode */
+        lRetVal = iot_power_set_mode( xPowerHandle, eNormalPowerPerfMode );
+
+        TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
+
+        /* Read the performance mode and verify normal performance mode */
+        lRetVal = iot_power_get_mode( xPowerHandle, &xPowerMode );
+        TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
+        TEST_ASSERT_EQUAL( eNormalPowerPerfMode, xPowerMode );
+    }
 
     /* Register for Idle enter/exit callback */
     iot_power_set_callback( xPowerHandle, prvIotPowerCallbackCancelIdle, xPowerHandle );
@@ -491,7 +510,6 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_EnterIdleCancel )
 TEST( TEST_IOT_POWER, AFQP_IotPower_IoctlEnum )
 {
     IotPowerHandle_t xPowerHandle;
-    IotPowerMode_t xPowerMode = eUnknownPowerMode;
     int32_t lRetVal;
     uint32_t ulMilliSeconds1, ulMilliSeconds2;
 
@@ -599,7 +617,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_SetModeFuzzing )
     TEST_ASSERT_EQUAL( IOT_POWER_SET_FAILED, lRetVal );
 
     /* Set the mode with invalid setting */
-    lRetVal = iot_power_set_mode( xPowerHandle, -2 );
+    lRetVal = iot_power_set_mode( xPowerHandle, ( IotPowerMode_t ) -2 );
 
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
@@ -607,7 +625,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_SetModeFuzzing )
     }
 
     /* Set the correct mode first */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
+    lRetVal = iot_power_set_mode( xPowerHandle, eNormalPowerPerfMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
     /* Set the mode with invalid mode */
@@ -688,7 +706,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_IoctlFuzzing )
     TEST_ASSERT_EQUAL( IOT_POWER_INVALID_VALUE, lRetVal );
 
     /* Call the mode with invalid handle */
-    lRetVal = iot_power_ioctl( xPowerHandle, -1, NULL );
+    lRetVal = iot_power_ioctl( xPowerHandle, ( IotPowerIoctlRequest_t ) -1, NULL );
     TEST_ASSERT_EQUAL( IOT_POWER_INVALID_VALUE, lRetVal );
 
     /* Close Power handle with a valid handle */
@@ -759,6 +777,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_PCWakeThresholdTest )
     uint8_t ucGetWakeupSources[ testIotPOWER_MAX_WAKEUP_SOURCES ] = { 0 };
     uint32_t ulMilliSeconds;
     int32_t lRetVal;
+    int8_t i;
 
     /* Open Power handle */
     xPowerHandle = iot_power_open();
@@ -779,12 +798,12 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_PCWakeThresholdTest )
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-    }
 
-    /* Read the performance mode and verify high performance mode */
-    lRetVal = iot_power_get_mode( xPowerHandle, &xPowerMode );
-    TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-    TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
+        /* Read the performance mode and verify high performance mode */
+        lRetVal = iot_power_get_mode( xPowerHandle, &xPowerMode );
+        TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
+        TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
+    }
 
     /* Set the entry and exit times to 0 */
     ultestIotPowerSleepEnterTime = 0;
@@ -813,7 +832,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_PCWakeThresholdTest )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
-        for( int i = 0; i < ustestIotPowerWakeupSourcesLength; i++ )
+        for( i = 0; i < ustestIotPowerWakeupSourcesLength; i++ )
         {
             if( ucGetWakeupSources[ i ] != puctestIotPowerWakeupSources[ i ] )
             {
@@ -867,13 +886,13 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_PCWakeThresholdTest )
     }
 
     /* Set the power mode to normal performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
+    lRetVal = iot_power_set_mode( xPowerHandle, eNormalPowerPerfMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
     /* Read the performance mode and verify normal mode */
     lRetVal = iot_power_get_mode( xPowerHandle, &xPowerMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-    TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
+    TEST_ASSERT_EQUAL( eNormalPowerPerfMode, xPowerMode );
 
     /* Close Power handle */
     lRetVal = iot_power_close( xPowerHandle );
@@ -892,6 +911,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ClkSrcOffWakeThresholdTest )
     uint8_t ucGetWakeupSources[ testIotPOWER_MAX_WAKEUP_SOURCES ] = { 0 };
     uint32_t ulMilliSeconds;
     int32_t lRetVal;
+    int8_t i;
 
     /* Open Power handle */
     xPowerHandle = iot_power_open();
@@ -921,12 +941,12 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ClkSrcOffWakeThresholdTest )
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-    }
 
-    /* Read the performance mode and verify high performance mode */
-    lRetVal = iot_power_get_mode( xPowerHandle, &xPowerMode );
-    TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-    TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
+        /* Read the performance mode and verify high performance mode */
+        lRetVal = iot_power_get_mode( xPowerHandle, &xPowerMode );
+        TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
+        TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
+    }
 
     /* Set the entry and exit times to 0 */
     ultestIotPowerSleepEnterTime = 0;
@@ -956,7 +976,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ClkSrcOffWakeThresholdTest )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
-        for( int i = 0; i < ustestIotPowerWakeupSourcesLength; i++ )
+        for( i = 0; i < ustestIotPowerWakeupSourcesLength; i++ )
         {
             if( ucGetWakeupSources[ i ] != puctestIotPowerWakeupSources[ i ] )
             {
@@ -1019,13 +1039,13 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ClkSrcOffWakeThresholdTest )
     }
 
     /* Set the power mode to normal performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
+    lRetVal = iot_power_set_mode( xPowerHandle, eNormalPowerPerfMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
     /* Read the performance mode and verify normal mode */
     lRetVal = iot_power_get_mode( xPowerHandle, &xPowerMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-    TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
+    TEST_ASSERT_EQUAL( eNormalPowerPerfMode, xPowerMode );
 
     /* Close Power handle */
     lRetVal = iot_power_close( xPowerHandle );

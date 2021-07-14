@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Platform V1.1.2
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Platform V1.1.3
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -208,7 +208,7 @@ typedef struct IotNetworkInterface
      * @param[in] bytesRequested How many bytes to wait for. `pBuffer` must be at
      * least this size.
      *
-     * @return The number of bytes successfully received. This should be
+     * @return The number of bytes successfully received. This MUST be
      * `bytesRequested` when successful. Any other value may indicate an error.
      */
     /* @[declare_platform_network_receive] */
@@ -249,7 +249,7 @@ typedef struct IotNetworkInterface
      * crashing. Once it can be guaranteed that `pConnection` will no longer be
      * used, the connection can be destroyed with @ref platform_network_function_destroy.
      *
-     * In addition to closing the connection, this function should also remove
+     * In addition to closing the connection, this function SHOULD also remove
      * any active [receive callback](@ref platform_network_function_receivecallback).
      *
      * @param[in] pConnection The network connection to close, defined by the
@@ -257,7 +257,7 @@ typedef struct IotNetworkInterface
      *
      * @return Any #IotNetworkError_t, as defined by the network stack.
      *
-     * @note It must be safe to call this function on an already-closed connection.
+     * @note It MUST be safe to call this function on an already-closed connection.
      */
     /* @[declare_platform_network_close] */
     IotNetworkError_t ( * close )( void * pConnection );
@@ -266,7 +266,7 @@ typedef struct IotNetworkInterface
     /**
      * @brief Free resources used by a network connection.
      *
-     * This function releases the resources of a closed connection. It should be
+     * This function releases the resources of a closed connection. It MUST be
      * called after @ref platform_network_function_close.
      *
      * @param[in] pConnection The network connection to destroy, defined by
@@ -274,8 +274,8 @@ typedef struct IotNetworkInterface
      *
      * @return Any #IotNetworkError_t, as defined by the network stack.
      *
-     * @attention No function should be called on the network connection after
-     * calling this function. This function must be safe to call from a
+     * @attention No function MAY be called on the network connection after
+     * calling this function. This function MUST be safe to call from a
      * [receive callback](@ref platform_network_function_receivecallback).
      */
     /* @[declare_platform_network_destroy] */

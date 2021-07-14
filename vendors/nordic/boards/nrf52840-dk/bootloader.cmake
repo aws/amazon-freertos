@@ -110,14 +110,9 @@ target_link_libraries(
   bootloader
   PRIVATE
   "${nrf5_sdk}/external/nrf_cc310_bl/lib/libnrf_cc310_bl_0.9.10.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv5_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libdebugio_mempoll_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
   "${AFR_COMPILER_DIR}/../../../lib/libm_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
   "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libcpp_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
   "${AFR_COMPILER_DIR}/../../../lib/libdebugio_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libvfprintf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
-  "${AFR_COMPILER_DIR}/../../../lib/libvfscanf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
 )
 
 # bootloader src
@@ -168,6 +163,7 @@ set(
     bootloader_inc
     "${board_dir}/bootloader"
     "${board_dir}/bootloader/pca10056/config"
+    "${board_dir}/config_files"
     "${nrf5_sdk}/components/boards"
     "${nrf5_sdk}/components/libraries/atomic"
     "${nrf5_sdk}/components/libraries/balloc"
@@ -215,8 +211,8 @@ set(
     "${nrf5_sdk}/modules/nrfx/hal"
     "${nrf5_sdk}/modules/nrfx/mdk"
     "${AFR_3RDPARTY_DIR}/mbedtls/include"
-    #TODO: Remove depedency on "aws_ota_codesigner_certificate.h"  from crypto.c in tests.
-    "${AFR_DEMOS_DIR}/include"
+    #TODO: Remove depedency on "code signer cert" from crypto.c in tests.
+    "$<${AFR_IS_TESTING}:${AFR_TESTS_DIR}/integration_test/ota_pal>"
 )
 
 target_sources(

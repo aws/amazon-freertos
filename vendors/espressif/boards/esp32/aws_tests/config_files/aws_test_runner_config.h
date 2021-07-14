@@ -29,14 +29,33 @@
 /* Uncomment this line if you want to run DQP_FR tests only. */
 /* #define testrunnerAFQP_ENABLED */
 
-#define testrunnerUNSUPPORTED                          0
+#define testrunnerUNSUPPORTED    0
+
+/* Uncomment this line to specify the delay (in milliseconds) to add before
+ * starting the tests execution on device.
+ * This is useful if the device takes some time after flashing to appear
+ * on the serial port of the host machine OS. The serial console is used
+ * by IDT to detect state of test execution on device. Therefore, the delay
+ * value can be configured to ensure that the device (after flashing) is
+ * available on host machine before it starts executing tests so that IDT
+ * can detect when tests start execution on device through the serial console.
+ */
+/* #define AWS_TEST_RUNNER_DELAY_MS                       ( 1000 )*/
+
+/* Uncomment this line to enable serial console input mode for the FreeRTOS test runner.
+ * When enabled, the test runner will wait for a "start" command input from the serial
+ * prompt to start executing tests on the device.
+ * This is useful in synchronizing the start of tests execution on device with when
+ * a host machine (to which the device is connected) is able to access logs from device
+ * on the serial console. The AWS IoT Device Tester uses the serial console logs from device
+ * to detect state of test execution on device.python
+ */
+/* #define AWS_TEST_RUNNER_ENABLE_CLI_INPUT          ( 1 ) */
 
 /* Unsupported tests */
-#define testrunnerFULL_OTA_CBOR_ENABLED                testrunnerUNSUPPORTED
 #define testrunnerFULL_POSIX_ENABLED                   testrunnerUNSUPPORTED
 
 /* Enable tests by setting defines to 1 */
-#define testrunnerFULL_OTA_AGENT_ENABLED               0
 #define testrunnerFULL_OTA_PAL_ENABLED                 0
 #define testrunnerFULL_MQTT_ALPN_ENABLED               0
 #define testrunnerFULL_CORE_MQTT_ENABLED               0

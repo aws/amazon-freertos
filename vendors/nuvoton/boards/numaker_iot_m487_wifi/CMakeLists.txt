@@ -117,6 +117,8 @@ target_sources(
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/sys.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/uart.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/retarget.c"
+        "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/gpio.c"
+        "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/spim.c"        
         "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
         "${AFR_KERNEL_DIR}/portable/RVDS/ARM_CM4F/port.c"
         "${board_dir}/application_code/nuvoton_code/entropy_hardware_poll.c"
@@ -147,7 +149,6 @@ target_sources(
     INTERFACE
         "${afr_ports_dir}/pkcs11/core_pkcs11_pal.c"
 )
-
 
 if(AFR_ENABLE_ETH)
 

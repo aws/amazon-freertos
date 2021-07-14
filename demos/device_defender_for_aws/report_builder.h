@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,6 +26,10 @@
 #ifndef REPORT_BUILDER_H_
 #define REPORT_BUILDER_H_
 
+/* Kernel includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+
 /* Metrics collector. */
 #include "metrics_collector.h"
 
@@ -40,17 +44,27 @@ typedef enum
 } ReportBuilderStatus_t;
 
 /**
- * @brief Represents metrics to be included in the report.
+ * @brief Represents metrics to be included in the report, including custom metrics.
+ *
+ * This demo demonstrates the use of the stack high water mark and list of
+ * running task ids as custom metrics sent to AWS IoT Device Defender service.
+ *
+ * For more information on custom metrics, refer to the following AWS document:
+ * https://docs.aws.amazon.com/iot/latest/developerguide/dd-detect-custom-metrics.html
  */
 typedef struct ReportMetrics
 {
     NetworkStats_t * pNetworkStats;
     uint16_t * pOpenTcpPortsArray;
-    uint32_t openTcpPortsArrayLength;
+    size_t openTcpPortsArrayLength;
     uint16_t * pOpenUdpPortsArray;
-    uint32_t openUdpPortsArrayLength;
+    size_t openUdpPortsArrayLength;
     Connection_t * pEstablishedConnectionsArray;
-    uint32_t establishedConnectionsArrayLength;
+    size_t establishedConnectionsArrayLength;
+    /* Custom metrics */
+    uint32_t stackHighWaterMark;
+    TaskStatus_t * pTaskStatusArray;
+    size_t taskStatusArrayLength;
 } ReportMetrics_t;
 
 /**
@@ -63,18 +77,18 @@ typedef struct ReportMetrics
  * @param[in] majorReportVersion Major version of the report.
  * @param[in] minorReportVersion Minor version of the report.
  * @param[in] reportId Value to be used as the reportId in the generated report.
- * @param[out] pOutReprotLength The length of the generated report.
+ * @param[out] pOutReportLength The length of the generated report.
  *
  * @return #ReportBuilderSuccess if the report is successfully generated;
  * #ReportBuilderBadParameter if invalid parameters are passed;
  * #ReportBuilderBufferTooSmall if the buffer cannot hold the full report.
  */
 ReportBuilderStatus_t GenerateJsonReport( char * pBuffer,
-                                          uint32_t bufferLength,
+                                          size_t bufferLength,
                                           const ReportMetrics_t * pMetrics,
                                           uint32_t majorReportVersion,
                                           uint32_t minorReportVersion,
                                           uint32_t reportId,
-                                          uint32_t * pOutReprotLength );
+                                          size_t * pOutReportLength );
 
 #endif /* ifndef REPORT_BUILDER_H_ */

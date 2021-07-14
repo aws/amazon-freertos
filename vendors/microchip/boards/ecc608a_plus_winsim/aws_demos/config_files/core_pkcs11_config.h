@@ -96,13 +96,6 @@ extern const char * pcPkcs11GetThingName( void );
  */
 #define pkcs11configMAX_NUM_OBJECTS                        6
 
-/**
- * @brief Set to 1 if a PAL destroy object is implemented.
- *
- * If set to 0, no PAL destroy object is implemented, and this functionality
- * is implemented in the common PKCS #11 layer.
- */
-#define pkcs11configPAL_DESTROY_SUPPORTED                  0
 
 /**
  * @brief Set to 1 if importing device private key via C_CreateObject is supported.  0 if not.

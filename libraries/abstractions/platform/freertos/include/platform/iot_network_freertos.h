@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Platform V1.1.2
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Platform V1.1.3
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -44,14 +44,6 @@
 /* Credentials include. */
 #include "aws_clientcredential.h"
 #include "aws_clientcredential_keys.h"
-
-/**
- * @brief Represents a network connection that uses FreeRTOS Secure Sockets.
- *
- * This is an incomplete type. In application code, only pointers to this type
- * should be used.
- */
-typedef struct _networkConnection IotNetworkConnectionAfr_t;
 
 /**
  * @brief Provides a default value for an #IotNetworkConnectionAfr_t.
@@ -118,6 +110,14 @@ typedef struct _networkConnection IotNetworkConnectionAfr_t;
  * declared in this file.
  */
 #define IOT_NETWORK_INTERFACE_AFR    ( &( IotNetworkAfr ) )
+
+/**
+ * @brief Represents a network connection that uses FreeRTOS Secure Sockets.
+ *
+ * This is an incomplete type. In application code, only pointers to this type
+ * should be used.
+ */
+typedef void IotNetworkConnectionAfr_t;
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::create for FreeRTOS

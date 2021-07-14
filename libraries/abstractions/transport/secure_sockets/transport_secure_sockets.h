@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Transport Secure Sockets V1.0.0
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Transport Secure Sockets V1.0.1
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -68,10 +68,10 @@
  * @brief Definition of the network context for the transport interface
  * implementation that uses Secure Sockets API.
  */
-struct NetworkContext
+typedef struct SecureSocketsTransportParams
 {
     Socket_t tcpSocket;
-};
+} SecureSocketsTransportParams_t;
 
 /**
  * @brief TCP, TLS Connect / Disconnect return status.
@@ -119,11 +119,6 @@ typedef struct SocketsConfig
      * for more information.
      */
     const char * pAlpnProtos;
-
-    /**
-     * @brief Length of the ALPN protocols array.
-     */
-    uint32_t alpnProtosLen;
 
     /**
      * @brief Disable server name indication (SNI) for a TLS session.

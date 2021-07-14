@@ -1,0 +1,48 @@
+name: File Checksum Updater
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Target branch to raise PR'
+        required: true
+
+jobs:
+  generate-checksum:
+    name: Update checksums.json file.
+    runs-on: ubuntu-latest
+    steps:
+      # Setup Python
+      - name: Install Python3
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7.10
+          architecture: x64  
+        env:  
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Run checksum generator
+        run: python3 .github/scripts/generate_checksum.py --root ./
+          
+      - name: Raise Pull Request if checksums.json file changed
+        run: |
+          if ! (git diff --quiet checksums.json); then
+            git config --global user.name "Checksum Updater"
+            git checkout -b job/update-checksum-file
+            export COMMIT=$(git rev-parse HEAD)
+            git commit -am 'Generate new checksums.json file for commit $COMMIT'
+            git push --set-upstream origin job/update-checksum-file
+            export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+            sudo apt-add-repository https://cli.github.com/packages
+            sudo apt update
+            sudo apt-get install gh
+            gh pr create --base ${{ github.event.inputs.branch }} --title 'Update checksums.json file' --body 'Checksum Updater Job: PR to update checksums.json file for commit $COMMIT'
+          else
+            echo 'checksums.json file did not change after running script. Not creating a Pull-Request.'
+          fi

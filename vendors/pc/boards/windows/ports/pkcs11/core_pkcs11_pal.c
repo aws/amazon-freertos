@@ -38,6 +38,7 @@
 #include "iot_crypto.h"
 #include "core_pkcs11.h"
 #include "core_pkcs11_config.h"
+#include "core_pkcs11_pal.h"
 
 
 /* C runtime includes. */
@@ -68,11 +69,11 @@
  */
 enum eObjectHandles
 {
-    eInvalidHandle = 0,            /**< According to PKCS #11 spec, 0 is never a valid object handle. */
-    eAwsDevicePrivateKey = 1,      /**< Private Key. */
-    eAwsDevicePublicKey,           /**< Public Key. */
-    eAwsDeviceCertificate,         /**< Certificate. */
-    eAwsCodeSigningKey             /**< Code Signing Key. */
+    eInvalidHandle = 0,       /**< According to PKCS #11 spec, 0 is never a valid object handle. */
+    eAwsDevicePrivateKey = 1, /**< Private Key. */
+    eAwsDevicePublicKey,      /**< Public Key. */
+    eAwsDeviceCertificate,    /**< Certificate. */
+    eAwsCodeSigningKey        /**< Code Signing Key. */
 };
 
 /*-----------------------------------------------------------*/
@@ -81,7 +82,7 @@ enum eObjectHandles
  * @brief Checks to see if a file exists
  *
  * @param[in] pcFileName         The name of the file to check for existance.
- * 
+ *
  * @returns pdTRUE if the file exists, pdFALSE if not.
  */
 BaseType_t prvFileExists( const char * pcFileName )
@@ -106,7 +107,7 @@ BaseType_t prvFileExists( const char * pcFileName )
  * @param[in] pcLabel            The PKCS #11 label to convert to a file name
  * @param[out] pcFileName        The name of the file to check for existance.
  * @param[out] pHandle           The type of the PKCS #11 object.
- * 
+ *
  */
 void prvLabelToFilenameHandle( uint8_t * pcLabel,
                                char ** pcFileName,
@@ -149,6 +150,61 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
             *pHandle = eInvalidHandle;
         }
     }
+}
+
+/**
+ * @brief Maps object handle to file name
+ *
+ * @param[in] pcLabel            The PKCS #11 label to convert to a file name
+ * @param[out] pcFileName        The name of the file to check for existance.
+ * @param[out] pHandle           The type of the PKCS #11 object.
+ *
+ */
+static CK_RV prvHandleToFilename( CK_OBJECT_HANDLE xHandle,
+                                  const char ** pcFileName,
+                                  CK_BBOOL * pIsPrivate )
+{
+    CK_RV xReturn = CKR_OK;
+
+    if( pcFileName != NULL )
+    {
+        switch( ( CK_OBJECT_HANDLE ) xHandle )
+        {
+            case eAwsDeviceCertificate:
+                *pcFileName = pkcs11palFILE_NAME_CLIENT_CERTIFICATE;
+                /* coverity[misra_c_2012_rule_10_5_violation] */
+                *pIsPrivate = ( CK_BBOOL ) CK_FALSE;
+                break;
+
+            case eAwsDevicePrivateKey:
+                *pcFileName = pkcs11palFILE_NAME_KEY;
+                /* coverity[misra_c_2012_rule_10_5_violation] */
+                *pIsPrivate = ( CK_BBOOL ) CK_TRUE;
+                break;
+
+            case eAwsDevicePublicKey:
+                *pcFileName = pkcs11palFILE_NAME_PUBLIC_KEY;
+                /* coverity[misra_c_2012_rule_10_5_violation] */
+                *pIsPrivate = ( CK_BBOOL ) CK_FALSE;
+                break;
+
+            case eAwsCodeSigningKey:
+                *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
+                /* coverity[misra_c_2012_rule_10_5_violation] */
+                *pIsPrivate = ( CK_BBOOL ) CK_FALSE;
+                break;
+
+            default:
+                xReturn = CKR_KEY_HANDLE_INVALID;
+                break;
+        }
+    }
+    else
+    {
+        LogError( ( "Could not convert label to filename. Received a NULL parameter." ) );
+    }
+
+    return xReturn;
 }
 
 /*-----------------------------------------------------------*/
@@ -242,9 +298,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
 /*-----------------------------------------------------------*/
 
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      CK_BYTE_PTR * ppucData,
-                                      CK_ULONG_PTR pulDataSize,
-                                      CK_BBOOL * pIsPrivate )
+                                 CK_BYTE_PTR * ppucData,
+                                 CK_ULONG_PTR pulDataSize,
+                                 CK_BBOOL * pIsPrivate )
 {
     CK_RV ulReturn = CKR_OK;
     uint32_t ulDriverReturn = 0;
@@ -355,6 +411,40 @@ void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
     {
         vPortFree( pucData );
     }
+}
+
+/*-----------------------------------------------------------*/
+
+CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
+{
+    const char * pcFileName = NULL;
+    CK_BBOOL xIsPrivate = CK_TRUE;
+    CK_RV xResult = CKR_OBJECT_HANDLE_INVALID;
+    FILE * pxFile = NULL;
+    BOOL ret = 0;
+
+    xResult = prvHandleToFilename( xHandle,
+                                   &pcFileName,
+                                   &xIsPrivate );
+
+    if( xResult == CKR_OK )
+    {
+        if( pdTRUE == prvFileExists( pcFileName ) )
+        {
+            ret = DeleteFileA( pcFileName );
+
+            if( ret == 0 )
+            {
+                xResult = CKR_FUNCTION_FAILED;
+            }
+            else
+            {
+                xResult = CKR_OK;
+            }
+        }
+    }
+
+    return xResult;
 }
 
 /*-----------------------------------------------------------*/

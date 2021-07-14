@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -160,10 +160,6 @@
 #endif
 
 /* BLE_HAL test suites header file abstraction */
-#define IOT_LINEAR_CONTAINERS             "iot_linear_containers.h"
-#define IOT_THREADS                       "platform/iot_threads.h"
-#define IOT_CLOCK                         "platform/iot_clock.h"
-#define IOT_PLATFORM_TYPES                "types/iot_platform_types.h"
 #define IOT_BT_HAL_MANAGER_ADAPTER_BLE    "bt_hal_manager_adapter_ble.h"
 #define IOT_BT_HAL_MANAGER_ADAPTER        "bt_hal_manager.h"
 #define IOT_BT_HAL_GATT_SERVER            "bt_hal_gatt_server.h"
@@ -243,12 +239,7 @@ extern int snprintf( char *,
 #endif
 
 /* All tests use a secured connection. */
-#define IOT_TEST_SECURED_CONNECTION    ( 1 )
-
-/* Allow the network interface to be chosen by at runtime. */
-struct IotNetworkInterface;
-extern const struct IotNetworkInterface * IotTestNetwork_GetNetworkInterface( void );
-#define IOT_TEST_NETWORK_INTERFACE                   IotTestNetwork_GetNetworkInterface()
+#define IOT_TEST_SECURED_CONNECTION                  ( 1 )
 
 /* Retry the MQTT Connections in the MQTT System unit tests for all hardware
  * platforms supported in FreeRTOS.

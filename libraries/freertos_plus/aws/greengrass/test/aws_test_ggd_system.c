@@ -34,7 +34,6 @@
 #include "aws_test_utils.h"
 #include "aws_greengrass_discovery_test_access_declare.h"
 #include "aws_test_runner.h"
-#include "iot_mqtt.h"
 #include "iot_init.h"
 
 #define ggdJSON_FILE                     "{\"GGGroups\":[{\"GGGroupId\":\"myGroupID\",\"Cores\":[{\"thingArn\":\"myGreenGrassCoreArn\",\"Connectivity\":[{\"Id\":\"AUTOIP_10.60.212.138_0\",\"HostAddress\":\"44.44.44.44\",\"PortNumber\":1234,\"Metadata\":\"\"},{\"Id\":\"AUTOIP_127.0.0.1_1\",\"HostAddress\":\"127.0.0.1\",\"PortNumber\":8883,\"Metadata\":\"\"},{\"Id\":\"AUTOIP_192.168.2.2_2\",\"HostAddress\":\"01.23.456.789\",\"PortNumber\":4321,\"Metadata\":\"\"},{\"Id\":\"AUTOIP_::1_3\",\"HostAddress\":\"::1\",\"PortNumber\":8883,\"Metadata\":\"\"},{\"Id\":\"AUTOIP_fe80::bfda:8f62:7b4b:f358_4\",\"HostAddress\":\"fe80::bfda:8f62:7b4b:f358\",\"PortNumber\":8883,\"Metadata\":\"\"},{\"Id\":\"AUTOIP_fe80::e234:cff9:f53f:6216_5\",\"HostAddress\":\"fe80::e234:cff9:f53f:6216\",\"PortNumber\":8883,\"Metadata\":\"\"}]}],\"CAs\":[\"-----BEGIN CERTIFICATE-----\\nMIIEFTCCAv2gAwIBAgIVAPRru+NqCDr0r6oD6PnTG05rWuY+MA0GCSqGSIb3DQEB\\nCwUAMIGoMQswCQYDVQQGEwJVUzEYMBYGA1UECgwPQW1hem9uLmNvbSBJbmMuMRww\\nGgYDVQQLDBNBbWF6b24gV2ViIFNlcnZpY2VzMRMwEQYDVQQIDApXYXNoaW5ndG9u\\nMRAwDgYDVQQHDAdTZWF0dGxlMTowOAYDVQQDDDE5NDI5MjczNzY5NjU6ZDk3ZmZl\\nZmUtNTI4MS00ZWM5LTk4NDYtYjNlZTQxMDRjMjAxMCAXDTE3MDcwNjIwMDczOFoY\\nDzIwOTcwNzA2MjAwNzM3WjCBqDELMAkGA1UEBhMCVVMxGDAWBgNVBAoMD0FtYXpv\\nbi5jb20gSW5jLjEcMBoGA1UECwwTQW1hem9uIFdlYiBTZXJ2aWNlczETMBEGA1UE\\nCAwKV2FzaGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTE6MDgGA1UEAwwxOTQyOTI3\\nMzc2OTY1OmQ5N2ZmZWZlLTUyODEtNGVjOS05ODQ2LWIzZWU0MTA0YzIwMTCCASIw\\nDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKxzJpXU2DZDEglh/FT01epAWby6\\np4Ymw76icyMzBUJzafibABJ3cTyjDQE6ZqbSl1ryBxGwQBsveIgj8SVVtv927wk7\\nlncgD+EghfTZgSfscND653AJeVFQlCeHipZI32wzXyPmwglFrWp9vsrY/8BO1Kjk\\nSAs4o8fDVVMAaZCJDMuc5csc3CQ2OJYLOl+SZisGNM1h0xHpWieM38KDDrp99x8Q\\nTwDmgaMjtdIJR7Y9Nzm0N78gTf3gTazEO9iUKojVCNubxK/lQ6KjJ0JcvsljPpVp\\nuzjOmn91xmNoHEQCboa7YoYNNbdAbftGeUl16wFdTgbuUS9vakk5idVoC2ECAwEA\\nAaMyMDAwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUmcz4OlH9+mlpnTKG3taI\\nw+6FSk0wDQYJKoZIhvcNAQELBQADggEBACeiQ6MxiktsU0sLNmP1cNbiuBuutjoq\\nymk476Bhr4E2WSE0B9W1TFOSLIYx9oN63T3lXzsGHP/MznueIbqbwFf/o5aXI7th\\n+J+i9LgBrViNvzkze7G0GiPuEQ7ox4XnPBJAFtTZxa8gXL95QfcypERpQs28lg7W\\nQpdNhiBN+c4o1aSOzJ474sjXnjtI1G2jRTKucm0buYYeAeVT7kpBq9YL7gGfOcyj\\nsPxQEgyQV2Mk+b1q7lYDS4tnzoRkUfNLgAtDKSh8S8iVhAR6wRR2G3aMySKrOxbg\\nalghO3OqfeuTwIj9w17JTAyYAME22RJQ6oxEJ8rHp/9PaYnOmiSkP7M=\\n-----END CERTIFICATE-----\\n\"]}]}"
@@ -84,7 +83,6 @@ TEST_GROUP( GGD_System );
 TEST_SETUP( GGD_System )
 {
     TEST_ASSERT_EQUAL( true, IotSdk_Init() );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 
 TEST_TEAR_DOWN( GGD_System )
@@ -95,7 +93,6 @@ TEST_TEAR_DOWN( GGD_System )
         ( void ) SOCKETS_Close( xSocket );
     }
 
-    IotMqtt_Cleanup();
     IotSdk_Cleanup();
 }
 
