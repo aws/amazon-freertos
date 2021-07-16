@@ -501,12 +501,21 @@ WIFIReturnCode_t WIFI_NetworkDelete(uint16_t usIndex)
 
         /* Reading from the kvstore may result in an item not found error if
          * deleting a nonexisting network. */
-        if (((lookupResult != CY_RSLT_SUCCESS) && (lookupResult != MTB_KVSTORE_ITEM_NOT_FOUND_ERROR)) ||
-            (mtb_kvstore_delete(&kvstore_obj, wifi_profile_key) != CY_RSLT_SUCCESS))
+        if ((lookupResult != CY_RSLT_SUCCESS) && (lookupResult != MTB_KVSTORE_ITEM_NOT_FOUND_ERROR))
         {
             cy_rtos_set_mutex(&wifiMutex);
             return eWiFiFailure;
         }
+        else
+        {
+            /* Deletion is fine even if the key is not found. */
+            if (mtb_kvstore_delete(&kvstore_obj, wifi_profile_key) != CY_RSLT_SUCCESS)
+            {
+                cy_rtos_set_mutex(&wifiMutex);
+                return eWiFiFailure;
+            }
+        }
+
         if (cy_rtos_set_mutex(&wifiMutex) != CY_RSLT_SUCCESS)
         {
             return eWiFiFailure;
