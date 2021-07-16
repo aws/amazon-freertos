@@ -5,7 +5,7 @@ This repo uses [Git Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodu
 
 Note: If you download the ZIP file provided by GitHub UI, you will not get the contents of the submodules. (The ZIP file is also not a valid git repository)
 
-If using Windows, because this repository and its submodules contain symbolic links, set `core.symlinks` to true with the following command so git knows to generate symlinks on Windows:
+If using Windows, because this repository and its submodules contain symbolic links, set `core.symlinks` to true with the following command:
 ```
 git config --global core.symlinks true
 ```
