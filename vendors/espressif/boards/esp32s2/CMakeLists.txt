@@ -37,7 +37,12 @@ endif()
 
 afr_mcu_port(compiler)
 
-set(linker_flags "-Wl,--gc-sections" "-Wl,--cref" "-Wl,--Map=${exe_target}.map" "-Wl,--undefined=uxTopUsedPriority")
+# If external project is set do not link IDF components to aws target
+if (NOT IDF_PROJECT_EXECUTABLE)
+    set(IDF_PROJECT_EXECUTABLE ${exe_target})
+endif()
+
+set(linker_flags "-Wl,--gc-sections" "-Wl,--cref" "-Wl,--Map=${IDF_PROJECT_EXECUTABLE}.map" "-Wl,--undefined=uxTopUsedPriority")
 
 # Linker flags
 target_link_options(
@@ -400,11 +405,6 @@ endif()
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
-
-# If external project is set do not link IDF components to aws target
-if (NOT IDF_PROJECT_EXECUTABLE)
-    set(IDF_PROJECT_EXECUTABLE ${exe_target})
-endif()
 
 if (NOT IDF_EXECUTABLE_SRCS)
     set(IDF_EXECUTABLE_SRCS "${board_dir}/application_code/main.c" ${extra_exe_sources})
