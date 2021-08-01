@@ -91,8 +91,10 @@ afr_module_dependencies(
     PUBLIC
         AFR::ota
         AFR::ota_demo_version
+        AFR::core_mqtt
+        AFR::core_mqtt_agent
+        AFR::mqtt_agent_interface
         AFR::mqtt_subscription_manager
-        AFR::core_mqtt_agent_demo_dependencies
         AFR::ota::mcu_port
 )
 
