@@ -896,7 +896,8 @@ BaseType_t TLS_Connect( void * pvContext )
         if( 0 == xResult )
         {
             /* Enable the max fragment extension. 4096 bytes is currently the largest fragment size permitted.
-             * See RFC 8449 https://tools.ietf.org/html/rfc8449 for more information.
+             * See RFC 6066 https://tools.ietf.org/html/rfc6066#page-8 for more information on the Maximum
+             * Fragment Length extension of TLS.
              *
              * Smaller values can be found in "mbedtls/include/ssl.h".
              */
