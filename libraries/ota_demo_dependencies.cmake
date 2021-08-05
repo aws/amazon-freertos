@@ -104,6 +104,8 @@ if(TARGET AFR::secure_sockets::mcu_port)
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}
         PUBLIC
+            #Add a dependency on core MQTT agent demo only for non-BLE boards.
+            AFR::core_mqtt_agent_demo_dependencies
             AFR::core_http_demo_dependencies
             AFR::backoff_algorithm
     )

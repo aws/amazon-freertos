@@ -84,6 +84,7 @@ afr_module_dependencies(
         AFR::core_mqtt_agent
         AFR::backoff_algorithm
         AFR::mqtt_agent_interface
+        AFR::core_mqtt_demo_dependencies
         AFR::transport_interface_secure_sockets
         AFR::secure_sockets
 )
