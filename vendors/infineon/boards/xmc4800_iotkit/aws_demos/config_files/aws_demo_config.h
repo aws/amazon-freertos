@@ -34,7 +34,7 @@
  *          CONFIG_CORE_HTTP_S3_DOWNLOAD_MULTITHREADED_DEMO_ENABLED
  *          CONFIG_CORE_HTTP_S3_UPLOAD_DEMO_ENABLED
  *          CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
- *          CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED
+ *          CONFIG_CORE_MQTT_AGENT_DEMO_ENABLED
  *          CONFIG_DEVICE_SHADOW_DEMO_ENABLED
  *          CONFIG_DEVICE_DEFENDER_DEMO_ENABLED
  *          CONFIG_JOBS_DEMO_ENABLED
@@ -64,7 +64,7 @@
 #define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 2 )
 
 /* MQTT Connection sharing demo task priority. */
-#define democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
+#define democonfigCORE_MQTT_AGENT_DEMO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
 
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */

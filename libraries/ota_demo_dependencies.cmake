@@ -9,9 +9,10 @@ include("${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/otaFilePaths.cmake")
 remove( OTA_SOURCES ${JSON_SOURCES} ${TINYCBOR_SOURCES} )
 remove( OTA_INCLUDE_PRIVATE_DIRS ${JSON_INCLUDE_PUBLIC_DIRS} ${TINYCBOR_INCLUDE_DIRS} )
 
-# Add cmake files of module to metadata.
+# Add cmake files of the OTA library and its dependencies to the metadata.
 afr_module_cmake_files(${AFR_CURRENT_MODULE}
     ${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/otaFilePaths.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/source/dependency/coreJSON/jsonFilePaths.cmake
 )
 
 # Define a target for the Over-the-air Update library.
@@ -90,9 +91,22 @@ afr_module_dependencies(
     PUBLIC
         AFR::ota
         AFR::ota_demo_version
+        AFR::core_mqtt_demo_dependencies
+        AFR::core_mqtt_agent
+        AFR::mqtt_agent_interface
         AFR::mqtt_subscription_manager
-        AFR::core_mqtt_agent_demo_dependencies
-        AFR::core_http_demo_dependencies
-        AFR::backoff_algorithm
         AFR::ota::mcu_port
 )
+
+# Add OTA over HTTP demo dependency and backoff connection retries only if the board
+# supports secure sockets over TCP/IP.
+if(TARGET AFR::secure_sockets::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            #Add a dependency on core MQTT agent demo only for non-BLE boards.
+            AFR::core_mqtt_agent_demo_dependencies
+            AFR::core_http_demo_dependencies
+            AFR::backoff_algorithm
+    )
+endif()

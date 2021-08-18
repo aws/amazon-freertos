@@ -40,7 +40,6 @@ export AMAZON_FREERTOS_PATH := ../../../../../../
 export AFR_LIBRARIES_PATH := ../../../../../../libraries/
 export AFR_THIRDPARTY_PATH := ../../../../../../libraries/3rdparty/
 export AFR_C_SDK_STANDARD_PATH := ../../../../../../libraries/c_sdk/standard/
-export AFR_C_SDK_AWS_PATH := ../../../../../../libraries/c_sdk/aws/
 export AFR_FREERTOS_PLUS_STANDARD_PATH = ../../../../../../libraries/freertos_plus/standard/
 export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../../libraries/freertos_plus/aws/
 export AFR_ABSTRACTIONS_PATH := ../../../../../../libraries/abstractions/
@@ -78,8 +77,6 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/include  \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/include  \
                     $(AMAZON_FREERTOS_PATH)demos/network_manager \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/interface \
                     $(AFR_LIBRARIES_PATH)coreMQTT-Agent/source/include \
@@ -89,17 +86,9 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_LIBRARIES_PATH)coreHTTP/source/dependency/3rdparty/http_parser \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/portable/Compiler/GCC \
-                    $(AFR_C_SDK_AWS_PATH)shadow/include \
-                    $(AFR_C_SDK_AWS_PATH)shadow/include/types \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/include     \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src \
-                    $(AFR_C_SDK_AWS_PATH)defender/include \
-                    $(AFR_C_SDK_AWS_PATH)defender/src \
-                    $(AFR_C_SDK_AWS_PATH)defender/src/private \
-                    $(AFR_C_SDK_STANDARD_PATH)serializer/include \
                     $(AFR_THIRDPARTY_PATH)tinycbor/src \
-                    $(AFR_C_SDK_STANDARD_PATH)https/include \
-                    $(AFR_C_SDK_STANDARD_PATH)https/include/types \
                     $(AFR_THIRDPARTY_PATH)http_parser \
                     $(AFR_LIBRARIES_PATH)coreJSON/source/include \
                     $(AFR_LIBRARIES_PATH)device_shadow_for_aws/source/include \
@@ -143,11 +132,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_ABSTRACTIONS_PATH)mqtt_agent/freertos_command_pool.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_init.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_device_metrics.c \
-                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/iot_json_utils.c \
-                      $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_api.c \
-                      $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_collector.c \
-                      $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_mqtt.c \
-                      $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_v1.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_metrics.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/src/cborencoder.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/src/cborencoder_close_container_checked.c \
@@ -156,12 +140,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_THIRDPARTY_PATH)tinycbor/src/cborparser_dup_string.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/src/cborpretty.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/src/cborpretty_stdio.c \
-                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_decoder.c \
-                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_encoder.c \
-                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_decoder.c \
-                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_encoder.c \
-                      $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_client.c \
-                      $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_utils.c \
 
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws

@@ -342,21 +342,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/common</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/https</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/https</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/serializer</locationURI>
-		</link>
-		<link>
 			<name>libraries/coreMQTT/source/include</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/coreMQTT/source/include</locationURI>
@@ -907,11 +892,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/secure_sockets/lwip/iot_secure_sockets.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/shadow/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/include</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/include</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/common/include</locationURI>
@@ -930,31 +910,6 @@
 			<name>libraries/c_sdk/standard/common/iot_static_memory_common.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/common/iot_static_memory_common.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/https/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/https/include</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/https/src</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/https/src</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/include</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/serializer/include</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/include</name>
@@ -1212,61 +1167,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/platform/freertos/include/platform</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/include/types</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/include/types</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_shadow.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/src/aws_shadow.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/include/private</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/common/include/private</locationURI>
@@ -1285,111 +1185,6 @@
 			<name>libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/https/include/types</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/https/include/types</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/https/src/iot_https_client.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/https/src/iot_https_client.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/https/src/iot_https_utils.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/https/src/iot_https_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/https/src/private</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/https/src/private</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/include/types</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/include/types</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/private</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/private</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/iot_json_utils.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/serializer/src/iot_json_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
@@ -1840,26 +1635,6 @@
 			<name>libraries/3rdparty/unity/extras/fixture/src/unity_fixture.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</locationURI>
 		</link>
 		<link>
 			<name>vendors/cypress/MTB/libraries/abstraction-rtos/include/COMPONENT_FREERTOS</name>

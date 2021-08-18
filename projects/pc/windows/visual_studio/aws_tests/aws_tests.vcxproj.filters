@@ -67,46 +67,14 @@
 		<Filter Include="demos\dev_mode_key_provisioning"/>
 		<Filter Include="demos"/>
 		<Filter Include="demos\dev_mode_key_provisioning\include"/>
-		<Filter Include="libraries\c_sdk\aws\defender\src"/>
-		<Filter Include="libraries\c_sdk\aws\defender"/>
-		<Filter Include="libraries\c_sdk\aws"/>
-		<Filter Include="libraries\c_sdk\aws\defender\src\private"/>
-		<Filter Include="libraries\c_sdk\aws\defender\include"/>
-		<Filter Include="libraries\c_sdk\standard\mqtt\src"/>
-		<Filter Include="libraries\c_sdk\standard\mqtt"/>
-		<Filter Include="libraries\coreMQTT\source"/>
-		<Filter Include="libraries\coreMQTT"/>
-		<Filter Include="libraries\coreMQTT\source\include"/>
-		<Filter Include="libraries\coreMQTT\source\interface"/>
-		<Filter Include="libraries\abstractions\backoff_algorithm\source"/>
-		<Filter Include="libraries\abstractions\backoff_algorithm"/>
-		<Filter Include="libraries\abstractions\backoff_algorithm\source\include"/>
-		<Filter Include="demos\common\pkcs11_helpers"/>
-		<Filter Include="demos\common"/>
-		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
-		<Filter Include="libraries\abstractions\transport"/>
-		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor"/>
-		<Filter Include="libraries\c_sdk\standard\serializer\src"/>
-		<Filter Include="libraries\c_sdk\standard\serializer"/>
-		<Filter Include="libraries\c_sdk\standard\serializer\src\json"/>
-		<Filter Include="libraries\c_sdk\standard\serializer\include"/>
-		<Filter Include="libraries\c_sdk\aws\shadow\src"/>
-		<Filter Include="libraries\c_sdk\aws\shadow"/>
-		<Filter Include="libraries\c_sdk\aws\shadow\include"/>
-		<Filter Include="libraries\c_sdk\standard\https\src"/>
-		<Filter Include="libraries\c_sdk\standard\https"/>
-		<Filter Include="libraries\coreHTTP\source"/>
-		<Filter Include="libraries\coreHTTP"/>
-		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty\http_parser"/>
-		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty"/>
-		<Filter Include="libraries\coreHTTP\source\dependency"/>
-		<Filter Include="libraries\coreHTTP\source\include"/>
-		<Filter Include="libraries\coreHTTP\source\interface"/>
-		<Filter Include="demos\common\http_demo_helpers"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass\src"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass"/>
 		<Filter Include="libraries\freertos_plus\aws"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass\include"/>
+		<Filter Include="libraries\coreMQTT\source"/>
+		<Filter Include="libraries\coreMQTT"/>
+		<Filter Include="libraries\coreMQTT\source\include"/>
+		<Filter Include="libraries\coreMQTT\source\interface"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli"/>
 		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX"/>
@@ -117,11 +85,26 @@
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm\source"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm\source\include"/>
+		<Filter Include="demos\common\pkcs11_helpers"/>
+		<Filter Include="demos\common"/>
+		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
+		<Filter Include="libraries\abstractions\transport"/>
 		<Filter Include="libraries\coreMQTT-Agent\source"/>
 		<Filter Include="libraries\coreMQTT-Agent"/>
 		<Filter Include="libraries\coreMQTT-Agent\source\include"/>
 		<Filter Include="libraries\abstractions\mqtt_agent"/>
 		<Filter Include="libraries\abstractions\mqtt_agent\include"/>
+		<Filter Include="libraries\coreHTTP\source"/>
+		<Filter Include="libraries\coreHTTP"/>
+		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty\http_parser"/>
+		<Filter Include="libraries\coreHTTP\source\dependency\3rdparty"/>
+		<Filter Include="libraries\coreHTTP\source\dependency"/>
+		<Filter Include="libraries\coreHTTP\source\include"/>
+		<Filter Include="libraries\coreHTTP\source\interface"/>
+		<Filter Include="demos\common\http_demo_helpers"/>
 		<Filter Include="libraries\coreJSON\source"/>
 		<Filter Include="libraries\coreJSON"/>
 		<Filter Include="libraries\coreJSON\source\include"/>
@@ -147,21 +130,7 @@
 		<Filter Include="vendors\pc\boards\windows\ports\ota_pal_for_aws"/>
 		<Filter Include="demos\common\ota_demo_helpers"/>
 		<Filter Include="demos\common\mqtt_subscription_manager"/>
-		<Filter Include="libraries\c_sdk\aws\defender\test\unit"/>
-		<Filter Include="libraries\c_sdk\aws\defender\test"/>
-		<Filter Include="libraries\c_sdk\aws\defender\test\system"/>
-		<Filter Include="libraries\c_sdk\aws\shadow\test\unit"/>
-		<Filter Include="libraries\c_sdk\aws\shadow\test"/>
-		<Filter Include="libraries\c_sdk\aws\shadow\test\system"/>
 		<Filter Include="libraries\c_sdk\standard\common\test"/>
-		<Filter Include="libraries\c_sdk\standard\https\test\unit"/>
-		<Filter Include="libraries\c_sdk\standard\https\test"/>
-		<Filter Include="libraries\c_sdk\standard\https\test\system"/>
-		<Filter Include="libraries\c_sdk\standard\mqtt\test\mock"/>
-		<Filter Include="libraries\c_sdk\standard\mqtt\test"/>
-		<Filter Include="libraries\c_sdk\standard\mqtt\test\unit"/>
-		<Filter Include="libraries\c_sdk\standard\mqtt\test\system"/>
-		<Filter Include="libraries\c_sdk\standard\serializer\test"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass\test"/>
 		<Filter Include="libraries\freertos_plus\standard\crypto\test"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli\utest"/>
@@ -185,9 +154,9 @@
 		<Filter Include="libraries\3rdparty\unity\extras\fixture\src"/>
 		<Filter Include="libraries\3rdparty\unity\extras\fixture"/>
 		<Filter Include="libraries\3rdparty\unity\extras"/>
+		<Filter Include="libraries\3rdparty\jsmn"/>
 		<Filter Include="libraries\3rdparty\tinycbor\src"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
-		<Filter Include="libraries\3rdparty\jsmn"/>
 	</ItemGroup>
 	<ItemGroup>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h">
@@ -403,11 +372,14 @@
 		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
 			<Filter>demos\dev_mode_key_provisioning\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\private\aws_iot_defender_internal.h">
-			<Filter>libraries\c_sdk\aws\defender\src\private</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h">
+			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\include\aws_iot_defender.h">
-			<Filter>libraries\c_sdk\aws\defender\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_ggd_config_defaults.h">
+			<Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h">
+			<Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\include\core_mqtt.h">
 			<Filter>libraries\coreMQTT\source\include</Filter>
@@ -423,51 +395,6 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h">
 			<Filter>libraries\coreMQTT\source\interface</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include\backoff_algorithm.h">
-			<Filter>libraries\abstractions\backoff_algorithm\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
-			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_serializer.h">
-			<Filter>libraries\c_sdk\standard\serializer\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_json_utils.h">
-			<Filter>libraries\c_sdk\standard\serializer\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_iot_shadow.h">
-			<Filter>libraries\c_sdk\aws\shadow\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow_config_defaults.h">
-			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_shadow.h">
-			<Filter>libraries\c_sdk\aws\shadow\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client.h">
-			<Filter>libraries\coreHTTP\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client_private.h">
-			<Filter>libraries\coreHTTP\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_config_defaults.h">
-			<Filter>libraries\coreHTTP\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h">
-			<Filter>libraries\coreHTTP\source\interface</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.h">
-			<Filter>libraries\coreHTTP\source\dependency\3rdparty\http_parser</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h">
-			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_ggd_config_defaults.h">
-			<Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h">
-			<Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\errno.h">
 			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
@@ -517,6 +444,12 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include\backoff_algorithm.h">
+			<Filter>libraries\abstractions\backoff_algorithm\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
+			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent.h">
 			<Filter>libraries\coreMQTT-Agent\source\include</Filter>
 		</ClInclude>
@@ -531,6 +464,21 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\mqtt_agent\include\freertos_command_pool.h">
 			<Filter>libraries\abstractions\mqtt_agent\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client.h">
+			<Filter>libraries\coreHTTP\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_client_private.h">
+			<Filter>libraries\coreHTTP\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\include\core_http_config_defaults.h">
+			<Filter>libraries\coreHTTP\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\interface\transport_interface.h">
+			<Filter>libraries\coreHTTP\source\interface</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.h">
+			<Filter>libraries\coreHTTP\source\dependency\3rdparty\http_parser</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreJSON\source\include\core_json.h">
 			<Filter>libraries\coreJSON\source\include</Filter>
@@ -603,6 +551,9 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\ota_for_aws\source\include\ota_http_interface.h">
 			<Filter>libraries\ota_for_aws\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\ports\ota_pal_for_aws\ota_pal.h">
+			<Filter>vendors\pc\boards\windows\ports\ota_pal_for_aws</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.h">
 			<Filter>libraries\abstractions\pkcs11\test</Filter>
@@ -1020,56 +971,11 @@
 		<ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">
 			<Filter>demos\dev_mode_key_provisioning\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_api.c">
-			<Filter>libraries\c_sdk\aws\defender\src</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c">
+			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_collector.c">
-			<Filter>libraries\c_sdk\aws\defender\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_mqtt.c">
-			<Filter>libraries\c_sdk\aws\defender\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_v1.c">
-			<Filter>libraries\c_sdk\aws\defender\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_api.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_network.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_publish_duplicates.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_static_memory.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_subscription.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_context_connection.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serializer_deserializer_wrapper.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_managed_function_wrapper.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_subscription_container.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_mutex_wrapper.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c">
+			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt.c">
 			<Filter>libraries\coreMQTT\source</Filter>
@@ -1079,72 +985,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c">
 			<Filter>libraries\coreMQTT\source</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\backoff_algorithm.c">
-			<Filter>libraries\abstractions\backoff_algorithm\source</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\common\pkcs11_helpers\pkcs11_helpers.c">
-			<Filter>demos\common\pkcs11_helpers</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
-			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_decoder.c">
-			<Filter>libraries\c_sdk\standard\serializer\src\cbor</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_encoder.c">
-			<Filter>libraries\c_sdk\standard\serializer\src\cbor</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\iot_serializer_json_decoder.c">
-			<Filter>libraries\c_sdk\standard\serializer\src\json</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\iot_serializer_json_encoder.c">
-			<Filter>libraries\c_sdk\standard\serializer\src\json</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\iot_serializer_static_memory.c">
-			<Filter>libraries\c_sdk\standard\serializer\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\iot_json_utils.c">
-			<Filter>libraries\c_sdk\standard\serializer\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_api.c">
-			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_operation.c">
-			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_parser.c">
-			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_static_memory.c">
-			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_subscription.c">
-			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow.c">
-			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_client.c">
-			<Filter>libraries\c_sdk\standard\https\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_utils.c">
-			<Filter>libraries\c_sdk\standard\https\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c">
-			<Filter>libraries\coreHTTP\source</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.c">
-			<Filter>libraries\coreHTTP\source\dependency\3rdparty\http_parser</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\common\http_demo_helpers\http_demo_utils.c">
-			<Filter>demos\common\http_demo_helpers</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c">
-			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c">
-			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_cli\source</Filter>
@@ -1185,6 +1025,15 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\backoff_algorithm.c">
+			<Filter>libraries\abstractions\backoff_algorithm\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\pkcs11_helpers\pkcs11_helpers.c">
+			<Filter>demos\common\pkcs11_helpers</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
+			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent.c">
 			<Filter>libraries\coreMQTT-Agent\source</Filter>
 		</ClCompile>
@@ -1196,6 +1045,15 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_command_pool.c">
 			<Filter>libraries\abstractions\mqtt_agent</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\core_http_client.c">
+			<Filter>libraries\coreHTTP\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.c">
+			<Filter>libraries\coreHTTP\source\dependency\3rdparty\http_parser</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\http_demo_helpers\http_demo_utils.c">
+			<Filter>demos\common\http_demo_helpers</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
 			<Filter>libraries\coreJSON\source</Filter>
@@ -1251,80 +1109,11 @@
 		<ClCompile Include="..\..\..\..\..\demos\common\mqtt_subscription_manager\mqtt_subscription_manager.c">
 			<Filter>demos\common\mqtt_subscription_manager</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">
-			<Filter>libraries\c_sdk\aws\defender\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\system\aws_iot_tests_defender_system.c">
-			<Filter>libraries\c_sdk\aws\defender\test\system</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_api.c">
-			<Filter>libraries\c_sdk\aws\shadow\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_parser.c">
-			<Filter>libraries\c_sdk\aws\shadow\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\system\aws_iot_tests_shadow_system.c">
-			<Filter>libraries\c_sdk\aws\shadow\test\system</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\aws_test_shadow.c">
-			<Filter>libraries\c_sdk\aws\shadow\test</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_memory_leak.c">
 			<Filter>libraries\c_sdk\standard\common\test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_tests_taskpool.c">
 			<Filter>libraries\c_sdk\standard\common\test</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_client.c">
-			<Filter>libraries\c_sdk\standard\https\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_utils.c">
-			<Filter>libraries\c_sdk\standard\https\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_common.c">
-			<Filter>libraries\c_sdk\standard\https\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_sync.c">
-			<Filter>libraries\c_sdk\standard\https\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_async.c">
-			<Filter>libraries\c_sdk\standard\https\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\system\iot_tests_https_system.c">
-			<Filter>libraries\c_sdk\standard\https\test\system</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock\iot_tests_mqtt_mock.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\mock</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_receive.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_validate.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_metrics.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\system\iot_tests_mqtt_system.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\system</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\iot_test_mqtt_agent.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_cbor.c">
-			<Filter>libraries\c_sdk\standard\serializer\test</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_json.c">
-			<Filter>libraries\c_sdk\standard\serializer\test</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_deserializer_json.c">
-			<Filter>libraries\c_sdk\standard\serializer\test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_system.c">
 			<Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
@@ -1734,6 +1523,9 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c">
 			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
+			<Filter>libraries\3rdparty\jsmn</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty.c">
 			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
@@ -1754,9 +1546,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c">
 			<Filter>libraries\3rdparty\tinycbor\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
-			<Filter>libraries\3rdparty\jsmn</Filter>
 		</ClCompile>
 	</ItemGroup>
 </Project>

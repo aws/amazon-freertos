@@ -59,11 +59,12 @@
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/FreeRTOSIPConfig.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_ble_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_config.h" />
-        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/sdk_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/unity_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_gpio_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_flash_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/core_mqtt_config.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_test_ota_config.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/ota_config.h" />
       </folder>
       <folder Name="src">
         <file file_name="../../../../../tests/common/aws_test.c" />
@@ -71,6 +72,15 @@
         <file file_name="../../../../../tests/common/aws_test_runner.c" />
         <file file_name="../../../../../tests/common/iot_test_freertos.c" />
         <file file_name="../../../../../tests/common/iot_tests_network.c" />
+        <folder Name="ota_pal">
+          <file file_name="../../../../../tests/integration_test/ota_pal/aws_ota_pal_test_access_declare.h" />
+          <file file_name="../../../../../tests/integration_test/ota_pal/aws_ota_pal_test_access_define.h" />
+          <file file_name="../../../../../tests/integration_test/ota_pal/aws_test_ota_pal_ecdsa_sha256_signature.h" />
+          <file file_name="../../../../../tests/integration_test/ota_pal/aws_test_ota_pal_rsa_sha1_signature.h" />
+          <file file_name="../../../../../tests/integration_test/ota_pal/aws_test_ota_pal_rsa_sha256_signature.h" />
+          <file file_name="../../../../../tests/integration_test/ota_pal/aws_test_ota_pal.c" />
+          <folder Name="test_files" />
+        </folder>
       </folder>
       <folder Name="include">
         <file file_name="../../../../../tests/include/aws_clientcredential.h" />
@@ -82,6 +92,7 @@
         <file file_name="../../../../../tests/include/aws_unity_config.h" />
         <file file_name="../../../../../tests/include/iot_config_common.h" />
       </folder>
+      <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/application_code/sdk_config.h" />
     </folder>
     <folder Name="freertos_kernel">
       <file file_name="../../../../../freertos_kernel/event_groups.c" />
@@ -183,33 +194,6 @@
         <file file_name="../../../../../libraries/logging/iot_logging_task_dynamic_buffers.c" />
       </folder>
       <folder Name="c_sdk">
-        <folder Name="aws">
-          <folder Name="shadow">
-            <file file_name="../../../../../libraries/c_sdk/aws/shadow/CMakeLists.txt" />
-            <folder Name="include">
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/include/aws_shadow.h" />
-            </folder>
-            <folder Name="src">
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_shadow.c" />
-              <file file_name="../../../../../libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h" />
-            </folder>
-            <folder Name="test">
-              <folder Name="system">
-                <file file_name="../../../../../libraries/c_sdk/aws/shadow/test/system/aws_iot_tests_shadow_system.c" />
-              </folder>
-              <folder Name="unit">
-                <file file_name="../../../../../libraries/c_sdk/aws/shadow/test/unit/aws_iot_tests_shadow_api.c" />
-                <file file_name="../../../../../libraries/c_sdk/aws/shadow/test/unit/aws_iot_tests_shadow_parser.c" />
-              </folder>
-            </folder>
-          </folder>
-        </folder>
         <folder Name="standard">
           <folder Name="common">
             <file file_name="../../../../../libraries/c_sdk/standard/common/CMakeLists.txt" />
@@ -231,70 +215,6 @@
               <file file_name="../../../../../libraries/c_sdk/standard/common/test/iot_tests_taskpool.c" />
             </folder>
             <file file_name="../../../../../libraries/c_sdk/standard/common/iot_device_metrics.c" />
-          </folder>
-          <folder Name="mqtt">
-            <file file_name="../../../../../libraries/c_sdk/standard/mqtt/CMakeLists.txt" />
-            <folder Name="include">
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_agent.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_agent_config_defaults.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_config_defaults.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_lib.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt.h" />
-            </folder>
-            <folder Name="src">
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c" />
-            </folder>
-            <folder Name="test">
-              <folder Name="mock">
-                <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.h" />
-                <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c" />
-              </folder>
-              <folder Name="system">
-                <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c" />
-              </folder>
-              <folder Name="unit">
-                <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_api.c" />
-                <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_receive.c" />
-                <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_subscription.c" />
-                <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_validate.c" />
-                <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_metrics.c" />
-              </folder>
-            </folder>
-          </folder>
-          <folder Name="serializer">
-            <file file_name="../../../../../libraries/c_sdk/standard/serializer/CMakeLists.txt" />
-            <folder Name="include">
-              <file file_name="../../../../../libraries/c_sdk/standard/serializer/include/iot_json_utils.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/serializer/include/iot_serializer.h" />
-            </folder>
-            <folder Name="src">
-              <folder Name="cbor">
-                <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c" />
-                <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c" />
-              </folder>
-              <folder Name="json">
-                <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c" />
-                <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c" />
-              </folder>
-            </folder>
-            <folder Name="test">
-              <file file_name="../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_deserializer_json.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_cbor.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_json.c" />
-            </folder>
-            <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c" />
-            <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c" />
           </folder>
         </folder>
       </folder>
@@ -471,7 +391,6 @@
             <folder Name="mqtt_ble">
               <file file_name="../../../../../libraries/ble/src/services/mqtt_ble/iot_ble_mqtt_serialize.c" />
               <file file_name="../../../../../libraries/ble/src/services/mqtt_ble/iot_ble_mqtt_transport.c" />
-              <file file_name="../../../../../libraries/ble/src/services/mqtt_ble/iot_network_ble.c" />
             </folder>
             <folder Name="device_information">
               <file file_name="../../../../../libraries/ble/src/services/device_information/iot_ble_device_information.c" />
@@ -494,6 +413,45 @@
           <file file_name="../../../../../libraries/ble/test/iot_mqtt_ble_system_test.c" />
           <file file_name="../../../../../libraries/ble/test/iot_test_ble_end_to_end.c" />
           <file file_name="../../../../../libraries/ble/test/iot_test_ble_mqtt_serialize.c" />
+        </folder>
+      </folder>
+      <folder Name="ota_for_aws">
+        <folder Name="source">
+          <folder Name="include">
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_appversion32.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_base64_private.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_cbor_private.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_config_defaults.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_http_interface.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_http_private.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_interface_private.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_mqtt_interface.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_mqtt_private.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_os_interface.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_platform_interface.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota_private.h" />
+            <file file_name="../../../../../libraries/ota_for_aws/source/include/ota.h" />
+          </folder>
+          <folder Name="portable">
+            <folder Name="os">
+              <file file_name="../../../../../libraries/ota_for_aws/source/portable/os/ota_os_freertos.c" />
+              <file file_name="../../../../../libraries/ota_for_aws/source/portable/os/ota_os_freertos.h" />
+            </folder>
+          </folder>
+          <file file_name="../../../../../libraries/ota_for_aws/source/ota_base64.c" />
+          <file file_name="../../../../../libraries/ota_for_aws/source/ota_cbor.c" />
+          <file file_name="../../../../../libraries/ota_for_aws/source/ota_http.c" />
+          <file file_name="../../../../../libraries/ota_for_aws/source/ota_interface.c" />
+          <file file_name="../../../../../libraries/ota_for_aws/source/ota_mqtt.c" />
+          <file file_name="../../../../../libraries/ota_for_aws/source/ota.c" />
+        </folder>
+      </folder>
+      <folder Name="coreJSON">
+        <folder Name="source">
+          <folder Name="include">
+            <file file_name="../../../../../libraries/coreJSON/source/include/core_json.h" />
+          </folder>
+          <file file_name="../../../../../libraries/coreJSON/source/core_json.c" />
         </folder>
       </folder>
     </folder>
@@ -520,6 +478,13 @@
         </folder>
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/common_io/iot_gpio.c" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/common_io/iot_flash.c" />
+      </folder>
+      <folder Name="ota_pal_for_aws">
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws/asn1utility.c" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws/asn1utility.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws/aws_ota_pal_settings.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws/ota_pal.c" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws/ota_pal.h" />
       </folder>
     </folder>
     <folder Name="nRF5_SDK_15.2.0">
@@ -953,7 +918,7 @@
     Name="Debug"
     arm_fp_abi="None"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/ble/src;$(SolutionDir)/../../../../../libraries/ble/include"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/application_code;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/ble/src;$(SolutionDir)/../../../../../libraries/ble/include;$(SolutionDir)/../../../../../libraries/coreJSON/source/include;$(SolutionDir)/../../../../../libraries/ota_for_aws/source/include;$(SolutionDir)/../../../../../libraries/ota_for_aws/source/portable/os;$(SolutionDir)/../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws;$(SolutionDir)/../../../../../tests/integration_test/ota_pal"
     gcc_debugging_level="Level 3"
     gcc_optimization_level="None"
     link_include_standard_libraries="Yes" />

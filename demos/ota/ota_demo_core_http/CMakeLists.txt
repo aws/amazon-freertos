@@ -2,7 +2,7 @@
 afr_demo_module(ota_core_http)
 
 # Set the default demo that is enabled in the downloaded package.
-afr_set_demo_metadata(ID "OTA_DEMO_CORE_HTTP")
+afr_set_demo_metadata(ID "OTA_HTTP_UPDATE_DEMO")
 afr_set_demo_metadata(DESCRIPTION "Example that demonstrate the OTA, coreMQTT and coreHTTP libraries")
 afr_set_demo_metadata(DISPLAY_NAME "OTA over HTTP Demo")
 

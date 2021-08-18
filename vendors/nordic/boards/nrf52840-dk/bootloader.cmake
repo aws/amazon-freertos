@@ -163,6 +163,7 @@ set(
     bootloader_inc
     "${board_dir}/bootloader"
     "${board_dir}/bootloader/pca10056/config"
+    "${board_dir}/config_files"
     "${nrf5_sdk}/components/boards"
     "${nrf5_sdk}/components/libraries/atomic"
     "${nrf5_sdk}/components/libraries/balloc"
@@ -210,8 +211,8 @@ set(
     "${nrf5_sdk}/modules/nrfx/hal"
     "${nrf5_sdk}/modules/nrfx/mdk"
     "${AFR_3RDPARTY_DIR}/mbedtls/include"
-    #TODO: Remove depedency on "aws_ota_codesigner_certificate.h"  from crypto.c in tests.
-    "${AFR_DEMOS_DIR}/include"
+    #TODO: Remove depedency on "code signer cert" from crypto.c in tests.
+    "$<${AFR_IS_TESTING}:${AFR_TESTS_DIR}/integration_test/ota_pal>"
 )
 
 target_sources(

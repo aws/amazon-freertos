@@ -85,6 +85,8 @@ afr_module_dependencies(
         AFR::backoff_algorithm
         AFR::mqtt_agent_interface
         AFR::core_mqtt_demo_dependencies
+        AFR::transport_interface_secure_sockets
+        AFR::secure_sockets
 )
 
 # Add dependency on PKCS11 Helpers module, that is required
@@ -98,18 +100,6 @@ if(TARGET AFR::pkcs11_implementation::mcu_port)
     )
 endif()
 
-# Add more dependencies for Secure Sockets based MQTT demo
-# (at demos/coreMQTT folder) ONLY if the board supports
-# the Secure Sockets library.
-if(TARGET AFR::secure_sockets::mcu_port)
-    afr_module_dependencies(
-        ${AFR_CURRENT_MODULE}
-        PUBLIC
-            AFR::transport_interface_secure_sockets
-            AFR::secure_sockets
-    )
-endif()
-
 # Add dependency on WiFi module so that WiFi library is auto-included
 # when selecting core MQTT library on FreeRTOS console for boards that
 # support the WiFi library.
@@ -118,16 +108,5 @@ if(TARGET AFR::wifi::mcu_port)
         ${AFR_CURRENT_MODULE}
         PUBLIC
             AFR::wifi
-    )
-endif()
-
-# Add dependency on BLE module so that the BLE library is auto-included
-# when selecting core MQTT library on FreeRTOS console for boards that
-# support BLE.
-if(BLE_SUPPORTED)
-    afr_module_dependencies(
-        ${AFR_CURRENT_MODULE}
-        PUBLIC
-            AFR::ble
     )
 endif()

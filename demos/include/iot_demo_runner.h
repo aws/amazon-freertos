@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -48,15 +48,15 @@
         #undef democonfigDEMO_PRIORITY
         #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
     #endif
-#elif defined( CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED )
+#elif defined( CONFIG_CORE_MQTT_AGENT_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunCoreMqttAgentDemo
     #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
         #undef democonfigDEMO_STACKSIZE
         #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
     #endif
-    #if defined( democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY )
+    #if defined( democonfigCORE_MQTT_AGENT_DEMO_TASK_PRIORITY )
         #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigCORE_MQTT_CONNECTION_SHARING_DEMO_TASK_PRIORITY
+        #define democonfigDEMO_PRIORITY     democonfigCORE_MQTT_AGENT_DEMO_TASK_PRIORITY
     #endif
 #elif defined( CONFIG_CORE_HTTP_MUTUAL_AUTH_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunCoreHttpMutualAuthDemo
@@ -122,6 +122,12 @@
     #endif
 #elif defined( CONFIG_SHADOW_BLE_TRANSPORT_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             RunShadowBLETransportDemo
+    #if defined( democonfigNETWORK_TYPES )
+        #undef democonfigNETWORK_TYPES
+        #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_BLE )
+    #endif
+#elif defined( CONFIG_OTA_MQTT_BLE_TRANSPORT_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunOtaMqttBLETransportDemo
     #if defined( democonfigNETWORK_TYPES )
         #undef democonfigNETWORK_TYPES
         #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_BLE )

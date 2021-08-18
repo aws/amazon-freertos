@@ -1,6 +1,6 @@
 /*
- * FreeRTOS OTA PAL for Windows Simulator V1.0.3
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS OTA PAL for Windows Simulator + ECC608 V2.0.0
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -120,7 +120,7 @@ OtaPalStatus_t otaPal_Abort( OtaFileContext_t * const C )
 
             if( 0 == lFileCloseErr )
             {
-                LogInfo( ( "OK" ) );
+                LogInfo( ( "Abort successful" ) );
                 mainErr = OtaPalSuccess;
             }
             else /* Failed to close file. */
@@ -407,7 +407,7 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
     }
     else
     {
-        LogInfo( ( "No such certificate file: %s. Using aws_ota_codesigner_certificate.h." ),
+        LogInfo( ( "No such certificate file: %s. Using certificate in ota_demo_config.h." ),
                  ( const char * ) pucCertName );
 
         /* Allocate memory for the signer certificate plus a terminating zero so we can copy it and return to the caller. */
@@ -422,7 +422,7 @@ static uint8_t * otaPal_ReadAndAssumeCertificate( const uint8_t * const pucCertN
         }
         else
         {
-            LogInfo( ( "Error: No memory for certificate of size %d!", lSize ) );
+            LogError( ( "No memory for certificate of size %d!", lSize ) );
         }
     }
 

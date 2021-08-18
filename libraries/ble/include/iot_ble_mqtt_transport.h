@@ -46,6 +46,7 @@ typedef struct BleTransportParams
     StreamBufferHandle_t xStreamBuffer;
     StaticStreamBuffer_t xStreamBufferStruct;
     MQTTBLEPublishInfo_t publishInfo;
+    TickType_t receiveTimeout;
 } BleTransportParams_t;
 
 /**
@@ -108,5 +109,14 @@ int32_t IotBleMqttTransportReceive( NetworkContext_t * pContext,
                                     void * pBuffer,
                                     size_t bytesToRead );
 
+
+/**
+ * @brief Sets the receive timeout for BLE transport interface.
+ *
+ * @param[in] pContext An opaque used by transport interface.
+ * @param[in] timeoutMS Timeout value in Milliseconds.Setting a zero will make receive non-blocking.
+ */
+void IotBleMqttTransportSetReceiveTimeout( NetworkContext_t * pContext,
+                                           uint32_t timeoutMS );
 
 #endif /* ifndef IOT_BLE_MQTT_TRANSPORT_H */

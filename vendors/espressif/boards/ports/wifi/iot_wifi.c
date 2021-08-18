@@ -187,7 +187,7 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
                 xEventGroupSetBits(wifi_event_group, AP_STARTED_BIT);
                 break;
             case WIFI_EVENT_AP_STOP:
-                ESP_LOGI(TAG, "WIFI_EVENT_AP_START");
+                ESP_LOGI(TAG, "WIFI_EVENT_AP_STOP");
                 wifi_ap_state = false;
                 xEventGroupClearBits(wifi_event_group, AP_STARTED_BIT);
                 xEventGroupSetBits(wifi_event_group, AP_STOPPED_BIT);

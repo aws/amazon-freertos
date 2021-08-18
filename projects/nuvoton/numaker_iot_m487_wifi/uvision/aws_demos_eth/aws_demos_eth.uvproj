@@ -377,7 +377,7 @@
 							<MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
 							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot;  CONFIG_MEDTLS_USE_AFR_MEMORY RVDS_ARMCM4_NUC4xx __little_endian__=1 NDEBUG M487_ETH_DEMO</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../demos/common/http_demo_helpers;../../../../../demos/common/mqtt_demo_helpers;../../../../../demos/common/pkcs11_helpers;../../../../../demos/device_defender_for_aws;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../tests/integration_test;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/M487;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/abstractions/backoff_algorithm/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/coreMQTT-Agent/source/include;../../../../../libraries/abstractions/mqtt_agent/include;../../../../../libraries/abstractions/mqtt_agent;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws/source/include;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../demos/coreMQTT_Agent;</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/tools/tcp_utilities/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../demos/common/http_demo_helpers;../../../../../demos/common/mqtt_demo_helpers;../../../../../demos/common/pkcs11_helpers;../../../../../demos/device_defender_for_aws;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../tests/integration_test;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/M487;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/abstractions/backoff_algorithm/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/coreMQTT-Agent/source/include;../../../../../libraries/abstractions/mqtt_agent/include;../../../../../libraries/abstractions/mqtt_agent;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws/source/include;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/dependency/3rdparty/http_parser;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../demos/coreMQTT_Agent;</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -1269,117 +1269,37 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/c_sdk/aws/defender/src/</GroupName>
+					<GroupName>libraries/freertos_plus/aws/greengrass/src/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_iot_defender_api.c</FileName>
+							<FileName>aws_greengrass_discovery.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</FilePath>
 						</File>
 						<File>
-							<FileName>aws_iot_defender_collector.c</FileName>
+							<FileName>aws_helper_secure_connect.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</FilePath>
 						</File>
 						<File>
-							<FileName>aws_iot_defender_mqtt.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</FilePath>
-						</File>
-						<File>
-							<FileName>aws_iot_defender_v1.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/c_sdk/aws/defender/src/private/</GroupName>
-					<Files>
-						<File>
-							<FileName>aws_iot_defender_internal.h</FileName>
+							<FileName>aws_helper_secure_connect.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</FilePath>
 						</File>
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/c_sdk/aws/defender/include/</GroupName>
+					<GroupName>libraries/freertos_plus/aws/greengrass/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_iot_defender.h</FileName>
+							<FileName>aws_ggd_config_defaults.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/defender/include/aws_iot_defender.h</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/c_sdk/standard/mqtt/src/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_mqtt_api.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h</FilePath>
 						</File>
 						<File>
-							<FileName>iot_mqtt_network.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_mqtt_operation.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_mqtt_publish_duplicates.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_mqtt_static_memory.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_mqtt_subscription.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_mqtt_validate.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_mqtt_context_connection.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_mqtt_serializer_deserializer_wrapper.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_mqtt_managed_function_wrapper.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_mqtt_subscription_container.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_mqtt_mutex_wrapper.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_mqtt_agent.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</FilePath>
+							<FileName>aws_greengrass_discovery.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1439,6 +1359,21 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/freertos_plus/standard/freertos_plus_cli/source/</GroupName>
+					<Files>
+						<File>
+							<FileName>FreeRTOS_CLI.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</FilePath>
+						</File>
+						<File>
+							<FileName>FreeRTOS_CLI_Console.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/coreHTTP/source/include/</GroupName>
 					<Files>
 						<File>
@@ -1476,206 +1411,6 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/coreHTTP/source/core_http_client.c</FilePath>
 						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/c_sdk/standard/serializer/src/cbor/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_serializer_tinycbor_decoder.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_serializer_tinycbor_encoder.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/c_sdk/standard/serializer/src/json/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_serializer_json_decoder.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_serializer_json_encoder.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/c_sdk/standard/serializer/src/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_serializer_static_memory.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_json_utils.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/c_sdk/standard/serializer/include/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_serializer.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/serializer/include/iot_serializer.h</FilePath>
-						</File>
-						<File>
-							<FileName>iot_json_utils.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/serializer/include/iot_json_utils.h</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/c_sdk/aws/shadow/src/</GroupName>
-					<Files>
-						<File>
-							<FileName>aws_iot_shadow_api.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</FilePath>
-						</File>
-						<File>
-							<FileName>aws_iot_shadow_operation.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c</FilePath>
-						</File>
-						<File>
-							<FileName>aws_iot_shadow_parser.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c</FilePath>
-						</File>
-						<File>
-							<FileName>aws_iot_shadow_static_memory.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</FilePath>
-						</File>
-						<File>
-							<FileName>aws_iot_shadow_subscription.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c</FilePath>
-						</File>
-						<File>
-							<FileName>aws_shadow.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_shadow.c</FilePath>
-						</File>
-						<File>
-							<FileName>aws_shadow_config_defaults.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/c_sdk/aws/shadow/include/</GroupName>
-					<Files>
-						<File>
-							<FileName>aws_iot_shadow.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</FilePath>
-						</File>
-						<File>
-							<FileName>aws_shadow.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/aws/shadow/include/aws_shadow.h</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/c_sdk/standard/https/src/</GroupName>
-					<Files>
-						<File>
-							<FileName>iot_https_client.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/https/src/iot_https_client.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_https_utils.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/https/src/iot_https_utils.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/freertos_plus/aws/greengrass/src/</GroupName>
-					<Files>
-						<File>
-							<FileName>aws_greengrass_discovery.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</FilePath>
-						</File>
-						<File>
-							<FileName>aws_helper_secure_connect.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</FilePath>
-						</File>
-						<File>
-							<FileName>aws_helper_secure_connect.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/freertos_plus/aws/greengrass/include/</GroupName>
-					<Files>
-						<File>
-							<FileName>aws_ggd_config_defaults.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h</FilePath>
-						</File>
-						<File>
-							<FileName>aws_greengrass_discovery.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/freertos_plus/standard/freertos_plus_cli/source/</GroupName>
-					<Files>
-						<File>
-							<FileName>FreeRTOS_CLI.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</FilePath>
-						</File>
-						<File>
-							<FileName>FreeRTOS_CLI_Console.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/abstractions/backoff_algorithm/freertos/</GroupName>
-					<Files>
-						<File>
-							<FileName>backoff_algorithm_freertos.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/abstractions/transport/secure_sockets/</GroupName>
-					<Files>
-						<File>
-							<FileName>transport_secure_sockets.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</FilePath>
-							</File>
 					</Files>
 				</Group>
 				<Group>
@@ -1726,6 +1461,41 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/abstractions/mqtt_agent/freertos_command_pool.c</FilePath>
 						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/abstractions/mqtt_agent/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>freertos_agent_message.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/abstractions/mqtt_agent/include/freertos_agent_message.h</FilePath>
+						</File>
+						<File>
+							<FileName>freertos_command_pool.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/abstractions/mqtt_agent/include/freertos_command_pool.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/abstractions/backoff_algorithm/freertos/</GroupName>
+					<Files>
+						<File>
+							<FileName>backoff_algorithm_freertos.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/abstractions/transport/secure_sockets/</GroupName>
+					<Files>
+						<File>
+							<FileName>transport_secure_sockets.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</FilePath>
+							</File>
 					</Files>
 				</Group>
 				<Group>
@@ -2905,46 +2675,6 @@
 							<FileName>pkcs11t.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11t.h</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
-					<GroupName>libraries/3rdparty/tinycbor/src/</GroupName>
-					<Files>
-						<File>
-							<FileName>cborpretty.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborpretty.c</FilePath>
-						</File>
-						<File>
-							<FileName>cborpretty_stdio.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</FilePath>
-						</File>
-						<File>
-							<FileName>cborencoder.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborencoder.c</FilePath>
-						</File>
-						<File>
-							<FileName>cborencoder_close_container_checked.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</FilePath>
-						</File>
-						<File>
-							<FileName>cborerrorstrings.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborerrorstrings.c</FilePath>
-						</File>
-						<File>
-							<FileName>cborparser.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborparser.c</FilePath>
-						</File>
-						<File>
-							<FileName>cborparser_dup_string.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</FilePath>
 						</File>
 					</Files>
 				</Group>

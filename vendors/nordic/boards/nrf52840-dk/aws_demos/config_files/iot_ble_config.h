@@ -42,12 +42,6 @@
 /* MTU size. */
 #define IOT_BLE_PREFERRED_MTU_SIZE          ( NRF_SDH_BLE_GATT_MAX_MTU_SIZE )
 
-/**
- * Buffer size for network interface shim layer. The config is to
- * accomodate OTA blocks of size 1024 bytes ( otaconfigLOG2_FILE_BLOCK_SIZE ).
- */
-#define IOT_BLE_NETWORK_INTERFACE_BUFFER_SIZE          ( 1280U )
-
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "iot_ble_config_defaults.h"
 

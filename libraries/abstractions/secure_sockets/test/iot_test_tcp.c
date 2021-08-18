@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Secure Sockets V1.3.0
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Secure Sockets V1.3.1
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -2757,12 +2757,20 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
             {
                 xReturned = SOCKETS_Recv( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0 );
 
-                TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
+                if( xReturned < 0 )
+                {
+                    tcptestFAILUREPRINTF( ( "%s: Error in SOCKETS_Recv. Return value: %d", __FUNCTION__, xReturned ) );
+                }
 
-                /* Data was received. */
-                TEST_ASSERT_EQUAL_MEMORY( &cTransmittedString[ xTotalReceived ], pcReceivedString, xReturned );
+                TEST_ASSERT_GREATER_OR_EQUAL_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
 
-                xTotalReceived += xReturned;
+                if( xReturned > 0 )
+                {
+                    /* Data was received. */
+                    TEST_ASSERT_EQUAL_MEMORY( &cTransmittedString[ xTotalReceived ], pcReceivedString, xReturned );
+
+                    xTotalReceived += xReturned;
+                }
             }
 
             /* Rendezvous with the Tx task ready to start a new cycle with a

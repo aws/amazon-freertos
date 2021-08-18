@@ -47,14 +47,6 @@ if(TARGET AFR::secure_sockets::mcu_port)
     )
 endif()
 
-if(TARGET AFR::ble_hal::mcu_port)
-    afr_module_sources(
-        ${AFR_CURRENT_MODULE}
-        PRIVATE
-        "${src_dir}/include/platform/iot_network_ble.h"
-    )
-endif()
-
 # test for platform module
 afr_test_module()
 afr_module_sources(

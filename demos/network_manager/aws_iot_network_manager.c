@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V202012.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202107.00
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -44,7 +44,6 @@
     #include "iot_ble_config.h"
     #include "iot_ble.h"
     #include "iot_ble_numericComparison.h"
-    #include "platform/iot_network_ble.h"
 #endif
 
 #if WIFI_ENABLED
@@ -95,6 +94,8 @@
 
 /**
  * @brief Stack size for network manager task.
+ * The task executes other application callbacks in its task context, so tune the stack size according
+ * to application subscription callback requirements.
  */
 #define NETWORK_MANAGER_TASK_STACK_SIZE          ( configMINIMAL_STACK_SIZE * 4 )
 
@@ -286,7 +287,7 @@ static IotNMNetwork_t networks[] =
         {
             .type = AWSIOT_NETWORK_TYPE_BLE,
             .state = eNetworkStateDisabled,
-            .pNetworkInterface = IOT_NETWORK_INTERFACE_BLE,
+            .pNetworkInterface = NULL,
             .pCredentials = NULL,
             .pConnectionParams = NULL
         },
