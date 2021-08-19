@@ -489,6 +489,7 @@ static bool IotBleWiFiProv_DeserializeAddNetworkRequestCbor( const uint8_t * pMe
 
         if( status == CborNoError )
         {
+            length = sizeof( pAddNetworkReq->info.network.ucBSSID );
             status = prvGetByteStringValueFromMap( &map, IOT_BLE_WIFI_PROV_BSSID_KEY, pAddNetworkReq->info.network.ucBSSID, &length );
 
             if( length != sizeof( pAddNetworkReq->info.network.ucBSSID ) )
