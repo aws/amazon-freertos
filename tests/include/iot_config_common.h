@@ -233,11 +233,6 @@ extern int snprintf( char *,
     #define IOT_NETWORK_RECEIVE_TASK_STACK_SIZE    IOT_THREAD_DEFAULT_STACK_SIZE
 #endif
 
-/* Use FreeRTOS Secure Sockets network for tests. */
-#ifndef IOT_TEST_NETWORK_HEADER
-    #define IOT_TEST_NETWORK_HEADER    "platform/iot_network_freertos.h"
-#endif
-
 /* All tests use a secured connection. */
 #define IOT_TEST_SECURED_CONNECTION                  ( 1 )
 
