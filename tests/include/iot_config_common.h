@@ -257,14 +257,29 @@ typedef struct IotNetworkServerInfo    IotTestNetworkServerInfo_t;
 typedef struct IotNetworkCredentials   IotTestNetworkCredentials_t;
 
 /* Define test network initializers. */
-#define IOT_TEST_NETWORK_CONNECTION_INITIALIZER     IOT_NETWORK_CONNECTION_AFR_INITIALIZER
-#define IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER    AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER
+#define IOT_TEST_NETWORK_CONNECTION_INITIALIZER    { 0 }
+#define IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER           \
+    {                                                      \
+        .pHostName = clientcredentialMQTT_BROKER_ENDPOINT, \
+        .port = clientcredentialMQTT_BROKER_PORT           \
+    }
 
 /* Define the credentials initializer based on the server port. Use ALPN if on
  * 443, otherwise disable ALPN. */
 #if clientcredentialMQTT_BROKER_PORT == 443
-    #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER    AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER
-#else
+    #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER           \
+    {                                                          \
+        .disableSni = false,                                   \
+        .pAlpnProtos = socketsAWS_IOT_ALPN_MQTT,               \
+        .maxFragmentLength = 0,                                \
+        .pRootCa = NULL,                                       \
+        .pClientCert = keyCLIENT_CERTIFICATE_PEM,              \
+        .pPrivateKey = keyCLIENT_PRIVATE_KEY_PEM,              \
+        .rootCaSize = 0,                                       \
+        .clientCertSize = sizeof( keyCLIENT_CERTIFICATE_PEM ), \
+        .privateKeySize = sizeof( keyCLIENT_PRIVATE_KEY_PEM )  \
+    }
+#else /* if clientcredentialMQTT_BROKER_PORT == 443 */
     #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER           \
     {                                                          \
         .disableSni = false,                                   \

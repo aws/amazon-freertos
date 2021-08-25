@@ -46,7 +46,6 @@
 #include "task.h"
 #include "semphr.h"
 #include "platform/iot_network.h"
-#include "platform/iot_network_freertos.h"
 #include "platform/iot_clock.h"
 
 /* Greengrass includes. */

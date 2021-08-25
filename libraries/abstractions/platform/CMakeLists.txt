@@ -31,22 +31,6 @@ afr_module_dependencies(
         AFR::common
 )
 
-if(TARGET AFR::secure_sockets::mcu_port)
-    afr_module_sources(
-        ${AFR_CURRENT_MODULE}
-        PRIVATE
-        "${inc_dir}/platform/iot_metrics.h"
-        "${src_dir}/iot_metrics.c"
-        "${src_dir}/iot_network_freertos.c"
-        "${src_dir}/include/platform/iot_network_freertos.h"
-    )
-    afr_module_dependencies(
-        ${AFR_CURRENT_MODULE}
-        PUBLIC
-            AFR::secure_sockets
-    )
-endif()
-
 # test for platform module
 afr_test_module()
 afr_module_sources(
