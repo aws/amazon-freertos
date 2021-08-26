@@ -50,6 +50,9 @@
     #include "iot_wifi.h"
 #endif
 
+#if TCPIP_NETWORK_ENABLED
+    #include "iot_secure_sockets.h"
+#endif
 
 #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
     #include "iot_ble_wifi_provisioning.h"
