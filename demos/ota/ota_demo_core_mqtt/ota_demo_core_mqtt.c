@@ -1099,7 +1099,7 @@ static void prvRegisterOTACallback( const char * pcTopicFilter,
             {
                 LogError( ( "Failed to register a publish callback for topic %.*s.",
                             usTopicFilterLength,
-                            pcTopicFilter) );
+                            pcTopicFilter ) );
             }
         }
     }
