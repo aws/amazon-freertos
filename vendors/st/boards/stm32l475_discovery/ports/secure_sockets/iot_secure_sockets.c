@@ -29,10 +29,6 @@
  * @brief WiFi and Secure Socket interface implementation for ST board.
  */
 
-/* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
- * from redefining in iot_secure_sockets_wrapper_metrics.h */
-#define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
-
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -55,8 +51,6 @@
 /* Credentials includes. */
 #include "aws_clientcredential.h"
 #include "iot_default_root_certificates.h"
-
-#undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 /**
  * @brief A Flag to indicate whether or not a socket is
