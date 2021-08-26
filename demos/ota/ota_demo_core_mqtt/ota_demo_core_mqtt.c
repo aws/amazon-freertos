@@ -1098,8 +1098,8 @@ static void prvRegisterOTACallback( const char * pcTopicFilter,
             if( xSubscriptionAdded == false )
             {
                 LogError( ( "Failed to register a publish callback for topic %.*s.",
-                            pcTopicFilter,
-                            usTopicFilterLength ) );
+				            usTopicFilterLength,
+                            pcTopicFilter) );
             }
         }
     }
@@ -1205,7 +1205,7 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
             xReturnStatus = pdPASS;
 
             LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
-                       ( pxRetryParams->attemptsDone + 1 ),
+                       pxRetryParams->attemptsDone,
                        pxRetryParams->maxRetryAttempts ) );
         }
     }
@@ -1933,6 +1933,7 @@ int RunOtaCoreMqttDemo( bool xAwsIotMqttMode,
      * Register a callback for receiving messages intended for OTA agent from broker,
      * for which the topic has not been subscribed for.
      */
+	
     prvRegisterOTACallback( otaexampleDEFAULT_TOPIC_FILTER, otaexampleDEFAULT_TOPIC_FILTER_LENGTH );
 
     /************************ Create MQTT Agent Task. ************************/
