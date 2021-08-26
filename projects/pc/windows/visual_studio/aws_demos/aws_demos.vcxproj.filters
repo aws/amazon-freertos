@@ -302,9 +302,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h">
 			<Filter>libraries\abstractions\secure_sockets\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_wrapper_metrics.h">
-			<Filter>libraries\abstractions\secure_sockets\include</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOSIPConfigDefaults.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
 		</ClInclude>

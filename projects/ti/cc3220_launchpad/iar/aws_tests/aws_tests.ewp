@@ -1566,9 +1566,6 @@
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h</name>
 					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_wrapper_metrics.h</name>
-					</file>
 				</group>
 				<group>
 					<name>test</name>

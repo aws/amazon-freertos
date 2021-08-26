@@ -1558,11 +1558,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</locationURI>
-		</link>
-		<link>
 			<name>vendors/st/boards/stm32l475_discovery/ports/secure_sockets/iot_secure_sockets.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/secure_sockets/iot_secure_sockets.c</locationURI>

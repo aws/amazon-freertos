@@ -1118,11 +1118,6 @@
 			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</locationURI>
-		</link>
-		<link>
 			<name>vendors/nxp/boards/lpc54018iotmodule/ports/secure_sockets/iot_secure_sockets.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/secure_sockets/iot_secure_sockets.c</locationURI>

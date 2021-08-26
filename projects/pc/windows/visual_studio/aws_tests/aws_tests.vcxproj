@@ -131,7 +131,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_wrapper_metrics.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOSIPConfigDefaults.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_ARP.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_DHCP.h"/>

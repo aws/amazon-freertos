@@ -1003,11 +1003,6 @@
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</FilePath>
 						</File>
-						<File>
-							<FileName>iot_secure_sockets_wrapper_metrics.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</FilePath>
-						</File>
 					</Files>
 				</Group>
 				<Group>
