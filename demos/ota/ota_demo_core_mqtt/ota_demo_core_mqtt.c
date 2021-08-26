@@ -1098,7 +1098,7 @@ static void prvRegisterOTACallback( const char * pcTopicFilter,
             if( xSubscriptionAdded == false )
             {
                 LogError( ( "Failed to register a publish callback for topic %.*s.",
-				            usTopicFilterLength,
+                            usTopicFilterLength,
                             pcTopicFilter) );
             }
         }
@@ -1933,7 +1933,6 @@ int RunOtaCoreMqttDemo( bool xAwsIotMqttMode,
      * Register a callback for receiving messages intended for OTA agent from broker,
      * for which the topic has not been subscribed for.
      */
-	
     prvRegisterOTACallback( otaexampleDEFAULT_TOPIC_FILTER, otaexampleDEFAULT_TOPIC_FILTER_LENGTH );
 
     /************************ Create MQTT Agent Task. ************************/
