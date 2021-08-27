@@ -51,9 +51,8 @@
 #endif
 
 #if TCPIP_NETWORK_ENABLED
-    #include "platform/iot_network_freertos.h"
+    #include "iot_secure_sockets.h"
 #endif
-
 
 #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
     #include "iot_ble_wifi_provisioning.h"
@@ -297,7 +296,7 @@ static IotNMNetwork_t networks[] =
         {
             .type = AWSIOT_NETWORK_TYPE_WIFI,
             .state = eNetworkStateDisabled,
-            .pNetworkInterface = IOT_NETWORK_INTERFACE_AFR,
+            .pNetworkInterface = NULL,
             .pCredentials = &tcpIPCredentials,
             .pConnectionParams = &tcpIPConnectionParams
         },
@@ -307,7 +306,7 @@ static IotNMNetwork_t networks[] =
         {
             .type = AWSIOT_NETWORK_TYPE_ETH,
             .state = eNetworkStateDisabled,
-            .pNetworkInterface = IOT_NETWORK_INTERFACE_AFR,
+            .pNetworkInterface = NULL,
             .pCredentials = &tcpIPCredentials,
             .pConnectionParams = &tcpIPConnectionParams
         },

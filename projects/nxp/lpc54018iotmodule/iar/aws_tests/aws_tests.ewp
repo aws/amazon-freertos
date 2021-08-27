@@ -386,26 +386,26 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\pkcs11_helpers</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\pkcs11_helpers</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent</state>
@@ -419,13 +419,13 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_defender_for_aws\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\jobs_for_aws\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -1785,18 +1785,18 @@
 					<group>
 						<name>ports</name>
 						<group>
-							<name>secure_sockets</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\secure_sockets\iot_secure_sockets.c</name>
-							</file>
-						</group>
-						<group>
 							<name>pkcs11</name>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\pkcs11\core_pkcs11_pal.c</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\pkcs11\hw_poll.c</name>
+							</file>
+						</group>
+						<group>
+							<name>secure_sockets</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\secure_sockets\iot_secure_sockets.c</name>
 							</file>
 						</group>
 						<group>
@@ -2048,9 +2048,6 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h</name>
 						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h</name>
-						</file>
 					</group>
 					<group>
 						<name>types</name>
@@ -2077,17 +2074,8 @@
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_freertos.h</name>
 							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_freertos.h</name>
-							</file>
 						</group>
 					</group>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_metrics.c</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_freertos.c</name>
-					</file>
 				</group>
 				<group>
 					<name>test</name>
@@ -2096,27 +2084,6 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_threads.c</name>
-					</file>
-				</group>
-			</group>
-			<group>
-				<name>secure_sockets</name>
-				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_wrapper_metrics.h</name>
-					</file>
-				</group>
-				<group>
-					<name>test</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c</name>
 					</file>
 				</group>
 			</group>
@@ -2163,6 +2130,24 @@
 				</group>
 			</group>
 			<group>
+				<name>secure_sockets</name>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h</name>
+					</file>
+				</group>
+				<group>
+					<name>test</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c</name>
+					</file>
+				</group>
+			</group>
+			<group>
 				<name>wifi</name>
 				<group>
 					<name>include</name>
@@ -2174,6 +2159,33 @@
 					<name>test</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\test\iot_test_wifi.c</name>
+					</file>
+				</group>
+			</group>
+			<group>
+				<name>backoff_algorithm</name>
+				<group>
+					<name>source</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\backoff_algorithm.c</name>
+					</file>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include\backoff_algorithm.h</name>
+						</file>
+					</group>
+				</group>
+			</group>
+			<group>
+				<name>transport</name>
+				<group>
+					<name>secure_sockets</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c</name>
 					</file>
 				</group>
 			</group>
@@ -2223,33 +2235,6 @@
 				</group>
 			</group>
 			<group>
-				<name>backoff_algorithm</name>
-				<group>
-					<name>source</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\backoff_algorithm.c</name>
-					</file>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include\backoff_algorithm.h</name>
-						</file>
-					</group>
-				</group>
-			</group>
-			<group>
-				<name>transport</name>
-				<group>
-					<name>secure_sockets</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c</name>
-					</file>
-				</group>
-			</group>
-			<group>
 				<name>mqtt_agent</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\freertos_agent_message.c</name>
@@ -2269,207 +2254,24 @@
 			</group>
 		</group>
 		<group>
-			<name>freertos_plus</name>
+			<name>logging</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\iot_logging_task_dynamic_buffers.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\iot_logging.c</name>
+			</file>
 			<group>
-				<name>standard</name>
-				<group>
-					<name>tls</name>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\src\iot_tls.c</name>
-						</file>
-					</group>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include\iot_tls.h</name>
-						</file>
-					</group>
-					<group>
-						<name>test</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\test\iot_test_tls.c</name>
-						</file>
-					</group>
-				</group>
-				<group>
-					<name>crypto</name>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c</name>
-						</file>
-					</group>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h</name>
-						</file>
-					</group>
-					<group>
-						<name>test</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\iot_test_crypto.c</name>
-						</file>
-					</group>
-				</group>
-				<group>
-					<name>utils</name>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c</name>
-						</file>
-					</group>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h</name>
-						</file>
-					</group>
-				</group>
-				<group>
-					<name>freertos_plus_cli</name>
-					<group>
-						<name>source</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI_Console.c</name>
-						</file>
-					</group>
-					<group>
-						<name>utest</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\utest\iot_test_freertos_cli.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\utest\iot_test_freertos_cli_console.c</name>
-						</file>
-					</group>
-				</group>
-				<group>
-					<name>freertos_plus_posix</name>
-					<group>
-						<name>source</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_mqueue.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_barrier.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_cond.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_mutex.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_sched.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_semaphore.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_timer.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_unistd.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c</name>
-						</file>
-					</group>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_types.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_internal.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h</name>
-						</file>
-					</group>
-					<group>
-						<name>test</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_clock.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_mqueue.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_pthread.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_semaphore.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_stress.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_timer.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_unistd.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_utils.c</name>
-						</file>
-					</group>
-				</group>
-			</group>
-			<group>
-				<name>aws</name>
-				<group>
-					<name>greengrass</name>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h</name>
-						</file>
-					</group>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_ggd_config_defaults.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h</name>
-						</file>
-					</group>
-					<group>
-						<name>test</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_system.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_unit.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_helper_secure_connect.c</name>
-						</file>
-					</group>
-				</group>
+				<name>include</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include\iot_logging_task.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include\logging_levels.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include\logging_stack.h</name>
+				</file>
 			</group>
 		</group>
 		<group>
@@ -2479,6 +2281,42 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config\threading_alt.h</name>
 				</file>
+			</group>
+			<group>
+				<name>unity</name>
+				<group>
+					<name>src</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity_internals.h</name>
+					</file>
+				</group>
+				<group>
+					<name>extras</name>
+					<group>
+						<name>fixture</name>
+						<group>
+							<name>src</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_internals.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h</name>
+							</file>
+						</group>
+					</group>
+				</group>
 			</group>
 			<group>
 				<name>mbedtls</name>
@@ -2988,42 +2826,6 @@
 				</file>
 			</group>
 			<group>
-				<name>unity</name>
-				<group>
-					<name>src</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity.c</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src\unity_internals.h</name>
-					</file>
-				</group>
-				<group>
-					<name>extras</name>
-					<group>
-						<name>fixture</name>
-						<group>
-							<name>src</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_internals.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h</name>
-							</file>
-						</group>
-					</group>
-				</group>
-			</group>
-			<group>
 				<name>jsmn</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h</name>
@@ -3034,24 +2836,207 @@
 			</group>
 		</group>
 		<group>
-			<name>logging</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\iot_logging_task_dynamic_buffers.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\iot_logging.c</name>
-			</file>
+			<name>freertos_plus</name>
 			<group>
-				<name>include</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include\iot_logging_task.h</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include\logging_levels.h</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include\logging_stack.h</name>
-				</file>
+				<name>standard</name>
+				<group>
+					<name>crypto</name>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c</name>
+						</file>
+					</group>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h</name>
+						</file>
+					</group>
+					<group>
+						<name>test</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\iot_test_crypto.c</name>
+						</file>
+					</group>
+				</group>
+				<group>
+					<name>utils</name>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c</name>
+						</file>
+					</group>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h</name>
+						</file>
+					</group>
+				</group>
+				<group>
+					<name>tls</name>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\src\iot_tls.c</name>
+						</file>
+					</group>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include\iot_tls.h</name>
+						</file>
+					</group>
+					<group>
+						<name>test</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\test\iot_test_tls.c</name>
+						</file>
+					</group>
+				</group>
+				<group>
+					<name>freertos_plus_cli</name>
+					<group>
+						<name>source</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI_Console.c</name>
+						</file>
+					</group>
+					<group>
+						<name>utest</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\utest\iot_test_freertos_cli.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\utest\iot_test_freertos_cli_console.c</name>
+						</file>
+					</group>
+				</group>
+				<group>
+					<name>freertos_plus_posix</name>
+					<group>
+						<name>source</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_mqueue.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_barrier.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_cond.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_mutex.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_sched.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_semaphore.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_timer.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_unistd.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c</name>
+						</file>
+					</group>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_types.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_internal.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h</name>
+						</file>
+					</group>
+					<group>
+						<name>test</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_clock.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_mqueue.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_pthread.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_semaphore.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_stress.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_timer.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_unistd.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_utils.c</name>
+						</file>
+					</group>
+				</group>
+			</group>
+			<group>
+				<name>aws</name>
+				<group>
+					<name>greengrass</name>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h</name>
+						</file>
+					</group>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_ggd_config_defaults.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h</name>
+						</file>
+					</group>
+					<group>
+						<name>test</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_system.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_unit.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_helper_secure_connect.c</name>
+						</file>
+					</group>
+				</group>
 			</group>
 		</group>
 		<group>

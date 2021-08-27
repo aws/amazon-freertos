@@ -25,25 +25,12 @@
 		<Filter Include="libraries\abstractions\platform\freertos"/>
 		<Filter Include="libraries\abstractions\platform\freertos\include\platform"/>
 		<Filter Include="libraries\abstractions\platform\freertos\include"/>
-		<Filter Include="libraries\abstractions\secure_sockets\include"/>
-		<Filter Include="libraries\abstractions\secure_sockets"/>
-		<Filter Include="libraries\abstractions\secure_sockets\freertos_plus_tcp"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp"/>
-		<Filter Include="libraries\freertos_plus\standard"/>
-		<Filter Include="libraries\freertos_plus"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\include"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\BufferManagement"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface\WinPCap"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler"/>
-		<Filter Include="libraries\freertos_plus\standard\tls\src"/>
-		<Filter Include="libraries\freertos_plus\standard\tls"/>
-		<Filter Include="libraries\freertos_plus\standard\tls\include"/>
-		<Filter Include="libraries\freertos_plus\standard\crypto\src"/>
-		<Filter Include="libraries\freertos_plus\standard\crypto"/>
-		<Filter Include="libraries\freertos_plus\standard\crypto\include"/>
+		<Filter Include="libraries\logging"/>
+		<Filter Include="libraries\logging\include"/>
+		<Filter Include="demos\dev_mode_key_provisioning\src"/>
+		<Filter Include="demos\dev_mode_key_provisioning"/>
+		<Filter Include="demos"/>
+		<Filter Include="demos\dev_mode_key_provisioning\include"/>
 		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\include"/>
 		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source"/>
 		<Filter Include="libraries\abstractions\pkcs11\corePKCS11"/>
@@ -63,15 +50,28 @@
 		<Filter Include="vendors\microchip\secure_elements\lib\crypto\hashes"/>
 		<Filter Include="vendors\microchip\secure_elements\lib\host"/>
 		<Filter Include="vendors\microchip\secure_elements\lib\pkcs11"/>
+		<Filter Include="libraries\freertos_plus\standard\crypto\src"/>
+		<Filter Include="libraries\freertos_plus\standard\crypto"/>
+		<Filter Include="libraries\freertos_plus\standard"/>
+		<Filter Include="libraries\freertos_plus"/>
+		<Filter Include="libraries\freertos_plus\standard\crypto\include"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\src"/>
 		<Filter Include="libraries\freertos_plus\standard\utils"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
-		<Filter Include="libraries\logging"/>
-		<Filter Include="libraries\logging\include"/>
-		<Filter Include="demos\dev_mode_key_provisioning\src"/>
-		<Filter Include="demos\dev_mode_key_provisioning"/>
-		<Filter Include="demos"/>
-		<Filter Include="demos\dev_mode_key_provisioning\include"/>
+		<Filter Include="libraries\abstractions\secure_sockets\include"/>
+		<Filter Include="libraries\abstractions\secure_sockets"/>
+		<Filter Include="libraries\abstractions\secure_sockets\freertos_plus_tcp"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\include"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\BufferManagement"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface\WinPCap"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler"/>
+		<Filter Include="libraries\freertos_plus\standard\tls\src"/>
+		<Filter Include="libraries\freertos_plus\standard\tls"/>
+		<Filter Include="libraries\freertos_plus\standard\tls\include"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass\src"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass"/>
 		<Filter Include="libraries\freertos_plus\aws"/>
@@ -80,6 +80,13 @@
 		<Filter Include="libraries\coreMQTT"/>
 		<Filter Include="libraries\coreMQTT\source\include"/>
 		<Filter Include="libraries\coreMQTT\source\interface"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm\source"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm"/>
+		<Filter Include="libraries\abstractions\backoff_algorithm\source\include"/>
+		<Filter Include="demos\common\pkcs11_helpers"/>
+		<Filter Include="demos\common"/>
+		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
+		<Filter Include="libraries\abstractions\transport"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_cli"/>
 		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX"/>
@@ -93,13 +100,6 @@
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
-		<Filter Include="libraries\abstractions\backoff_algorithm\source"/>
-		<Filter Include="libraries\abstractions\backoff_algorithm"/>
-		<Filter Include="libraries\abstractions\backoff_algorithm\source\include"/>
-		<Filter Include="demos\common\pkcs11_helpers"/>
-		<Filter Include="demos\common"/>
-		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
-		<Filter Include="libraries\abstractions\transport"/>
 		<Filter Include="libraries\coreMQTT-Agent\source"/>
 		<Filter Include="libraries\coreMQTT-Agent"/>
 		<Filter Include="libraries\coreMQTT-Agent\source\include"/>
@@ -152,6 +152,11 @@
 		<Filter Include="application_code"/>
 		<Filter Include="libraries\3rdparty\tracealyzer_recorder"/>
 		<Filter Include="libraries\3rdparty"/>
+		<Filter Include="libraries\3rdparty\unity\src"/>
+		<Filter Include="libraries\3rdparty\unity"/>
+		<Filter Include="libraries\3rdparty\unity\extras\fixture\src"/>
+		<Filter Include="libraries\3rdparty\unity\extras\fixture"/>
+		<Filter Include="libraries\3rdparty\unity\extras"/>
 		<Filter Include="libraries\3rdparty\mbedtls\library"/>
 		<Filter Include="libraries\3rdparty\mbedtls"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls"/>
@@ -159,11 +164,6 @@
 		<Filter Include="libraries\3rdparty\mbedtls_utils"/>
 		<Filter Include="libraries\3rdparty\mbedtls_config"/>
 		<Filter Include="libraries\3rdparty\pkcs11"/>
-		<Filter Include="libraries\3rdparty\unity\src"/>
-		<Filter Include="libraries\3rdparty\unity"/>
-		<Filter Include="libraries\3rdparty\unity\extras\fixture\src"/>
-		<Filter Include="libraries\3rdparty\unity\extras\fixture"/>
-		<Filter Include="libraries\3rdparty\unity\extras"/>
 		<Filter Include="libraries\3rdparty\jsmn"/>
 		<Filter Include="libraries\3rdparty\tinycbor\src"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
@@ -283,77 +283,17 @@
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_freertos.h">
 			<Filter>libraries\abstractions\platform\freertos\include\platform</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h">
-			<Filter>libraries\abstractions\platform\include\platform</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\logging\include\iot_logging_task.h">
+			<Filter>libraries\logging\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_freertos.h">
-			<Filter>libraries\abstractions\platform\freertos\include\platform</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\logging\include\logging_levels.h">
+			<Filter>libraries\logging\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets.h">
-			<Filter>libraries\abstractions\secure_sockets\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\logging\include\logging_stack.h">
+			<Filter>libraries\logging\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h">
-			<Filter>libraries\abstractions\secure_sockets\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_wrapper_metrics.h">
-			<Filter>libraries\abstractions\secure_sockets\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOSIPConfigDefaults.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_ARP.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_DHCP.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_DNS.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_IP.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_IP_Private.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_Sockets.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_Stream_Buffer.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_TCP_IP.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_TCP_WIN.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_UDP_IP.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_errno_TCP.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\IPTraceMacroDefaults.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\NetworkBufferManagement.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\NetworkInterface.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC\pack_struct_end.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC\pack_struct_start.h">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\include\iot_tls.h">
-			<Filter>libraries\freertos_plus\standard\tls\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h">
-			<Filter>libraries\freertos_plus\standard\crypto\include</Filter>
+		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
+			<Filter>demos\dev_mode_key_provisioning\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pkcs11.h">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
@@ -520,23 +460,74 @@
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11t.h">
 			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h">
+			<Filter>libraries\freertos_plus\standard\crypto\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\core_pki_utils.h">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
 			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\logging\include\iot_logging_task.h">
-			<Filter>libraries\logging\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets.h">
+			<Filter>libraries\abstractions\secure_sockets\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\logging\include\logging_levels.h">
-			<Filter>libraries\logging\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h">
+			<Filter>libraries\abstractions\secure_sockets\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\logging\include\logging_stack.h">
-			<Filter>libraries\logging\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOSIPConfigDefaults.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
-			<Filter>demos\dev_mode_key_provisioning\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_ARP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_DHCP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_DNS.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_IP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_IP_Private.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_Sockets.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_Stream_Buffer.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_TCP_IP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_TCP_WIN.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_UDP_IP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_errno_TCP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\IPTraceMacroDefaults.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\NetworkBufferManagement.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\NetworkInterface.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC\pack_struct_end.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC\pack_struct_start.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\Compiler\MSVC</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\include\iot_tls.h">
+			<Filter>libraries\freertos_plus\standard\tls\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h">
 			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
@@ -561,6 +552,12 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT\source\interface\transport_interface.h">
 			<Filter>libraries\coreMQTT\source\interface</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include\backoff_algorithm.h">
+			<Filter>libraries\abstractions\backoff_algorithm\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
+			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\errno.h">
 			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
@@ -609,12 +606,6 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include\backoff_algorithm.h">
-			<Filter>libraries\abstractions\backoff_algorithm\source\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.h">
-			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\include\core_mqtt_agent.h">
 			<Filter>libraries\coreMQTT-Agent\source\include</Filter>
@@ -735,6 +726,21 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\tests\integration_test\ota_pal\aws_test_ota_pal_rsa_sha256_signature.h">
 			<Filter>tests\integration_test\ota_pal</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.h">
+			<Filter>libraries\3rdparty\unity\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity_internals.h">
+			<Filter>libraries\3rdparty\unity\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.h">
+			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_internals.h">
+			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h">
+			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aes.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
@@ -985,21 +991,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h">
 			<Filter>libraries\3rdparty\pkcs11</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.h">
-			<Filter>libraries\3rdparty\unity\src</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity_internals.h">
-			<Filter>libraries\3rdparty\unity\src</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.h">
-			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_internals.h">
-			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h">
-			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
 			<Filter>libraries\3rdparty\jsmn</Filter>
 		</ClInclude>
@@ -1065,53 +1056,11 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_threads_freertos.c">
 			<Filter>libraries\abstractions\platform\freertos</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_metrics.c">
-			<Filter>libraries\abstractions\platform\freertos</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\logging\iot_logging.c">
+			<Filter>libraries\logging</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_freertos.c">
-			<Filter>libraries\abstractions\platform\freertos</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\freertos_plus_tcp\iot_secure_sockets.c">
-			<Filter>libraries\abstractions\secure_sockets\freertos_plus_tcp</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_ARP.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_DHCP.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_DNS.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_IP.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_Sockets.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_Stream_Buffer.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_TCP_IP.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_TCP_WIN.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_UDP_IP.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\BufferManagement\BufferAllocation_2.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\BufferManagement</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface\WinPCap\NetworkInterface.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface\WinPCap</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\src\iot_tls.c">
-			<Filter>libraries\freertos_plus\standard\tls\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c">
-			<Filter>libraries\freertos_plus\standard\crypto\src</Filter>
+		<ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">
+			<Filter>demos\dev_mode_key_provisioning\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pkcs11.c">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source</Filter>
@@ -1335,17 +1284,53 @@
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_util.c">
 			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c">
+			<Filter>libraries\freertos_plus\standard\crypto\src</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pki_utils.c">
 			<Filter>libraries\abstractions\pkcs11\corePKCS11\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c">
 			<Filter>libraries\freertos_plus\standard\utils\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\logging\iot_logging.c">
-			<Filter>libraries\logging</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\freertos_plus_tcp\iot_secure_sockets.c">
+			<Filter>libraries\abstractions\secure_sockets\freertos_plus_tcp</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">
-			<Filter>demos\dev_mode_key_provisioning\src</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_ARP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_DHCP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_DNS.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_IP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_Sockets.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_Stream_Buffer.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_TCP_IP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_TCP_WIN.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_UDP_IP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\BufferManagement\BufferAllocation_2.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\BufferManagement</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface\WinPCap\NetworkInterface.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface\WinPCap</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\src\iot_tls.c">
+			<Filter>libraries\freertos_plus\standard\tls\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c">
 			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
@@ -1361,6 +1346,15 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c">
 			<Filter>libraries\coreMQTT\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\backoff_algorithm.c">
+			<Filter>libraries\abstractions\backoff_algorithm\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\common\pkcs11_helpers\pkcs11_helpers.c">
+			<Filter>demos\common\pkcs11_helpers</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
+			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\source\FreeRTOS_CLI.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_cli\source</Filter>
@@ -1400,15 +1394,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\backoff_algorithm.c">
-			<Filter>libraries\abstractions\backoff_algorithm\source</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\demos\common\pkcs11_helpers\pkcs11_helpers.c">
-			<Filter>demos\common\pkcs11_helpers</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
-			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT-Agent\source\core_mqtt_agent.c">
 			<Filter>libraries\coreMQTT-Agent\source</Filter>
@@ -1580,6 +1565,12 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\trcSnapshotRecorder.c">
 			<Filter>libraries\3rdparty\tracealyzer_recorder</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.c">
+			<Filter>libraries\3rdparty\unity\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c">
+			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\aes.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
@@ -1823,12 +1814,6 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.c">
 			<Filter>libraries\3rdparty\mbedtls_utils</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.c">
-			<Filter>libraries\3rdparty\unity\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c">
-			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
 			<Filter>libraries\3rdparty\jsmn</Filter>

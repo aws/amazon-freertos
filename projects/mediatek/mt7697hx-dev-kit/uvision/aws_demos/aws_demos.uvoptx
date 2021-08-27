@@ -1939,18 +1939,6 @@
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
-    <File>
-      <GroupNumber>19</GroupNumber>
-      <FileNumber>135</FileNumber>
-      <FileType>5</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/platform/include/platform/iot_metrics.h</PathWithFileName>
-      <FilenameWithoutPath>iot_metrics.h</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
   </Group>
 
   <Group>
@@ -2003,30 +1991,6 @@
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
-    <File>
-      <GroupNumber>21</GroupNumber>
-      <FileNumber>139</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/platform/freertos/iot_metrics.c</PathWithFileName>
-      <FilenameWithoutPath>iot_metrics.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>21</GroupNumber>
-      <FileNumber>140</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/platform/freertos/iot_network_freertos.c</PathWithFileName>
-      <FilenameWithoutPath>iot_network_freertos.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
   </Group>
 
   <Group>
@@ -2044,18 +2008,6 @@
       <bDave2>0</bDave2>
       <PathWithFileName>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</PathWithFileName>
       <FilenameWithoutPath>iot_platform_types_freertos.h</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>22</GroupNumber>
-      <FileNumber>142</FileNumber>
-      <FileType>5</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</PathWithFileName>
-      <FilenameWithoutPath>iot_network_freertos.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2088,18 +2040,6 @@
       <bDave2>0</bDave2>
       <PathWithFileName>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</PathWithFileName>
       <FilenameWithoutPath>iot_secure_sockets_config_defaults.h</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>23</GroupNumber>
-      <FileNumber>145</FileNumber>
-      <FileType>5</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</PathWithFileName>
-      <FilenameWithoutPath>iot_secure_sockets_wrapper_metrics.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

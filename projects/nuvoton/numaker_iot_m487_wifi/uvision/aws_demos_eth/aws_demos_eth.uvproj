@@ -861,11 +861,6 @@
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/abstractions/platform/include/platform/iot_threads.h</FilePath>
 						</File>
-						<File>
-							<FileName>iot_metrics.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/include/platform/iot_metrics.h</FilePath>
-						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -891,16 +886,6 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_threads_freertos.c</FilePath>
 						</File>
-						<File>
-							<FileName>iot_metrics.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_metrics.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_network_freertos.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_network_freertos.c</FilePath>
-						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -910,11 +895,6 @@
 							<FileName>iot_platform_types_freertos.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</FilePath>
-						</File>
-						<File>
-							<FileName>iot_network_freertos.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -930,11 +910,6 @@
 							<FileName>iot_secure_sockets_config_defaults.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</FilePath>
-						</File>
-						<File>
-							<FileName>iot_secure_sockets_wrapper_metrics.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</FilePath>
 						</File>
 					</Files>
 				</Group>

@@ -52,7 +52,6 @@
 #include <stddef.h>
 #include "iot_secure_sockets_config.h"
 #include "iot_secure_sockets_config_defaults.h"
-#include "iot_secure_sockets_wrapper_metrics.h"
 #include "iot_lib_init.h"
 
 /**

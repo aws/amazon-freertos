@@ -1094,111 +1094,6 @@
 			<locationURI>AFR_HOME/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/include/platform/iot_metrics.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/platform/include/platform/iot_metrics.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/iot_metrics.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/platform/freertos/iot_metrics.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/iot_network_freertos.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/platform/freertos/iot_network_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</locationURI>
-		</link>
-		<link>
-			<name>vendors/infineon/boards/xmc4800_plus_optiga_trust_x/ports/secure_sockets/iot_secure_sockets.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/ports/secure_sockets/iot_secure_sockets.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/tls/src/iot_tls.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/standard/tls/src/iot_tls.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/tls/include/iot_tls.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/standard/tls/include/iot_tls.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/crypto/src/iot_crypto.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/standard/crypto/src/iot_crypto.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/crypto/include/iot_crypto.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</locationURI>
-		</link>
-		<link>
-			<name>vendors/infineon/secure_elements/pkcs11/iot_pkcs11_trustx.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/secure_elements/pkcs11/iot_pkcs11_trustx.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/standard/utils/src/iot_system_init.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
-		</link>
-		<link>
-			<name>vendors/infineon/boards/xmc4800_plus_optiga_trust_x/ports/wifi/iot_wifi.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/ports/wifi/iot_wifi.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/logging/iot_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/logging/iot_logging_task_dynamic_buffers.c</locationURI>
@@ -1232,6 +1127,86 @@
 			<name>demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/pkcs11/iot_pkcs11_trustx.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/pkcs11/iot_pkcs11_trustx.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/crypto/src/iot_crypto.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/standard/crypto/src/iot_crypto.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/crypto/include/iot_crypto.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/standard/utils/src/iot_system_init.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/boards/xmc4800_plus_optiga_trust_x/ports/secure_sockets/iot_secure_sockets.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/ports/secure_sockets/iot_secure_sockets.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/tls/src/iot_tls.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/standard/tls/src/iot_tls.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/tls/include/iot_tls.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/standard/tls/include/iot_tls.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/boards/xmc4800_plus_optiga_trust_x/ports/wifi/iot_wifi.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/ports/wifi/iot_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
@@ -1297,6 +1272,31 @@
 			<name>libraries/coreMQTT/source/interface/transport_interface.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</name>
@@ -1442,31 +1442,6 @@
 			<name>libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</locationURI>
-		</link>
-		<link>
-			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent.c</name>

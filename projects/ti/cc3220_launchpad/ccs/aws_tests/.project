@@ -498,46 +498,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/include/platform/iot_metrics.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/include/platform/iot_metrics.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/iot_metrics.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_metrics.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/iot_network_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_network_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</locationURI>
-		</link>
-		<link>
-			<name>vendors/ti/boards/cc3220_launchpad/ports/secure_sockets/iot_secure_sockets.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/secure_sockets/iot_secure_sockets.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/logging/iot_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/logging/iot_logging_task_dynamic_buffers.c</locationURI>
@@ -633,6 +593,21 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/boards/cc3220_launchpad/ports/secure_sockets/iot_secure_sockets.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/secure_sockets/iot_secure_sockets.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
@@ -708,16 +683,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</locationURI>
@@ -741,6 +706,16 @@
 			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI_Console.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent.c</name>

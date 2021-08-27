@@ -370,20 +370,20 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\pkcs11_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent</state>
@@ -1225,15 +1225,15 @@
 							</file>
 						</group>
 						<group>
-							<name>secure_sockets</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\secure_sockets\iot_secure_sockets.c</name>
-							</file>
-						</group>
-						<group>
 							<name>pkcs11</name>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\pkcs11\core_pkcs11_pal.c</name>
+							</file>
+						</group>
+						<group>
+							<name>secure_sockets</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\secure_sockets\iot_secure_sockets.c</name>
 							</file>
 						</group>
 						<group>
@@ -1488,9 +1488,6 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h</name>
 						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h</name>
-						</file>
 					</group>
 					<group>
 						<name>types</name>
@@ -1517,32 +1514,8 @@
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_freertos.h</name>
 							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_freertos.h</name>
-							</file>
 						</group>
 					</group>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_metrics.c</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_freertos.c</name>
-					</file>
-				</group>
-			</group>
-			<group>
-				<name>secure_sockets</name>
-				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_wrapper_metrics.h</name>
-					</file>
 				</group>
 			</group>
 			<group>
@@ -1579,6 +1552,18 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\core_pki_utils.c</name>
 						</file>
 					</group>
+				</group>
+			</group>
+			<group>
+				<name>secure_sockets</name>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h</name>
+					</file>
 				</group>
 			</group>
 			<group>

@@ -132,7 +132,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
-                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)backoff_algorithm/source/backoff_algorithm.c \
                       $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets/transport_secure_sockets.c \
@@ -142,7 +141,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)common/test/iot_tests_taskpool.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_init.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_device_metrics.c \
-                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_metrics.c \
                       $(AMAZON_FREERTOS_PATH)tests/integration_test/test_freertos_tcp.c \
                       $(AMAZON_FREERTOS_PATH)tests/integration_test/freertos_tcp_test_access_dns_define.h \
                       $(AMAZON_FREERTOS_PATH)tests/integration_test/freertos_tcp_test_access_tcp_define.h \

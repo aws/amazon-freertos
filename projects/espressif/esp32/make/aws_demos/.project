@@ -1227,16 +1227,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_clock_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/iot_metrics.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_metrics.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/iot_network_freertos.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_network_freertos.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/platform/freertos/iot_threads_freertos.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_threads_freertos.c</locationURI>
@@ -1280,11 +1270,6 @@
 			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/secure_sockets/lwip/iot_secure_sockets.c</name>
@@ -2030,11 +2015,6 @@
 			<name>libraries/abstractions/platform/include/platform/iot_clock.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/include/platform/iot_clock.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/include/platform/iot_metrics.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/include/platform/iot_metrics.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/include/platform/iot_network.h</name>
@@ -2835,11 +2815,6 @@
 			<name>libraries/3rdparty/tracealyzer_recorder/streamports/USB_CDC/include/trcStreamingPort.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tracealyzer_recorder/streamports/USB_CDC/include/trcStreamingPort.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</name>

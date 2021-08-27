@@ -33,10 +33,6 @@
  * @brief WiFi and Secure Socket interface implementation.
  */
 
-/* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
- * from redefining in iot_secure_sockets_wrapper_metrics.h */
-#define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
-
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -53,8 +49,6 @@
 
 /* WiFi configuration includes. */
 #include "aws_wifi_config.h"
-
-#undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 /**
  * @brief A Flag to indicate whether or not a socket is
