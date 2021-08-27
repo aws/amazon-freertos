@@ -1098,8 +1098,8 @@ static void prvRegisterOTACallback( const char * pcTopicFilter,
             if( xSubscriptionAdded == false )
             {
                 LogError( ( "Failed to register a publish callback for topic %.*s.",
-                            pcTopicFilter,
-                            usTopicFilterLength ) );
+                            usTopicFilterLength,
+                            pcTopicFilter ) );
             }
         }
     }
@@ -1205,7 +1205,7 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
             xReturnStatus = pdPASS;
 
             LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
-                       ( pxRetryParams->attemptsDone + 1 ),
+                       pxRetryParams->attemptsDone,
                        pxRetryParams->maxRetryAttempts ) );
         }
     }
