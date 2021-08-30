@@ -3059,9 +3059,9 @@ static void prvThreadSafeDifferentSocketsDifferentTasks( void * pvParameters )
             {
                 tcptestFAILUREPRINTF( ( "%s: Task %d failed to connect with error code %d on loop %d \r\n",
                                         __FUNCTION__,
+                                       ( int ) pxTcptestEchoClientsTaskParams->usTaskTag ),
                                         xResult,
-                                        lLoopCount,
-                                        ( int ) pxTcptestEchoClientsTaskParams->usTaskTag ) );
+                                        lLoopCount ) );
                 break;
             }
 
