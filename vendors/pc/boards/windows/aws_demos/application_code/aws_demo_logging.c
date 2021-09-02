@@ -126,11 +126,11 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
                               va_list xArgs );
 
 /* A simple locking mechanism to protect access to the logging
-stream buffer. */
-static void prvBitOpsAcquire( LONG volatile *plValue );
+ * stream buffer. */
+static void prvBitOpsAcquire( LONG volatile * plValue );
 
 /* Release the lock. */
-static void prvBitOpsRelease( LONG volatile *plValue );
+static void prvBitOpsRelease( LONG volatile * plValue );
 
 /*-----------------------------------------------------------*/
 
@@ -378,7 +378,7 @@ void vLoggingPrintfWithFileAndLine( const char * pcFile,
 
 /*-----------------------------------------------------------*/
 
-static void prvBitOpsAcquire( LONG volatile *plValue )
+static void prvBitOpsAcquire( LONG volatile * plValue )
 {
     /* Return the value of bit-0 before setting it, as an atomic operation. */
     while( _interlockedbittestandset( plValue, 0U ) == 1 )
@@ -390,7 +390,7 @@ static void prvBitOpsAcquire( LONG volatile *plValue )
 
 /*-----------------------------------------------------------*/
 
-static void prvBitOpsRelease( LONG volatile *plValue )
+static void prvBitOpsRelease( LONG volatile * plValue )
 {
     /* Return the value of bit-0 before clearing it, as an atomic operation. */
     BOOLEAN rc = _interlockedbittestandreset( plValue, 0U );
@@ -525,7 +525,7 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
             xLength2 = 0;
             cPrintString[ xLength ] = '\0';
         }
-        else if ( xLength2 < ( dlMAX_PRINT_STRING_LENGTH - xLength ) )
+        else if( xLength2 < ( dlMAX_PRINT_STRING_LENGTH - xLength ) )
         {
             /* Complete log is in buffer. */
             xLength += xLength2;
@@ -533,11 +533,11 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
         else
         {
             /* Buffer required is larger than allocated, not complete log is in buffer. */
-            xLength = dlMAX_PRINT_STRING_LENGTH ;
+            xLength = dlMAX_PRINT_STRING_LENGTH;
         }
 
         /* Check if the buffer has room for "\r\n" and make it if not. */
-        if ( xLength > ( dlMAX_PRINT_STRING_LENGTH - 3 ) )
+        if( xLength > ( dlMAX_PRINT_STRING_LENGTH - 3 ) )
         {
             xLength = dlMAX_PRINT_STRING_LENGTH - 3;
         }
@@ -545,7 +545,7 @@ static void prvLoggingPrintf( uint8_t usLoggingLevel,
         /* Add newline characters if the message does not end with them.*/
         ulFormatLen = strlen( pcFormat );
 
-        if( ( ulFormatLen >= 2 ) && ( strncmp( pcFormat + ulFormatLen, "\r\n", 2 ) != 0 ) )
+        if( ( ulFormatLen >= 2 ) && ( ulFormatLen <= dlMAX_PRINT_STRING_LENGTH ) && ( strncmp( pcFormat + ulFormatLen, "\r\n", 2 ) != 0 ) )
         {
             xLength += snprintf( cPrintString + xLength, dlMAX_PRINT_STRING_LENGTH - xLength, "%s", "\r\n" );
         }
