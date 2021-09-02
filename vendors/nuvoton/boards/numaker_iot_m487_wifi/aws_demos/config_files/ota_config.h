@@ -81,7 +81,7 @@
  * service so we will only send the request message after being idle for this
  * amount of time.
  */
-#define otaconfigFILE_REQUEST_WAIT_MS           2500U
+#define otaconfigFILE_REQUEST_WAIT_MS           10000U
 
 /**
  * @brief The maximum allowed length of the thing name used by the OTA agent.
@@ -92,7 +92,7 @@
  * allocate static storage for the Thing name used in all OTA base topics.
  * Namely $aws/things/<thingName>
  */
-#define otaconfigMAX_THINGNAME_LEN              64U
+#define otaconfigMAX_THINGNAME_LEN              128U
 
 /**
  * @brief The maximum number of data blocks requested from OTA streaming service.
