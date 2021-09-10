@@ -26,6 +26,7 @@ afr_module_include_dirs(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PRIVATE AFR::wifi::mcu_port
+    PUBLIC AFR::secure_sockets
 )
 
 # WiFi test
