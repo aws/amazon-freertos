@@ -149,16 +149,6 @@ static esp_err_t prvStartProtocomHTTP( void )
     return xReturnCode;
 }
 
-static void prvDeleteAllSavedNetworks()
-{
-    uint32_t ulCountSavedNetworks = IotWifiSoftAPProv_GetNumNetworks();
-
-    for( uint32_t i = 0; i < ulCountSavedNetworks; i++ )
-    {
-        WIFI_NetworkDelete( i );
-    }
-}
-
 static inline void prvNetworkProfile2Params( WIFINetworkProfile_t const * const pxNetworkProfile,
                                              WIFINetworkParams_t * pxNetworkParams )
 {
@@ -182,9 +172,9 @@ bool prvServiceStart()
         .xSecurity = wificonfigACCESS_POINT_SECURITY,
     };
 
-    char pcMAC[ wificonfigMAX_BSSID_LEN ] = { 0 };
+    uint8_t pcMAC[ wificonfigMAX_BSSID_LEN ] = { 0 };
 
-    WIFI_GetMAC( &pcMAC );
+    WIFI_GetMAC( pcMAC );
     xAPConfig.ucSSIDLength = snprintf( ( char * ) xAPConfig.ucSSID,
                                        sizeof( xAPConfig.ucSSID ),
                                        "%s%02X%02X%02X",

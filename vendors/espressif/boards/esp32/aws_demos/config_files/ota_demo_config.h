@@ -71,7 +71,9 @@
  * bytes are read from network interface. Keeping this timeout to a sufficiently
  * large value so as to account for delay of receipt of a large block of message.
  */
+#ifndef MQTT_RECV_POLLING_TIMEOUT_MS
 #define MQTT_RECV_POLLING_TIMEOUT_MS            ( 1000U )
+#endif
 
 /**
  * @brief The length of the queue used to hold commands for the agent.
@@ -91,6 +93,8 @@
  * responsiveness of MQTT agent while processing  pending MQTT operations as
  * well as receive packets from network.
  */
+#ifndef MQTT_AGENT_MAX_EVENT_QUEUE_WAIT_TIME
 #define MQTT_AGENT_MAX_EVENT_QUEUE_WAIT_TIME    ( 1U )
+#endif
 
 #endif /* OTA_DEMO_CONFIG_H_ */
