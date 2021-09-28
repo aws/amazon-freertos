@@ -356,9 +356,22 @@ int32_t iot_uart_ioctl(IotUARTHandle_t const pxUartPeripheral, IotUARTIoctlReque
                     uart_config.baud_rate = IOT_UART_BAUD_RATE_DEFAULT;
                 }
                 ret = uart_driver_delete(uart_port_num);
-                ret |= iot_uart_driver_install(uart_port_num, uart_config);
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "Failed to delete UART driver");
+                    return IOT_UART_INVALID_VALUE;
+                }
+                ret = iot_uart_driver_install(uart_port_num, uart_config);
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "Failed to install UART driver");
+                    return IOT_UART_INVALID_VALUE;
+                }
                 //Create a callback function to handle UART event from ISR
                 ret = uart_register_callback_with_isr(uart_port_num, uart_event_cb, (void *)iot_uart_handler);
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "Failed to register callback");
+                    return IOT_UART_INVALID_VALUE;
+                }
+
                 return (ret == ESP_OK) ? IOT_UART_SUCCESS : IOT_UART_INVALID_VALUE;
             }
             case eUartGetConfig : {
