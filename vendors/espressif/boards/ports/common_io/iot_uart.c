@@ -308,7 +308,6 @@ int32_t iot_uart_ioctl(IotUARTHandle_t const pxUartPeripheral, IotUARTIoctlReque
             case eUartSetConfig : {
                 int32_t uart_port_num = uart_ctx->uart_port_num;
                 IotUARTConfig_t *iot_uart_config = (IotUARTConfig_t *) pvBuffer;
-                memcpy(&uart_ctx->iot_uart_conf, iot_uart_config, sizeof(IotUARTConfig_t));
                 uart_config_t uart_config = {0};
                 uart_config.baud_rate = iot_uart_config->ulBaudrate;
                 if (iot_uart_config->ucWordlength == 5) {
@@ -372,7 +371,8 @@ int32_t iot_uart_ioctl(IotUARTHandle_t const pxUartPeripheral, IotUARTIoctlReque
                     return IOT_UART_INVALID_VALUE;
                 }
 
-                return (ret == ESP_OK) ? IOT_UART_SUCCESS : IOT_UART_INVALID_VALUE;
+                memcpy(&uart_ctx->iot_uart_conf, iot_uart_config, sizeof(IotUARTConfig_t));
+                return IOT_UART_SUCCESS;
             }
             case eUartGetConfig : {
                 IotUARTConfig_t *iot_uart_config = (IotUARTConfig_t *) pvBuffer;
