@@ -309,7 +309,7 @@ int32_t iot_uart_ioctl(IotUARTHandle_t const pxUartPeripheral, IotUARTIoctlReque
                 int32_t uart_port_num = uart_ctx->uart_port_num;
                 IotUARTConfig_t *iot_uart_config = (IotUARTConfig_t *) pvBuffer;
                 memcpy(&uart_ctx->iot_uart_conf, iot_uart_config, sizeof(IotUARTConfig_t));
-                uart_config_t uart_config;
+                uart_config_t uart_config = {0};
                 uart_config.baud_rate = iot_uart_config->ulBaudrate;
                 uart_config.data_bits = iot_uart_config->ucWordlength;
                 if (iot_uart_config->ucFlowControl == true) {
