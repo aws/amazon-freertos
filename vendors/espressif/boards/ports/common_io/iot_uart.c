@@ -311,7 +311,18 @@ int32_t iot_uart_ioctl(IotUARTHandle_t const pxUartPeripheral, IotUARTIoctlReque
                 memcpy(&uart_ctx->iot_uart_conf, iot_uart_config, sizeof(IotUARTConfig_t));
                 uart_config_t uart_config = {0};
                 uart_config.baud_rate = iot_uart_config->ulBaudrate;
-                uart_config.data_bits = iot_uart_config->ucWordlength;
+                if (iot_uart_config->ucWordlength == 5) {
+                    uart_config.data_bits = UART_DATA_5_BITS;
+                } else if (iot_uart_config->ucWordlength == 6) {
+                    uart_config.data_bits = UART_DATA_6_BITS;
+                } else if (iot_uart_config->ucWordlength == 7) {
+                    uart_config.data_bits = UART_DATA_7_BITS;
+                } else if (iot_uart_config->ucWordlength == 8) {
+                    uart_config.data_bits = UART_DATA_8_BITS;
+                } else {
+                    return IOT_UART_INVALID_VALUE;
+                }
+
                 if (iot_uart_config->ucFlowControl == true) {
                     uart_config.flow_ctrl = UART_HW_FLOWCTRL_CTS_RTS;
                     uart_config.rx_flow_ctrl_thresh = UART_FIFO_LEN;
