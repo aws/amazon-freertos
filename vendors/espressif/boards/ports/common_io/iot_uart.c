@@ -351,7 +351,7 @@ int32_t iot_uart_ioctl(IotUARTHandle_t const pxUartPeripheral, IotUARTIoctlReque
                 ret = uart_driver_delete(uart_port_num);
                 ret |= iot_uart_driver_install(uart_port_num, uart_config);
                 //Create a callback function to handle UART event from ISR
-                ret = uart_register_callback_with_isr(uart_port_num, uart_event_cb, (void *)iot_uart_handler);
+                ret |= uart_register_callback_with_isr(uart_port_num, uart_event_cb, (void *)iot_uart_handler);
                 return (ret == ESP_OK) ? IOT_UART_SUCCESS : IOT_UART_INVALID_VALUE;
             }
             case eUartGetConfig : {
