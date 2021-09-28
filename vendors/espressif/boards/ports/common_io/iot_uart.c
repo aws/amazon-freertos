@@ -318,7 +318,9 @@ int32_t iot_uart_ioctl(IotUARTHandle_t const pxUartPeripheral, IotUARTIoctlReque
 
                 if (iot_uart_config->ucFlowControl == true) {
                     uart_config.flow_ctrl = UART_HW_FLOWCTRL_CTS_RTS;
-                    uart_config.rx_flow_ctrl_thresh = UART_FIFO_LEN;
+                    uart_config.rx_flow_ctrl_thresh = (UART_FIFO_LEN - 1);
+                } else {
+                    uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
                 }
                 switch (iot_uart_config->xParity) {
                     case eUartParityNone:
