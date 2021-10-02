@@ -1,4 +1,4 @@
-# FreeRTOS AWS Reference Integrations
+# FreeRTOS AWS Reference Integrations nice code
 
 ## Cloning
 This repo uses [Git Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to bring in dependent components.
