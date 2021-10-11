@@ -26,6 +26,12 @@
 #ifndef __AWS_CODESIGN_KEYS__H__
 #define __AWS_CODESIGN_KEYS__H__
 
+/* @TEST_ANCHOR */
+
+#ifndef signingcredentialSIGNING_CERTIFICATE_PEM_str
+    #define signingcredentialSIGNING_CERTIFICATE_PEM_str "Paste code signing certificate here."
+#endif
+
 /*
  * PEM-encoded code signer certificate
  *
@@ -34,6 +40,6 @@
  * "...base64 data...\n"
  * "-----END CERTIFICATE-----\n";
  */
-static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = "Paste code signing certificate here.";
+static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = signingcredentialSIGNING_CERTIFICATE_PEM_str;
 
 #endif
