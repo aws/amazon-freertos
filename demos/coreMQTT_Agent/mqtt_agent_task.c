@@ -677,8 +677,9 @@ static void prvSubscriptionCommandCallback( MQTTAgentCommandContext_t * pxComman
     MQTTAgentSubscribeArgs_t * pxSubscribeArgs = ( MQTTAgentSubscribeArgs_t * ) pxCommandContext;
 
     /* If the return code is success, no further action is required as all the topic filters
-     * are already part of the subscription list. */
-    if( pxReturnInfo->returnCode != MQTTSuccess )
+     * are already part of the subscription list. Check that the return codes are not NULL in
+     * case the command errored for any reason. */
+    if( ( pxReturnInfo->returnCode != MQTTSuccess ) && ( pxReturnInfo->pSubackCodes != NULL ) )
     {
         /* Check through each of the suback codes and determine if there are any failures. */
         for( lIndex = 0; lIndex < pxSubscribeArgs->numSubscriptions; lIndex++ )
