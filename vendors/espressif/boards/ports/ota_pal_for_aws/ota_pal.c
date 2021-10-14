@@ -77,7 +77,6 @@ typedef struct
 } esp_sec_boot_sig_t;
 
 static esp_ota_context_t ota_ctx;
-static const char * TAG = "ota_pal";
 
 static const char codeSigningCertificatePEM[] = otapalconfigCODE_SIGNING_CERTIFICATE;
 

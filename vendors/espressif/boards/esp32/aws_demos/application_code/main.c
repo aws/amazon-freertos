@@ -170,7 +170,6 @@ int app_main( void )
 extern void vApplicationIPInit( void );
 static void prvMiscInitialization( void )
 {
-    int32_t uartRet;
     /* Initialize NVS */
     esp_err_t ret = nvs_flash_init();
 
@@ -286,7 +285,6 @@ static void prvMiscInitialization( void )
                            uint32_t messageLength,
                            TickType_t timeoutTicks )
     {
-        BaseType_t xReturnMessage = pdFALSE;
         SemaphoreHandle_t xUartSem;
         int32_t status = 0;
 

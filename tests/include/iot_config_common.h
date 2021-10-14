@@ -80,7 +80,10 @@
 #define IotMqtt_Assert( expression )           if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Assertion failure" )
 #define AwsIotShadow_Assert( expression )      if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Assertion failure" )
 #define AwsIotDefender_Assert( expression )    if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Assertion failure" )
-#define IotBle_Assert( expression )            if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Assertion failure" )
+
+#ifndef IotBle_Assert
+    #define IotBle_Assert( expression )        if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Assertion failure" )
+#endif
 
 /* Control the usage of dynamic memory allocation. */
 #ifndef IOT_STATIC_MEMORY_ONLY

@@ -478,6 +478,50 @@ set_source_files_properties(${AFR_ROOT_DIR}/libraries/c_sdk/standard/mqtt/test/u
     PROPERTIES COMPILE_FLAGS
     "-Wno-restrict")
 
+set_source_files_properties(${AFR_ROOT_DIR}/libraries/abstractions/secure_sockets/test/iot_test_tcp.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-array-bounds")
+
+set_source_files_properties(
+    ${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/iot_init.c
+    ${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/iot_device_metrics.c
+    ${AFR_ROOT_DIR}/libraries/abstractions/secure_sockets/lwip/iot_secure_sockets.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-unused-function")
+
+set_source_files_properties(
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/test_iot_power.c
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/test_iot_spi.c
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/test_iot_sdio.c
+    ${AFR_ROOT_DIR}/tests/integration_test/shadow_system_test.c
+    ${AFR_ROOT_DIR}/demos/ota/ota_demo_core_http/ota_demo_core_http.c
+    ${AFR_ROOT_DIR}/demos/coreMQTT_Agent/mqtt_agent_task.c
+    ${AFR_ROOT_DIR}/demos/device_shadow_for_aws/shadow_demo_main.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-unused-variable")
+
+set_source_files_properties(
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/iot_test_common_io.c
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/test_iot_perfcounter.c
+    ${AFR_ROOT_DIR}/demos/cli/cli_uart_demo.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-type-limits")
+
+set_source_files_properties(
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/test_iot_flash.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-discarded-qualifiers")
+
+set_source_files_properties(
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/test_iot_rtc.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-unused-variable -Wno-overflow")
+
+set_source_files_properties(
+    ${AFR_ROOT_DIR}/libraries/coreJSON/source/core_json.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-type-limits -Wno-discarded-qualifiers")
+
 set(IDF_TARGET esp32)
 set(ENV{IDF_PATH} ${esp_idf_dir})
 
