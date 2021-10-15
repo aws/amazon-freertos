@@ -340,7 +340,6 @@ static void prvRxSelectSet( ss_ctx_t * ctx,
 
     prvIncrementRefCount( ctx );
 
-    ctx->rx_EventGroup = NULL;
     ctx->rx_EventGroup = xEventGroupCreate();
 
     configASSERT( ctx->rx_EventGroup != NULL );
@@ -366,14 +365,14 @@ static void prvRxSelectClear( ss_ctx_t * ctx )
     xEventGroupSetBits( ctx->rx_EventGroup, SOCKETS_START_DELETION );
 
     /* Wait for the task to delete itself. */
-    if( xEventGroupWaitBits( ctx->rx_EventGroup, SOCKETS_COMPLETE_DELETION, pdTRUE, pdTRUE, portMAX_DELAY ) == SOCKETS_COMPLETE_DELETION )
+    while( xEventGroupWaitBits( ctx->rx_EventGroup,
+                                SOCKETS_COMPLETE_DELETION,
+                                pdTRUE,
+                                pdTRUE,
+                                pdMS_TO_TICKS( SECURE_SOCKETS_SELECT_WAIT_SEC * 1000 ) ) !=
+           SOCKETS_COMPLETE_DELETION )
     {
-        /* The task 'vTaskRxSelect' has started deleting itself. */
-    }
-    else
-    {
-        /* Control should never reach here as this task should wait on the event group bits indefinately. */
-        configASSERT( pdTRUE );
+        /* Continue waiting for the task to delete itself. */
     }
 
     /* Reset the handle of the task to NULL. */
