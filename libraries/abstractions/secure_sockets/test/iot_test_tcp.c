@@ -590,7 +590,7 @@ static BaseType_t prvSecureConnectHelper( Socket_t xSocket,
     }
     else
     {
-        tcptestFAILUREPRINTF( ( "%: Failed to setSockOpt SOCKETS_SO_REQUIRE_TLS \r\n", __FUNCTION__ ) );
+        tcptestFAILUREPRINTF( ( "%s: Failed to setSockOpt SOCKETS_SO_REQUIRE_TLS \r\n", __FUNCTION__ ) );
     }
 
     return xResult;
@@ -3059,9 +3059,9 @@ static void prvThreadSafeDifferentSocketsDifferentTasks( void * pvParameters )
             {
                 tcptestFAILUREPRINTF( ( "%s: Task %d failed to connect with error code %d on loop %d \r\n",
                                         __FUNCTION__,
+                                        ( int ) pxTcptestEchoClientsTaskParams->usTaskTag,
                                         xResult,
-                                        lLoopCount,
-                                        ( int ) pxTcptestEchoClientsTaskParams->usTaskTag ) );
+                                        lLoopCount ) );
                 break;
             }
 
