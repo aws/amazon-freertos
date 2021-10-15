@@ -284,7 +284,7 @@ static uint8_t usMqttConnectionBuffer[ democonfigNETWORK_BUFFER_SIZE ];
  * connection context for sending status updates of a job while it is being
  * processed.
  */
-static uint8_t usJobIdBuffer[ democonfigNETWORK_BUFFER_SIZE ];
+static uint8_t usJobIdBuffer[ JOBS_JOBID_MAX_LENGTH ];
 
 /**
  * @brief Static buffer used to hold the job document of the single job that
