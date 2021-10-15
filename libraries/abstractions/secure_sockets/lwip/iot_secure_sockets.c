@@ -102,7 +102,7 @@ typedef struct _ss_ctx_t
     int recv_flag;
 
     TaskHandle_t rx_handle;
-    void ( *rx_callback )( Socket_t pxSocket );
+    void ( * rx_callback )( Socket_t pxSocket );
     EventGroupHandle_t rx_EventGroup;
 
     bool enforce_tls;
