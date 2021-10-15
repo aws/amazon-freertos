@@ -73,13 +73,13 @@
 
 /*-----------------------------------------------------------*/
 
-#define SS_STATUS_CONNECTED    ( 1 )
-#define SS_STATUS_SECURED      ( 2 )
+#define SS_STATUS_CONNECTED               ( 1 )
+#define SS_STATUS_SECURED                 ( 2 )
 
 #define SECURE_SOCKETS_SELECT_WAIT_SEC    ( 10 )
 
 #define SOCKETS_START_DELETION            ( 0x01 )
-#define SOCKETS_COMPLETE_DELETION            ( 0x02 )
+#define SOCKETS_COMPLETE_DELETION         ( 0x02 )
 
 /*
  * secure socket context.
@@ -102,7 +102,7 @@ typedef struct _ss_ctx_t
     int recv_flag;
 
     TaskHandle_t rx_handle;
-    void ( * rx_callback )( Socket_t pxSocket );
+    void ( *rx_callback )( Socket_t pxSocket );
     EventGroupHandle_t rx_EventGroup;
 
     bool enforce_tls;
