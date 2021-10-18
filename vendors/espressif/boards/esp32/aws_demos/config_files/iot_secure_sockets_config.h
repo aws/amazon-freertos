@@ -62,7 +62,7 @@
  * socket becomes ready.  This is the number of words (not bytes!) to allocate
  * for use as the task’s stack.
  */
-#define socketsconfigRECEIVE_CALLBACK_TASK_STACK_DEPTH      1024u
+#define socketsconfigRECEIVE_CALLBACK_TASK_STACK_DEPTH      1536u
 
 /**
  * @brief Default max socket number support

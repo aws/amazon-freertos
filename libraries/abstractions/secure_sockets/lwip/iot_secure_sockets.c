@@ -45,6 +45,8 @@
 
 #include "task.h"
 
+#include "event_groups.h"
+
 #include <stdbool.h>
 
 /*
@@ -71,8 +73,13 @@
 
 /*-----------------------------------------------------------*/
 
-#define SS_STATUS_CONNECTED    ( 1 )
-#define SS_STATUS_SECURED      ( 2 )
+#define SS_STATUS_CONNECTED               ( 1 )
+#define SS_STATUS_SECURED                 ( 2 )
+
+#define SECURE_SOCKETS_SELECT_WAIT_SEC    ( 10 )
+
+#define SOCKETS_START_DELETION            ( 0x01 )
+#define SOCKETS_COMPLETE_DELETION         ( 0x02 )
 
 /*
  * secure socket context.
@@ -96,6 +103,7 @@ typedef struct _ss_ctx_t
 
     TaskHandle_t rx_handle;
     void ( * rx_callback )( Socket_t pxSocket );
+    EventGroupHandle_t rx_EventGroup;
 
     bool enforce_tls;
     void * tls_ctx;
@@ -269,6 +277,7 @@ static void vTaskRxSelect( void * param )
 {
     ss_ctx_t * ctx = ( ss_ctx_t * ) param;
     int s = ctx->ip_socket;
+    struct timeval tv;
 
     fd_set read_fds;
     fd_set write_fds;
@@ -283,6 +292,9 @@ static void vTaskRxSelect( void * param )
 
     ctx->state = SST_RX_READY;
 
+    tv.tv_sec = SECURE_SOCKETS_SELECT_WAIT_SEC;
+    tv.tv_usec = 0;
+
     while( 1 )
     {
         if( ctx->state == SST_RX_CLOSING )
@@ -291,7 +303,7 @@ static void vTaskRxSelect( void * param )
             break;
         }
 
-        if( lwip_select( s + 1, &read_fds, &write_fds, &err_fds, NULL ) == -1 )
+        if( lwip_select( s + 1, &read_fds, &write_fds, &err_fds, &tv ) == -1 )
         {
             break;
         }
@@ -300,9 +312,17 @@ static void vTaskRxSelect( void * param )
         {
             ctx->rx_callback( ( Socket_t ) ctx );
         }
+
+        if( xEventGroupWaitBits( ctx->rx_EventGroup, SOCKETS_START_DELETION, pdTRUE, pdTRUE, 0 ) == SOCKETS_START_DELETION )
+        {
+            /* Inform the main task that the event has been received. */
+            ( void ) xEventGroupSetBits( ctx->rx_EventGroup, SOCKETS_COMPLETE_DELETION );
+            break;
+        }
     }
 
     prvDecrementRefCount( ctx );
+
     vTaskDelete( NULL );
 }
 
@@ -319,6 +339,11 @@ static void prvRxSelectSet( ss_ctx_t * ctx,
     ctx->rx_callback = ( void ( * )( Socket_t ) )pvOptionValue;
 
     prvIncrementRefCount( ctx );
+
+    ctx->rx_EventGroup = xEventGroupCreate();
+
+    configASSERT( ctx->rx_EventGroup != NULL );
+
     xReturned = xTaskCreate( vTaskRxSelect, /* pvTaskCode */
                              "rxs",         /* pcName */
                              xStackDepth,   /* usStackDepth */
@@ -336,7 +361,28 @@ static void prvRxSelectSet( ss_ctx_t * ctx,
 
 static void prvRxSelectClear( ss_ctx_t * ctx )
 {
-    /* TODO */
+    /* Inform the vTaskRxSelect to delete itself. */
+    xEventGroupSetBits( ctx->rx_EventGroup, SOCKETS_START_DELETION );
+
+    /* Wait for the task to delete itself. */
+    while( xEventGroupWaitBits( ctx->rx_EventGroup,
+                                SOCKETS_COMPLETE_DELETION,
+                                pdTRUE,
+                                pdTRUE,
+                                pdMS_TO_TICKS( SECURE_SOCKETS_SELECT_WAIT_SEC * 1000 ) ) !=
+           SOCKETS_COMPLETE_DELETION )
+    {
+        /* Continue waiting for the task to delete itself. */
+    }
+
+    /* Reset the handle of the task to NULL. */
+    ctx->rx_handle = NULL;
+
+    /* Delete the event group. */
+    vEventGroupDelete( ctx->rx_EventGroup );
+
+    /* Remove the reference to the callback. */
+    ctx->rx_callback = NULL;
 }
 
 /*-----------------------------------------------------------*/
