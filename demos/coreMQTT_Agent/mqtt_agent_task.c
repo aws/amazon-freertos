@@ -442,13 +442,7 @@ int RunCoreMqttAgentDemo( bool awsIotMqttMode,
                           void * pNetworkCredentialInfo,
                           const void * pNetworkInterface )
 {
-    BaseType_t xNetworkStatus = pdFAIL;
-    BaseType_t xResult = pdFALSE;
-    BaseType_t xNetworkConnectionCreated = pdFALSE;
-    uint32_t ulNotification = 0UL;
-
     uint32_t ulDemoCount = 0UL;
-    uint32_t ulDemoSuccessCount = 0UL;
     int ret = EXIT_SUCCESS;
 
     ( void ) awsIotMqttMode;
@@ -842,7 +836,7 @@ static void prvIncomingPublishCallback( MQTTAgentContext_t * pMqttAgentContext,
 static void prvMQTTAgentTask( void * pvParameters )
 {
     BaseType_t xNetworkResult = pdFAIL;
-    MQTTStatus_t xMQTTStatus = MQTTSuccess, xConnectStatus = MQTTSuccess;
+    MQTTStatus_t xMQTTStatus = MQTTSuccess;
     MQTTContext_t * pMqttContext = &( xGlobalMqttAgentContext.mqttContext );
 
     ( void ) pvParameters;
@@ -866,7 +860,7 @@ static void prvMQTTAgentTask( void * pvParameters )
         else if( xMQTTStatus == MQTTSuccess )
         {
             /* MQTTAgent_Terminate() was called, but MQTT was not disconnected. */
-            xConnectStatus = MQTT_Disconnect( &( xGlobalMqttAgentContext.mqttContext ) );
+            ( void ) MQTT_Disconnect( &( xGlobalMqttAgentContext.mqttContext ) );
             xNetworkResult = prvSocketDisconnect( &xNetworkContext );
             break;
         }

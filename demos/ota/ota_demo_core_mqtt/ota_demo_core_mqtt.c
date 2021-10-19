@@ -33,6 +33,10 @@
 
 #include "aws_demo_config.h"
 
+/* OTA library and demo configuration macros. */
+#include "ota_config.h"
+#include "ota_demo_config.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -75,10 +79,6 @@
 
 /* OTA Library include. */
 #include "ota.h"
-
-/* OTA library and demo configuration macros. */
-#include "ota_config.h"
-#include "ota_demo_config.h"
 
 /* OTA Library Interface include. */
 #include "ota_os_freertos.h"

@@ -40,6 +40,10 @@
 #include "aws_demo_config.h"
 #include "iot_network.h"
 
+/* OTA library and demo configuration macros. */
+#include "ota_config.h"
+#include "ota_demo_config.h"
+
 /* CoreMQTT-Agent APIS for running MQTT in a multithreaded environment. */
 #include "freertos_agent_message.h"
 #include "freertos_command_pool.h"
@@ -79,10 +83,6 @@
 
 /* OTA Library include. */
 #include "ota.h"
-
-/* OTA library and demo configuration macros. */
-#include "ota_config.h"
-#include "ota_demo_config.h"
 
 /* OTA Library Interface include. */
 #include "ota_os_freertos.h"
@@ -1616,7 +1616,6 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
                                      const char * pcUrl )
 {
     BaseType_t returnStatus = pdPASS;
-    BaseType_t xStatus = pdPASS;
     HTTPStatus_t xHttpStatus = HTTPSuccess;
     /* The location of the host address within the pre-signed URL. */
     const char * pcAddress = NULL;

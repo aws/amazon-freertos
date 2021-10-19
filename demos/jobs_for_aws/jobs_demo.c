@@ -485,13 +485,15 @@ static void prvProcessJobDocument( char * pcJobId,
     }
     else
     {
-        /* Send a status update to AWS IoT Jobs service for the next pending job. */
-        LogInfo( ( "Updating status of Job to IN_PROGRESS: JobId=%.*s", usJobIdLength, pcJobId ) );
-        prvSendUpdateForJob( pcJobId, usJobIdLength, MAKE_STATUS_REPORT( "IN_PROGRESS" ) );
-
         JobActionType xActionType = JOB_ACTION_UNKNOWN;
         char * pcMessage = NULL;
         size_t ulMessageLength = 0U;
+        char * pcTopic = NULL;
+        size_t ulTopicLength = 0U;
+
+        /* Send a status update to AWS IoT Jobs service for the next pending job. */
+        LogInfo( ( "Updating status of Job to IN_PROGRESS: JobId=%.*s", usJobIdLength, pcJobId ) );
+        prvSendUpdateForJob( pcJobId, usJobIdLength, MAKE_STATUS_REPORT( "IN_PROGRESS" ) );
 
         xActionType = prvGetAction( pcAction, uActionLength );
 
@@ -535,8 +537,6 @@ static void prvProcessJobDocument( char * pcJobId,
 
             case JOB_ACTION_PUBLISH:
                 LogInfo( ( "Received job contains \"publish\" action." ) );
-                char * pcTopic = NULL;
-                size_t ulTopicLength = 0U;
 
                 xJsonStatus = JSON_Search( pcJobDocument,
                                            jobDocumentLength,
@@ -660,9 +660,9 @@ static void prvNextJobHandler( MQTTPublishInfo_t * pxPublishInfo )
                 memcpy( usJobsDocumentBuffer, pcJobDocLoc, ulJobDocLength );
 
                 /* Process the Job document and execute the job. */
-                prvProcessJobDocument( usJobIdBuffer,
+                prvProcessJobDocument( ( char * ) usJobIdBuffer,
                                        ( uint16_t ) ulJobIdLength,
-                                       usJobsDocumentBuffer,
+                                       ( char * ) usJobsDocumentBuffer,
                                        ulJobDocLength );
             }
         }
