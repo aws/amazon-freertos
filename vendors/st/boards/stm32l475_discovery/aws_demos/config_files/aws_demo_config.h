@@ -57,6 +57,8 @@
 #define democonfigSHADOW_DEMO_TASK_PRIORITY                          ( tskIDLE_PRIORITY + 5 )
 #define shadowDemoUPDATE_TASK_STACK_SIZE                             ( configMINIMAL_STACK_SIZE * 5 )
 
+#define democonfigJOBS_DEMO_TASK_STACK_SIZE                          ( 1024 )
+
 #define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT                  pdMS_TO_TICKS( 12000 )
 #define democonfigMQTT_ECHO_TASK_PRIORITY                            ( tskIDLE_PRIORITY )
 
