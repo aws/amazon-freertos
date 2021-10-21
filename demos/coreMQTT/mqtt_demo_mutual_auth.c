@@ -863,7 +863,7 @@ static void prvUpdateSubAckStatus( MQTTPacketInfo_t * pxPacketInfo )
 
     for( ulTopicCount = 0; ulTopicCount < ulSize; ulTopicCount++ )
     {
-        xTopicFilterContext[ ulTopicCount ].xSubAckStatus = pucPayload[ ulTopicCount ];
+        xTopicFilterContext[ ulTopicCount ].xSubAckStatus = ( MQTTSubAckStatus_t ) ( pucPayload[ ulTopicCount ] );
     }
 }
 /*-----------------------------------------------------------*/

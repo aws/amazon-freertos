@@ -1583,9 +1583,11 @@ static BaseType_t prvConnectToMQTTBroker( void )
 
 static void prvDisconnectFromMQTTBroker( void )
 {
-    MQTTAgentCommandContext_t xCommandContext = { 0 };
+    MQTTAgentCommandContext_t xCommandContext;
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
     MQTTStatus_t xCommandStatus;
+
+    memset( &( xCommandContext ), 0, sizeof( MQTTAgentCommandContext_t ) );
 
     /* Disconnect from broker. */
     LogInfo( ( "Disconnecting the MQTT connection with %s.", democonfigMQTT_BROKER_ENDPOINT ) );
@@ -1905,7 +1907,7 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
         {
             xHttpConnectionStatus = pdTRUE;
 
-            xReturnStatus = HTTPSuccess;
+            xReturnStatus = OtaHttpSuccess;
         }
         else
         {
@@ -1941,15 +1943,17 @@ static OtaMqttStatus_t prvMqttSubscribe( const char * pcTopicFilter,
     OtaMqttStatus_t xMqttStatus = OtaMqttSuccess;
     MQTTStatus_t xCommandStatus;
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
-    MQTTAgentCommandContext_t xCommandContext = { 0 };
-    MQTTSubscribeInfo_t xSubscription = { 0 };
+    MQTTAgentCommandContext_t xCommandContext;
+    MQTTSubscribeInfo_t xSubscription;
     MQTTAgentSubscribeArgs_t xSubscribeArgs = { 0 };
 
+    memset( &( xCommandContext ), 0, sizeof( MQTTAgentCommandContext_t ) );
+    memset( &( xSubscription ), 0, sizeof( MQTTSubscribeInfo_t ) );
 
     assert( pcTopicFilter != NULL );
     assert( usTopicFilterLength > 0 );
 
-    xSubscription.qos = ucQOS;
+    xSubscription.qos = ( MQTTQoS_t ) ucQOS;
     xSubscription.pTopicFilter = pcTopicFilter;
     xSubscription.topicFilterLength = usTopicFilterLength;
     xSubscribeArgs.numSubscriptions = 1;
@@ -1997,13 +2001,16 @@ static OtaMqttStatus_t prvMqttPublish( const char * const pcTopic,
     OtaMqttStatus_t xMqttStatus = OtaMqttSuccess;
     MQTTStatus_t xCommandStatus;
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
-    MQTTAgentCommandContext_t xCommandContext = { 0 };
-    MQTTPublishInfo_t publishInfo = { 0 };
+    MQTTAgentCommandContext_t xCommandContext;
+    MQTTPublishInfo_t publishInfo;
+
+    memset( &( xCommandContext ), 0, sizeof( MQTTAgentCommandContext_t ) );
+    memset( &( publishInfo ), 0, sizeof( MQTTPublishInfo_t ) );
 
     /* Set the required publish parameters. */
     publishInfo.pTopicName = pcTopic;
     publishInfo.topicNameLength = usTopicLen;
-    publishInfo.qos = ucQOS;
+    publishInfo.qos = ( MQTTQoS_t ) ucQOS;
     publishInfo.pPayload = pcMsg;
     publishInfo.payloadLength = ulMsgSize;
 
@@ -2045,11 +2052,14 @@ static OtaMqttStatus_t prvMqttUnSubscribe( const char * pcTopicFilter,
     OtaMqttStatus_t xMqttStatus = OtaMqttSuccess;
     MQTTStatus_t xCommandStatus;
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
-    MQTTAgentCommandContext_t xCommandContext = { 0 };
-    MQTTSubscribeInfo_t xSubscription = { 0 };
+    MQTTAgentCommandContext_t xCommandContext;
+    MQTTSubscribeInfo_t xSubscription;
     MQTTAgentSubscribeArgs_t xSubscribeArgs = { 0 };
 
-    xSubscription.qos = ucQOS;
+    memset( &( xCommandContext ), 0, sizeof( MQTTAgentCommandContext_t ) );
+    memset( &( xSubscription ), 0, sizeof( MQTTSubscribeInfo_t ) );
+
+    xSubscription.qos = ( MQTTQoS_t ) ucQOS;
     xSubscription.pTopicFilter = pcTopicFilter;
     xSubscription.topicFilterLength = usTopicFilterLength;
     xSubscribeArgs.numSubscriptions = 1;

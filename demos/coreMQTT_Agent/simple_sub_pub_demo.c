@@ -365,8 +365,10 @@ static bool prvSubscribeToTopic( MQTTQoS_t xQoS,
     MQTTAgentSubscribeArgs_t xSubscribeArgs;
     MQTTSubscribeInfo_t xSubscribeInfo;
     static int32_t ulNextSubscribeMessageID = 0;
-    MQTTAgentCommandContext_t xApplicationDefinedContext = { 0 };
+    MQTTAgentCommandContext_t xApplicationDefinedContext;
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
+
+    memset( &( xApplicationDefinedContext ), 0, sizeof( MQTTAgentCommandContext_t ) );
 
     /* Create a unique number of the subscribe that is about to be sent.  The number
      * is used as the command context and is sent back to this task as a notification
@@ -446,7 +448,7 @@ static bool prvSubscribeToTopic( MQTTQoS_t xQoS,
 
 static void prvSimpleSubscribePublishTask( void * pvParameters )
 {
-    MQTTPublishInfo_t xPublishInfo = { 0 };
+    MQTTPublishInfo_t xPublishInfo;
     char payloadBuf[ mqttexampleSTRING_BUFFER_LENGTH ];
     char taskName[ mqttexampleSTRING_BUFFER_LENGTH ];
     MQTTAgentCommandContext_t xCommandContext;
@@ -459,6 +461,8 @@ static void prvSimpleSubscribePublishTask( void * pvParameters )
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
     char * pcTopicBuffer = topicBuf[ ulTaskNumber ];
     uint32_t numSuccesses = 0U;
+
+    memset( &( xPublishInfo ), 0, sizeof( MQTTPublishInfo_t ) );
 
     /* Have different tasks use different QoS.  0 and 1.  2 can also be used
      * if supported by the broker. */
