@@ -473,6 +473,7 @@ end:
 OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
 {
     OtaPalMainStatus_t mainErr = OtaPalSuccess;
+	uint8_t * puCustomData = NULL;
 
     if( !_esp_ota_ctx_validate( pFileContext ) )
     {
@@ -501,6 +502,24 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
         }
         else
         {
+			/* Get the offset for custom data.*/
+			puCustomData = get_custom_data_offset();
+			
+			/* Get the size for custom data.*/
+			customDataSize = get_custom_data_size();
+			
+			/* Write custom data from ota partition to custom data partition.*/
+		    /* First find the partition map in the partition table.*/
+			const esp_partition_t *partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, "custom_data");
+			assert(partition != NULL)
+			
+			/* Erase partition. */
+			ESP_ERROR_CHECK(esp_partition_erase_range(partition, 0, partition->size));
+			
+			/* Write the data, starting from the beginning of the partition. */
+			ESP_ERROR_CHECK(esp_partition_write(partition, 0, puCustomData, customDataSize ) );
+			ESP_LOGI(TAG, "Written custom data of size : %d", customDataSize);
+			
             /* Write ASN1 decoded signature at the end of firmware image for bootloader to validate during bootup */
             esp_sec_boot_sig_t * sec_boot_sig = ( esp_sec_boot_sig_t * ) malloc( sizeof( esp_sec_boot_sig_t ) );
 

@@ -90,6 +90,10 @@
 /* Includes the OTA Application version number. */
 #include "ota_appversion32.h"
 
+/* ESP includes. */
+#include "esp_partition.h"
+#include "esp_log.h"
+
 /*------------- Demo configurations -------------------------*/
 
 /** Note: The device client certificate and private key credentials are
@@ -850,6 +854,42 @@ static OtaEventData_t * prvOtaEventBufferGet( void )
 
     return pxFreeBuffer;
 }
+
+/*-----------------------------------------------------------*/
+
+static BaseType_t prvParseCustomJob( OtaJobDocument_t* jobDoc )
+{
+    LogInfo( ( "Parsing custom job." ) );
+    char* jobDocValue = NULL;
+    size_t valueLength = 0;
+    JSONStatus_t result;
+    BaseType_t xReturn = pdFAIL;
+
+    /* Search for the URL.*/
+    result =  JSON_SearchConst( jobDoc->pJobDocJson,
+                                jobDoc->jobDocLength,
+                                "firmware_url",
+                                strlen("firmware_url"),
+                                &jobDocValue,
+                                &valueLength,
+                                NULL);
+
+    if ( result == JSONSuccess )
+    {
+        LogInfo( ( jobDocValue ) );
+        jobDoc->parseErr = OtaJobParseErrNone;
+        xReturn = pdPASS;
+    }
+    else
+    {
+        LogError( ( "firmware_url not found in custom job." ) );
+        jobDoc->parseErr = OtaJobParseErrNonConformingJobDoc;
+    }
+
+    return xReturn;
+
+}
+
 /*-----------------------------------------------------------*/
 
 static void prvOtaAppCallback( OtaJobEvent_t xEvent,
@@ -929,6 +969,36 @@ static void prvOtaAppCallback( OtaJobEvent_t xEvent,
             OTA_Shutdown( otaexampleOTA_SHUTDOWN_WAIT_TICKS, otaexampleUNSUBSCRIBE_AFTER_OTA_SHUTDOWN );
 
             break;
+			
+	    case OtaJobEventParseCustomJob:
+		
+			/* Parse custom job.*/
+			
+            pJobDoc = ( OtaJobDocument_t * ) pData;
+
+            if ( pdPASS == prvParseCustomJob( pJobDoc ) )
+            {
+                pJobDoc->status = JobStatusSucceeded;
+            }
+            else
+            {
+                pJobDoc->status = JobStatusFailed;
+            }
+
+            break;
+			
+		case OtaJobEventUpdateComplete:
+		
+			static char read_data[512];
+			
+			/* Find the partition map in the partition table. */
+			const esp_partition_t *partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, "custom_data");
+			assert(partition != NULL);
+			
+			/* Read from the partition. */
+			ESP_ERROR_CHECK(esp_partition_read( partition, 0, read_data, sizeof(read_data) ) );
+		
+			break;
 
         default:
             LogDebug( ( "Received invalid callback event from OTA Agent." ) );
