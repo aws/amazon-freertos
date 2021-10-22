@@ -42,5 +42,8 @@ static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 bool IotTestNetwork_SelectNetworkType( uint16_t networkType )
 {
     _IotTestNetworkType = networkType;
+
+    ( void ) _IotTestNetworkType;
+
     return true;
 }

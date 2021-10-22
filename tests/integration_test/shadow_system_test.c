@@ -214,13 +214,6 @@ struct NetworkContext
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Global variable used by the pseudo random number generator.
- * The random number generator is used for calculating exponential back-off
- * with jitter for retry attempts of failed network operations with the broker.
- */
-static uint32_t nextRand;
-
-/**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
  * it is used to match received Subscribe ACK to the transmitted subscribe.
  */
@@ -497,6 +490,10 @@ static void eventCallback( MQTTContext_t * pContext,
     uint16_t packetIdentifier;
 
     ( void ) pContext;
+    ( void ) receivedPubComp;
+    ( void ) receivedPubRec;
+    ( void ) receivedPubRel;
+
 
     assert( pDeserializedInfo != NULL );
     assert( pContext != NULL );
