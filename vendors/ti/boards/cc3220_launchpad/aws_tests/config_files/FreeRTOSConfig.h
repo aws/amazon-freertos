@@ -34,10 +34,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     extern int DbgConsole_Printf( const char *fmt_s, ... );
     extern void vLoggingPrint( const char * pcMessage );
     extern void vLoggingPrintf( const char * pcFormat, ... );
-    #ifndef UART_PRINT
-      #include "uart_term.h"
-      #define UART_PRINT    Report
-    #endif
+    #include "uart_term.h"
 #endif
 
 
@@ -106,7 +103,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define configPRINT( X )     vLoggingPrint( X )
 
 /* Map the logging task's printf to the board specific output function. */
-#define configPRINT_STRING( x )    Report( x );
+#define configPRINT_STRING( x )    Message( x );
 
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */
