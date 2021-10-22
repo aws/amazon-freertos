@@ -157,10 +157,6 @@ struct NetworkContext
  */
 static uint32_t ulGlobalEntryTimeMs;
 
-/* The maximum time to wait for an MQTT operation to complete.  Needs to be
- * long enough for the TLS negotiation to complete. */
-static const uint32_t _maxCommandTimeMs = 20000UL;
-
 static const uint32_t _timeBetweenPublishMs = 1500UL;
 
 static char pcJSONFile[ ggdDEMO_DISCOVERY_FILE_SIZE ];
@@ -486,7 +482,6 @@ static void sendMessageToGGC( MQTTContext_t * pxMQTTContext )
 {
     MQTTStatus_t xResult;
     MQTTPublishInfo_t xMQTTPublishInfo;
-    BaseType_t xDemoStatus = pdPASS;
     uint32_t ulMessageCounter;
     char cBuffer[ ggdDEMO_MAX_MQTT_MSG_SIZE ];
     const char * pcTopic = ggdDEMO_MQTT_MSG_TOPIC;
@@ -510,7 +505,6 @@ static void sendMessageToGGC( MQTTContext_t * pxMQTTContext )
 
         if( xResult != MQTTSuccess )
         {
-            xDemoStatus = pdFAIL;
             LogError( ( "Failed to send PUBLISH message to broker: Topic=%s, Error=%s",
                         pcTopic,
                         MQTT_Status_strerror( xResult ) ) );
@@ -531,7 +525,6 @@ static int discoverGreengrassCore()
     NetworkContext_t xNetworkContext = { 0 };
     MQTTContext_t xMQTTContext = { 0 };
     MQTTStatus_t xMQTTStatus;
-    BaseType_t xIsConnectionEstablished = pdFALSE;
 
 
     memset( &xHostAddressData, 0, sizeof( xHostAddressData ) );
@@ -567,8 +560,6 @@ static int discoverGreengrassCore()
 
         if( xDemoStatus == pdPASS )
         {
-            xIsConnectionEstablished = pdTRUE;
-
             sendMessageToGGC( &xMQTTContext );
 
             LogInfo( ( "Disconnecting from broker." ) );

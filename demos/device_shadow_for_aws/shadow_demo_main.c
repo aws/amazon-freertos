@@ -56,6 +56,7 @@
 
 /* Standard includes. */
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -235,11 +236,6 @@ static MQTTContext_t xMqttContext;
  * @brief The network context used for TLS operation.
  */
 static NetworkContext_t xNetworkContext;
-
-/**
- * @brief The flag to indicate the mqtt session changed.
- */
-static BaseType_t mqttSessionEstablished = pdTRUE;
 
 /**
  * @brief Static buffer used to hold MQTT messages being sent and received.
@@ -781,7 +777,6 @@ int RunDeviceShadowDemo( bool awsIotMqttMode,
 {
     BaseType_t xDemoStatus = pdPASS;
     BaseType_t xDemoRunCount = 0UL;
-    BaseType_t xDeleteResponseLoopCount = 0UL;
 
     /* A buffer containing the update document. It has static duration to prevent
      * it from being placed on the call stack. */

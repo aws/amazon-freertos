@@ -854,7 +854,7 @@ static void eventCallback( MQTTContext_t * pContext,
             incomingInfo.pPayload = NULL;
             /* Copy information of topic name and payload. */
             memcpy( ( void * ) incomingTopicBuffer, pPublishInfo->pTopicName, pPublishInfo->topicNameLength );
-            incomingInfo.pTopicName = incomingTopicBuffer;
+            incomingInfo.pTopicName = ( const char * ) incomingTopicBuffer;
             memcpy( ( void * ) incomingPayloadBuffer, pPublishInfo->pPayload, pPublishInfo->payloadLength );
             incomingInfo.pPayload = incomingPayloadBuffer;
 

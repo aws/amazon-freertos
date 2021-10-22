@@ -7,9 +7,11 @@
 
 //Defines
 
-#define UART_PRINT Report
-#define DBG_PRINT  Report
-#define ERR_PRINT(x) Report("Error [%d] at line [%d] in function [%s]  \n\r",x,__LINE__,__FUNCTION__)
+extern void vLoggingPrintf( const char * pcFormat,
+                            ... );
+#define UART_PRINT      vLoggingPrintf
+#define DBG_PRINT       vLoggingPrintf
+#define ERR_PRINT( x )  vLoggingPrintf( "Error [%d] at line [%d] in function [%s]  \n\r",x,__LINE__,__FUNCTION__ )
 
 /* API */
 

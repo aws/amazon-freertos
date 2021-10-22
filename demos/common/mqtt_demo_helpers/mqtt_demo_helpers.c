@@ -716,7 +716,7 @@ void vHandleOtherIncomingPacket( MQTTPacketInfo_t * pxPacketInfo,
             configASSERT( xResult == MQTTSuccess );
             /* Only a single topic filter is expected for each SUBSCRIBE packet. */
             configASSERT( xSize == 1UL );
-            xTopicFilterContext.xSubAckStatus = *pucPayload;
+            xTopicFilterContext.xSubAckStatus = ( MQTTSubAckStatus_t ) *pucPayload;
 
             if( xTopicFilterContext.xSubAckStatus != MQTTSubAckFailure )
             {

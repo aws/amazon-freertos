@@ -31,6 +31,10 @@
 #ifndef TRANSPORT_SECURE_SOCKETS_H
 #define TRANSPORT_SECURE_SOCKETS_H
 
+/* Transport interface include. */
+#include "transport_interface.h"
+#include "iot_secure_sockets.h"
+
 /* bool is defined in only C99+. */
 #if defined( __cplusplus ) || ( defined( __STDC_VERSION__ ) && ( __STDC_VERSION__ >= 199901L ) )
     #include <stdbool.h>
@@ -40,10 +44,6 @@
     #define true     ( int8_t ) 1
 #endif
 /** @endcond */
-
-/* Transport interface include. */
-#include "transport_interface.h"
-#include "iot_secure_sockets.h"
 
 /* Kernel include. */
 #include "FreeRTOS.h"

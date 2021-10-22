@@ -119,8 +119,10 @@ static uint8_t ucDummyData[] =
  * all zeros before every test. */
 static OtaFileContext_t xOtaFile;
 
-/* Certificate used for validating code signing signatures in the tests. */
-static const char codeSigningCertificatePEM[] = otapalconfigCODE_SIGNING_CERTIFICATE;
+#if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 )
+    /* Certificate used for validating code signing signatures in the tests. */
+    static const char codeSigningCertificatePEM[] = otapalconfigCODE_SIGNING_CERTIFICATE;
+#endif
 
 #ifdef CC3220sf
 

@@ -1127,7 +1127,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
             sRetCode = sl_WlanSet( SL_WLAN_CFG_AP_ID,
                                    SL_WLAN_AP_OPT_SSID,
                                    strlen( cSSID ),
-                                   cSSID );
+                                   ( const  _u8 *) cSSID );
         }
 
         /* Print error, if there is one. */
