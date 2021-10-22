@@ -26,14 +26,9 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
-
-#ifndef UART_PRINT
-
 /* Ensure stdint (needed by UART.h) is only used by the compiler, and not the assembler. */
 #ifndef __ASSEMBLER__
     #include "uart_term.h"
-#endif
-    #define UART_PRINT    Report
 #endif
 
 /*-----------------------------------------------------------
@@ -104,7 +99,7 @@ extern void vLoggingPrintf( const char * pcFormat,
 
 
 /* Map the logging task's printf to the board specific output function. */
-#define configPRINT_STRING( x )    UART_PRINT( x );
+#define configPRINT_STRING( x )    Message( x );
 
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */
