@@ -34,7 +34,7 @@
  * @todo Set this to the fully-qualified DNS name of your MQTT broker.
  */
 #ifndef clientcredentialMQTT_BROKER_ENDPOINT
-    #define clientcredentialMQTT_BROKER_ENDPOINT         ""
+    #define clientcredentialMQTT_BROKER_ENDPOINT    ""
 #endif
 
 /*
@@ -48,13 +48,14 @@
  * than a hard coded constant.
  */
 #ifndef clientcredentialIOT_THING_NAME
-    #define clientcredentialIOT_THING_NAME               ""
+    #define clientcredentialIOT_THING_NAME    ""
 #endif
+
 /*
  * @brief Port number the MQTT broker is using.
  */
 #ifndef clientcredentialMQTT_BROKER_PORT
-    #define clientcredentialMQTT_BROKER_PORT             8883
+    #define clientcredentialMQTT_BROKER_PORT    8883
 #endif
 
 /*
@@ -70,7 +71,7 @@
  * @todo If you are using Wi-Fi, set this to your network name.
  */
 #ifndef clientcredentialWIFI_SSID
-    #define clientcredentialWIFI_SSID                    ""
+    #define clientcredentialWIFI_SSID    ""
 #endif
 
 /*
@@ -78,7 +79,7 @@
  * @todo If you are using WPA, set this to your network password.
  */
 #ifndef clientcredentialWIFI_PASSWORD
-    #define clientcredentialWIFI_PASSWORD                ""
+    #define clientcredentialWIFI_PASSWORD    ""
 #endif
 
 /*
@@ -90,7 +91,7 @@
  * eWiFiSecurityWPA2 (depending on the support of your device Wi-Fi radio).
  */
 #ifndef clientcredentialWIFI_SECURITY
-    #define clientcredentialWIFI_SECURITY                eWiFiSecurityWPA2
+    #define clientcredentialWIFI_SECURITY    eWiFiSecurityWPA2
 #endif
 
 #endif /* ifndef __AWS_CLIENTCREDENTIAL__H__ */

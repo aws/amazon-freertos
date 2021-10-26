@@ -51,7 +51,7 @@
  * "-----END CERTIFICATE-----\n"
  */
 #ifndef keyCLIENT_CERTIFICATE_PEM
-    #define keyCLIENT_CERTIFICATE_PEM                   NULL
+    #define keyCLIENT_CERTIFICATE_PEM    NULL
 #endif
 
 /*
@@ -95,7 +95,7 @@
  * "-----END RSA PRIVATE KEY-----\n"
  */
 #ifndef keyCLIENT_PRIVATE_KEY_PEM
-    #define keyCLIENT_PRIVATE_KEY_PEM                   NULL
+    #define keyCLIENT_PRIVATE_KEY_PEM    NULL
 #endif
 
 #endif /* AWS_CLIENT_CREDENTIAL_KEYS_H */
