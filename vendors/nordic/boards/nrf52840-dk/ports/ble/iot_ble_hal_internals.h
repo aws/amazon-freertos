@@ -140,6 +140,7 @@ static inline const BTStatus_t BTNRFError( const ret_code_t xErrCode )
             break;
 
         case NRF_ERROR_NO_MEM:
+        case NRF_ERROR_DATA_SIZE:
             xStatus = eBTStatusNoMem;
             break;
 
