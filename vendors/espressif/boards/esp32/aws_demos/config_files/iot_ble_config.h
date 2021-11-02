@@ -34,6 +34,7 @@
 
 /* Device name for this peripheral device. */
 #define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME                      "ESP32"
+#define IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE                    ( 5 )
 
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "iot_ble_config_defaults.h"
