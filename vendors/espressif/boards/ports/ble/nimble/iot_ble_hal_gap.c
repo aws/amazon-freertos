@@ -743,9 +743,13 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         xESPStatus = ble_gap_adv_set_fields( &fields );
     }
 
-    if( xESPStatus != 0 )
+    switch( xESPStatus )
     {
-        xStatus = eBTStatusFail;
+        case BLE_HS_EMSGSIZE:
+            xStatus = eBTStatusNoMem;
+            break;
+        default:
+            xStatus = eBTStatusFail;
     }
 
     if( xBTBleAdapterCallbacks.pxSetAdvDataCb != NULL )
