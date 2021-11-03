@@ -652,6 +652,7 @@ BTStatus_t IotBle_On( void )
             if( status == eBTStatusSuccess )
             {
                 status = prvSetAdvData( &_scanRespParams );
+
                 if( status == eBTStatusNoMem )
                 {
                     IotLogError( "Exceeded max advertisement PDU data size. Please reduce advertised data." );

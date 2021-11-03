@@ -1,5 +1,5 @@
 /*
-* FreeRTOS
+ * FreeRTOS
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -238,9 +238,9 @@ BTStatus_t prvToggleBondableFlag( bool bEnable )
 
     ble_hs_cfg.sm_bonding = bEnable;
 
-    if ( bEnable )
+    if( bEnable )
     {
-        ble_hs_cfg.sm_our_key_dist   = BLE_SM_PAIR_KEY_DIST_ID | BLE_SM_PAIR_KEY_DIST_ENC;
+        ble_hs_cfg.sm_our_key_dist = BLE_SM_PAIR_KEY_DIST_ID | BLE_SM_PAIR_KEY_DIST_ENC;
         ble_hs_cfg.sm_their_key_dist = BLE_SM_PAIR_KEY_DIST_ID | BLE_SM_PAIR_KEY_DIST_ENC;
     }
 
@@ -565,7 +565,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
      *     o Discoverability in forthcoming advertisement (general)
      *     o BLE-only (BR/EDR unsupported).
      */
-    if ( !pxParams->bSetScanRsp )
+    if( !pxParams->bSetScanRsp )
     {
         fields.flags = BLE_HS_ADV_F_DISC_GEN |
                        BLE_HS_ADV_F_BREDR_UNSUP;
@@ -748,6 +748,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         case BLE_HS_EMSGSIZE:
             xStatus = eBTStatusNoMem;
             break;
+
         default:
             xStatus = eBTStatusFail;
     }
