@@ -1,6 +1,10 @@
 # Change Log
 This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT. The repository contains projects for many different microcontroller evaluation boards.
 
+## 202012.01 November 2021
+
+This is a minor version update to the vendor source code for patching Espressif ESP-IDF V3.3, for mitigating Bluetooth vulnerability named Braktooth (https://asset-group.github.io/disclosures/braktooth). The changes are contained within the Espressif IDF SDK submodule and the porting layer for Espressif boards. Only Espressif platforms such as ESP32-DevKitC, ESP-WROVER-KIT and ESP32-WROOM-SE are affected by this change.
+
 ## 202012.00 December 2020
 
 ### New Features
