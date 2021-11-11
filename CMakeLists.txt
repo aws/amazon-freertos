@@ -8,7 +8,7 @@ endif()
 project(amazon-freertos)
 set(PROJECT_VERSION "202012.00")
 set(PROJECT_VERSION_MAJOR "202012")
-set(PROJECT_VERSION_MINOR "00")
+set(PROJECT_VERSION_MINOR "01")
 
 # Import global configurations.
 include("tools/cmake/afr.cmake")
