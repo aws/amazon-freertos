@@ -23,6 +23,8 @@ if(DEFINED ENV{IDF_PATH})
     CMake was successful.")
 endif()
 
+
+
 set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
 # Provides idf_import_components and idf_link_components
 include(${esp_idf_dir}/tools/cmake/idf.cmake)
@@ -126,6 +128,7 @@ if(AFR_ESP_FREERTOS_TCP)
     "${esp_idf_dir}/components/esp_wifi/include"
     "${esp_idf_dir}/components/esp_netif/include"
     "${esp_idf_dir}/components/esp_eth/include"
+    "${esp_idf_dir}/components/soc/soc/include"
     )
 else()
     list(APPEND kernel_inc_dirs
@@ -401,6 +404,11 @@ if(AFR_ENABLE_TESTS)
     )
 endif()
 
+# Add extra components to metadata
+afr_files_to_console_metadata(
+    "${extra_components_dir}"
+)
+
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
@@ -467,7 +475,6 @@ set_source_files_properties(${AFR_DEMOS_DIR}/logging/iot_logging_task_dynamic_bu
     PROPERTIES COMPILE_FLAGS
     "-Wno-format -Wno-uninitialized"
 )
-
 
 set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
     PROPERTIES COMPILE_FLAGS
@@ -550,7 +557,6 @@ set(IDF_BUILD_ARTIFACTS ON)
 set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_BINARY_DIR})
 
 set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
-
 
 set_property(GLOBAL PROPERTY IDF_PROJECT_EXECUTABLE ${IDF_PROJECT_EXECUTABLE})
 
