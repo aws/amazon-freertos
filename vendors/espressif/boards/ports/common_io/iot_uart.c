@@ -267,6 +267,13 @@ IotUARTHandle_t iot_uart_open(int32_t lUartInstance)
             return NULL;
         }
 
+        /* Set default config in UART context before returning */
+        uart_ctx->iot_uart_conf.ulBaudrate = IOT_UART_BAUD_RATE_DEFAULT;
+        uart_ctx->iot_uart_conf.xParity = eUartParityNone;
+        uart_ctx->iot_uart_conf.xStopbits = eUartStopBitsOne;
+        uart_ctx->iot_uart_conf.ucWordlength = 8;
+        uart_ctx->iot_uart_conf.ucFlowControl = 0;
+
         IotUARTHandle_t iot_uart_handler = (void *) uart_ctx;
         uart_bit_mask = uart_bit_mask | BIT(lUartInstance);
         return iot_uart_handler;
