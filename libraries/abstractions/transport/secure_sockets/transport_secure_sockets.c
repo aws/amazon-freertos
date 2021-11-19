@@ -272,8 +272,13 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
         }
     }
 
+    if( pSocketsConfig->disableSni == true )
+    {
+        LogWarn( ( "The disableSni option is deprecated but set in the provided socket configuration. This setting is now ignored." ) );
+    }
+
     /* Set SNI option. */
-    if( ( secureSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->disableSni == false ) )
+    if( secureSocketStatus == SOCKETS_ERROR_NONE )
     {
         secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
                                                  0,

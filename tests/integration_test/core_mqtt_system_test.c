@@ -1040,7 +1040,7 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     socketsConfig.enableTls = true;
     socketsConfig.pAlpnProtos = NULL;
     socketsConfig.maxFragmentLength = 0;
-    socketsConfig.disableSni = true;
+    socketsConfig.disableSni = false;
     socketsConfig.pRootCa = SERVER_ROOT_CA_CERT;
     socketsConfig.rootCaSize = strlen( SERVER_ROOT_CA_CERT ) + 1U;
     socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;

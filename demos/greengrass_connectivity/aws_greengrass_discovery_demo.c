@@ -410,7 +410,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * 
     xSocketsConfig.enableTls = true;
     xSocketsConfig.pAlpnProtos = NULL;
     xSocketsConfig.maxFragmentLength = 0;
-    xSocketsConfig.disableSni = true;
+    xSocketsConfig.disableSni = false;
     xSocketsConfig.pRootCa = pxHostAddressData->pcCertificate;
     xSocketsConfig.rootCaSize = ( size_t ) pxHostAddressData->ulCertificateSize;
     xSocketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
