@@ -57,8 +57,8 @@ struct esp_spi_pin_config {
 #define ESP_UART_PIN_MAP  {       \
     /* UART 0 */                  \
     { GPIO_NUM_1, GPIO_NUM_3 },   \
-    /* UART 1: this ACK team's preference */  \
-    { GPIO_NUM_19, GPIO_NUM_20 }, \
+    /* UART 1 */                  \
+    { GPIO_NUM_33, GPIO_NUM_34 }, \
     /* UART 2 */                  \
     { GPIO_NUM_17, GPIO_NUM_16 }, \
 }
