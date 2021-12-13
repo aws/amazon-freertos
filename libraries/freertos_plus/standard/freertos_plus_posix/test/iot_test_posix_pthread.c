@@ -122,27 +122,6 @@ static void * prvSignalCondThread( void * pvArgs )
 
 /*-----------------------------------------------------------*/
 
-static void * prvBarrierWithBlockThread( void * pvArgs )
-{
-    pthread_barrier_t * pxBarrier = ( pthread_barrier_t * ) pvArgs;
-    intptr_t xStatus = 0;
-
-    /* Enter the barrier, then exit. */
-    xStatus = ( intptr_t ) pthread_barrier_wait( pxBarrier );
-
-    vTaskDelay( portMAX_DELAY );
-
-    xStatus = ( intptr_t ) pthread_barrier_wait( pxBarrier );
-
-    pthread_exit( ( void * ) xStatus );
-
-    /* Silence compiler warnings about return values. This line will never be
-     * reached. */
-    return NULL;
-}
-
-/*-----------------------------------------------------------*/
-
 
 static void * prvSelfDetachThread( void * pvArgs )
 {
@@ -331,7 +310,6 @@ TEST_GROUP_RUNNER( Full_POSIX_PTHREAD )
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_create_join );
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_detach_before_running );
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_detach_while_running );
-    RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_detach_self );
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_detach_after_running );
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_attr_init_destroy );
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_mutex_lock_unlock );
@@ -471,53 +449,6 @@ TEST( Full_POSIX_PTHREAD, pthread_detach_while_running )
     if( TEST_PROTECT() )
     {
         /* Create a thread with default attributes. By default thread is created as joinable.
-         * Upon creation new thread waits for the current thread to join the barrier.
-         */
-        iStatus = pthread_create( &xNewThread, NULL, prvBarrierThread, ( void * ) &xBarrier );
-        TEST_ASSERT_EQUAL_INT_MESSAGE( 0,
-                                       iStatus,
-                                       "Thread creation failed!" );
-
-        /* Detach the new thread using pthread_detach(). */
-        iStatus = pthread_detach( xNewThread );
-        TEST_ASSERT_EQUAL_MESSAGE( 0, iStatus, "Thread detach failed." );
-
-        /* Attempt to join a detached thread. This should fail with EDEADLK. */
-        iStatus = pthread_join( xNewThread, NULL );
-        TEST_ASSERT_EQUAL_INT( EDEADLK, iStatus );
-
-        /* Trying to detach the thread again should return EINVAL. */
-        iStatus = pthread_detach( xNewThread );
-        TEST_ASSERT_EQUAL_INT( EINVAL, iStatus );
-
-        /* Wait in the barrier, which will release prvBarrierThread and the detached thread should exit. */
-        iStatus = pthread_barrier_wait( &xBarrier );
-
-        if( ( iStatus != 0 ) && ( iStatus != PTHREAD_BARRIER_SERIAL_THREAD ) )
-        {
-            TEST_FAIL_MESSAGE( "Failed to release the barrrier for detached thread." );
-        }
-    }
-
-    /* Destroy the barrier. */
-    ( void ) pthread_barrier_destroy( &xBarrier );
-}
-
-/*-----------------------------------------------------------*/
-
-TEST( Full_POSIX_PTHREAD, pthread_detach_self )
-{
-    int iStatus = 0;
-    pthread_t xNewThread = NULL;
-    pthread_barrier_t xBarrier = { 0 };
-
-    /*Initialize a pthread barrier for two threads. */
-    iStatus = pthread_barrier_init( &xBarrier, NULL, 2U );
-    TEST_ASSERT_EQUAL_INT( 0, iStatus );
-
-    if( TEST_PROTECT() )
-    {
-        /* Create a thread with default attributes. By default thread is created as joinable.
          * Thread will detach by itself after running.
          */
         iStatus = pthread_create( &xNewThread, NULL, prvSelfDetachThread, ( void * ) &xBarrier );
@@ -560,29 +491,71 @@ TEST( Full_POSIX_PTHREAD, pthread_detach_after_running )
 {
     int iStatus = 0;
     pthread_t xNewThread = NULL;
-    volatile int iNumberToSquare = 5;
-    struct timespec xDelay =
-    {
-        .tv_sec  = 0,
-        .tv_nsec = posixtestPTHREAD_DETACHED_WAIT_NANOSECONDS
-    };
+    pthread_barrier_t xBarrier = { 0 };
+    pthread_attr_t xThreadAttr;
+    volatile BaseType_t xAttrInitDone = pdFALSE;
+    struct sched_param xSchedParam;
+    UBaseType_t currentTaskPriority;
+
+    /* Get the current running thread's priority. */
+    currentTaskPriority = uxTaskPriorityGet( NULL );
+
+    /*Initialize a pthread barrier for two threads. */
+    iStatus = pthread_barrier_init( &xBarrier, NULL, 2U );
+    TEST_ASSERT_EQUAL_INT( 0, iStatus );
 
     if( TEST_PROTECT() )
     {
-        iStatus = pthread_create( &xNewThread, NULL, prvComputeSquareThread, ( void * ) &iNumberToSquare );
+        /* Create a pthread_attr_t. */
+        iStatus = pthread_attr_init( &xThreadAttr );
+        TEST_ASSERT_EQUAL_INT_MESSAGE( 0,
+                                       iStatus,
+                                       "pthread_attr_init failed!" );
+        xAttrInitDone = pdTRUE;
+
+
+        /* Set current threads priority to lowest priority. */
+        vTaskPrioritySet( NULL, tskIDLE_PRIORITY );
+
+        /* Set newer threads priority to be higher than current threads priority. */
+        xSchedParam.sched_priority = tskIDLE_PRIORITY + 1U;
+        pthread_attr_setschedparam( &xThreadAttr, &xSchedParam );
+
+        /*
+         * Create the new high priority thread in joinable state. Thread will wait on barrier to join
+         * with the current thread.
+         */
+        iStatus = pthread_create( &xNewThread, &xThreadAttr, prvBarrierThread, ( void * ) &xBarrier );
         TEST_ASSERT_EQUAL_INT_MESSAGE( 0,
                                        iStatus,
                                        "Thread creation failed!" );
 
-        /* Wait some time for prvComputeSquareThread to exit and ensure it completed
-         * the calculation. */
-        nanosleep( &xDelay, NULL );
-        TEST_ASSERT_EQUAL_INT( 25, iNumberToSquare );
+        /*
+         * Join the  barrier with the peer thread. Peer thread being at higher priority will exit the barrier and run to
+         * completion. Since its joinable peer thread suspends itself.
+         */
+        iStatus = pthread_barrier_wait( &xBarrier );
 
-        /* Detach the thread when it is completed and in suspended mode. */
+        if( ( iStatus != 0 ) && ( iStatus != PTHREAD_BARRIER_SERIAL_THREAD ) )
+        {
+            TEST_FAIL_MESSAGE( "Failed to release the barrrier for detached thread." );
+        }
+
+        /* Detach the thread after it is suspended. This should clear all thread resources and free the peer thread. */
         iStatus = pthread_detach( xNewThread );
-        TEST_ASSERT_EQUAL_MESSAGE( 0, iStatus, "Thread detach failed." );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
     }
+
+    /* Reset back the current threads priority to original value. */
+    vTaskPrioritySet( NULL, currentTaskPriority );
+
+    if( xAttrInitDone == pdTRUE )
+    {
+        ( void ) pthread_attr_destroy( &xThreadAttr );
+    }
+
+    /* Destroy the barrier. */
+    ( void ) pthread_barrier_destroy( &xBarrier );
 }
 
 /*-----------------------------------------------------------*/
