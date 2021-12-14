@@ -358,6 +358,18 @@ int pthread_getschedparam( pthread_t thread,
 int pthread_join( pthread_t thread,
                   void ** retval );
 
+
+/**
+ * @brief  Marks the thread identified by thread as detached.
+ *
+ * @see https://pubs.opengroup.org/onlinepubs/009695399/functions/pthread_detach.html
+ *
+ * @retval 0 - Upon successful completion.
+ * @retval EINVAL - The implementation has detected that the value specified by thread does not refer
+ *                  to a joinable thread.
+ */
+int pthread_detach( pthread_t thread );
+
 /**
  * @brief Destroy a mutex.
  *
