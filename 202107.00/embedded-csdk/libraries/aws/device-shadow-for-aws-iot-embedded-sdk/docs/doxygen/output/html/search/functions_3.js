@@ -1,0 +1,5 @@
+var searchData=
+[
+  ['shadow_5fgettopicstring_98',['Shadow_GetTopicString',['../shadow_8h.html#ad42141061221798a5fe5a9efd9f1684f',1,'Shadow_GetTopicString(ShadowTopicStringType_t topicType, const char *pThingName, uint8_t thingNameLength, char *pTopicBuffer, uint16_t bufferSize, uint16_t *pOutLength):&#160;shadow.c'],['../shadow_8c.html#ad42141061221798a5fe5a9efd9f1684f',1,'Shadow_GetTopicString(ShadowTopicStringType_t topicType, const char *pThingName, uint8_t thingNameLength, char *pTopicBuffer, uint16_t bufferSize, uint16_t *pOutLength):&#160;shadow.c']]],
+  ['shadow_5fmatchtopic_99',['Shadow_MatchTopic',['../shadow_8h.html#a3ba8ea42875554cbec68d99178ef948c',1,'Shadow_MatchTopic(const char *pTopic, uint16_t topicLength, ShadowMessageType_t *pMessageType, const char **pThingName, uint16_t *pThingNameLength):&#160;shadow.c'],['../shadow_8c.html#a3ba8ea42875554cbec68d99178ef948c',1,'Shadow_MatchTopic(const char *pTopic, uint16_t topicLength, ShadowMessageType_t *pMessageType, const char **pThingName, uint16_t *pThingNameLength):&#160;shadow.c']]]
+];

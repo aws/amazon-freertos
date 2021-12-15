@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['callback_20types_27',['Callback Types',['../group__ota__callback__types.html',1,'']]],
+  ['certfilepathmaxsize_28',['certFilePathMaxSize',['../struct_ota_file_context__t.html#ad973ad2e69778a929d962c7b773006a3',1,'OtaFileContext_t']]],
+  ['certfilepathsize_29',['certFilePathSize',['../struct_ota_app_buffer__t.html#a5f08814fbd5e55f88e23677a4da8b732',1,'OtaAppBuffer_t']]],
+  ['checkdatatype_30',['checkDataType',['../ota__cbor_8c.html#ade7c5559b60e2e7472336f29c44f7e2b',1,'ota_cbor.c']]],
+  ['cleanup_31',['cleanup',['../struct_ota_control_interface__t.html#a8c05533f9db8e6dee6f58670545a0a3b',1,'OtaControlInterface_t::cleanup()'],['../struct_ota_data_interface__t.html#a76c6df1455e8f58d4116c584a3388213',1,'OtaDataInterface_t::cleanup()']]],
+  ['cleanupcontrol_5fmqtt_32',['cleanupControl_Mqtt',['../ota__mqtt_8c.html#ac8a6105f2306eac0fc6e935fa8a4f895',1,'cleanupControl_Mqtt(const OtaAgentContext_t *pAgentCtx):&#160;ota_mqtt.c'],['../ota__mqtt__private_8h.html#ac8a6105f2306eac0fc6e935fa8a4f895',1,'cleanupControl_Mqtt(const OtaAgentContext_t *pAgentCtx):&#160;ota_mqtt.c']]],
+  ['cleanupdata_5fhttp_33',['cleanupData_Http',['../ota__http_8c.html#a11b07a9ef9722b5a062da46301e5e80c',1,'cleanupData_Http(const OtaAgentContext_t *pAgentCtx):&#160;ota_http.c'],['../ota__http__private_8h.html#a11b07a9ef9722b5a062da46301e5e80c',1,'cleanupData_Http(const OtaAgentContext_t *pAgentCtx):&#160;ota_http.c']]],
+  ['cleanupdata_5fmqtt_34',['cleanupData_Mqtt',['../ota__mqtt__private_8h.html#a410d9ba569c75d746e3009cac78df37a',1,'cleanupData_Mqtt(const OtaAgentContext_t *pAgentCtx):&#160;ota_mqtt.c'],['../ota__mqtt_8c.html#a410d9ba569c75d746e3009cac78df37a',1,'cleanupData_Mqtt(const OtaAgentContext_t *pAgentCtx):&#160;ota_mqtt.c']]],
+  ['closefile_35',['closeFile',['../struct_ota_pal_interface__t.html#aed51ccb56c34bcb8d7981b50e1230eef',1,'OtaPalInterface_t']]],
+  ['closefilehandler_36',['closeFileHandler',['../ota_8c.html#a858c721e7cd210b915a41d74c7e47d6f',1,'ota.c']]],
+  ['configenabled_5fcontrol_5fprotocol_37',['configENABLED_CONTROL_PROTOCOL',['../ota__config__defaults_8h.html#a20fed391548ba26a1bfd7fbfd362e6f3',1,'ota_config_defaults.h']]],
+  ['configenabled_5fdata_5fprotocols_38',['configENABLED_DATA_PROTOCOLS',['../ota__config__defaults_8h.html#afc4d1763ec6f9abaacdace650252e7cd',1,'ota_config_defaults.h']]],
+  ['configota_5ffirmware_5fupdate_5ffile_5ftype_5fid_39',['configOTA_FIRMWARE_UPDATE_FILE_TYPE_ID',['../ota__config__defaults_8h.html#a6bb41cb18b72bfc7ef2046c25af3ab0c',1,'ota_config_defaults.h']]],
+  ['configota_5fprimary_5fdata_5fprotocol_40',['configOTA_PRIMARY_DATA_PROTOCOL',['../ota__config__defaults_8h.html#a96092c27429db9fcabd02c0c6a15756a',1,'ota_config_defaults.h']]],
+  ['configurations_41',['Configurations',['../ota_config.html',1,'']]],
+  ['const_5fstrlen_42',['CONST_STRLEN',['../ota_8h.html#a2714f6afa56c8777b5e570a390a69a58',1,'ota.h']]],
+  ['constants_43',['Constants',['../ota_constants.html',1,'(Global Namespace)'],['../group__ota__constants.html',1,'(Global Namespace)']]],
+  ['contextbase_44',['contextBase',['../struct_json_doc_model__t.html#a4b0418206c1d1aef360e5808cef93238',1,'JsonDocModel_t']]],
+  ['contextsize_45',['contextSize',['../struct_json_doc_model__t.html#a7b8f3e89336902ebb234e0c65232001f',1,'JsonDocModel_t']]],
+  ['createfile_46',['createFile',['../struct_ota_pal_interface__t.html#ad46b44c6ea0e60206d7d2766bf340f91',1,'OtaPalInterface_t']]],
+  ['currblock_47',['currBlock',['../ota__http_8c.html#a8c8624373c6a37dddbdd1ccf473084fb',1,'ota_http.c']]],
+  ['currentstate_48',['currentState',['../struct_ota_state_table_entry__t.html#a91baf25b705476a91a9d664b6d94465a',1,'OtaStateTableEntry_t']]]
+];

@@ -1,0 +1,5 @@
+var searchData=
+[
+  ['backoffalgorithm_5fgetnextbackoff_21',['BackoffAlgorithm_GetNextBackoff',['../backoff__algorithm_8c.html#ae9dc843e520435569f40e8832791ecbe',1,'BackoffAlgorithm_GetNextBackoff(BackoffAlgorithmContext_t *pRetryContext, uint32_t randomValue, uint16_t *pNextBackOff):&#160;backoff_algorithm.c'],['../backoff__algorithm_8h.html#ae9dc843e520435569f40e8832791ecbe',1,'BackoffAlgorithm_GetNextBackoff(BackoffAlgorithmContext_t *pRetryContext, uint32_t randomValue, uint16_t *pNextBackOff):&#160;backoff_algorithm.c']]],
+  ['backoffalgorithm_5finitializeparams_22',['BackoffAlgorithm_InitializeParams',['../backoff__algorithm_8c.html#ac37ecab230cf5da8f70547ec63776a48',1,'BackoffAlgorithm_InitializeParams(BackoffAlgorithmContext_t *pContext, uint16_t backOffBase, uint16_t maxBackOff, uint32_t maxAttempts):&#160;backoff_algorithm.c'],['../backoff__algorithm_8h.html#ac37ecab230cf5da8f70547ec63776a48',1,'BackoffAlgorithm_InitializeParams(BackoffAlgorithmContext_t *pContext, uint16_t backOffBase, uint16_t maxBackOff, uint32_t maxAttempts):&#160;backoff_algorithm.c']]]
+];

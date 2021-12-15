@@ -1,0 +1,25 @@
+var wifi_functions =
+[
+    [ "WIFI_On", "wifi_function_wifi_on.html", null ],
+    [ "WIFI_Off", "wifi_function_wifi_off.html", null ],
+    [ "WIFI_ConnectAP", "wifi_function_wifi_connectap.html", null ],
+    [ "WIFI_Disconnect", "wifi_function_wifi_disconnect.html", null ],
+    [ "WIFI_Reset", "wifi_function_wifi_reset.html", null ],
+    [ "WIFI_SetMode", "wifi_function_wifi_setmode.html", null ],
+    [ "WIFI_GetMode", "wifi_function_wifi_getmode.html", null ],
+    [ "WIFI_NetworkAdd", "wifi_function_wifi_networkadd.html", null ],
+    [ "WIFI_NetworkGet", "wifi_function_wifi_networkget.html", null ],
+    [ "WIFI_NetworkDelete", "wifi_function_wifi_networkdelete.html", null ],
+    [ "WIFI_Ping", "wifi_function_wifi_ping.html", null ],
+    [ "WIFI_GetIP", "wifi_function_wifi_getip.html", null ],
+    [ "WIFI_GetMAC", "wifi_function_wifi_getmac.html", null ],
+    [ "WIFI_GetHostIP", "wifi_function_wifi_gethostip.html", null ],
+    [ "WIFI_Scan", "wifi_function_wifi_scan.html", null ],
+    [ "WIFI_StartAP", "wifi_function_wifi_startap.html", null ],
+    [ "WIFI_StopAP", "wifi_function_wifi_stopap.html", null ],
+    [ "WIFI_ConfigureAP", "wifi_function_wifi_configureap.html", null ],
+    [ "WIFI_SetPMMode", "wifi_function_wifi_setpmmode.html", null ],
+    [ "WIFI_GetPMMode", "wifi_function_wifi_getpmmode.html", null ],
+    [ "WIFI_IsConnected", "wifi_function_wifi_isconnected.html", null ],
+    [ "WIFI_RegisterNetworkStateChangeEventCallback", "wifi_function_wifi_registernetworkstatechangeeventcallback.html", null ]
+];

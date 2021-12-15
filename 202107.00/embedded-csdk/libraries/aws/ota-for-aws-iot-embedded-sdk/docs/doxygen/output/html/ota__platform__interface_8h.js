@@ -1,0 +1,36 @@
+var ota__platform__interface_8h =
+[
+    [ "OTA_PAL_ERR_MASK", "ota__platform__interface_8h.html#af86d69b12a8373d4843e693187c66c02", null ],
+    [ "OTA_PAL_SUB_BITS", "ota__platform__interface_8h.html#adca6a50131b3abc3d910f4c7f39ce332", null ],
+    [ "OTA_PAL_MAIN_ERR", "ota__platform__interface_8h.html#ab25e30871d1c2fc609552591d883c87e", null ],
+    [ "OTA_PAL_SUB_ERR", "ota__platform__interface_8h.html#a93e53a52e858cad1adc7231d8d6ff769", null ],
+    [ "OTA_PAL_COMBINE_ERR", "ota__platform__interface_8h.html#a0684a42fae0de7395399d8b4d248fb35", null ],
+    [ "OtaPalStatus_t", "ota__platform__interface_8h.html#a503f74c089364b482321578b541d7640", null ],
+    [ "OtaPalSubStatus_t", "ota__platform__interface_8h.html#a4910712f01795de72f368d4614dd8561", null ],
+    [ "OtaPalAbort_t", "ota__platform__interface_8h.html#aadc190c689aeeb5a611abc7297de5745", null ],
+    [ "OtaPalCreateFileForRx_t", "ota__platform__interface_8h.html#a5808e620bd4831bc60017b292dc92d05", null ],
+    [ "OtaPalCloseFile_t", "ota__platform__interface_8h.html#ac71b2c3dd59681d851aa597be054060f", null ],
+    [ "OtaPalWriteBlock_t", "ota__platform__interface_8h.html#a481db6e2616fad63ca98d35d1eb29a91", null ],
+    [ "OtaPalActivateNewImage_t", "ota__platform__interface_8h.html#a0a57a461aaba81de1345fb3412d5293c", null ],
+    [ "OtaPalResetDevice_t", "ota__platform__interface_8h.html#a1493f1fe9489073e7d615746d24fa2f0", null ],
+    [ "OtaPalSetPlatformImageState_t", "ota__platform__interface_8h.html#a424ab827af6f0a9a1173f1b91af29917", null ],
+    [ "OtaPalGetPlatformImageState_t", "ota__platform__interface_8h.html#ab74a45be05c7a6fae3dc057394d07e3a", null ],
+    [ "OtaPalMainStatus_t", "group__ota__enum__types.html#ga8e503bbbffc277f6fd5b8645767a685b", [
+      [ "OtaPalSuccess", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685ba8dbb21a8a52503c7e8f33835dc6687c4", null ],
+      [ "OtaPalUninitialized", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685ba386aef27e1d9c7a937d3698e559641e4", null ],
+      [ "OtaPalOutOfMemory", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685ba0ec8f96ac056d352c45db250b4f6e05d", null ],
+      [ "OtaPalNullFileContext", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685ba088a029115f9b8053b9c23eb50438a1c", null ],
+      [ "OtaPalSignatureCheckFailed", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685ba3a92c1315048b471740472eaa91cd39b", null ],
+      [ "OtaPalRxFileCreateFailed", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685ba15af1448f649ae32235d23aaab93b90d", null ],
+      [ "OtaPalRxFileTooLarge", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685baf945ac941bd969b1833f80847d286805", null ],
+      [ "OtaPalBootInfoCreateFailed", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685ba38e979079368805430af70c0daa35005", null ],
+      [ "OtaPalBadSignerCert", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685ba7335f166465b3c6537093140445fdfef", null ],
+      [ "OtaPalBadImageState", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685ba8022263fa243f4fedb05692f5816b709", null ],
+      [ "OtaPalAbortFailed", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685baf4431964d1c516dde35c2b37c829b195", null ],
+      [ "OtaPalRejectFailed", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685ba0beb58eb2e069e80e51e3c4857549d14", null ],
+      [ "OtaPalCommitFailed", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685baf5d88629edcda34a8883985972e52126", null ],
+      [ "OtaPalActivateFailed", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685ba6e8ffdf4071a5ef58fdd3e3bdc1253de", null ],
+      [ "OtaPalFileAbort", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685ba233a2055c5de2e07759f3e39fa88f8cb", null ],
+      [ "OtaPalFileClose", "group__ota__enum__types.html#gga8e503bbbffc277f6fd5b8645767a685bab9b6262d3d153e77d186f6df07eb3e6f", null ]
+    ] ]
+];

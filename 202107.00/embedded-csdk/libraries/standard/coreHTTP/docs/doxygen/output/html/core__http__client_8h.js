@@ -1,0 +1,38 @@
+var core__http__client_8h =
+[
+    [ "HTTP_METHOD_GET", "group__http__constants.html#ga91faefe43f8d3577719ba174c8a5ebcd", null ],
+    [ "HTTP_METHOD_PUT", "group__http__constants.html#gac1999442fe79f9c13dc51086c61e8774", null ],
+    [ "HTTP_METHOD_POST", "group__http__constants.html#ga6c5872fb505bc0d37a9de2e2192dc7c9", null ],
+    [ "HTTP_METHOD_HEAD", "group__http__constants.html#ga7fe13cca8f55d3159b4bbda7c656804d", null ],
+    [ "HTTP_MAX_CONTENT_LENGTH_HEADER_LENGTH", "group__http__constants.html#ga7a6adfe8f1a63441e5838a004040588f", null ],
+    [ "HTTP_SEND_DISABLE_CONTENT_LENGTH_FLAG", "group__http__send__flags.html#ga66db30f9be610b9f1c851d9cd9cb3cff", null ],
+    [ "HTTP_REQUEST_KEEP_ALIVE_FLAG", "group__http__request__flags.html#gadec54e27d2d24006b4c22a7f945282de", null ],
+    [ "HTTP_RESPONSE_CONNECTION_CLOSE_FLAG", "group__http__response__flags.html#ga362e461ad360ffb2ae6b986c688993c5", null ],
+    [ "HTTP_RESPONSE_CONNECTION_KEEP_ALIVE_FLAG", "group__http__response__flags.html#ga259404ed98011458fb1ad2e90fba1752", null ],
+    [ "HTTP_RANGE_REQUEST_END_OF_FILE", "group__http__constants.html#ga4719dc6fd6e1b92739e1c3a88efa7046", null ],
+    [ "HTTPClient_GetCurrentTimeFunc_t", "group__http__callback__types.html#ga32d6894c1c9d62568136203b57c6d796", null ],
+    [ "HTTPStatus_t", "group__http__enum__types.html#ga39fad9050063a355ffd95e95381e743f", [
+      [ "HTTPSuccess", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743fa68f5addd5bf4367e177957a4c43dd4bd", null ],
+      [ "HTTPInvalidParameter", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743faed61c0d831bc64e24db373b803837138", null ],
+      [ "HTTPNetworkError", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743fa59fa581a112b1994db1c45d8a7f84160", null ],
+      [ "HTTPPartialResponse", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743fa2b345207e843dc4e3d2ef9ea34c7f024", null ],
+      [ "HTTPNoResponse", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743fa8aa7c86301f91fd4b3c0b698ab8c177a", null ],
+      [ "HTTPInsufficientMemory", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743fa33aae6d01bae2736a4a977ef04399ad4", null ],
+      [ "HTTPSecurityAlertResponseHeadersSizeLimitExceeded", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743fac9de51dc48124bbbc331a9161afe3862", null ],
+      [ "HTTPSecurityAlertExtraneousResponseData", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743faf6441d45e373b7686e45c2d9a0d12dd3", null ],
+      [ "HTTPSecurityAlertInvalidChunkHeader", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743faef569c934115aa105cc2cff1f72ef78b", null ],
+      [ "HTTPSecurityAlertInvalidProtocolVersion", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743fab6ed7f7e24e250896a7b35825006d460", null ],
+      [ "HTTPSecurityAlertInvalidStatusCode", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743faf53f0e027fd6d66ecd796bce19711562", null ],
+      [ "HTTPSecurityAlertInvalidCharacter", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743fa075511c32463db38713944d4e43cc01f", null ],
+      [ "HTTPSecurityAlertInvalidContentLength", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743fac1b1794cf29fd99be06e0b0ed5f9213d", null ],
+      [ "HTTPParserInternalError", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743fa37855790aef77f76074771d000b3e76b", null ],
+      [ "HTTPHeaderNotFound", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743fad2fc47ae0e9bbf4a459f38a36020824a", null ],
+      [ "HTTPInvalidResponse", "group__http__enum__types.html#gga39fad9050063a355ffd95e95381e743fa8674a7c17d6878db3a6cf7e2e6e6a398", null ]
+    ] ],
+    [ "HTTPClient_InitializeRequestHeaders", "core__http__client_8h.html#ab523c4d4e3b756928d463bd864361a9c", null ],
+    [ "HTTPClient_AddHeader", "core__http__client_8h.html#a451c30912fcdf48c71f9144788250916", null ],
+    [ "HTTPClient_AddRangeHeader", "core__http__client_8h.html#af91c4a57452556db2be926743aa02b81", null ],
+    [ "HTTPClient_Send", "core__http__client_8h.html#aa33b3334128496487d820f0da7ae5601", null ],
+    [ "HTTPClient_ReadHeader", "core__http__client_8h.html#ac621a0756f290f1437e2c72a24e5b0f9", null ],
+    [ "HTTPClient_strerror", "core__http__client_8h.html#af9a8f411ff5783dd2f0ca2ad43f37e18", null ]
+];

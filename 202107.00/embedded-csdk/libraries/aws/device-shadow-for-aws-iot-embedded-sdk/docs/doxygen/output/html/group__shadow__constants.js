@@ -1,0 +1,25 @@
+var group__shadow__constants =
+[
+    [ "SHADOW_PREFIX", "group__shadow__constants.html#ga247201767a9d4e96e68659b3d45b56fa", null ],
+    [ "SHADOW_PREFIX_LENGTH", "group__shadow__constants.html#ga59c22b8ca0015dbfc31e791d25a99e1c", null ],
+    [ "SHADOW_OP_DELETE", "group__shadow__constants.html#gae632f7b67feb5e0523a2d417bc269808", null ],
+    [ "SHADOW_OP_DELETE_LENGTH", "group__shadow__constants.html#ga587bbe5229d85b6080f2b0cc7fda193c", null ],
+    [ "SHADOW_OP_GET", "group__shadow__constants.html#ga3ad1b29d634829613e9a9c15b32cdfca", null ],
+    [ "SHADOW_OP_GET_LENGTH", "group__shadow__constants.html#ga95123f616be6c6daea8b87922e37f748", null ],
+    [ "SHADOW_OP_UPDATE", "group__shadow__constants.html#ga9af4141be718b1c3722c4b6af2a9e8d2", null ],
+    [ "SHADOW_OP_UPDATE_LENGTH", "group__shadow__constants.html#ga3aff5db93f1b232b414b01553dedbea4", null ],
+    [ "SHADOW_SUFFIX_ACCEPTED", "group__shadow__constants.html#ga2555351e653e1db780c9868d1bb2b509", null ],
+    [ "SHADOW_SUFFIX_ACCEPTED_LENGTH", "group__shadow__constants.html#ga3264059dc3013a79e18b67bc06d88f69", null ],
+    [ "SHADOW_SUFFIX_REJECTED", "group__shadow__constants.html#ga1a0642131b9a46928e52e77edd12d5d2", null ],
+    [ "SHADOW_SUFFIX_REJECTED_LENGTH", "group__shadow__constants.html#ga77f4b26fbe2704fdd487176b2b264b9a", null ],
+    [ "SHADOW_SUFFIX_DELTA", "group__shadow__constants.html#ga240b2250a6d4c2ff22efd09f44467302", null ],
+    [ "SHADOW_SUFFIX_DELTA_LENGTH", "group__shadow__constants.html#gad7ff1f3d0c7c04350e0cab841583dd10", null ],
+    [ "SHADOW_SUFFIX_DOCUMENTS", "group__shadow__constants.html#gadbc41cdfbace3887ccae228abae2496a", null ],
+    [ "SHADOW_SUFFIX_DOCUMENTS_LENGTH", "group__shadow__constants.html#ga77996f84fbc11a25684f1efff4c5d39b", null ],
+    [ "SHADOW_SUFFIX_NULL", "group__shadow__constants.html#ga8c4621347f122281206cc7e720e74862", null ],
+    [ "SHADOW_SUFFIX_NULL_LENGTH", "group__shadow__constants.html#ga3ae17b88b5eaf29c2f7c351d64a43b5f", null ],
+    [ "SHADOW_THINGNAME_LENGTH_MAX", "group__shadow__constants.html#ga869560502bc342389e18abb4a8dcc44c", null ],
+    [ "SHADOW_TOPIC_LENGTH", "group__shadow__constants.html#gaf220bc585744d3226c370bf7d108be43", null ],
+    [ "SHADOW_TOPIC_LENGTH_MAX", "group__shadow__constants.html#ga68b2bddcf124940a061481c32218a600", null ],
+    [ "SHADOW_TOPIC_STRING", "group__shadow__constants.html#gaad6bc554cb9be80281457bfcaf0e9eea", null ]
+];
