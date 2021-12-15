@@ -1,0 +1,35 @@
+var group__https__client__datatypes__enums =
+[
+    [ "IotHttpsReturnCode_t", "group__https__client__datatypes__enums.html#gaeddc61f93281b31a5125ff2e57de9825", [
+      [ "IOT_HTTPS_OK", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825af5531caaf2f532241af4f548840bfa9a", null ],
+      [ "IOT_HTTPS_INVALID_PARAMETER", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a9da4d637fd9c7ffb678f6c38dd2b0d8e", null ],
+      [ "IOT_HTTPS_INVALID_PAYLOAD", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a05056960780c215288e8e3b2198e5003", null ],
+      [ "IOT_HTTPS_MESSAGE_TOO_LARGE", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825af843f35a50769e5a51803f216b8348a4", null ],
+      [ "IOT_HTTPS_OVERFLOW", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825ae4027f63df204a6805e8eafa64f6a038", null ],
+      [ "IOT_HTTPS_INSUFFICIENT_MEMORY", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a1335a4ceb7b35eb133a85c7937357041", null ],
+      [ "IOT_HTTPS_QUEUE_FULL", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825ad1f2e262121f7b9ded89b794bba588d0", null ],
+      [ "IOT_HTTPS_RETRY", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a6a2b50a5f0bc88311c4915b27c5edf13", null ],
+      [ "IOT_HTTPS_NOT_FOUND", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a06e353388aa9f8c603d511c97336ea88", null ],
+      [ "IOT_HTTPS_MESSAGE_FINISHED", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a8d869ebdf6648e4db9f6f7d57c6ded5e", null ],
+      [ "IOT_HTTPS_INTERNAL_ERROR", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a2b7b810207afd90656ec30de44c9f8b2", null ],
+      [ "IOT_HTTPS_NETWORK_ERROR", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a5eb66c716fa9269eec62f302acd0dea2", null ],
+      [ "IOT_HTTPS_CONNECTION_ERROR", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a6c569739cc62b7ee7c7e07a03ea1da5a", null ],
+      [ "IOT_HTTPS_STREAM_ERROR", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825af1dfa7a4c2b6bd87a15389757ae66512", null ],
+      [ "IOT_HTTPS_AUTHENTICATION_ERROR", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825aeac36da5f7728e7f0f923c50b8143528", null ],
+      [ "IOT_HTTPS_TLS_ERROR", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a393abc7d3309cf057eceb91f783c092a", null ],
+      [ "IOT_HTTPS_USER_CALLBACK_ERROR", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a98d0b93f2c3947f5816d6335b57f5a31", null ],
+      [ "IOT_HTTPS_TIMEOUT_ERROR", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a5087d30c1e6649f597b36d80dc876dec", null ],
+      [ "IOT_HTTPS_PROTOCOL_ERROR", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a9378fd542bff27e650645811a0e98a06", null ],
+      [ "IOT_HTTPS_SEND_ABORT", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825af2e021c46eb64cc4bf2eab18c1d99aab", null ],
+      [ "IOT_HTTPS_RECEIVE_ABORT", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a3b695e40d399ef8500494770ae5cd92a", null ],
+      [ "IOT_HTTPS_ASYNC_SCHEDULING_ERROR", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825aba7cdfc90f4d8e4e7e9d058c95fabd85", null ],
+      [ "IOT_HTTPS_PARSING_ERROR", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a580063ea7d435812c1d256e0b5412774", null ],
+      [ "IOT_HTTPS_FATAL", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825ad50da9a382731704fb01587a34dca548", null ],
+      [ "IOT_HTTPS_BUSY", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a3d8759fdabaf6a5a9f524bb2b4d6d281", null ],
+      [ "IOT_HTTPS_TRY_AGAIN", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825af845f74276676280240c4e25b93c660c", null ],
+      [ "IOT_HTTPS_DATA_EXIST", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a5e099e83668add49b23db7d88a05df02", null ],
+      [ "IOT_HTTPS_NOT_SUPPORTED", "group__https__client__datatypes__enums.html#ggaeddc61f93281b31a5125ff2e57de9825a08165c17c8e574fa185e1b455d78bf39", null ]
+    ] ],
+    [ "IotHttpsMethod_t", "group__https__client__datatypes__enums.html#gaaa195d049a76d14bd34b4ab5d610e843", null ],
+    [ "IotHttpsResponseStatus", "group__https__client__datatypes__enums.html#ga6cf83531f2a6d2f964621761825aac9d", null ]
+];
