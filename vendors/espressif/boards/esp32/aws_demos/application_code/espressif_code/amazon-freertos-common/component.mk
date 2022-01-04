@@ -176,6 +176,4 @@ COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_DEMOS_DIR)/include \
 demos/common/tcp/aws_tcp_echo_client_single_task.o: CFLAGS+=-Wno-format
 endif
 
-ifndef AFR_ESP_FREERTOS_TCP
 COMPONENT_OBJEXCLUDE += $(AMAZON_FREERTOS_DEMOS_DIR)/demo_runner/aws_demo_network_addr.o
-endif
