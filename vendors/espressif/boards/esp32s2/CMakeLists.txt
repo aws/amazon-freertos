@@ -247,14 +247,6 @@ target_include_directories(
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
-target_link_libraries(
-    AFR::secure_sockets::mcu_port
-    INTERFACE AFR::secure_sockets_freertos_plus_tcp
-)
-else()
-
-# Secure sockets
-afr_mcu_port(secure_sockets)
 
 target_sources(
     AFR::secure_sockets::mcu_port
@@ -289,8 +281,6 @@ target_link_libraries(
     INTERFACE
         ${secure_sockets_libraries}
 )
-
-endif()
 
 # Common I/O
 afr_mcu_port(common_io)
