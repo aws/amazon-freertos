@@ -522,7 +522,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
                                                                     sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1 );
     }
 
-    if( CKR_OK == xResult )
+    if( ( CKR_OK == xResult ) || ( CKR_USER_ALREADY_LOGGED_IN == xResult ) )
     {
         /* Get the handle of the device private key. */
         xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
@@ -712,7 +712,7 @@ BaseType_t TLS_Init( void ** ppvContext,
             xResult = xInitializePkcs11Session( &pxCtx->xP11Session );
 
             /* It is ok if the module was previously initialized. */
-            if( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED )
+            if( ( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED ) || ( CKR_USER_ALREADY_LOGGED_IN == xResult ) )
             {
                 xResult = CKR_OK;
             }
