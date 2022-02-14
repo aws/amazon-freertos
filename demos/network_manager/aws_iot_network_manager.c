@@ -279,7 +279,6 @@ static IotNetworkServerInfo_t tcpIPConnectionParams = { 0 };
 static IotNMNetwork_t networks[] =
 {
     #if BLE_ENABLED
-
         /**
          * @brief Configuration and state for a BLE Network.
          */
@@ -502,6 +501,17 @@ static IotNetworkManagerInfo_t networkManager;
 #if WIFI_ENABLED
 
     #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 && IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 0 )
+        static void prvMemzero( void * pBuf,
+                                size_t size )
+        {
+            volatile uint8_t * pMem = pBuf;
+            uint32_t i;
+
+            for( i = 0U; i < size; i++ )
+            {
+                pMem[ i ] = 0U;
+            }
+        }
 
         static bool _wifiConnectAccessPoint( void )
         {
@@ -597,6 +607,8 @@ static IotNetworkManagerInfo_t networkManager;
                     }
                 } while( numRetries-- > 0 );
             }
+
+            prvMemzero( &xConnectParams, sizeof( WIFINetworkParams_t ) );
 
             return status;
         }
