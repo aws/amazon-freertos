@@ -90,6 +90,17 @@ static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAP
 
 static WIFIEventHandler_t xWifiEventHandlers[ eWiFiEventMax ]; 
 
+static void prvMemzero( void * pBuf, size_t size )
+{
+    volatile uint8_t * pMem = pBuf;
+    uint32_t i;
+
+    for( i = 0U; i < size; i++ )
+    {
+        pMem[ i ] = 0U;
+    }
+}
+
 static WIFIReason_t convertReasonCode( uint8_t reasonCode )
 {
     WIFIReason_t retCode;
@@ -252,6 +263,8 @@ static void sc_callback(void* arg, esp_event_base_t event_base, int32_t event_id
             ESP_LOGI(TAG, "SSID:%s", ssid);
             ESP_LOGI(TAG, "PASSWORD:%s", password);
             esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
+            prvMemzero( &wifi_config, sizeof( wifi_config_t ) );
+            prvMemzero( password, sizeof( password ) );
             esp_wifi_connect();
             break;
         case SC_EVENT_SEND_ACK_DONE:
@@ -537,6 +550,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         }
 
         ret = esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
+        prvMemzero( &wifi_config, sizeof( wifi_config_t ) );
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to set wifi config %d", __func__, ret);
             xSemaphoreGive( xWiFiSem );
@@ -1479,6 +1493,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
         }
 
         ret = esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config);
+        prvMemzero( &wifi_config, sizeof( wifi_config_t ) );
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to set wifi config %d", __func__, ret);
             xSemaphoreGive( xWiFiSem );
