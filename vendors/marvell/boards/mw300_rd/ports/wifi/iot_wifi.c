@@ -54,6 +54,29 @@ static os_semaphore_t scan_protection_sem;
 static os_semaphore_t wlan_init_sem;
 static os_mutex_t wlan_mtx;
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Set block of memory to zero.
+ *
+ * @param[in] pBuf Pointer of the memory to be set.
+ *
+ * @param[in] size Size of memory to be set.
+ *
+ */
+static void prvMemzero( void * pBuf, size_t size )
+{
+    volatile uint8_t * pMem = pBuf;
+    uint32_t i;
+
+    for( i = 0U; i < size; i++ )
+    {
+        pMem[ i ] = 0U;
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 static int wlan_event_callback(enum wlan_event_reason event, void *data)
 {
     int ret;
@@ -220,12 +243,14 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     }
 
     if(pxNetworkParams->xPassword.xWPA.ucLength > 0) {
-        /* Set the passphrase */
-        char pcPassphrase[ wificonfigMAX_PASSPHRASE_LEN + 1];
-        memcpy(pcPassphrase, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength);
-        pcPassphrase[pxNetworkParams->xPassword.xWPA.ucLength] = '\0';
+        /* Ensure one extra character for NULL. */
+        if( pxNetworkParams->xPassword.xWPA.ucLength >= WLAN_PSK_MAX_LENGTH )
+        {
+            goto fail;
+        }
 
-        strlcpy(home_nw.security.psk, pcPassphrase, PASSWORD_MAX_LENGTH);
+        memcpy(home_nw.security.psk, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength);
+        home_nw.security.psk[pxNetworkParams->xPassword.xWPA.ucLength] = '\0';
 
         /* Set the passphrase length */
         home_nw.security.psk_len = strlen(home_nw.security.psk);
@@ -292,6 +317,9 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
 		goto retry;
 	}
 
+        /* WIFI state connected. Clear the home_nw. */
+        prvMemzero( &home_nw, sizeof( struct wlan_network ) );
+
 	if (os_mutex_put(&wlan_mtx) != WM_SUCCESS)
             return eWiFiFailure;
 
@@ -301,6 +329,9 @@ retry:
         wmprintf("Connect to AP FAIL ! Retrying ..... \r\n");
 
     } while (retry_cnt != 0);
+
+    /* Retry exhausted. Clear the home_nw. */
+    prvMemzero( &home_nw, sizeof( struct wlan_network ) );
 
     if (retry_cnt == 0) {
         os_thread_sleep(os_msec_to_ticks(500));
@@ -320,6 +351,8 @@ retry:
     }
 
 fail:
+    /* Operation failed. Clear the home_nw. */
+    prvMemzero( &home_nw, sizeof( struct wlan_network ) );
 
     if (os_mutex_put(&wlan_mtx) != WM_SUCCESS)
         return eWiFiFailure;
