@@ -80,6 +80,29 @@ static BaseType_t xWIFIInitDone;
 
 static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAPHORE_WAIT_TIME_MS );
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Set block of memory to zero.
+ *
+ * @param[in] pBuf Pointer of the memory to be set.
+ *
+ * @param[in] size Size of memory to be set.
+ *
+ */
+static void prvMemzero( void * pBuf, size_t size )
+{
+    volatile uint8_t * pMem = pBuf;
+    uint32_t i;
+
+    for( i = 0U; i < size; i++ )
+    {
+        pMem[ i ] = 0U;
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Maps the given abstracted security type to ST specific one.
  *
@@ -118,6 +141,8 @@ static ES_WIFI_SecurityType_t prvConvertSecurityFromAbstractedToST( WIFISecurity
 
     return xConvertedSecurityType;
 }
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Copies byte array into char array, appending '\0'. Assumes char array can hold length of byte array + 1.
@@ -319,6 +344,8 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
                     }
                 }
             }
+
+            prvMemzero( pcPassword, sizeof( pcPassword ) );
         }
 
         /* Return the semaphore. */
@@ -649,6 +676,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
     ES_WIFI_APConfig_t xApConfig;
+    ES_WIFI_Status_t xWifiStatus = ES_WIFI_STATUS_OK;
 
     configASSERT( pxNetworkParams != NULL );
     
@@ -683,7 +711,10 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     						  pxNetworkParams->xPassword.xWPA.cPassphrase,
     						  pxNetworkParams->xPassword.xWPA.ucLength,
     						  wificonfigMAX_PASSPHRASE_LEN );
+
         strncpy( ( char * ) xApConfig.Pass, pcPassword, ES_WIFI_MAX_PSWD_NAME_SIZE );
+
+        prvMemzero( pcPassword, sizeof( pcPassword ) );
     }
 
     xApConfig.Channel = pxNetworkParams->ucChannel;
@@ -694,7 +725,9 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
     {
         /* Activate Soft AP. */
-        if( ES_WIFI_ActivateAP( &xWiFiModule.xWifiObject, &xApConfig ) == ES_WIFI_STATUS_OK )
+        xWifiStatus = ES_WIFI_ActivateAP( &xWiFiModule.xWifiObject, &xApConfig );
+        prvMemzero( &xApConfig, sizeof( ES_WIFI_APConfig_t ) );
+        if( xWifiStatus == ES_WIFI_STATUS_OK )
         {
             xRetVal = eWiFiSuccess;
         }
@@ -704,6 +737,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     }
     else
     {
+        prvMemzero( &xApConfig, sizeof( ES_WIFI_APConfig_t ) );
         xRetVal = eWiFiTimeout;
     }
 
