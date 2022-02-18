@@ -53,6 +53,29 @@ static BaseType_t xIsWiFiInitialized = pdFALSE;
 
 static char pcLastAttemptedSSID[ wificonfigMAX_SSID_LEN + 1 ] = { 0 };
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Set block of memory to zero.
+ *
+ * @param[in] pBuf Pointer of the memory to be set.
+ *
+ * @param[in] size Size of memory to be set.
+ *
+ */
+static void prvMemzero( void * pBuf, size_t size )
+{
+    volatile uint8_t * pMem = pBuf;
+    uint32_t i;
+
+    for( i = 0U; i < size; i++ )
+    {
+        pMem[ i ] = 0U;
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 espr_t esp_callback_func(esp_cb_t* cb)
 {
   switch (cb->type) {
@@ -165,12 +188,17 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     pcSSID[pxNetworkParams->ucSSIDLength] = '\0';
 
     char pcPassword[ wificonfigMAX_PASSPHRASE_LEN + 1];
+    espr_t xReturn = espOK;
+
     memcpy(pcPassword, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength);
     pcPassword[pxNetworkParams->xPassword.xWPA.ucLength] = '\0';
 
     strncpy(pcLastAttemptedSSID, (char *)pxNetworkParams->ucSSID, pxNetworkParams->ucSSIDLength + 1);
 
-    if (esp_sta_join(pcSSID, pcPassword, NULL, 0, 1) == espOK)
+    xReturn = esp_sta_join(pcSSID, pPasswordPtr, NULL, 0, 1);
+    prvMemzero( pcPassword, sizeof( pcPassword ) );
+
+    if (xReturn == espOK)
     {
       xResult = xTaskNotifyWait( pdFALSE,    /* Don't clear bits on entry. */
                                  ULONG_MAX,        /* Clear all bits on exit. */
