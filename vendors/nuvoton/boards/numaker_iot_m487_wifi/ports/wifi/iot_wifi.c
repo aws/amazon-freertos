@@ -62,6 +62,26 @@ static char pcConnectedSSID[ wificonfigMAX_SSID_LEN + 1 ] = { 0 };
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Set block of memory to zero.
+ *
+ * @param[in] pBuf Pointer of the memory to be set.
+ *
+ * @param[in] size Size of memory to be set.
+ *
+ */
+static void prvMemzero( void * pBuf, size_t size )
+{
+    volatile uint8_t * pMem = pBuf;
+    uint32_t i;
+
+    for( i = 0U; i < size; i++ )
+    {
+        pMem[ i ] = 0U;
+    }
+}
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Copies byte array into char array, appending '\0'. Assumes char array can hold length of byte array + 1.
@@ -186,6 +206,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
                     }
                 }
             }
+            prvMemzero( pcPassword, sizeof( pcPassword ) );
         }
         xSemaphoreGive(xNuWiFi.xWifiSem);
     } else {
