@@ -230,6 +230,30 @@ struct mtk_wifi_state_t
  */
 static struct mtk_wifi_state_t      _g_state;
 
+/*-----------------------------------------------------------
+ *
+ * Memory utilities
+ *
+ *-----------------------------------------------------------*/
+
+/**
+ * @brief Set block of memory to zero.
+ *
+ * @param[in] pBuf Pointer of the memory to be set.
+ *
+ * @param[in] size Size of memory to be set.
+ *
+ */
+static void prvMemzero( void * pBuf, size_t size )
+{
+    volatile uint8_t * pMem = pBuf;
+    uint32_t i;
+
+    for( i = 0U; i < size; i++ )
+    {
+        pMem[ i ] = 0U;
+    }
+}
 
 /*-----------------------------------------------------------
  *
@@ -926,6 +950,7 @@ static bool _mtk_wifi_apply_setting( uint8_t port,
 {
     wifi_auth_mode_t    mtk_auth;
     wifi_encrypt_type_t mtk_ciph;
+    int32_t             ret_set_wep_key = 0;
 
     /* check ssid */
 
@@ -994,7 +1019,9 @@ static bool _mtk_wifi_apply_setting( uint8_t port,
             wep_keys.wep_tx_key_index    = 0;
         }
 
-        if( wifi_config_set_wep_key( port, &wep_keys ) < 0 )
+        ret_set_wep_key = wifi_config_set_wep_key( port, &wep_keys );
+        prvMemzero( &wep_keys, sizeof( wep_keys ) );
+        if( ret_set_wep_key < 0 )
         {
             LOG_E( wifi, "%s: set WEP KEY fail\n", __FUNCTION__ );
             return false;
