@@ -195,7 +195,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
 
     strncpy(pcLastAttemptedSSID, (char *)pxNetworkParams->ucSSID, pxNetworkParams->ucSSIDLength + 1);
 
-    xReturn = esp_sta_join(pcSSID, pPasswordPtr, NULL, 0, 1);
+    xReturn = esp_sta_join(pcSSID, pcPassword, NULL, 0, 1);
     prvMemzero( pcPassword, sizeof( pcPassword ) );
 
     if (xReturn == espOK)
