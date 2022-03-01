@@ -512,7 +512,6 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     int32_t lRetVal;
     SlWlanSecParams_t xSecurityParams = { 0 };
     char cSSID[ wificonfigMAX_SSID_LEN + 1 ] = { 0 };
-    char cPassword[ wificonfigMAX_PASSPHRASE_LEN + 1 ] = { 0 };
 
     configASSERT( pxNetworkParams != NULL );
     configASSERT( pxNetworkParams->ucSSIDLength > 0 );
@@ -533,9 +532,8 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             prvByteArrayToString( cSSID, pxNetworkParams->ucSSID, pxNetworkParams->ucSSIDLength, wificonfigMAX_SSID_LEN );
 
             /* Initialize AP security params. */
-            prvByteArrayToString( cPassword, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength, wificonfigMAX_PASSPHRASE_LEN );
-            xSecurityParams.Key = ( signed char * ) cPassword;
-            xSecurityParams.KeyLen = strlen(cPassword);
+            xSecurityParams.Key = ( signed char * ) pxNetworkParams->xPassword.xWPA.cPassphrase;
+            xSecurityParams.KeyLen = pxNetworkParams->xPassword.xWPA.ucLength;
 
             xSecurityParams.Type = prvConvertSecurityAbstractedToTI( pxNetworkParams->xSecurity );
 
@@ -1100,7 +1098,6 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     uint8_t ucChannel;
     uint8_t ucSecurityType;
     char cSSID[ wificonfigMAX_SSID_LEN + 1 ] = { 0 };
-    char cPassword[ wificonfigMAX_PASSPHRASE_LEN + 1 ] = { 0 };
 
     configASSERT( pxNetworkParams != NULL );
     configASSERT( pxNetworkParams->ucSSIDLength > 0 );
@@ -1182,11 +1179,10 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
                 else
                 {
                     /*Set Access point password.*/
-                    prvByteArrayToString( cPassword, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength, wificonfigMAX_PASSPHRASE_LEN );
                     sRetCode = sl_WlanSet( SL_WLAN_CFG_AP_ID,
                                           SL_WLAN_AP_OPT_PASSWORD,
-                                          strlen( cPassword ),
-                                          ( uint8_t * ) cPassword );
+                                          pxNetworkParams->xPassword.xWPA.ucLength,
+                                          ( uint8_t * ) pxNetworkParams->xPassword.xWPA.cPassphrase );
                 }
 
                 if( sRetCode != 0 )
