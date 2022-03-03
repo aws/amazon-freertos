@@ -1378,26 +1378,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/wifi/iot_wifi.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/utils/src/iot_system_init.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</locationURI>
@@ -1421,6 +1401,26 @@
 			<name>libraries/freertos_plus/standard/tls/include/iot_tls.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/tls/include/iot_tls.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/utils/src/iot_system_init.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pki_utils.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/common_io/include/iot_adc.h</name>
@@ -1698,9 +1698,19 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/core_http_client.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c</name>
+			<name>libraries/coreHTTP/source/dependency/3rdparty/llhttp/src/api.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/dependency/3rdparty/llhttp/src/api.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/dependency/3rdparty/llhttp/src/llhttp.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/dependency/3rdparty/llhttp/src/llhttp.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/coreHTTP/source/dependency/3rdparty/llhttp/src/http.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/dependency/3rdparty/llhttp/src/http.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/coreHTTP/source/include/core_http_client.h</name>
@@ -1723,9 +1733,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/interface/transport_interface.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</name>
+			<name>libraries/coreHTTP/source/dependency/3rdparty/llhttp/include/llhttp.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreHTTP/source/dependency/3rdparty/llhttp/include/llhttp.h</locationURI>
 		</link>
 		<link>
 			<name>demos/common/http_demo_helpers/http_demo_utils.c</name>
