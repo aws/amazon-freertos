@@ -179,7 +179,7 @@ target_sources(
 target_include_directories(
     AFR::wifi::mcu_port
     INTERFACE
-        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser"
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/llhttp/include"
         "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/include"
         "${esp_idf_dir}/components/protobuf-c/protobuf-c"
         "${esp_idf_dir}/components/protocomm/proto-c"
@@ -191,8 +191,10 @@ target_sources(
     AFR::wifi::mcu_port
     INTERFACE
         "${afr_ports_dir}/wifi/iot_softap_wifi_provisioning.c"
-        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c"
-        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h"
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/llhttp/src/api.c"
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/llhttp/src/http.c"
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/llhttp/src/llhttp.c"
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/llhttp/include/llhttp.h"
         "${esp_idf_dir}/components/protobuf-c/protobuf-c/protobuf-c/protobuf-c.c"
         "${esp_idf_dir}/components/protocomm/proto-c/session.pb-c.c"
         "${esp_idf_dir}/components/protocomm/proto-c/sec0.pb-c.c"

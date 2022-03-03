@@ -172,9 +172,9 @@
 			<locationURI>PARENT-5-PROJECT_LOC/demos/tcp/aws_tcp_echo_client_single_task.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/http_parser</name>
+			<name>libraries/3rdparty/llhttp/include</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/http_parser</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/llhttp/include</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn</name>
@@ -257,9 +257,19 @@
 			<locationURI>PARENT-5-PROJECT_LOC/freertos_kernel/portable/MemMang/heap_3.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/http_parser/http_parser.c</name>
+			<name>libraries/3rdparty/llhttp/src/api.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/http_parser/http_parser.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/llhttp/src/api.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/llhttp/src/http.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/llhttp/src/http.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/llhttp/src/llhttp.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/llhttp/src/llhttp.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.c</name>

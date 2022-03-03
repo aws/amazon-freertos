@@ -283,12 +283,12 @@ INCLUDES+=\
 ################################################################################
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/coreHTTP/source/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/coreHTTP/source/dependency/3rdparty/llhttp/src/*.c)
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/coreHTTP/source/include\
 	$(CY_AFR_ROOT)/libraries/coreHTTP/source/interface\
-	$(CY_AFR_ROOT)/libraries/coreHTTP/source/dependency/3rdparty/http_parser
+	$(CY_AFR_ROOT)/libraries/coreHTTP/source/dependency/3rdparty/llhttp/include
 
 ################################################################################
 # Logging
