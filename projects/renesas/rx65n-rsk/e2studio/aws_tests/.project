@@ -2270,8 +2270,8 @@
 			<name>libraries/3rdparty/mbedtls/library/constant_time_invasive.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/constant_time_invasive.h</locationURI>
-		<link>
 		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/ctr_drbg.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/ctr_drbg.c</locationURI>
