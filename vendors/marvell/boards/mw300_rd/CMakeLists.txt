@@ -100,6 +100,7 @@ target_include_directories(
 # gcc specific extra linker flags
 set(tc-lflags-y
     "-nostartfiles"
+    "-specs=nosys.specs"
     "-Wl,--wrap,malloc"
     "-Wl,--wrap,free"
     "-Wl,--wrap,calloc"

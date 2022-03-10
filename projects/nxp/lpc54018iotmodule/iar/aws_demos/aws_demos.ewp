@@ -264,7 +264,7 @@
 				</option>
 				<option>
 					<name>CCDiagSuppress</name>
-					<state>Pa082,Pa050</state>
+					<state>Pa082,Pa050,Pe513</state>
 				</option>
 				<option>
 					<name>CCDiagRemark</name>
@@ -409,7 +409,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\interface</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\llhttp\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\http_demo_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreJSON\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\device_shadow_for_aws\source\include</state>
@@ -3117,13 +3117,25 @@
 					<group>
 						<name>3rdparty</name>
 						<group>
-							<name>http_parser</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\http_parser\http_parser.h</name>
-							</file>
+							<name>llhttp</name>
+							<group>
+								<name>src</name>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\llhttp\src\api.c</name>
+								</file>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\llhttp\src\llhttp.c</name>
+								</file>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\llhttp\src\http.c</name>
+								</file>
+							</group>
+							<group>
+								<name>include</name>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreHTTP\source\dependency\3rdparty\llhttp\include\llhttp.h</name>
+								</file>
+							</group>
 						</group>
 					</group>
 				</group>

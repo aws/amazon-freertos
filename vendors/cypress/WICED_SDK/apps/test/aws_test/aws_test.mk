@@ -98,7 +98,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM) \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/arch \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_tests/application_code/cypress_code/include \
-                    $(AFR_LIBRARIES_PATH)coreHTTP/source/dependency/3rdparty/http_parser \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/dependency/3rdparty/llhttp/include \
                     $(AFR_LIBRARIES_PATH)device-shadow-for-aws-iot-embedded-sdk/source/include \
 
 #$(info $(AMAZON_FREERTOS_PATH))

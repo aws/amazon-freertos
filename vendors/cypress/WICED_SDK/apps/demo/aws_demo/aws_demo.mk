@@ -83,13 +83,12 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_ABSTRACTIONS_PATH)mqtt_agent/include  \
                     $(AFR_LIBRARIES_PATH)coreHTTP/source/include \
                     $(AFR_LIBRARIES_PATH)coreHTTP/source/interface \
-                    $(AFR_LIBRARIES_PATH)coreHTTP/source/dependency/3rdparty/http_parser \
+                    $(AFR_LIBRARIES_PATH)coreHTTP/source/dependency/3rdparty/llhttp/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/portable/Compiler/GCC \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/include     \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src \
                     $(AFR_THIRDPARTY_PATH)tinycbor/src \
-                    $(AFR_THIRDPARTY_PATH)http_parser \
                     $(AFR_LIBRARIES_PATH)coreJSON/source/include \
                     $(AFR_LIBRARIES_PATH)device_shadow_for_aws/source/include \
                     $(AFR_LIBRARIES_PATH)device_defender_for_aws/source/include \
