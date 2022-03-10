@@ -177,6 +177,7 @@ target_include_directories(
         "${esp_idf_dir}/components/protocomm/src/common"
         "${esp_idf_dir}/components/wifi_provisioning/proto-c"
         "${esp_idf_dir}/components/esp_http_server/include"
+        "${esp_idf_dir}/components/nghttp/port/include"
 )
 target_sources(
     AFR::wifi::mcu_port
@@ -197,6 +198,7 @@ target_sources(
         "${esp_idf_dir}/components/wifi_provisioning/proto-c/wifi_config.pb-c.c"
         "${esp_idf_dir}/components/wifi_provisioning/proto-c/wifi_constants.pb-c.c"
         "${esp_idf_dir}/components/wifi_provisioning/src/wifi_config.c"
+        "${esp_idf_dir}/components/nghttp/port/http_parser.c"
 )
 target_link_libraries(
     AFR::wifi::mcu_port
