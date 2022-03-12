@@ -48,7 +48,7 @@
 #define CONFIG_CORE_MQTT_MUTUAL_AUTH_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
-#define democonfigDEMO_STACKSIZE                                     ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigDEMO_STACKSIZE                                     ( configMINIMAL_STACK_SIZE * 10 )
 #define democonfigDEMO_PRIORITY                                      ( tskIDLE_PRIORITY + 5 )
 #define democonfigNETWORK_TYPES                                      ( AWSIOT_NETWORK_TYPE_WIFI )
 
