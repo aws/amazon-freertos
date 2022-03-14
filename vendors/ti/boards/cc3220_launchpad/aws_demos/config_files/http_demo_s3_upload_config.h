@@ -83,7 +83,8 @@
  *
  */
 #ifndef democonfigROOT_CA_PEM
-    #define democonfigROOT_CA_PEM                                        \
+    #define democonfigROOT_CA_PEM  tlsSTARFIELD_ROOT_CERTIFICATE_PEM
+    /*#define democonfigROOT_CA_PEM                                        \
     "-----BEGIN CERTIFICATE-----\n"                                      \
     "MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\n" \
     "ADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\n" \
@@ -103,7 +104,7 @@
     "o/ufQJVtMVT8QtPHRh8jrdkPSHCa2XV4cdFyQzR1bldZwgJcJmApzyMZFo6IQ6XU\n" \
     "5MsI+yMRQ+hDKXJioaldXgjUkK642M4UwtBV8ob2xJNDd2ZhwLnoQdeXeGADbkpy\n" \
     "rqXRfboQnoZsG4q5WTP468SQvvG5\n"                                     \
-    "-----END CERTIFICATE-----"
+    "-----END CERTIFICATE-----"*/
 #endif /* ifndef democonfigROOT_CA_PEM */
 
 /**
