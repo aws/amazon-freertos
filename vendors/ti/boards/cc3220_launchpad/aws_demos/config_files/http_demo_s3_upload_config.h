@@ -69,11 +69,19 @@
     #define democonfigHTTPS_PORT    443
 #endif
 
-/*
+/**
  * @brief Server's root CA certificate for TLS authentication with S3.
  *
- * The Amazon Root CA Certificate is defined below.
- *
+ * This certificate is used to identify the AWS IoT server and is publicly
+ * available. Refer to the AWS documentation available in the link below for
+ * information about server root CAs.
+ * https://docs.aws.amazon.com/iot/latest/developerguide/server-authentication.html#server-authentication-certs
+ * 
+ * @note The TI C3220 Launchpad board requires that the root CA have its
+ * certificate self-signed. As specified in the link above, the Amazon Root CAs
+ * are cross-signed by the Starfield Root CA. Thus, ONLY the Starfield Root CA
+ * can be used to connect to the ATS endpoints on AWS IoT, for the TI board.
+ * 
  * @note This certificate should be PEM-encoded.
  *
  * Must include the PEM header and footer:
