@@ -99,6 +99,9 @@
 /* HTTP API header. */
 #include "core_http_client.h"
 
+/* Include header for root CA certificates. */
+#include "iot_default_root_certificates.h"
+
 /*------------- Demo configurations -------------------------*/
 
 /* Check that the TLS port of the server is defined. */
