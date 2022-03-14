@@ -9,6 +9,7 @@ set(project_name "secure_sockets")
 # list the files to mock here
 list(APPEND mock_list
             "${kernel_dir}/include/task.h"
+            "${kernel_dir}/include/event_groups.h"
             "${kernel_dir}/include/portable.h"
             "${AFR_MODULES_DIR}/logging/include/iot_logging_task.h"
             "${freertos_plus_dir}/standard/tls/include/iot_tls.h"

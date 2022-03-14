@@ -68,6 +68,7 @@ typedef struct MPU_SETTINGS
 #define configUSE_ALTERNATIVE_API                  0
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS    3      /* FreeRTOS+FAT requires 2 pointers if a CWD is supported. */
 #define configRECORD_STACK_HIGH_ADDRESS            1
+#define configSTACK_ALLOCATION_FROM_SEPARATE_HEAP  1
 
 /* Hook function related definitions. */
 #define configUSE_TICK_HOOK                        0
