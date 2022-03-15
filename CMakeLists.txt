@@ -6,8 +6,8 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 endif()
 
 project(amazon-freertos)
-set(PROJECT_VERSION "202107.00")
-set(PROJECT_VERSION_MAJOR "202107")
+set(PROJECT_VERSION "202203.00")
+set(PROJECT_VERSION_MAJOR "202203")
 set(PROJECT_VERSION_MINOR "00")
 
 # If it's TI boards, enable split mbedtls source build to 
