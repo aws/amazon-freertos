@@ -147,11 +147,5 @@
  */
 #define democonfigQUEUE_SIZE                        ( 2 )
 
-/**
- * @brief Enlarge the stack size on HTTP task because the stack is 
- * overflow with configMINIMAL_STACK_SIZE * 4 in ST board.
- */
-#define httpexampleTASK_STACK_SIZE ( configMINIMAL_STACK_SIZE * 5 )
-
 
 #endif /* ifndef HTTP_DEMO_S3_DOWNLOAD_MULTITHREADED_CONFIG_H */
