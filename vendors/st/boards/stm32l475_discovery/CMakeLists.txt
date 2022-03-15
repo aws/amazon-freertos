@@ -36,6 +36,7 @@ afr_mcu_port(compiler)
 set(
     defined_symbols
     USE_HAL_DRIVER
+    USE_OFFLOAD_SSL
     STM32L475xx
     MQTTCLIENT_PLATFORM_HEADER=MQTTCMSIS.h
     ENABLE_IOT_INFO
