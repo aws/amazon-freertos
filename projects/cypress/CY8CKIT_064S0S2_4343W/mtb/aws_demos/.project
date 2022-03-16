@@ -282,6 +282,11 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.h</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls_utils/mbedtls_error.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
@@ -467,6 +472,11 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/chachapoly.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/check_crypto_config.h</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/check_crypto_config.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/cipher.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/cipher.c</locationURI>
@@ -480,6 +490,26 @@
 			<name>libraries/3rdparty/mbedtls/library/cmac.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/cmac.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/common.h</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/common.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/constant_time.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/constant_time.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/constant_time_internal.h</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/constant_time_internal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/constant_time_invasive.h</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/constant_time_invasive.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/ctr_drbg.c</name>
@@ -525,6 +555,11 @@
 			<name>libraries/3rdparty/mbedtls/library/ecp_curves.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/ecp_curves.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/ecp_invasive.h</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/ecp_invasive.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/entropy.c</name>
@@ -582,14 +617,39 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md5.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/mbedtls/library/md_wrap.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md_wrap.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_common.h</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/mps_common.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_error.h</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/mps_error.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_reader.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/mps_reader.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_reader.h</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/mps_reader.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_trace.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/mps_trace.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_trace.h</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/mps_trace.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/net_sockets.c</name>
@@ -717,6 +777,11 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/ssl_cookie.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/ssl_msg.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/ssl_msg.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/ssl_srv.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/ssl_srv.c</locationURI>
@@ -730,6 +795,16 @@
 			<name>libraries/3rdparty/mbedtls/library/ssl_tls.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/ssl_tls.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/ssl_tls13_keys.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/ssl_tls13_keys.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/ssl_tls13_keys.h</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/ssl_tls13_keys.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/threading.c</name>
@@ -860,16 +935,6 @@
 			<name>libraries/abstractions/platform/freertos/iot_clock_freertos.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/platform/freertos/iot_clock_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/iot_metrics.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/platform/freertos/iot_metrics.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/iot_network_freertos.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/platform/freertos/iot_network_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/freertos/iot_threads_freertos.c</name>

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202107.00
+ * FreeRTOS V202203.00
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,7 +46,6 @@
 #include "task.h"
 #include "semphr.h"
 #include "platform/iot_network.h"
-#include "platform/iot_network_freertos.h"
 #include "platform/iot_clock.h"
 
 /* Greengrass includes. */
@@ -157,10 +156,6 @@ struct NetworkContext
  * of overflow for the 32 bit unsigned integer used for holding the timestamp.
  */
 static uint32_t ulGlobalEntryTimeMs;
-
-/* The maximum time to wait for an MQTT operation to complete.  Needs to be
- * long enough for the TLS negotiation to complete. */
-static const uint32_t _maxCommandTimeMs = 20000UL;
 
 static const uint32_t _timeBetweenPublishMs = 1500UL;
 
@@ -487,7 +482,6 @@ static void sendMessageToGGC( MQTTContext_t * pxMQTTContext )
 {
     MQTTStatus_t xResult;
     MQTTPublishInfo_t xMQTTPublishInfo;
-    BaseType_t xDemoStatus = pdPASS;
     uint32_t ulMessageCounter;
     char cBuffer[ ggdDEMO_MAX_MQTT_MSG_SIZE ];
     const char * pcTopic = ggdDEMO_MQTT_MSG_TOPIC;
@@ -511,7 +505,6 @@ static void sendMessageToGGC( MQTTContext_t * pxMQTTContext )
 
         if( xResult != MQTTSuccess )
         {
-            xDemoStatus = pdFAIL;
             LogError( ( "Failed to send PUBLISH message to broker: Topic=%s, Error=%s",
                         pcTopic,
                         MQTT_Status_strerror( xResult ) ) );
@@ -532,7 +525,6 @@ static int discoverGreengrassCore()
     NetworkContext_t xNetworkContext = { 0 };
     MQTTContext_t xMQTTContext = { 0 };
     MQTTStatus_t xMQTTStatus;
-    BaseType_t xIsConnectionEstablished = pdFALSE;
 
 
     memset( &xHostAddressData, 0, sizeof( xHostAddressData ) );
@@ -568,8 +560,6 @@ static int discoverGreengrassCore()
 
         if( xDemoStatus == pdPASS )
         {
-            xIsConnectionEstablished = pdTRUE;
-
             sendMessageToGGC( &xMQTTContext );
 
             LogInfo( ( "Disconnecting from broker." ) );

@@ -267,6 +267,13 @@ IotUARTHandle_t iot_uart_open(int32_t lUartInstance)
             return NULL;
         }
 
+        /* Set default config in UART context before returning */
+        uart_ctx->iot_uart_conf.ulBaudrate = IOT_UART_BAUD_RATE_DEFAULT;
+        uart_ctx->iot_uart_conf.xParity = eUartParityNone;
+        uart_ctx->iot_uart_conf.xStopbits = eUartStopBitsOne;
+        uart_ctx->iot_uart_conf.ucWordlength = 8;
+        uart_ctx->iot_uart_conf.ucFlowControl = 0;
+
         IotUARTHandle_t iot_uart_handler = (void *) uart_ctx;
         uart_bit_mask = uart_bit_mask | BIT(lUartInstance);
         return iot_uart_handler;
@@ -301,13 +308,25 @@ int32_t iot_uart_ioctl(IotUARTHandle_t const pxUartPeripheral, IotUARTIoctlReque
             case eUartSetConfig : {
                 int32_t uart_port_num = uart_ctx->uart_port_num;
                 IotUARTConfig_t *iot_uart_config = (IotUARTConfig_t *) pvBuffer;
-                memcpy(&uart_ctx->iot_uart_conf, iot_uart_config, sizeof(IotUARTConfig_t));
-                uart_config_t uart_config;
+                uart_config_t uart_config = {0};
                 uart_config.baud_rate = iot_uart_config->ulBaudrate;
-                uart_config.data_bits = iot_uart_config->ucWordlength;
+                if (iot_uart_config->ucWordlength == 5) {
+                    uart_config.data_bits = UART_DATA_5_BITS;
+                } else if (iot_uart_config->ucWordlength == 6) {
+                    uart_config.data_bits = UART_DATA_6_BITS;
+                } else if (iot_uart_config->ucWordlength == 7) {
+                    uart_config.data_bits = UART_DATA_7_BITS;
+                } else if (iot_uart_config->ucWordlength == 8) {
+                    uart_config.data_bits = UART_DATA_8_BITS;
+                } else {
+                    return IOT_UART_INVALID_VALUE;
+                }
+
                 if (iot_uart_config->ucFlowControl == true) {
                     uart_config.flow_ctrl = UART_HW_FLOWCTRL_CTS_RTS;
-                    uart_config.rx_flow_ctrl_thresh = UART_FIFO_LEN;
+                    uart_config.rx_flow_ctrl_thresh = (UART_FIFO_LEN / 2);
+                } else {
+                    uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
                 }
                 switch (iot_uart_config->xParity) {
                     case eUartParityNone:
@@ -336,10 +355,24 @@ int32_t iot_uart_ioctl(IotUARTHandle_t const pxUartPeripheral, IotUARTIoctlReque
                     uart_config.baud_rate = IOT_UART_BAUD_RATE_DEFAULT;
                 }
                 ret = uart_driver_delete(uart_port_num);
-                ret |= iot_uart_driver_install(uart_port_num, uart_config);
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "Failed to delete UART driver");
+                    return IOT_UART_INVALID_VALUE;
+                }
+                ret = iot_uart_driver_install(uart_port_num, uart_config);
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "Failed to install UART driver");
+                    return IOT_UART_INVALID_VALUE;
+                }
                 //Create a callback function to handle UART event from ISR
                 ret = uart_register_callback_with_isr(uart_port_num, uart_event_cb, (void *)iot_uart_handler);
-                return (ret == ESP_OK) ? IOT_UART_SUCCESS : IOT_UART_INVALID_VALUE;
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "Failed to register callback");
+                    return IOT_UART_INVALID_VALUE;
+                }
+
+                memcpy(&uart_ctx->iot_uart_conf, iot_uart_config, sizeof(IotUARTConfig_t));
+                return IOT_UART_SUCCESS;
             }
             case eUartGetConfig : {
                 IotUARTConfig_t *iot_uart_config = (IotUARTConfig_t *) pvBuffer;

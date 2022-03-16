@@ -147,6 +147,7 @@ set(
     "${nrf5_sdk}/modules/nrfx/hal/nrf_nvmc.c"
     "${AFR_3RDPARTY_DIR}/mbedtls/library/base64.c"
     "${AFR_3RDPARTY_DIR}/mbedtls/library/asn1parse.c"
+    "${AFR_3RDPARTY_DIR}/mbedtls/library/constant_time.c"
     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_ecc.c"
     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_ecdsa.c"
     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_hash.c"
@@ -211,6 +212,7 @@ set(
     "${nrf5_sdk}/modules/nrfx/hal"
     "${nrf5_sdk}/modules/nrfx/mdk"
     "${AFR_3RDPARTY_DIR}/mbedtls/include"
+    "${AFR_3RDPARTY_DIR}/mbedtls/library"
     #TODO: Remove depedency on "code signer cert" from crypto.c in tests.
     "$<${AFR_IS_TESTING}:${AFR_TESTS_DIR}/integration_test/ota_pal>"
 )

@@ -475,6 +475,65 @@ int pthread_join( pthread_t pthread,
 
 /*-----------------------------------------------------------*/
 
+int pthread_detach( pthread_t pthread )
+{
+    int iStatus = 0;
+    pthread_internal_t * pxThread = ( pthread_internal_t * ) pthread;
+    eTaskState pThreadState;
+
+    /* Make sure pthread is joinable. */
+    if( !pthreadIS_JOINABLE( pxThread->xAttr.usSchedPriorityDetachState ) )
+    {
+        iStatus = EINVAL;
+    }
+
+    if( iStatus == 0 )
+    {
+        /* Create a critical section to verify that pthread is joinable. */
+        vTaskSuspendAll();
+
+        pThreadState = eTaskGetState( pxThread->xTaskHandle );
+
+        /* Thread has been deleted or is invalid. */
+        if( ( pThreadState == eDeleted ) || ( pThreadState == eInvalid ) )
+        {
+            iStatus = EINVAL;
+        }
+        else
+        {
+            /* Release xJoinBarrier and delete it. */
+            ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxThread->xJoinBarrier );
+            vSemaphoreDelete( ( SemaphoreHandle_t ) &pxThread->xJoinBarrier );
+
+            /* Release xJoinMutex and delete it. */
+            ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxThread->xJoinMutex );
+            vSemaphoreDelete( ( SemaphoreHandle_t ) &pxThread->xJoinMutex );
+
+            /* Thread has been finished */
+            if( pThreadState == eSuspended )
+            {
+                /* Delete the FreeRTOS task that ran the thread. */
+                vTaskDelete( pxThread->xTaskHandle );
+
+                /* Free the thread object. */
+                vPortFree( pxThread );
+            }
+            else
+            {
+                /* Thread is in the running or ready state. */
+                pthread_attr_setdetachstate( ( pthread_attr_t * ) &pxThread->xAttr, PTHREAD_CREATE_DETACHED );
+            }
+        }
+
+        /* End the critical section. */
+        xTaskResumeAll();
+    }
+
+    return iStatus;
+}
+
+/*-----------------------------------------------------------*/
+
 pthread_t pthread_self( void )
 {
     /* Return a reference to this pthread object, which is stored in the

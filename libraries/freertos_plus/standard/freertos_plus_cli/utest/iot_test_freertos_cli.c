@@ -23,6 +23,7 @@
  * http://aws.amazon.com/freertos
  *
  */
+#include <stdio.h>
 #include <string.h>
 
 #include "FreeRTOS.h"

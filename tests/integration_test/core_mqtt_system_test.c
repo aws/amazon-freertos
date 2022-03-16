@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202107.00
+ * FreeRTOS V202203.00
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -854,7 +854,7 @@ static void eventCallback( MQTTContext_t * pContext,
             incomingInfo.pPayload = NULL;
             /* Copy information of topic name and payload. */
             memcpy( ( void * ) incomingTopicBuffer, pPublishInfo->pTopicName, pPublishInfo->topicNameLength );
-            incomingInfo.pTopicName = incomingTopicBuffer;
+            incomingInfo.pTopicName = ( const char * ) incomingTopicBuffer;
             memcpy( ( void * ) incomingPayloadBuffer, pPublishInfo->pPayload, pPublishInfo->payloadLength );
             incomingInfo.pPayload = incomingPayloadBuffer;
 

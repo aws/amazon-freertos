@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202107.00
+ * FreeRTOS V202203.00
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -863,7 +863,7 @@ static void prvUpdateSubAckStatus( MQTTPacketInfo_t * pxPacketInfo )
 
     for( ulTopicCount = 0; ulTopicCount < ulSize; ulTopicCount++ )
     {
-        xTopicFilterContext[ ulTopicCount ].xSubAckStatus = pucPayload[ ulTopicCount ];
+        xTopicFilterContext[ ulTopicCount ].xSubAckStatus = ( MQTTSubAckStatus_t ) ( pucPayload[ ulTopicCount ] );
     }
 }
 /*-----------------------------------------------------------*/

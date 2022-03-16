@@ -23,10 +23,6 @@
  * http://www.FreeRTOS.org
  */
 
-/* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
- * from redefining in iot_secure_sockets_wrapper_metrics.h */
-#define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
-
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
@@ -39,8 +35,6 @@
 #include "task.h"
 #include "core_pkcs11.h"
 #include "iot_crypto.h"
-
-#undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 /* Internal context structure. */
 typedef struct SSOCKETContext

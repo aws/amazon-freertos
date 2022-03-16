@@ -23,6 +23,8 @@ if(DEFINED ENV{IDF_PATH})
     CMake was successful.")
 endif()
 
+
+
 set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
 # Provides idf_import_components and idf_link_components
 include(${esp_idf_dir}/tools/cmake/idf.cmake)
@@ -37,7 +39,12 @@ endif()
 
 afr_mcu_port(compiler)
 
-set(linker_flags "-Wl,--gc-sections" "-Wl,--cref" "-Wl,--Map=${exe_target}.map" "-Wl,--undefined=uxTopUsedPriority")
+# If external project is set do not link IDF components to aws target
+if (NOT IDF_PROJECT_EXECUTABLE)
+    set(IDF_PROJECT_EXECUTABLE ${exe_target})
+endif()
+
+set(linker_flags "-Wl,--gc-sections" "-Wl,--cref" "-Wl,--Map=${IDF_PROJECT_EXECUTABLE}.map" "-Wl,--undefined=uxTopUsedPriority")
 
 # Linker flags
 target_link_options(
@@ -63,19 +70,16 @@ else()
     set(aws_credentials_include "${AFR_DEMOS_DIR}/include")
 endif()
 
-# mbedTLS include directories
-if(NOT AFR_ESP_FREERTOS_TCP)
-    target_include_directories(
-        afr_3rdparty_mbedtls
-        PUBLIC
-        "${esp_idf_dir}/components/lwip/include/apps"
-        "${esp_idf_dir}/components/lwip/include/apps/sntp"
-        "${esp_idf_dir}/components/lwip/lwip/src/include"
-        "${esp_idf_dir}/components/lwip/port/esp32/include"
-        "${esp_idf_dir}/components/lwip/port/esp32/include/arch"
-        "${esp_idf_dir}/components/lwip/lwip/src/include/compat"
-        )
-endif()
+target_include_directories(
+    afr_3rdparty_mbedtls
+    PUBLIC
+    "${esp_idf_dir}/components/lwip/include/apps"
+    "${esp_idf_dir}/components/lwip/include/apps/sntp"
+    "${esp_idf_dir}/components/lwip/lwip/src/include"
+    "${esp_idf_dir}/components/lwip/port/esp32/include"
+    "${esp_idf_dir}/components/lwip/port/esp32/include/arch"
+    "${esp_idf_dir}/components/lwip/lwip/src/include/compat"
+    )
 
 # Kernel
 afr_mcu_port(kernel)
@@ -109,24 +113,8 @@ set(
     "${esp_idf_dir}/components/esp_timer/include"
     "${esp_idf_dir}/components/esp_common/include"
     "${esp_idf_dir}/components/esp_system/include"
-)
-
-if(AFR_ESP_FREERTOS_TCP)
-    list(APPEND kernel_inc_dirs
-    "${extra_components_dir}/freertos_tcpip/ethernet/include"
-    "${extra_components_dir}/freertos_tcpip/smartconfig_ack/include"
-    "${extra_components_dir}/freertos_tcpip/tcpip_adapter/include"
-    "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/GCC"
-    "${esp_idf_dir}/components/xtensa"
-    "${esp_idf_dir}/components/esp_wifi/include"
-    "${esp_idf_dir}/components/esp_netif/include"
-    "${esp_idf_dir}/components/esp_eth/include"
-    )
-else()
-    list(APPEND kernel_inc_dirs
     "${esp_idf_dir}/components/tcpip_adapter/include"
-    )
-endif()
+)
 
 if(ECC608_IN_USE)
     set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
@@ -154,13 +142,6 @@ target_include_directories(
 # WiFi
 afr_mcu_port(wifi)
 
-if(AFR_ESP_FREERTOS_TCP)
-target_link_libraries(
-    AFR::wifi::mcu_port
-    INTERFACE
-    AFR::freertos_plus_tcp
-)
-else()
 target_include_directories(
     AFR::wifi::mcu_port
     INTERFACE
@@ -178,7 +159,6 @@ target_include_directories(
         "${esp_idf_dir}/components/esp_eth/include"
         "${esp_idf_dir}/components/soc/soc/include"
 )
-endif()
 
 target_sources(
     AFR::wifi::mcu_port
@@ -187,42 +167,41 @@ target_sources(
 )
 
  # SoftAP Provisioning - Available ONLY when using LWIP stack
-if( NOT AFR_ESP_FREERTOS_TCP )
-    target_include_directories(
-        AFR::wifi::mcu_port
-        INTERFACE
-            "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser"
-            "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/include"
-            "${esp_idf_dir}/components/protobuf-c/protobuf-c"
-            "${esp_idf_dir}/components/protocomm/proto-c"
-            "${esp_idf_dir}/components/protocomm/src/common"
-            "${esp_idf_dir}/components/wifi_provisioning/proto-c"
-            "${esp_idf_dir}/components/esp_http_server/include"
-    )
-    target_sources(
-        AFR::wifi::mcu_port
-        INTERFACE
-            "${afr_ports_dir}/wifi/iot_softap_wifi_provisioning.c"
-            "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c"
-            "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h"
-            "${esp_idf_dir}/components/protobuf-c/protobuf-c/protobuf-c/protobuf-c.c"
-            "${esp_idf_dir}/components/protocomm/proto-c/session.pb-c.c"
-            "${esp_idf_dir}/components/protocomm/proto-c/sec0.pb-c.c"
-            "${esp_idf_dir}/components/protocomm/proto-c/sec1.pb-c.c"
-            "${esp_idf_dir}/components/protocomm/proto-c/constants.pb-c.c"
-            "${esp_idf_dir}/components/protocomm/src/common/protocomm.c"
-            "${esp_idf_dir}/components/protocomm/src/security/security1.c"
-            "${esp_idf_dir}/components/protocomm/src/transports/protocomm_httpd.c"
-            "${esp_idf_dir}/components/wifi_provisioning/proto-c/wifi_config.pb-c.c"
-            "${esp_idf_dir}/components/wifi_provisioning/proto-c/wifi_constants.pb-c.c"
-            "${esp_idf_dir}/components/wifi_provisioning/src/wifi_config.c"
-    )
-    target_link_libraries(
-        AFR::wifi::mcu_port
-        INTERFACE
-            3rdparty::mbedtls
-    )
-endif()
+target_include_directories(
+    AFR::wifi::mcu_port
+    INTERFACE
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser"
+        "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/include"
+        "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/library"
+        "${esp_idf_dir}/components/protobuf-c/protobuf-c"
+        "${esp_idf_dir}/components/protocomm/proto-c"
+        "${esp_idf_dir}/components/protocomm/src/common"
+        "${esp_idf_dir}/components/wifi_provisioning/proto-c"
+        "${esp_idf_dir}/components/esp_http_server/include"
+)
+target_sources(
+    AFR::wifi::mcu_port
+    INTERFACE
+        "${afr_ports_dir}/wifi/iot_softap_wifi_provisioning.c"
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c"
+        "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.h"
+        "${esp_idf_dir}/components/protobuf-c/protobuf-c/protobuf-c/protobuf-c.c"
+        "${esp_idf_dir}/components/protocomm/proto-c/session.pb-c.c"
+        "${esp_idf_dir}/components/protocomm/proto-c/sec0.pb-c.c"
+        "${esp_idf_dir}/components/protocomm/proto-c/sec1.pb-c.c"
+        "${esp_idf_dir}/components/protocomm/proto-c/constants.pb-c.c"
+        "${esp_idf_dir}/components/protocomm/src/common/protocomm.c"
+        "${esp_idf_dir}/components/protocomm/src/security/security1.c"
+        "${esp_idf_dir}/components/protocomm/src/transports/protocomm_httpd.c"
+        "${esp_idf_dir}/components/wifi_provisioning/proto-c/wifi_config.pb-c.c"
+        "${esp_idf_dir}/components/wifi_provisioning/proto-c/wifi_constants.pb-c.c"
+        "${esp_idf_dir}/components/wifi_provisioning/src/wifi_config.c"
+)
+target_link_libraries(
+    AFR::wifi::mcu_port
+    INTERFACE
+        3rdparty::mbedtls
+)
 
 # PKCS11
 if(ECC608_IN_USE)
@@ -267,24 +246,6 @@ target_include_directories(
         "${esp_idf_dir}/components/soc/soc/include"
 )
 
-if(AFR_ESP_FREERTOS_TCP)
-# FreeRTOS Plus TCP
-afr_mcu_port(freertos_plus_tcp)
-target_sources(
-    AFR::freertos_plus_tcp::mcu_port
-    INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/esp32/NetworkInterface.c"
-)
-
-# Secure sockets
-afr_mcu_port(secure_sockets)
-target_link_libraries(
-    AFR::secure_sockets::mcu_port
-    INTERFACE AFR::secure_sockets_freertos_plus_tcp
-)
-else()
-
 # Secure sockets
 afr_mcu_port(secure_sockets)
 
@@ -321,8 +282,6 @@ target_link_libraries(
     INTERFACE
         ${secure_sockets_libraries}
 )
-
-endif()
 
 # Common I/O
 afr_mcu_port(common_io)
@@ -396,15 +355,15 @@ if(AFR_ENABLE_TESTS)
     )
 endif()
 
+# Add extra components to metadata
+afr_files_to_console_metadata(
+    "${extra_components_dir}"
+)
+
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
-
-# If external project is set do not link IDF components to aws target
-if (NOT IDF_PROJECT_EXECUTABLE)
-    set(IDF_PROJECT_EXECUTABLE ${exe_target})
-endif()
 
 if (NOT IDF_EXECUTABLE_SRCS)
     set(IDF_EXECUTABLE_SRCS "${board_dir}/application_code/main.c" ${extra_exe_sources})
@@ -468,7 +427,6 @@ set_source_files_properties(${AFR_DEMOS_DIR}/logging/iot_logging_task_dynamic_bu
     "-Wno-format -Wno-uninitialized"
 )
 
-
 set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-int-conversion"
@@ -477,6 +435,50 @@ set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
 set_source_files_properties(${AFR_ROOT_DIR}/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_subscription.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-restrict")
+
+set_source_files_properties(${AFR_ROOT_DIR}/libraries/abstractions/secure_sockets/test/iot_test_tcp.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-array-bounds")
+
+set_source_files_properties(
+    ${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/iot_init.c
+    ${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/iot_device_metrics.c
+    ${AFR_ROOT_DIR}/libraries/abstractions/secure_sockets/lwip/iot_secure_sockets.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-unused-function")
+
+set_source_files_properties(
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/test_iot_power.c
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/test_iot_spi.c
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/test_iot_sdio.c
+    ${AFR_ROOT_DIR}/tests/integration_test/shadow_system_test.c
+    ${AFR_ROOT_DIR}/demos/ota/ota_demo_core_http/ota_demo_core_http.c
+    ${AFR_ROOT_DIR}/demos/coreMQTT_Agent/mqtt_agent_task.c
+    ${AFR_ROOT_DIR}/demos/device_shadow_for_aws/shadow_demo_main.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-unused-variable")
+
+set_source_files_properties(
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/iot_test_common_io.c
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/test_iot_perfcounter.c
+    ${AFR_ROOT_DIR}/demos/cli/cli_uart_demo.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-type-limits")
+
+set_source_files_properties(
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/test_iot_flash.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-discarded-qualifiers")
+
+set_source_files_properties(
+    ${AFR_ROOT_DIR}/libraries/abstractions/common_io/test/test_iot_rtc.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-unused-variable -Wno-overflow")
+
+set_source_files_properties(
+    ${AFR_ROOT_DIR}/libraries/coreJSON/source/core_json.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-type-limits -Wno-discarded-qualifiers")
 
 set(IDF_TARGET esp32)
 set(ENV{IDF_PATH} ${esp_idf_dir})
@@ -507,7 +509,6 @@ set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_BINARY_DIR})
 
 set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 
-
 set_property(GLOBAL PROPERTY IDF_PROJECT_EXECUTABLE ${IDF_PROJECT_EXECUTABLE})
 
 get_filename_component(
@@ -523,15 +524,6 @@ get_filename_component(
 )
 
 idf_build_component(${ABS_EXTRA_COMPONENT_DIRS})
-
-if(AFR_ESP_FREERTOS_TCP)
-get_filename_component(
-    ABS_NW_EXTRA_COMPONENT_DIRS
-    "${extra_components_dir}/freertos_tcpip" ABSOLUTE
-)
-
-idf_build_component(${ABS_EXTRA_COMPONENT_DIRS})
-endif()
 
 idf_build_process(esp32s2
                     SDKCONFIG ${CMAKE_BINARY_DIR}/sdkconfig
@@ -563,13 +555,11 @@ target_compile_definitions(
     -DESP_PLATFORM
 )
 
-if(NOT AFR_ESP_FREERTOS_TCP)
 target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<COMPILE_LANGUAGE:C>:${compiler_defined_symbols}>
     -DAFR_ESP_LWIP
 )
-endif()
 
 target_compile_options(
     AFR::compiler::mcu_port

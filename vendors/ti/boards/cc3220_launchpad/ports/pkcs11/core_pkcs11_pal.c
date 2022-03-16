@@ -410,7 +410,6 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
     char * pcFileName = NULL;
     int16_t iStatus = 0;
     SlFsFileInfo_t FsFileInfo = { 0 };
-    CK_BYTE_PTR pxZeroedData = NULL;
     CK_BYTE_PTR pxObject = NULL;
     CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
     CK_ULONG ulObjectLength = sizeof( CK_BYTE );

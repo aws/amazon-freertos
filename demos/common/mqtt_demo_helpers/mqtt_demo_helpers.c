@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202107.00
+ * FreeRTOS V202203.00
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -716,7 +716,7 @@ void vHandleOtherIncomingPacket( MQTTPacketInfo_t * pxPacketInfo,
             configASSERT( xResult == MQTTSuccess );
             /* Only a single topic filter is expected for each SUBSCRIBE packet. */
             configASSERT( xSize == 1UL );
-            xTopicFilterContext.xSubAckStatus = *pucPayload;
+            xTopicFilterContext.xSubAckStatus = ( MQTTSubAckStatus_t ) *pucPayload;
 
             if( xTopicFilterContext.xSubAckStatus != MQTTSubAckFailure )
             {

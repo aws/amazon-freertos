@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202107.00
+ * FreeRTOS V202203.00
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,6 +40,10 @@
 #include "aws_demo_config.h"
 #include "iot_network.h"
 
+/* OTA library and demo configuration macros. */
+#include "ota_config.h"
+#include "ota_demo_config.h"
+
 /* CoreMQTT-Agent APIS for running MQTT in a multithreaded environment. */
 #include "freertos_agent_message.h"
 #include "freertos_command_pool.h"
@@ -79,10 +83,6 @@
 
 /* OTA Library include. */
 #include "ota.h"
-
-/* OTA library and demo configuration macros. */
-#include "ota_config.h"
-#include "ota_demo_config.h"
 
 /* OTA Library Interface include. */
 #include "ota_os_freertos.h"
@@ -139,8 +139,6 @@
 /*
  * @brief Server's root CA certificate for TLS authentication with S3.
  *
- * The Baltimore Cybertrust Root CA Certificate is defined below.
- *
  * @note This certificate should be PEM-encoded.
  *
  * Must include the PEM header and footer:
@@ -150,28 +148,7 @@
  *
  */
 #ifndef democonfigHTTPS_ROOT_CA_PEM
-    #define democonfigHTTPS_ROOT_CA_PEM                                  \
-    "-----BEGIN CERTIFICATE-----\n"                                      \
-    "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\n" \
-    "RTESMBAGA1UEChMJQmFsdGltb3JlMRMwEQYDVQQLEwpDeWJlclRydXN0MSIwIAYD\n" \
-    "VQQDExlCYWx0aW1vcmUgQ3liZXJUcnVzdCBSb290MB4XDTAwMDUxMjE4NDYwMFoX\n" \
-    "DTI1MDUxMjIzNTkwMFowWjELMAkGA1UEBhMCSUUxEjAQBgNVBAoTCUJhbHRpbW9y\n" \
-    "ZTETMBEGA1UECxMKQ3liZXJUcnVzdDEiMCAGA1UEAxMZQmFsdGltb3JlIEN5YmVy\n" \
-    "VHJ1c3QgUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKMEuyKr\n" \
-    "mD1X6CZymrV51Cni4eiVgLGw41uOKymaZN+hXe2wCQVt2yguzmKiYv60iNoS6zjr\n" \
-    "IZ3AQSsBUnuId9Mcj8e6uYi1agnnc+gRQKfRzMpijS3ljwumUNKoUMMo6vWrJYeK\n" \
-    "mpYcqWe4PwzV9/lSEy/CG9VwcPCPwBLKBsua4dnKM3p31vjsufFoREJIE9LAwqSu\n" \
-    "XmD+tqYF/LTdB1kC1FkYmGP1pWPgkAx9XbIGevOF6uvUA65ehD5f/xXtabz5OTZy\n" \
-    "dc93Uk3zyZAsuT3lySNTPx8kmCFcB5kpvcY67Oduhjprl3RjM71oGDHweI12v/ye\n" \
-    "jl0qhqdNkNwnGjkCAwEAAaNFMEMwHQYDVR0OBBYEFOWdWTCCR1jMrPoIVDaGezq1\n" \
-    "BE3wMBIGA1UdEwEB/wQIMAYBAf8CAQMwDgYDVR0PAQH/BAQDAgEGMA0GCSqGSIb3\n" \
-    "DQEBBQUAA4IBAQCFDF2O5G9RaEIFoN27TyclhAO992T9Ldcw46QQF+vaKSm2eT92\n" \
-    "9hkTI7gQCvlYpNRhcL0EYWoSihfVCr3FvDB81ukMJY2GQE/szKN+OMY3EU/t3Wgx\n" \
-    "jkzSswF07r51XgdIGn9w/xZchMB5hbgF/X++ZRGjD8ACtPhSNzkE1akxehi/oCr0\n" \
-    "Epn3o0WC4zxe9Z2etciefC7IpJ5OCBRLbf1wbWsaY71k5h+3zvDyny67G7fyUIhz\n" \
-    "ksLi4xaNmjICq44Y3ekQEe5+NauQrz4wlHrQMz2nZQ/1/I6eYs9HRCwBXbsdtTLS\n" \
-    "R9I4LtD+gdwyah617jzV/OeBHRnDJELqYzmp\n"                             \
-    "-----END CERTIFICATE-----\n"
+    #define democonfigHTTPS_ROOT_CA_PEM    tlsATS1_ROOT_CERTIFICATE_PEM
 #endif /* ifndef democonfigHTTPS_ROOT_CA_PEM */
 
 /**
@@ -1258,8 +1235,8 @@ static void prvRegisterOTACallback( const char * pcTopicFilter,
             if( xSubscriptionAdded == false )
             {
                 LogError( ( "Failed to register a publish callback for topic %.*s.",
-                            pcTopicFilter,
-                            usTopicFilterLength ) );
+                            usTopicFilterLength,
+                            pcTopicFilter ) );
             }
         }
     }
@@ -1363,7 +1340,7 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
             xReturnStatus = pdPASS;
 
             LogInfo( ( "Retry attempt %lu out of maximum retry attempts %lu.",
-                       ( pxRetryParams->attemptsDone + 1 ),
+                       pxRetryParams->attemptsDone,
                        pxRetryParams->maxRetryAttempts ) );
         }
     }
@@ -1583,9 +1560,11 @@ static BaseType_t prvConnectToMQTTBroker( void )
 
 static void prvDisconnectFromMQTTBroker( void )
 {
-    MQTTAgentCommandContext_t xCommandContext = { 0 };
+    MQTTAgentCommandContext_t xCommandContext;
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
     MQTTStatus_t xCommandStatus;
+
+    memset( &( xCommandContext ), 0, sizeof( MQTTAgentCommandContext_t ) );
 
     /* Disconnect from broker. */
     LogInfo( ( "Disconnecting the MQTT connection with %s.", democonfigMQTT_BROKER_ENDPOINT ) );
@@ -1616,7 +1595,6 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
                                      const char * pcUrl )
 {
     BaseType_t returnStatus = pdPASS;
-    BaseType_t xStatus = pdPASS;
     HTTPStatus_t xHttpStatus = HTTPSuccess;
     /* The location of the host address within the pre-signed URL. */
     const char * pcAddress = NULL;
@@ -1906,7 +1884,7 @@ static OtaHttpStatus_t prvHttpRequest( uint32_t ulRangeStart,
         {
             xHttpConnectionStatus = pdTRUE;
 
-            xReturnStatus = HTTPSuccess;
+            xReturnStatus = OtaHttpSuccess;
         }
         else
         {
@@ -1942,15 +1920,17 @@ static OtaMqttStatus_t prvMqttSubscribe( const char * pcTopicFilter,
     OtaMqttStatus_t xMqttStatus = OtaMqttSuccess;
     MQTTStatus_t xCommandStatus;
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
-    MQTTAgentCommandContext_t xCommandContext = { 0 };
-    MQTTSubscribeInfo_t xSubscription = { 0 };
+    MQTTAgentCommandContext_t xCommandContext;
+    MQTTSubscribeInfo_t xSubscription;
     MQTTAgentSubscribeArgs_t xSubscribeArgs = { 0 };
 
+    memset( &( xCommandContext ), 0, sizeof( MQTTAgentCommandContext_t ) );
+    memset( &( xSubscription ), 0, sizeof( MQTTSubscribeInfo_t ) );
 
     assert( pcTopicFilter != NULL );
     assert( usTopicFilterLength > 0 );
 
-    xSubscription.qos = ucQOS;
+    xSubscription.qos = ( MQTTQoS_t ) ucQOS;
     xSubscription.pTopicFilter = pcTopicFilter;
     xSubscription.topicFilterLength = usTopicFilterLength;
     xSubscribeArgs.numSubscriptions = 1;
@@ -1998,13 +1978,16 @@ static OtaMqttStatus_t prvMqttPublish( const char * const pcTopic,
     OtaMqttStatus_t xMqttStatus = OtaMqttSuccess;
     MQTTStatus_t xCommandStatus;
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
-    MQTTAgentCommandContext_t xCommandContext = { 0 };
-    MQTTPublishInfo_t publishInfo = { 0 };
+    MQTTAgentCommandContext_t xCommandContext;
+    MQTTPublishInfo_t publishInfo;
+
+    memset( &( xCommandContext ), 0, sizeof( MQTTAgentCommandContext_t ) );
+    memset( &( publishInfo ), 0, sizeof( MQTTPublishInfo_t ) );
 
     /* Set the required publish parameters. */
     publishInfo.pTopicName = pcTopic;
     publishInfo.topicNameLength = usTopicLen;
-    publishInfo.qos = ucQOS;
+    publishInfo.qos = ( MQTTQoS_t ) ucQOS;
     publishInfo.pPayload = pcMsg;
     publishInfo.payloadLength = ulMsgSize;
 
@@ -2046,11 +2029,14 @@ static OtaMqttStatus_t prvMqttUnSubscribe( const char * pcTopicFilter,
     OtaMqttStatus_t xMqttStatus = OtaMqttSuccess;
     MQTTStatus_t xCommandStatus;
     MQTTAgentCommandInfo_t xCommandParams = { 0 };
-    MQTTAgentCommandContext_t xCommandContext = { 0 };
-    MQTTSubscribeInfo_t xSubscription = { 0 };
+    MQTTAgentCommandContext_t xCommandContext;
+    MQTTSubscribeInfo_t xSubscription;
     MQTTAgentSubscribeArgs_t xSubscribeArgs = { 0 };
 
-    xSubscription.qos = ucQOS;
+    memset( &( xCommandContext ), 0, sizeof( MQTTAgentCommandContext_t ) );
+    memset( &( xSubscription ), 0, sizeof( MQTTSubscribeInfo_t ) );
+
+    xSubscription.qos = ( MQTTQoS_t ) ucQOS;
     xSubscription.pTopicFilter = pcTopicFilter;
     xSubscription.topicFilterLength = usTopicFilterLength;
     xSubscribeArgs.numSubscriptions = 1;

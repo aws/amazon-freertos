@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202107.00
+ * FreeRTOS V202203.00
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -430,7 +430,9 @@ void runDemoTask( void * pArgument )
     void vApplicationStackOverflowHook( TaskHandle_t xTask,
                                         char * pcTaskName )
     {
-        configPRINT_STRING( ( "ERROR: stack overflow\r\n" ) );
+        configPRINT_STRING( ( "ERROR: stack overflow in task " ) );
+        configPRINT_STRING( ( pcTaskName ) );
+        configPRINT_STRING( ( "\r\n" ) );
         portDISABLE_INTERRUPTS();
 
         /* Unused Parameters */

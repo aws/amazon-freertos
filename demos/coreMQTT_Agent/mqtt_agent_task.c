@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202107.00
+ * FreeRTOS V202203.00
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -442,13 +442,7 @@ int RunCoreMqttAgentDemo( bool awsIotMqttMode,
                           void * pNetworkCredentialInfo,
                           const void * pNetworkInterface )
 {
-    BaseType_t xNetworkStatus = pdFAIL;
-    BaseType_t xResult = pdFALSE;
-    BaseType_t xNetworkConnectionCreated = pdFALSE;
-    uint32_t ulNotification = 0UL;
-
     uint32_t ulDemoCount = 0UL;
-    uint32_t ulDemoSuccessCount = 0UL;
     int ret = EXIT_SUCCESS;
 
     ( void ) awsIotMqttMode;
@@ -614,8 +608,10 @@ static MQTTStatus_t prvHandleResubscribe( void )
 
     /* These variables need to stay in scope until command completes. */
     static MQTTAgentSubscribeArgs_t xSubArgs = { 0 };
-    static MQTTSubscribeInfo_t xSubInfo[ SUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ] = { 0 };
+    static MQTTSubscribeInfo_t xSubInfo[ SUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ];
     static MQTTAgentCommandInfo_t xCommandParams = { 0 };
+
+    memset( &( xSubInfo[ 0 ] ), 0, SUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS * sizeof( MQTTSubscribeInfo_t ) );
 
     /* Loop through each subscription in the subscription list and add a subscribe
      * command to the command queue. */
@@ -677,8 +673,9 @@ static void prvSubscriptionCommandCallback( MQTTAgentCommandContext_t * pxComman
     MQTTAgentSubscribeArgs_t * pxSubscribeArgs = ( MQTTAgentSubscribeArgs_t * ) pxCommandContext;
 
     /* If the return code is success, no further action is required as all the topic filters
-     * are already part of the subscription list. */
-    if( pxReturnInfo->returnCode != MQTTSuccess )
+     * are already part of the subscription list. Check that the return codes are not NULL in
+     * case the command errored for any reason. */
+    if( ( pxReturnInfo->returnCode != MQTTSuccess ) && ( pxReturnInfo->pSubackCodes != NULL ) )
     {
         /* Check through each of the suback codes and determine if there are any failures. */
         for( lIndex = 0; lIndex < pxSubscribeArgs->numSubscriptions; lIndex++ )
@@ -841,7 +838,7 @@ static void prvIncomingPublishCallback( MQTTAgentContext_t * pMqttAgentContext,
 static void prvMQTTAgentTask( void * pvParameters )
 {
     BaseType_t xNetworkResult = pdFAIL;
-    MQTTStatus_t xMQTTStatus = MQTTSuccess, xConnectStatus = MQTTSuccess;
+    MQTTStatus_t xMQTTStatus = MQTTSuccess;
     MQTTContext_t * pMqttContext = &( xGlobalMqttAgentContext.mqttContext );
 
     ( void ) pvParameters;
@@ -865,7 +862,7 @@ static void prvMQTTAgentTask( void * pvParameters )
         else if( xMQTTStatus == MQTTSuccess )
         {
             /* MQTTAgent_Terminate() was called, but MQTT was not disconnected. */
-            xConnectStatus = MQTT_Disconnect( &( xGlobalMqttAgentContext.mqttContext ) );
+            ( void ) MQTT_Disconnect( &( xGlobalMqttAgentContext.mqttContext ) );
             xNetworkResult = prvSocketDisconnect( &xNetworkContext );
             break;
         }

@@ -88,7 +88,14 @@ static void iot_uart_init( void )
     xUartConfig.ulBaudrate = 115200;
     xUartConfig.xParity = eUartParityNone;
     xUartConfig.xStopbits = eUartStopBitsOne;
-    xUartConfig.ucFlowControl = true;
+/*
+ * Application does not boot if flow control is enabled on
+ * the same UART port as that of IDF console. Hence, disable
+ * flow control if IDF console is set to UART 0.
+ */
+#if (CONFIG_ESP_CONSOLE_UART_NUM != 0)
+        xUartConfig.ucFlowControl = true;
+#endif
 
     status = iot_uart_ioctl( xConsoleUart, eUartSetConfig, &xUartConfig );
     configASSERT( status == IOT_UART_SUCCESS );
@@ -128,7 +135,6 @@ int app_main( void )
 extern void vApplicationIPInit( void );
 static void prvMiscInitialization( void )
 {
-    int32_t uartRet;
     /* Initialize NVS */
     esp_err_t ret = nvs_flash_init();
 

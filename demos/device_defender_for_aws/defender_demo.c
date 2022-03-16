@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202107.00
+ * FreeRTOS V202203.00
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -465,7 +465,7 @@ static BaseType_t collectDeviceMetrics( void )
             /* Include the stack high water mark value. */
             pdTRUE,
             /* Don't include the task state in the TaskStatus_t structure. */
-            0 );
+            eRunning );
 
         /* Get the task status information for all running tasks. The task IDs
          * of each task is then extracted to include in the report as a "list of

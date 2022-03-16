@@ -124,7 +124,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_network_manager.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
-                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)backoff_algorithm/source/backoff_algorithm.c \
                       $(AFR_ABSTRACTIONS_PATH)transport/secure_sockets/transport_secure_sockets.c \
@@ -132,7 +131,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_ABSTRACTIONS_PATH)mqtt_agent/freertos_command_pool.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_init.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_device_metrics.c \
-                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_metrics.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/src/cborencoder.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/src/cborencoder_close_container_checked.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/src/cborerrorstrings.c \

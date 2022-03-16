@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202107.00
+ * FreeRTOS V202203.00
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,5 +42,8 @@ static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 bool IotTestNetwork_SelectNetworkType( uint16_t networkType )
 {
     _IotTestNetworkType = networkType;
+
+    ( void ) _IotTestNetworkType;
+
     return true;
 }

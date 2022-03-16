@@ -7,12 +7,13 @@ doxygen_warnings.txt
 /.metadata/
 .vscode/*
 *.o
-*.d 
+*.d
 *.elf
 *.hex
 !/vendors/cypress/MTB/psoc6/psoc64tfm/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex
 *.bin
 *.pyc
+*.log
 
 RemoteSystemsTempFiles/*
 

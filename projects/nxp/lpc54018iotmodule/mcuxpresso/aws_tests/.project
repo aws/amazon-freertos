@@ -1018,64 +1018,39 @@
 			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/include/platform/iot_metrics.h</name>
+			<name>libraries/logging/iot_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/platform/include/platform/iot_metrics.h</locationURI>
+			<locationURI>BASE_DIR/libraries/logging/iot_logging_task_dynamic_buffers.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/iot_metrics.c</name>
+			<name>libraries/logging/iot_logging.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/iot_metrics.c</locationURI>
+			<locationURI>BASE_DIR/libraries/logging/iot_logging.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/iot_network_freertos.c</name>
+			<name>libraries/logging/include/iot_logging_task.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/iot_network_freertos.c</locationURI>
+			<locationURI>BASE_DIR/libraries/logging/include/iot_logging_task.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</name>
+			<name>libraries/logging/include/logging_levels.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</locationURI>
+			<locationURI>BASE_DIR/libraries/logging/include/logging_levels.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</name>
+			<name>libraries/logging/include/logging_stack.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</locationURI>
+			<locationURI>BASE_DIR/libraries/logging/include/logging_stack.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</name>
+			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</locationURI>
+			<locationURI>BASE_DIR/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</name>
+			<name>demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</locationURI>
-		</link>
-		<link>
-			<name>vendors/nxp/boards/lpc54018iotmodule/ports/secure_sockets/iot_secure_sockets.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/secure_sockets/iot_secure_sockets.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/tls/src/iot_tls.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/freertos_plus/standard/tls/src/iot_tls.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/tls/include/iot_tls.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/freertos_plus/standard/tls/include/iot_tls.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/crypto/src/iot_crypto.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/freertos_plus/standard/crypto/src/iot_crypto.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/crypto/include/iot_crypto.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
+			<locationURI>BASE_DIR/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11.h</name>
@@ -1113,6 +1088,16 @@
 			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/corePKCS11/source/include/core_pkcs11_pal.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/crypto/src/iot_crypto.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/crypto/src/iot_crypto.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/crypto/include/iot_crypto.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c</locationURI>
@@ -1133,6 +1118,31 @@
 			<locationURI>BASE_DIR/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/nxp/boards/lpc54018iotmodule/ports/secure_sockets/iot_secure_sockets.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/secure_sockets/iot_secure_sockets.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/tls/src/iot_tls.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/tls/src/iot_tls.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/tls/include/iot_tls.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/tls/include/iot_tls.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
@@ -1141,41 +1151,6 @@
 			<name>vendors/nxp/boards/lpc54018iotmodule/ports/wifi/iot_wifi.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/wifi/iot_wifi.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/logging/iot_logging_task_dynamic_buffers.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/logging/iot_logging_task_dynamic_buffers.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/logging/iot_logging.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/logging/iot_logging.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/logging/include/iot_logging_task.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/logging/include/iot_logging_task.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/logging/include/logging_levels.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/logging/include/logging_levels.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/logging/include/logging_stack.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/logging/include/logging_stack.h</locationURI>
-		</link>
-		<link>
-			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
-		</link>
-		<link>
-			<name>demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
@@ -1241,6 +1216,31 @@
 			<name>libraries/coreMQTT/source/interface/transport_interface.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/coreMQTT/source/interface/transport_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</locationURI>
+		</link>
+		<link>
+			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_cli/source/FreeRTOS_CLI.c</name>
@@ -1386,31 +1386,6 @@
 			<name>libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/backoff_algorithm/source/include/backoff_algorithm.h</locationURI>
-		</link>
-		<link>
-			<name>demos/common/pkcs11_helpers/pkcs11_helpers.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/common/pkcs11_helpers/pkcs11_helpers.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/coreMQTT-Agent/source/core_mqtt_agent.c</name>
@@ -1818,6 +1793,41 @@
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_tests/application_code/main.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/unity/src/unity.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/unity/src/unity.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/unity/src/unity.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/unity/src/unity.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/unity/src/unity_internals.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/unity/src/unity_internals.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/unity/extras/fixture/src/unity_fixture.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/unity/extras/fixture/src/unity_fixture.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/unity/extras/fixture/src/unity_fixture_internals.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_internals.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/unity/extras/fixture/src/unity_fixture_malloc_overrides.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_malloc_overrides.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/aes.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/aes.c</locationURI>
@@ -1888,6 +1898,11 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/chachapoly.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/check_crypto_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/check_crypto_config.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/cipher.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/cipher.c</locationURI>
@@ -1901,6 +1916,26 @@
 			<name>libraries/3rdparty/mbedtls/library/cmac.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/cmac.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/common.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/common.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/constant_time.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/constant_time.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/constant_time_internal.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/constant_time_internal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/constant_time_invasive.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/constant_time_invasive.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/ctr_drbg.c</name>
@@ -1946,6 +1981,11 @@
 			<name>libraries/3rdparty/mbedtls/library/ecp_curves.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ecp_curves.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/ecp_invasive.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ecp_invasive.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/entropy.c</name>
@@ -2003,14 +2043,39 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/md5.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/mbedtls/library/md_wrap.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/md_wrap.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_common.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/mps_common.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_error.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/mps_error.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_reader.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/mps_reader.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_reader.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/mps_reader.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_trace.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/mps_trace.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_trace.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/mps_trace.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/net_sockets.c</name>
@@ -2088,6 +2153,141 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/poly1305.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_aead.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_aead.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_aead.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_aead.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_cipher.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_cipher.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_cipher.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_cipher.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_client.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_client.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_core.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_core.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_driver_wrappers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_driver_wrappers.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_driver_wrappers.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_driver_wrappers.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_ecp.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_ecp.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_ecp.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_ecp.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_hash.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_hash.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_hash.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_hash.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_invasive.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_invasive.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_its.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_its.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_mac.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_mac.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_mac.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_mac.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_random_impl.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_random_impl.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_rsa.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_rsa.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_rsa.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_rsa.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_se.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_se.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_se.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_se.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_slot_management.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_slot_management.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_slot_management.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_slot_management.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_storage.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_storage.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_storage.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_storage.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_its_file.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_its_file.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/ripemd160.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ripemd160.c</locationURI>
@@ -2138,6 +2338,11 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_cookie.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/ssl_msg.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_msg.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/ssl_srv.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_srv.c</locationURI>
@@ -2151,6 +2356,16 @@
 			<name>libraries/3rdparty/mbedtls/library/ssl_tls.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_tls.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/ssl_tls13_keys.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_tls13_keys.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/ssl_tls13_keys.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_tls13_keys.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/threading.c</name>
@@ -2316,6 +2531,16 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/config.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/config_psa.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/config_psa.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/constant_time.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/constant_time.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/ctr_drbg.h</name>
@@ -2503,6 +2728,11 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/poly1305.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/psa_util.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/psa_util.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</locationURI>
@@ -2631,41 +2861,6 @@
 			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/unity/src/unity.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/unity/src/unity.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/unity/src/unity.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/unity/src/unity.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/unity/src/unity_internals.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/unity/src/unity_internals.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/unity/extras/fixture/src/unity_fixture.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/unity/extras/fixture/src/unity_fixture.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/unity/extras/fixture/src/unity_fixture_internals.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_internals.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/unity/extras/fixture/src/unity_fixture_malloc_overrides.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_malloc_overrides.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.h</name>

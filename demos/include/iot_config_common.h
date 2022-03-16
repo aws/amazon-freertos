@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202012.00
+ * FreeRTOS V202203.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -79,7 +79,10 @@
 #define IotMqtt_Assert( expression )           configASSERT( expression )
 #define AwsIotShadow_Assert( expression )      configASSERT( expression )
 #define AwsIotDefender_Assert( expression )    configASSERT( expression )
-#define IotBle_Assert( expression )            configASSERT( expression )
+
+#ifndef IotBle_Assert
+    #define IotBle_Assert( expression )        configASSERT( expression )
+#endif
 
 /* Control the usage of dynamic memory allocation. */
 #ifndef IOT_STATIC_MEMORY_ONLY

@@ -21,7 +21,6 @@ afr_module_sources(
     PRIVATE
         "${inc_dir}/iot_secure_sockets.h"
         "${inc_dir}/iot_secure_sockets_config_defaults.h"
-        "${inc_dir}/iot_secure_sockets_wrapper_metrics.h"
 )
 
 afr_module_include_dirs(

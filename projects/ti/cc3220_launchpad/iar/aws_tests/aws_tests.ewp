@@ -371,22 +371,22 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\logging\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\interface</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\backoff_algorithm\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\common\pkcs11_helpers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_cli\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT-Agent\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\mqtt_agent</state>
@@ -413,6 +413,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src</state>
@@ -1230,15 +1231,15 @@
 							</file>
 						</group>
 						<group>
-							<name>secure_sockets</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\secure_sockets\iot_secure_sockets.c</name>
-							</file>
-						</group>
-						<group>
 							<name>pkcs11</name>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\pkcs11\core_pkcs11_pal.c</name>
+							</file>
+						</group>
+						<group>
+							<name>secure_sockets</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\secure_sockets\iot_secure_sockets.c</name>
 							</file>
 						</group>
 						<group>
@@ -1475,9 +1476,6 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h</name>
 						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h</name>
-						</file>
 					</group>
 					<group>
 						<name>types</name>
@@ -1504,17 +1502,8 @@
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_freertos.h</name>
 							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_freertos.h</name>
-							</file>
 						</group>
 					</group>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_metrics.c</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_freertos.c</name>
-					</file>
 				</group>
 				<group>
 					<name>test</name>
@@ -1523,27 +1512,6 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_threads.c</name>
-					</file>
-				</group>
-			</group>
-			<group>
-				<name>secure_sockets</name>
-				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_wrapper_metrics.h</name>
-					</file>
-				</group>
-				<group>
-					<name>test</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c</name>
 					</file>
 				</group>
 			</group>
@@ -1586,6 +1554,24 @@
 					<name>test</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11.c</name>
+					</file>
+				</group>
+			</group>
+			<group>
+				<name>secure_sockets</name>
+				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h</name>
+					</file>
+				</group>
+				<group>
+					<name>test</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c</name>
 					</file>
 				</group>
 			</group>
@@ -2014,6 +2000,9 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\chachapoly.c</name>
 					</file>
 					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\check_crypto_config.h</name>
+					</file>
+					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\cipher.c</name>
 					</file>
 					<file>
@@ -2021,6 +2010,18 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\cmac.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\common.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\constant_time.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\constant_time_internal.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\constant_time_invasive.h</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\ctr_drbg.c</name>
@@ -2048,6 +2049,9 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecp_curves.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecp_invasive.h</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\entropy.c</name>
@@ -2083,10 +2087,25 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\md5.c</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\md_wrap.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\memory_buffer_alloc.c</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\memory_buffer_alloc.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\mps_common.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\mps_error.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\mps_reader.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\mps_reader.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\mps_trace.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\mps_trace.h</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\net_sockets.c</name>
@@ -2134,6 +2153,87 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\poly1305.c</name>
 					</file>
 					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_aead.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_aead.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_cipher.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_cipher.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_client.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_core.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_driver_wrappers.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_driver_wrappers.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_ecp.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_ecp.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_hash.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_hash.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_invasive.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_its.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_mac.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_mac.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_random_impl.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_rsa.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_rsa.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_se.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_se.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_slot_management.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_slot_management.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_storage.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_crypto_storage.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\psa_its_file.c</name>
+					</file>
+					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\ripemd160.c</name>
 					</file>
 					<file>
@@ -2164,6 +2264,9 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cookie.c</name>
 					</file>
 					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_msg.c</name>
+					</file>
+					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_srv.c</name>
 					</file>
 					<file>
@@ -2171,6 +2274,12 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_tls.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_tls13_keys.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_tls13_keys.h</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\threading.c</name>
@@ -2275,6 +2384,12 @@
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\config.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\config_psa.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\constant_time.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ctr_drbg.h</name>
@@ -2386,6 +2501,9 @@
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\poly1305.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\psa_util.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ripemd160.h</name>

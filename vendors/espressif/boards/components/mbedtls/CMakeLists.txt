@@ -60,15 +60,8 @@ set(
     "${MBEDTLS_DIR}/port/esp_aes_xts.c"
     "${MBEDTLS_DIR}/port/esp_sha.c"
     "${MBEDTLS_DIR}/port/esp_timing.c"
+    "${esp_idf_dir}/components/mbedtls/port/net_sockets.c"
 )
-
-if(NOT AFR_ESP_FREERTOS_TCP)
-    list(
-        APPEND
-        mbedtls_srcs
-        "${esp_idf_dir}/components/mbedtls/port/net_sockets.c"
-        )
-endif()
 
 if(CONFIG_MBEDTLS_DYNAMIC_BUFFER)
     list(APPEND mbedtls_srcs
