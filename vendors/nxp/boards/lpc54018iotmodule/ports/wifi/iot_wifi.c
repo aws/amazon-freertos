@@ -295,12 +295,12 @@ static WIFIReturnCode_t conv_mode_to_qcom(WIFIDeviceMode_t xDeviceMode, QCOM_WLA
 }
 
 /**
- * @brief Set block of memory to zero.
- *
- * @param[in] pBuf Pointer of the memory to be set.
- *
- * @param[in] size Size of memory to be set.
- *
+ * @brief Function to set a memory block to zero.
+ * The function sets memory to zero using a volatile pointer so that compiler
+ * wont optimize out the function if the buffer to be set to zero is not used further.
+ * 
+ * @param pBuf Pointer to buffer to be set to zero
+ * @param size Length of the buffer to be set zero
  */
 static void prvMemzero( void * pBuf, size_t size )
 {
@@ -507,6 +507,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
 								  pxNetworkParams->xPassword.xWPA.ucLength,
 								  wificonfigMAX_PASSPHRASE_LEN );
             xStatus = qcom_sec_set_passphrase(g_devid, &g_passphr);
+            /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
             prvMemzero( &g_passphr, sizeof( QCOM_PASSPHRASE ) );
             if (A_OK != xStatus)
             {
@@ -1143,6 +1144,7 @@ WIFIReturnCode_t WIFI_ConfigureAP(const WIFINetworkParams_t * const pxNetworkPar
 								  pxNetworkParams->xPassword.xWPA.ucLength,
 								  wificonfigMAX_PASSPHRASE_LEN );
             xStatus = qcom_sec_set_passphrase(g_devid, &g_passphr);
+            /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
             prvMemzero( &g_passphr, sizeof( QCOM_PASSPHRASE ) );
             if (A_OK != xStatus)
                 break;

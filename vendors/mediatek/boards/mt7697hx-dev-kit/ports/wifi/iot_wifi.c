@@ -237,12 +237,12 @@ static struct mtk_wifi_state_t      _g_state;
  *-----------------------------------------------------------*/
 
 /**
- * @brief Set block of memory to zero.
- *
- * @param[in] pBuf Pointer of the memory to be set.
- *
- * @param[in] size Size of memory to be set.
- *
+ * @brief Function to set a memory block to zero.
+ * The function sets memory to zero using a volatile pointer so that compiler
+ * wont optimize out the function if the buffer to be set to zero is not used further.
+ * 
+ * @param pBuf Pointer to buffer to be set to zero
+ * @param size Length of the buffer to be set zero
  */
 static void prvMemzero( void * pBuf, size_t size )
 {
@@ -1020,6 +1020,7 @@ static bool _mtk_wifi_apply_setting( uint8_t port,
         }
 
         ret_set_wep_key = wifi_config_set_wep_key( port, &wep_keys );
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
         prvMemzero( &wep_keys, sizeof( wep_keys ) );
         if( ret_set_wep_key < 0 )
         {

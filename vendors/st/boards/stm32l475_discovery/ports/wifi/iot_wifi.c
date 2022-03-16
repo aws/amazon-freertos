@@ -83,12 +83,12 @@ static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAP
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Set block of memory to zero.
- *
- * @param[in] pBuf Pointer of the memory to be set.
- *
- * @param[in] size Size of memory to be set.
- *
+ * @brief Function to set a memory block to zero.
+ * The function sets memory to zero using a volatile pointer so that compiler
+ * wont optimize out the function if the buffer to be set to zero is not used further.
+ * 
+ * @param pBuf Pointer to buffer to be set to zero
+ * @param size Length of the buffer to be set zero
  */
 static void prvMemzero( void * pBuf, size_t size )
 {
@@ -344,7 +344,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
                     }
                 }
             }
-
+            /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
             prvMemzero( pcPassword, sizeof( pcPassword ) );
         }
 
@@ -713,7 +713,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     						  wificonfigMAX_PASSPHRASE_LEN );
 
         strncpy( ( char * ) xApConfig.Pass, pcPassword, ES_WIFI_MAX_PSWD_NAME_SIZE );
-
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
         prvMemzero( pcPassword, sizeof( pcPassword ) );
     }
 
@@ -726,6 +726,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     {
         /* Activate Soft AP. */
         xWifiStatus = ES_WIFI_ActivateAP( &xWiFiModule.xWifiObject, &xApConfig );
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
         prvMemzero( &xApConfig, sizeof( ES_WIFI_APConfig_t ) );
         if( xWifiStatus == ES_WIFI_STATUS_OK )
         {
@@ -737,6 +738,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     }
     else
     {
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
         prvMemzero( &xApConfig, sizeof( ES_WIFI_APConfig_t ) );
         xRetVal = eWiFiTimeout;
     }

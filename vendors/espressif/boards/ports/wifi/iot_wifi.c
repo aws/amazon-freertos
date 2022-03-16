@@ -90,6 +90,14 @@ static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAP
 
 static WIFIEventHandler_t xWifiEventHandlers[ eWiFiEventMax ]; 
 
+/**
+ * @brief Function to set a memory block to zero.
+ * The function sets memory to zero using a volatile pointer so that compiler
+ * wont optimize out the function if the buffer to be set to zero is not used further.
+ * 
+ * @param pBuf Pointer to buffer to be set to zero
+ * @param size Length of the buffer to be set zero
+ */
 static void prvMemzero( void * pBuf, size_t size )
 {
     volatile uint8_t * pMem = pBuf;
@@ -261,8 +269,8 @@ static void sc_callback(void* arg, esp_event_base_t event_base, int32_t event_id
             memcpy(ssid, evt->ssid, sizeof(evt->ssid));
             memcpy(password, evt->password, sizeof(evt->password));
             ESP_LOGI(TAG, "SSID:%s", ssid);
-            // ESP_LOGI(TAG, "PASSWORD:%s", password);
             esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
+            /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
             prvMemzero( &wifi_config, sizeof( wifi_config_t ) );
             prvMemzero( password, sizeof( password ) );
             esp_wifi_connect();
@@ -550,6 +558,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         }
 
         ret = esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
         prvMemzero( &wifi_config, sizeof( wifi_config_t ) );
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to set wifi config %d", __func__, ret);
@@ -1494,6 +1503,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
         }
 
         ret = esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config);
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
         prvMemzero( &wifi_config, sizeof( wifi_config_t ) );
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to set wifi config %d", __func__, ret);

@@ -57,12 +57,12 @@ static os_mutex_t wlan_mtx;
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Set block of memory to zero.
- *
- * @param[in] pBuf Pointer of the memory to be set.
- *
- * @param[in] size Size of memory to be set.
- *
+ * @brief Function to set a memory block to zero.
+ * The function sets memory to zero using a volatile pointer so that compiler
+ * wont optimize out the function if the buffer to be set to zero is not used further.
+ * 
+ * @param pBuf Pointer to buffer to be set to zero
+ * @param size Length of the buffer to be set zero
  */
 static void prvMemzero( void * pBuf, size_t size )
 {
@@ -318,6 +318,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
 	}
 
         /* WIFI state connected. Clear the home_nw. */
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
         prvMemzero( &home_nw, sizeof( struct wlan_network ) );
 
 	if (os_mutex_put(&wlan_mtx) != WM_SUCCESS)
@@ -331,6 +332,7 @@ retry:
     } while (retry_cnt != 0);
 
     /* Retry exhausted. Clear the home_nw. */
+    /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
     prvMemzero( &home_nw, sizeof( struct wlan_network ) );
 
     if (retry_cnt == 0) {
@@ -352,6 +354,7 @@ retry:
 
 fail:
     /* Operation failed. Clear the home_nw. */
+    /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
     prvMemzero( &home_nw, sizeof( struct wlan_network ) );
 
     if (os_mutex_put(&wlan_mtx) != WM_SUCCESS)
