@@ -35,6 +35,7 @@
 #include "mock_sockets.h"
 #include "mock_portable.h"
 #include "mock_task.h"
+#include "mock_event_groups.h"
 #include "mock_iot_tls.h"
 #include "mock_iot_logging_task.h"
 #include "mock_dns.h"
@@ -1222,6 +1223,10 @@ void test_SecureSockets_SetSockOpt_wakeup_callback_socket_close( void )
 
     s_so = initSocket();
 
+    xEventGroupCreate_IgnoreAndReturn( ( EventGroupHandle_t ) 1 );
+    xEventGroupWaitBits_IgnoreAndReturn( 2 );
+    xEventGroupSetBits_IgnoreAndReturn( 0 );
+
     xTaskCreate_Stub( xTaskCreate_cb2 );
     ret = SOCKETS_SetSockOpt( s_so, 0, SOCKETS_SO_WAKEUP_CALLBACK,
                               option, sizeof( void * ) );
@@ -1256,6 +1261,7 @@ static long int xTaskCreate_cb( TaskFunction_t pxTaskCode,
     lwip_select_IgnoreArg_exceptset();
     lwip_select_IgnoreArg_maxfdp1();
     lwip_select_IgnoreArg_readset();
+    lwip_select_IgnoreArg_timeout();
     lwip_select_ReturnMemThruPtr_readset( &read_fds2, sizeof( fd_set ) );
 
     lwip_select_ExpectAnyArgsAndReturn( -1 );
@@ -1279,6 +1285,9 @@ void test_SecureSockets_SetSockOpt_wakeup_callback( void )
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
     void * option = &taskComplete_cb; /* user callback for socket event */
+
+    xEventGroupCreate_IgnoreAndReturn( ( EventGroupHandle_t ) 1 );
+    xEventGroupWaitBits_IgnoreAndReturn( 2 );
 
     xTaskCreate_Stub( xTaskCreate_cb );
     so = initSocket();
@@ -1308,6 +1317,10 @@ void test_SecureSockets_SetSockOpt_wakeup_callback_clear( void )
     int32_t ret;
 
     so = initSocket();
+
+    xEventGroupSetBits_IgnoreAndReturn( 0 );
+    xEventGroupWaitBits_IgnoreAndReturn( 2 );
+    vEventGroupDelete_Ignore();
 
     ret = SOCKETS_SetSockOpt( so, 0, SOCKETS_SO_WAKEUP_CALLBACK,
                               NULL, 0 );
