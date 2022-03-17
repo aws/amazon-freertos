@@ -101,11 +101,14 @@
         <folder Name="mbedtls">
           <file file_name="../../../../../../libraries/3rdparty/mbedtls/library/asn1parse.c" />
           <file file_name="../../../../../../libraries/3rdparty/mbedtls/library/base64.c" />
+          <file file_name="../../../../../../libraries/3rdparty/mbedtls/library/constant_time.c" />
+          <file file_name="../../../../../../libraries/3rdparty/mbedtls/library/constant_time_internal.h" />
         </folder>
       </folder>
     </folder>
     <configuration
       Name="Release"
+      c_user_include_directories=".;../../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../../libraries/3rdparty/mbedtls/library"
       link_use_linker_script_file="No"
       linker_section_placement_file="flash_placement.xml" />
     <folder Name="config_files">
@@ -115,6 +118,6 @@
   <configuration
     Name="Release"
     c_preprocessor_definitions="NDEBUG"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/pca10056/config;$(SolutionDir)/../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/pca10056/config;$(SolutionDir)/../../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/config_files;$(SolutionDir)/../../../../../../libraries/3rdparty/mbedtls/include;$(SolutionDir)/../../../../../../libraries/3rdparty/mbedtls/library"
     gcc_optimization_level="None" />
 </solution>

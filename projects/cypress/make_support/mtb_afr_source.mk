@@ -83,12 +83,33 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/netif/ppp/polarssl/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable/arch/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/src/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/jsmn/*.c)
+
+# Add mbedtls src files
+MBEDTLS_SRCS := $(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/*.c)
+
+# Filter out psa related files in mbedtls to avoid psa conflicts in CY8CKIT_064S0S2_4343W to avoid PSA conflict
+ifeq ($(findstring CY8CKIT_064S0S2_4343W,$(TARGET)),CY8CKIT_064S0S2_4343W)
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto_aead.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto_cipher.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto_client.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto_driver_wrappers.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto_ecp.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto_hash.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto_mac.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto_rsa.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto_se.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto_slot_management.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_crypto_storage.c, $(MBEDTLS_SRCS))
+	MBEDTLS_SRCS := $(filter-out $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/psa_its_file.c, $(MBEDTLS_SRCS))
+endif
+SOURCES += $(MBEDTLS_SRCS)
 
 ifneq ($(CY_USE_ALL_NETIF),)
 SOURCES+=\
@@ -104,6 +125,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include/mbedtls\
+	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_config/\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils/\
 	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src/\

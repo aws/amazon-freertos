@@ -892,6 +892,11 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/arc4.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/aria.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/aria.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/asn1parse.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/asn1parse.c</locationURI>
@@ -932,6 +937,21 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/certs.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/chacha20.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/chacha20.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/chachapoly.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/chachapoly.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/check_crypto_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/check_crypto_config.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/cipher.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/cipher.c</locationURI>
@@ -945,6 +965,26 @@
 			<name>libraries/3rdparty/mbedtls/library/cmac.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/cmac.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/common.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/common.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/constant_time.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/constant_time.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/constant_time_internal.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/constant_time_internal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/constant_time_invasive.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/constant_time_invasive.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/ctr_drbg.c</name>
@@ -992,6 +1032,11 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ecp_curves.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/ecp_invasive.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ecp_invasive.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/entropy.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/entropy.c</locationURI>
@@ -1007,11 +1052,6 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/error.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/mbedtls/library/gcm.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/gcm.c</locationURI>
@@ -1020,6 +1060,11 @@
 			<name>libraries/3rdparty/mbedtls/library/havege.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/havege.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/hkdf.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/hkdf.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/hmac_drbg.c</name>
@@ -1047,19 +1092,49 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/md5.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/mbedtls/library/md_wrap.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/md_wrap.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_common.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/mps_common.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_error.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/mps_error.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_reader.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/mps_reader.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_reader.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/mps_reader.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_trace.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/mps_trace.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/mps_trace.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/mps_trace.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/net_sockets.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/net_sockets.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/nist_kw.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/nist_kw.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/oid.c</name>
@@ -1085,6 +1160,11 @@
 			<name>libraries/3rdparty/mbedtls/library/pk_wrap.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/pk_wrap.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/pkcs11.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/pkcs12.c</name>
@@ -1115,6 +1195,146 @@
 			<name>libraries/3rdparty/mbedtls/library/platform_util.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/platform_util.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/poly1305.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/poly1305.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_aead.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_aead.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_aead.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_aead.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_cipher.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_cipher.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_cipher.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_cipher.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_client.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_client.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_core.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_core.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_driver_wrappers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_driver_wrappers.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_driver_wrappers.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_driver_wrappers.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_ecp.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_ecp.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_ecp.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_ecp.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_hash.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_hash.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_hash.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_hash.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_invasive.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_invasive.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_its.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_its.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_mac.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_mac.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_mac.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_mac.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_random_impl.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_random_impl.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_rsa.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_rsa.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_rsa.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_rsa.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_se.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_se.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_se.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_se.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_slot_management.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_slot_management.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_slot_management.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_slot_management.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_storage.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_storage.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_crypto_storage.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_crypto_storage.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/psa_its_file.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/psa_its_file.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/ripemd160.c</name>
@@ -1167,6 +1387,11 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_cookie.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/ssl_msg.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_msg.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/ssl_srv.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_srv.c</locationURI>
@@ -1180,6 +1405,16 @@
 			<name>libraries/3rdparty/mbedtls/library/ssl_tls.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_tls.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/ssl_tls13_keys.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_tls13_keys.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/ssl_tls13_keys.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_tls13_keys.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/threading.c</name>
@@ -1257,6 +1492,11 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/aria.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/aria.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</locationURI>
@@ -1302,6 +1542,16 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/certs.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/chacha20.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/chacha20.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/chachapoly.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/chachapoly.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/check_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/check_config.h</locationURI>
@@ -1330,6 +1580,16 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/config.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/config_psa.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/config_psa.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/constant_time.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/constant_time.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/ctr_drbg.h</name>
@@ -1392,11 +1652,6 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/error.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls_utils/mbedtls_error.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</locationURI>
@@ -1405,6 +1660,11 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/havege.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/havege.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/hkdf.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/hkdf.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</name>
@@ -1452,6 +1712,11 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/net_sockets.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/nist_kw.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/nist_kw.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/oid.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/oid.h</locationURI>
@@ -1477,6 +1742,11 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/pk_internal.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs11.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/pkcs11.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</locationURI>
@@ -1500,6 +1770,16 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/poly1305.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/poly1305.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/psa_util.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/psa_util.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</name>
@@ -1600,6 +1880,21 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls_utils/mbedtls_error.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>

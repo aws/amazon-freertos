@@ -171,12 +171,14 @@ int wifi_utils_join(char* ssid, uint8_t ssid_length, wiced_security_t auth_type,
             }
             else
             {
+                memset( dct_wifi_config->stored_ap_list[0].security_key, 0, SECURITY_KEY_SIZE );
                 wiced_dct_read_unlock( (void*) dct_wifi_config, WICED_TRUE );
                 return ERR_CMD_OK;
             }
         }
 
         wifi_utils_analyse_failed_join_result( result );
+        memset( dct_wifi_config->stored_ap_list[0].security_key, 0, SECURITY_KEY_SIZE );
         wiced_dct_read_unlock( (void*) dct_wifi_config, WICED_TRUE );
 
         return ERR_UNKNOWN;
@@ -184,6 +186,7 @@ int wifi_utils_join(char* ssid, uint8_t ssid_length, wiced_security_t auth_type,
 
     strlcpy( last_joined_ssid, ssid, MIN( sizeof(last_joined_ssid), ssid_length+1 ) );
 
+    memset( dct_wifi_config->stored_ap_list[0].security_key, 0, SECURITY_KEY_SIZE );
     wiced_dct_read_unlock( (void*) dct_wifi_config, WICED_TRUE );
 
     return ERR_CMD_OK;

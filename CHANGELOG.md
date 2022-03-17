@@ -1,5 +1,36 @@
-# Change Log
+# Changelog
 This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects ported to microcontroller-based evaluation boards that demonstrate end-to-end connectivity to AWS IoT Core. The repository contains projects for several microcontroller-based evaluation boards.
+
+## 202203.00 March 2022
+
+### Updates
+
+#### FreeRTOS Kernel
+
+- Updated to use V10.4.3-LTS-Patch-2
+
+#### FreeRTOS-Plus-TCP
+
+- Updated to use V2.3.2-LTS-Patch-2
+
+#### corePKCS11
+
+- Updated Mbed TLS version to 2.28.0
+
+#### Vendors
+
+- Updated the Wi-Fi abstraction implementations for the ports listed below. This is to minimize the time the Wi-Fi password is held in RAM by clearing it immediately after usage. In particular, within implementations of the WIFI_ConnectAP() and WIFI_ConfigureAP() functions on the following platforms:
+
+    - CC3220SF-LAUNCHXL
+    - STM32L4 Discovery kit IoT node 
+    - LPC54018 IoT Module 
+    - ESP32-DevKitC, ESP-WROVER-KIT, ESP32-WROOM-32SE, ESP32-S2-SAOLA-1 
+    - XMC4800 Iot Connectivity Kit, XMC4800 and Optiga TrustX 
+    - MediaTek MT7697Hx Development Kit 
+    - Renesas Starter Kit+ for RX65N-2MB 
+    - Cypress CYW954907AEVAL1F, CYW43907AEVAL1F Evaluation Kit, PSoC 64 Standard Secure AWS Wi-Fi Bluetooth Pioneer Kit 
+    - MW320, MW322 AWS IoT Starter Kit 
+    - Numaker-IoT-M487
 
 ## 202107.00 July 2021
 
