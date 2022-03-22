@@ -114,44 +114,131 @@ endif()
 
 # mbedtls - TLS protocol implementation
 if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
-    afr_glob_src(mbedtls_library DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls/library" RECURSE)
-    afr_glob_src(mbedtls_include DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls/include" RECURSE)
+    if (${AFR_SEPARATE_MBEDTLS_SOURCE_BUILD})
+        # In current CI environment, build command is too long to build, 
+        # split the source file to reduce the command length
+        message("AFR_SEPARATE_MBEDTLS_SOURCE_BUILD enabled")
+        file(GLOB mbedtls_library_files_part1 "${AFR_3RDPARTY_DIR}/mbedtls/library/[a-o]*.[hc]")
+        file(GLOB mbedtls_library_files_part2 "${AFR_3RDPARTY_DIR}/mbedtls/library/[^a-o]*.[hc]")
 
-    # Build to static library to save some time.
-    add_library(
-        afr_3rdparty_mbedtls STATIC EXCLUDE_FROM_ALL
-        ${mbedtls_library}
-        ${mbedtls_include}
-        "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_utils.c"
-        "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.h"
-        "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.c"
-        "${AFR_3RDPARTY_DIR}/mbedtls_config/threading_alt.h"
-    )
-    # The "${AFR_3RDPARTY_DIR}/pkcs11" directory must be included before
-    # "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls". This is because mbedtls/include
-    # contains a pkcs11.h header file that will be used over the pkcs11.h file defined
-    # in the pkcs11 directory. These pkcs11.h files are not interchangeable, the one in
-    # the pkcs11 directory should be used. Ideally everywhere the mbed tls header files
-    # are used, they would reference #include "mbedtls/xxx.h" to avoid a naming
-    # conflict. Some vendor/external code does not do this and for that reason we need
-    # to include the "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls" directory
-    target_include_directories(
-        afr_3rdparty_mbedtls PUBLIC 
-        "${AFR_3RDPARTY_DIR}/pkcs11"
-    )
-    target_include_directories(
-        afr_3rdparty_mbedtls PUBLIC
-        "${AFR_3RDPARTY_DIR}/mbedtls/include"
-        "${AFR_3RDPARTY_DIR}/mbedtls_config"
-        "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
-        "${AFR_3RDPARTY_DIR}/mbedtls_utils"
-    )
-    target_link_libraries(
-        afr_3rdparty_mbedtls
-        PRIVATE AFR::kernel
-    )
-    add_library(3rdparty::mbedtls ALIAS afr_3rdparty_mbedtls)
-endif()
+        afr_glob_src(mbedtls_include DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls/include" RECURSE)
+
+        # Build to static library to save some time.
+        # Part 1
+        add_library(
+            afr_3rdparty_mbedtls STATIC EXCLUDE_FROM_ALL
+            ${mbedtls_include}
+            ${mbedtls_library_files_part1}
+            "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_utils.c"
+            "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.h"
+            "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.c"
+            "${AFR_3RDPARTY_DIR}/mbedtls_config/threading_alt.h"
+        )
+        # The "${AFR_3RDPARTY_DIR}/pkcs11" directory must be included before
+        # "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls". This is because mbedtls/include
+        # contains a pkcs11.h header file that will be used over the pkcs11.h file defined
+        # in the pkcs11 directory. These pkcs11.h files are not interchangeable, the one in
+        # the pkcs11 directory should be used. Ideally everywhere the mbed tls header files
+        # are used, they would reference #include "mbedtls/xxx.h" to avoid a naming
+        # conflict. Some vendor/external code does not do this and for that reason we need
+        # to include the "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls" directory
+        target_include_directories(
+            afr_3rdparty_mbedtls PUBLIC 
+            "${AFR_3RDPARTY_DIR}/pkcs11"
+        )
+        target_include_directories(
+            afr_3rdparty_mbedtls PUBLIC
+            "${AFR_3RDPARTY_DIR}/mbedtls/include"
+            "${AFR_3RDPARTY_DIR}/mbedtls/library"
+            "${AFR_3RDPARTY_DIR}/mbedtls_config"
+            "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
+            "${AFR_3RDPARTY_DIR}/mbedtls_utils"
+        )
+
+        # Build to static library to save some time.
+        # Part 2
+        add_library(
+            afr_3rdparty_mbedtls_part2 STATIC EXCLUDE_FROM_ALL
+            ${mbedtls_include}
+            ${mbedtls_library_files_part2}
+            "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_utils.c"
+            "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.h"
+            "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.c"
+            "${AFR_3RDPARTY_DIR}/mbedtls_config/threading_alt.h"
+        )
+        # The "${AFR_3RDPARTY_DIR}/pkcs11" directory must be included before
+        # "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls". This is because mbedtls/include
+        # contains a pkcs11.h header file that will be used over the pkcs11.h file defined
+        # in the pkcs11 directory. These pkcs11.h files are not interchangeable, the one in
+        # the pkcs11 directory should be used. Ideally everywhere the mbed tls header files
+        # are used, they would reference #include "mbedtls/xxx.h" to avoid a naming
+        # conflict. Some vendor/external code does not do this and for that reason we need
+        # to include the "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls" directory
+        target_include_directories(
+            afr_3rdparty_mbedtls_part2 PUBLIC 
+            "${AFR_3RDPARTY_DIR}/pkcs11"
+        )
+        target_include_directories(
+            afr_3rdparty_mbedtls_part2 PUBLIC
+            "${AFR_3RDPARTY_DIR}/mbedtls/include"
+            "${AFR_3RDPARTY_DIR}/mbedtls/library"
+            "${AFR_3RDPARTY_DIR}/mbedtls_config"
+            "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
+            "${AFR_3RDPARTY_DIR}/mbedtls_utils"
+        )
+        target_link_libraries(
+            afr_3rdparty_mbedtls
+            PRIVATE AFR::kernel
+            afr_3rdparty_mbedtls_part2
+        )
+        target_link_libraries(
+            afr_3rdparty_mbedtls_part2
+            PRIVATE AFR::kernel
+            afr_3rdparty_mbedtls
+        )
+        add_library(3rdparty::mbedtls ALIAS afr_3rdparty_mbedtls)
+
+    else()
+        afr_glob_src(mbedtls_library DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls/library" RECURSE)
+        afr_glob_src(mbedtls_include DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls/include" RECURSE)
+
+        # Build to static library to save some time.
+        add_library(
+            afr_3rdparty_mbedtls STATIC EXCLUDE_FROM_ALL
+            ${mbedtls_library}
+            ${mbedtls_include}
+            "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_utils.c"
+            "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.h"
+            "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.c"
+            "${AFR_3RDPARTY_DIR}/mbedtls_config/threading_alt.h"
+        )
+        # The "${AFR_3RDPARTY_DIR}/pkcs11" directory must be included before
+        # "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls". This is because mbedtls/include
+        # contains a pkcs11.h header file that will be used over the pkcs11.h file defined
+        # in the pkcs11 directory. These pkcs11.h files are not interchangeable, the one in
+        # the pkcs11 directory should be used. Ideally everywhere the mbed tls header files
+        # are used, they would reference #include "mbedtls/xxx.h" to avoid a naming
+        # conflict. Some vendor/external code does not do this and for that reason we need
+        # to include the "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls" directory
+        target_include_directories(
+            afr_3rdparty_mbedtls PUBLIC 
+            "${AFR_3RDPARTY_DIR}/pkcs11"
+        )
+        target_include_directories(
+            afr_3rdparty_mbedtls PUBLIC
+            "${AFR_3RDPARTY_DIR}/mbedtls/include"
+            "${AFR_3RDPARTY_DIR}/mbedtls/library"
+            "${AFR_3RDPARTY_DIR}/mbedtls_config"
+            "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
+            "${AFR_3RDPARTY_DIR}/mbedtls_utils"
+        )
+        target_link_libraries(
+            afr_3rdparty_mbedtls
+            PRIVATE AFR::kernel
+        )
+        add_library(3rdparty::mbedtls ALIAS afr_3rdparty_mbedtls)
+    endif() # DEFINED AFR_BOARD AND AFR_BOARD STREQUAL ti.cc3220_launchpad
+endif() # EXISTS "${AFR_3RDPARTY_DIR}/mbedtls"
 
 # pkcs11 standard header
 if(EXISTS "${AFR_3RDPARTY_DIR}/pkcs11")

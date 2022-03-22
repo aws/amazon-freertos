@@ -47,6 +47,7 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/aes.c                     \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/aesni.c                   \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/arc4.c                    \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/aria.c                    \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/asn1parse.c               \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/asn1write.c               \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/base64.c                  \
@@ -55,9 +56,12 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/camellia.c                \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/ccm.c                     \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/certs.c                   \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/chacha20.c                \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/chachapoly.c              \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/cipher.c                  \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/cipher_wrap.c             \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/cmac.c                    \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/constant_time.c           \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/ctr_drbg.c                \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/debug.c                   \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/des.c                     \
@@ -70,28 +74,45 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/entropy.c                 \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/entropy_poll.c            \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/error.c                   \
-                    $(AFR_THIRDPARTY_PATH)mbedtls_utils/mbedtls_error.c             \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/gcm.c                     \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/havege.c                  \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/hkdf.c                    \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/hmac_drbg.c               \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/md.c                      \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/md2.c                     \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/md4.c                     \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/md5.c                     \
-                    $(AFR_THIRDPARTY_PATH)mbedtls/library/md_wrap.c                 \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/memory_buffer_alloc.c     \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/mps_reader.c              \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/mps_trace.c               \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/net_sockets.c             \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/nist_kw.c                 \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/oid.c                     \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/padlock.c                 \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/pem.c                     \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/pk.c                      \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/pk_wrap.c                 \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/pkcs11.c                  \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/pkcs12.c                  \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/pkcs5.c                   \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/pkparse.c                 \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/pkwrite.c                 \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/platform.c                \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/platform_util.c           \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/poly1305.c                             \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_crypto.c                           \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_crypto_aead.c                      \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_crypto_cipher.c                    \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_crypto_client.c                    \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_crypto_driver_wrappers.c           \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_crypto_ecp.c                       \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_crypto_hash.c                      \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_crypto_mac.c                       \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_crypto_rsa.c                       \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_crypto_se.c                        \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_crypto_slot_management.c           \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_crypto_storage.c                   \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/psa_its_file.c            \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/ripemd160.c               \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/rsa.c                     \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/rsa_internal.c            \
@@ -102,9 +123,11 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/ssl_ciphersuites.c        \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/ssl_cli.c                 \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/ssl_cookie.c              \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/ssl_msg.c                 \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/ssl_srv.c                 \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/ssl_ticket.c              \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/ssl_tls.c                 \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/ssl_tls13_keys.c          \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/threading.c               \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/timing.c                  \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/version.c                 \
@@ -117,6 +140,7 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/x509_csr.c                \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/x509write_crt.c           \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/x509write_csr.c           \
+                    $(AFR_THIRDPARTY_PATH)mbedtls_utils/mbedtls_error.c             \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt.c                                                \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt_state.c                                          \
                     $(AFR_LIBRARIES_PATH)coreMQTT/source/core_mqtt_serializer.c                                     \
@@ -174,6 +198,7 @@ GLOBAL_INCLUDES :=  $(AFR_LIBRARIES_PATH)coreMQTT/source/include \
                     $(AFR_THIRDPARTY_PATH)jsmn \
                     $(AFR_THIRDPARTY_PATH)mbedtls_config \
                     $(AFR_THIRDPARTY_PATH)mbedtls/include \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library \
                     $(AFR_THIRDPARTY_PATH)mbedtls_utlils \
                     $(AFR_THIRDPARTY_PATH)unity/src
 

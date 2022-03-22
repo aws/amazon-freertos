@@ -90,6 +90,25 @@ static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAP
 
 static WIFIEventHandler_t xWifiEventHandlers[ eWiFiEventMax ]; 
 
+/**
+ * @brief Function to set a memory block to zero.
+ * The function sets memory to zero using a volatile pointer so that compiler
+ * wont optimize out the function if the buffer to be set to zero is not used further.
+ * 
+ * @param pBuf Pointer to buffer to be set to zero
+ * @param size Length of the buffer to be set zero
+ */
+static void prvMemzero( void * pBuf, size_t size )
+{
+    volatile uint8_t * pMem = pBuf;
+    uint32_t i;
+
+    for( i = 0U; i < size; i++ )
+    {
+        pMem[ i ] = 0U;
+    }
+}
+
 static WIFIReason_t convertReasonCode( uint8_t reasonCode )
 {
     WIFIReason_t retCode;
@@ -250,8 +269,10 @@ static void sc_callback(void* arg, esp_event_base_t event_base, int32_t event_id
             memcpy(ssid, evt->ssid, sizeof(evt->ssid));
             memcpy(password, evt->password, sizeof(evt->password));
             ESP_LOGI(TAG, "SSID:%s", ssid);
-            ESP_LOGI(TAG, "PASSWORD:%s", password);
             esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
+            /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
+            prvMemzero( &wifi_config, sizeof( wifi_config_t ) );
+            prvMemzero( password, sizeof( password ) );
             esp_wifi_connect();
             break;
         case SC_EVENT_SEND_ACK_DONE:
@@ -507,10 +528,6 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         /* Security is wildcard, only ssid/password is required */
         strlcpy((char *) &wifi_config.sta.ssid, (char *) pxNetworkParams->ucSSID, pxNetworkParams->ucSSIDLength + 1);
 
-        if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
-            strlcpy((char *) &wifi_config.sta.password, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength + 1);
-        }
-
         ret = esp_wifi_get_mode( &xCurMode );
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to get wifi mode %d", __func__, ret);
@@ -536,7 +553,13 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             }
         }
 
+        if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
+            strlcpy((char *) &wifi_config.sta.password, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength + 1);
+        }
+
         ret = esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
+        prvMemzero( &wifi_config, sizeof( wifi_config_t ) );
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to set wifi config %d", __func__, ret);
             xSemaphoreGive( xWiFiSem );
@@ -1460,9 +1483,6 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
          */
         memcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->ucSSID, pxNetworkParams->ucSSIDLength);
         wifi_config.ap.ssid_len = pxNetworkParams->ucSSIDLength;
-        if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
-            strlcpy((char *) &wifi_config.ap.password, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength + 1);
-        }
 
         ret = WIFI_SetSecurity(pxNetworkParams->xSecurity, &wifi_config.ap.authmode);
         if (ret != ESP_OK) {
@@ -1478,7 +1498,13 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
             return wifi_ret;
         }
 
+        if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
+            strlcpy((char *) &wifi_config.ap.password, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength + 1);
+        }
+
         ret = esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config);
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
+        prvMemzero( &wifi_config, sizeof( wifi_config_t ) );
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to set wifi config %d", __func__, ret);
             xSemaphoreGive( xWiFiSem );

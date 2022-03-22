@@ -335,7 +335,7 @@
 							<MiscControls>--C99</MiscControls>
 							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot; CONFIG_MEDTLS_USE_AFR_MEMORY PCFG_OS=2 _REENT_SMALL PRODUCT_VERSION=7687 MTK_BLE_SMTCN_ENABLE MTK_BT_LWIP_ENABLE MTK_BLE_BQB_TEST_ENABLE MTK_BLE_CLI_ENABLE MTK_BLE_BQB_CLI_ENABLE MTK_HCI_CONSOLE_MIX_ENABLE MTK_MINISUPP_ENABLE MTK_BSPEXT_ENABLE MTK_HAL_LOWPOWER_ENABLE MTK_LWIP_CLI_ENABLE MTK_HTTPCLIENT_SSL_ENABLE MTK_IPERF_ENABLE MTK_SMTCN_ENABLE MTK_CLI_TEST_MODE_ENABLE MTK_WIFI_REPEATER_ENABLE  CONFIG_REPEATER MTK_DEBUG_LEVEL_NONE MTK_WIFI_PRIVILEGE_ENABLE SUPPORT_MBEDTLS __MTK_BLE_ONLY_ENABLE__ MTK_SINGLE_SKU_SUPPORT HAL_DFS_MODULE_ENABLED LWIP_NO_STDINT_H=1 LWIP_TIMEVAL_PRIVATE=1 __little_endian__=1 FREERTOS_ENABLE_UNIT_TESTS UNITY_INCLUDE_CONFIG_H</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code/include;../../../../../tests/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/wifi/include;../../../../../vendors/mediatek/lwip/include;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/backoff_algorithm/source/include;../../../../../demos/common/pkcs11_helpers;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/coreMQTT-Agent/source/include;../../../../../libraries/abstractions/mqtt_agent/include;../../../../../libraries/abstractions/mqtt_agent;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/dependency/3rdparty/llhttp/include;../../../../../demos/common/http_demo_helpers;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws/source/include;../../../../../demos/common/mqtt_demo_helpers;../../../../../demos/include;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip_osal/include;../../../../../libraries/3rdparty/jsmn</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code/include;../../../../../tests/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/platform/include/platform;../../../../../libraries/logging/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/wifi/include;../../../../../vendors/mediatek/lwip/include;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/coreMQTT/source/include;../../../../../libraries/coreMQTT/source/interface;../../../../../libraries/abstractions/backoff_algorithm/source/include;../../../../../demos/common/pkcs11_helpers;../../../../../libraries/abstractions/transport/secure_sockets;../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include;../../../../../libraries/coreMQTT-Agent/source/include;../../../../../libraries/abstractions/mqtt_agent/include;../../../../../libraries/abstractions/mqtt_agent;../../../../../libraries/coreHTTP/source/include;../../../../../libraries/coreHTTP/source/interface;../../../../../libraries/coreHTTP/source/dependency/3rdparty/llhttp/include;../../../../../demos/common/http_demo_helpers;../../../../../libraries/coreJSON/source/include;../../../../../libraries/device_shadow_for_aws/source/include;../../../../../demos/common/mqtt_demo_helpers;../../../../../demos/include;../../../../../libraries/device_defender_for_aws/source/include;../../../../../libraries/jobs_for_aws/source/include;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip_osal/include;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/3rdparty/mbedtls/library</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -2325,6 +2325,11 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/chachapoly.c</FilePath>
 						</File>
 						<File>
+							<FileName>check_crypto_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/check_crypto_config.h</FilePath>
+						</File>
+						<File>
 							<FileName>cipher.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/cipher.c</FilePath>
@@ -2338,6 +2343,26 @@
 							<FileName>cmac.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/cmac.c</FilePath>
+						</File>
+						<File>
+							<FileName>common.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/common.h</FilePath>
+						</File>
+						<File>
+							<FileName>constant_time.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/constant_time.c</FilePath>
+						</File>
+						<File>
+							<FileName>constant_time_internal.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/constant_time_internal.h</FilePath>
+						</File>
+						<File>
+							<FileName>constant_time_invasive.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/constant_time_invasive.h</FilePath>
 						</File>
 						<File>
 							<FileName>ctr_drbg.c</FileName>
@@ -2383,6 +2408,11 @@
 							<FileName>ecp_curves.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/ecp_curves.c</FilePath>
+						</File>
+						<File>
+							<FileName>ecp_invasive.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/ecp_invasive.h</FilePath>
 						</File>
 						<File>
 							<FileName>entropy.c</FileName>
@@ -2440,14 +2470,39 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/md5.c</FilePath>
 						</File>
 						<File>
-							<FileName>md_wrap.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/md_wrap.c</FilePath>
-						</File>
-						<File>
 							<FileName>memory_buffer_alloc.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</FilePath>
+						</File>
+						<File>
+							<FileName>mps_common.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/mps_common.h</FilePath>
+						</File>
+						<File>
+							<FileName>mps_error.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/mps_error.h</FilePath>
+						</File>
+						<File>
+							<FileName>mps_reader.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/mps_reader.c</FilePath>
+						</File>
+						<File>
+							<FileName>mps_reader.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/mps_reader.h</FilePath>
+						</File>
+						<File>
+							<FileName>mps_trace.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/mps_trace.c</FilePath>
+						</File>
+						<File>
+							<FileName>mps_trace.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/mps_trace.h</FilePath>
 						</File>
 						<File>
 							<FileName>net_sockets.c</FileName>
@@ -2525,6 +2580,141 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/poly1305.c</FilePath>
 						</File>
 						<File>
+							<FileName>psa_crypto.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto.c</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_aead.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_aead.c</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_aead.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_aead.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_cipher.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_cipher.c</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_cipher.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_cipher.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_client.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_client.c</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_core.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_core.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_driver_wrappers.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_driver_wrappers.c</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_driver_wrappers.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_driver_wrappers.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_ecp.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_ecp.c</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_ecp.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_ecp.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_hash.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_hash.c</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_hash.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_hash.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_invasive.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_invasive.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_its.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_its.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_mac.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_mac.c</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_mac.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_mac.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_random_impl.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_random_impl.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_rsa.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_rsa.c</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_rsa.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_rsa.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_se.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_se.c</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_se.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_se.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_slot_management.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_slot_management.c</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_slot_management.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_slot_management.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_storage.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_storage.c</FilePath>
+						</File>
+						<File>
+							<FileName>psa_crypto_storage.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_crypto_storage.h</FilePath>
+						</File>
+						<File>
+							<FileName>psa_its_file.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/psa_its_file.c</FilePath>
+						</File>
+						<File>
 							<FileName>ripemd160.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/ripemd160.c</FilePath>
@@ -2575,6 +2765,11 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/ssl_cookie.c</FilePath>
 						</File>
 						<File>
+							<FileName>ssl_msg.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/ssl_msg.c</FilePath>
+						</File>
+						<File>
 							<FileName>ssl_srv.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/ssl_srv.c</FilePath>
@@ -2588,6 +2783,16 @@
 							<FileName>ssl_tls.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/ssl_tls.c</FilePath>
+						</File>
+						<File>
+							<FileName>ssl_tls13_keys.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/ssl_tls13_keys.c</FilePath>
+						</File>
+						<File>
+							<FileName>ssl_tls13_keys.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/ssl_tls13_keys.h</FilePath>
 						</File>
 						<File>
 							<FileName>threading.c</FileName>
@@ -2758,6 +2963,16 @@
 							<FileName>config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/config.h</FilePath>
+						</File>
+						<File>
+							<FileName>config_psa.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/config_psa.h</FilePath>
+						</File>
+						<File>
+							<FileName>constant_time.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/constant_time.h</FilePath>
 						</File>
 						<File>
 							<FileName>ctr_drbg.h</FileName>

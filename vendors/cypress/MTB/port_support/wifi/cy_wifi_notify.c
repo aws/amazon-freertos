@@ -359,6 +359,9 @@ static void* cy_link_events_handler(whd_interface_t ifp, const whd_event_header_
                     cy_retry_backoff_timeout = DEFAULT_RETRY_BACKOFF_TIMEOUT_IN_MS;
 
                     cy_net_link_down();
+
+                    /* Clear the global variable cy_connected_ap_details since the link is down. */
+                    memset( &cy_connected_ap_details, 0, sizeof( cy_connected_ap_details ) );
                 }
             }
             break;
@@ -394,6 +397,9 @@ static void* cy_link_events_handler(whd_interface_t ifp, const whd_event_header_
 
                     cy_net_link_up();
                     cy_link_up_event_received = WHD_FALSE;
+
+                    /* Clear the global variable cy_connected_ap_details since the link is up. */
+                    memset( &cy_connected_ap_details, 0, sizeof( cy_connected_ap_details ) );
                 }
                 else if ( event_header->reason == WLC_E_SUP_MSG3_TOO_MANY_IE )
                 {

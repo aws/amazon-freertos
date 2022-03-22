@@ -80,6 +80,29 @@ static BaseType_t xWIFIInitDone;
 
 static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAPHORE_WAIT_TIME_MS );
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Function to set a memory block to zero.
+ * The function sets memory to zero using a volatile pointer so that compiler
+ * wont optimize out the function if the buffer to be set to zero is not used further.
+ * 
+ * @param pBuf Pointer to buffer to be set to zero
+ * @param size Length of the buffer to be set zero
+ */
+static void prvMemzero( void * pBuf, size_t size )
+{
+    volatile uint8_t * pMem = pBuf;
+    uint32_t i;
+
+    for( i = 0U; i < size; i++ )
+    {
+        pMem[ i ] = 0U;
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Maps the given abstracted security type to ST specific one.
  *
@@ -118,6 +141,8 @@ static ES_WIFI_SecurityType_t prvConvertSecurityFromAbstractedToST( WIFISecurity
 
     return xConvertedSecurityType;
 }
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Copies byte array into char array, appending '\0'. Assumes char array can hold length of byte array + 1.
@@ -319,6 +344,8 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
                     }
                 }
             }
+            /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
+            prvMemzero( pcPassword, sizeof( pcPassword ) );
         }
 
         /* Return the semaphore. */
@@ -649,6 +676,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
     ES_WIFI_APConfig_t xApConfig;
+    ES_WIFI_Status_t xWifiStatus = ES_WIFI_STATUS_OK;
 
     configASSERT( pxNetworkParams != NULL );
     
@@ -683,7 +711,10 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     						  pxNetworkParams->xPassword.xWPA.cPassphrase,
     						  pxNetworkParams->xPassword.xWPA.ucLength,
     						  wificonfigMAX_PASSPHRASE_LEN );
+
         strncpy( ( char * ) xApConfig.Pass, pcPassword, ES_WIFI_MAX_PSWD_NAME_SIZE );
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
+        prvMemzero( pcPassword, sizeof( pcPassword ) );
     }
 
     xApConfig.Channel = pxNetworkParams->ucChannel;
@@ -694,7 +725,10 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
     {
         /* Activate Soft AP. */
-        if( ES_WIFI_ActivateAP( &xWiFiModule.xWifiObject, &xApConfig ) == ES_WIFI_STATUS_OK )
+        xWifiStatus = ES_WIFI_ActivateAP( &xWiFiModule.xWifiObject, &xApConfig );
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
+        prvMemzero( &xApConfig, sizeof( ES_WIFI_APConfig_t ) );
+        if( xWifiStatus == ES_WIFI_STATUS_OK )
         {
             xRetVal = eWiFiSuccess;
         }
@@ -704,6 +738,8 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     }
     else
     {
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
+        prvMemzero( &xApConfig, sizeof( ES_WIFI_APConfig_t ) );
         xRetVal = eWiFiTimeout;
     }
 

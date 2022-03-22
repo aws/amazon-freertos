@@ -181,6 +181,7 @@ target_include_directories(
     INTERFACE
         "${AFR_ROOT_DIR}/libraries/coreHTTP/source/dependency/3rdparty/llhttp/include"
         "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/include"
+        "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/library"
         "${esp_idf_dir}/components/protobuf-c/protobuf-c"
         "${esp_idf_dir}/components/protocomm/proto-c"
         "${esp_idf_dir}/components/protocomm/src/common"

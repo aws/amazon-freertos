@@ -181,6 +181,7 @@ set(kernel_includes
     "${AFR_KERNEL_DIR}/include"
     "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
     "${AFR_3RDPARTY_DIR}/mbedtls/include"
+    "${AFR_3RDPARTY_DIR}/mbedtls/library"
     "${AFR_3RDPARTY_DIR}/mbedtls_utils"
     "${xmc4800_aws_dir}/config_files"
 )

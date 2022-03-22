@@ -645,6 +645,7 @@ ESP_WIFI_Status_t ESP_WIFI_Connect( ESP_WIFI_Object_t * pxObj, const char * cSSI
         configPRINTF(("Try to connect to AP \"%s\" ...\n", cSSID));
         sprintf((char *)pxObj->CmdData, "AT+CWJAP=\"%s\",\"%s\"\r\n", cSSID, cPassword);
         xRet = ESP_AT_Command(pxObj, pxObj->CmdData, 0);
+        memset( pxObj->CmdData, 0, ESP_WIFI_DATA_SIZE );
         if (xRet == ESP_WIFI_STATUS_OK) {
             pxObj->IsConnected = pdTRUE;
 

@@ -6,9 +6,17 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 endif()
 
 project(amazon-freertos)
-set(PROJECT_VERSION "202107.00")
-set(PROJECT_VERSION_MAJOR "202107")
+set(PROJECT_VERSION "202203.00")
+set(PROJECT_VERSION_MAJOR "202203")
 set(PROJECT_VERSION_MINOR "00")
+
+# If it's TI boards, enable split mbedtls source build to 
+# shorten the build command length to avoid "The command line is too long" error.
+if (AFR_BOARD STREQUAL ti.cc3220_launchpad)
+    set(AFR_SEPARATE_MBEDTLS_SOURCE_BUILD TRUE)
+else()
+    set(AFR_SEPARATE_MBEDTLS_SOURCE_BUILD FALSE)
+endif()
 
 # Import global configurations.
 include("tools/cmake/afr.cmake")
@@ -90,7 +98,20 @@ if( "${mbedtls_config_pos}" EQUAL "-1")
         -DMBEDTLS_CONFIG_FILE="aws_mbedtls_config.h"
         -DCONFIG_MEDTLS_USE_AFR_MEMORY
     )
-
+    
+    if (${AFR_SEPARATE_MBEDTLS_SOURCE_BUILD})
+        target_include_directories(
+            afr_3rdparty_mbedtls_part2
+            PUBLIC
+            "${AFR_3RDPARTY_DIR}/mbedtls_config"
+        )
+        target_compile_definitions(
+            afr_3rdparty_mbedtls_part2
+            PUBLIC
+            -DMBEDTLS_CONFIG_FILE="aws_mbedtls_config.h"
+            -DCONFIG_MEDTLS_USE_AFR_MEMORY
+        )
+    endif()
 endif()
 
 # -------------------------------------------------------------------------------------------------
