@@ -61,7 +61,7 @@
 #define dlLOGGING_FILE_SIZE             ( 40 * 1024 * 1024 )
 
 /* Dimensions the arrays into which print messages are created. */
-#define dlMAX_PRINT_STRING_LENGTH       255
+#define dlMAX_PRINT_STRING_LENGTH       1024
 
 /* The size of the stream buffer used to pass messages from FreeRTOS tasks to
  * the Win32 thread that is responsible for making any Win32 system calls that are
