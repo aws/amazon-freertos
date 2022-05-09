@@ -457,7 +457,8 @@ static void prvSendListNetworkResponse( IotBleWifiProvResponse_t * pResponse )
 
 
 static void prvSendSavedNetwork( WIFINetworkProfile_t * pNetwork,
-                                 uint16_t priority, bool isLast )
+                                 uint16_t priority,
+                                 bool isLast )
 {
     IotBleWifiProvResponse_t response = { 0 };
 
@@ -474,7 +475,8 @@ static void prvSendSavedNetwork( WIFINetworkProfile_t * pNetwork,
 
 /*-----------------------------------------------------------*/
 
-static void prvSendScanNetwork( WIFIScanResult_t * pNetwork, bool isLast )
+static void prvSendScanNetwork( WIFIScanResult_t * pNetwork,
+                                bool isLast )
 {
     IotBleWifiProvResponse_t response = { 0 };
 
@@ -696,6 +698,7 @@ static void prvProcessListNetworkRequest( IotBleWifiProvListNetworksRequest_t * 
             {
                 isLast = false;
             }
+
             prvSendSavedNetwork( &profile, idx, isLast );
         }
     }
@@ -730,6 +733,7 @@ static void prvProcessListNetworkRequest( IotBleWifiProvListNetworksRequest_t * 
                 {
                     isLast = false;
                 }
+
                 prvSendScanNetwork( &scanNetworks[ idx ], isLast );
             }
         }
