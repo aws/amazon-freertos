@@ -116,6 +116,7 @@ typedef struct
     bool isSavedNetwork : 1;                  /**< A flag to signify whether this network is a saved network or scanned network. */
     bool isConnected : 1;                     /**< A flag to signify whether this network is connected. */
     bool isHidden : 1;                        /**< A flag to signify whether this is an hidden network. */
+    bool isLast : 1;                          /**< A flag to signify if this is last in the list of scanned or saved networks. */
 } IotBleWifiProvNetworkInfo_t;
 
 /**
