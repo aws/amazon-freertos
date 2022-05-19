@@ -55,6 +55,8 @@
 /* Demo configuration */
 #include "aws_demo_config.h"
 
+#include "FreeRTOS_IP.h"
+
 /* Dimensions the buffer used to generate the task name. */
 #define echoMAX_TASK_NAME_LENGTH        8
 
@@ -280,6 +282,14 @@ static void prvEchoClientTask( void * pvParameters )
                                                             configECHO_SERVER_ADDR1,
                                                             configECHO_SERVER_ADDR2,
                                                             configECHO_SERVER_ADDR3 );
+
+    uint32_t IPOfFreeRTOS = 0;
+
+    /* Test the DNS functionality. */
+    IPOfFreeRTOS = FreeRTOS_gethostbyname("freertos.org");
+    char IPString[16];
+
+    configPRINTF( ( "The IP Address of \"freertos.org\" is: %s\n", FreeRTOS_inet_ntop( FREERTOS_AF_INET, &IPOfFreeRTOS, IPString, 16 ) ) );
 
     /* Create lMaxConnectionCount distinct connections to the echo server. */
     for( lConnectionCount = 0; lConnectionCount < lMaxConnectionCount; lConnectionCount++ )
