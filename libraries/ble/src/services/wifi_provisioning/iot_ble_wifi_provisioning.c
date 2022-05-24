@@ -457,13 +457,15 @@ static void prvSendListNetworkResponse( IotBleWifiProvResponse_t * pResponse )
 
 
 static void prvSendSavedNetwork( WIFINetworkProfile_t * pNetwork,
-                                 uint16_t priority )
+                                 uint16_t priority,
+                                 bool isLast )
 {
     IotBleWifiProvResponse_t response = { 0 };
 
     response.requestType = IotBleWiFiProvRequestListNetwork;
     response.networkInfo.isSavedNetwork = true;
     response.networkInfo.isHidden = false;
+    response.networkInfo.isLast = isLast;
     response.networkInfo.isConnected = ( wifiProvisioning.connectedIdx == priority );
     response.networkInfo.info.pSavedNetwork = pNetwork;
     response.networkInfo.index = priority;
@@ -473,7 +475,8 @@ static void prvSendSavedNetwork( WIFINetworkProfile_t * pNetwork,
 
 /*-----------------------------------------------------------*/
 
-static void prvSendScanNetwork( WIFIScanResult_t * pNetwork )
+static void prvSendScanNetwork( WIFIScanResult_t * pNetwork,
+                                bool isLast )
 {
     IotBleWifiProvResponse_t response = { 0 };
 
@@ -481,6 +484,7 @@ static void prvSendScanNetwork( WIFIScanResult_t * pNetwork )
     response.networkInfo.isSavedNetwork = false;
     response.networkInfo.isHidden = false;
     response.networkInfo.isConnected = false;
+    response.networkInfo.isLast = isLast;
     response.networkInfo.info.pScannedNetwork = pNetwork;
 
     prvSendListNetworkResponse( &response );
@@ -674,9 +678,9 @@ WIFIReturnCode_t _insertNetwork( uint16_t index,
 static void prvProcessListNetworkRequest( IotBleWifiProvListNetworksRequest_t * pRequest )
 {
     WIFINetworkProfile_t profile;
-    uint16_t idx;
+    uint16_t idx, numNetworks;
     WIFIReturnCode_t status;
-    uint32_t networks_found = 0;
+    bool isLast = false;
 
     ( void ) pRequest->scanTimeoutMS;
 
@@ -686,7 +690,16 @@ static void prvProcessListNetworkRequest( IotBleWifiProvListNetworksRequest_t * 
 
         if( status == eWiFiSuccess )
         {
-            prvSendSavedNetwork( &profile, idx );
+            if( idx == wifiProvisioning.numNetworks - 1 )
+            {
+                isLast = true;
+            }
+            else
+            {
+                isLast = false;
+            }
+
+            prvSendSavedNetwork( &profile, idx, isLast );
         }
     }
 
@@ -696,18 +709,33 @@ static void prvProcessListNetworkRequest( IotBleWifiProvListNetworksRequest_t * 
 
     if( status == eWiFiSuccess )
     {
-        for( idx = 0; idx < pRequest->scanSize; idx++ )
+        for( numNetworks = 0; numNetworks < pRequest->scanSize; numNetworks++ )
         {
-            if( scanNetworks[ idx ].ucSSIDLength > 0 )
+            if( scanNetworks[ numNetworks ].ucSSIDLength == 0 )
             {
-                networks_found++;
-                prvSendScanNetwork( &scanNetworks[ idx ] );
+                break;
             }
         }
 
-        if( networks_found == 0 )
+        if( numNetworks == 0 )
         {
             prvSendStatusResponse( IotBleWiFiProvRequestListNetwork, status );
+        }
+        else
+        {
+            for( idx = 0; idx < numNetworks; idx++ )
+            {
+                if( idx == numNetworks - 1 )
+                {
+                    isLast = true;
+                }
+                else
+                {
+                    isLast = false;
+                }
+
+                prvSendScanNetwork( &scanNetworks[ idx ], isLast );
+            }
         }
     }
     else

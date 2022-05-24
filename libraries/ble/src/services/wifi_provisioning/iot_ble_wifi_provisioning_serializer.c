@@ -76,6 +76,7 @@
 #define IOT_BLE_WIFI_PROV_INDEX_KEY            "g"
 #define IOT_BLE_WIFI_PROV_NEWINDEX_KEY         "j"
 #define IOT_BLE_WIFI_PROV_CONNECT_KEY          "y"
+#define IOT_BLE_WIFI_PROV_END_MARKER_KEY       "l"
 
 /**
  * @brief Defines the serialized values for WiFi security types.
@@ -98,7 +99,7 @@
  * @brief Number of parameters in a list network response.
  * This defines the  size of the CBOR map used to serialize the list network response messages.
  */
-#define IOT_BLE_WIFI_PROV_NETWORK_INFO_RESPONSE_NUM_PARAMS    ( 9 )
+#define IOT_BLE_WIFI_PROV_NETWORK_INFO_RESPONSE_NUM_PARAMS    ( 10 )
 
 /**
  * @brief Number of parameters in status response message.
@@ -794,6 +795,16 @@ static bool prvSerializeResponseCbor( const IotBleWifiProvResponse_t * pResponse
                 {
                     status = cbor_encode_int( &mapEncoder, IOT_BLE_WIFI_PROV_NETWORK_INDEX_DONT_USE );
                 }
+            }
+        }
+
+        if( SERIALIZER_STATUS( status, pBuffer ) == true )
+        {
+            status = cbor_encode_text_string( &mapEncoder, IOT_BLE_WIFI_PROV_END_MARKER_KEY, strlen( IOT_BLE_WIFI_PROV_END_MARKER_KEY ) );
+
+            if( SERIALIZER_STATUS( status, pBuffer ) == true )
+            {
+                status = cbor_encode_boolean( &mapEncoder, pResponse->networkInfo.isLast );
             }
         }
     }
