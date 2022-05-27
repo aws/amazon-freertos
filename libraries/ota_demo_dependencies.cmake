@@ -3,16 +3,9 @@ afr_module( NAME ota INTERNAL )
 # Include OTA library's source and header path variables.
 include("${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/otaFilePaths.cmake")
 
-# Remove the coreJSON and TinyCBOR files from the OTA_SOURCES and
-# OTA_INCLUDE_PRIVATE_DIR variables. This is so that the OTA target can depend
-# on the libraries part of amazon-freertos instead of the ones nested in the OTA repository.
-remove( OTA_SOURCES ${JSON_SOURCES} ${TINYCBOR_SOURCES} )
-remove( OTA_INCLUDE_PRIVATE_DIRS ${JSON_INCLUDE_PUBLIC_DIRS} ${TINYCBOR_INCLUDE_DIRS} )
-
 # Add cmake files of the OTA library and its dependencies to the metadata.
 afr_module_cmake_files(${AFR_CURRENT_MODULE}
     ${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/otaFilePaths.cmake
-    ${CMAKE_CURRENT_LIST_DIR}/ota_for_aws/source/dependency/coreJSON/jsonFilePaths.cmake
 )
 
 # Define a target for the Over-the-air Update library.
