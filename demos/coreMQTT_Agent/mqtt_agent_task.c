@@ -277,6 +277,14 @@ static BaseType_t prvBackoffForRetry( BackoffAlgorithmContext_t * pxRetryParams 
 static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext );
 
 /**
+ * @brief Passed into SOCKETS_SetSockOpt() as the callback to execute when there is data on the
+ * socket available for reading.
+ *
+ * @param pxSocket The handle of the socket.
+ */
+static void prvMQTTClientSocketWakeupCallback( Socket_t pxSocket );
+
+/**
  * @brief Disconnect a TCP connection.
  *
  * @param[in] pxNetworkContext Network context.
@@ -785,6 +793,12 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
     {
         SOCKETS_SetSockOpt( pxNetworkContext->pParams->tcpSocket,
                             0,
+                            SOCKETS_SO_WAKEUP_CALLBACK,
+                            ( void * ) prvMQTTClientSocketWakeupCallback,
+                            sizeof( void * ) );
+
+        SOCKETS_SetSockOpt( pxNetworkContext->pParams->tcpSocket,
+                            0,
                             SOCKETS_SO_RCVTIMEO,
                             &xTransportTimeout,
                             sizeof( TickType_t ) );
@@ -795,9 +809,33 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
 
 /*-----------------------------------------------------------*/
 
+static void prvMQTTClientSocketWakeupCallback( Socket_t pxSocket )
+{
+    MQTTAgentCommandInfo_t xCommandParams = { 0 };
+
+    ( void ) pxSocket;
+
+    /* A socket used by the MQTT task may need attention.  Send an event
+     * to the MQTT task to make sure the task is not blocked on xCommandQueue. */
+    if( uxQueueMessagesWaiting( xCommandQueue.queue ) == 0U )
+    {
+        ( void ) MQTTAgent_ProcessLoop( &xGlobalMqttAgentContext, &xCommandParams );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 static BaseType_t prvSocketDisconnect( NetworkContext_t * pxNetworkContext )
 {
     LogInfo( ( "Disconnecting TLS connection.\n" ) );
+
+    /* Set the wakeup callback to NULL since the socket will disconnect. */
+    SOCKETS_SetSockOpt( pxNetworkContext->pParams->tcpSocket,
+                        0,
+                        SOCKETS_SO_WAKEUP_CALLBACK,
+                        NULL,
+                        sizeof( void * ) );
+
     TransportSocketStatus_t xNetworkStatus = SecureSocketsTransport_Disconnect( pxNetworkContext );
 
     return ( xNetworkStatus == TRANSPORT_SOCKET_STATUS_SUCCESS ) ? pdPASS : pdFAIL;

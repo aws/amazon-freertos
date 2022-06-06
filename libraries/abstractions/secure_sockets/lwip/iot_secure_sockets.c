@@ -279,16 +279,17 @@ static void vTaskRxSelect( void * param )
     int s = ctx->ip_socket;
     struct timeval tv;
 
+    fd_set s_fds;
     fd_set read_fds;
     fd_set write_fds;
     fd_set err_fds;
 
+    FD_ZERO( &s_fds );
     FD_ZERO( &read_fds );
     FD_ZERO( &write_fds );
     FD_ZERO( &err_fds );
 
-    FD_SET( s, &read_fds );
-    FD_SET( s, &err_fds );
+    FD_SET( s, &s_fds );
 
     ctx->state = SST_RX_READY;
 
@@ -302,6 +303,9 @@ static void vTaskRxSelect( void * param )
             ctx->state = SST_RX_CLOSED;
             break;
         }
+
+        read_fds = s_fds;
+        err_fds = s_fds;
 
         if( lwip_select( s + 1, &read_fds, &write_fds, &err_fds, &tv ) == -1 )
         {
