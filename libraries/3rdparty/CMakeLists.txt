@@ -217,9 +217,12 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/tracealyzer_recorder")
     target_include_directories(
         3rdparty::tracealyzer_recorder INTERFACE
         "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/Include"
+        "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/config"
     )
+endif()
 
-    # WinPcap - pcap port for windows
+# WinPcap - pcap port for windows
+if(EXISTS "${AFR_3RDPARTY_DIR}/win_pcap")
     afr_3rdparty_module(win_pcap)
     target_include_directories(3rdparty::win_pcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap")
     if(MSVC)
