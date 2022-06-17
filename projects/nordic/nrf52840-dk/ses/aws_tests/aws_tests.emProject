@@ -143,6 +143,8 @@
           </folder>
           <folder Name="library">
             <file file_name="../../../../../libraries/3rdparty/mbedtls/library/base64.c" />
+            <file file_name="../../../../../libraries/3rdparty/mbedtls/library/constant_time.c" />
+            <file file_name="../../../../../libraries/3rdparty/mbedtls/library/constant_time_internal.h" />
           </folder>
         </folder>
         <folder Name="tinycbor/src">
@@ -924,7 +926,7 @@
     Name="Debug"
     arm_fp_abi="None"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/application_code;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/ble/src;$(SolutionDir)/../../../../../libraries/ble/include;$(SolutionDir)/../../../../../libraries/coreJSON/source/include;$(SolutionDir)/../../../../../libraries/ota_for_aws/source/include;$(SolutionDir)/../../../../../libraries/ota_for_aws/source/portable/os;$(SolutionDir)/../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws;$(SolutionDir)/../../../../../tests/integration_test/ota_pal"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/application_code;$(SolutionDir)/../../../../../libraries/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/coreMQTT/source/interface;$(SolutionDir)/../../../../../libraries/ble/src;$(SolutionDir)/../../../../../libraries/ble/include;$(SolutionDir)/../../../../../libraries/coreJSON/source/include;$(SolutionDir)/../../../../../libraries/ota_for_aws/source/include;$(SolutionDir)/../../../../../libraries/ota_for_aws/source/portable/os;$(SolutionDir)/../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota_pal_for_aws;$(SolutionDir)/../../../../../tests/integration_test/ota_pal;$(SolutionDir)/../../../../../libraries/3rdparty/mbedtls/include;$(SolutionDir)/../../../../../libraries/3rdparty/mbedtls/library"
     gcc_debugging_level="Level 3"
     gcc_optimization_level="None"
     link_include_standard_libraries="Yes" />

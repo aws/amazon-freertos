@@ -295,6 +295,25 @@ static WIFIReturnCode_t conv_mode_to_qcom(WIFIDeviceMode_t xDeviceMode, QCOM_WLA
 }
 
 /**
+ * @brief Function to set a memory block to zero.
+ * The function sets memory to zero using a volatile pointer so that compiler
+ * wont optimize out the function if the buffer to be set to zero is not used further.
+ * 
+ * @param pBuf Pointer to buffer to be set to zero
+ * @param size Length of the buffer to be set zero
+ */
+static void prvMemzero( void * pBuf, size_t size )
+{
+    volatile uint8_t * pMem = pBuf;
+    uint32_t i;
+
+    for( i = 0U; i < size; i++ )
+    {
+        pMem[ i ] = 0U;
+    }
+}
+
+/**
  * @brief Copies byte array into char array, appending '\0'. Assumes char array can hold length of byte array + 1.
  * 		  Null terminator is guaranteed so long as xLen > 0. A maximum of xCap - 1 pucSrc bytes will be copied into pcDest,
  * 		  therefore truncation is possible.
@@ -401,6 +420,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     const TickType_t dhcp_timeout = pdMS_TO_TICKS( 20000UL );
     uint32_t tmp_ip4_addr = 0, tmp_ip4_mask = 0, tmp_ip4_gw = 0;
     uint8_t ucDhcpSuccessful = 0;
+    A_STATUS xStatus = A_OK;
 
     /* Check initialization */
     if (!g_wifi_is_on)
@@ -486,7 +506,10 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             					  pxNetworkParams->xPassword.xWPA.cPassphrase,
 								  pxNetworkParams->xPassword.xWPA.ucLength,
 								  wificonfigMAX_PASSPHRASE_LEN );
-            if (A_OK != qcom_sec_set_passphrase(g_devid, &g_passphr))
+            xStatus = qcom_sec_set_passphrase(g_devid, &g_passphr);
+            /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
+            prvMemzero( &g_passphr, sizeof( QCOM_PASSPHRASE ) );
+            if (A_OK != xStatus)
             {
                 break;
             }
@@ -1077,6 +1100,7 @@ WIFIReturnCode_t WIFI_ConfigureAP(const WIFINetworkParams_t * const pxNetworkPar
     WIFIReturnCode_t status = eWiFiFailure;
     WLAN_AUTH_MODE auth_mode = WLAN_AUTH_INVALID;
     WLAN_CRYPT_TYPE crypt_type = WLAN_CRYPT_INVALID;
+    A_STATUS xStatus = A_OK;
 
     /* Check initialization */
     if (!g_wifi_is_on)
@@ -1119,7 +1143,10 @@ WIFIReturnCode_t WIFI_ConfigureAP(const WIFINetworkParams_t * const pxNetworkPar
 								  pxNetworkParams->xPassword.xWPA.cPassphrase,
 								  pxNetworkParams->xPassword.xWPA.ucLength,
 								  wificonfigMAX_PASSPHRASE_LEN );
-            if (A_OK != qcom_sec_set_passphrase(g_devid, &g_passphr))
+            xStatus = qcom_sec_set_passphrase(g_devid, &g_passphr);
+            /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
+            prvMemzero( &g_passphr, sizeof( QCOM_PASSPHRASE ) );
+            if (A_OK != xStatus)
                 break;
 
             /* Commit settings to WiFi module */

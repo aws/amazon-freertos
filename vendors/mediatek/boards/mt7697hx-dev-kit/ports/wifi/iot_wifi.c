@@ -230,6 +230,30 @@ struct mtk_wifi_state_t
  */
 static struct mtk_wifi_state_t      _g_state;
 
+/*-----------------------------------------------------------
+ *
+ * Memory utilities
+ *
+ *-----------------------------------------------------------*/
+
+/**
+ * @brief Function to set a memory block to zero.
+ * The function sets memory to zero using a volatile pointer so that compiler
+ * wont optimize out the function if the buffer to be set to zero is not used further.
+ * 
+ * @param pBuf Pointer to buffer to be set to zero
+ * @param size Length of the buffer to be set zero
+ */
+static void prvMemzero( void * pBuf, size_t size )
+{
+    volatile uint8_t * pMem = pBuf;
+    uint32_t i;
+
+    for( i = 0U; i < size; i++ )
+    {
+        pMem[ i ] = 0U;
+    }
+}
 
 /*-----------------------------------------------------------
  *
@@ -926,6 +950,7 @@ static bool _mtk_wifi_apply_setting( uint8_t port,
 {
     wifi_auth_mode_t    mtk_auth;
     wifi_encrypt_type_t mtk_ciph;
+    int32_t             ret_set_wep_key = 0;
 
     /* check ssid */
 
@@ -994,7 +1019,10 @@ static bool _mtk_wifi_apply_setting( uint8_t port,
             wep_keys.wep_tx_key_index    = 0;
         }
 
-        if( wifi_config_set_wep_key( port, &wep_keys ) < 0 )
+        ret_set_wep_key = wifi_config_set_wep_key( port, &wep_keys );
+        /* Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function call. */
+        prvMemzero( &wep_keys, sizeof( wep_keys ) );
+        if( ret_set_wep_key < 0 )
         {
             LOG_E( wifi, "%s: set WEP KEY fail\n", __FUNCTION__ );
             return false;

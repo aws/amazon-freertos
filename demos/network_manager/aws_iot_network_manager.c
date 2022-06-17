@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202107.00
+ * FreeRTOS V202203.00
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -503,6 +503,26 @@ static IotNetworkManagerInfo_t networkManager;
 
     #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 && IOT_WIFI_ENABLE_SOFTAP_PROVISIONING == 0 )
 
+/**
+ * @brief Function to set a memory block to zero.
+ * The function sets memory to zero using a volatile pointer so that compiler
+ * wont optimize out the function if the buffer to be set to zero is not used further.
+ *
+ * @param pBuf Pointer to buffer to be set to zero
+ * @param size Length of the buffer to be set zero
+ */
+        static void prvMemzero( void * pBuf,
+                                size_t size )
+        {
+            volatile uint8_t * pMem = pBuf;
+            uint32_t i;
+
+            for( i = 0U; i < size; i++ )
+            {
+                pMem[ i ] = 0U;
+            }
+        }
+
         static bool _wifiConnectAccessPoint( void )
         {
             bool status = true;
@@ -597,6 +617,12 @@ static IotNetworkManagerInfo_t networkManager;
                     }
                 } while( numRetries-- > 0 );
             }
+
+            /*
+             * Use a private function to reset the memory block instead of memset, so that compiler wont optimize away the function
+             * call.
+             */
+            prvMemzero( &xConnectParams, sizeof( WIFINetworkParams_t ) );
 
             return status;
         }
