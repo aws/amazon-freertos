@@ -457,13 +457,6 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
-        /* Establish the TCP connection. */
-        returnStatus = connectToServer( tcpSocket,
-                                        pServerInfo );
-    }
-
-    if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
-    {
         /* Configure send and receive timeouts for the socket. */
         secureSocketStatus = transportTimeoutSetup( tcpSocket, pSocketsConfig->sendTimeoutMs, pSocketsConfig->recvTimeoutMs );
 
@@ -472,6 +465,13 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
             LogError( ( "Failed to configure send and receive timeouts for socket: secureSocketStatus=%d.", secureSocketStatus ) );
             returnStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
         }
+    }
+
+    if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
+    {
+        /* Establish the TCP connection. */
+        returnStatus = connectToServer( tcpSocket,
+                                        pServerInfo );
     }
 
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
