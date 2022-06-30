@@ -105,6 +105,7 @@
 #define INCLUDE_vTaskDelay                    1
 #define INCLUDE_xTaskGetSchedulerState        1
 #define INCLUDE_xSemaphoreGetMutexHolder      1
+#define INCLUDE_xTaskGetCurrentTaskHandle     1
 
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS

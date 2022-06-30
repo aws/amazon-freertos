@@ -106,6 +106,8 @@
 #define INCLUDE_xTaskGetIdleTaskHandle      1
 #define INCLUDE_pxTaskGetStackStart			1
 #define INCLUDE_xSemaphoreGetMutexHolder    1
+#define INCLUDE_xTaskGetCurrentTaskHandle   1
+
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS
     /* __BVIC_PRIO_BITS will be specified when CMSIS is being used. */
@@ -135,7 +137,7 @@
     ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << ( 8 - configPRIO_BITS ) )
 
 #define configMAC_INTERRUPT_PRIORITY  (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1)
-    
+
 /* Normal assert() semantics without relying on the provision of an assert.h
  * header file. */
 #define configASSERT( x )                                        \
@@ -218,7 +220,7 @@ extern uint32_t numaker_ulRand(void);
  * used. */
 #define configNETWORK_INTERFACE_TO_USE       4L//6L
 
- 
+
 /* The address of an echo server that will be used by the two demo echo client
  * tasks.
  * http://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_Echo_Clients.html
