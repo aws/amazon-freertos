@@ -258,21 +258,5 @@ void vApplicationDaemonTaskStartupHook( void )
        /* Stop here if we fail to initialize WiFi. */
        configASSERT( xWifiStatus == eWiFiSuccess );
    }
-       
-}
-/*-----------------------------------------------------------*/
 
-void * pvPortCalloc( size_t xNum,
-                     size_t xSize )
-{
-    void * pvReturn;
-
-    pvReturn = pvPortMalloc( xNum * xSize );
-
-    if( pvReturn != NULL )
-    {
-        memset( pvReturn, 0x00, xNum * xSize );
-    }
-
-    return pvReturn;
 }
