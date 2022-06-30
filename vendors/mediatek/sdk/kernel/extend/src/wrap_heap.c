@@ -10,21 +10,6 @@
 
 /*-----------------------------------------------------------*/
 
-void *pvPortCalloc( size_t nmemb, size_t size )
-{
-    void *pvReturn;
-
-    pvReturn = pvPortMalloc( nmemb * size );
-    if( pvReturn != NULL )
-    {
-      memset( pvReturn, 0, nmemb * size );
-    }
-
-    return pvReturn;
-}
-
-/*-----------------------------------------------------------*/
-
 
 void *pvPortRealloc( void *pv, size_t size )
 {
