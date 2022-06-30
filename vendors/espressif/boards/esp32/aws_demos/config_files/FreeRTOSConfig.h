@@ -198,6 +198,7 @@
 #define INCLUDE_xTaskGetIdleTaskHandle      1
 #define INCLUDE_pxTaskGetStackStart			1
 #define INCLUDE_xSemaphoreGetMutexHolder    1
+#define INCLUDE_xTaskGetCurrentTaskHandle   1
 
 /* The priority at which the tick interrupt runs.  This should probably be
    kept at 1. */
@@ -424,7 +425,7 @@
 
 /* This config enables extra metadata information of the source library and location
  * in log messages.
- * This config requires the toolchain to support ISO C99 and the GNU extension (for comma 
+ * This config requires the toolchain to support ISO C99 and the GNU extension (for comma
  * elision in variadic macros i.e. with ##__VA_ARGS__).
  * When using this flag, you can change the format or information of log messages in
  * the logging_stack.h file.*/
