@@ -125,3 +125,12 @@ This repository uses Mbed TLS under Apache 2.0.
 
 ## amazon-freerTOS/vendors License
 The `./vendors` directory contains content that may be subject to different license terms. For vendor licensing information, see the LICENSE files or source header documentation for each vendor directory.
+
+## CBMC
+
+The `tools/cbmc/proofs` directory contains CBMC proofs.
+
+To learn more about CBMC and proofs specifically, review the training material [here](https://model-checking.github.io/cbmc-training).
+
+In order to run these proofs you will need to install CBMC and other tools by following the instructions [here](https://model-checking.github.io/cbmc-training/installation.html).
+
