@@ -274,11 +274,11 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 
     if( pSocketsConfig->disableSni == true )
     {
-        LogWarn( ( "The disableSni option is deprecated but set in the provided socket configuration. This setting is now ignored." ) );
+        LogWarn( ( "SNI for TLS handshake is disabled. It is recommended to always enable SNI if server is using a valid DNS name." ) );
     }
 
     /* Set SNI option. */
-    if( secureSocketStatus == SOCKETS_ERROR_NONE )
+    if( ( secureSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->disableSni == false ) )
     {
         secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
                                                  0,
