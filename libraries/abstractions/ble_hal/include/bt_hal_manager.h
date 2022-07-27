@@ -41,6 +41,7 @@
 #define _BT_HAL_MANAGER_H_
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include "bt_hal_manager_types.h"
 
