@@ -272,6 +272,11 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
         }
     }
 
+    if( pSocketsConfig->disableSni == true )
+    {
+        LogWarn( ( "SNI for TLS handshake is disabled. It is recommended to always enable SNI if server is using a valid DNS name." ) );
+    }
+
     /* Set SNI option. */
     if( ( secureSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->disableSni == false ) )
     {
