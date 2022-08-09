@@ -253,50 +253,6 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
             return 0;
 
-        case BLE_GAP_EVENT_PAIRING_REQUEST:
-
-            if( xBTCallbacks.pxSspRequestCb != NULL )
-            {
-                rc = ble_gap_conn_find( event->pairing_req.conn_handle, &desc );
-                xBTCallbacks.pxSspRequestCb( ( BTBdaddr_t * ) desc.peer_id_addr.val,
-                                             NULL,
-                                             0,
-                                             eBTsspVariantConsent,
-                                             0 );
-            }
-
-            if( ble_hs_cfg.sm_sc && ( event->pairing_req.authreq & BLE_SM_PAIR_AUTHREQ_SC ) )
-            {
-                if( ble_sm_sc_ioa[ ble_hs_cfg.sm_io_cap ][ event->pairing_req.io_cap ] == BLE_SM_IOACT_NONE )
-                {
-                    ESP_LOGE( TAG, "Just works in Secure Connections only mode" );
-
-                    if( xBTCallbacks.pxPairingStateChangedCb != NULL )
-                    {
-                        xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail, ( BTBdaddr_t * ) desc.peer_id_addr.val,
-                                                              eBTbondStateNone,
-                                                              eBTSecLevelNoSecurity,
-                                                              eBTauthFailInsuffSecurity );
-                    }
-
-                    return BLE_SM_ERR_AUTHREQ;
-                }
-                else if( event->pairing_req.max_enc_key_size < BLE_SM_PAIR_KEY_SZ_MAX )
-                {
-                    if( xBTCallbacks.pxPairingStateChangedCb != NULL )
-                    {
-                        xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail, ( BTBdaddr_t * ) desc.peer_id_addr.val,
-                                                              eBTbondStateNone,
-                                                              eBTSecLevelNoSecurity,
-                                                              eBTauthFailInsuffSecurity );
-                    }
-
-                    return BLE_SM_ERR_ENC_KEY_SZ;
-                }
-            }
-
-            return 0;
-
         case BLE_GAP_EVENT_ENC_CHANGE:
             /* Encryption has been enabled or disabled for this connection. */
             ESP_LOGD( TAG, "encryption change event; status=%d ",

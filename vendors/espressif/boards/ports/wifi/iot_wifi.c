@@ -369,7 +369,7 @@ BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
-        if( ( wifi_conn_state == true) && 
+        if( ( wifi_conn_state == true) &&
             ( ( pxNetworkParams == NULL ) ||
               ( memcmp( pxNetworkParams->ucSSID, xConnectedAP.ucSSID, pxNetworkParams->ucSSIDLength ) == 0 ) ) )
         {

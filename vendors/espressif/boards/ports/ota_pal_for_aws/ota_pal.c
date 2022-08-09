@@ -32,7 +32,7 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include "soc/rtc_cntl_reg.h"
-#include "soc/rtc_wdt.h"
+#include "hal/wdt_hal.h"
 
 #include "esp_partition.h"
 #include "esp_spi_flash.h"
@@ -649,7 +649,10 @@ OtaPalImageState_t otaPal_GetPlatformImageState( OtaFileContext_t * const pFileC
 static void disable_rtc_wdt()
 {
     LogInfo( ( "Disabling RTC hardware watchdog timer" ) );
-    rtc_wdt_disable();
+    wdt_hal_context_t rtc_wdt_ctx = {.inst = WDT_RWDT, .rwdt_dev = &RTCCNTL};
+    wdt_hal_write_protect_disable(&rtc_wdt_ctx);
+    wdt_hal_disable(&rtc_wdt_ctx);
+    wdt_hal_write_protect_enable(&rtc_wdt_ctx);
 }
 
 OtaPalStatus_t otaPal_SetPlatformImageState( OtaFileContext_t * const pFileContext,
