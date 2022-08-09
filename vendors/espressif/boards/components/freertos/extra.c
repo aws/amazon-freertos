@@ -51,7 +51,7 @@ void  __attribute__((weak)) vApplicationStackOverflowHook( TaskHandle_t xTask, c
 	char buf[sizeof(ERR_STR1) + CONFIG_FREERTOS_MAX_TASK_NAME_LEN + sizeof(ERR_STR2) + 1 /* null char */] = { 0 };
 
 	char *dest = buf;
-	for (int i = 0 ; i < sizeof(str)/ sizeof(str[0]); i++) {
+	for (size_t i = 0 ; i < sizeof(str)/ sizeof(str[0]); i++) {
 		dest = strcat(dest, str[i]);
 	}
 	esp_system_abort(buf);
