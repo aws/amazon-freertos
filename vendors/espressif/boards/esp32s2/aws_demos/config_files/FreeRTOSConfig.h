@@ -35,6 +35,9 @@
 /* Required for configuration-dependent settings */
 #include "xtensa_config.h"
 
+/* The arch-specific FreeRTOSConfig_arch.h in port/<arch>/include. */
+#include "freertos/FreeRTOSConfig_arch.h"
+
 #ifndef __ASSEMBLER__
     #include <stdlib.h> /* for abort() */
     #include "esp32s2/rom/ets_sys.h"
@@ -42,7 +45,7 @@
     #include "soc/cpu.h"
     #include "esp_attr.h"
 
-    #if CONFIG_SYSVIEW_ENABLE
+    #if CONFIG_APPTRACE_SV_ENABLE
         #include "SEGGER_SYSVIEW_FreeRTOS.h"
         #undef INLINE // to avoid redefinition
     #endif
@@ -80,7 +83,7 @@
     #define configMAX_PRIORITIES			( 25U )
 #endif
 
-#ifndef CONFIG_ESP32_APPTRACE_ENABLE
+#ifndef CONFIG_APPTRACE_ENABLE
     #define configMINIMAL_STACK_SIZE		768U
 #else
     /* The apptrace module requires at least 2KB of stack per task. */
@@ -119,23 +122,6 @@
 #ifndef configISR_STACK_SIZE
     #define configISR_STACK_SIZE			CONFIG_FREERTOS_ISR_STACKSIZE
 #endif
-
-/* configASSERT behaviour */
-#if defined(CONFIG_FREERTOS_ASSERT_DISABLE)
-    #define configASSERT(a) /* assertions disabled */
-#elif defined(CONFIG_FREERTOS_ASSERT_FAIL_PRINT_CONTINUE)
-    #define configASSERT(a) if (!(a)) {                                     \
-                ( void ) ets_printf("%s:%d (%s)- assert failed!\n",         \
-                                    __FILE__, __LINE__, __FUNCTION__);      \
-            }
-#else /* CONFIG_FREERTOS_ASSERT_FAIL_ABORT */
-    #define configASSERT(a) if (!(a)) {                                     \
-                ( void ) ets_printf("%s:%d (%s)- assert failed!\n",         \
-                                    __FILE__, __LINE__, __FUNCTION__);      \
-                abort();                                                    \
-            }
-#endif
-
 
 #ifndef __ASSEMBLER__
     /* The function that implements FreeRTOS printf style output, and the macro
@@ -178,7 +164,15 @@
 #if configUSE_TICKLESS_IDLE
 #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP   CONFIG_FREERTOS_IDLE_TIME_BEFORE_SLEEP
 #endif //configUSE_TICKLESS_IDLE
-#define configENABLE_TASK_SNAPSHOT			1
+
+#define configRECORD_STACK_HIGH_ADDRESS            1
+
+#if CONFIG_FREERTOS_ENABLE_TASK_SNAPSHOT
+#define configENABLE_TASK_SNAPSHOT                      1
+#endif
+#ifndef configENABLE_TASK_SNAPSHOT
+#define configENABLE_TASK_SNAPSHOT                      0
+#endif
 
 #define configINCLUDE_FREERTOS_TASK_C_ADDITIONS_H 1
 
@@ -339,23 +333,6 @@
                                 void * const pxCreatedTask,
                                 const int xCoreID );
 
-    static inline bool IRAM_ATTR xPortCanYield(void)
-    {
-        uint32_t ps_reg = 0;
-
-        //Get the current value of PS (processor status) register
-        RSR(PS, ps_reg);
-
-        /*
-         * intlevel = (ps_reg & 0xf);
-         * excm  = (ps_reg >> 4) & 0x1;
-         * CINTLEVEL is max(excm * EXCMLEVEL, INTLEVEL), where EXCMLEVEL is 3.
-         * However, just return true, only intlevel is zero.
-         */
-
-        return ((ps_reg & PS_INTLEVEL_MASK) == 0);
-    }
-
     #define xTaskGetIdleTaskHandleForCPU(i) xTaskGetIdleTaskHandle()
 
     #define xTaskGetCurrentTaskHandleForCPU(i) xTaskGetCurrentTaskHandle()
@@ -416,10 +393,12 @@
 #define configXT_BOARD                      1   /* Board mode. */
 #define configXT_SIMULATOR					0
 
+#ifndef UNTESTED_FUNCTION
 #if CONFIG_FREERTOS_ASSERT_ON_UNTESTED_FUNCTION
-    #define UNTESTED_FUNCTION() { ets_printf("Untested FreeRTOS function %s\r\n", __FUNCTION__); configASSERT(false); } while(0)
+    #define UNTESTED_FUNCTION() { esp_rom_printf("Untested FreeRTOS function %s\r\n", __FUNCTION__); configASSERT(false); } while(0)
 #else
     #define UNTESTED_FUNCTION()
+#endif
 #endif
 
 #endif /* #define FREERTOS_CONFIG_H */
