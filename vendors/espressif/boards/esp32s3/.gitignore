@@ -1,0 +1,2 @@
+# Ignore the build artifacts in the projects.
+*build*

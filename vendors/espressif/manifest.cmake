@@ -4,6 +4,7 @@ set(
     esp32_devkitc
     esp32_wrover_kit
     esp32s2_saola_1
+    esp32s3_devkitc
     CACHE INTERNAL "Supported boards list."
 )
 
@@ -12,3 +13,4 @@ set(AFR_MANIFEST_BOARD_DIR_esp32_devkitc "boards/esp32")
 set(AFR_MANIFEST_BOARD_DIR_esp32_wrover_kit "boards/esp32")
 set(AFR_MANIFEST_BOARD_DIR_esp32_plus_ecc608a_devkitc "boards/esp32")
 set(AFR_MANIFEST_BOARD_DIR_esp32s2_saola_1 "boards/esp32s2")
+set(AFR_MANIFEST_BOARD_DIR_esp32s3_devkitc "boards/esp32s3")
