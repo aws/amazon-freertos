@@ -171,6 +171,8 @@ typedef struct xSOCKET * Socket_t; /**< @brief Socket handle data type. */
 #define SOCKETS_SO_TCPKEEPALIVE_INTERVAL         ( 19 ) /**< Set the time in seconds between individual TCP keep-alive probes. */
 #define SOCKETS_SO_TCPKEEPALIVE_COUNT            ( 20 ) /**< Set the maximum number of keep-alive probes TCP should send before dropping the connection. */
 #define SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME        ( 21 ) /**< Set the time in seconds for which the connection needs to remain idle before TCP starts sending keep-alive probes. */
+#define SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE    ( 30 ) /**< Set client certificate index. Must be a label name managed by PKCS#11. */
+#define SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY    ( 31 ) /**< Set client private key index. Must be a label name managed by PKCS#11. */
 
 /**@} */
 

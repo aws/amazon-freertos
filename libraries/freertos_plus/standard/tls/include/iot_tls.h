@@ -97,6 +97,11 @@ typedef struct xTLS_PARAMS
     NetworkRecv_t pxNetworkRecv;
     NetworkSend_t pxNetworkSend;
     void * pvCallerContext;
+
+    const char * pcClientCertificateIndex;
+    uint32_t ulClientCertificateIndexLength;
+    const char * pcClientPrivateKeyIndex;
+    uint32_t ulClientPrivateKeyIndexLength;
 } TLSParams_t;
 
 /**

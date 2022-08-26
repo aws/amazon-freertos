@@ -92,6 +92,9 @@
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
+/* Include header for client certificates and client private key label. */
+#include "core_pkcs11_config.h"
+
 /*------------- Demo configurations -------------------------*/
 
 /* Check that the TLS port of the server is defined. */
@@ -313,6 +316,10 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext )
         xSocketsConfig.rootCaSize = sizeof( democonfigROOT_CA_PEM );
         xSocketsConfig.sendTimeoutMs = democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS;
         xSocketsConfig.recvTimeoutMs = democonfigTRANSPORT_SEND_RECV_TIMEOUT_MS;
+        xSocketsConfig.pClientCertIndex = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+        xSocketsConfig.clientCertIndexSize = sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS );
+        xSocketsConfig.pClientPrvKeyIndex = pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+        xSocketsConfig.clientPrvKeyIndexSize = sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
 
         /* Establish a TLS session with the HTTP server. This example connects
          * to the server host located in democonfigPRESIGNED_GET_URL and

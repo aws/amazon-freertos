@@ -136,6 +136,12 @@ typedef struct SocketsConfig
 
     const char * pRootCa; /**< @brief String representing a trusted server Root CA certificate. */
     size_t rootCaSize;    /**< @brief Size associated with #SocketsConfig_t.pRootCa. */
+
+    const char * pClientCertIndex; /**< @brief String representing a trusted client certificate index. */
+    size_t clientCertIndexSize; /**< @brief Size associated with #SocketsConfig_t.pClientCertIndex. */
+
+    const char * pClientPrvKeyIndex; /**< @brief String representing a trusted client private key index. */
+    size_t clientPrvKeyIndexSize; /**< @brief Size associated with #SocketsConfig_t.pClientPrvKeyIndex. */
 } SocketsConfig_t;
 
 

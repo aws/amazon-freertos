@@ -111,6 +111,10 @@ typedef struct TLSContext
     const char * pcDestination;
     const char * pcServerCertificate;
     uint32_t ulServerCertificateLength;
+    const char * pcClientCertificateIndex;
+    uint32_t ulClientCertificateIndexLength;
+    const char * pcClientPrivateKeyIndex;
+    uint32_t ulClientPrivateKeyIndexLength;
     const char ** ppcAlpnProtocols;
     uint32_t ulAlpnProtocolsCount;
 
@@ -526,8 +530,8 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     {
         /* Get the handle of the device private key. */
         xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
-                                                pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                                sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) - 1,
+                                                (char *)pxCtx->pcClientPrivateKeyIndex,
+                                                pxCtx->ulClientPrivateKeyIndexLength - 1,
                                                 CKO_PRIVATE_KEY,
                                                 &pxCtx->xP11PrivateKey );
     }
@@ -583,7 +587,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     if( xResult == CKR_OK )
     {
         xResult = prvReadCertificateIntoContext( pxCtx,
-                                                 pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                                 (char *)pxCtx->pcClientCertificateIndex,
                                                  CKO_CERTIFICATE,
                                                  &pxCtx->xMbedX509Cli );
     }
@@ -701,6 +705,10 @@ BaseType_t TLS_Init( void ** ppvContext,
         pxCtx->xNetworkRecv = pxParams->pxNetworkRecv;
         pxCtx->xNetworkSend = pxParams->pxNetworkSend;
         pxCtx->pvCallerContext = pxParams->pvCallerContext;
+        pxCtx->pcClientCertificateIndex = pxParams->pcClientCertificateIndex;
+        pxCtx->ulClientCertificateIndexLength = pxParams->ulClientCertificateIndexLength;
+        pxCtx->pcClientPrivateKeyIndex = pxParams->pcClientPrivateKeyIndex;
+        pxCtx->ulClientPrivateKeyIndexLength = pxParams->ulClientPrivateKeyIndexLength;
 
         /* Get the function pointer list for the PKCS#11 module. */
         xCkGetFunctionList = C_GetFunctionList;

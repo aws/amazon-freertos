@@ -88,6 +88,9 @@
 /* Include AWS IoT metrics macros header. */
 #include "aws_iot_metrics.h"
 
+/* Include header for client certificates and client private key label. */
+#include "core_pkcs11_config.h"
+
 /**
  * These configuration settings are required to run the demo.
  */
@@ -776,6 +779,10 @@ static BaseType_t prvSocketConnect( NetworkContext_t * pxNetworkContext )
     xSocketConfig.recvTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;
     xSocketConfig.pRootCa = democonfigROOT_CA_PEM;
     xSocketConfig.rootCaSize = sizeof( democonfigROOT_CA_PEM );
+    xSocketConfig.pClientCertIndex = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+    xSocketConfig.clientCertIndexSize = sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS );
+    xSocketConfig.pClientPrvKeyIndex = pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+    xSocketConfig.clientPrvKeyIndexSize = sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
 
     /* Establish a TCP connection with the MQTT broker. This example connects to
      * the MQTT broker as specified in democonfigMQTT_BROKER_ENDPOINT and

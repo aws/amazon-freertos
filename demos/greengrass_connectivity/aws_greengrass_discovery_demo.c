@@ -77,6 +77,9 @@
 /* Retry utilities include. */
 #include "backoff_algorithm.h"
 
+/* Include header for client certificates and client private key label. */
+#include "core_pkcs11_config.h"
+
 #define ggdDEMO_MAX_MQTT_MESSAGES              3
 #define ggdDEMO_MAX_MQTT_MSG_SIZE              500
 #define ggdDEMO_DISCOVERY_FILE_SIZE            2500
@@ -415,6 +418,10 @@ static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * 
     xSocketsConfig.rootCaSize = ( size_t ) pxHostAddressData->ulCertificateSize;
     xSocketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
     xSocketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
+    xSocketsConfig.pClientCertIndex = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+    xSocketsConfig.clientCertIndexSize = sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS );
+    xSocketsConfig.pClientPrvKeyIndex = pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+    xSocketsConfig.clientPrvKeyIndexSize = sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
 
     /* Initialize reconnect attempts and interval. */
     BackoffAlgorithm_InitializeParams( &xReconnectParams,

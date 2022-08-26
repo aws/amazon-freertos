@@ -62,6 +62,9 @@
 /* Include the secure sockets implementation of the transport interface. */
 #include "transport_secure_sockets.h"
 
+/* Include header for client certificates and client private key label. */
+#include "core_pkcs11_config.h"
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -442,6 +445,10 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
     xSocketConfig.disableSni = false;
     xSocketConfig.sendTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;
     xSocketConfig.recvTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;
+    xSocketConfig.pClientCertIndex = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+    xSocketConfig.clientCertIndexSize = sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS );
+    xSocketConfig.pClientPrvKeyIndex = pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+    xSocketConfig.clientPrvKeyIndexSize = sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
 
     /* Initialize reconnect attempts and interval. */
     BackoffAlgorithm_InitializeParams( &xReconnectParams,

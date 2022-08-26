@@ -308,6 +308,36 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
         }
     }
 
+    /* Set custom client certificate. */
+    if( ( secureSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->pClientCertIndex != NULL ) )
+    {
+        secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
+                                                 0,
+                                                 SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE,
+                                                 pSocketsConfig->pClientCertIndex,
+                                                 pSocketsConfig->clientCertIndexSize );
+
+        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        {
+            LogError( ( "Failed to set client certificate option for socket. secureSocketStatus=%d", secureSocketStatus ) );
+        }
+    }
+
+    /* Set custom client private key. */
+    if( ( secureSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->pClientPrvKeyIndex != NULL ) )
+    {
+        secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
+                                                 0,
+                                                 SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY,
+                                                 pSocketsConfig->pClientPrvKeyIndex,
+                                                 pSocketsConfig->clientPrvKeyIndexSize );
+
+        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        {
+            LogError( ( "Failed to set client private key option for socket. secureSocketStatus=%d", secureSocketStatus ) );
+        }
+    }
+
     return secureSocketStatus;
 }
 

@@ -50,6 +50,10 @@ typedef struct SSOCKETContext
     char ** ppcAlpnProtocols;
     uint32_t ulAlpnProtocolsCount;
     BaseType_t xConnectAttempted;
+    char * pcClientCertificateIndex;
+    uint32_t ulClientCertificateIndexLength;
+    char * pcClientPrivateKeyIndex;
+    uint32_t ulClientPrivateKeyIndexLength;
 } SSOCKETContext_t, * SSOCKETContextPtr_t;
 
 /*
@@ -178,6 +182,10 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
             xTLSParams.pvCallerContext = pxContext;
             xTLSParams.pxNetworkRecv = prvNetworkRecv;
             xTLSParams.pxNetworkSend = prvNetworkSend;
+            xTLSParams.pcClientCertificateIndex = pxContext->pcClientCertificateIndex;
+            xTLSParams.ulClientCertificateIndexLength = pxContext->ulClientCertificateIndexLength;
+            xTLSParams.pcClientPrivateKeyIndex = pxContext->pcClientPrivateKeyIndex;
+            xTLSParams.ulClientPrivateKeyIndexLength = pxContext->ulClientPrivateKeyIndexLength;
             lStatus = TLS_Init( &pxContext->pvTLSContext, &xTLSParams );
 
             if( SOCKETS_ERROR_NONE == lStatus )
@@ -331,6 +339,52 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                 {
                     memcpy( pxContext->pcServerCertificate, pvOptionValue, xOptionLength );
                     pxContext->ulServerCertificateLength = xOptionLength;
+                }
+
+                break;
+
+            case SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE:
+
+                /* Do not set the trusted client certificate if the socket is possibly already connected. */
+                if( pxContext->xConnectAttempted == pdTRUE )
+                {
+                    lStatus = SOCKETS_EISCONN;
+                }
+
+                /* Non-NULL client certificate field indicates that the default trust
+                 * list should not be used. */
+                else if( NULL == ( pxContext->pcClientCertificateIndex =
+                                       ( char * ) pvPortMalloc( xOptionLength ) ) )
+                {
+                    lStatus = SOCKETS_ENOMEM;
+                }
+                else
+                {
+                    memcpy( pxContext->pcClientCertificateIndex, pvOptionValue, xOptionLength );
+                    pxContext->ulClientCertificateIndexLength = xOptionLength;
+                }
+
+                break;
+
+            case SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY:
+
+                /* Do not set the trusted client private key if the socket is possibly already connected. */
+                if( pxContext->xConnectAttempted == pdTRUE )
+                {
+                    lStatus = SOCKETS_EISCONN;
+                }
+
+                /* Non-NULL client private key field indicates that the default trust
+                 * list should not be used. */
+                else if( NULL == ( pxContext->pcClientPrivateKeyIndex =
+                                       ( char * ) pvPortMalloc( xOptionLength ) ) )
+                {
+                    lStatus = SOCKETS_ENOMEM;
+                }
+                else
+                {
+                    memcpy( pxContext->pcClientPrivateKeyIndex, pvOptionValue, xOptionLength );
+                    pxContext->ulClientPrivateKeyIndexLength = xOptionLength;
                 }
 
                 break;
