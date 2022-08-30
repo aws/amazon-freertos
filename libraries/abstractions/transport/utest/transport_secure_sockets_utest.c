@@ -46,6 +46,8 @@
 #define ALPN_PROTOS                 "x-amzn-mqtt-ca"
 
 #define MOCK_ROOT_CA                "mockRootCA"
+#define MOCK_CLIENT_CERT            "mockClientCert"
+#define MOCK_CLIENT_PRV_KEY         "mockClientPrvKey"
 #define MOCK_SERVER_ADDRESS         ( 100 )
 #define MOCT_TCP_SOCKET             ( 100 )
 #define MOCK_SECURE_SOCKET_ERROR    ( -1 )
@@ -94,14 +96,18 @@ static ServerInfo_t serverInfo =
 };
 static SocketsConfig_t socketsConfig =
 {
-    .enableTls         = true,
-    .pAlpnProtos       = ALPN_PROTOS,
-    .maxFragmentLength = MFLN,
-    .disableSni        = false,
-    .pRootCa           = NULL,
-    .rootCaSize        = 0,
-    .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
-    .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
+    .enableTls             = true,
+    .pAlpnProtos           = ALPN_PROTOS,
+    .maxFragmentLength     = MFLN,
+    .disableSni            = false,
+    .pRootCa               = NULL,
+    .rootCaSize            = 0,
+    .sendTimeoutMs         = TEST_TRANSPORT_SND_TIMEOUT_MS,
+    .recvTimeoutMs         = TEST_TRANSPORT_RCV_TIMEOUT_MS,
+    .pClientCertIndex      = NULL,
+    .clientCertIndexSize   = 0,
+    .pClientPrvKeyIndex    = NULL,
+    .clientPrvKeyIndexSize = 0
 };
 
 static uint8_t networkBuffer[ BUFFER_LEN ] = { 0 };
@@ -261,14 +267,18 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_AlpnProtos( void )
     TransportSocketStatus_t returnStatus;
     SocketsConfig_t localSocketsConfig =
     {
-        .enableTls         = true,
-        .pAlpnProtos       = ALPN_PROTOS,
-        .maxFragmentLength = MFLN,
-        .disableSni        = false,
-        .pRootCa           = NULL,
-        .rootCaSize        = 0,
-        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .enableTls             = true,
+        .pAlpnProtos           = ALPN_PROTOS,
+        .maxFragmentLength     = MFLN,
+        .disableSni            = false,
+        .pRootCa               = NULL,
+        .rootCaSize            = 0,
+        .sendTimeoutMs         = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs         = TEST_TRANSPORT_RCV_TIMEOUT_MS,
+        .pClientCertIndex      = NULL,
+        .clientCertIndexSize   = 0,
+        .pClientPrvKeyIndex    = NULL,
+        .clientPrvKeyIndexSize = 0
     };
 
     SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
@@ -310,14 +320,18 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SNI( void )
     TransportSocketStatus_t returnStatus;
     SocketsConfig_t localSocketsConfig =
     {
-        .enableTls         = true,
-        .pAlpnProtos       = NULL,
-        .maxFragmentLength = MFLN,
-        .disableSni        = false,
-        .pRootCa           = NULL,
-        .rootCaSize        = 0,
-        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .enableTls             = true,
+        .pAlpnProtos           = NULL,
+        .maxFragmentLength     = MFLN,
+        .disableSni            = false,
+        .pRootCa               = NULL,
+        .rootCaSize            = 0,
+        .sendTimeoutMs         = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs         = TEST_TRANSPORT_RCV_TIMEOUT_MS,
+        .pClientCertIndex      = NULL,
+        .clientCertIndexSize   = 0,
+        .pClientPrvKeyIndex    = NULL,
+        .clientPrvKeyIndexSize = 0
     };
 
     SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
@@ -359,14 +373,18 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
     TransportSocketStatus_t returnStatus;
     SocketsConfig_t localSocketsConfig =
     {
-        .enableTls         = true,
-        .pAlpnProtos       = NULL,
-        .maxFragmentLength = MFLN,
-        .disableSni        = false,
-        .pRootCa           = MOCK_ROOT_CA,
-        .rootCaSize        = strlen( MOCK_ROOT_CA ),
-        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .enableTls             = true,
+        .pAlpnProtos           = NULL,
+        .maxFragmentLength     = MFLN,
+        .disableSni            = false,
+        .pRootCa               = MOCK_ROOT_CA,
+        .rootCaSize            = strlen( MOCK_ROOT_CA ),
+        .sendTimeoutMs         = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs         = TEST_TRANSPORT_RCV_TIMEOUT_MS,
+        .pClientCertIndex      = MOCK_CLIENT_CERT,
+        .clientCertIndexSize   = strlen( MOCK_CLIENT_CERT ),
+        .pClientPrvKeyIndex    = MOCK_CLIENT_PRV_KEY,
+        .clientPrvKeyIndexSize = strlen( MOCK_CLIENT_PRV_KEY)
     };
 
     SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
@@ -384,6 +402,22 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
     SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
                                         0,
                                         SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE,
+                                        NULL,
+                                        0,
+                                        MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE,
+                                        NULL,
+                                        0,
+                                        MOCK_SECURE_SOCKET_ERROR );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY,
                                         NULL,
                                         0,
                                         MOCK_SECURE_SOCKET_ERROR );
@@ -408,14 +442,18 @@ void test_SecureSocketsTransport_Connect_Dns_Failure( void )
     TransportSocketStatus_t returnStatus;
     SocketsConfig_t localSocketsConfig =
     {
-        .enableTls         = false,
-        .pAlpnProtos       = NULL,
-        .maxFragmentLength = MFLN,
-        .disableSni        = false,
-        .pRootCa           = NULL,
-        .rootCaSize        = 0,
-        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .enableTls             = false,
+        .pAlpnProtos           = NULL,
+        .maxFragmentLength     = MFLN,
+        .disableSni            = false,
+        .pRootCa               = NULL,
+        .rootCaSize            = 0,
+        .sendTimeoutMs         = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs         = TEST_TRANSPORT_RCV_TIMEOUT_MS,
+        .pClientCertIndex      = NULL,
+        .clientCertIndexSize   = 0,
+        .pClientPrvKeyIndex    = NULL,
+        .clientPrvKeyIndexSize = 0
     };
 
     SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
@@ -443,14 +481,18 @@ void test_SecureSocketsTransport_Connect_Fail_to_Connect( void )
     TransportSocketStatus_t returnStatus;
     SocketsConfig_t localSocketsConfig =
     {
-        .enableTls         = false,
-        .pAlpnProtos       = NULL,
-        .maxFragmentLength = MFLN,
-        .disableSni        = false,
-        .pRootCa           = NULL,
-        .rootCaSize        = 0,
-        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .enableTls             = false,
+        .pAlpnProtos           = NULL,
+        .maxFragmentLength     = MFLN,
+        .disableSni            = false,
+        .pRootCa               = NULL,
+        .rootCaSize            = 0,
+        .sendTimeoutMs         = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs         = TEST_TRANSPORT_RCV_TIMEOUT_MS,
+        .pClientCertIndex      = NULL,
+        .clientCertIndexSize   = 0,
+        .pClientPrvKeyIndex    = NULL,
+        .clientPrvKeyIndexSize = 0
     };
 
     SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
@@ -483,14 +525,18 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Send( void )
     TransportSocketStatus_t returnStatus;
     SocketsConfig_t localSocketsConfig =
     {
-        .enableTls         = false,
-        .pAlpnProtos       = NULL,
-        .maxFragmentLength = MFLN,
-        .disableSni        = false,
-        .pRootCa           = NULL,
-        .rootCaSize        = 0,
-        .sendTimeoutMs     = 0XFFFFFFFF,
-        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .enableTls             = false,
+        .pAlpnProtos           = NULL,
+        .maxFragmentLength     = MFLN,
+        .disableSni            = false,
+        .pRootCa               = NULL,
+        .rootCaSize            = 0,
+        .sendTimeoutMs         = 0XFFFFFFFF,
+        .recvTimeoutMs         = TEST_TRANSPORT_RCV_TIMEOUT_MS,
+        .pClientCertIndex      = NULL,
+        .clientCertIndexSize   = 0,
+        .pClientPrvKeyIndex    = NULL,
+        .clientPrvKeyIndexSize = 0
     };
 
     SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
@@ -539,14 +585,18 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Recv( void )
     TransportSocketStatus_t returnStatus;
     SocketsConfig_t localSocketsConfig =
     {
-        .enableTls         = false,
-        .pAlpnProtos       = NULL,
-        .maxFragmentLength = MFLN,
-        .disableSni        = false,
-        .pRootCa           = NULL,
-        .rootCaSize        = 0,
-        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs     = 0XFFFFFFFF
+        .enableTls             = false,
+        .pAlpnProtos           = NULL,
+        .maxFragmentLength     = MFLN,
+        .disableSni            = false,
+        .pRootCa               = NULL,
+        .rootCaSize            = 0,
+        .sendTimeoutMs         = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs         = 0XFFFFFFFF,
+        .pClientCertIndex      = NULL,
+        .clientCertIndexSize   = 0,
+        .pClientPrvKeyIndex    = NULL,
+        .clientPrvKeyIndexSize = 0
     };
 
     SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
@@ -586,14 +636,18 @@ void test_SecureSocketsTransport_Connect_Succeeds_without_TLS( void )
     TransportSocketStatus_t returnStatus;
     SocketsConfig_t localSocketsConfig =
     {
-        .enableTls         = false,
-        .pAlpnProtos       = NULL,
-        .maxFragmentLength = MFLN,
-        .disableSni        = false,
-        .pRootCa           = NULL,
-        .rootCaSize        = 0,
-        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .enableTls             = false,
+        .pAlpnProtos           = NULL,
+        .maxFragmentLength     = MFLN,
+        .disableSni            = false,
+        .pRootCa               = NULL,
+        .rootCaSize            = 0,
+        .sendTimeoutMs         = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs         = TEST_TRANSPORT_RCV_TIMEOUT_MS,
+        .pClientCertIndex      = NULL,
+        .clientCertIndexSize   = 0,
+        .pClientPrvKeyIndex    = NULL,
+        .clientPrvKeyIndexSize = 0
     };
 
     SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
@@ -640,14 +694,18 @@ void test_SecureSocketsTransport_Connect_Succeeds_Set_Timeout_Zero( void )
     TransportSocketStatus_t returnStatus;
     SocketsConfig_t localSocketsConfig =
     {
-        .enableTls         = false,
-        .pAlpnProtos       = NULL,
-        .maxFragmentLength = MFLN,
-        .disableSni        = false,
-        .pRootCa           = NULL,
-        .rootCaSize        = 0,
-        .sendTimeoutMs     = 0,
-        .recvTimeoutMs     = 0
+        .enableTls             = false,
+        .pAlpnProtos           = NULL,
+        .maxFragmentLength     = MFLN,
+        .disableSni            = false,
+        .pRootCa               = NULL,
+        .rootCaSize            = 0,
+        .sendTimeoutMs         = 0,
+        .recvTimeoutMs         = 0,
+        .pClientCertIndex      = NULL,
+        .clientCertIndexSize   = 0,
+        .pClientPrvKeyIndex    = NULL,
+        .clientPrvKeyIndexSize = 0
     };
 
     SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
@@ -693,14 +751,18 @@ void test_SecureSocketsTransport_Connect_Succeeds_with_TLS( void )
     TransportSocketStatus_t returnStatus;
     SocketsConfig_t localSocketsConfig =
     {
-        .enableTls         = true,
-        .pAlpnProtos       = ALPN_PROTOS,
-        .maxFragmentLength = MFLN,
-        .disableSni        = false,
-        .pRootCa           = MOCK_ROOT_CA,
-        .rootCaSize        = strlen( MOCK_ROOT_CA ),
-        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .enableTls             = true,
+        .pAlpnProtos           = ALPN_PROTOS,
+        .maxFragmentLength     = MFLN,
+        .disableSni            = false,
+        .pRootCa               = MOCK_ROOT_CA,
+        .rootCaSize            = strlen( MOCK_ROOT_CA ),
+        .sendTimeoutMs         = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs         = TEST_TRANSPORT_RCV_TIMEOUT_MS,
+        .pClientCertIndex      = MOCK_CLIENT_CERT,
+        .clientCertIndexSize   = strlen( MOCK_CLIENT_CERT ),
+        .pClientPrvKeyIndex    = MOCK_CLIENT_PRV_KEY,
+        .clientPrvKeyIndexSize = strlen( MOCK_CLIENT_PRV_KEY)
     };
 
     SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,
@@ -734,6 +796,22 @@ void test_SecureSocketsTransport_Connect_Succeeds_with_TLS( void )
     SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
                                         0,
                                         SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE,
+                                        NULL,
+                                        0,
+                                        SOCKETS_ERROR_NONE );
+    SOCKETS_SetSockOpt_IgnoreArg_pvOptionValue();
+    SOCKETS_SetSockOpt_IgnoreArg_xOptionLength();
+    SOCKETS_SetSockOpt_ExpectAndReturn( mockTcpSocket,
+                                        0,
+                                        SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY,
                                         NULL,
                                         0,
                                         SOCKETS_ERROR_NONE );
@@ -779,14 +857,18 @@ void test_SecureSocketsTransport_Connect_Credentials_NotSet( void )
     TransportSocketStatus_t returnStatus;
     SocketsConfig_t localSocketsConfig =
     {
-        .enableTls         = true,
-        .pAlpnProtos       = NULL,
-        .maxFragmentLength = MFLN,
-        .disableSni        = false,
-        .pRootCa           = NULL,
-        .rootCaSize        = 0,
-        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .enableTls             = true,
+        .pAlpnProtos           = NULL,
+        .maxFragmentLength     = MFLN,
+        .disableSni            = false,
+        .pRootCa               = NULL,
+        .rootCaSize            = 0,
+        .sendTimeoutMs         = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs         = TEST_TRANSPORT_RCV_TIMEOUT_MS,
+        .pClientCertIndex      = NULL,
+        .clientCertIndexSize   = 0,
+        .pClientPrvKeyIndex    = NULL,
+        .clientPrvKeyIndexSize = 0
     };
 
     SOCKETS_Socket_ExpectAndReturn( SOCKETS_AF_INET,

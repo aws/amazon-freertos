@@ -148,6 +148,12 @@ static void prvConnectWithProvisioning( ProvisioningParams_t * pxProvisioningPar
         xResult = SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_SERVER_NAME_INDICATION, pcAWSIoTAddress, 1u + strlen( pcAWSIoTAddress ) );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket set sock opt server name indication failed" );
 
+        xResult = SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket set sock opt client certificate failed" );
+
+        xResult = SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket set sock opt client private key failed" );
+
         /* DNS Lookup. */
         xMQTTServerAddress.ulAddress = SOCKETS_GetHostByName( pcAWSIoTAddress );
 
@@ -234,6 +240,12 @@ static void prvExpectFailAfterDataSentWithProvisioning( ProvisioningParams_t * p
         xResult = SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_SERVER_NAME_INDICATION, pcAWSIoTAddress, 1u + strlen( pcAWSIoTAddress ) );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket set sock opt server name indication failed" );
 
+        xResult = SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket set sock opt client certificate failed" );
+
+        xResult = SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket set sock opt client private key failed" );
+
         /* Connect. */
         xMQTTServerAddress.usPort = SOCKETS_htons( usAWSIoTPort );
         xMQTTServerAddress.ucSocketDomain = SOCKETS_AF_INET;
@@ -295,6 +307,12 @@ TEST( Full_TLS, AFQP_TLS_ConnectDefault )
     {
         xResult = SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_SERVER_NAME_INDICATION, pcAWSIoTAddress, 1u + strlen( pcAWSIoTAddress ) );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket set sock opt server name indication failed" );
+
+        xResult = SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket set sock opt client certificate failed" );
+
+        xResult = SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket set sock opt client private key failed" );
 
         xResult = SOCKETS_Connect( xSocket, &xMQTTServerAddress, sizeof( xMQTTServerAddress ) );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket connect failed" );

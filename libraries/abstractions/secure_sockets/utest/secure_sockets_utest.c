@@ -184,6 +184,28 @@ static void setServerCert( Socket_t s )
     TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
 }
 
+static void setClientCert( Socket_t s )
+{
+    int32_t ret = SOCKETS_SetSockOpt( s,
+                                      0,
+                                      SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE,
+                                      "certificate",
+                                      11 );
+
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
+}
+
+static void setClientPrvKey( Socket_t s )
+{
+    int32_t ret = SOCKETS_SetSockOpt( s,
+                                      0,
+                                      SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY,
+                                      "private key",
+                                      11 );
+
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
+}
+
 static void connectSocket( Socket_t s )
 {
     int32_t ret;
@@ -715,13 +737,49 @@ void test_SecureSockets_Close_successful4( void )
 }
 
 /*!
+ * @brief Close successful with Client Certificate
+ *
+ * The purpose of this testcase is to prove that close with client certificates
+ * enabled would behave as expected frees the memory and return no errors
+ */
+void test_SecureSockets_Close_successful5( void )
+{
+    int32_t ret;
+    Socket_t so = initSocket();
+
+    setClientCert( so );
+    vTaskDelay_Ignore();
+    lwip_close_IgnoreAndReturn( 0 );
+    ret = SOCKETS_Close( so );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
+}
+
+/*!
+ * @brief Close successful with Client Private Key
+ *
+ * The purpose of this testcase is to prove that close with client private key
+ * enabled would behave as expected frees the memory and return no errors
+ */
+void test_SecureSockets_Close_successful6( void )
+{
+    int32_t ret;
+    Socket_t so = initSocket();
+
+    setClientPrvKey( so );
+    vTaskDelay_Ignore();
+    lwip_close_IgnoreAndReturn( 0 );
+    ret = SOCKETS_Close( so );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
+}
+
+/*!
  * @brief Close successful with Server Name indication
  *
  * The purpose of this testcase is to prove that close with server name
  * indication enabled would behave as expected frees the memory and
  * return no errors
  */
-void test_SecureSockets_Close_successful5( void )
+void test_SecureSockets_Close_successful7( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -1567,6 +1625,164 @@ void test_SecureSockets_SetSockOpt_trusted_server_invalid_arguments()
 
     ret = SOCKETS_SetSockOpt( so, 0,
                               SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE, "server name", 0 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_EINVAL, ret );
+
+    deinitSocket( so );
+}
+
+/*!
+ * @brief SetSockOpt set trusted client certificate memory errors
+ *
+ * The Purpose of this testcase is to make sure setsockopt is able to handle
+ * when system goes out of memory
+ */
+void test_SecureSocketsSetSockOpt_set_client_cert_memory_errors( void )
+{
+    int32_t ret;
+    Socket_t so = initSocket();
+
+    setServerNameIndication( so );
+
+    pvPortMalloc_Stub( NULL );
+    pvPortMalloc_ExpectAndReturn( 18 + 1, NULL );
+    ret = SOCKETS_SetSockOpt( so,
+                              0,
+                              SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE,
+                              "client certificate",
+                              18 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ENOMEM, ret );
+
+    pvPortMalloc_Stub( malloc_cb );
+    ret = SOCKETS_SetSockOpt( so,
+                              0,
+                              SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE,
+                              "client certificate",
+                              18 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
+
+    ret = SOCKETS_SetSockOpt( so,
+                              0,
+                              SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE,
+                              "client certificate",
+                              18 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
+    deinitSocket( so );
+}
+
+/*!
+ * @brief  SetSockOpt set TLS to an already connected socket
+ *
+ * The Purpose of this testcase is to make sure the caller is not able to set
+ * trusted client setificates after the socket is connected
+ */
+void test_SecureSockets_SetSockOpt_trusted_client_already_conected_error( void )
+{
+    int32_t ret;
+    Socket_t so = create_normal_connection();
+
+    ret = SOCKETS_SetSockOpt( so, 0, SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE,
+                              "cert", 4 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_EISCONN, ret );
+
+    deinitSocket( so );
+}
+
+/*!
+ * @brief SetSockOpt set trusted client certificate
+ *
+ * The Purpose of this testcase is to make sure the setsockopt is able to handle
+ * bad arguments sent by the caller and return the appropriate messages
+ */
+void test_SecureSockets_SetSockOpt_trusted_client_invalid_arguments()
+{
+    int32_t ret;
+    Socket_t so = initSocket();
+
+    ret = SOCKETS_SetSockOpt( so, 0,
+                              SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE, NULL, 4 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_EINVAL, ret );
+
+    ret = SOCKETS_SetSockOpt( so, 0,
+                              SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE, "server name", 0 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_EINVAL, ret );
+
+    deinitSocket( so );
+}
+
+/*!
+ * @brief SetSockOpt set trusted client private key memory errors
+ *
+ * The Purpose of this testcase is to make sure setsockopt is able to handle
+ * when system goes out of memory
+ */
+void test_SecureSocketsSetSockOpt_set_client_prv_key_memory_errors( void )
+{
+    int32_t ret;
+    Socket_t so = initSocket();
+
+    setServerNameIndication( so );
+
+    pvPortMalloc_Stub( NULL );
+    pvPortMalloc_ExpectAndReturn( 18 + 1, NULL );
+    ret = SOCKETS_SetSockOpt( so,
+                              0,
+                              SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY,
+                              "client private key",
+                              18 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ENOMEM, ret );
+
+    pvPortMalloc_Stub( malloc_cb );
+    ret = SOCKETS_SetSockOpt( so,
+                              0,
+                              SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY,
+                              "client private key",
+                              18 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
+
+    ret = SOCKETS_SetSockOpt( so,
+                              0,
+                              SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY,
+                              "client private key",
+                              18 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
+    deinitSocket( so );
+}
+
+/*!
+ * @brief  SetSockOpt set TLS to an already connected socket
+ *
+ * The Purpose of this testcase is to make sure the caller is not able to set
+ * trusted client private key after the socket is connected
+ */
+void test_SecureSockets_SetSockOpt_trusted_client_prv_key_already_conected_error( void )
+{
+    int32_t ret;
+    Socket_t so = create_normal_connection();
+
+    ret = SOCKETS_SetSockOpt( so, 0, SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY,
+                              "prv key", 7 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_EISCONN, ret );
+
+    deinitSocket( so );
+}
+
+/*!
+ * @brief SetSockOpt set trusted client private key
+ *
+ * The Purpose of this testcase is to make sure the setsockopt is able to handle
+ * bad arguments sent by the caller and return the appropriate messages
+ */
+void test_SecureSockets_SetSockOpt_trusted_client_invalid_arguments()
+{
+    int32_t ret;
+    Socket_t so = initSocket();
+
+    ret = SOCKETS_SetSockOpt( so, 0,
+                              SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY, NULL, 4 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_EINVAL, ret );
+
+    ret = SOCKETS_SetSockOpt( so, 0,
+                              SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY, "server name", 0 );
     TEST_ASSERT_EQUAL_INT( SOCKETS_EINVAL, ret );
 
     deinitSocket( so );

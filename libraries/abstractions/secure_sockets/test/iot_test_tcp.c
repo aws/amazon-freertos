@@ -50,6 +50,9 @@
 /* Update this file with AWS Credentials. */
 #include "aws_clientcredential.h"
 
+/* Provisioning include. */
+#include "core_pkcs11_config.h"
+
 /* Verbose printing. */
 #define tcptestPRINTF( x )
 /* In case of test failures, FAILUREPRINTF may provide more detailed information. */
@@ -587,6 +590,34 @@ static BaseType_t prvSecureConnectHelper( Socket_t xSocket,
         {
             tcptestFAILUREPRINTF( ( "%s: Failed to setSockOpt SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE \r\n", __FUNCTION__ ) );
         }
+        else
+        {
+            /* Set the socket to use the secure server's client cert. */
+            xResult = SOCKETS_SetSockOpt( xSocket,
+                                          0,
+                                          SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE,
+                                          pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                          sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) );
+
+            if( xResult != SOCKETS_ERROR_NONE )
+            {
+                tcptestFAILUREPRINTF( ( "%s: Failed to setSockOpt SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE \r\n", __FUNCTION__ ) );
+            }
+            else
+            {
+                /* Set the socket to use the secure server's client cert. */
+                xResult = SOCKETS_SetSockOpt( xSocket,
+                                              0,
+                                              SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY,
+                                              pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                              sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) );
+
+                if( xResult != SOCKETS_ERROR_NONE )
+                {
+                    tcptestFAILUREPRINTF( ( "%s: Failed to setSockOpt SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY \r\n", __FUNCTION__ ) );
+                }
+            }
+        }
     }
     else
     {
@@ -656,6 +687,20 @@ static BaseType_t prvAwsIotBrokerConnectHelper( Socket_t xSocket,
                                          SOCKETS_SO_SERVER_NAME_INDICATION,
                                          clientcredentialMQTT_BROKER_ENDPOINT,
                                          sizeof( clientcredentialMQTT_BROKER_ENDPOINT ) );
+
+            /* Set the socket to use the secure server's client cert. */
+            ( void ) SOCKETS_SetSockOpt( xSocket,
+                                         0,
+                                         SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE,
+                                         pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                         sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) );
+
+            /* Set the socket to use the secure server's client cert. */
+            ( void ) SOCKETS_SetSockOpt( xSocket,
+                                         0,
+                                         SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY,
+                                         pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                         sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) );
         }
     }
 
@@ -3439,6 +3484,22 @@ TEST( Full_TCP, AFQP_SECURE_SOCKETS_SetSecureOptionsAfterConnect )
                                       tcptestECHO_HOST_ROOT_CA,
                                       sizeof( tcptestECHO_HOST_ROOT_CA ) );
         TEST_ASSERT_LESS_THAN_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Trusted server certificate setup after connect succeed when fail was expected." );
+
+        /* Try to set Trusted client certificate option after connect. */
+        xResult = SOCKETS_SetSockOpt( xSocket,
+                                      0,
+                                      SOCKETS_SO_TRUSTED_CLIENT_CERTIFICATE,
+                                      pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                      sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) );
+        TEST_ASSERT_LESS_THAN_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Trusted client certificate setup after connect succeed when fail was expected." );
+
+        /* Try to set Trusted client private key option after connect. */
+        xResult = SOCKETS_SetSockOpt( xSocket,
+                                      0,
+                                      SOCKETS_SO_TRUSTED_CLIENT_PRIVATE_KEY,
+                                      pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                      sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) );
+        TEST_ASSERT_LESS_THAN_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Trusted client private key setup after connect succeed when fail was expected." );
     }
 
     xResult = prvShutdownHelper( xSocket );

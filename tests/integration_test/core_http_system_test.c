@@ -53,6 +53,9 @@
 /* Retry parameters. */
 #include "backoff_algorithm.h"
 
+/* Include header for client certificates and client private key label. */
+#include "core_pkcs11_config.h"
+
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
 /**************************************************/
@@ -402,6 +405,10 @@ static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     socketsConfig.rootCaSize = sizeof( ROOT_CA_CERT );
     socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
     socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
+    socketsConfig.pClientCertIndex = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+    socketsConfig.clientCertIndexSize = sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS );
+    socketsConfig.pClientPrvKeyIndex = pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+    socketsConfig.clientPrvKeyIndexSize = sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
 
     /* Set the AWS IoT Core connection configurations, if we are testing against
      * AWS IoT core. */
