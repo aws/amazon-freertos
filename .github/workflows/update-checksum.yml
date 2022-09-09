@@ -38,7 +38,7 @@ jobs:
             git commit -am 'Generate new checksums.json file for commit $COMMIT'
             git push --set-upstream origin job/update-checksum-file
             export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key 23F3D4EA75716059
             sudo apt-add-repository https://cli.github.com/packages
             sudo apt update
             sudo apt-get install gh
