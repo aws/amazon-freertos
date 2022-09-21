@@ -268,7 +268,7 @@ typedef struct IotNetworkCredentials   IotTestNetworkCredentials_t;
     #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER           \
     {                                                          \
         .disableSni = false,                                   \
-        .pAlpnProtos = socketsAWS_IOT_ALPN_MQTT,               \
+        .ppcAlpnProtos = (char * [])socketsAWS_IOT_ALPN_MQTT,  \
         .maxFragmentLength = 0,                                \
         .pRootCa = NULL,                                       \
         .pClientCert = keyCLIENT_CERTIFICATE_PEM,              \
@@ -281,7 +281,7 @@ typedef struct IotNetworkCredentials   IotTestNetworkCredentials_t;
     #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER           \
     {                                                          \
         .disableSni = false,                                   \
-        .pAlpnProtos = NULL,                                   \
+        .ppcAlpnProtos = NULL,                                   \
         .pRootCa = NULL,                                       \
         .pClientCert = keyCLIENT_CERTIFICATE_PEM,              \
         .pPrivateKey = keyCLIENT_PRIVATE_KEY_PEM,              \

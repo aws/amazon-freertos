@@ -835,7 +835,8 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
 
     /* Initialize SocketsConfig. */
     socketsConfig.enableTls = true;
-    socketsConfig.pAlpnProtos = NULL;
+    socketsConfig.ppcAlpnProtos = NULL;
+    socketsConfig.ulAlpnProtosCount = 0;
     socketsConfig.maxFragmentLength = 0;
     socketsConfig.disableSni = false;
     socketsConfig.pRootCa = SERVER_ROOT_CA_CERT;

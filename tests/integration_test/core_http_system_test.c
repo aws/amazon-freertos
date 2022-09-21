@@ -395,7 +395,7 @@ static void connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
 
     /* Configure credentials for TLS server-authenticated session. */
     socketsConfig.enableTls = true;
-    socketsConfig.pAlpnProtos = NULL;
+    socketsConfig.ppcAlpnProtos = NULL;
     socketsConfig.maxFragmentLength = 0;
     socketsConfig.disableSni = false;
     socketsConfig.pRootCa = ROOT_CA_CERT;
