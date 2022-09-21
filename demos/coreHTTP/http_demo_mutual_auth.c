@@ -368,7 +368,7 @@ static BaseType_t prvConnectToServer( NetworkContext_t * pxNetworkContext )
 
     /* Configure credentials for TLS mutual authenticated session. */
     xSocketsConfig.enableTls = true;
-    xSocketsConfig.pAlpnProtos = NULL;
+    xSocketsConfig.ppcAlpnProtos = NULL;
     xSocketsConfig.maxFragmentLength = 0;
     xSocketsConfig.disableSni = false;
     xSocketsConfig.pRootCa = democonfigROOT_CA_PEM;

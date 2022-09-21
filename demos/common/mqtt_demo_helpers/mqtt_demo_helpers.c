@@ -419,6 +419,7 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
     BaseType_t xBackoffStatus = pdPASS;
     ServerInfo_t xServerInfo = { 0 };
     SocketsConfig_t xSocketConfig = { 0 };
+    char * ppcAlpnProtocols[] = { socketsAWS_IOT_ALPN_MQTT };
 
     /* Initialize information to connect to the MQTT broker. */
     xServerInfo.pHostName = democonfigMQTT_BROKER_ENDPOINT;
@@ -435,7 +436,8 @@ static TransportSocketStatus_t prvConnectToServerWithBackoffRetries( NetworkCont
      */
     if( xServerInfo.port == 443 )
     {
-        xSocketConfig.pAlpnProtos = socketsAWS_IOT_ALPN_MQTT;
+        xSocketConfig.ppcAlpnProtos = ppcAlpnProtocols;
+        xSocketConfig.ulAlpnProtosCount = sizeof(ppcAlpnProtocols) / sizeof( char * );
     }
 
     xSocketConfig.maxFragmentLength = 0;

@@ -408,7 +408,7 @@ static BaseType_t prvConnectToServerWithBackoffRetries( GGD_HostAddressData_t * 
 
     /* Configure credentials for TLS mutual authenticated session. */
     xSocketsConfig.enableTls = true;
-    xSocketsConfig.pAlpnProtos = NULL;
+    xSocketsConfig.ppcAlpnProtos = NULL;
     xSocketsConfig.maxFragmentLength = 0;
     xSocketsConfig.disableSni = false;
     xSocketsConfig.pRootCa = pxHostAddressData->pcCertificate;

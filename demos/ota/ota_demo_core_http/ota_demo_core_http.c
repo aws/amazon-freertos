@@ -1430,7 +1430,7 @@ static BaseType_t prvCreateSocketConnectionToMQTTBroker( NetworkContext_t * pxNe
 
     /* Configure credentials for TLS mutual authenticated session. */
     xSocketsConfig.enableTls = true;
-    xSocketsConfig.pAlpnProtos = NULL;
+    xSocketsConfig.ppcAlpnProtos = NULL;
     xSocketsConfig.maxFragmentLength = 0;
     xSocketsConfig.disableSni = false;
     xSocketsConfig.pRootCa = democonfigROOT_CA_PEM;
@@ -1605,7 +1605,7 @@ static int32_t prvConnectToS3Server( NetworkContext_t * pxNetworkContext,
 
     /* Configure credentials for TLS mutual authenticated session. */
     xSocketsConfig.enableTls = true;
-    xSocketsConfig.pAlpnProtos = NULL;
+    xSocketsConfig.ppcAlpnProtos = NULL;
     xSocketsConfig.maxFragmentLength = 0;
     xSocketsConfig.disableSni = false;
     xSocketsConfig.pRootCa = democonfigHTTPS_ROOT_CA_PEM;
