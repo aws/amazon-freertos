@@ -86,7 +86,7 @@
  *
  * @note Port 443 requires use of the ALPN TLS extension with the ALPN protocol
  * name. Using ALPN with this demo would require additional changes, including
- * setting the `pAlpnProtos` member of the `NetworkCredentials_t` struct before
+ * setting the `ppcAlpnProtos` member of the `NetworkCredentials_t` struct before
  * forming the TLS connection. When using port 8883, ALPN is not required.
  *
  * #define democonfigMQTT_BROKER_PORT    ( insert here. )
