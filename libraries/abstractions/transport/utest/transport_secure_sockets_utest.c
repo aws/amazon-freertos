@@ -43,7 +43,7 @@
 
 /* Configuration parameters for the TLS connection. */
 #define MFLN                        ( 42 )
-#define ALPN_PROTOS                 "x-amzn-mqtt-ca"
+#define ALPN_PROTOS                 {"x-amzn-mqtt-ca"}
 
 #define MOCK_ROOT_CA                "mockRootCA"
 #define MOCK_SERVER_ADDRESS         ( 100 )
@@ -92,10 +92,12 @@ static ServerInfo_t serverInfo =
     .hostNameLength = strlen( HOSTNAME ),
     .port           = PORT
 };
+
 static SocketsConfig_t socketsConfig =
 {
     .enableTls         = true,
-    .pAlpnProtos       = ALPN_PROTOS,
+    .ppcAlpnProtos     = (char * [])ALPN_PROTOS,
+    .ulAlpnProtosCount = 0,
     .maxFragmentLength = MFLN,
     .disableSni        = false,
     .pRootCa           = NULL,
@@ -262,7 +264,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_AlpnProtos( void )
     SocketsConfig_t localSocketsConfig =
     {
         .enableTls         = true,
-        .pAlpnProtos       = ALPN_PROTOS,
+        .ppcAlpnProtos       = (char * [])ALPN_PROTOS,
         .maxFragmentLength = MFLN,
         .disableSni        = false,
         .pRootCa           = NULL,
@@ -311,7 +313,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SNI( void )
     SocketsConfig_t localSocketsConfig =
     {
         .enableTls         = true,
-        .pAlpnProtos       = NULL,
+        .ppcAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
         .disableSni        = false,
         .pRootCa           = NULL,
@@ -360,7 +362,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
     SocketsConfig_t localSocketsConfig =
     {
         .enableTls         = true,
-        .pAlpnProtos       = NULL,
+        .ppcAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
         .disableSni        = false,
         .pRootCa           = MOCK_ROOT_CA,
@@ -409,7 +411,7 @@ void test_SecureSocketsTransport_Connect_Dns_Failure( void )
     SocketsConfig_t localSocketsConfig =
     {
         .enableTls         = false,
-        .pAlpnProtos       = NULL,
+        .ppcAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
         .disableSni        = false,
         .pRootCa           = NULL,
@@ -444,7 +446,7 @@ void test_SecureSocketsTransport_Connect_Fail_to_Connect( void )
     SocketsConfig_t localSocketsConfig =
     {
         .enableTls         = false,
-        .pAlpnProtos       = NULL,
+        .ppcAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
         .disableSni        = false,
         .pRootCa           = NULL,
@@ -484,7 +486,7 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Send( void )
     SocketsConfig_t localSocketsConfig =
     {
         .enableTls         = false,
-        .pAlpnProtos       = NULL,
+        .ppcAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
         .disableSni        = false,
         .pRootCa           = NULL,
@@ -540,7 +542,7 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Recv( void )
     SocketsConfig_t localSocketsConfig =
     {
         .enableTls         = false,
-        .pAlpnProtos       = NULL,
+        .ppcAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
         .disableSni        = false,
         .pRootCa           = NULL,
@@ -587,7 +589,7 @@ void test_SecureSocketsTransport_Connect_Succeeds_without_TLS( void )
     SocketsConfig_t localSocketsConfig =
     {
         .enableTls         = false,
-        .pAlpnProtos       = NULL,
+        .ppcAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
         .disableSni        = false,
         .pRootCa           = NULL,
@@ -641,7 +643,7 @@ void test_SecureSocketsTransport_Connect_Succeeds_Set_Timeout_Zero( void )
     SocketsConfig_t localSocketsConfig =
     {
         .enableTls         = false,
-        .pAlpnProtos       = NULL,
+        .ppcAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
         .disableSni        = false,
         .pRootCa           = NULL,
@@ -694,7 +696,7 @@ void test_SecureSocketsTransport_Connect_Succeeds_with_TLS( void )
     SocketsConfig_t localSocketsConfig =
     {
         .enableTls         = true,
-        .pAlpnProtos       = ALPN_PROTOS,
+        .ppcAlpnProtos       = (char * [])LPN_PROTOS,
         .maxFragmentLength = MFLN,
         .disableSni        = false,
         .pRootCa           = MOCK_ROOT_CA,
@@ -780,7 +782,7 @@ void test_SecureSocketsTransport_Connect_Credentials_NotSet( void )
     SocketsConfig_t localSocketsConfig =
     {
         .enableTls         = true,
-        .pAlpnProtos       = NULL,
+        .ppcAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
         .disableSni        = false,
         .pRootCa           = NULL,

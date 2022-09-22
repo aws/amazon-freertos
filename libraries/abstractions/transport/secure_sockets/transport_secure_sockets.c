@@ -258,13 +258,13 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
     }
 
     /* Set ALPN option. */
-    if( ( secureSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->pAlpnProtos != NULL ) )
+    if( ( secureSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->ppcAlpnProtos != NULL ) )
     {
         secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
                                                  0,
                                                  SOCKETS_SO_ALPN_PROTOCOLS,
-                                                 pSocketsConfig->pAlpnProtos,
-                                                 sizeof( pSocketsConfig->pAlpnProtos ) );
+                                                 pSocketsConfig->ppcAlpnProtos,
+                                                 pSocketsConfig->ulAlpnProtosCount );
 
         if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
