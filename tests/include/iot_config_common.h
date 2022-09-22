@@ -265,23 +265,23 @@ typedef struct IotNetworkCredentials   IotTestNetworkCredentials_t;
 /* Define the credentials initializer based on the server port. Use ALPN if on
  * 443, otherwise disable ALPN. */
 #if clientcredentialMQTT_BROKER_PORT == 443
-    #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER           \
-    {                                                          \
-        .disableSni = false,                                   \
-        .ppcAlpnProtos = (char * []){ socketsAWS_IOT_ALPN_MQTT },  \
-        .maxFragmentLength = 0,                                \
-        .pRootCa = NULL,                                       \
-        .pClientCert = keyCLIENT_CERTIFICATE_PEM,              \
-        .pPrivateKey = keyCLIENT_PRIVATE_KEY_PEM,              \
-        .rootCaSize = 0,                                       \
-        .clientCertSize = sizeof( keyCLIENT_CERTIFICATE_PEM ), \
-        .privateKeySize = sizeof( keyCLIENT_PRIVATE_KEY_PEM )  \
+    #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER                \
+    {                                                               \
+        .disableSni = false,                                        \
+        .ppcAlpnProtos = ( char *[] ) { socketsAWS_IOT_ALPN_MQTT }, \
+        .maxFragmentLength = 0,                                     \
+        .pRootCa = NULL,                                            \
+        .pClientCert = keyCLIENT_CERTIFICATE_PEM,                   \
+        .pPrivateKey = keyCLIENT_PRIVATE_KEY_PEM,                   \
+        .rootCaSize = 0,                                            \
+        .clientCertSize = sizeof( keyCLIENT_CERTIFICATE_PEM ),      \
+        .privateKeySize = sizeof( keyCLIENT_PRIVATE_KEY_PEM )       \
     }
 #else /* if clientcredentialMQTT_BROKER_PORT == 443 */
     #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER           \
     {                                                          \
         .disableSni = false,                                   \
-        .ppcAlpnProtos = NULL,                                   \
+        .ppcAlpnProtos = NULL,                                 \
         .pRootCa = NULL,                                       \
         .pClientCert = keyCLIENT_CERTIFICATE_PEM,              \
         .pPrivateKey = keyCLIENT_PRIVATE_KEY_PEM,              \
