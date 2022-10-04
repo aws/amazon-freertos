@@ -96,40 +96,43 @@ afr_glob_src(driver_src DIRECTORY "${esp_idf_dir}" RECURSE)
 
 set(
     kernel_inc_dirs
+    "${extra_components_dir}/freertos/include"
     "${esp_idf_dir}/components/app_update/include/"
     "${esp_idf_dir}/components/bootloader_support/include"
-    "${esp_idf_dir}/components/esp32/include"
-    "${esp_idf_dir}/components/esp_event/include"
-    "${esp_idf_dir}/components/efuse/include"
     "${esp_idf_dir}/components/driver/include"
+    "${esp_idf_dir}/components/efuse/esp32/include"
+    "${esp_idf_dir}/components/efuse/include"
+    "${esp_idf_dir}/components/esp32/include"
+    "${esp_idf_dir}/components/esp_common/include"
+    "${esp_idf_dir}/components/esp_event/include"
+    "${esp_idf_dir}/components/esp_hw_support/include"
+    "${esp_idf_dir}/components/esp_hw_support/include/soc"
+    "${esp_idf_dir}/components/esp_ringbuf/include/"
+    "${esp_idf_dir}/components/esp_rom/include"
+    "${esp_idf_dir}/components/esp_system/include"
+    "${esp_idf_dir}/components/esp_timer/include"
+    "${esp_idf_dir}/components/hal/include"
+    "${esp_idf_dir}/components/hal/esp32/include"
+    "${esp_idf_dir}/components/hal/platform_port/include"
     "${esp_idf_dir}/components/heap/include"
     "${esp_idf_dir}/components/log/include"
+    "${esp_idf_dir}/components/mbedtls/port/include"
+    "${esp_idf_dir}/components/newlib/platform_include"
     "${esp_idf_dir}/components/nvs_flash/include"
     "${esp_idf_dir}/components/pthread/include"
-    "${esp_idf_dir}/components/newlib/platform_include"
-    "${esp_idf_dir}/components/soc/src/esp32/include"
-    "${esp_idf_dir}/components/soc/soc/esp32/include"
+    "${esp_idf_dir}/components/soc/esp32/include"
     "${esp_idf_dir}/components/soc/include"
     "${esp_idf_dir}/components/spi_flash/include"
+    "${esp_idf_dir}/components/tcpip_adapter/include"
     "${esp_idf_dir}/components/vfs/include"
-    "${esp_idf_dir}/components/esp_ringbuf/include/"
-    "${extra_components_dir}/freertos/include"
-    "${esp_idf_dir}/components/mbedtls/port/include"
-    "${esp_idf_dir}/components/xtensa/esp32/include/xtensa"
     "${esp_idf_dir}/components/xtensa/esp32/include"
     "${esp_idf_dir}/components/xtensa/include"
-    "${esp_idf_dir}/components/esp_rom/include"
-    "${esp_idf_dir}/components/esp_timer/include"
-    "${esp_idf_dir}/components/esp_common/include"
-    "${esp_idf_dir}/components/esp_system/include"
-    "${esp_idf_dir}/components/tcpip_adapter/include"
 )
 
 if(ECC608_IN_USE)
     set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
     set(ecc608a_dir "${mchp_dir}/secure_elements")
     list(APPEND kernel_inc_dirs
-        "${esp_idf_dir}/components/esp_ringbuf/include"
         "${board_dir}/config_files/ecc608a_pkcs11_config"
     )
 else()
@@ -166,7 +169,7 @@ target_include_directories(
         "${esp_idf_dir}/components/esp_wifi/include"
         "${esp_idf_dir}/components/esp_netif/include"
         "${esp_idf_dir}/components/esp_eth/include"
-        "${esp_idf_dir}/components/soc/soc/include"
+        "${esp_idf_dir}/components/soc/include"
 )
 
 target_sources(
@@ -315,7 +318,7 @@ endif()
 target_include_directories(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${esp_idf_dir}/components/soc/soc/include"
+        "${esp_idf_dir}/components/soc/include"
 )
 
 # Secure sockets
@@ -363,7 +366,7 @@ target_include_directories(
     INTERFACE
         "${afr_ports_dir}/common_io/include"
         "${AFR_ROOT_DIR}/libraries/abstractions/common_io/test"
-        "${esp_idf_dir}/components/soc/soc/include"
+        "${esp_idf_dir}/components/soc/include"
 )
 
 
@@ -399,7 +402,7 @@ target_include_directories(
     AFR::ota::mcu_port
     INTERFACE
         "${afr_ports_dir}/ota_pal_for_aws"
-        "${esp_idf_dir}/components/soc/soc/include"
+        "${esp_idf_dir}/components/soc/include"
 )
 target_link_libraries(
     AFR::ota::mcu_port
