@@ -137,7 +137,9 @@
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define otaexampleMQTT_TRANSPORT_SEND_RECV_TIMEOUT_MS    ( 500U )
+#ifndef otaexampleMQTT_TRANSPORT_SEND_RECV_TIMEOUT_MS
+    #define otaexampleMQTT_TRANSPORT_SEND_RECV_TIMEOUT_MS    ( 500U )
+#endif
 
 /**
  * @brief The delay used in the main OTA Demo task loop to periodically output

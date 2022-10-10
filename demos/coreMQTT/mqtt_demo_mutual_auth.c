@@ -217,7 +217,9 @@
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS         ( 500U )
+#ifndef mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS
+    #define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS         ( 500U )
+#endif
 
 /**
  * @brief Milliseconds per second.

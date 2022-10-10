@@ -232,7 +232,9 @@
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define TRANSPORT_SEND_RECV_TIMEOUT_MS             ( 200U )
+#ifndef TRANSPORT_SEND_RECV_TIMEOUT_MS
+    #define TRANSPORT_SEND_RECV_TIMEOUT_MS             ( 200U )
+#endif
 
 /**
  * @brief Timeout for receiving CONNACK packet in milli seconds.

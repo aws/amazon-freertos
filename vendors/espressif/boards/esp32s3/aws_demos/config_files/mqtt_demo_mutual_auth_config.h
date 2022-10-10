@@ -125,4 +125,9 @@
  * #define democonfigMQTT_MAX_DEMO_COUNT    ( insert here )
  */
 
+/**
+ * @brief Transport timeout in milliseconds for transport send and receive.
+ */
+#define mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS         ( 1000U )
+
 #endif /* MQTT_DEMO_MUTUAL_AUTH_CONFIG_H */

@@ -110,4 +110,9 @@
  */
 #define mqttconfigRX_BUFFER_SIZE         ( 1024 + 128 )
 
+/**
+ * @brief Transport timeout in milliseconds for transport send and receive.
+ */
+#define TRANSPORT_SEND_RECV_TIMEOUT_MS             ( 1000U )
+
 #endif /* _AWS_MQTT_AGENT_CONFIG_H_ */

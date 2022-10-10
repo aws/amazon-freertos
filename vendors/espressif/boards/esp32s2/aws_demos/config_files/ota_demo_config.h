@@ -35,6 +35,11 @@
 #endif
 
 /**
+ * @brief Transport timeout in milliseconds for transport send and receive.
+ */
+#define otaexampleMQTT_TRANSPORT_SEND_RECV_TIMEOUT_MS    ( 1000U )
+
+/**
  * @brief Major version of the firmware.
  *
  * This is used in the OTA demo to set the appFirmwareVersion variable
