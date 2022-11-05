@@ -583,7 +583,7 @@ WIFIReturnCode_t _connectNetwork( WIFINetworkProfile_t * pProfile )
     networkParams.ucSSIDLength = pProfile->ucSSIDLength;
     networkParams.xSecurity = pProfile->xSecurity;
 
-    if( ( networkParams.xSecurity == eWiFiSecurityWPA2 ) || ( networkParams.xSecurity == eWiFiSecurityWPA ) )
+    if( ( networkParams.xSecurity == eWiFiSecurityWPA2 ) || ( networkParams.xSecurity == eWiFiSecurityWPA ) || ( networkParams.xSecurity == eWiFiSecurityWPA3 ) )
     {
         memcpy( networkParams.xPassword.xWPA.cPassphrase, pProfile->cPassword, pProfile->ucPasswordLength );
         networkParams.xPassword.xWPA.ucLength = pProfile->ucPasswordLength;

@@ -266,6 +266,9 @@ static void sc_callback(void* arg, esp_event_base_t event_base, int32_t event_id
                 memcpy(wifi_config.sta.bssid, evt->bssid, sizeof(wifi_config.sta.bssid));
             }
 
+            /* Ensure WPA3 is supported. PMF is a prerequisite feature for a WPA3 connection, it needs to be explicitly configured before attempting connection. */
+            wifi_config.sta.pmf_cfg.capable = true;
+
             memcpy(ssid, evt->ssid, sizeof(evt->ssid));
             memcpy(password, evt->password, sizeof(evt->password));
             ESP_LOGI(TAG, "SSID:%s", ssid);
@@ -640,6 +643,8 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     };
 
     wifi_config.sta.scan_method = WIFI_ALL_CHANNEL_SCAN;
+    /* Ensure WPA3 is supported. PMF is a prerequisite feature for a WPA3 connection, it needs to be explicitly configured before attempting connection. */
+    wifi_config.sta.pmf_cfg.capable = true;
 
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
@@ -716,6 +721,10 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                     case WIFI_AUTH_WPA2_PSK:
                     	pxBuffer[i].xSecurity =  eWiFiSecurityWPA2;
                     	break;
+                    case WIFI_AUTH_WPA2_WPA3_PSK:
+                    case WIFI_AUTH_WPA3_PSK:
+                        pxBuffer[i].xSecurity =  eWiFiSecurityWPA3;
+                        break;
                     case WIFI_AUTH_WPA2_ENTERPRISE:
                     default:
                     	pxBuffer[i].xSecurity  = eWiFiSecurityNotSupported;
@@ -1429,6 +1438,9 @@ static esp_err_t WIFI_SetSecurity( WIFISecurity_t securityMode, wifi_auth_mode_t
             break;
         case eWiFiSecurityWPA2:
             *authmode = WIFI_AUTH_WPA2_PSK;
+            break;
+        case eWiFiSecurityWPA3:
+            *authmode = WIFI_AUTH_WPA3_PSK;
             break;
         default:
             return ESP_FAIL;
